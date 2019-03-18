@@ -2,8 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.Interfaces\OSDevGrp.OSIntranet.Domain.Interfaces.csproj" />
-    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.Interfaces\OSDevGrp.OSIntranet.Core.Interfaces.csproj" />
-    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core\OSDevGrp.OSIntranet.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

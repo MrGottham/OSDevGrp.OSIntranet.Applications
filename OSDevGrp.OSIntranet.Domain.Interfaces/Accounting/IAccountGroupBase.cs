@@ -2,8 +2,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
     public interface IAccountGroupBase
     {
-        int Number { get; set; }
+        int Number { get; }
 
-        string Name { get; set; }
+        string Name { get; }
     }
 }
