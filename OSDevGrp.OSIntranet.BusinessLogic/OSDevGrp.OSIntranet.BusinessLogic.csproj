@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.Interfaces\OSDevGrp.OSIntranet.Core.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core\OSDevGrp.OSIntranet.Core.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.Interfaces\OSDevGrp.OSIntranet.Domain.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain\OSDevGrp.OSIntranet.Domain.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories.Interfaces\OSDevGrp.OSIntranet.Repositories.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic.Interfaces\OSDevGrp.OSIntranet.BusinessLogic.Interfaces.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
