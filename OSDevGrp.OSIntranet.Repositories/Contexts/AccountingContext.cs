@@ -13,7 +13,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #endregion
 
-        #region Constructor
+        #region Constructors
+
+        public AccountingContext()
+        {
+            _configuration = new ConfigurationBuilder()
+                .AddUserSecrets<AccountingContext>()
+                .Build();
+        }
 
         public AccountingContext(IConfiguration configuration)
         {
