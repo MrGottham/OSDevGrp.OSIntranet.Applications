@@ -113,6 +113,133 @@ namespace OSDevGrp.OSIntranet.Core.Tests.IntranetExceptionBuilder
             Assert.That(result.MethodBase, Is.EqualTo(methodBase));
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetCommandBusException_ReturnsIntranetCommandBusException()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result, Is.TypeOf<IntranetCommandBusException>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetCommandBusException_AssertErrorCodeIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType;
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.ErrorCode, Is.EqualTo(errorCode));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetCommandBusException_AssertMessageIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType;
+            string commandTypeName = _fixture.Create<string>();
+
+            ErrorCodeAttribute errorCodeAttribute = _errorCodeAttributeTestHelper.GetErrorCodeAttribute(errorCode);
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, commandTypeName);
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.Message, Is.EqualTo(string.Format(errorCodeAttribute.Message, commandTypeName)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetCommandBusExceptionWithoutInnerException_AssertInnerExceptionIsNull()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.InnerException, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetCommandBusExceptionWithInnerException_AssertInnerExceptionIsCorrect()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType, _fixture.Create<string>());
+
+            Exception innerException = _fixture.Create<Exception>();
+            IntranetExceptionBase result = sut.WithInnerException(innerException).Build();
+
+            Assert.That(result.InnerException, Is.EqualTo(innerException));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetQueryBusException_ReturnsIntranetQueryBusException()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoQueryHandlerSupportingQuery, _fixture.Create<string>(), _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result, Is.TypeOf<IntranetQueryBusException>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetQueryBusException_AssertErrorCodeIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.NoQueryHandlerSupportingQuery;
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, _fixture.Create<string>(), _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.ErrorCode, Is.EqualTo(errorCode));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetQueryBusException_AssertMessageIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.NoQueryHandlerSupportingQuery;
+            string queryTypeName = _fixture.Create<string>();
+            string resulTypeName = _fixture.Create<string>();
+
+            ErrorCodeAttribute errorCodeAttribute = _errorCodeAttributeTestHelper.GetErrorCodeAttribute(errorCode);
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, queryTypeName, resulTypeName);
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.Message, Is.EqualTo(string.Format(errorCodeAttribute.Message, queryTypeName, resulTypeName)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetQueryBusExceptionWithoutInnerException_AssertInnerExceptionIsNull()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoQueryHandlerSupportingQuery, _fixture.Create<string>(), _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.InnerException, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetQueryBusExceptionWithInnerException_AssertInnerExceptionIsCorrect()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoQueryHandlerSupportingQuery, _fixture.Create<string>(), _fixture.Create<string>());
+
+            Exception innerException = _fixture.Create<Exception>();
+            IntranetExceptionBase result = sut.WithInnerException(innerException).Build();
+
+            Assert.That(result.InnerException, Is.EqualTo(innerException));
+        }
+
         private IIntranetExceptionBuilder CreateSut(ErrorCode errorCode, params object[] argumentCollection)
         {
             return new Core.IntranetExceptionBuilder(errorCode, argumentCollection);

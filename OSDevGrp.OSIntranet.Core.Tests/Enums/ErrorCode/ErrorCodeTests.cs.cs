@@ -233,6 +233,20 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Enums.ErrorCode
             Assert.Fail(resultBuilder.ToString());
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public void ErrorCode_ForAllErrorCodes_EnsureAllErrorCodesAreUnique()
+        {
+            IEnumerable<Interfaces.Enums.ErrorCode> sutCollection = CreateSut();
+
+            int result = sutCollection.AsParallel()
+                .Select(errorCode => (int) errorCode)
+                .Distinct()
+                .Count();
+
+            Assert.That(result, Is.EqualTo(sutCollection.Count()));
+        }
+
         private IEnumerable<Interfaces.Enums.ErrorCode> CreateSut()
         {
             return Enum.GetValues(typeof(Interfaces.Enums.ErrorCode))
