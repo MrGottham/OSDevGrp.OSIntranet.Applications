@@ -1,0 +1,132 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Converters;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using OSDevGrp.OSIntranet.Repositories.Models.Security;
+
+namespace OSDevGrp.OSIntranet.Repositories
+{
+    public class SecurityRepository : RepositoryBase, ISecurityRepository
+    {
+        #region Private variables
+
+        private readonly IConverter _securityModelConverter = new SecurityModelConverter();
+
+        #endregion
+
+        #region Constructor
+
+        public SecurityRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+        }
+
+        #endregion
+
+        #region Methods
+
+        public Task<IEnumerable<IUserIdentity>> GetUserIdentitiesAsync()
+        {
+            return Task.Run(() => GetUserIdentities());
+        }
+
+        public Task<IUserIdentity> GetUserIdentityAsync(string externalUserIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
+
+            return Task.Run(() => GetUserIdentity(externalUserIdentifier));
+        }
+
+        public Task<IEnumerable<IClientSecretIdentity>> GetClientSecretIdentitiesAsync()
+        {
+            return Task.Run(( )=> GetClientSecretIdentities());
+        }
+
+        public Task<IClientSecretIdentity> GetClientSecretIdentityAsync(string clientId)
+        {
+            NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId));
+
+            return Task.Run(() => GetClientSecretIdentity(clientId));
+        }
+
+        private IEnumerable<IUserIdentity> GetUserIdentities()
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        return context.UserIdentities.AsParallel()
+                            .Select(userIdentityModel => _securityModelConverter.Convert<UserIdentityModel, IUserIdentity>(userIdentityModel))
+                            .OrderBy(userIdentity => userIdentity.ExternalUserIdentifier)
+                            .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IUserIdentity GetUserIdentity(string externalUserIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
+
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        UserIdentityModel userIdentityModel = context.UserIdentities.SingleOrDefault(model => string.Compare(model.ExternalUserIdentifier, externalUserIdentifier, StringComparison.OrdinalIgnoreCase) == 0);
+                        if (userIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        return _securityModelConverter.Convert<UserIdentityModel, IUserIdentity>(userIdentityModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IEnumerable<IClientSecretIdentity> GetClientSecretIdentities()
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        return context.ClientSecretIdentities.AsParallel()
+                            .Select(clientSecretIdentityModel => _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel))
+                            .OrderBy(clientSecretIdentity => clientSecretIdentity.FriendlyName)
+                            .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IClientSecretIdentity GetClientSecretIdentity(string clientId)
+        {
+            NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId));
+
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities.SingleOrDefault(model => string.Compare(model.ClientId, clientId, StringComparison.Ordinal) == 0);
+                        if (clientSecretIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        return _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        #endregion
+    }
+}

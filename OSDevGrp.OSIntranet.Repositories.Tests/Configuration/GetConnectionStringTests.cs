@@ -5,7 +5,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 {
     [TestFixture]
-    public class GetConnectionStringTests
+    public class GetConnectionStringTests : ConfigurationTestBase
     {
         [Test]
         [Category("IntegrationTest")]
@@ -17,13 +17,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
-        }
-
-        private IConfiguration CreateSut()
-        {
-            return new ConfigurationBuilder()
-                .AddUserSecrets<GetConnectionStringTests>()
-                .Build();
         }
     }
 }

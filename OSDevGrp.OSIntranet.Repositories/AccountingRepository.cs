@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
@@ -15,11 +12,10 @@ using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class AccountingRepository : IAccountingRepository
+    public class AccountingRepository : RepositoryBase, IAccountingRepository
     {
         #region Private variables
 
-        private readonly IConfiguration _configuration;
         private readonly IConverter _accountingModelConverter = new AccountingModelConverter();
 
         #endregion
@@ -27,10 +23,8 @@ namespace OSDevGrp.OSIntranet.Repositories
         #region Constructor
 
         public AccountingRepository(IConfiguration configuration)
+            : base(configuration)
         {
-            NullGuard.NotNull(configuration, nameof(configuration));
-
-            _configuration = configuration;
         }
 
         #endregion
@@ -51,7 +45,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(_configuration))
+                    using (AccountingContext context = new AccountingContext(Configuration))
                     {
                         return context.AccountGroups.AsParallel()
                             .Select(accountGroupModel => _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel))
@@ -66,7 +60,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(_configuration))
+                    using (AccountingContext context = new AccountingContext(Configuration))
                     {
                         return context.BudgetAccountGroups.AsParallel()
                             .Select(budgetAccountGroupModel => _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel))
@@ -75,31 +69,6 @@ namespace OSDevGrp.OSIntranet.Repositories
                     }
                 },
                 MethodBase.GetCurrentMethod());
-        }
-
-        private T Execute<T>(Func<T> resultGetter, MethodBase methodBase)
-        {
-            NullGuard.NotNull(resultGetter, nameof(resultGetter))
-                .NotNull(methodBase, nameof(methodBase));
-
-            try
-            {
-                return resultGetter();
-            }
-            catch (AggregateException aggregateException)
-            {
-                Exception handledException = null;
-                aggregateException.Handle(exception =>
-                {
-                    handledException = exception;
-                    return true;
-                });
-
-                throw new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, handledException.Message)
-                    .WithInnerException(handledException)
-                    .WithMethodBase(methodBase)
-                    .Build();
-            }
         }
         
         #endregion
