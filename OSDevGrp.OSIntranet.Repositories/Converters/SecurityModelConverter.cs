@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
@@ -14,10 +15,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<UserIdentityModel, IUserIdentity>()
-                .ConstructUsing(userIdentityModel => userIdentityModel.ToDomain());
+                .ConvertUsing(userIdentityModel => userIdentityModel.ToDomain());
 
             mapperConfiguration.CreateMap<ClientSecretIdentityModel, IClientSecretIdentity>()
-                .ConstructUsing(clientSecretIdentityModel => clientSecretIdentityModel.ToDomain());
+                .ConvertUsing(clientSecretIdentityModel => clientSecretIdentityModel.ToDomain());
+
+            mapperConfiguration.CreateMap<ClaimModel, Claim>()
+                .ConvertUsing(claimModel => claimModel.ToDomain());
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
@@ -13,5 +14,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
         Task<IEnumerable<IClientSecretIdentity>> GetClientSecretIdentitiesAsync();
 
         Task<IClientSecretIdentity> GetClientSecretIdentityAsync(string clientId);
+
+        Task<IEnumerable<Claim>> GetClaimsAsync();
     }
 }

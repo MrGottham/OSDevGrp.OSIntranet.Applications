@@ -14,10 +14,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<AccountGroupModel, IAccountGroup>()
-                .ConstructUsing(accountGroupModel => accountGroupModel.ToDomain());
+                .ConvertUsing(accountGroupModel => accountGroupModel.ToDomain());
 
             mapperConfiguration.CreateMap<BudgetAccountGroupModel, IBudgetAccountGroup>()
-                .ConstructUsing(budgetAccountGroupModel => budgetAccountGroupModel.ToDomain());
+                .ConvertUsing(budgetAccountGroupModel => budgetAccountGroupModel.ToDomain());
         }
 
         #endregion

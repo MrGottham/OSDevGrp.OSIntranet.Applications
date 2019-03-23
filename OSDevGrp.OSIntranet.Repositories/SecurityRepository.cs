@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
@@ -55,6 +56,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId));
 
             return Task.Run(() => GetClientSecretIdentity(clientId));
+        }
+
+        public Task<IEnumerable<Claim>> GetClaimsAsync()
+        {
+            return Task.Run(() => GetClaims());
         }
 
         private IEnumerable<IUserIdentity> GetUserIdentities()
@@ -122,6 +128,21 @@ namespace OSDevGrp.OSIntranet.Repositories
                         }
 
                         return _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IEnumerable<Claim> GetClaims()
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        return context.Claims.AsParallel()
+                            .Select(claimModel => _securityModelConverter.Convert<ClaimModel, Claim>(claimModel))
+                            .OrderBy(claim => claim.Type)
+                            .ToList();
                     }
                 },
                 MethodBase.GetCurrentMethod());

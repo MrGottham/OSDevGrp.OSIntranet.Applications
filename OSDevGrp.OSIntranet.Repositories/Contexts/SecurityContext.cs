@@ -37,6 +37,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<ClientSecretIdentityModel> ClientSecretIdentities { get; set; }
 
+        public DbSet<ClaimModel> Claims { get; set; }
+
         #endregion
 
         #region Methods
@@ -69,6 +71,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                 entity.Property(e => e.ClientSecret).IsRequired().IsUnicode().HasMaxLength(32);
                 entity.HasIndex(e => e.FriendlyName).IsUnique();
                 entity.HasIndex(e => e.ClientId).IsUnique();
+            });
+
+            modelBuilder.Entity<ClaimModel>(entity =>
+            {
+                entity.HasKey(e => e.ClaimIdentifier);
+                entity.Property(e => e.ClaimIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ClaimType).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.Property(e => e.ClaimValue).IsRequired(false).IsUnicode().HasMaxLength(256);
+                entity.HasIndex(e => e.ClaimType).IsUnique();
             });
         }
 
