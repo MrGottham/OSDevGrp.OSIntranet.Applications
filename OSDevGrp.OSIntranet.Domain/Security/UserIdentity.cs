@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using OSDevGrp.OSIntranet.Core;
@@ -10,13 +11,15 @@ namespace OSDevGrp.OSIntranet.Domain.Security
     {
         #region Constructor
 
-        public UserIdentity(int identifier, string externalUserIdentifier)
+        public UserIdentity(int identifier, string externalUserIdentifier, IEnumerable<Claim> claims)
         {
-            NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
+            NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier))
+                .NotNull(claims, nameof(claims));
 
             Identifier = identifier;
 
             base.AddClaim(ClaimHelper.CreateExternalUserIdentifierClaim(externalUserIdentifier));
+            base.AddClaims(claims);
         }
         
         #endregion

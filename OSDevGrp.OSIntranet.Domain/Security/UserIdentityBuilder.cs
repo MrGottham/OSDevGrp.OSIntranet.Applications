@@ -1,4 +1,6 @@
-﻿using OSDevGrp.OSIntranet.Core;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
@@ -9,17 +11,25 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         private int _identifier;
         private readonly string _externalUserIdentifier;
+        private readonly List<Claim> _claims = new List<Claim>();
 
         #endregion
 
         #region Constructor
 
-        public UserIdentityBuilder(string externalUserIdentifier)
+        public UserIdentityBuilder(string externalUserIdentifier, IEnumerable<Claim> claims = null)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
 
             _identifier = default(int);
             _externalUserIdentifier = externalUserIdentifier;
+
+            if (claims == null)
+            {
+                return;
+            }
+
+            _claims.AddRange(claims);
         }
 
         #endregion
@@ -33,9 +43,18 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return this;
         }
 
+        public IUserIdentityBuilder AddClaims(IEnumerable<Claim> claims)
+        {
+            NullGuard.NotNull(claims, nameof(claims));
+
+            _claims.AddRange(claims);
+
+            return this;
+        }
+
         public IUserIdentity Build()
         {
-            return new UserIdentity(_identifier, _externalUserIdentifier);
+            return new UserIdentity(_identifier, _externalUserIdentifier, _claims);
         }
 
         #endregion

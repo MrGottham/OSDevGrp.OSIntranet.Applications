@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -69,7 +70,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration))
                     {
-                        return context.UserIdentities.AsParallel()
+                        return context.UserIdentities
+                            .Include(userIdentityModel => userIdentityModel.UserIdentityClaims).ThenInclude(e => e.Claim)
+                            .AsParallel()
                             .Select(userIdentityModel => _securityModelConverter.Convert<UserIdentityModel, IUserIdentity>(userIdentityModel))
                             .OrderBy(userIdentity => userIdentity.ExternalUserIdentifier)
                             .ToList();
@@ -86,7 +89,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration))
                     {
-                        UserIdentityModel userIdentityModel = context.UserIdentities.SingleOrDefault(model => string.Compare(model.ExternalUserIdentifier, externalUserIdentifier, StringComparison.OrdinalIgnoreCase) == 0);
+                        UserIdentityModel userIdentityModel = context.UserIdentities
+                            .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => string.Compare(model.ExternalUserIdentifier, externalUserIdentifier, StringComparison.OrdinalIgnoreCase) == 0);
                         if (userIdentityModel == null)
                         {
                             return null;
@@ -104,7 +109,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration))
                     {
-                        return context.ClientSecretIdentities.AsParallel()
+                        return context.ClientSecretIdentities
+                            .Include(clientSecretIdentityModel => clientSecretIdentityModel.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
+                            .AsParallel()
                             .Select(clientSecretIdentityModel => _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel))
                             .OrderBy(clientSecretIdentity => clientSecretIdentity.FriendlyName)
                             .ToList();
@@ -121,7 +128,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration))
                     {
-                        ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities.SingleOrDefault(model => string.Compare(model.ClientId, clientId, StringComparison.Ordinal) == 0);
+                        ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities
+                            .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => string.Compare(model.ClientId, clientId, StringComparison.Ordinal) == 0);
                         if (clientSecretIdentityModel == null)
                         {
                             return null;

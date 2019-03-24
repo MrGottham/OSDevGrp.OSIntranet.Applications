@@ -17,8 +17,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<UserIdentityModel, IUserIdentity>()
                 .ConvertUsing(userIdentityModel => userIdentityModel.ToDomain());
 
+            mapperConfiguration.CreateMap<UserIdentityClaimModel, Claim>()
+                .ConvertUsing(userIdentityClaimModel => userIdentityClaimModel.ToDomain());
+
             mapperConfiguration.CreateMap<ClientSecretIdentityModel, IClientSecretIdentity>()
                 .ConvertUsing(clientSecretIdentityModel => clientSecretIdentityModel.ToDomain());
+
+            mapperConfiguration.CreateMap<ClientSecretIdentityClaimModel, Claim>()
+                .ConvertUsing(clientSecretIdentityClaimModel => clientSecretIdentityClaimModel.ToDomain());
 
             mapperConfiguration.CreateMap<ClaimModel, Claim>()
                 .ConvertUsing(claimModel => claimModel.ToDomain());

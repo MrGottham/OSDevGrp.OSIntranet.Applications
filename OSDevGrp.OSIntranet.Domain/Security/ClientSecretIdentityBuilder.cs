@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using OSDevGrp.OSIntranet.Core;
@@ -14,17 +16,25 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         private string _clientId;
         private string _clientSecret;
         private readonly string _friendlyName;
+        private readonly List<Claim> _claims = new List<Claim>();
 
         #endregion
 
         #region Constructor
 
-        public ClientSecretIdentityBuilder(string friendlyName)
+        public ClientSecretIdentityBuilder(string friendlyName, IEnumerable<Claim> claims = null)
         {
             NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName));
 
             _identifier = default(int);
             _friendlyName = friendlyName;
+
+            if (claims == null)
+            {
+                return;
+            }
+
+            _claims.AddRange(claims);
         }
 
         #endregion
@@ -56,9 +66,18 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return this;
         }
 
+        public IClientSecretIdentityBuilder AddClaims(IEnumerable<Claim> claims)
+        {
+            NullGuard.NotNull(claims, nameof(claims));
+
+            _claims.AddRange(claims);
+
+            return this;
+       }
+
         public IClientSecretIdentity Build()
         {
-            return new ClientSecretIdentity(_identifier, _friendlyName, _clientId ?? ComputeHash(_friendlyName), _clientSecret ?? ComputeHash(_friendlyName));
+            return new ClientSecretIdentity(_identifier, _friendlyName, _clientId ?? ComputeHash(_friendlyName), _clientSecret ?? ComputeHash(_friendlyName), _claims);
         }
 
         private static string ComputeHash(string friendlyName)

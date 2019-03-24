@@ -1,4 +1,8 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
@@ -7,10 +11,19 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
     [TestFixture]
     public class BuildTests : ClientSecretIdentityBuilderTestBase
     {
+        #region Private variables
+
+        private Random _random;
+
+        #endregion
+
         [SetUp]
         public void SetUp()
         {
+            _random = new Random();
+
             Fixture = new Fixture();
+            Fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(Fixture.Create<string>(), Fixture.Create<string>())));
         }
 
         [Test]
@@ -92,6 +105,33 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
             IClientSecretIdentity result = sut.WithClientSecret(clientSecret).Build();
 
             Assert.That(result.ClientSecret, Is.EqualTo(clientSecret));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhereAddClaimsHasNotBeenCalled_AssertDefaultClaims()
+        {
+            IClientSecretIdentityBuilder sut = CreateSut();
+
+            IClientSecretIdentity result = sut.Build();
+
+            Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhereAddClaimsHasBeenCalled_AssertCorrectClaims()
+        {
+            IClientSecretIdentityBuilder sut = CreateSut();
+
+            IEnumerable<Claim> claimCollection = Fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IClientSecretIdentity result = sut.AddClaims(claimCollection).Build();
+
+            Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(2 + claimCollection.Count()));
+            foreach (Claim claim in claimCollection)
+            {
+                Assert.That(result.ToClaimsIdentity().Claims.SingleOrDefault(m => string.Compare(m.Type, claim.Type, StringComparison.Ordinal) == 0), Is.Not.Null);
+            }
         }
     }
 }

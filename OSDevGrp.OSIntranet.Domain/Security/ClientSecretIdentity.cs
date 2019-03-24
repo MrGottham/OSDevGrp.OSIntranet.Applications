@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using OSDevGrp.OSIntranet.Core;
@@ -10,17 +11,19 @@ namespace OSDevGrp.OSIntranet.Domain.Security
     {
         #region Constructor
 
-        public ClientSecretIdentity(int identifier, string friendlyName, string clientId, string clientSecret)
+        public ClientSecretIdentity(int identifier, string friendlyName, string clientId, string clientSecret, IEnumerable<Claim> claims)
         {
             NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName))
                 .NotNullOrWhiteSpace(clientId, nameof(clientId))
-                .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret));
+                .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret))
+                .NotNull(claims, nameof(claims));
 
             Identifier = identifier;
             ClientSecret = clientSecret;
 
             base.AddClaim(ClaimHelper.CreateFriendlyNameClaim(friendlyName));
             base.AddClaim(ClaimHelper.CreateClientIdClaim(clientId));
+            base.AddClaims(claims);
         }
 
         #endregion

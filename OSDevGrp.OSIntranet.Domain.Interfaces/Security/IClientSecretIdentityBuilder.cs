@@ -1,4 +1,7 @@
-﻿namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
+﻿using System.Collections.Generic;
+using System.Security.Claims;
+
+namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 {
     public interface IClientSecretIdentityBuilder
     {
@@ -7,6 +10,8 @@
         IClientSecretIdentityBuilder WithClientId(string clientId);
 
         IClientSecretIdentityBuilder WithClientSecret(string clientSecret);
+
+        IClientSecretIdentityBuilder AddClaims(IEnumerable<Claim> claims);
 
         IClientSecretIdentity Build();
     }

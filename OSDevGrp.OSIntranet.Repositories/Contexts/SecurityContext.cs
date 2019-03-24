@@ -35,7 +35,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<UserIdentityModel> UserIdentities { get; set; }
 
+        public DbSet<UserIdentityClaimModel> UserIdentityClaims { get; set; }
+
         public DbSet<ClientSecretIdentityModel> ClientSecretIdentities { get; set; }
+
+        public DbSet<ClientSecretIdentityClaimModel> ClientSecretIdentityClaims { get; set; }
 
         public DbSet<ClaimModel> Claims { get; set; }
 
@@ -62,6 +66,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                 entity.HasIndex(e => e.ExternalUserIdentifier).IsUnique();
             });
 
+            modelBuilder.Entity<UserIdentityClaimModel>(entity =>
+            {
+                entity.HasKey(e => e.UserIdentityClaimIdentifier);
+                entity.Property(e => e.UserIdentityClaimIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.UserIdentityIdentifier).IsRequired();
+                entity.Property(e => e.ClaimIdentifier).IsRequired();
+                entity.Property(e => e.ClaimValue).IsRequired(false).IsUnicode().HasMaxLength(256);
+                entity.HasIndex(e => new {e.UserIdentityIdentifier, e.ClaimIdentifier}).IsUnique();
+                entity.HasOne(e => e.UserIdentity).WithMany(e => e.UserIdentityClaims).HasForeignKey(e => e.UserIdentityIdentifier).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Claim);
+            });
+
             modelBuilder.Entity<ClientSecretIdentityModel>(entity =>
             {
                 entity.HasKey(e => e.ClientSecretIdentityIdentifier);
@@ -71,6 +87,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                 entity.Property(e => e.ClientSecret).IsRequired().IsUnicode().HasMaxLength(32);
                 entity.HasIndex(e => e.FriendlyName).IsUnique();
                 entity.HasIndex(e => e.ClientId).IsUnique();
+            });
+
+            modelBuilder.Entity<ClientSecretIdentityClaimModel>(entity =>
+            {
+                entity.HasKey(e => e.ClientSecretIdentityClaimIdentifier);
+                entity.Property(e => e.ClientSecretIdentityClaimIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ClientSecretIdentityIdentifier).IsRequired();
+                entity.Property(e => e.ClaimIdentifier).IsRequired();
+                entity.Property(e => e.ClaimValue).IsRequired(false).IsUnicode().HasMaxLength(256);
+                entity.HasIndex(e => new {e.ClientSecretIdentityIdentifier, e.ClaimIdentifier}).IsUnique();
+                entity.HasOne(e => e.ClientSecretIdentity).WithMany(e => e.ClientSecretIdentityClaims).HasForeignKey(e => e.ClientSecretIdentityClaimIdentifier).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Claim);
             });
 
             modelBuilder.Entity<ClaimModel>(entity =>
