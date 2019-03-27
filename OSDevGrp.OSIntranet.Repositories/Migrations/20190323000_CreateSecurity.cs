@@ -62,7 +62,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             IEnumerable<IUserIdentity> userIdentityCollection = new List<IUserIdentity>
             {
                 new UserIdentityBuilder("mrgottham@gmail.com").Build(),
-                new UserIdentityBuilder("ole.sorensen@visma.com").Build()
             };
             foreach (IUserIdentity userIdentity in userIdentityCollection)
             {

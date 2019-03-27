@@ -65,8 +65,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
 
             migrationBuilder.Sql(GetUserIdentityClaimModelInsertSql("mrgottham@gmail.com", ClaimHelper.SecurityAdminClaimType));
             migrationBuilder.Sql(GetUserIdentityClaimModelInsertSql("mrgottham@gmail.com", ClaimHelper.AccountingClaimType, "1"));
-            migrationBuilder.Sql(GetUserIdentityClaimModelInsertSql("ole.sorensen@visma.com", ClaimHelper.SecurityAdminClaimType));
-            migrationBuilder.Sql(GetUserIdentityClaimModelInsertSql("ole.sorensen@visma.com", ClaimHelper.AccountingClaimType, "1"));
         }
 
         private void InsertClientSecretIdentityClaimModels(MigrationBuilder migrationBuilder)
