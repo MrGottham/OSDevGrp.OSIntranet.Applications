@@ -10,5 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
         string ExternalUserIdentifier { get; }
 
         ClaimsIdentity ToClaimsIdentity();
+
+        void ClearSensitiveData();
     }
 }

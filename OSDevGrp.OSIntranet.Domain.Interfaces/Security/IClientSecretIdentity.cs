@@ -13,6 +13,12 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 
         string ClientSecret { get; }
 
+        string Token { get; }
+
         ClaimsIdentity ToClaimsIdentity();
+
+        void ClearSensitiveData();
+
+        void AddToken(string token);
     }
 }

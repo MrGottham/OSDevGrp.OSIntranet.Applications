@@ -7,7 +7,6 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Core.Queries;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 {
@@ -32,7 +31,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
         {
             IQueryBus sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.QueryAsync<IQuery, object>((IQuery) null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.QueryAsync<IQuery, object>(null));
 
             Assert.AreEqual(result.ParamName, "query");
         }
@@ -44,7 +43,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
             IQueryBus sut = CreateSut(new List<IQueryHandler>(0));
 
             Mock<IQuery> commandMock = new Mock<IQuery>();
-            IntranetQueryBusException result = Assert.Throws<IntranetQueryBusException>(() => sut.QueryAsync<IQuery, object>(commandMock.Object));
+            IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<IQuery, object>(commandMock.Object));
 
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.NoQueryHandlerSupportingQuery));
         }
@@ -95,7 +94,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
         public void QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsIntranetExceptionBase_ThrowsIntranetExceptionBase()
         {
             IntranetRepositoryException innerException = _fixture.Create<IntranetRepositoryException>();
-            AggregateException aggregateException = new AggregateException(new Exception[] {innerException});
+            AggregateException aggregateException = new AggregateException(innerException);
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), aggregateException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
@@ -109,7 +108,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
         [Category("UnitTest")]
         public void QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetQueryBusExceptionWithCorrectErrorCode()
         {
-            AggregateException aggregateException = new AggregateException(new Exception[] {_fixture.Create<Exception>()});
+            AggregateException aggregateException = new AggregateException(_fixture.Create<Exception>());
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), aggregateException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
@@ -124,7 +123,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
         public void QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetQueryBusExceptionWithCorrectInnerException()
         {
             Exception innerException = _fixture.Create<Exception>();
-            AggregateException aggregateException = new AggregateException(new Exception[] {innerException});
+            AggregateException aggregateException = new AggregateException(innerException);
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), aggregateException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));

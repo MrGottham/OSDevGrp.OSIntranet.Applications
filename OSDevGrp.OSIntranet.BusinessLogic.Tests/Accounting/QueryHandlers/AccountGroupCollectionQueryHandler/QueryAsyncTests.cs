@@ -13,7 +13,7 @@ using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.Ac
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.AccountGroupCollectionQueryHandler
 {
     [TestFixture]
-    public class QueryAsyncTests
+    public class QueryAsyncTests : BusinessLogicTestBase
     {
         #region Private variables
 
@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
 
             _fixture = new Fixture();
-            _fixture.Register<IAccountGroup>(() => new Mock<IAccountGroup>().Object);
+            _fixture.Register(() => new Mock<IAccountGroup>().Object);
 
             _random = new Random(_fixture.Create<int>());
         }

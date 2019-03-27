@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.Core.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
@@ -32,7 +31,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
         {
             ICommandBus sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.PublishAsync<ICommand, object>((ICommand) null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.PublishAsync<ICommand, object>(null));
 
             Assert.AreEqual(result.ParamName, "command");
         }
@@ -44,7 +43,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
             ICommandBus sut = CreateSut(new List<ICommandHandler>(0));
 
             Mock<ICommand> commandMock = new Mock<ICommand>();
-            IntranetCommandBusException result = Assert.Throws<IntranetCommandBusException>(() => sut.PublishAsync<ICommand, object>(commandMock.Object));
+            IntranetCommandBusException result = Assert.ThrowsAsync<IntranetCommandBusException>(async () => await sut.PublishAsync<ICommand, object>(commandMock.Object));
 
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.NoCommandHandlerSupportingCommandWithResultType));
         }
@@ -95,7 +94,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
         public void PublishAsync_WhenSupportingCommandHandlerThrowsAggregateExceptionWhereInnerExceptionIsIntranetExceptionBase_ThrowsIntranetExceptionBase()
         {
             IntranetRepositoryException innerException = _fixture.Create<IntranetRepositoryException>();
-            AggregateException aggregateException = new AggregateException(new Exception[] {innerException});
+            AggregateException aggregateException = new AggregateException(innerException);
 
             Mock<ICommandHandler<TestCommand, object>> commandHandlerMock = CreateCommandHandlerMockWithResult<TestCommand, object>(_fixture.Create<object>(), aggregateException);
             ICommandBus sut = CreateSut(CreateCommandHandlerMockCollection(commandHandlerMock.Object));
@@ -109,7 +108,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
         [Category("UnitTest")]
         public void PublishAsync_WhenSupportingCommandHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetCommandBusExceptionWithCorrectErrorCode()
         {
-            AggregateException aggregateException = new AggregateException(new Exception[] {_fixture.Create<Exception>()});
+            AggregateException aggregateException = new AggregateException(_fixture.Create<Exception>());
 
             Mock<ICommandHandler<TestCommand, object>> commandHandlerMock = CreateCommandHandlerMockWithResult<TestCommand, object>(_fixture.Create<object>(), aggregateException);
             ICommandBus sut = CreateSut(CreateCommandHandlerMockCollection(commandHandlerMock.Object));
@@ -124,7 +123,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
         public void PublishAsync_WhenSupportingCommandHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetCommandBusExceptionWithCorrectInnerException()
         {
             Exception innerException = _fixture.Create<Exception>();
-            AggregateException aggregateException = new AggregateException(new Exception[] {innerException});
+            AggregateException aggregateException = new AggregateException(innerException);
 
             Mock<ICommandHandler<TestCommand, object>> commandHandlerMock = CreateCommandHandlerMockWithResult<TestCommand, object>(_fixture.Create<object>(), aggregateException);
             ICommandBus sut = CreateSut(CreateCommandHandlerMockCollection(commandHandlerMock.Object));

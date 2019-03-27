@@ -32,33 +32,34 @@ namespace OSDevGrp.OSIntranet.Core
         public Task<TResult> QueryAsync<TQuery, TResult>(TQuery query) where TQuery : IQuery
         {
             NullGuard.NotNull(query, nameof(query));
-            
-            try
-            {
-                IQueryHandler<TQuery, TResult> queryHandler = _queryHandlers.OfType<IQueryHandler<TQuery, TResult>>()
-                    .Cast<IQueryHandler<TQuery, TResult>>()
-                    .SingleOrDefault();
-                if (queryHandler == null)
-                {
-                    throw new IntranetExceptionBuilder(ErrorCode.NoQueryHandlerSupportingQuery, query.GetType().Name, typeof(TResult).Name).Build();
-                }
 
-                return queryHandler.QueryAsync(query);
-            }
-            catch (IntranetExceptionBase)
+            return Task.Run(async () =>
             {
-                throw;
-            }
-            catch (AggregateException aggregateException)
-            {
-                throw Handle(aggregateException, innerException => new IntranetExceptionBuilder(ErrorCode.ErrorWhileQueryingQuery, query.GetType().Name, typeof(TResult).Name, innerException.Message).WithInnerException(innerException));
-            }
-            catch (Exception ex)
-            {
-                throw new IntranetExceptionBuilder(ErrorCode.ErrorWhileQueryingQuery, query.GetType().Name, typeof(TResult).Name, ex.Message)
-                    .WithInnerException(ex)
-                    .Build();
-            }
+                try
+                {
+                    IQueryHandler<TQuery, TResult> queryHandler = _queryHandlers.OfType<IQueryHandler<TQuery, TResult>>().SingleOrDefault();
+                    if (queryHandler == null)
+                    {
+                        throw new IntranetExceptionBuilder(ErrorCode.NoQueryHandlerSupportingQuery, query.GetType().Name, typeof(TResult).Name).Build();
+                    }
+
+                    return await queryHandler.QueryAsync(query);
+                }
+                catch (IntranetExceptionBase)
+                {
+                    throw;
+                }
+                catch (AggregateException aggregateException)
+                {
+                    throw Handle(aggregateException, innerException => new IntranetExceptionBuilder(ErrorCode.ErrorWhileQueryingQuery, query.GetType().Name, typeof(TResult).Name, innerException.Message).WithInnerException(innerException));
+                }
+                catch (Exception ex)
+                {
+                    throw new IntranetExceptionBuilder(ErrorCode.ErrorWhileQueryingQuery, query.GetType().Name, typeof(TResult).Name, ex.Message)
+                        .WithInnerException(ex)
+                        .Build();
+                }
+            });
         }
 
         #endregion

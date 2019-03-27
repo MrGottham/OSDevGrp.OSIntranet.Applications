@@ -11,7 +11,8 @@ namespace OSDevGrp.OSIntranet.Domain.Security
     {
         #region Constructor
 
-        public ClientSecretIdentity(int identifier, string friendlyName, string clientId, string clientSecret, IEnumerable<Claim> claims)
+        public ClientSecretIdentity(int identifier, string friendlyName, string clientId, string clientSecret, IEnumerable<Claim> claims) 
+            : base(claims)
         {
             NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName))
                 .NotNullOrWhiteSpace(clientId, nameof(clientId))
@@ -23,7 +24,6 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
             base.AddClaim(ClaimHelper.CreateFriendlyNameClaim(friendlyName));
             base.AddClaim(ClaimHelper.CreateClientIdClaim(clientId));
-            base.AddClaims(claims);
         }
 
         #endregion
@@ -36,7 +36,9 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public string ClientId => Claims.Single(m => string.Compare(m.Type, ClaimHelper.ClientIdClaimType, StringComparison.Ordinal) == 0).Value;
 
-        public string ClientSecret { get; }
+        public string ClientSecret { get; private set; }
+
+        public string Token { get; private set; }
 
         #endregion
 
@@ -45,6 +47,18 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public ClaimsIdentity ToClaimsIdentity()
         {
             return this;
+        }
+
+        public void ClearSensitiveData()
+        {
+            ClientSecret = null;
+        }
+
+        public void AddToken(string token)
+        {
+            NullGuard.NotNullOrWhiteSpace(token, nameof(token));
+
+            Token = token;
         }
 
         #endregion

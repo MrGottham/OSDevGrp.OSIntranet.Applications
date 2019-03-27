@@ -12,6 +12,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         #region Constructor
 
         public UserIdentity(int identifier, string externalUserIdentifier, IEnumerable<Claim> claims)
+            : base(claims)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier))
                 .NotNull(claims, nameof(claims));
@@ -19,9 +20,8 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             Identifier = identifier;
 
             base.AddClaim(ClaimHelper.CreateExternalUserIdentifierClaim(externalUserIdentifier));
-            base.AddClaims(claims);
         }
-        
+
         #endregion
         
         #region Properties
@@ -37,6 +37,10 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public ClaimsIdentity ToClaimsIdentity()
         {
             return this;
+        }
+
+        public void ClearSensitiveData()
+        {
         }
 
         #endregion
