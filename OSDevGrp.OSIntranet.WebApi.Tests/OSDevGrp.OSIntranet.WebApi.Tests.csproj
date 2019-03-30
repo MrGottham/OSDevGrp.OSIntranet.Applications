@@ -1,28 +1,30 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+
+    <IsPackable>false</IsPackable>
+
     <UserSecretsId>D90A43A7-8021-4B7F-924E-BBFC306C544E</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="3.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="AutoFixture" Version="4.8.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
+    <PackageReference Include="Moq" Version="4.10.1" />
+    <PackageReference Include="nunit" Version="3.11.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.Interfaces\OSDevGrp.OSIntranet.Core.Interfaces.csproj" />
-    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core\OSDevGrp.OSIntranet.Core.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.Interfaces\OSDevGrp.OSIntranet.Domain.Interfaces.csproj" />
-    <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain\OSDevGrp.OSIntranet.Domain.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories.Interfaces\OSDevGrp.OSIntranet.Repositories.Interfaces.csproj" />
-    <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories\OSDevGrp.OSIntranet.Repositories.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic.Interfaces\OSDevGrp.OSIntranet.BusinessLogic.Interfaces.csproj" />
-    <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic\OSDevGrp.OSIntranet.BusinessLogic.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.WebApi\OSDevGrp.OSIntranet.WebApi.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.TestHelpers\OSDevGrp.OSIntranet.Core.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

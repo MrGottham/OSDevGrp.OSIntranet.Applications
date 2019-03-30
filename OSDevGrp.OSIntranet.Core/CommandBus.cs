@@ -44,7 +44,7 @@ namespace OSDevGrp.OSIntranet.Core
                         throw new IntranetExceptionBuilder(ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType, command.GetType().Name).Build();
                     }
 
-                    using (TransactionScope scope = new TransactionScope(commandHandler.TransactionScopeOption, commandHandler.TransactionOptions))
+                    using (TransactionScope scope = new TransactionScope(commandHandler.TransactionScopeOption, commandHandler.TransactionOptions, TransactionScopeAsyncFlowOption.Enabled))
                     {
                         await commandHandler.ExecuteAsync(command);
 
@@ -82,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Core
                         throw new IntranetExceptionBuilder(ErrorCode.NoCommandHandlerSupportingCommandWithResultType, command.GetType().Name, typeof(TResult).Name).Build();
                     }
 
-                    using (TransactionScope scope = new TransactionScope(commandHandler.TransactionScopeOption, commandHandler.TransactionOptions))
+                    using (TransactionScope scope = new TransactionScope(commandHandler.TransactionScopeOption, commandHandler.TransactionOptions, TransactionScopeAsyncFlowOption.Enabled))
                     {
                         TResult result = await commandHandler.ExecuteAsync(command);
 
