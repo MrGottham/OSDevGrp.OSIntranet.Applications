@@ -78,7 +78,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     return Unauthorized();
                 }
 
-                return Ok(_securityModelConverter.Convert<IClientSecretIdentity, AccessTokenModel>(clientSecretIdentity));
+                return Ok(_securityModelConverter.Convert<IToken, AccessTokenModel>(clientSecretIdentity.Token));
             }
             catch (IntranetExceptionBase ex)
             {

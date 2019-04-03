@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public string ClientSecret { get; private set; }
 
-        public string Token { get; private set; }
+        public IToken Token { get; private set; }
 
         #endregion
 
@@ -54,9 +54,9 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             ClientSecret = null;
         }
 
-        public void AddToken(string token)
+        public void AddToken(IToken token)
         {
-            NullGuard.NotNullOrWhiteSpace(token, nameof(token));
+            NullGuard.NotNull(token, nameof(token));
 
             Token = token;
         }

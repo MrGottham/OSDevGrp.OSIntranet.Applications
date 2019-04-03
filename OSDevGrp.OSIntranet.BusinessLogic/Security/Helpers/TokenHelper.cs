@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Helpers
 {
@@ -30,23 +31,25 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Helpers
 
         #region Methods
 
-        public string Generate(IClientSecretIdentity clientSecretIdentity)
+        public IToken Generate(IClientSecretIdentity clientSecretIdentity)
         {
             NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
 
             byte[] key = Encoding.Default.GetBytes(_configuration["Security:JWT:Key"]);
 
+            DateTime expires = DateTime.UtcNow.AddHours(1);
+
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = clientSecretIdentity.ToClaimsIdentity(),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = expires,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
 
-            return tokenHandler.WriteToken(securityToken);
+            return new Token(tokenHandler.WriteToken(securityToken), expires);
         }
 
         #endregion

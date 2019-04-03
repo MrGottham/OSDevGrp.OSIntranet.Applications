@@ -62,15 +62,39 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
 
         [Test]
         [Category("UnitTest")]
-        public void Generate_WhenCalled_ReturnToken()
+        public void Generate_WhenCalled_ReturnsToken()
         {
             ITokenHelper sut = CreateSut();
 
             Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
-            string result = sut.Generate(clientSecretIdentityMock.Object);
+            IToken result = sut.Generate(clientSecretIdentityMock.Object);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Generate_WhenCalled_ReturnsTokenWithValue()
+        {
+            ITokenHelper sut = CreateSut();
+
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            string result = sut.Generate(clientSecretIdentityMock.Object).Value;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Generate_WhenCalled_ReturnsTokenWithExpireTime()
+        {
+            ITokenHelper sut = CreateSut();
+
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            DateTime result = sut.Generate(clientSecretIdentityMock.Object).Expires;
+
+            Assert.That(result, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
         }
 
         private ITokenHelper CreateSut()

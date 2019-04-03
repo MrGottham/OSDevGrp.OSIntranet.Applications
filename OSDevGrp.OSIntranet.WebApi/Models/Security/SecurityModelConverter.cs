@@ -12,11 +12,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
-            mapperConfiguration.CreateMap<IClientSecretIdentity, AccessTokenModel>()
+            mapperConfiguration.CreateMap<IToken, AccessTokenModel>()
                 .ForMember(dest => dest.AccessToken, opt =>
                 {
-                    opt.Condition(src => string.IsNullOrWhiteSpace(src.Token) == false);
-                    opt.MapFrom(src => src.Token);
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.Value) == false);
+                    opt.MapFrom(src => src.Value);
                 });
         }
 

@@ -29,6 +29,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IRequestReader> _requestReaderMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -38,6 +39,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock = new Mock<ICommandBus>();
             _requestReaderMock = new Mock<IRequestReader>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -191,7 +193,37 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             await sut.AuthenticateAsync();
 
-            clientSecretIdentityMock.VerifyGet(m => m.Token, Times.Exactly(2));
+            clientSecretIdentityMock.VerifyGet(m => m.Token, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthenticateAsync_WhenCalledAndHasBasicAuthenticationHeaderWithValidParameterWhichCanBeAuthenticated_AssertValueWasCalledOnToken()
+        {
+            string validParameter = CreateValidBasicAuthenticationHeaderParameter();
+            AuthenticationHeaderValue basicAuthenticationHeader = CreateBasicAuthenticationHeader(validParameter);
+            Mock<IToken> tokenMock = CreateTokenMock();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(tokenMock.Object);
+            Controller sut = CreateSut(basicAuthenticationHeader: basicAuthenticationHeader, clientSecretIdentity: clientSecretIdentityMock.Object);
+
+            await sut.AuthenticateAsync();
+
+            tokenMock.VerifyGet(m => m.Value, Times.Exactly(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthenticateAsync_WhenCalledAndHasBasicAuthenticationHeaderWithValidParameterWhichCanBeAuthenticated_AssertExpiresWasCalledOnToken()
+        {
+            string validParameter = CreateValidBasicAuthenticationHeaderParameter();
+            AuthenticationHeaderValue basicAuthenticationHeader = CreateBasicAuthenticationHeader(validParameter);
+            Mock<IToken> tokenMock = CreateTokenMock();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(tokenMock.Object);
+            Controller sut = CreateSut(basicAuthenticationHeader: basicAuthenticationHeader, clientSecretIdentity: clientSecretIdentityMock.Object);
+
+            await sut.AuthenticateAsync();
+
+            tokenMock.VerifyGet(m => m.Expires, Times.Once);
         }
 
         [Test]
@@ -214,8 +246,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             string validParameter = CreateValidBasicAuthenticationHeaderParameter();
             AuthenticationHeaderValue basicAuthenticationHeader = CreateBasicAuthenticationHeader(validParameter);
-            string token = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(token);
+            string tokenValue = _fixture.Create<string>();
+            DateTime tokenExpires = DateTime.UtcNow.AddMinutes(_random.Next(30, 60));
+            Mock<IToken> tokenMock = CreateTokenMock(tokenValue, tokenExpires);
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(tokenMock.Object);
             Controller sut = CreateSut(basicAuthenticationHeader: basicAuthenticationHeader, clientSecretIdentity: clientSecretIdentityMock.Object);
 
             OkObjectResult result = (OkObjectResult) (await sut.AuthenticateAsync()).Result;
@@ -225,7 +259,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             AccessTokenModel accessTokenModel = (AccessTokenModel) result.Value;
             Assert.That(accessTokenModel.AccessToken, Is.Not.Null);
             Assert.That(accessTokenModel.AccessToken, Is.Not.Empty);
-            Assert.That(accessTokenModel.AccessToken, Is.EqualTo(token));
+            Assert.That(accessTokenModel.AccessToken, Is.EqualTo(tokenValue));
+            Assert.That(accessTokenModel.Expires, Is.EqualTo(tokenExpires));
         }
 
         [Test]
@@ -301,12 +336,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             }
        }
 
-        private Mock<IClientSecretIdentity> CreateClientSecretIdentityMock(string token = null)
+        private Mock<IClientSecretIdentity> CreateClientSecretIdentityMock(IToken token = null)
         {
             Mock<IClientSecretIdentity> clientSecretIdentityMock = new Mock<IClientSecretIdentity>();
             clientSecretIdentityMock.Setup(m => m.Token)
-                .Returns(token ?? _fixture.Create<string>());
+                .Returns(token ?? CreateTokenMock().Object);
             return clientSecretIdentityMock;
+        }
+
+        private Mock<IToken> CreateTokenMock(string value = null, DateTime? expires = null)
+        {
+            Mock<IToken> tokenMock = new Mock<IToken>();
+            tokenMock.Setup(m => m.Value)
+                .Returns(value ?? _fixture.Create<string>());
+            tokenMock.Setup(m => m.Expires)
+                .Returns(expires ?? DateTime.UtcNow.AddMinutes(_random.Next(30, 60)));
+            return tokenMock;
         }
     }
 }

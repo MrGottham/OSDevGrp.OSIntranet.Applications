@@ -4,6 +4,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers
 {
     public interface ITokenHelper
     {
-        string Generate(IClientSecretIdentity clientSecretIdentity);
+        IToken Generate(IClientSecretIdentity clientSecretIdentity);
     }
 }

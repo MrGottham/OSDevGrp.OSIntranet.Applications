@@ -103,7 +103,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             IAuthenticateClientSecretCommand command = CreateCommand();
             await sut.ExecuteAsync(command);
 
-            clientSecretIdentityMock.Verify(m => m.AddToken(It.IsAny<string>()), Times.Never);
+            clientSecretIdentityMock.Verify(m => m.AddToken(It.IsAny<IToken>()), Times.Never);
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
             await sut.ExecuteAsync(command);
 
-            clientSecretIdentityMock.Verify(m => m.AddToken(It.IsAny<string>()), Times.Never);
+            clientSecretIdentityMock.Verify(m => m.AddToken(It.IsAny<IToken>()), Times.Never);
         }
 
         [Test]
@@ -227,14 +227,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         {
             string clientSecret = _fixture.Create<string>();
             Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(clientSecret);
-            string token = _fixture.Create<string>();
+            IToken token = new Mock<IToken>().Object;
             CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object, token: token);
 
             string submittedClientSecret = clientSecret;
             IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
             await sut.ExecuteAsync(command);
 
-            clientSecretIdentityMock.Verify(m => m.AddToken(It.Is<string>(value => string.Compare(value, token, StringComparison.Ordinal) == 0)), Times.Once);
+            clientSecretIdentityMock.Verify(m => m.AddToken(It.Is<IToken>(value => value == token)), Times.Once);
         }
 
         [Test]
@@ -252,13 +252,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             Assert.That(result, Is.EqualTo(clientSecretIdentity));
         }
 
-        private CommandHandler CreateSut(bool hasClientSecretIdentityForClientId = true, IClientSecretIdentity clientSecretIdentity = null, string token = null)
+        private CommandHandler CreateSut(bool hasClientSecretIdentityForClientId = true, IClientSecretIdentity clientSecretIdentity = null, IToken token = null)
         {
             _securityRepositoryMock.Setup(m => m.GetClientSecretIdentityAsync(It.IsAny<string>()))
                 .Returns(Task.Run(() => hasClientSecretIdentityForClientId ? clientSecretIdentity ?? CreateClientSecretIdentityMock().Object : null));
 
             _tokenHelperMock.Setup(m => m.Generate(It.IsAny<IClientSecretIdentity>()))
-                .Returns(token ?? _fixture.Create<string>());
+                .Returns(token ?? new Mock<IToken>().Object);
 
             return new CommandHandler(_securityRepositoryMock.Object, _tokenHelperMock.Object);
         }
