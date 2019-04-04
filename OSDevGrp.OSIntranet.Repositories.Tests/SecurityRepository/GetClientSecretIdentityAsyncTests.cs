@@ -59,7 +59,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
         }
 
-
         [Test]
         [Category("IntegrationTest")]
         public async Task GetClientSecretIdentityAsync_WhenCalled_ReturnsClientSecretIdentity()

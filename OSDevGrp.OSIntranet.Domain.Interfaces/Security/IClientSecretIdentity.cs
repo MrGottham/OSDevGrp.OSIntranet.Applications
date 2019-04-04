@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
@@ -14,6 +15,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
         string ClientSecret { get; }
 
         IToken Token { get; }
+
+        void AddClaims(IEnumerable<Claim> claims);
 
         ClaimsIdentity ToClaimsIdentity();
 

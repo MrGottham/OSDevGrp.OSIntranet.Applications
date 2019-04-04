@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -70,6 +72,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertAddClaimsWasNotCalledOnClientSecretIdentity()
+        {
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            CommandHandler sut = CreateSut(false, clientSecretIdentityMock.Object);
+
+            IAuthenticateClientSecretCommand command = CreateCommand();
+            await sut.ExecuteAsync(command);
+
+            clientSecretIdentityMock.Verify(m => m.AddClaims(It.IsAny<IEnumerable<Claim>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertClearSensitiveDataWasNotCalledOnClientSecretIdentity()
         {
             Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
@@ -133,6 +148,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_AssertAddClaimsWasNotCalledOnClientSecretIdentity()
+        {
+            string clientSecret = _fixture.Create<string>();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(clientSecret);
+            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+
+            string submittedClientSecret = _fixture.Create<string>();
+            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
+            await sut.ExecuteAsync(command);
+
+            clientSecretIdentityMock.Verify(m => m.AddClaims(It.IsAny<IEnumerable<Claim>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_AssertClearSensitiveDataWasNotCalledOnClientSecretIdentity()
         {
             string clientSecret = _fixture.Create<string>();
@@ -189,6 +219,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             IClientSecretIdentity result = await sut.ExecuteAsync(command);
 
             Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesMatch_AssertAddClaimsWasCalledOnClientSecretIdentity()
+        {
+            string clientSecret = _fixture.Create<string>();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock(clientSecret);
+            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+
+            string submittedClientSecret = clientSecret;
+            IEnumerable<Claim> claims = new List<Claim>(0);
+            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret, claims: claims);
+            await sut.ExecuteAsync(command);
+
+            clientSecretIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => Equals(value, claims))), Times.Once);
         }
 
         [Test]
@@ -263,9 +309,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             return new CommandHandler(_securityRepositoryMock.Object, _tokenHelperMock.Object);
         }
 
-        private IAuthenticateClientSecretCommand CreateCommand(string clientId = null, string clientSecret = null)
+        private IAuthenticateClientSecretCommand CreateCommand(string clientId = null, string clientSecret = null, IEnumerable<Claim> claims = null)
         {
-            return new AuthenticateClientSecretCommand(clientId ?? _fixture.Create<string>(), clientSecret ?? _fixture.Create<string>());
+            return new AuthenticateClientSecretCommand(clientId ?? _fixture.Create<string>(), clientSecret ?? _fixture.Create<string>(), claims ?? new List<Claim>(0));
         }
 
         private Mock<IClientSecretIdentity> CreateClientSecretIdentityMock(string clientSecret = null)

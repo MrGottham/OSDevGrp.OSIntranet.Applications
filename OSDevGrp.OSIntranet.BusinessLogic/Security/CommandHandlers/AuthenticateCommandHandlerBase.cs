@@ -38,12 +38,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 return default(TResult);
             }
 
-            return CreateAuthenticatedIdentity(identity);
+            return CreateAuthenticatedIdentity(command, identity);
         }
 
         protected abstract Task<IIdentity> GetIdentityAsync(TCommand command);
 
-        protected abstract TResult CreateAuthenticatedIdentity(IIdentity identity);
+        protected abstract TResult CreateAuthenticatedIdentity(TCommand command, IIdentity identity);
 
         protected virtual bool IsMatch(TCommand command, IIdentity identity)
         {

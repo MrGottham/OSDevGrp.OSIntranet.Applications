@@ -40,12 +40,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             return clientSecretIdentity;
         }
 
-        protected override IClientSecretIdentity CreateAuthenticatedIdentity(IIdentity identity)
+        protected override IClientSecretIdentity CreateAuthenticatedIdentity(IAuthenticateClientSecretCommand command, IIdentity identity)
         {
-            NullGuard.NotNull(identity, nameof(identity));
+            NullGuard.NotNull(command, nameof(command))
+                .NotNull(identity, nameof(identity));
 
             IClientSecretIdentity clientSecretIdentity = (IClientSecretIdentity) identity;
 
+            clientSecretIdentity.AddClaims(command.Claims);
             clientSecretIdentity.ClearSensitiveData();
 
             clientSecretIdentity.AddToken(_tokenHelper.Generate(clientSecretIdentity));

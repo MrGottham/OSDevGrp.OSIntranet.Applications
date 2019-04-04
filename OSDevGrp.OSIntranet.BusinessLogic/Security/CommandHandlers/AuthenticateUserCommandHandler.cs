@@ -29,12 +29,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             return userIdentity;
         }
 
-        protected override IUserIdentity CreateAuthenticatedIdentity(IIdentity identity)
+        protected override IUserIdentity CreateAuthenticatedIdentity(IAuthenticateUserCommand command, IIdentity identity)
         {
-            NullGuard.NotNull(identity, nameof(identity));
+            NullGuard.NotNull(command, nameof(command))
+                .NotNull(identity, nameof(identity));
 
             IUserIdentity userIdentity = (IUserIdentity) identity;
 
+            userIdentity.AddClaims(command.Claims);
             userIdentity.ClearSensitiveData();
 
             return userIdentity;

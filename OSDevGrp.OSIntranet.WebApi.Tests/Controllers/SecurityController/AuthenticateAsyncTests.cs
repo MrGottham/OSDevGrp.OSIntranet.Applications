@@ -7,6 +7,7 @@ using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.HttpSys;
+using Microsoft.EntityFrameworkCore.Internal;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
@@ -152,7 +153,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             await sut.AuthenticateAsync();
 
-            _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateClientSecretCommand, IClientSecretIdentity>(It.Is<IAuthenticateClientSecretCommand>(command => string.Compare(command.ClientId, clientId, StringComparison.Ordinal) == 0 && string.Compare(command.ClientSecret, clientSecret, StringComparison.Ordinal) == 0)), Times.Once);
+            _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateClientSecretCommand, IClientSecretIdentity>(It.Is<IAuthenticateClientSecretCommand>(command => string.Compare(command.ClientId, clientId, StringComparison.Ordinal) == 0 && string.Compare(command.ClientSecret, clientSecret, StringComparison.Ordinal) == 0 && command.Claims != null && command.Claims.Any() == false)), Times.Once);
         }
 
         [Test]

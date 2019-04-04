@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
@@ -8,6 +9,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
         int Identifier { get; }
 
         string ExternalUserIdentifier { get; }
+
+        void AddClaims(IEnumerable<Claim> claims);
 
         ClaimsIdentity ToClaimsIdentity();
 
