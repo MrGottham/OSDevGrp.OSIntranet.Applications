@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.WebApi.Helpers.Security
 {
-    public class RequestReader : IRequestReader
+    public class SecurityContextReader : ISecurityContextReader
     {
         #region Properties
 

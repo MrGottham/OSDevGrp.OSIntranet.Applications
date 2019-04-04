@@ -27,7 +27,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         #region Private variables
 
         private readonly ICommandBus _commandBus;
-        private readonly IRequestReader _requestReader;
+        private readonly ISecurityContextReader _securityContextReader;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
         private readonly IConverter _coreModelConverter = new CoreModelConverter();
         private readonly Regex _basicAuthenticationRegex = new Regex("^([a-f0-9]{32}):([a-f0-9]{32})$", RegexOptions.Compiled);
@@ -36,13 +36,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, IRequestReader requestReader)
+        public SecurityController(ICommandBus commandBus, ISecurityContextReader securityContextReader)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(requestReader, nameof(requestReader));
+                .NotNull(securityContextReader, nameof(securityContextReader));
 
             _commandBus = commandBus;
-            _requestReader = requestReader;
+            _securityContextReader = securityContextReader;
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         {
             try
             {
-                AuthenticationHeaderValue authenticationHeader = _requestReader.GetBasicAuthenticationHeader(Request);
+                AuthenticationHeaderValue authenticationHeader = _securityContextReader.GetBasicAuthenticationHeader(Request);
                 if (authenticationHeader == null)
                 {
                     return BadRequest("An Authorization Header is missing in the submitted request.");

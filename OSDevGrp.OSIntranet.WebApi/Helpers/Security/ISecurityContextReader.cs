@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace OSDevGrp.OSIntranet.WebApi.Helpers.Security
 {
-    public interface IRequestReader
+    public interface ISecurityContextReader
     {
         AuthenticationHeaderValue GetBasicAuthenticationHeader(HttpRequest request);
     }

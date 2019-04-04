@@ -62,7 +62,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddRepositories();
             services.AddBusinessLogicHelpers();
 
-            services.AddTransient<IRequestReader, RequestReader>();
+            services.AddTransient<ISecurityContextReader, SecurityContextReader>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

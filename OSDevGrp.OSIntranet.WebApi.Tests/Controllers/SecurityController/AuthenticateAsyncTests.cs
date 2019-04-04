@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
-        private Mock<IRequestReader> _requestReaderMock;
+        private Mock<ISecurityContextReader> _securityContextReaderMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -38,20 +38,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
-            _requestReaderMock = new Mock<IRequestReader>();
+            _securityContextReaderMock = new Mock<ISecurityContextReader>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AuthenticateAsync_WhenCalled_AssertGetBasicAuthenticationHeaderWasCalledOnRequestReader()
+        public async Task AuthenticateAsync_WhenCalled_AssertGetBasicAuthenticationHeaderWasCalledOnSecurityContextReader()
         {
             Controller sut = CreateSut();
 
             await sut.AuthenticateAsync();
 
-            _requestReaderMock.Verify(m => m.GetBasicAuthenticationHeader(It.IsAny<HttpRequest>()), Times.Once);
+            _securityContextReaderMock.Verify(m => m.GetBasicAuthenticationHeader(It.IsAny<HttpRequest>()), Times.Once);
         }
 
         [Test]
@@ -294,7 +294,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private Controller CreateSut(bool hasBasicAuthenticationHeader = true, AuthenticationHeaderValue basicAuthenticationHeader = null, bool hasClientSecretIdentity = true, IClientSecretIdentity clientSecretIdentity = null, Exception exception = null)
         {
-            _requestReaderMock.Setup(m => m.GetBasicAuthenticationHeader(It.IsAny<HttpRequest>()))
+            _securityContextReaderMock.Setup(m => m.GetBasicAuthenticationHeader(It.IsAny<HttpRequest>()))
                 .Returns(hasBasicAuthenticationHeader ? basicAuthenticationHeader ?? CreateBasicAuthenticationHeader() : null);
 
             if (exception != null)
@@ -308,7 +308,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     .Returns(() => Task.Run(() => hasClientSecretIdentity ? clientSecretIdentity ?? CreateClientSecretIdentityMock().Object : null));
             }
 
-            return new Controller(_commandBusMock.Object, _requestReaderMock.Object);
+            return new Controller(_commandBusMock.Object, _securityContextReaderMock.Object);
         }
 
         private AuthenticationHeaderValue CreateBasicAuthenticationHeader(string parameter = null)
