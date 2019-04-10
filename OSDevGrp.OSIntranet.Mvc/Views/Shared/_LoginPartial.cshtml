@@ -1,0 +1,29 @@
+<ul class="navbar-nav">
+    @if (User.Identity.IsAuthenticated)
+     {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Manage">@User.Identity.Name</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Log ud</a>
+        </li>
+     }
+     else
+     {
+        <li class="nav-item dropdown">
+            <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuLogin" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Log ind</a>
+            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLogin">
+                <li class="nav-item">
+                    <form asp-area="" asp-controller="Account" asp-action="LoginWithMicrosoftAccount" method="post">
+                        <button type="submit" class="nav-link text-dark dropdown-item">Med Microsoft</button>
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <form asp-area="" asp-controller="Account" asp-action="LoginWithGoogleAccount" method="post">
+                        <button type="submit" class="nav-link text-dark dropdown-item">Med Google</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+</ul>

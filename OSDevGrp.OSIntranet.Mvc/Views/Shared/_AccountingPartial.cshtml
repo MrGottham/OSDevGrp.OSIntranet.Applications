@@ -1,0 +1,10 @@
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Accounting")).Succeeded)
+{
+    <li class="nav-item dropdown">
+        <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuAccounting" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Finansstyring</a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuAccounting">
+        </ul>
+    </li>
+}

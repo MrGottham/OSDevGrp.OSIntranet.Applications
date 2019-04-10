@@ -1,0 +1,35 @@
+@using System.Security.Claims;
+@model ClaimsPrincipal;
+@{
+    ViewData["Title"] = "Brugerinformation";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Brugerinformation</h2>
+        <p>Navn: <strong>@Model.Identity.Name</strong></p>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Claim type</th>
+                        <th>Claim værdi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Claim claim in @Model.Claims)
+                    {
+                        <tr>
+                            <td>@claim.Type</td>
+                            <td>@claim.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>

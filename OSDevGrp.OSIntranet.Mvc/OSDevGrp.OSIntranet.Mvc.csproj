@@ -3,12 +3,26 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>D90A43A7-8021-4B7F-924E-BBFC306C544E</UserSecretsId>
   </PropertyGroup>
 
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.Interfaces\OSDevGrp.OSIntranet.Core.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core\OSDevGrp.OSIntranet.Core.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.Interfaces\OSDevGrp.OSIntranet.Domain.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain\OSDevGrp.OSIntranet.Domain.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories.Interfaces\OSDevGrp.OSIntranet.Repositories.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories\OSDevGrp.OSIntranet.Repositories.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic.Interfaces\OSDevGrp.OSIntranet.BusinessLogic.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic\OSDevGrp.OSIntranet.BusinessLogic.csproj" />
   </ItemGroup>
 
 </Project>
