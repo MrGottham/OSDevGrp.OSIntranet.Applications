@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.TestHelpers;
-using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
-namespace OSDevGrp.OSIntranet.WebApi.Tests.Models.Converters
+namespace OSDevGrp.OSIntranet.Mvc.Tests.Models.Converters
 {
     [TestFixture]
     public class ConverterBaseTests
@@ -25,7 +25,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Models.Converters
         [Category("UnitTest")]
         public void ConverterBase_ForAllConvertersBasedOnConverterBase_AssertMapperConfigurationIsValid()
         {
-            IEnumerable<ConverterBase> sutCollection = _converterBaseTestHelper.GetConverters(typeof(AccessTokenModel).Assembly);
+            IEnumerable<ConverterBase> sutCollection = _converterBaseTestHelper.GetConverters(typeof(ErrorViewModel).Assembly);
 
             string result = _converterBaseTestHelper.IsConfigurationValid(sutCollection);
             if (string.IsNullOrWhiteSpace(result))
