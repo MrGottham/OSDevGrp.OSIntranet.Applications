@@ -15,5 +15,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
 
         [JsonProperty(Required = Required.DisallowNull)]
         public string Method { get; set; }
+
+        [JsonProperty(Required = Required.DisallowNull)]
+        public string ValidatingType { get; set; }
+
+        [JsonProperty(Required = Required.DisallowNull)]
+        public string ValidatingField { get; set; }
     }
 }

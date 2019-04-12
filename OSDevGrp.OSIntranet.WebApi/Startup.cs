@@ -60,6 +60,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddRepositories();
+            services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
 
             services.AddTransient<ISecurityContextReader, SecurityContextReader>();

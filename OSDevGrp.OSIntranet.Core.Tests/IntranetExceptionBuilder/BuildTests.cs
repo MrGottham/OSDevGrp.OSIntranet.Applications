@@ -206,15 +206,15 @@ namespace OSDevGrp.OSIntranet.Core.Tests.IntranetExceptionBuilder
         {
             const ErrorCode errorCode = ErrorCode.NoQueryHandlerSupportingQuery;
             string queryTypeName = _fixture.Create<string>();
-            string resulTypeName = _fixture.Create<string>();
+            string resultTypeName = _fixture.Create<string>();
 
             ErrorCodeAttribute errorCodeAttribute = _errorCodeAttributeTestHelper.GetErrorCodeAttribute(errorCode);
 
-            IIntranetExceptionBuilder sut = CreateSut(errorCode, queryTypeName, resulTypeName);
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, queryTypeName, resultTypeName);
 
             IntranetExceptionBase result = sut.Build();
 
-            Assert.That(result.Message, Is.EqualTo(string.Format(errorCodeAttribute.Message, queryTypeName, resulTypeName)));
+            Assert.That(result.Message, Is.EqualTo(string.Format(errorCodeAttribute.Message, queryTypeName, resultTypeName)));
         }
 
         [Test]
@@ -238,6 +238,115 @@ namespace OSDevGrp.OSIntranet.Core.Tests.IntranetExceptionBuilder
             IntranetExceptionBase result = sut.WithInnerException(innerException).Build();
 
             Assert.That(result.InnerException, Is.EqualTo(innerException));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationException_ReturnsIntranetValidationException()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result, Is.TypeOf<IntranetValidationException>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationException_AssertErrorCodeIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.ValueNotGreaterThanZero;
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.ErrorCode, Is.EqualTo(errorCode));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationException_AssertMessageIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.ValueNotGreaterThanZero;
+            string validatingField = _fixture.Create<string>();
+
+            ErrorCodeAttribute errorCodeAttribute = _errorCodeAttributeTestHelper.GetErrorCodeAttribute(errorCode);
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, validatingField);
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.Message, Is.EqualTo(string.Format(errorCodeAttribute.Message, validatingField)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationExceptionWithoutInnerException_AssertInnerExceptionIsNull()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.InnerException, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationExceptionWithInnerException_AssertInnerExceptionIsCorrect()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            Exception innerException = _fixture.Create<Exception>();
+            IntranetExceptionBase result = sut.WithInnerException(innerException).Build();
+
+            Assert.That(result.InnerException, Is.EqualTo(innerException));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationExceptionWithoutValidatingType_AssertValidatingTypeIsNull()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            IntranetValidationException result = (IntranetValidationException) sut.Build();
+
+            Assert.That(result.ValidatingType, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationExceptionWithValidatingType_AssertValidatingTypeIsCorrect()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            Type validatingType = GetType();
+            IntranetValidationException result = (IntranetValidationException) sut.WithValidatingType(validatingType).Build();
+
+            Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationExceptionWithoutValidatingField_AssertValidatingFieldIsNull()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            IntranetValidationException result = (IntranetValidationException) sut.Build();
+
+            Assert.That(result.ValidatingField, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetValidationExceptionWithValidatingField_AssertValidatingFieldIsCorrect()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ValueNotGreaterThanZero, _fixture.Create<string>());
+
+            string validatingField = _fixture.Create<string>();
+            IntranetValidationException result = (IntranetValidationException) sut.WithValidatingField(validatingField).Build();
+
+            Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
         }
 
         private IIntranetExceptionBuilder CreateSut(ErrorCode errorCode, params object[] argumentCollection)

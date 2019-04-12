@@ -16,6 +16,8 @@ namespace OSDevGrp.OSIntranet.Core
         private readonly IEnumerable<object> _argumentCollection;
         private Exception _innerException;
         private MethodBase _methodBase;
+        private Type _validatingType;
+        private string _validatingField;
 
         #endregion
         
@@ -49,6 +51,24 @@ namespace OSDevGrp.OSIntranet.Core
             return this;
         }
 
+        public IIntranetExceptionBuilder WithValidatingType(Type validatingType)
+        {
+            NullGuard.NotNull(validatingType, nameof(validatingType));
+
+            _validatingType = validatingType;
+
+            return this;
+        }
+
+        public IIntranetExceptionBuilder WithValidatingField(string validatingField)
+        {
+            NullGuard.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+            _validatingField = validatingField;
+
+            return this;
+        }
+
         public IntranetExceptionBase Build()
         {
             ErrorCodeAttribute errorCodeAttribute = GetErrorCodeAttribute(_errorCode);
@@ -61,12 +81,22 @@ namespace OSDevGrp.OSIntranet.Core
                 ? Build(errorCodeAttribute.ExceptionType, _errorCode, message)
                 : Build(errorCodeAttribute.ExceptionType, _errorCode, message, _innerException);
 
-            if (_methodBase == null)
+            if (_methodBase != null)
+            {
+                AddMethodBase(intranetException, _methodBase);
+            }
+
+            if (_validatingType != null)
+            {
+                AddValidatingType(intranetException, _validatingType);
+            }
+
+            if (string.IsNullOrWhiteSpace(_validatingField))
             {
                 return intranetException;
             }
 
-            AddMethodBae(intranetException, _methodBase);
+            AddValidatingField(intranetException, _validatingField);
 
             return intranetException;
         }
@@ -110,26 +140,46 @@ namespace OSDevGrp.OSIntranet.Core
             }
         }
 
-        private static void AddMethodBae(IntranetExceptionBase intranetException, MethodBase methodBase)
+        private static void AddMethodBase(IntranetExceptionBase intranetException, MethodBase methodBase)
         {
             NullGuard.NotNull(intranetException, nameof(intranetException))
                 .NotNull(methodBase, nameof(methodBase));
 
-            FieldInfo[] fieldInfoArray = intranetException.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(fieldInfo => fieldInfo.FieldType == typeof(MethodBase))
-                .ToArray();
-
-            foreach (FieldInfo fieldInfo in fieldInfoArray)
+            IntranetRepositoryException intranetRepositoryException = intranetException as IntranetRepositoryException;
+            if (intranetRepositoryException == null)
             {
-                try
-                {
-                    fieldInfo.SetValue(intranetException, methodBase);
-                }
-                catch (TargetInvocationException ex)
-                {
-                    throw ex.InnerException ?? ex;
-                }
+                return;
             }
+
+            intranetRepositoryException.MethodBase = methodBase;
+        }
+
+        private static void AddValidatingType(IntranetExceptionBase intranetException, Type validatingType)
+        {
+            NullGuard.NotNull(intranetException, nameof(intranetException))
+                .NotNull(validatingType, nameof(validatingType));
+
+            IntranetValidationException intranetValidationException = intranetException as IntranetValidationException;
+            if (intranetValidationException == null)
+            {
+                return;
+            }
+
+            intranetValidationException.ValidatingType = validatingType;
+        }
+
+        private static void AddValidatingField(IntranetExceptionBase intranetException, string validatingField)
+        {
+            NullGuard.NotNull(intranetException, nameof(intranetException))
+                .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+            IntranetValidationException intranetValidationException = intranetException as IntranetValidationException;
+            if (intranetValidationException == null)
+            {
+                return;
+            }
+
+            intranetValidationException.ValidatingField= validatingField;
         }
 
         private static ErrorCodeAttribute GetErrorCodeAttribute(ErrorCode errorCode)

@@ -23,6 +23,66 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ErrorWhileQueryingQuery = 1006,
 
         [ErrorCode("An error occurred in the repository method '{0}': {1}", typeof(IntranetRepositoryException))]
-        RepositoryError = 1007
+        RepositoryError = 1007,
+
+        [ErrorCode("The value for the submitted field '{0}' should be greater than 0.", typeof(IntranetValidationException))]
+        ValueNotGreaterThanZero = 1008,
+
+        [ErrorCode("The value for the submitted field '{0}' should be greater than or equal to 0.", typeof(IntranetValidationException))]
+        ValueNotGreaterThanOrEqualToZero = 1009,
+
+        [ErrorCode("The value for the submitted field '{0}' should be between {1} and {2}.", typeof(IntranetValidationException))]
+        ValueNotBetween = 1010,
+
+        [ErrorCode("The value for the submitted field '{0}' cannot be null.", typeof(IntranetValidationException))]
+        ValueCannotBeNull = 1011,
+
+        [ErrorCode("The value for the submitted field '{0}' cannot be null or empty.", typeof(IntranetValidationException))]
+        ValueCannotBeNullOrEmpty = 1012,
+
+        [ErrorCode("The value for the submitted field '{0}' cannot be null, empty or white space.", typeof(IntranetValidationException))]
+        ValueCannotBeNullOrWhiteSpace = 1013,
+
+        [ErrorCode("The value for the submitted field '{0}' should have a minimum length of {1}.", typeof(IntranetValidationException))]
+        ValueShouldHaveMinLength = 1014,
+
+        [ErrorCode("The value for the submitted field '{0}' should have a maximum length of {1}.", typeof(IntranetValidationException))]
+        ValueShouldHaveMaxLength = 1015,
+
+        [ErrorCode("The value for the submitted field '{0}' should match the following pattern: {1}.", typeof(IntranetValidationException))]
+        ValueShouldMatchPattern = 1016,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be in the past.", typeof(IntranetValidationException))]
+        ValueShouldBePastDate = 1017,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be in the past or today.", typeof(IntranetValidationException))]
+        ValueShouldBePastDateOrToday = 1018,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be today.", typeof(IntranetValidationException))]
+        ValueShouldBeToday = 1019,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be in the future.", typeof(IntranetValidationException))]
+        ValueShouldBeFutureDate = 1020,
+        
+        [ErrorCode("The date value for the submitted field '{0}' should be today or in the future.", typeof(IntranetValidationException))]
+        ValueShouldBeFutureDateOrToday = 1021,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a past date within {1} {2} from {3}.", typeof(IntranetValidationException))]
+        ValueShouldBePastDateWithinDaysFromOffsetDate = 1022,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a future date within {1} {2} from {3}.", typeof(IntranetValidationException))]
+        ValueShouldBeFutureDateWithinDaysFromOffsetDate = 1023,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a date later than {1}.", typeof(IntranetValidationException))]
+        ValueShouldBeLaterThanOffsetDate = 1024,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a date later than or equal to {1}.", typeof(IntranetValidationException))]
+        ValueShouldBeLaterThanOrEqualToOffsetDate = 1025,
+
+        [ErrorCode("The value for the submitted field '{0}' should be known within the system.", typeof(IntranetValidationException))]
+        ValueShouldBeKnown = 1026,
+
+        [ErrorCode("The value for the submitted field '{0}' should be unknown within the system.", typeof(IntranetValidationException))]
+        ValueShouldBeUnknown = 1027
     }
 }

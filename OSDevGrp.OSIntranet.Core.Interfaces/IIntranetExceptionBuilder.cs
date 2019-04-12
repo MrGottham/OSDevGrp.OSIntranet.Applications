@@ -10,6 +10,10 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces
 
         IIntranetExceptionBuilder WithMethodBase(MethodBase methodInfo);
 
+        IIntranetExceptionBuilder WithValidatingType(Type validatingType);
+
+        IIntranetExceptionBuilder WithValidatingField(string validatingField);
+
         IntranetExceptionBase Build();
     }
 }
