@@ -25,6 +25,7 @@
     <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic.Interfaces\OSDevGrp.OSIntranet.BusinessLogic.Interfaces.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.WebApi\OSDevGrp.OSIntranet.WebApi.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.TestHelpers\OSDevGrp.OSIntranet.Core.TestHelpers.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.TestHelpers\OSDevGrp.OSIntranet.Domain.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

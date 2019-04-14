@@ -1,0 +1,39 @@
+@using System.Collections.Generic;
+@using OSDevGrp.OSIntranet.Mvc.Helpers;
+@model IEnumerable<AccountGroupViewModel>;
+@{
+    ViewData["Title"] = "Kontogrupper";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Kontogrupper</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nummer</th>
+                        <th>Navn</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (AccountGroupViewModel accountGroupViewModel in @Model)
+                    {
+                        <tr>
+                            <td>@accountGroupViewModel.Number</td>
+                            <td>@accountGroupViewModel.Name</td>
+                            <td>@accountGroupViewModel.AccountGroupType.EnumDisplayNameFor()</td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>

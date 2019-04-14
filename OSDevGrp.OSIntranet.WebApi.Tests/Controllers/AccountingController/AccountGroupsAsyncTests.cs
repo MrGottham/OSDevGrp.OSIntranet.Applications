@@ -12,9 +12,9 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
 using OSDevGrp.OSIntranet.WebApi.Models.Core;
-using AccountGroupType=OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums.AccountGroupType;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             _queryBusMock = new Mock<IQueryBus>();
 
             _fixture = new Fixture();
-            _fixture.Customize<IAccountGroup>(builder => builder.FromFactory(() => CreateAccountGroupMock().Object));
+            _fixture.Customize<IAccountGroup>(builder => builder.FromFactory(() => _fixture.BuildAccountGroupMock().Object));
 
             _random = new Random(_fixture.Create<int>());
         }
@@ -144,18 +144,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             }
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object);
-        }
-
-        private Mock<IAccountGroup> CreateAccountGroupMock()
-        {
-            Mock<IAccountGroup> accountGroupMock = new Mock<IAccountGroup>();
-            accountGroupMock.Setup(m => m.Number)
-                .Returns(_fixture.Create<int>());
-            accountGroupMock.Setup(m => m.Name)
-                .Returns(_fixture.Create<string>());
-            accountGroupMock.Setup(m => m.AccountGroupType)
-                .Returns(_fixture.Create<AccountGroupType>());
-            return accountGroupMock;
         }
     }
 }

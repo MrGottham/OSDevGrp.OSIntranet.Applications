@@ -1,8 +1,8 @@
 ﻿using System;
 using AutoFixture;
-using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentity
 {
@@ -32,7 +32,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentity
         {
             IClientSecretIdentity sut = CreateSut();
 
-            IToken token = new Mock<IToken>().Object;
+            IToken token = Fixture.BuildTokenMock().Object;
             sut.AddToken(token);
 
             Assert.That(sut.Token, Is.EqualTo(token));

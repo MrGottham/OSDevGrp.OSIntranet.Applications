@@ -7,10 +7,11 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.BudgetAccountGroupCollectionQueryHandler;
+using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetBudgetAccountGroupCollectionQueryHandler;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.BudgetAccountGroupCollectionQueryHandler
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBudgetAccountGroupCollectionQueryHandler
 {
     [TestFixture]
     public class QueryAsyncTests : BusinessLogicTestBase
@@ -29,7 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Budge
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
 
             _fixture = new Fixture();
-            _fixture.Register(() => new Mock<IBudgetAccountGroup>().Object);
+            _fixture.Customize<IBudgetAccountGroup>(builder => builder.FromFactory(() => _fixture.BuildBudgetAccountGroupMock().Object));
 
             _random = new Random(_fixture.Create<int>());
         }

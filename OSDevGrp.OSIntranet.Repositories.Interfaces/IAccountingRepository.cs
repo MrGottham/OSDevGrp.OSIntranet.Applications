@@ -8,6 +8,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
     {
         Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync();
 
+        Task<IAccountGroup> GetAccountGroupAsync(int number);
+
         Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync();
+
+        Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(int number);
     }
 }

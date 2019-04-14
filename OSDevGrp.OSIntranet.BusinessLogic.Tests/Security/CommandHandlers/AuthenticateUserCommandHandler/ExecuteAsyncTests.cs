@@ -8,6 +8,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AuthenticateUserCommandHandler;
 
@@ -58,7 +59,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         [Category("UnitTest")]
         public async Task ExecuteAsync_WhenExternalUserIdentifierIsUnknown_AssertAddClaimsWasNotCalledOnUserIdentity()
         {
-            Mock<IUserIdentity> userIdentityMock = CreateUserIdentityMock();
+            Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
             CommandHandler sut = CreateSut(false, userIdentityMock.Object);
 
             IAuthenticateUserCommand command = CreateCommand();
@@ -71,7 +72,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         [Category("UnitTest")]
         public async Task ExecuteAsync_WhenExternalUserIdentifierIsUnknown_AssertClearSensitiveDataWasNotCalledOnUserIdentity()
         {
-            Mock<IUserIdentity> userIdentityMock = CreateUserIdentityMock();
+            Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
             CommandHandler sut = CreateSut(false, userIdentityMock.Object);
 
             IAuthenticateUserCommand command = CreateCommand();
@@ -96,7 +97,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         [Category("UnitTest")]
         public async Task ExecuteAsync_WhenExternalUserIdentifierIsKnown_AssertAddClaimsWasCalledOnUserIdentity()
         {
-            Mock<IUserIdentity> userIdentityMock = CreateUserIdentityMock();
+            Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
             CommandHandler sut = CreateSut(userIdentity: userIdentityMock.Object);
 
             IEnumerable<Claim> claims = new List<Claim>(0);
@@ -110,7 +111,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         [Category("UnitTest")]
         public async Task ExecuteAsync_WhenExternalUserIdentifierIsKnown_AssertClearSensitiveDataWasCalledOnUserIdentity()
         {
-            Mock<IUserIdentity> userIdentityMock = CreateUserIdentityMock();
+            Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
             CommandHandler sut = CreateSut(userIdentity: userIdentityMock.Object);
 
             IAuthenticateUserCommand command = CreateCommand();
@@ -123,7 +124,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         [Category("UnitTest")]
         public async Task ExecuteAsync_WhenExternalUserIdentifierIsKnown_ReturnsUserIdentity()
         {
-            IUserIdentity userIdentity = CreateUserIdentityMock().Object;
+            IUserIdentity userIdentity = _fixture.BuildUserIdentityMock().Object;
             CommandHandler sut = CreateSut(userIdentity: userIdentity);
 
             IAuthenticateUserCommand command = CreateCommand();
@@ -135,7 +136,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         private CommandHandler CreateSut(bool hasUserIdentityForExternalUserIdentifier = true, IUserIdentity userIdentity = null)
         {
             _securityRepositoryMock.Setup(m => m.GetUserIdentityAsync(It.IsAny<string>()))
-                .Returns(Task.Run(() => hasUserIdentityForExternalUserIdentifier ? userIdentity ?? CreateUserIdentityMock().Object : null));
+                .Returns(Task.Run(() => hasUserIdentityForExternalUserIdentifier ? userIdentity ?? _fixture.BuildUserIdentityMock().Object : null));
 
             return new CommandHandler(_securityRepositoryMock.Object);
         }
@@ -143,11 +144,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
         private IAuthenticateUserCommand CreateCommand(string externalUserIdentifier = null, IEnumerable<Claim> claims = null)
         {
             return new AuthenticateUserCommand(externalUserIdentifier ?? _fixture.Create<string>(), claims ?? new List<Claim>(0));
-        }
-
-        private Mock<IUserIdentity> CreateUserIdentityMock()
-        {
-            return new Mock<IUserIdentity>();
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Security.Claims;
 using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
 {
@@ -43,7 +43,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
         {
             ITokenHelper sut = CreateSut();
 
-            sut.Generate(CreateClientSecretIdentityMock().Object);
+            sut.Generate(_fixture.BuildClientSecretIdentityMock().Object);
 
             _configurationMock.Verify(m => m[It.Is<string>(value => string.Compare(value, "Security:JWT:Key", StringComparison.Ordinal) == 0)], Times.Once);
         }
@@ -54,7 +54,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
         {
             ITokenHelper sut = CreateSut();
 
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
             sut.Generate(clientSecretIdentityMock.Object);
 
             clientSecretIdentityMock.Verify(m => m.ToClaimsIdentity(), Times.Once);
@@ -66,7 +66,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
         {
             ITokenHelper sut = CreateSut();
 
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
             IToken result = sut.Generate(clientSecretIdentityMock.Object);
 
             Assert.That(result, Is.Not.Null);
@@ -78,7 +78,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
         {
             ITokenHelper sut = CreateSut();
 
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
             string result = sut.Generate(clientSecretIdentityMock.Object).Value;
 
             Assert.That(result, Is.Not.Null);
@@ -91,7 +91,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
         {
             ITokenHelper sut = CreateSut();
 
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = CreateClientSecretIdentityMock();
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
             DateTime result = sut.Generate(clientSecretIdentityMock.Object).Expires;
 
             Assert.That(result, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
@@ -103,14 +103,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
                 .Returns(_fixture.Create<string>());
 
             return new BusinessLogic.Security.Helpers.TokenHelper(_configurationMock.Object);
-        }
-
-        private Mock<IClientSecretIdentity> CreateClientSecretIdentityMock()
-        {
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = new Mock<IClientSecretIdentity>();
-            clientSecretIdentityMock.Setup(m => m.ToClaimsIdentity())
-                .Returns(new ClaimsIdentity());
-            return clientSecretIdentityMock;
         }
     }
 }

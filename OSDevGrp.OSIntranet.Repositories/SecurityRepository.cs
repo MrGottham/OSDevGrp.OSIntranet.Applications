@@ -91,7 +91,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     {
                         UserIdentityModel userIdentityModel = context.UserIdentities
                             .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
-                            .SingleOrDefault(model => string.Compare(model.ExternalUserIdentifier, externalUserIdentifier, StringComparison.OrdinalIgnoreCase) == 0);
+                            .SingleOrDefault(model => model.ExternalUserIdentifier == externalUserIdentifier);
                         if (userIdentityModel == null)
                         {
                             return null;
@@ -130,7 +130,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     {
                         ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities
                             .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
-                            .SingleOrDefault(model => string.Compare(model.ClientId, clientId, StringComparison.Ordinal) == 0);
+                            .SingleOrDefault(model => model.ClientId == clientId);
                         if (clientSecretIdentityModel == null)
                         {
                             return null;

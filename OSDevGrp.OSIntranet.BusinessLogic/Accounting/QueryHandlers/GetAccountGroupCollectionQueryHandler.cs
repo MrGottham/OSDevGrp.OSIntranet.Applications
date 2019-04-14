@@ -8,7 +8,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
-    public class AccountGroupCollectionQueryHandler : IQueryHandler<EmptyQuery, IEnumerable<IAccountGroup>>
+    public class GetAccountGroupCollectionQueryHandler : IQueryHandler<EmptyQuery, IEnumerable<IAccountGroup>>
     {
         #region Private variables
 
@@ -18,7 +18,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
         #region Constructor
 
-        public AccountGroupCollectionQueryHandler(IAccountingRepository accountingRepository)
+        public GetAccountGroupCollectionQueryHandler(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 

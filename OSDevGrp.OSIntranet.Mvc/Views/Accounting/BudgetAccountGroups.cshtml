@@ -1,0 +1,36 @@
+@using System.Collections.Generic;
+@model IEnumerable<BudgetAccountGroupViewModel>;
+@{
+    ViewData["Title"] = "Budgetkontogrupper";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Budgetkontogrupper</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nummer</th>
+                        <th>Navn</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BudgetAccountGroupViewModel budgetAccountGroupViewModel in @Model)
+                    {
+                        <tr>
+                            <td>@budgetAccountGroupViewModel.Number</td>
+                            <td>@budgetAccountGroupViewModel.Name</td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>

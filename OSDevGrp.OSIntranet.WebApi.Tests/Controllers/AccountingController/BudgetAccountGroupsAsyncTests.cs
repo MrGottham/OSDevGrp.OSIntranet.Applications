@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
 using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
@@ -37,7 +38,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             _queryBusMock = new Mock<IQueryBus>();
 
             _fixture = new Fixture();
-            _fixture.Customize<IBudgetAccountGroup>(builder => builder.FromFactory(() => CreateBudgetAccountGroupMock().Object));
+            _fixture.Customize<IBudgetAccountGroup>(builder => builder.FromFactory(() => _fixture.BuildBudgetAccountGroupMock().Object));
 
             _random = new Random(_fixture.Create<int>());
         }
@@ -143,16 +144,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             }
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object);
-        }
-
-        private Mock<IBudgetAccountGroup> CreateBudgetAccountGroupMock()
-        {
-            Mock<IBudgetAccountGroup> budgetAccountGroupMock = new Mock<IBudgetAccountGroup>();
-            budgetAccountGroupMock.Setup(m => m.Number)
-                .Returns(_fixture.Create<int>());
-            budgetAccountGroupMock.Setup(m => m.Name)
-                .Returns(_fixture.Create<string>());
-            return budgetAccountGroupMock;
         }
     }
 }

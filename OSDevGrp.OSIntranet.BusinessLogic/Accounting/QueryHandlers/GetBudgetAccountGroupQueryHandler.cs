@@ -1,24 +1,23 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
-    public class BudgetAccountGroupCollectionQueryHandler : IQueryHandler<EmptyQuery, IEnumerable<IBudgetAccountGroup>>
+    public class GetBudgetAccountGroupQueryHandler: IQueryHandler<IGetBudgetAccountGroupQuery, IBudgetAccountGroup>
     {
         #region Private variables
 
         private readonly IAccountingRepository _accountingRepository;
-        
+
         #endregion
 
         #region Constructor
 
-        public BudgetAccountGroupCollectionQueryHandler(IAccountingRepository accountingRepository)
+        public GetBudgetAccountGroupQueryHandler(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
@@ -29,13 +28,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
         #region Methods
 
-        public Task<IEnumerable<IBudgetAccountGroup>> QueryAsync(EmptyQuery query)
+        public Task<IBudgetAccountGroup> QueryAsync(IGetBudgetAccountGroupQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
-
-            return _accountingRepository.GetBudgetAccountGroupsAsync();
+            
+            return _accountingRepository.GetBudgetAccountGroupAsync(query.Number);
         }
-
+        
         #endregion
     }
 }

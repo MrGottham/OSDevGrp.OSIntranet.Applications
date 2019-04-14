@@ -36,9 +36,19 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => GetAccountGroups());
         }
 
+        public Task<IAccountGroup> GetAccountGroupAsync(int number)
+        {
+            return Task.Run(() => GetAccountGroup(number));
+        }
+
         public Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync()
         {
             return Task.Run(() => GetBudgetAccountGroups());
+        }
+
+        public Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(int number)
+        {
+            return Task.Run(() => GetBudgetAccountGroup(number));
         }
 
         private IEnumerable<IAccountGroup> GetAccountGroups()
@@ -51,6 +61,24 @@ namespace OSDevGrp.OSIntranet.Repositories
                             .Select(accountGroupModel => _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel))
                             .OrderBy(accountGroup => accountGroup.Number)
                             .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IAccountGroup GetAccountGroup(int number)
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration))
+                    {
+                        AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
+                        if (accountGroupModel == null)
+                        {
+                            return null;
+                        }
+
+                        return  _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
                     }
                 },
                 MethodBase.GetCurrentMethod());
@@ -70,7 +98,25 @@ namespace OSDevGrp.OSIntranet.Repositories
                 },
                 MethodBase.GetCurrentMethod());
         }
-        
+
+        private IBudgetAccountGroup GetBudgetAccountGroup(int number)
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration))
+                    {
+                        BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
+                        if (budgetAccountGroupModel == null)
+                        {
+                            return null;
+                        }
+
+                        return  _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
         #endregion
     }
 }
