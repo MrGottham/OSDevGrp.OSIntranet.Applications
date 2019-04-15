@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
@@ -19,6 +20,14 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<string>());
             accountGroupMock.Setup(m => m.AccountGroupType)
                 .Returns(fixture.Create<AccountGroupType>());
+            accountGroupMock.Setup(m => m.CreatedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            accountGroupMock.Setup(m => m.CreatedByIdentifier)
+                .Returns(fixture.Create<string>());
+            accountGroupMock.Setup(m => m.ModifiedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            accountGroupMock.Setup(m => m.ModifiedByIdentifier)
+                .Returns(fixture.Create<string>());
             return accountGroupMock;
         }
 
@@ -30,6 +39,14 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             budgetAccountGroupMock.Setup(m => m.Number)
                 .Returns(fixture.Create<int>());
             budgetAccountGroupMock.Setup(m => m.Name)
+                .Returns(fixture.Create<string>());
+            budgetAccountGroupMock.Setup(m => m.CreatedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            budgetAccountGroupMock.Setup(m => m.CreatedByIdentifier)
+                .Returns(fixture.Create<string>());
+            budgetAccountGroupMock.Setup(m => m.ModifiedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            budgetAccountGroupMock.Setup(m => m.ModifiedByIdentifier)
                 .Returns(fixture.Create<string>());
             return budgetAccountGroupMock;
         }

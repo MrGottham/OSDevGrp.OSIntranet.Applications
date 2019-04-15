@@ -40,6 +40,14 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public IToken Token { get; private set; }
 
+        public DateTime CreatedDateTime { get; private set; }
+
+        public string CreatedByIdentifier { get; private set; }
+
+        public DateTime ModifiedDateTime { get; private set; }
+
+        public string ModifiedByIdentifier { get; private set; }
+
         #endregion
 
         #region Methods
@@ -59,6 +67,17 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNull(token, nameof(token));
 
             Token = token;
+        }
+
+        public void AddAuditInformations(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(createdByIdentifier, nameof(createdByIdentifier))
+                .NotNullOrWhiteSpace(modifiedByIdentifier, nameof(modifiedByIdentifier));
+
+            CreatedDateTime = createdUtcDateTime.ToLocalTime();
+            CreatedByIdentifier = createdByIdentifier;
+            ModifiedDateTime = modifiedUtcDateTime.ToLocalTime();
+            ModifiedByIdentifier = modifiedByIdentifier;
         }
 
         #endregion

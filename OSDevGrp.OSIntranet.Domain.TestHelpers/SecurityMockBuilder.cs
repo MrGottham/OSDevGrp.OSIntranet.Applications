@@ -13,7 +13,16 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return new Mock<IUserIdentity>();
+            Mock<IUserIdentity> userIdentityMock = new Mock<IUserIdentity>();
+            userIdentityMock.Setup(m => m.CreatedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            userIdentityMock.Setup(m => m.CreatedByIdentifier)
+                .Returns(fixture.Create<string>());
+            userIdentityMock.Setup(m => m.ModifiedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            userIdentityMock.Setup(m => m.ModifiedByIdentifier)
+                .Returns(fixture.Create<string>());
+            return userIdentityMock;
         }
 
         public static Mock<IClientSecretIdentity> BuildClientSecretIdentityMock(this Fixture fixture, string clientSecret = null, IToken token = null)
@@ -25,6 +34,14 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(clientSecret ?? fixture.Create<string>());
             clientSecretIdentityMock.Setup(m => m.Token)
                 .Returns(token ?? fixture.BuildTokenMock().Object);
+            clientSecretIdentityMock.Setup(m => m.CreatedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            clientSecretIdentityMock.Setup(m => m.CreatedByIdentifier)
+                .Returns(fixture.Create<string>());
+            clientSecretIdentityMock.Setup(m => m.ModifiedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            clientSecretIdentityMock.Setup(m => m.ModifiedByIdentifier)
+                .Returns(fixture.Create<string>());
             clientSecretIdentityMock.Setup(m => m.ToClaimsIdentity())
                 .Returns(new ClaimsIdentity());
             return clientSecretIdentityMock;

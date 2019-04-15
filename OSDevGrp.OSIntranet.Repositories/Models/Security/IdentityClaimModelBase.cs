@@ -1,10 +1,11 @@
 ﻿using System.Security.Claims;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 {
-    internal abstract class IdentityClaimModelBase
+    internal abstract class IdentityClaimModelBase : AuditModelBase
     {
         public virtual int ClaimIdentifier { get; set; }
 

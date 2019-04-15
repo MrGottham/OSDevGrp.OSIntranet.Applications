@@ -18,7 +18,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountGroupModel, nameof(accountGroupModel));
 
-            return new AccountGroup(accountGroupModel.AccountGroupIdentifier, accountGroupModel.Name, accountGroupModel.AccountGroupType);
+            IAccountGroup accountGroup = new AccountGroup(accountGroupModel.AccountGroupIdentifier, accountGroupModel.Name, accountGroupModel.AccountGroupType);
+            accountGroup.AddAuditInformations(accountGroupModel.CreatedUtcDateTime, accountGroupModel.CreatedByIdentifier, accountGroupModel.ModifiedUtcDateTime, accountGroupModel.ModifiedByIdentifier);
+
+            return accountGroup;
         }
     }
 }

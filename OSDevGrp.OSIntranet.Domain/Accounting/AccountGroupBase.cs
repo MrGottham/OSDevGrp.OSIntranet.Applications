@@ -1,9 +1,10 @@
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
-    public abstract class AccountGroupBase : IAccountGroupBase
+    public abstract class AccountGroupBase : AuditableBase, IAccountGroupBase
     {
         protected AccountGroupBase(int number, string name)
         {

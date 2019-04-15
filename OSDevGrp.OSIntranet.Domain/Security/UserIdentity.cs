@@ -30,6 +30,14 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public string ExternalUserIdentifier => Claims.Single(m => string.Compare(m.Type, ClaimHelper.ExternalUserIdentifierClaimType, StringComparison.Ordinal) == 0).Value;
 
+        public DateTime CreatedDateTime { get; private set; }
+
+        public string CreatedByIdentifier { get; private set; }
+
+        public DateTime ModifiedDateTime { get; private set; }
+
+        public string ModifiedByIdentifier { get; private set; }
+
         #endregion
 
         #region Methods
@@ -41,6 +49,17 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public void ClearSensitiveData()
         {
+        }
+
+        public void AddAuditInformations(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(createdByIdentifier, nameof(createdByIdentifier))
+                .NotNullOrWhiteSpace(modifiedByIdentifier, nameof(modifiedByIdentifier));
+
+            CreatedDateTime = createdUtcDateTime.ToLocalTime();
+            CreatedByIdentifier = createdByIdentifier;
+            ModifiedDateTime = modifiedUtcDateTime.ToLocalTime();
+            ModifiedByIdentifier = modifiedByIdentifier;
         }
 
         #endregion

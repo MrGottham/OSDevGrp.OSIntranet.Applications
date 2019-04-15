@@ -15,7 +15,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(budgetAccountGroupModel, nameof(budgetAccountGroupModel));
 
-            return new BudgetAccountGroup(budgetAccountGroupModel.BudgetAccountGroupIdentifier, budgetAccountGroupModel.Name);
+            IBudgetAccountGroup budgetAccountGroup = new BudgetAccountGroup(budgetAccountGroupModel.BudgetAccountGroupIdentifier, budgetAccountGroupModel.Name);
+            budgetAccountGroup.AddAuditInformations(budgetAccountGroupModel.CreatedUtcDateTime, budgetAccountGroupModel.CreatedByIdentifier, budgetAccountGroupModel.ModifiedUtcDateTime, budgetAccountGroupModel.ModifiedByIdentifier);
+
+            return budgetAccountGroup;
         }
     }
 }
