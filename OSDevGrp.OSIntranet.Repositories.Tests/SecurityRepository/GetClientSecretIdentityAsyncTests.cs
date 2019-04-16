@@ -27,6 +27,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
         }
 
         [Test]
+        [Category("IntegrationTest")]
+        public async Task GetClientSecretIdentityAsync_WhenCalledWithClientSecretIdentityIdentifier_ReturnsClientSecretIdentity()
+        {
+            ISecurityRepository sut = CreateSut();
+
+            IList<IClientSecretIdentity> clientSecretIdentityCollection = (await sut.GetClientSecretIdentitiesAsync()).ToList();
+            IClientSecretIdentity result = await sut.GetClientSecretIdentityAsync(clientSecretIdentityCollection[_random.Next(0, clientSecretIdentityCollection.Count - 1)].Identifier);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
         [Category("UnitTest")]
         public void GetClientSecretIdentityAsync_WhenClientIdIsNull_ThrowsArgumentNullException()
         {
@@ -61,7 +73,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
 
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetClientSecretIdentityAsync_WhenCalled_ReturnsClientSecretIdentity()
+        public async Task GetClientSecretIdentityAsync_WhenCalledWithClientId_ReturnsClientSecretIdentity()
         {
             ISecurityRepository sut = CreateSut();
 

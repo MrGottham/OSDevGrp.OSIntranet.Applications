@@ -27,6 +27,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
         }
 
         [Test]
+        [Category("IntegrationTest")]
+        public async Task GetUserIdentityAsync_WhenCalledWithUserIdentityIdentifier_ReturnsUserIdentity()
+        {
+            ISecurityRepository sut = CreateSut();
+
+            IList<IUserIdentity> userIdentityCollection = (await sut.GetUserIdentitiesAsync()).ToList();
+            IUserIdentity result = await sut.GetUserIdentityAsync(userIdentityCollection[_random.Next(0, userIdentityCollection.Count - 1)].Identifier);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
         [Category("UnitTest")]
         public void GetUserIdentityAsync_WhenExternalUserIdentifierIsNull_ThrowsArgumentNullException()
         {
@@ -61,7 +73,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
 
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetUserIdentityAsync_WhenCalled_ReturnsUserIdentity()
+        public async Task GetUserIdentityAsync_WhenCalledWithExternalUserIdentifier_ReturnsUserIdentity()
         {
             ISecurityRepository sut = CreateSut();
 

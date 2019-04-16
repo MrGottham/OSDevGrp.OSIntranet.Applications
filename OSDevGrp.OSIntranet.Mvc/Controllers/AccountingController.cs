@@ -18,7 +18,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         #region Private variables
 
         private readonly IQueryBus _queryBus;
-
         private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
 
         #endregion

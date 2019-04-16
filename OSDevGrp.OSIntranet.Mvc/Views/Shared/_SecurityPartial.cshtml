@@ -5,6 +5,8 @@
     <li class="nav-item dropdown">
         <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuSecurity" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sikkerhedsstyring</a>
         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuSecurity">
+            <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Security" asp-action="UserIdentities">Brugere</a>
+            <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Security" asp-action="ClientSecretIdentities">Web API klienter</a>
         </ul>
     </li>
 }

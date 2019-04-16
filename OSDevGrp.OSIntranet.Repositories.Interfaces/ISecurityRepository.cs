@@ -9,9 +9,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
     {
         Task<IEnumerable<IUserIdentity>> GetUserIdentitiesAsync();
 
+        Task<IUserIdentity> GetUserIdentityAsync(int userIdentityIdentifier);
+
         Task<IUserIdentity> GetUserIdentityAsync(string externalUserIdentifier);
 
         Task<IEnumerable<IClientSecretIdentity>> GetClientSecretIdentitiesAsync();
+
+        Task<IClientSecretIdentity> GetClientSecretIdentityAsync(int clientSecretIdentityIdentifier);
 
         Task<IClientSecretIdentity> GetClientSecretIdentityAsync(string clientId);
 

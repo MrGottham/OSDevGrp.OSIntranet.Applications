@@ -1,0 +1,33 @@
+﻿@model IEnumerable<UserIdentityViewModel>;
+@{
+    ViewData["Title"] = "Brugere";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Brugere</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Ekstern bruger identifikation</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (UserIdentityViewModel userIdentityViewModel in @Model)
+                {
+                    <tr>
+                        <td>@userIdentityViewModel.ExternalUserIdentifier</td>
+                        <td></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>

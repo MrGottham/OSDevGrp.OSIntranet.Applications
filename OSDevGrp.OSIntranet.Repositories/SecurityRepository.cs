@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -40,6 +39,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => GetUserIdentities());
         }
 
+        public Task<IUserIdentity> GetUserIdentityAsync(int userIdentityIdentifier)
+        {
+            return Task.Run(() => GetUserIdentity(userIdentityIdentifier));
+        }
+
         public Task<IUserIdentity> GetUserIdentityAsync(string externalUserIdentifier)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
@@ -50,6 +54,11 @@ namespace OSDevGrp.OSIntranet.Repositories
         public Task<IEnumerable<IClientSecretIdentity>> GetClientSecretIdentitiesAsync()
         {
             return Task.Run(( )=> GetClientSecretIdentities());
+        }
+
+        public Task<IClientSecretIdentity> GetClientSecretIdentityAsync(int clientSecretIdentityIdentifier)
+        {
+            return Task.Run(() => GetClientSecretIdentity(clientSecretIdentityIdentifier));
         }
 
         public Task<IClientSecretIdentity> GetClientSecretIdentityAsync(string clientId)
@@ -76,6 +85,26 @@ namespace OSDevGrp.OSIntranet.Repositories
                             .Select(userIdentityModel => _securityModelConverter.Convert<UserIdentityModel, IUserIdentity>(userIdentityModel))
                             .OrderBy(userIdentity => userIdentity.ExternalUserIdentifier)
                             .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IUserIdentity GetUserIdentity(int userIdentityIdentifier)
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        UserIdentityModel userIdentityModel = context.UserIdentities
+                            .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => model.UserIdentityIdentifier == userIdentityIdentifier);
+                        if (userIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        return _securityModelConverter.Convert<UserIdentityModel, IUserIdentity>(userIdentityModel);
                     }
                 },
                 MethodBase.GetCurrentMethod());
@@ -115,6 +144,26 @@ namespace OSDevGrp.OSIntranet.Repositories
                             .Select(clientSecretIdentityModel => _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel))
                             .OrderBy(clientSecretIdentity => clientSecretIdentity.FriendlyName)
                             .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IClientSecretIdentity GetClientSecretIdentity(int clientSecretIdentityIdentifier)
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration))
+                    {
+                        ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities
+                            .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => model.ClientSecretIdentityIdentifier == clientSecretIdentityIdentifier);
+                        if (clientSecretIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        return _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel);
                     }
                 },
                 MethodBase.GetCurrentMethod());
