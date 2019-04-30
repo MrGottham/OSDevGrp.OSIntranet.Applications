@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Moq;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
@@ -132,7 +133,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             NullGuard.NotNull(validatorMock, nameof(validatorMock));
 
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
-            SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
         }
 

@@ -1,6 +1,8 @@
 using AutoMapper;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -12,11 +14,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
-            mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>();
+            mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
-            mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupViewModel>();
+            mapperConfiguration.CreateMap<AccountGroupViewModel, CreateAccountGroupCommand>();
+
+            mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<BudgetAccountGroupViewModel, CreateBudgetAccountGroupCommand>();
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
+            mapperConfiguration.CreateMap<AccountGroupType, Domain.Interfaces.Accounting.Enums.AccountGroupType>();
         }
 
         #endregion

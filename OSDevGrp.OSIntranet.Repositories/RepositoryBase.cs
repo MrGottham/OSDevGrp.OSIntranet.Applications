@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -10,11 +11,13 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected RepositoryBase(IConfiguration configuration)
+        protected RepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver)
         {
-            NullGuard.NotNull(configuration, nameof(configuration));
+            NullGuard.NotNull(configuration, nameof(configuration))
+                .NotNull(principalResolver, nameof(principalResolver));
 
             Configuration = configuration;
+            PrincipalResolver = principalResolver;
         }
 
         #endregion
@@ -22,6 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories
         #region Properties
 
         protected IConfiguration Configuration { get; }
+
+        protected IPrincipalResolver PrincipalResolver { get; }
 
         #endregion
 

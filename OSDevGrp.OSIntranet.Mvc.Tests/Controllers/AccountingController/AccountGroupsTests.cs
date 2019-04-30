@@ -6,6 +6,7 @@ using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
     {
         #region Private variables
 
+        private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Fixture _fixture;
         private Random _random;
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [SetUp]
         public void SetUp()
         {
+            _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
 
             _fixture = new Fixture();
@@ -93,7 +96,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<IAccountGroup>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.Run(() => accountGroupCollection ?? _fixture.CreateMany<IAccountGroup>(_random.Next(5, 10)).ToList()));
 
-            return new Controller(_queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
         }
     }
 }

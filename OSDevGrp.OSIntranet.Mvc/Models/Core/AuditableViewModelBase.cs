@@ -6,6 +6,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Core
     {
         #region Properties
 
+        public EditMode EditMode { get; set; }
+
         public DateTime CreatedDateTime { get; set; }
 
         public string CreatedByIdentifier { get; set; }

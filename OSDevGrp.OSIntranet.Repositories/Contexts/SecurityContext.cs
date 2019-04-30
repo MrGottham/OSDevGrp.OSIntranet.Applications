@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
@@ -13,8 +14,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
         }
 
-        public SecurityContext(IConfiguration configuration)
-            : base(configuration)
+        public SecurityContext(IConfiguration configuration, IPrincipalResolver principalResolver)
+            : base(configuration, principalResolver)
         {
         }
 

@@ -1,0 +1,19 @@
+@model AccountGroupViewModelBase;
+<input type="hidden" asp-for="EditMode" />
+@if (Model.EditMode == EditMode.Create)
+{
+    <div class="form-group">
+        <label asp-for="Number"></label>
+        <input asp-for="Number" class="form-control" />
+        <span asp-validation-for="Number" class="text-danger"></span>
+    </div>
+}
+else
+{
+    <input type="hidden" asp-for="Number" />
+}
+<div class="form-group">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>

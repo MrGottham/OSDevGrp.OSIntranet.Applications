@@ -3,7 +3,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
@@ -22,8 +24,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public AccountingRepository(IConfiguration configuration)
-            : base(configuration)
+        public AccountingRepository(IConfiguration configuration, IPrincipalResolver principalResolver)
+            : base(configuration, principalResolver)
         {
         }
 
@@ -41,6 +43,13 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => GetAccountGroup(number));
         }
 
+        public Task<IAccountGroup> CreateAccountGroupAsync(IAccountGroup accountGroup)
+        {
+            NullGuard.NotNull(accountGroup, nameof(accountGroup));
+
+            return Task.Run(() => CreateAccountGroup(accountGroup));
+        }
+
         public Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync()
         {
             return Task.Run(() => GetBudgetAccountGroups());
@@ -51,11 +60,18 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => GetBudgetAccountGroup(number));
         }
 
+        public Task<IBudgetAccountGroup> CreateBudgetAccountGroupAsync(IBudgetAccountGroup budgetAccountGroup)
+        {
+            NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup));
+
+            return Task.Run(() => CreateBudgetAccountGroup(budgetAccountGroup));
+        }
+
         private IEnumerable<IAccountGroup> GetAccountGroups()
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
                     {
                         return context.AccountGroups.AsParallel()
                             .Select(accountGroupModel => _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel))
@@ -70,7 +86,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
                     {
                         AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
                         if (accountGroupModel == null)
@@ -84,11 +100,31 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
+        private IAccountGroup CreateAccountGroup(IAccountGroup accountGroup)
+        {
+            NullGuard.NotNull(accountGroup, nameof(accountGroup));
+
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    {
+                        AccountGroupModel accountGroupModel = _accountingModelConverter.Convert<IAccountGroup, AccountGroupModel>(accountGroup);
+
+                        context.AccountGroups.Add(accountGroupModel);
+
+                        context.SaveChanges();
+
+                        return GetAccountGroup(accountGroup.Number);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
         private IEnumerable<IBudgetAccountGroup> GetBudgetAccountGroups()
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
                     {
                         return context.BudgetAccountGroups.AsParallel()
                             .Select(budgetAccountGroupModel => _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel))
@@ -103,7 +139,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
                     {
                         BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
                         if (budgetAccountGroupModel == null)
@@ -112,6 +148,26 @@ namespace OSDevGrp.OSIntranet.Repositories
                         }
 
                         return  _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IBudgetAccountGroup CreateBudgetAccountGroup(IBudgetAccountGroup budgetAccountGroup)
+        {
+            NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup));
+
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    {
+                        BudgetAccountGroupModel budgetAccountGroupModel = _accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>(budgetAccountGroup);
+
+                        context.BudgetAccountGroups.Add(budgetAccountGroupModel);
+
+                        context.SaveChanges();
+
+                        return GetBudgetAccountGroup(budgetAccountGroup.Number);
                     }
                 },
                 MethodBase.GetCurrentMethod());

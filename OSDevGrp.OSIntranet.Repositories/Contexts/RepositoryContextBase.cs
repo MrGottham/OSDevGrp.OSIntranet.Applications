@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
@@ -21,13 +23,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             Configuration = new ConfigurationBuilder()
                 .AddUserSecrets<AccountingContext>()
                 .Build();
+            PrincipalResolver = new ThreadPrincipalResolver();
         }
 
-        protected RepositoryContextBase(IConfiguration configuration)
+        protected RepositoryContextBase(IConfiguration configuration, IPrincipalResolver principalResolver)
         {
-            NullGuard.NotNull(configuration, nameof(configuration));
+            NullGuard.NotNull(configuration, nameof(configuration))
+                .NotNull(principalResolver, nameof(principalResolver));
 
             Configuration = configuration;
+            PrincipalResolver = principalResolver;
         }
 
         #endregion
@@ -36,13 +41,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         protected IConfiguration Configuration { get; }
 
+        protected IPrincipalResolver PrincipalResolver { get; }
+
         #endregion
 
         #region Methods
 
         public override int SaveChanges()
         {
-            string identityIdentifier = GetIdentityIdentifier(Thread.CurrentPrincipal);
+            string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
             AddAuditInformations(identityIdentifier);
 
@@ -51,7 +58,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            string identityIdentifier = GetIdentityIdentifier(Thread.CurrentPrincipal);
+            string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
             AddAuditInformations(identityIdentifier);
 
@@ -60,7 +67,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            string identityIdentifier = GetIdentityIdentifier(Thread.CurrentPrincipal);
+            string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
             AddAuditInformations(identityIdentifier);
 
@@ -69,7 +76,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public async override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
-            string identityIdentifier = GetIdentityIdentifier(Thread.CurrentPrincipal);
+            string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
             AddAuditInformations(identityIdentifier);
 

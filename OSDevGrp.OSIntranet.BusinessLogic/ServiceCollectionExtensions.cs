@@ -13,12 +13,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
-            return serviceCollection.AddTransient<IValidator, Validator>()
-                .AddTransient<IIntegerValidator, IntegerValidator>()
-                .AddTransient<IDecimalValidator, DecimalValidator>()
-                .AddTransient<IStringValidator, StringValidator>()
-                .AddTransient<IDateTimeValidator, DateTimeValidator>()
-                .AddTransient<IObjectValidator, ObjectValidator>();
+            return serviceCollection.AddSingleton<IValidator, Validator>()
+                .AddSingleton<IIntegerValidator, IntegerValidator>()
+                .AddSingleton<IDecimalValidator, DecimalValidator>()
+                .AddSingleton<IStringValidator, StringValidator>()
+                .AddSingleton<IDateTimeValidator, DateTimeValidator>()
+                .AddSingleton<IObjectValidator, ObjectValidator>();
         }
 
         public static IServiceCollection AddBusinessLogicHelpers(this IServiceCollection serviceCollection)

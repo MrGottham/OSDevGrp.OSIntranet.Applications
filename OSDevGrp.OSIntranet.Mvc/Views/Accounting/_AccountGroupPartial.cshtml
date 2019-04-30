@@ -1,0 +1,7 @@
+@model AccountGroupViewModel;
+<partial name="_AccountGroupBasePartial" />
+<div class="form-group">
+    <label asp-for="AccountGroupType"></label>
+    <select asp-for="AccountGroupType" asp-items="Model.AccountGroupTypes" class="form-control"></select>
+    <span asp-validation-for="AccountGroupType" class="text-danger"></span>
+</div>

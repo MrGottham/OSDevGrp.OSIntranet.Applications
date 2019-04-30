@@ -1,6 +1,7 @@
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Security
 {
@@ -12,9 +13,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Security
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
-            mapperConfiguration.CreateMap<IUserIdentity, UserIdentityViewModel>();
+            mapperConfiguration.CreateMap<IUserIdentity, UserIdentityViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
-            mapperConfiguration.CreateMap<IClientSecretIdentity, ClientSecretIdentityViewModel>();
+            mapperConfiguration.CreateMap<IClientSecretIdentity, ClientSecretIdentityViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
         }
 
         #endregion

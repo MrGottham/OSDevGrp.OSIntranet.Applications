@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
@@ -10,8 +11,10 @@ using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Security;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -63,6 +66,8 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IPrincipalResolver, PrincipalResolver>();
             services.AddTransient<ISecurityContextReader, SecurityContextReader>();
         }
 

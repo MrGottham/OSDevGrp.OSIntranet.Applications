@@ -8,7 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.Repositories;
 
 namespace OSDevGrp.OSIntranet.Mvc
@@ -70,7 +72,11 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddRepositories();
+            services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IPrincipalResolver, PrincipalResolver>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -88,6 +94,7 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             app.UseAuthentication();
             app.UseHttpsRedirection();
+            app.UseRequestLocalization(options => options.SetDefaultCulture("da-DK"));
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
