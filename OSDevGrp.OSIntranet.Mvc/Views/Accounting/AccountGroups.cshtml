@@ -26,7 +26,9 @@
                             <td>@accountGroupViewModel.Number</td>
                             <td>@accountGroupViewModel.Name</td>
                             <td>@accountGroupViewModel.AccountGroupType.EnumDisplayNameFor()</td>
-                            <td></td>
+                            <td>
+                                <a asp-area="" asp-controller="Accounting" asp-action="UpdateAccountGroup" asp-route-number="@accountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+                            </td>
                         </tr>
                     }
                 </tbody>

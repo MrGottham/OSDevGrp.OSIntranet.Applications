@@ -78,10 +78,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             Exception innerException = null;
             try
             {
-                Task<bool> isKnownValueGetterTask = isUnknownValueGetter(value);
-                isKnownValueGetterTask.Wait();
+                Task<bool> isUnknownValueGetterTask = isUnknownValueGetter(value);
+                isUnknownValueGetterTask.Wait();
 
-                if (isKnownValueGetterTask.Result)
+                if (isUnknownValueGetterTask.Result)
                 {
                     return this;
                 }

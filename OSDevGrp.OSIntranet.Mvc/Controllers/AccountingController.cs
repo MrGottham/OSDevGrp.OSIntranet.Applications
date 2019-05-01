@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -84,6 +86,38 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> UpdateAccountGroup(int number)
+        {
+            IGetAccountGroupQuery query = new GetAccountGroupQuery
+            {
+                Number = number
+            };
+            IAccountGroup accountGroup = await _queryBus.QueryAsync<IGetAccountGroupQuery, IAccountGroup>(query);
+
+            AccountGroupViewModel accountGroupViewModel = _accountingViewModelConverter.Convert<IAccountGroup, AccountGroupViewModel>(accountGroup);
+            accountGroupViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdateAccountGroup", accountGroupViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAccountGroup(AccountGroupViewModel accountGroupViewModel)
+        {
+            NullGuard.NotNull(accountGroupViewModel, nameof(accountGroupViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdateAccountGroup", accountGroupViewModel);
+            }
+
+            IUpdateAccountGroupCommand command = _accountingViewModelConverter.Convert<AccountGroupViewModel, UpdateAccountGroupCommand>(accountGroupViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("AccountGroups", "Accounting");
+        }
+
+        [HttpGet]
         public async Task<IActionResult> BudgetAccountGroups()
         {
             IEnumerable<IBudgetAccountGroup> budgetAccountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IBudgetAccountGroup>>(new EmptyQuery());
@@ -119,6 +153,38 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             ICreateBudgetAccountGroupCommand command = _accountingViewModelConverter.Convert<BudgetAccountGroupViewModel, CreateBudgetAccountGroupCommand>(budgetAccountGroupViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("BudgetAccountGroups", "Accounting");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateBudgetAccountGroup(int number)
+        {
+            IGetBudgetAccountGroupQuery query = new GetBudgetAccountGroupQuery
+            {
+                Number = number
+            };
+            IBudgetAccountGroup budgetAccountGroup = await _queryBus.QueryAsync<IGetBudgetAccountGroupQuery, IBudgetAccountGroup>(query);
+
+            BudgetAccountGroupViewModel budgetAccountGroupViewModel = _accountingViewModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupViewModel>(budgetAccountGroup);
+            budgetAccountGroupViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdateBudgetAccountGroup", budgetAccountGroupViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBudgetAccountGroup(BudgetAccountGroupViewModel budgetAccountGroupViewModel)
+        {
+            NullGuard.NotNull(budgetAccountGroupViewModel, nameof(budgetAccountGroupViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdateBudgetAccountGroup", budgetAccountGroupViewModel);
+            }
+
+            IUpdateBudgetAccountGroupCommand command = _accountingViewModelConverter.Convert<BudgetAccountGroupViewModel, UpdateBudgetAccountGroupCommand>(budgetAccountGroupViewModel);
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("BudgetAccountGroups", "Accounting");

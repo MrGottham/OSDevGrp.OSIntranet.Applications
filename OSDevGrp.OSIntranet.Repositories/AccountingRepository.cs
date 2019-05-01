@@ -50,6 +50,13 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => CreateAccountGroup(accountGroup));
         }
 
+        public Task<IAccountGroup> UpdateAccountGroupAsync(IAccountGroup accountGroup)
+        {
+            NullGuard.NotNull(accountGroup, nameof(accountGroup));
+
+            return Task.Run(() => UpdateAccountGroup(accountGroup));
+        }
+
         public Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync()
         {
             return Task.Run(() => GetBudgetAccountGroups());
@@ -65,6 +72,13 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup));
 
             return Task.Run(() => CreateBudgetAccountGroup(budgetAccountGroup));
+        }
+
+        public Task<IBudgetAccountGroup> UpdateBudgetAccountGroupAsync(IBudgetAccountGroup budgetAccountGroup)
+        {
+            NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup));
+
+            return Task.Run(() => UpdateBudgetAccountGroup(budgetAccountGroup));
         }
 
         private IEnumerable<IAccountGroup> GetAccountGroups()
@@ -120,6 +134,31 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
+        private IAccountGroup UpdateAccountGroup(IAccountGroup accountGroup)
+        {
+            NullGuard.NotNull(accountGroup, nameof(accountGroup));
+
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    {
+                        AccountGroupModel accountGroupModel = context.AccountGroups.Find(accountGroup.Number);
+                        if (accountGroupModel == null)
+                        {
+                            return null;
+                        }
+
+                        accountGroupModel.Name = accountGroup.Name;
+                        accountGroupModel.AccountGroupType = accountGroup.AccountGroupType;
+
+                        context.SaveChanges();
+
+                        return GetAccountGroup(accountGroup.Number);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
         private IEnumerable<IBudgetAccountGroup> GetBudgetAccountGroups()
         {
             return Execute(() =>
@@ -164,6 +203,30 @@ namespace OSDevGrp.OSIntranet.Repositories
                         BudgetAccountGroupModel budgetAccountGroupModel = _accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>(budgetAccountGroup);
 
                         context.BudgetAccountGroups.Add(budgetAccountGroupModel);
+
+                        context.SaveChanges();
+
+                        return GetBudgetAccountGroup(budgetAccountGroup.Number);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IBudgetAccountGroup UpdateBudgetAccountGroup(IBudgetAccountGroup budgetAccountGroup)
+        {
+            NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup));
+
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    {
+                        BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(budgetAccountGroup.Number);
+                        if (budgetAccountGroupModel == null)
+                        {
+                            return null;
+                        }
+
+                        budgetAccountGroupModel.Name = budgetAccountGroup.Name;;
 
                         context.SaveChanges();
 

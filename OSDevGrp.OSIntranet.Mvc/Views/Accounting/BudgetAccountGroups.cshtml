@@ -23,7 +23,9 @@
                         <tr>
                             <td>@budgetAccountGroupViewModel.Number</td>
                             <td>@budgetAccountGroupViewModel.Name</td>
-                            <td></td>
+                            <td>
+                                <a asp-area="" asp-controller="Accounting" asp-action="UpdateBudgetAccountGroup" asp-route-number="@budgetAccountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+                            </td>
                         </tr>
                     }
                 </tbody>

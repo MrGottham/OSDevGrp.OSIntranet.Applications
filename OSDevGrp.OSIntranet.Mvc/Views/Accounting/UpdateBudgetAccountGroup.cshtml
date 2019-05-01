@@ -1,0 +1,25 @@
+@model BudgetAccountGroupViewModel;
+@{
+    ViewData["Title"] = "Redigér budgetkontogruppe";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Redigér budgetkontogruppe</h2>
+        <form asp-area="" asp-controller="Accounting" asp-action="UpdateBudgetAccountGroup" method="post">
+            <partial name="_BudgetAccountGroupPartial" />
+            <partial name="_AuditablePartial" />
+            <button type="submit" class="btn btn-primary">Opdatér</button>
+            <a class="btn btn-secondary" asp-controller="Accounting" asp-action="BudgetAccountGroups">Fortryd</a>
+       </form>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

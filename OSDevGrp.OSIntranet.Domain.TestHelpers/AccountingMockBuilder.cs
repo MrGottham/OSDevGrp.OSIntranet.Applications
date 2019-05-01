@@ -9,17 +9,17 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class AccountingMockBuilder
     {
-        public static Mock<IAccountGroup> BuildAccountGroupMock(this Fixture fixture)
+        public static Mock<IAccountGroup> BuildAccountGroupMock(this Fixture fixture, int? number = null, string name = null, AccountGroupType? accountGroupType = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IAccountGroup> accountGroupMock = new Mock<IAccountGroup>();
             accountGroupMock.Setup(m => m.Number)
-                .Returns(fixture.Create<int>());
+                .Returns(number ?? fixture.Create<int>());
             accountGroupMock.Setup(m => m.Name)
-                .Returns(fixture.Create<string>());
+                .Returns(name ?? fixture.Create<string>());
             accountGroupMock.Setup(m => m.AccountGroupType)
-                .Returns(fixture.Create<AccountGroupType>());
+                .Returns(accountGroupType ?? fixture.Create<AccountGroupType>());
             accountGroupMock.Setup(m => m.CreatedDateTime)
                 .Returns(fixture.Create<DateTime>());
             accountGroupMock.Setup(m => m.CreatedByIdentifier)
@@ -31,15 +31,15 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return accountGroupMock;
         }
 
-        public static Mock<IBudgetAccountGroup> BuildBudgetAccountGroupMock(this Fixture fixture)
+        public static Mock<IBudgetAccountGroup> BuildBudgetAccountGroupMock(this Fixture fixture, int? number = null, string name = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IBudgetAccountGroup> budgetAccountGroupMock = new Mock<IBudgetAccountGroup>();
             budgetAccountGroupMock.Setup(m => m.Number)
-                .Returns(fixture.Create<int>());
+                .Returns(number ?? fixture.Create<int>());
             budgetAccountGroupMock.Setup(m => m.Name)
-                .Returns(fixture.Create<string>());
+                .Returns(name ?? fixture.Create<string>());
             budgetAccountGroupMock.Setup(m => m.CreatedDateTime)
                 .Returns(fixture.Create<DateTime>());
             budgetAccountGroupMock.Setup(m => m.CreatedByIdentifier)

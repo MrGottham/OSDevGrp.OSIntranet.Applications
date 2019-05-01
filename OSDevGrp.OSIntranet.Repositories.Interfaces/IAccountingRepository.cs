@@ -12,10 +12,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IAccountGroup> CreateAccountGroupAsync(IAccountGroup accountGroup);
 
+        Task<IAccountGroup> UpdateAccountGroupAsync(IAccountGroup accountGroup);
+
         Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync();
 
         Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(int number);
 
         Task<IBudgetAccountGroup> CreateBudgetAccountGroupAsync(IBudgetAccountGroup budgetAccountGroup);
+
+        Task<IBudgetAccountGroup> UpdateBudgetAccountGroupAsync(IBudgetAccountGroup budgetAccountGroup);
     }
 }
