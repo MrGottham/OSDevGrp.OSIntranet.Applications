@@ -17,6 +17,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [StringLength(256, MinimumLength = 1, ErrorMessage = "Længden på navnet skal være mellem {2} og {1} tegn.")]
         public string Name { get; set; }
 
+        public bool Deletable { get; set; }
+
         #endregion
     }
 }

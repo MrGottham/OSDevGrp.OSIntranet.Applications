@@ -57,6 +57,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => UpdateAccountGroup(accountGroup));
         }
 
+        public Task<IAccountGroup> DeleteAccountGroupAsync(int number)
+        {
+            return Task.Run(() => DeleteAccountGroup(number));
+        }
+
         public Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync()
         {
             return Task.Run(() => GetBudgetAccountGroups());
@@ -81,6 +86,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => UpdateBudgetAccountGroup(budgetAccountGroup));
         }
 
+        public Task<IBudgetAccountGroup> DeleteBudgetAccountGroupAsync(int number)
+        {
+            return Task.Run(() => DeleteBudgetAccountGroup(number));
+        }
+
         private IEnumerable<IAccountGroup> GetAccountGroups()
         {
             return Execute(() =>
@@ -88,7 +98,12 @@ namespace OSDevGrp.OSIntranet.Repositories
                     using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
                     {
                         return context.AccountGroups.AsParallel()
-                            .Select(accountGroupModel => _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel))
+                            .Select(accountGroupModel => 
+                            {
+                                accountGroupModel.Deletable = CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier);
+
+                                return _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
+                            })
                             .OrderBy(accountGroup => accountGroup.Number)
                             .ToList();
                     }
@@ -107,6 +122,8 @@ namespace OSDevGrp.OSIntranet.Repositories
                         {
                             return null;
                         }
+
+                        accountGroupModel.Deletable = CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier);
 
                         return  _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
                     }
@@ -159,6 +176,40 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
+        private IAccountGroup DeleteAccountGroup(int number)
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    {
+                        AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
+                        if (accountGroupModel == null)
+                        {
+                            return null;
+                        }
+
+                        if (CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier) == false)
+                        {
+                            return GetAccountGroup(accountGroupModel.AccountGroupIdentifier);
+                        }
+
+                        context.AccountGroups.Remove(accountGroupModel);
+
+                        context.SaveChanges();
+
+                        return null;
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private bool CanDeleteAccountGroup(AccountingContext context, int accountGroupIdentifier)
+        {
+            NullGuard.NotNull(context, nameof(context));
+
+            return false;
+        }
+
         private IEnumerable<IBudgetAccountGroup> GetBudgetAccountGroups()
         {
             return Execute(() =>
@@ -166,7 +217,12 @@ namespace OSDevGrp.OSIntranet.Repositories
                     using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
                     {
                         return context.BudgetAccountGroups.AsParallel()
-                            .Select(budgetAccountGroupModel => _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel))
+                            .Select(budgetAccountGroupModel => 
+                            {
+                                budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+
+                                return _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
+                            })
                             .OrderBy(budgetAccountGroup => budgetAccountGroup.Number)
                             .ToList();
                     }
@@ -185,6 +241,8 @@ namespace OSDevGrp.OSIntranet.Repositories
                         {
                             return null;
                         }
+
+                        budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
 
                         return  _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
                     }
@@ -234,6 +292,40 @@ namespace OSDevGrp.OSIntranet.Repositories
                     }
                 },
                 MethodBase.GetCurrentMethod());
+        }
+
+        private IBudgetAccountGroup DeleteBudgetAccountGroup(int number)
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    {
+                        BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
+                        if (budgetAccountGroupModel == null)
+                        {
+                            return null;
+                        }
+
+                        if (CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier) == false)
+                        {
+                            return GetBudgetAccountGroup(budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+                        }
+
+                        context.BudgetAccountGroups.Remove(budgetAccountGroupModel);
+
+                        context.SaveChanges();
+
+                        return null;
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private bool CanDeleteBudgetAccountGroup(AccountingContext context, int budgetAccountGroupIdentifier)
+        {
+            NullGuard.NotNull(context, nameof(context));
+
+            return false;
         }
 
         #endregion

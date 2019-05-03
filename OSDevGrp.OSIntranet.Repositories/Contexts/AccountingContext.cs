@@ -37,28 +37,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<AccountGroupModel>(entity =>
-            {
-                entity.HasKey(e => e.AccountGroupIdentifier);
-                entity.Property(e => e.AccountGroupIdentifier).IsRequired();
-                entity.Property(e => e.Name).IsRequired().IsUnicode().HasMaxLength(256);
-                entity.Property(e => e.AccountGroupType).IsRequired();
-                entity.Property(e => e.CreatedUtcDateTime).IsRequired();
-                entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-                entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
-                entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-            });
-
-            modelBuilder.Entity<BudgetAccountGroupModel>(entity =>
-            {
-                entity.HasKey(e => e.BudgetAccountGroupIdentifier);
-                entity.Property(e => e.BudgetAccountGroupIdentifier).IsRequired();
-                entity.Property(e => e.Name).IsRequired().IsUnicode().HasMaxLength(256);
-                entity.Property(e => e.CreatedUtcDateTime).IsRequired();
-                entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-                entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
-                entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-            });
+            modelBuilder.CreateAccountGroupModel();
+            modelBuilder.CreateBudgetAccountGroupModel();
         }
 
         #endregion

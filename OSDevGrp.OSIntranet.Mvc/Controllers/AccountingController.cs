@@ -117,6 +117,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("AccountGroups", "Accounting");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccountGroup(int number)
+        {
+            IDeleteAccountGroupCommand command = new DeleteAccountGroupCommand
+            {
+                Number = number
+            };
+            await _commandBus.PublishAsync<IDeleteAccountGroupCommand>(command);
+
+            return RedirectToAction("AccountGroups", "Accounting");
+        }
+
         [HttpGet]
         public async Task<IActionResult> BudgetAccountGroups()
         {
@@ -186,6 +199,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             IUpdateBudgetAccountGroupCommand command = _accountingViewModelConverter.Convert<BudgetAccountGroupViewModel, UpdateBudgetAccountGroupCommand>(budgetAccountGroupViewModel);
             await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("BudgetAccountGroups", "Accounting");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBudgetAccountGroup(int number)
+        {
+            IDeleteBudgetAccountGroupCommand command = new DeleteBudgetAccountGroupCommand
+            {
+                Number = number
+            };
+            await _commandBus.PublishAsync<IDeleteBudgetAccountGroupCommand>(command);
 
             return RedirectToAction("BudgetAccountGroups", "Accounting");
         }

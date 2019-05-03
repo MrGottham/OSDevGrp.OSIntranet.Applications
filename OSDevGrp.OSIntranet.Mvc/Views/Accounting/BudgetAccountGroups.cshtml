@@ -24,12 +24,28 @@
                             <td>@budgetAccountGroupViewModel.Number</td>
                             <td>@budgetAccountGroupViewModel.Name</td>
                             <td>
-                                <a asp-area="" asp-controller="Accounting" asp-action="UpdateBudgetAccountGroup" asp-route-number="@budgetAccountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+                                <span class="fa-stack">
+                                    <a asp-area="" asp-controller="Accounting" asp-action="UpdateBudgetAccountGroup" asp-route-number="@budgetAccountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+                                    @if (budgetAccountGroupViewModel.Deletable)
+                                    {
+                                        <a href="#" onclick="javascript:$().askForDeletion('Slet budgetkontogruppe', $('form[id=@(budgetAccountGroupViewModel.Number)]'));"><i class="fas fa-trash"></i></a>
+                                    }
+                                </span>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
+        <div>
+            @if (Model.Any(budgetAccountGroupViewModel => budgetAccountGroupViewModel.Deletable))
+            {
+                foreach (BudgetAccountGroupViewModel deletableBudgetAccountGroupViewModel in Model.Where(m => m.Deletable))
+                {
+                    <form id="@deletableBudgetAccountGroupViewModel.Number" asp-area="" asp-controller="Accounting" asp-action="DeleteBudgetAccountGroup" asp-route-number="@deletableBudgetAccountGroupViewModel.Number" method="post">
+                    </form>
+                }
+            }
         </div>
     </div>
     <div class="col-xl-1">

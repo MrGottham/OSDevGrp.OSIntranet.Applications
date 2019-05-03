@@ -27,12 +27,28 @@
                             <td>@accountGroupViewModel.Name</td>
                             <td>@accountGroupViewModel.AccountGroupType.EnumDisplayNameFor()</td>
                             <td>
-                                <a asp-area="" asp-controller="Accounting" asp-action="UpdateAccountGroup" asp-route-number="@accountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+                                <span class="fa-stack">
+                                    <a asp-area="" asp-controller="Accounting" asp-action="UpdateAccountGroup" asp-route-number="@accountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+                                    @if (accountGroupViewModel.Deletable)
+                                    {
+                                        <a href="#" onclick="javascript:$().askForDeletion('Slet kontogruppe', $('form[id=@(accountGroupViewModel.Number)]'));"><i class="fas fa-trash"></i></a>
+                                    }
+                                </span>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
+        <div>
+            @if (Model.Any(accountGroupViewModel => accountGroupViewModel.Deletable))
+            {
+                foreach (AccountGroupViewModel deletableAccountGroupViewModel in Model.Where(m => m.Deletable))
+                {
+                    <form id="@deletableAccountGroupViewModel.Number" asp-area="" asp-controller="Accounting" asp-action="DeleteAccountGroup" asp-route-number="@deletableAccountGroupViewModel.Number" method="post">
+                    </form>
+                }
+            }
         </div>
     </div>
     <div class="col-xl-1">

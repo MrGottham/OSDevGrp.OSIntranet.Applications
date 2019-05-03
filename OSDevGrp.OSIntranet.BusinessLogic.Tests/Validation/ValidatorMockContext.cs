@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Moq;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
@@ -146,6 +148,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             objectValidatorMock.Setup(m => m.ShouldBeKnownValue(It.IsAny<T>(), It.IsAny<Func<T, Task<bool>>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(validatorMock.Object);
             objectValidatorMock.Setup(m => m.ShouldBeUnknownValue(It.IsAny<T>(), It.IsAny<Func<T, Task<bool>>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(validatorMock.Object);
+            
+            SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
+        }
+
+        private static void SetupShouldBeDeletable<TValue, TDeletable>(Mock<IValidator> validatorMock, Mock<IObjectValidator> objectValidatorMock) where TDeletable : IDeletable
+        {
+            NullGuard.NotNull(validatorMock, nameof(validatorMock))
+                .NotNull(objectValidatorMock, nameof(objectValidatorMock));
+
+            objectValidatorMock.Setup(m => m.ShouldBeDeletable(It.IsAny<TValue>(), It.IsAny<Func<TValue, Task<TDeletable>>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(validatorMock.Object);
         }
 

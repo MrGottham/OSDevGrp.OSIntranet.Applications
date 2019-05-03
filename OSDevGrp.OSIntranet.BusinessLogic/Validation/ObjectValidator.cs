@@ -4,6 +4,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
 {
@@ -96,6 +97,53 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             }
 
             IIntranetExceptionBuilder intranetExceptionBuilder = new IntranetExceptionBuilder(ErrorCode.ValueShouldBeUnknown, validatingField)
+                .WithValidatingType(validatingType)
+                .WithValidatingField(validatingField);
+
+            throw (innerException == null ? intranetExceptionBuilder : intranetExceptionBuilder.WithInnerException(innerException)).Build();
+        }
+
+        public IValidator ShouldBeDeletable<TValue, TDeletable>(TValue value, Func<TValue, Task<TDeletable>> deletableGetter, Type validatingType, string validatingField, bool allowNull = false) where TDeletable : IDeletable
+        {
+            NullGuard.NotNull(deletableGetter, nameof(deletableGetter))
+                .NotNull(validatingType, nameof(validatingType))
+                .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+            if (Equals(value, null) && allowNull)
+            {
+                return this;
+            }
+
+            if (Equals(value, null))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, validatingField)
+                    .WithValidatingType(validatingType)
+                    .WithValidatingField(validatingField)
+                    .Build();
+            }
+
+            Exception innerException = null;
+            try
+            {
+                Task<TDeletable> deletableGetterTask = deletableGetter(value);
+                deletableGetterTask.Wait();
+
+                IDeletable deletable = deletableGetterTask.Result;
+                if (deletable != null && deletable.Deletable)
+                {
+                    return this;
+                }
+            }
+            catch (AggregateException aggregateException)
+            {
+                aggregateException.Handle(exception =>
+                {
+                    innerException = exception;
+                    return true;
+                });
+            }
+
+            IIntranetExceptionBuilder intranetExceptionBuilder = new IntranetExceptionBuilder(ErrorCode.ValueShouldReferToDeletableEntity, validatingField)
                 .WithValidatingType(validatingType)
                 .WithValidatingField(validatingField);
 

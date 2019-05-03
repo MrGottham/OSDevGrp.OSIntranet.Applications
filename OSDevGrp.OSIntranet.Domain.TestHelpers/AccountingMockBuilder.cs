@@ -20,6 +20,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(name ?? fixture.Create<string>());
             accountGroupMock.Setup(m => m.AccountGroupType)
                 .Returns(accountGroupType ?? fixture.Create<AccountGroupType>());
+            accountGroupMock.Setup(m => m.Deletable)
+                .Returns(fixture.Create<bool>());
             accountGroupMock.Setup(m => m.CreatedDateTime)
                 .Returns(fixture.Create<DateTime>());
             accountGroupMock.Setup(m => m.CreatedByIdentifier)
@@ -40,6 +42,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(number ?? fixture.Create<int>());
             budgetAccountGroupMock.Setup(m => m.Name)
                 .Returns(name ?? fixture.Create<string>());
+            budgetAccountGroupMock.Setup(m => m.Deletable)
+                .Returns(fixture.Create<bool>());
             budgetAccountGroupMock.Setup(m => m.CreatedDateTime)
                 .Returns(fixture.Create<DateTime>());
             budgetAccountGroupMock.Setup(m => m.CreatedByIdentifier)

@@ -152,7 +152,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ShouldBeUnknownValue_WhenValueIsNotNullIsUnknownValueGetterThrowsException_ThrowsIntranetValidationException()
+        public void ShouldBeUnknownValue_WhenValueIsNotNullAndIsUnknownValueGetterThrowsException_ThrowsIntranetValidationException()
         {
             IObjectValidator sut = CreateSut();
 

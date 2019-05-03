@@ -83,6 +83,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ValueShouldBeKnown = 1026,
 
         [ErrorCode("The value for the submitted field '{0}' should be unknown within the system.", typeof(IntranetValidationException))]
-        ValueShouldBeUnknown = 1027
+        ValueShouldBeUnknown = 1027,
+
+        [ErrorCode("The value for the submitted field '{0}' should refer to a deletable entity within the system.", typeof(IntranetValidationException))]
+        ValueShouldReferToDeletableEntity = 1028
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -45,6 +46,23 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             }
 
             return userIdentity;
+        }
+
+        internal static void CreateUserIdentityModel(this ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            modelBuilder.Entity<UserIdentityModel>(entity =>
+            {
+                entity.HasKey(e => e.UserIdentityIdentifier);
+                entity.Property(e => e.UserIdentityIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ExternalUserIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.Property(e => e.CreatedUtcDateTime).IsRequired();
+                entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
+                entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.HasIndex(e => e.ExternalUserIdentifier).IsUnique();
+            });
         }
     }
 }
