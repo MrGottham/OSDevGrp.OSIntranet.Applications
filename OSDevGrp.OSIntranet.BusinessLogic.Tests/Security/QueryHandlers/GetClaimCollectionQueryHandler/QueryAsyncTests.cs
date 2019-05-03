@@ -10,9 +10,9 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetClaimCollectionQueryHandler;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClaimCollectionQueryHandler
 {
-    public class GetClaimCollectionQueryHandlerTests
+    public class QueryAsyncTests
     {
         #region Private variables
 

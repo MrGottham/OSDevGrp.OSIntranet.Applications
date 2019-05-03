@@ -19,6 +19,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
     {
         internal static Claim ToDomain(this ClaimModel claimModel)
         {
+            NullGuard.NotNull(claimModel, nameof(claimModel));
+
             return ClaimHelper.CreateClaim(claimModel.ClaimType, claimModel.ClaimValue);
         }
 

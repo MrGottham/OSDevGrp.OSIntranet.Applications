@@ -15,8 +15,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
             mapperConfiguration.CreateMap<IToken, AccessTokenModel>()
                 .ForMember(dest => dest.AccessToken, opt =>
                 {
-                    opt.Condition(src => string.IsNullOrWhiteSpace(src.Value) == false);
-                    opt.MapFrom(src => src.Value);
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.AccessToken) == false);
                 });
         }
 

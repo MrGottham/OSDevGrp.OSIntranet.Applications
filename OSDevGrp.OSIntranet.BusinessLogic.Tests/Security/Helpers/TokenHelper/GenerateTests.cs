@@ -74,12 +74,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
 
         [Test]
         [Category("UnitTest")]
-        public void Generate_WhenCalled_ReturnsTokenWithValue()
+        public void Generate_WhenCalled_ReturnsTokenWithTokenType()
         {
             ITokenHelper sut = CreateSut();
 
             Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-            string result = sut.Generate(clientSecretIdentityMock.Object).Value;
+            string result = sut.Generate(clientSecretIdentityMock.Object).TokenType;
+
+            Assert.That(result, Is.EqualTo("Bearer"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Generate_WhenCalled_ReturnsTokenWithAccessToken()
+        {
+            ITokenHelper sut = CreateSut();
+
+            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
+            string result = sut.Generate(clientSecretIdentityMock.Object).AccessToken;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);

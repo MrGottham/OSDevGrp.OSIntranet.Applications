@@ -200,7 +200,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task AuthenticateAsync_WhenCalledAndHasBasicAuthenticationHeaderWithValidParameterWhichCanBeAuthenticated_AssertValueWasCalledOnToken()
+        public async Task AuthenticateAsync_WhenCalledAndHasBasicAuthenticationHeaderWithValidParameterWhichCanBeAuthenticated_AssertAccessTokenWasCalledOnToken()
         {
             string validParameter = CreateValidBasicAuthenticationHeaderParameter();
             AuthenticationHeaderValue basicAuthenticationHeader = CreateBasicAuthenticationHeader(validParameter);
@@ -210,7 +210,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             await sut.AuthenticateAsync();
 
-            tokenMock.VerifyGet(m => m.Value, Times.Exactly(2));
+            tokenMock.VerifyGet(m => m.AccessToken, Times.Exactly(2));
         }
 
         [Test]
@@ -248,9 +248,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             string validParameter = CreateValidBasicAuthenticationHeaderParameter();
             AuthenticationHeaderValue basicAuthenticationHeader = CreateBasicAuthenticationHeader(validParameter);
+            string tokenType = _fixture.Create<string>();
             string tokenValue = _fixture.Create<string>();
             DateTime tokenExpires = DateTime.UtcNow.AddMinutes(_random.Next(30, 60));
-            IToken tokenMock = _fixture.BuildTokenMock(tokenValue, tokenExpires).Object;
+            IToken tokenMock = _fixture.BuildTokenMock(tokenType, tokenValue, tokenExpires).Object;
             Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(token: tokenMock);
             Controller sut = CreateSut(basicAuthenticationHeader: basicAuthenticationHeader, clientSecretIdentity: clientSecretIdentityMock.Object);
 
@@ -259,6 +260,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Assert.That(result.Value, Is.Not.Null);
 
             AccessTokenModel accessTokenModel = (AccessTokenModel) result.Value;
+            Assert.That(accessTokenModel.TokenType, Is.Not.Null);
+            Assert.That(accessTokenModel.TokenType, Is.Not.Empty);
+            Assert.That(accessTokenModel.TokenType, Is.EqualTo(tokenType));
             Assert.That(accessTokenModel.AccessToken, Is.Not.Null);
             Assert.That(accessTokenModel.AccessToken, Is.Not.Empty);
             Assert.That(accessTokenModel.AccessToken, Is.EqualTo(tokenValue));

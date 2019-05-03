@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
@@ -12,6 +13,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
 
         #endregion
 
@@ -19,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
         }
 
         [Test]
@@ -54,9 +57,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Assert.That(result.Model, Is.Null);
         }
 
-        private Controller CreateSut(string contentPath = null)
+        private Controller CreateSut()
         {
-            return new Controller(_commandBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
         }
      }
 }

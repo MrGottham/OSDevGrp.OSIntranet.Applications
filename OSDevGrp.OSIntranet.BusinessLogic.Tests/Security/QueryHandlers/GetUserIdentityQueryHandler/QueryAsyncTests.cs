@@ -9,10 +9,10 @@ using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetUserIdentityQueryHandler;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUserIdentityQueryHandler
 {
     [TestFixture]
-    public class GetUserIdentityQueryHandlerTests
+    public class QueryAsyncTests
     {
         #region Private variables
 

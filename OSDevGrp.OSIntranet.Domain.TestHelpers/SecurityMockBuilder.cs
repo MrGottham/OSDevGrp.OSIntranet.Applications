@@ -47,16 +47,34 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return clientSecretIdentityMock;
         }
 
-        public static Mock<IToken> BuildTokenMock(this Fixture fixture, string value = null, DateTime? expires = null)
+        public static Mock<IToken> BuildTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IToken> tokenMock = new Mock<IToken>();
-            tokenMock.Setup(m => m.Value)
-                .Returns(value ?? fixture.Create<string>());
+            tokenMock.Setup(m => m.TokenType)
+                .Returns(tokenType ?? fixture.Create<string>());
+            tokenMock.Setup(m => m.AccessToken)
+                .Returns(accessToken ?? fixture.Create<string>());
             tokenMock.Setup(m => m.Expires)
                 .Returns(expires ?? DateTime.UtcNow.AddMinutes(new Random(fixture.Create<int>()).Next(30, 60)));
             return tokenMock;
+        }
+
+        public static Mock<IRefreshableToken> BuildRefreshableTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<IRefreshableToken> refreshableTokenMock = new Mock<IRefreshableToken>();
+            refreshableTokenMock.Setup(m => m.TokenType)
+                .Returns(tokenType ?? fixture.Create<string>());
+            refreshableTokenMock.Setup(m => m.AccessToken)
+                .Returns(accessToken ?? fixture.Create<string>());
+            refreshableTokenMock.Setup(m => m.RefreshToken)
+                .Returns(refreshToken ?? fixture.Create<string>());
+            refreshableTokenMock.Setup(m => m.Expires)
+                .Returns(expires ?? DateTime.UtcNow.AddMinutes(new Random(fixture.Create<int>()).Next(30, 60)));
+            return refreshableTokenMock;
         }
     }
 }

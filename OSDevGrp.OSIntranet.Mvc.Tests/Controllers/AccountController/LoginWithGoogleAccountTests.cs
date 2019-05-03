@@ -1,12 +1,12 @@
 using System;
 using AutoFixture;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
@@ -18,6 +18,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<IUrlHelper> _urlHelperMock;
         private Fixture _fixture;
 
@@ -27,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _urlHelperMock = new Mock<IUrlHelper>();
             _fixture = new Fixture();
         }
@@ -37,7 +39,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = sut.LoginWithGoogleAccount();
+            sut.LoginWithGoogleAccount();
 
             _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Exactly(2));
         }
@@ -70,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = sut.LoginWithGoogleAccount(string.Empty);
+            sut.LoginWithGoogleAccount(string.Empty);
 
             _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Exactly(2));
         }
@@ -103,7 +105,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = sut.LoginWithGoogleAccount(" ");
+            sut.LoginWithGoogleAccount(" ");
 
             _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Exactly(2));
         }
@@ -137,7 +139,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Controller sut = CreateSut();
 
             Uri returnUrl = new Uri($"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}"); 
-            IActionResult result = sut.LoginWithGoogleAccount(returnUrl.AbsolutePath);
+            sut.LoginWithGoogleAccount(returnUrl.AbsoluteUri);
 
             _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Exactly(1));
         }
@@ -149,7 +151,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Controller sut = CreateSut();
 
             Uri returnUrl = new Uri($"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}"); 
-            IActionResult result = sut.LoginWithGoogleAccount(returnUrl.AbsolutePath);
+            IActionResult result = sut.LoginWithGoogleAccount(returnUrl.AbsoluteUri);
 
             Assert.That(result, Is.TypeOf<ChallengeResult>());
         }
@@ -161,7 +163,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Controller sut = CreateSut();
 
             Uri returnUrl = new Uri($"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}"); 
-            ChallengeResult result = (ChallengeResult) sut.LoginWithGoogleAccount(" ");
+            ChallengeResult result = (ChallengeResult) sut.LoginWithGoogleAccount(returnUrl.AbsoluteUri);
 
             Assert.That(result.AuthenticationSchemes.Contains(GoogleDefaults.AuthenticationScheme), Is.True);
         }
@@ -170,9 +172,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             _urlHelperMock.Setup(_fixture);
 
-            Controller sut = new Controller(_commandBusMock.Object);
-            sut.Url = _urlHelperMock.Object;
-            return sut;
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object)
+            {
+                Url = _urlHelperMock.Object
+            };
         }
     }
 }

@@ -49,7 +49,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Helpers
 
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
 
-            return new Token(tokenHandler.WriteToken(securityToken), expires);
+            return new Token("Bearer", tokenHandler.WriteToken(securityToken), expires);
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,9 @@ using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Mvc.Controllers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.Repositories;
 
@@ -56,6 +59,18 @@ namespace OSDevGrp.OSIntranet.Mvc
                     opt.ClientId = Configuration["Security:Microsoft:ClientId"];
                     opt.ClientSecret = Configuration["Security:Microsoft:ClientSecret"];
                     opt.SignInScheme = "OSDevGrp.OSIntranet.External";
+                    opt.SaveTokens = true;
+                    opt.Scope.Clear();
+                    opt.Scope.Add("User.Read");
+                    opt.Scope.Add("Contacts.Read");
+                    opt.Scope.Add("offline_access");
+                    opt.Events.OnCreatingTicket += o =>
+                    {
+                        int seconds = o.ExpiresIn?.Seconds ?? 0;
+                        IRefreshableToken refreshableToken = new RefreshableToken(o.TokenType, o.AccessToken, o.RefreshToken, DateTime.UtcNow.AddSeconds(seconds));
+                        AccountController.StoreMicrosoftGraphToken(o.HttpContext, refreshableToken);
+                        return Task.CompletedTask;
+                    };
                 })
                 .AddGoogle(opt =>
                 {

@@ -4,8 +4,12 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 {
     public interface IToken
     {
-        string Value { get; }
+        string TokenType { get; }
+
+        string AccessToken { get; }
 
         DateTime Expires { get; }
+
+        string ToBase64();
     }
 }

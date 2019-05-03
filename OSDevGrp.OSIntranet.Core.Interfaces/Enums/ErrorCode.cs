@@ -86,6 +86,12 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ValueShouldBeUnknown = 1027,
 
         [ErrorCode("The value for the submitted field '{0}' should refer to a deletable entity within the system.", typeof(IntranetValidationException))]
-        ValueShouldReferToDeletableEntity = 1028
+        ValueShouldReferToDeletableEntity = 1028,
+
+        [ErrorCode("No token has been acquired for the repository defined by '{0}'.", typeof(IntranetRepositoryException))]
+        NoTokenHasBeenAcquired = 1029,
+
+        [ErrorCode("The acquired token for the repository defined by '{0}' has expired.", typeof(IntranetRepositoryException))]
+        TokenHasExpired = 1030
     }
 }

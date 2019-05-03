@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
@@ -15,6 +16,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<IUrlHelper> _urlHelperMock;
         private Fixture _fixture;
 
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _urlHelperMock = new Mock<IUrlHelper>();
             _fixture = new Fixture();
         }
@@ -210,7 +213,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsAbsoluteUri_ReturnsViewResultWhereModelIsUriWithAbsoluteUriEuqalToInput()
+        public void Login_WhenReturnUrlIsAbsoluteUri_ReturnsViewResultWhereModelIsUriWithAbsoluteUriEqualToInput()
         {
             Controller sut = CreateSut();
 
@@ -309,9 +312,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             _urlHelperMock.Setup(_fixture, absolutePath: contentPath);
 
-            Controller sut = new Controller(_commandBusMock.Object);
-            sut.Url = _urlHelperMock.Object;
-            return sut;
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object)
+            {
+                Url = _urlHelperMock.Object
+            };
         }
     }
 }

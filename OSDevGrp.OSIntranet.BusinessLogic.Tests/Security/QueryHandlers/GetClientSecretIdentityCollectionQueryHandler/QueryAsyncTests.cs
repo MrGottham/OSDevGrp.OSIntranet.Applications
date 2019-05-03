@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetClientSecretIdentityCollectionQueryHandler;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClientSecretIdentityCollectionQueryHandler
 {
-    public class GetClientSecretIdentityCollectionQueryHandlerTests
+    public class QueryAsyncTests
     {
         #region Private variables
 
