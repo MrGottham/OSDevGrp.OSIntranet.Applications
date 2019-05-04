@@ -10,11 +10,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IAccountGroup> GetAccountGroupAsync(int number);
 
-        Task<IAccountGroup> DeleteAccountGroupAsync(int number);
-
         Task<IAccountGroup> CreateAccountGroupAsync(IAccountGroup accountGroup);
 
         Task<IAccountGroup> UpdateAccountGroupAsync(IAccountGroup accountGroup);
+
+        Task<IAccountGroup> DeleteAccountGroupAsync(int number);
 
         Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync();
 
