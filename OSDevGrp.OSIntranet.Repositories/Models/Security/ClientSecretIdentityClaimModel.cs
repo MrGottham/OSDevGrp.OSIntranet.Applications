@@ -14,6 +14,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
     internal static class ClientSecretIdentityClaimModelExtensions
     {
+        internal static ClientSecretIdentityClaimModel With(this ClientSecretIdentityClaimModel clientSecretIdentityClaimModel, ClientSecretIdentityModel clientSecretIdentity)
+        {
+            NullGuard.NotNull(clientSecretIdentityClaimModel, nameof(clientSecretIdentityClaimModel))
+                .NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
+
+            clientSecretIdentityClaimModel.ClientSecretIdentityIdentifier = clientSecretIdentity.ClientSecretIdentityIdentifier;
+            clientSecretIdentityClaimModel.ClientSecretIdentity = clientSecretIdentity;
+
+            return clientSecretIdentityClaimModel;
+        }
+
         internal static void CreateClientSecretIdentityClaimModel(this ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));

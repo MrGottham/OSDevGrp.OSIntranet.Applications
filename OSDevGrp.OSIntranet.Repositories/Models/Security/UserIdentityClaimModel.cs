@@ -14,6 +14,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
     internal static class UserIdentityClaimModelExtensions
     {
+        internal static UserIdentityClaimModel With(this UserIdentityClaimModel userIdentityClaimModel, UserIdentityModel userIdentityModel)
+        {
+            NullGuard.NotNull(userIdentityClaimModel, nameof(userIdentityClaimModel))
+                .NotNull(userIdentityModel, nameof(userIdentityModel));
+
+            userIdentityClaimModel.UserIdentityIdentifier = userIdentityModel.UserIdentityIdentifier;
+            userIdentityClaimModel.UserIdentity = userIdentityModel;
+
+            return userIdentityClaimModel;
+        }
+
         internal static void CreateUserIdentityClaimModel(this ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));

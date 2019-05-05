@@ -52,6 +52,25 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => GetUserIdentity(externalUserIdentifier));
         }
 
+        public Task<IUserIdentity> CreateUserIdentityAsync(IUserIdentity userIdentity)
+        {
+            NullGuard.NotNull(userIdentity, nameof(userIdentity));
+
+            return Task.Run(() => CreateUserIdentity(userIdentity));
+        }
+
+        public Task<IUserIdentity> UpdateUserIdentityAsync(IUserIdentity userIdentity)
+        {
+            NullGuard.NotNull(userIdentity, nameof(userIdentity));
+
+            return Task.Run(() => UpdateUserIdentity(userIdentity));
+        }
+
+        public Task<IUserIdentity> DeleteUserIdentityAsync(int userIdentityIdentifier)
+        {
+            return Task.Run(() => DeleteUserIdentity(userIdentityIdentifier));
+        }
+
         public Task<IEnumerable<IClientSecretIdentity>> GetClientSecretIdentitiesAsync()
         {
             return Task.Run(( )=> GetClientSecretIdentities());
@@ -67,6 +86,25 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId));
 
             return Task.Run(() => GetClientSecretIdentity(clientId));
+        }
+
+        public Task<IClientSecretIdentity> CreateClientSecretIdentityAsync(IClientSecretIdentity clientSecretIdentity)
+        {
+            NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
+
+            return Task.Run(() => CreateClientSecretIdentity(clientSecretIdentity));
+        }
+
+        public Task<IClientSecretIdentity> UpdateClientSecretIdentityAsync(IClientSecretIdentity clientSecretIdentity)
+        {
+            NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
+
+            return Task.Run(() => UpdateClientSecretIdentity(clientSecretIdentity));
+        }
+
+        public Task<IClientSecretIdentity> DeleteClientSecretIdentityAsync(int clientSecretIdentityIdentifier)
+        {
+            return Task.Run(() => DeleteClientSecretIdentity(clientSecretIdentityIdentifier));
         }
 
         public Task<IEnumerable<Claim>> GetClaimsAsync()
@@ -133,6 +171,94 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
+        private IUserIdentity CreateUserIdentity(IUserIdentity userIdentity)
+        {
+            NullGuard.NotNull(userIdentity, nameof(userIdentity));
+
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    {
+                        UserIdentityModel userIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context);
+
+                        context.UserIdentities.Add(userIdentityModel);
+
+                        context.SaveChanges();
+
+                        return GetUserIdentity(userIdentity.ExternalUserIdentifier);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IUserIdentity UpdateUserIdentity(IUserIdentity userIdentity)
+        {
+            NullGuard.NotNull(userIdentity, nameof(userIdentity));
+
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    {
+                        UserIdentityModel sourceUserIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context);
+
+                        UserIdentityModel targetUserIdentityModel = context.UserIdentities.Find(sourceUserIdentityModel.UserIdentityIdentifier);
+                        if (targetUserIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        targetUserIdentityModel.ExternalUserIdentifier = sourceUserIdentityModel.ExternalUserIdentifier;
+
+                        UserIdentityClaimModel targetUserIdentityClaimModel;
+                        foreach(UserIdentityClaimModel sourceUserIdentityClaimModel in sourceUserIdentityModel.UserIdentityClaims)
+                        {
+                            targetUserIdentityClaimModel = targetUserIdentityModel.UserIdentityClaims.SingleOrDefault(claim => sourceUserIdentityClaimModel.ClaimIdentifier == claim.ClaimIdentifier);
+                            if (targetUserIdentityClaimModel == null)
+                            {
+                                targetUserIdentityModel.UserIdentityClaims.Add(sourceUserIdentityClaimModel);
+                                continue;
+                            }
+
+                            targetUserIdentityClaimModel.ClaimValue = sourceUserIdentityClaimModel.ClaimValue ?? sourceUserIdentityClaimModel.Claim.ClaimValue;
+                        }
+
+                        targetUserIdentityClaimModel = targetUserIdentityModel.UserIdentityClaims.FirstOrDefault(claim => sourceUserIdentityModel.UserIdentityClaims.Any(c => claim.ClaimIdentifier == c.ClaimIdentifier) == false);
+                        while (targetUserIdentityClaimModel != null)
+                        {
+                            targetUserIdentityModel.UserIdentityClaims.Remove(targetUserIdentityClaimModel);
+                            targetUserIdentityClaimModel = targetUserIdentityModel.UserIdentityClaims.FirstOrDefault(claim => sourceUserIdentityModel.UserIdentityClaims.Any(c => claim.ClaimIdentifier == c.ClaimIdentifier) == false);
+                        }
+
+                        context.SaveChanges();
+
+                        return GetUserIdentity(targetUserIdentityModel.UserIdentityIdentifier);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IUserIdentity DeleteUserIdentity(int userIdentityIdentifier)
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    {
+                        UserIdentityModel userIdentityModel = context.UserIdentities.Find(userIdentityIdentifier);
+                        if (userIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        context.UserIdentities.Remove(userIdentityModel);
+
+                        context.SaveChanges();
+                        
+                        return (IUserIdentity) null;
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
         private IEnumerable<IClientSecretIdentity> GetClientSecretIdentities()
         {
             return Execute(() =>
@@ -187,6 +313,96 @@ namespace OSDevGrp.OSIntranet.Repositories
                         }
 
                         return _securityModelConverter.Convert<ClientSecretIdentityModel, IClientSecretIdentity>(clientSecretIdentityModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IClientSecretIdentity CreateClientSecretIdentity(IClientSecretIdentity clientSecretIdentity)
+        {
+            NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
+
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    {
+                        ClientSecretIdentityModel clientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context);
+
+                        context.ClientSecretIdentities.Add(clientSecretIdentityModel);
+
+                        context.SaveChanges();
+
+                        return GetClientSecretIdentity(clientSecretIdentity.ClientId);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IClientSecretIdentity UpdateClientSecretIdentity(IClientSecretIdentity clientSecretIdentity)
+        {
+            NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
+
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    {
+                        ClientSecretIdentityModel sourceClientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context);
+
+                        ClientSecretIdentityModel targetClientSecretIdentityModel = context.ClientSecretIdentities.Find(sourceClientSecretIdentityModel.ClientSecretIdentityIdentifier);
+                        if (targetClientSecretIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        targetClientSecretIdentityModel.FriendlyName = sourceClientSecretIdentityModel.FriendlyName;
+                        targetClientSecretIdentityModel.ClientId = sourceClientSecretIdentityModel.ClientId;
+                        targetClientSecretIdentityModel.ClientSecret = sourceClientSecretIdentityModel.ClientSecret;
+
+                        ClientSecretIdentityClaimModel targetClientSecretIdentityClaimModel;
+                        foreach(ClientSecretIdentityClaimModel sourceClientSecretIdentityClaimModel in sourceClientSecretIdentityModel.ClientSecretIdentityClaims)
+                        {
+                            targetClientSecretIdentityClaimModel = targetClientSecretIdentityModel.ClientSecretIdentityClaims.SingleOrDefault(claim => sourceClientSecretIdentityClaimModel.ClaimIdentifier == claim.ClaimIdentifier);
+                            if (targetClientSecretIdentityClaimModel == null)
+                            {
+                                targetClientSecretIdentityModel.ClientSecretIdentityClaims.Add(sourceClientSecretIdentityClaimModel);
+                                continue;
+                            }
+
+                            targetClientSecretIdentityClaimModel.ClaimValue = sourceClientSecretIdentityClaimModel.ClaimValue ?? sourceClientSecretIdentityClaimModel.Claim.ClaimValue;
+                        }
+
+                        targetClientSecretIdentityClaimModel = targetClientSecretIdentityModel.ClientSecretIdentityClaims.FirstOrDefault(claim => sourceClientSecretIdentityModel.ClientSecretIdentityClaims.Any(c => claim.ClaimIdentifier == c.ClaimIdentifier) == false);
+                        while (targetClientSecretIdentityClaimModel != null)
+                        {
+                            targetClientSecretIdentityModel.ClientSecretIdentityClaims.Remove(targetClientSecretIdentityClaimModel);
+                            targetClientSecretIdentityClaimModel = targetClientSecretIdentityModel.ClientSecretIdentityClaims.FirstOrDefault(claim => sourceClientSecretIdentityModel.ClientSecretIdentityClaims.Any(c => claim.ClaimIdentifier == c.ClaimIdentifier) == false);
+                        }
+
+                        context.SaveChanges();
+
+                        return GetClientSecretIdentity(targetClientSecretIdentityModel.ClientSecretIdentityIdentifier);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IClientSecretIdentity DeleteClientSecretIdentity(int clientSecretIdentityIdentifier)
+        {
+            return Execute(() =>
+                {
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    {
+                        ClientSecretIdentityModel clientSecretIdentityModel = context.ClientSecretIdentities.Find(clientSecretIdentityIdentifier);
+                        if (clientSecretIdentityModel == null)
+                        {
+                            return null;
+                        }
+
+                        context.ClientSecretIdentities.Remove(clientSecretIdentityModel);
+
+                        context.SaveChanges();
+                        
+                        return (IClientSecretIdentity) null;
                     }
                 },
                 MethodBase.GetCurrentMethod());

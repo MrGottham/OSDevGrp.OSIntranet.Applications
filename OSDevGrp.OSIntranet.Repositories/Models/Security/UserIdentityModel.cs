@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
@@ -46,6 +47,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             }
 
             return userIdentity;
+        }
+
+        internal static UserIdentityModel With(this UserIdentityModel userIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context)
+        {
+            NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel))
+                .NotNull(claimCollection, nameof(claimCollection))
+                .NotNull(context, nameof(context));
+
+            IConverter securityModelConverter = new SecurityModelConverter();
+
+            userIdentityModel.UserIdentityClaims = claimCollection.AsParallel()
+                .Where(claim => context.Claims.Any(c => c.ClaimType == claim.Type))
+                .Select(claim => securityModelConverter.Convert<Claim, UserIdentityClaimModel>(claim).With(userIdentityModel).With(context.Claims.Single(c => c.ClaimType == claim.Type)))
+                .ToList();
+
+            return userIdentityModel;
         }
 
         internal static void CreateUserIdentityModel(this ModelBuilder modelBuilder)

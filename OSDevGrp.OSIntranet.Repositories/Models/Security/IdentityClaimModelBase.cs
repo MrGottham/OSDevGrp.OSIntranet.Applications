@@ -24,5 +24,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 ? identityClaimModel.Claim.ToDomain()
                 : ClaimHelper.CreateClaim(identityClaimModel.Claim.ClaimType, identityClaimModel.ClaimValue);
         }
+
+        internal static T With<T>(this T identityClaimModel, ClaimModel claimModel) where T : IdentityClaimModelBase
+        {
+            NullGuard.NotNull(identityClaimModel, nameof(identityClaimModel))
+                .NotNull(claimModel, nameof(claimModel));
+
+            identityClaimModel.ClaimIdentifier = claimModel.ClaimIdentifier;
+            identityClaimModel.Claim = claimModel;
+            identityClaimModel.ClaimValue = identityClaimModel.ClaimValue ?? claimModel.ClaimValue;
+
+            return identityClaimModel;
+        }
     }
 }
