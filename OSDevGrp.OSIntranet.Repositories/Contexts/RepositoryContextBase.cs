@@ -23,7 +23,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             Configuration = new ConfigurationBuilder()
                 .AddUserSecrets<AccountingContext>()
                 .Build();
-            PrincipalResolver = new ThreadPrincipalResolver();
+            PrincipalResolver = new GenericPrincipalResolver();
         }
 
         protected RepositoryContextBase(IConfiguration configuration, IPrincipalResolver principalResolver)
