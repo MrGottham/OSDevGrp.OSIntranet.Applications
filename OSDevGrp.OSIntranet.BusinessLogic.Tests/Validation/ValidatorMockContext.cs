@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
@@ -152,6 +153,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
         }
 
         private static void SetupShouldBeDeletable<TValue, TDeletable>(Mock<IValidator> validatorMock, Mock<IObjectValidator> objectValidatorMock) where TDeletable : IDeletable

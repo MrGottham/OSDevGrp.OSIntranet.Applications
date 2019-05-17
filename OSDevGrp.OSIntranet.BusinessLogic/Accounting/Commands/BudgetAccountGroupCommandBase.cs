@@ -7,7 +7,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 {
-    public abstract class BudgetAccountGroupCommandBase : AccountGroupIdentificationCommandBase, IBudgetAccountGroupCommandBase
+    public abstract class BudgetAccountGroupCommandBase : AccountGroupIdentificationCommandBase, IBudgetAccountGroupCommand
     {
         #region Properties
 

@@ -11,7 +11,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 {
-    public abstract class AccountGroupCommandBase : AccountGroupIdentificationCommandBase, ICreateAccountGroupCommand
+    public abstract class AccountGroupCommandBase : AccountGroupIdentificationCommandBase, IAccountGroupCommand
     {
         #region Properties
 

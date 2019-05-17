@@ -4,7 +4,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands
 {
-    public interface IAccountGroupIdentificationCommandBase : ICommand
+    public interface IAccountGroupIdentificationCommand : ICommand
     {
         int Number { get; set; }
 

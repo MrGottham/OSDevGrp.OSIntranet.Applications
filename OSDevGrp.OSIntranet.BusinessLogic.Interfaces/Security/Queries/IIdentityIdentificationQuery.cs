@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries
 {
-    public interface IIdentityIdentificationQueryBase : IQuery
+    public interface IIdentityIdentificationQuery : IQuery
     {
         int IdentityIdentifier { get; set; }
     }

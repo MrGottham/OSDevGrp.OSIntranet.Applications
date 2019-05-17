@@ -2,7 +2,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries
 {
-    public abstract class AccountGroupIdentificationQueryBase : IAccountGroupIdentificationQueryBase
+    public abstract class AccountGroupIdentificationQueryBase : IAccountGroupIdentificationQuery
     {
         #region Properties
 

@@ -3,7 +3,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands
 {
-    public interface IAccountGroupCommandBase : IAccountGroupIdentificationCommandBase
+    public interface IAccountGroupCommand : IAccountGroupIdentificationCommand
     {
         string Name { get; set; }
 

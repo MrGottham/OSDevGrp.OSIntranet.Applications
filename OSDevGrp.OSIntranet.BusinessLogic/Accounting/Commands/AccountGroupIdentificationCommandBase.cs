@@ -5,7 +5,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 {
-    public abstract class AccountGroupIdentificationCommandBase : IAccountGroupIdentificationCommandBase
+    public abstract class AccountGroupIdentificationCommandBase : IAccountGroupIdentificationCommand
     {
         #region Properties
 

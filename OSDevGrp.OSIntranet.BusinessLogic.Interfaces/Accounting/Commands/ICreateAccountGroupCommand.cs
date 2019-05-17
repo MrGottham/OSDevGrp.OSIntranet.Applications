@@ -1,6 +1,6 @@
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands
 {
-    public interface ICreateAccountGroupCommand : IAccountGroupCommandBase
+    public interface ICreateAccountGroupCommand : IAccountGroupCommand
     {
     }
 }

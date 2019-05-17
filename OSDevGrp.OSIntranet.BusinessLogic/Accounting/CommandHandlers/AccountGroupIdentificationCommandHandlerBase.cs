@@ -8,7 +8,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 {
-    public abstract class AccountGroupIdentificationCommandHandlerBase<T> : CommandHandlerTransactionalBase, ICommandHandler<T> where T : IAccountGroupIdentificationCommandBase
+    public abstract class AccountGroupIdentificationCommandHandlerBase<T> : CommandHandlerTransactionalBase, ICommandHandler<T> where T : IAccountGroupIdentificationCommand
     {
         #region Constructors
 

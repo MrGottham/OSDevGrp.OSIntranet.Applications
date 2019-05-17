@@ -2,7 +2,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands
 {
-    public interface IBudgetAccountGroupCommandBase : IAccountGroupIdentificationCommandBase
+    public interface IBudgetAccountGroupCommand : IAccountGroupIdentificationCommand
     {
         string Name { get; set; }
 

@@ -25,7 +25,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_ReturnsBudgetAccountGroup()
         {
-            IBudgetAccountGroupCommandBase sut = CreateSut();
+            IBudgetAccountGroupCommand sut = CreateSut();
 
             IBudgetAccountGroup result = sut.ToDomain();
 
@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
         public void ToDomain_WhenCalled_ReturnsBudgetAccountGroupWithNumberFromCommand()
         {
             int number = _fixture.Create<int>();
-            IBudgetAccountGroupCommandBase sut = CreateSut(number);
+            IBudgetAccountGroupCommand sut = CreateSut(number);
 
             int result = sut.ToDomain().Number;
 
@@ -49,14 +49,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
         public void ToDomain_WhenCalled_ReturnsBudgetAccountGroupWithNameFromCommand()
         {
             string name = _fixture.Create<string>();
-            IBudgetAccountGroupCommandBase sut = CreateSut(name: name);
+            IBudgetAccountGroupCommand sut = CreateSut(name: name);
 
             string result = sut.ToDomain().Name;
 
             Assert.That(result, Is.EqualTo(name));
         }
 
-        private IBudgetAccountGroupCommandBase CreateSut(int? number = null, string name = null)
+        private IBudgetAccountGroupCommand CreateSut(int? number = null, string name = null)
         {
             return _fixture.Build<Sut>()
                 .With(m => m.Number, number ?? _fixture.Create<int>())
@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
                 .Create();
         }
 
-        private class Sut : BusinessLogic.Accounting.Commands.CreateBudgetAccountGroupCommand
+        private class Sut : BusinessLogic.Accounting.Commands.BudgetAccountGroupCommandBase
         {
         }
     }

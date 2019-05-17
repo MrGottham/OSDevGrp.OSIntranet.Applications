@@ -1,6 +1,6 @@
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands
 {
-    public interface IDeleteBudgetAccountGroupCommand : IAccountGroupIdentificationCommandBase
+    public interface IDeleteBudgetAccountGroupCommand : IAccountGroupIdentificationCommand
     {
     }
 }

@@ -32,7 +32,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void Validate_WhenValidatorIsNull_ThrowsArgumentNullException()
         {
-            IAccountGroupIdentificationCommandBase sut = CreateSut();
+            IAccountGroupIdentificationCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _accountingRepositoryMock.Object));
             
@@ -43,7 +43,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void Validate_WhenAccountingRepositoryIsNull_ThrowsArgumentNullException()
         {
-            IAccountGroupIdentificationCommandBase sut = CreateSut();
+            IAccountGroupIdentificationCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
             
@@ -55,7 +55,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void Validate_WhenCalled_AssertShouldBeBetweenWasCalledOnIntegerValidator()
         {
             int number = _fixture.Create<int>();
-            IAccountGroupIdentificationCommandBase sut = CreateSut(number);
+            IAccountGroupIdentificationCommand sut = CreateSut(number);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
 
@@ -72,14 +72,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void Validate_WhenCalled_ReturnsValidator()
         {
-            IAccountGroupIdentificationCommandBase sut = CreateSut();
+            IAccountGroupIdentificationCommand sut = CreateSut();
 
             IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IAccountGroupIdentificationCommandBase CreateSut(int? number = null)
+        private IAccountGroupIdentificationCommand CreateSut(int? number = null)
         {
             return _fixture.Build<Sut>()
                 .With(m => m.Number, number ?? _fixture.Create<int>())

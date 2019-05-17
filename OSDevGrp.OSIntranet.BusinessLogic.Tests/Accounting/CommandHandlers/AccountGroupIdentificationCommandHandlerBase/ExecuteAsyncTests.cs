@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.AccountGroupIdentificationCommandHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands.IAccountGroupIdentificationCommandBase>;
+using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.AccountGroupIdentificationCommandHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands.IAccountGroupIdentificationCommand>;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.AccountGroupIdentificationCommandHandlerBase
 {
@@ -44,7 +44,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
         {
             CommandHandler sut = CreateSut();
 
-            Mock<IAccountGroupIdentificationCommandBase> commandMock = CreateCommandMock();
+            Mock<IAccountGroupIdentificationCommand> commandMock = CreateCommandMock();
             await sut.ExecuteAsync(commandMock.Object);
 
             commandMock.Verify(m => m.Validate(It.Is<IValidator>(value => value == _validatorMock.Object), It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object)), Times.Once);
@@ -56,7 +56,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
         {
             CommandHandler sut = CreateSut();
 
-            IAccountGroupIdentificationCommandBase command = CreateCommandMock().Object;
+            IAccountGroupIdentificationCommand command = CreateCommandMock().Object;
             await sut.ExecuteAsync(command);
 
             Assert.That(((Sut) sut).ManageRepositoryAsyncWasCalled, Is.True);
@@ -68,7 +68,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
         {
             CommandHandler sut = CreateSut();
 
-            IAccountGroupIdentificationCommandBase command = CreateCommandMock().Object;
+            IAccountGroupIdentificationCommand command = CreateCommandMock().Object;
             await sut.ExecuteAsync(command);
 
             Assert.That(((Sut) sut).Command, Is.EqualTo(command));
@@ -79,9 +79,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
             return new Sut(_validatorMock.Object, _accountingRepositoryMock.Object);
         }
 
-        private Mock<IAccountGroupIdentificationCommandBase> CreateCommandMock()
+        private Mock<IAccountGroupIdentificationCommand> CreateCommandMock()
         {
-            return new Mock<IAccountGroupIdentificationCommandBase>();
+            return new Mock<IAccountGroupIdentificationCommand>();
         }
 
         private class Sut : CommandHandler
@@ -99,13 +99,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
 
             public bool ManageRepositoryAsyncWasCalled { get; private set; }
 
-            public IAccountGroupIdentificationCommandBase Command { get; private set; }
+            public IAccountGroupIdentificationCommand Command { get; private set; }
 
             #endregion
 
             #region Methods
 
-            protected override Task ManageRepositoryAsync(IAccountGroupIdentificationCommandBase command)
+            protected override Task ManageRepositoryAsync(IAccountGroupIdentificationCommand command)
             {
                 NullGuard.NotNull(command, nameof(command));
 

@@ -34,7 +34,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void Validate_WhenValidatorIsNull_ThrowsArgumentNullException()
         {
-            IAccountGroupCommandBase sut = CreateSut();
+            IAccountGroupCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _accountingRepositoryMock.Object));
             
@@ -45,7 +45,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void Validate_WhenAccountingRepositoryIsNull_ThrowsArgumentNullException()
         {
-            IAccountGroupCommandBase sut = CreateSut();
+            IAccountGroupCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
             
@@ -57,7 +57,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void Validate_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasCalledOnStringValidator()
         {
             string name = _fixture.Create<string>();
-            IAccountGroupCommandBase sut = CreateSut(name);
+            IAccountGroupCommand sut = CreateSut(name);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
             
@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidator()
         {
             string name = _fixture.Create<string>();
-            IAccountGroupCommandBase sut = CreateSut(name);
+            IAccountGroupCommand sut = CreateSut(name);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
             
@@ -91,7 +91,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidator()
         {
             string name = _fixture.Create<string>();
-            IAccountGroupCommandBase sut = CreateSut(name);
+            IAccountGroupCommand sut = CreateSut(name);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
             
@@ -109,7 +109,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void Validate_WhenCalled_AssertShouldBeKnownValueWasCalledOnObjectValidator()
         {
             AccountGroupType accountGroupType = _fixture.Create<AccountGroupType>();
-            IAccountGroupCommandBase sut = CreateSut(accountGroupType: accountGroupType);
+            IAccountGroupCommand sut = CreateSut(accountGroupType: accountGroupType);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
             
@@ -126,14 +126,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void Validate_WhenCalled_ReturnsValidator()
         {
-            IAccountGroupCommandBase sut = CreateSut();
+            IAccountGroupCommand sut = CreateSut();
 
             IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IAccountGroupCommandBase CreateSut(string name = null, AccountGroupType? accountGroupType = null)
+        private IAccountGroupCommand CreateSut(string name = null, AccountGroupType? accountGroupType = null)
         {
             return _fixture.Build<Sut>()
                 .With(m => m.Name, name ?? _fixture.Create<string>())

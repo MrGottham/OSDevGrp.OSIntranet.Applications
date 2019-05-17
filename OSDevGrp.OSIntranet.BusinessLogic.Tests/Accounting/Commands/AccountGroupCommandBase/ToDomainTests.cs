@@ -26,7 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_ReturnsAccountGroup()
         {
-            IAccountGroupCommandBase sut = CreateSut();
+            IAccountGroupCommand sut = CreateSut();
 
             IAccountGroup result = sut.ToDomain();
 
@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void ToDomain_WhenCalled_ReturnsAccountGroupWithNumberFromCommand()
         {
             int number = _fixture.Create<int>();
-            IAccountGroupCommandBase sut = CreateSut(number);
+            IAccountGroupCommand sut = CreateSut(number);
 
             int result = sut.ToDomain().Number;
 
@@ -50,7 +50,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void ToDomain_WhenCalled_ReturnsAccountGroupWithNameFromCommand()
         {
             string name = _fixture.Create<string>();
-            IAccountGroupCommandBase sut = CreateSut(name: name);
+            IAccountGroupCommand sut = CreateSut(name: name);
 
             string result = sut.ToDomain().Name;
 
@@ -62,14 +62,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
         public void ToDomain_WhenCalled_ReturnsAccountGroupWithAccountGroupTypeFromCommand()
         {
             AccountGroupType accountGroupType = _fixture.Create<AccountGroupType>();
-            IAccountGroupCommandBase sut = CreateSut(accountGroupType: accountGroupType);
+            IAccountGroupCommand sut = CreateSut(accountGroupType: accountGroupType);
 
             AccountGroupType result = sut.ToDomain().AccountGroupType;
 
             Assert.That(result, Is.EqualTo(accountGroupType));
         }
 
-        private IAccountGroupCommandBase CreateSut(int? number = null, string name = null, AccountGroupType? accountGroupType = null)
+        private IAccountGroupCommand CreateSut(int? number = null, string name = null, AccountGroupType? accountGroupType = null)
         {
             return _fixture.Build<Sut>()
                 .With(m => m.Number, number ?? _fixture.Create<int>())
@@ -78,7 +78,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountGro
                 .Create();
         }
  
-        private class Sut : BusinessLogic.Accounting.Commands.CreateAccountGroupCommand
+        private class Sut : BusinessLogic.Accounting.Commands.AccountGroupCommandBase
         {
         }
    }
