@@ -39,6 +39,8 @@ html {
 }
 
 body {
+  /* Padding top by navbar height */
+  padding-top: 60px;
   /* Margin bottom by footer height */
   margin-bottom: 60px;
 }
