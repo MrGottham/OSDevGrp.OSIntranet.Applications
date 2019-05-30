@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(accountGroupModel, nameof(accountGroupModel));
 
             IAccountGroup accountGroup = new AccountGroup(accountGroupModel.AccountGroupIdentifier, accountGroupModel.Name, accountGroupModel.AccountGroupType);
-            accountGroup.AddAuditInformations(accountGroupModel.CreatedUtcDateTime, accountGroupModel.CreatedByIdentifier, accountGroupModel.ModifiedUtcDateTime, accountGroupModel.ModifiedByIdentifier);
+            accountGroup.AddAuditInformation(accountGroupModel.CreatedUtcDateTime, accountGroupModel.CreatedByIdentifier, accountGroupModel.ModifiedUtcDateTime, accountGroupModel.ModifiedByIdentifier);
             accountGroup.SetDeletable(accountGroupModel.Deletable);
 
             return accountGroup;

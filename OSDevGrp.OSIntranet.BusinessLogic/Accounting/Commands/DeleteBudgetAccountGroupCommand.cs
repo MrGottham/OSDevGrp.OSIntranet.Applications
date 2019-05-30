@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
@@ -16,12 +15,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
-            IBudgetAccountGroup budgetAccountGroup = null;
-            Task<IBudgetAccountGroup> budgetAccountGroupGetter = Task.Run(async () => budgetAccountGroup ?? (budgetAccountGroup = await accountingRepository.GetBudgetAccountGroupAsync(Number)));
-
             return base.Validate(validator, accountingRepository)
-                .Object.ShouldBeKnownValue(Number, number => Task.Run(async () => await budgetAccountGroupGetter != null), GetType(), nameof(Number))
-                .Object.ShouldBeDeletable(Number, number => budgetAccountGroupGetter, GetType(), nameof(Number));
+                .Object.ShouldBeKnownValue(Number, number => Task.Run(async () => await GetBudgetAccountGroup(accountingRepository) != null), GetType(), nameof(Number))
+                .Object.ShouldBeDeletable(Number, number => GetBudgetAccountGroup(accountingRepository), GetType(), nameof(Number));
         }
 
         #endregion

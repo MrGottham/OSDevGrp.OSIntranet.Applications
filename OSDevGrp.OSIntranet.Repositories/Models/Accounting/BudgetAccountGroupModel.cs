@@ -18,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(budgetAccountGroupModel, nameof(budgetAccountGroupModel));
 
             IBudgetAccountGroup budgetAccountGroup = new BudgetAccountGroup(budgetAccountGroupModel.BudgetAccountGroupIdentifier, budgetAccountGroupModel.Name);
-            budgetAccountGroup.AddAuditInformations(budgetAccountGroupModel.CreatedUtcDateTime, budgetAccountGroupModel.CreatedByIdentifier, budgetAccountGroupModel.ModifiedUtcDateTime, budgetAccountGroupModel.ModifiedByIdentifier);
+            budgetAccountGroup.AddAuditInformation(budgetAccountGroupModel.CreatedUtcDateTime, budgetAccountGroupModel.CreatedByIdentifier, budgetAccountGroupModel.ModifiedUtcDateTime, budgetAccountGroupModel.ModifiedByIdentifier);
             budgetAccountGroup.SetDeletable(budgetAccountGroupModel.Deletable);
 
             return budgetAccountGroup;

@@ -150,6 +150,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             throw (innerException == null ? intranetExceptionBuilder : intranetExceptionBuilder.WithInnerException(innerException)).Build();
         }
 
+        public IValidator ShouldNotBeNull<T>(T value, Type validatingType, string validatingField)
+        {
+            NullGuard.NotNull(validatingType, nameof(validatingType))
+                .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+            if (Equals(value, null) == false)
+            {
+                return this;
+            }
+
+            throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, validatingField)
+                .WithValidatingType(validatingType)
+                .WithValidatingField(validatingField)
+                .Build();
+        }
+
         #endregion
     }
 }

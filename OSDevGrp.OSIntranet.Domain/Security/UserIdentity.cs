@@ -51,7 +51,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
         }
 
-        public void AddAuditInformations(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)
+        public void AddAuditInformation(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)
         {
             NullGuard.NotNullOrWhiteSpace(createdByIdentifier, nameof(createdByIdentifier))
                 .NotNullOrWhiteSpace(modifiedByIdentifier, nameof(modifiedByIdentifier));

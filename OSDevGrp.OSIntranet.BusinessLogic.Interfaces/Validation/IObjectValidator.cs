@@ -11,5 +11,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation
         IValidator ShouldBeUnknownValue<T>(T value, Func<T, Task<bool>> isUnknownValueGetter, Type validatingType, string validatingField, bool allowNull = false);
 
         IValidator ShouldBeDeletable<TValue, TDeletable>(TValue value, Func<TValue, Task<TDeletable>> deletableGetter, Type validatingType, string validatingField, bool allowNull = false) where TDeletable : IDeletable;
+
+        IValidator ShouldNotBeNull<T>(T value, Type validatingType, string validatingField);
     }
 }

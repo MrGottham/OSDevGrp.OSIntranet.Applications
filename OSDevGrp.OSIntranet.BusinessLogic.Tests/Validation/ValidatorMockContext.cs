@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Moq;
@@ -138,6 +140,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
         }
 
@@ -149,6 +152,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             objectValidatorMock.Setup(m => m.ShouldBeKnownValue(It.IsAny<T>(), It.IsAny<Func<T, Task<bool>>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(validatorMock.Object);
             objectValidatorMock.Setup(m => m.ShouldBeUnknownValue(It.IsAny<T>(), It.IsAny<Func<T, Task<bool>>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(validatorMock.Object);
+            objectValidatorMock.Setup(m => m.ShouldNotBeNull(It.IsAny<T>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
             
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);

@@ -12,6 +12,6 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Core
 
         string ModifiedByIdentifier { get; }
 
-        void AddAuditInformations(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier);
+        void AddAuditInformation(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier);
     }
 }

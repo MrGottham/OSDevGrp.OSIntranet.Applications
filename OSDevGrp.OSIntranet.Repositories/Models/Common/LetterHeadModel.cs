@@ -48,7 +48,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Common
                 Line7 = letterHeadModel.Line7,
                 CompanyIdentificationNumber = letterHeadModel.CompanyIdentificationNumber
             };
-            letterHead.AddAuditInformations(letterHeadModel.CreatedUtcDateTime, letterHeadModel.CreatedByIdentifier, letterHeadModel.ModifiedUtcDateTime, letterHeadModel.ModifiedByIdentifier);
+            letterHead.AddAuditInformation(letterHeadModel.CreatedUtcDateTime, letterHeadModel.CreatedByIdentifier, letterHeadModel.ModifiedUtcDateTime, letterHeadModel.ModifiedByIdentifier);
             letterHead.SetDeletable(letterHeadModel.Deletable);
 
             return letterHead;

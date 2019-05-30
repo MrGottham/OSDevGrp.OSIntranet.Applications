@@ -46,11 +46,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
             if (latestClientSecretIdentityClaimModel == null || latestClientSecretIdentityClaimModel.ModifiedUtcDateTime > clientSecretIdentityModel.ModifiedUtcDateTime)
             {
-                clientSecretIdentity.AddAuditInformations(clientSecretIdentityModel.CreatedUtcDateTime, clientSecretIdentityModel.CreatedByIdentifier, clientSecretIdentityModel.ModifiedUtcDateTime, clientSecretIdentityModel.ModifiedByIdentifier);
+                clientSecretIdentity.AddAuditInformation(clientSecretIdentityModel.CreatedUtcDateTime, clientSecretIdentityModel.CreatedByIdentifier, clientSecretIdentityModel.ModifiedUtcDateTime, clientSecretIdentityModel.ModifiedByIdentifier);
             }
             else
             {
-                clientSecretIdentity.AddAuditInformations(clientSecretIdentityModel.CreatedUtcDateTime, clientSecretIdentityModel.CreatedByIdentifier, latestClientSecretIdentityClaimModel.ModifiedUtcDateTime, latestClientSecretIdentityClaimModel.ModifiedByIdentifier);
+                clientSecretIdentity.AddAuditInformation(clientSecretIdentityModel.CreatedUtcDateTime, clientSecretIdentityModel.CreatedByIdentifier, latestClientSecretIdentityClaimModel.ModifiedUtcDateTime, latestClientSecretIdentityClaimModel.ModifiedByIdentifier);
             }
 
             return clientSecretIdentity;

@@ -39,11 +39,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
             if (latestUserIdentityClaimModel == null || latestUserIdentityClaimModel.ModifiedUtcDateTime > userIdentityModel.ModifiedUtcDateTime)
             {
-                userIdentity.AddAuditInformations(userIdentityModel.CreatedUtcDateTime, userIdentityModel.CreatedByIdentifier, userIdentityModel.ModifiedUtcDateTime, userIdentityModel.ModifiedByIdentifier);
+                userIdentity.AddAuditInformation(userIdentityModel.CreatedUtcDateTime, userIdentityModel.CreatedByIdentifier, userIdentityModel.ModifiedUtcDateTime, userIdentityModel.ModifiedByIdentifier);
             }
             else
             {
-                userIdentity.AddAuditInformations(userIdentityModel.CreatedUtcDateTime, userIdentityModel.CreatedByIdentifier, latestUserIdentityClaimModel.ModifiedUtcDateTime, latestUserIdentityClaimModel.ModifiedByIdentifier);
+                userIdentity.AddAuditInformation(userIdentityModel.CreatedUtcDateTime, userIdentityModel.CreatedByIdentifier, latestUserIdentityClaimModel.ModifiedUtcDateTime, latestUserIdentityClaimModel.ModifiedByIdentifier);
             }
 
             return userIdentity;
