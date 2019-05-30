@@ -115,6 +115,69 @@ namespace OSDevGrp.OSIntranet.Core.Tests.IntranetExceptionBuilder
 
         [Test]
         [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetSystemException_ReturnsIntranetSystemException()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ObjectIsNull, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result, Is.TypeOf<IntranetSystemException>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetSystemException_AssertErrorCodeIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.ObjectIsNull;
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.ErrorCode, Is.EqualTo(errorCode));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetSystemException_AssertMessageIsCorrect()
+        {
+            const ErrorCode errorCode = ErrorCode.ObjectIsNull;
+            string commandTypeName = _fixture.Create<string>();
+
+            ErrorCodeAttribute errorCodeAttribute = _errorCodeAttributeTestHelper.GetErrorCodeAttribute(errorCode);
+
+            IIntranetExceptionBuilder sut = CreateSut(errorCode, commandTypeName);
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.Message, Is.EqualTo(string.Format(errorCodeAttribute.Message, commandTypeName)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetIntranetSystemExceptionWithoutInnerException_AssertInnerExceptionIsNull()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ObjectIsNull, _fixture.Create<string>());
+
+            IntranetExceptionBase result = sut.Build();
+
+            Assert.That(result.InnerException, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalledForIntranetSystemExceptionWithInnerException_AssertInnerExceptionIsCorrect()
+        {
+            IIntranetExceptionBuilder sut = CreateSut(ErrorCode.ObjectIsNull, _fixture.Create<string>());
+
+            Exception innerException = _fixture.Create<Exception>();
+            IntranetExceptionBase result = sut.WithInnerException(innerException).Build();
+
+            Assert.That(result.InnerException, Is.EqualTo(innerException));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Build_WhenCalledForIntranetCommandBusException_ReturnsIntranetCommandBusException()
         {
             IIntranetExceptionBuilder sut = CreateSut(ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType, _fixture.Create<string>());

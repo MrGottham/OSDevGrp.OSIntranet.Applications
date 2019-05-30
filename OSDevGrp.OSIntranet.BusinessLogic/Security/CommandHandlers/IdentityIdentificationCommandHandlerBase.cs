@@ -1,24 +1,24 @@
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
+namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-    public abstract class AccountGroupIdentificationCommandHandlerBase<T> : CommandHandlerTransactionalBase, ICommandHandler<T> where T : IAccountGroupIdentificationCommand
+    public abstract class IdentityIdentificationCommandHandlerBase<T> : CommandHandlerTransactionalBase, ICommandHandler<T> where T : IIdentityIdentificationCommand
     {
-        #region Constructors
+        #region Constructor
 
-        protected AccountGroupIdentificationCommandHandlerBase(IValidator validator, IAccountingRepository accountingRepository)
+        protected IdentityIdentificationCommandHandlerBase(IValidator validator, ISecurityRepository securityRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
-                .NotNull(accountingRepository, nameof(accountingRepository));
+                .NotNull(securityRepository, nameof(securityRepository));
 
             Validator = validator;
-            AccountingRepository = accountingRepository;
+            SecurityRepository = securityRepository;
         }
 
         #endregion
@@ -27,7 +27,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 
         protected IValidator Validator { get; }
 
-        protected IAccountingRepository AccountingRepository { get; }
+        protected ISecurityRepository SecurityRepository { get; }
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
         {
             NullGuard.NotNull(command, nameof(command));
 
-            command.Validate(Validator, AccountingRepository);
+            command.Validate(Validator, SecurityRepository);
 
             return ManageRepositoryAsync(command);
         }

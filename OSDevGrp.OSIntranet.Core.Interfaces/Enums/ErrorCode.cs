@@ -92,6 +92,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         NoTokenHasBeenAcquired = 1029,
 
         [ErrorCode("The acquired token for the repository defined by '{0}' has expired.", typeof(IntranetRepositoryException))]
-        TokenHasExpired = 1030
+        TokenHasExpired = 1030,
+
+        [ErrorCode("The value for the object named '{0}' is null.", typeof(IntranetSystemException))]
+        ObjectIsNull = 1031
     }
 }

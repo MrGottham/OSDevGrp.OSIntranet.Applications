@@ -12,7 +12,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers
     {
         #region Constructor
 
-        public LetterHeadIdentificationCommandHandlerBase(IValidator validator, ICommonRepository commonRepository)
+        protected LetterHeadIdentificationCommandHandlerBase(IValidator validator, ICommonRepository commonRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(commonRepository, nameof(commonRepository));
