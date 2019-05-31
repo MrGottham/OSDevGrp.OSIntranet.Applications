@@ -27,11 +27,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
     internal static class ClientSecretIdentityModelExtensions
     {
-        internal static IClientSecretIdentity ToDomain(this ClientSecretIdentityModel clientSecretIdentityModel)
+        internal static IClientSecretIdentity ToDomain(this ClientSecretIdentityModel clientSecretIdentityModel, IConverter securityModelConverter)
         {
-            NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel));
+            NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel))
+                .NotNull(securityModelConverter, nameof(securityModelConverter));
 
-            IConverter securityModelConverter = new SecurityModelConverter();
             IEnumerable<Claim> claimCollection = securityModelConverter.Convert<IEnumerable<ClientSecretIdentityClaimModel>, IEnumerable<Claim>>(clientSecretIdentityModel.ClientSecretIdentityClaims);
 
             ClientSecretIdentityClaimModel latestClientSecretIdentityClaimModel = clientSecretIdentityModel.ClientSecretIdentityClaims.OrderByDescending(model => model.ModifiedUtcDateTime).FirstOrDefault();
@@ -56,17 +56,27 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             return clientSecretIdentity;
         }
 
-        internal static ClientSecretIdentityModel With(this ClientSecretIdentityModel clientSecretIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context)
+        internal static ClientSecretIdentityModel WithDefaultIdentifier(this ClientSecretIdentityModel clientSecretIdentityModel)
+        {
+            NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel));
+
+            clientSecretIdentityModel.ClientSecretIdentityIdentifier = default(int);
+            
+            return clientSecretIdentityModel;
+        }
+
+        internal static ClientSecretIdentityModel With(this ClientSecretIdentityModel clientSecretIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context, IConverter securityModelConverter)
         {
             NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel))
                 .NotNull(claimCollection, nameof(claimCollection))
-                .NotNull(context, nameof(context));
+                .NotNull(context, nameof(context))
+                .NotNull(securityModelConverter, nameof(securityModelConverter));
 
-            IConverter securityModelConverter = new SecurityModelConverter();
+            IList<ClaimModel> claimModelCollection = context.Claims.ToList();
 
             clientSecretIdentityModel.ClientSecretIdentityClaims = claimCollection.AsParallel()
-                .Where(claim => context.Claims.Any(c => c.ClaimType == claim.Type))
-                .Select(claim => securityModelConverter.Convert<Claim, ClientSecretIdentityClaimModel>(claim).With(clientSecretIdentityModel).With(context.Claims.Single(c => c.ClaimType == claim.Type)))
+                .Where(claim => claimModelCollection.Any(c => c.ClaimType == claim.Type))
+                .Select(claim => securityModelConverter.Convert<Claim, ClientSecretIdentityClaimModel>(claim).With(clientSecretIdentityModel).With(claimModelCollection.Single(c => c.ClaimType == claim.Type)))
                 .ToList();
 
             return clientSecretIdentityModel;

@@ -23,11 +23,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
     internal static class UserIdentityModelExtensions
     {
-        internal static IUserIdentity ToDomain(this UserIdentityModel userIdentityModel)
+        internal static IUserIdentity ToDomain(this UserIdentityModel userIdentityModel, IConverter securityModelConverter)
         {
-            NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel));
+            NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel))
+                .NotNull(securityModelConverter, nameof(securityModelConverter));
 
-            IConverter securityModelConverter = new SecurityModelConverter();
             IEnumerable<Claim> claimCollection = securityModelConverter.Convert<IEnumerable<UserIdentityClaimModel>, IEnumerable<Claim>>(userIdentityModel.UserIdentityClaims);
 
             UserIdentityClaimModel latestUserIdentityClaimModel = userIdentityModel.UserIdentityClaims.OrderByDescending(model => model.ModifiedUtcDateTime).FirstOrDefault();
@@ -49,17 +49,27 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             return userIdentity;
         }
 
-        internal static UserIdentityModel With(this UserIdentityModel userIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context)
+        internal static UserIdentityModel WithDefaultIdentifier(this UserIdentityModel userIdentityModel)
+        {
+            NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel));
+
+            userIdentityModel.UserIdentityIdentifier = default(int);
+            
+            return userIdentityModel;
+        }
+
+        internal static UserIdentityModel With(this UserIdentityModel userIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context, IConverter securityModelConverter)
         {
             NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel))
                 .NotNull(claimCollection, nameof(claimCollection))
-                .NotNull(context, nameof(context));
+                .NotNull(context, nameof(context))
+                .NotNull(securityModelConverter, nameof(securityModelConverter));
 
-            IConverter securityModelConverter = new SecurityModelConverter();
+            IList<ClaimModel> claimModelCollection = context.Claims.ToList();
 
             userIdentityModel.UserIdentityClaims = claimCollection.AsParallel()
-                .Where(claim => context.Claims.Any(c => c.ClaimType == claim.Type))
-                .Select(claim => securityModelConverter.Convert<Claim, UserIdentityClaimModel>(claim).With(userIdentityModel).With(context.Claims.Single(c => c.ClaimType == claim.Type)))
+                .Where(claim => claimModelCollection.Any(c => c.ClaimType == claim.Type))
+                .Select(claim => securityModelConverter.Convert<Claim, UserIdentityClaimModel>(claim).With(userIdentityModel).With(claimModelCollection.Single(c => c.ClaimType == claim.Type)))
                 .ToList();
 
             return userIdentityModel;

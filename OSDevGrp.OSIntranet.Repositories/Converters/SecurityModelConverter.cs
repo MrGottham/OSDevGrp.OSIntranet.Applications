@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<UserIdentityModel, IUserIdentity>()
-                .ConvertUsing(userIdentityModel => userIdentityModel.ToDomain());
+                .ConvertUsing(userIdentityModel => userIdentityModel.ToDomain(this));
 
             mapperConfiguration.CreateMap<IUserIdentity, UserIdentityModel>()
                 .ForMember(dest => dest.UserIdentityIdentifier, opt => opt.MapFrom(src => src.Identifier))
@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedByIdentifier, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<ClientSecretIdentityModel, IClientSecretIdentity>()
-                .ConvertUsing(clientSecretIdentityModel => clientSecretIdentityModel.ToDomain());
+                .ConvertUsing(clientSecretIdentityModel => clientSecretIdentityModel.ToDomain(this));
 
             mapperConfiguration.CreateMap<IClientSecretIdentity, ClientSecretIdentityModel>()
                 .ForMember(dest => dest.ClientSecretIdentityIdentifier, opt => opt.MapFrom(src => src.Identifier))

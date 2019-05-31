@@ -1,0 +1,9 @@
+@model UserIdentityViewModel;
+<input type="hidden" asp-for="Identifier" />
+<input type="hidden" asp-for="EditMode" />
+<div class="form-group">
+    <label asp-for="ExternalUserIdentifier"></label>
+    <input asp-for="ExternalUserIdentifier" class="form-control" />
+    <span asp-validation-for="ExternalUserIdentifier" class="text-danger"></span>
+</div>
+<partial name="_ClaimCollectionPartial" />

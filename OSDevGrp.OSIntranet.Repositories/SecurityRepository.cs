@@ -179,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
                     {
-                        UserIdentityModel userIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context);
+                        UserIdentityModel userIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).WithDefaultIdentifier().With(userIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
                         context.UserIdentities.Add(userIdentityModel);
 
@@ -199,7 +199,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
                     {
-                        UserIdentityModel sourceUserIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context);
+                        UserIdentityModel sourceUserIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
                         UserIdentityModel targetUserIdentityModel = context.UserIdentities.Find(sourceUserIdentityModel.UserIdentityIdentifier);
                         if (targetUserIdentityModel == null)
@@ -326,7 +326,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
                     {
-                        ClientSecretIdentityModel clientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context);
+                        ClientSecretIdentityModel clientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).WithDefaultIdentifier().With(clientSecretIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
                         context.ClientSecretIdentities.Add(clientSecretIdentityModel);
 
@@ -346,7 +346,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
                     {
-                        ClientSecretIdentityModel sourceClientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context);
+                        ClientSecretIdentityModel sourceClientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
                         ClientSecretIdentityModel targetClientSecretIdentityModel = context.ClientSecretIdentities.Find(sourceClientSecretIdentityModel.ClientSecretIdentityIdentifier);
                         if (targetClientSecretIdentityModel == null)

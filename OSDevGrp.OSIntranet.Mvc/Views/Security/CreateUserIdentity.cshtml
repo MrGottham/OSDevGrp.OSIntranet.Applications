@@ -1,0 +1,24 @@
+@model UserIdentityViewModel;
+@{
+    ViewData["Title"] = "Opret bruger";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Opret bruger</h2>
+        <form asp-area="" asp-controller="Security" asp-action="CreateUserIdentity" method="post">
+            <partial name="_UserIdentityPartial" />
+            <button type="submit" class="btn btn-primary">Opret</button>
+            <a class="btn btn-secondary" asp-controller="Security" asp-action="UserIdentities">Fortryd</a>
+        </form>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

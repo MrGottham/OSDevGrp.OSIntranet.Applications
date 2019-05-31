@@ -1,4 +1,5 @@
-﻿using OSDevGrp.OSIntranet.Mvc.Models.Core;
+﻿using System.Collections.Generic;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Security
 {
@@ -7,6 +8,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Security
         #region Properties
 
         public int Identifier { get; set; }
+
+        public List<ClaimViewModel> Claims { get; set; }
 
         #endregion
     }

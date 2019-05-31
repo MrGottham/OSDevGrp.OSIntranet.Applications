@@ -1,0 +1,24 @@
+@model IdentityViewModelBase;
+<label>Systemrettigheder</label>
+@for (int i = 0; i < Model.Claims.Count; i++)
+{
+    <input type="hidden" asp-for="Claims[i].ClaimType" />
+    @if (Model.Claims[i].HasDefaultValue)
+    {
+        <input type="hidden" asp-for="Claims[i].DefaultValue" />
+    }
+    <div class="form-row">
+        <div class="col">
+            <div class="form-check">
+                <input asp-for="Claims[i].IsSelected" class="form-check-input" onchange="javascript:$().handleClaimChange(this, document.getElementById('@(Html.IdFor(m => m.Claims[i].ActualValue))'), document.getElementById('@(Html.IdFor(m => m.Claims[i].DefaultValue))'));" />
+                <label asp-for="Claims[i].IsSelected" class="form-check-label">@Model.Claims[i].ClaimType</label>
+            </div>
+        </div>
+        <div class="col">
+            <div class="col form-group">
+                <input asp-for="Claims[i].ActualValue" class="form-control" readonly="@Convert.ToString(Model.Claims[i].IsSelected == false).ToLower()" />
+                <span asp-validation-for="Claims[i].ActualValue" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+}

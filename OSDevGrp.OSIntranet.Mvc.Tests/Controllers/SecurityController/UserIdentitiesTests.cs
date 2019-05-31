@@ -6,6 +6,7 @@ using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
     {
         #region Private variables
 
+        private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Fixture _fixture;
         private Random _random;
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         [SetUp]
         public void SetUp()
         {
+            _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
 
             _fixture = new Fixture();
@@ -93,7 +96,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<IUserIdentity>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.Run(() => userIdentityCollection ?? _fixture.CreateMany<IUserIdentity>(_random.Next(5, 10)).ToList()));
 
-            return new Mvc.Controllers.SecurityController(_queryBusMock.Object);
+            return new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object);
         }
     }
 }
