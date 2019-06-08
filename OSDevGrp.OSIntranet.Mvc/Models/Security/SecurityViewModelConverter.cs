@@ -25,6 +25,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Security
                 .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => int.MaxValue))
                 .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => src.Claims.Where(claimViewModel => claimViewModel.IsSelected).ToList()));
 
+            mapperConfiguration.CreateMap<UserIdentityViewModel, UpdateUserIdentityCommand>()
+                .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => src.Claims.Where(claimViewModel => claimViewModel.IsSelected).ToList()));
+
+            mapperConfiguration.CreateMap<UserIdentityViewModel, DeleteUserIdentityCommand>();
+
             mapperConfiguration.CreateMap<IClientSecretIdentity, ClientSecretIdentityViewModel>()
                 .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => new List<ClaimViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -32,6 +37,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Security
             mapperConfiguration.CreateMap<ClientSecretIdentityViewModel, CreateClientSecretIdentityCommand>()
                 .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => int.MaxValue))
                 .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => src.Claims.Where(claimViewModel => claimViewModel.IsSelected).ToList()));
+
+            mapperConfiguration.CreateMap<ClientSecretIdentityViewModel, UpdateClientSecretIdentityCommand>()
+                .ForMember(dest => dest.Claims, opt => opt.MapFrom(src => src.Claims.Where(claimViewModel => claimViewModel.IsSelected).ToList()));
+
+            mapperConfiguration.CreateMap<ClientSecretIdentityViewModel, DeleteClientSecretIdentityCommand>();
 
             mapperConfiguration.CreateMap<Claim, ClaimViewModel>()
                 .ForMember(dest => dest.ClaimType, opt => opt.MapFrom(src => src.Type))

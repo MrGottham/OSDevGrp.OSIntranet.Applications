@@ -11,6 +11,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
     public class ObjectValidator : Validator, IObjectValidator
     {
         #region Methods
+
         public IValidator ShouldBeKnownValue<T>(T value, Func<T, Task<bool>> isKnownValueGetter, Type validatingType, string validatingField, bool allowNull = false)
         {
             NullGuard.NotNull(isKnownValueGetter, nameof(isKnownValueGetter))
@@ -33,10 +34,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             Exception innerException = null;
             try
             {
-                Task<bool> isKnownValueGetterTask = isKnownValueGetter(value);
-                isKnownValueGetterTask.Wait();
-
-                if (isKnownValueGetterTask.Result)
+                if (isKnownValueGetter(value).GetAwaiter().GetResult())
                 {
                     return this;
                 }
@@ -48,6 +46,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                     innerException = exception;
                     return true;
                 });
+            }
+            catch (Exception exception)
+            {
+                innerException = exception;
             }
 
             IIntranetExceptionBuilder intranetExceptionBuilder = new IntranetExceptionBuilder(ErrorCode.ValueShouldBeKnown, validatingField)
@@ -79,10 +81,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             Exception innerException = null;
             try
             {
-                Task<bool> isUnknownValueGetterTask = isUnknownValueGetter(value);
-                isUnknownValueGetterTask.Wait();
-
-                if (isUnknownValueGetterTask.Result)
+                if (isUnknownValueGetter(value).GetAwaiter().GetResult())
                 {
                     return this;
                 }
@@ -94,6 +93,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                     innerException = exception;
                     return true;
                 });
+            }
+            catch (Exception exception)
+            {
+                innerException = exception;
             }
 
             IIntranetExceptionBuilder intranetExceptionBuilder = new IntranetExceptionBuilder(ErrorCode.ValueShouldBeUnknown, validatingField)
@@ -125,10 +128,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             Exception innerException = null;
             try
             {
-                Task<TDeletable> deletableGetterTask = deletableGetter(value);
-                deletableGetterTask.Wait();
-
-                IDeletable deletable = deletableGetterTask.Result;
+                IDeletable deletable = deletableGetter(value).GetAwaiter().GetResult();
                 if (deletable != null && deletable.Deletable)
                 {
                     return this;
@@ -141,6 +141,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                     innerException = exception;
                     return true;
                 });
+            }
+            catch (Exception exception)
+            {
+                innerException = exception;
             }
 
             IIntranetExceptionBuilder intranetExceptionBuilder = new IntranetExceptionBuilder(ErrorCode.ValueShouldReferToDeletableEntity, validatingField)

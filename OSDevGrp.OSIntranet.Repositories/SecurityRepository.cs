@@ -201,7 +201,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                     {
                         UserIdentityModel sourceUserIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
-                        UserIdentityModel targetUserIdentityModel = context.UserIdentities.Find(sourceUserIdentityModel.UserIdentityIdentifier);
+                        UserIdentityModel targetUserIdentityModel = context.UserIdentities
+                            .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => model.UserIdentityIdentifier == sourceUserIdentityModel.UserIdentityIdentifier);
                         if (targetUserIdentityModel == null)
                         {
                             return null;
@@ -348,7 +350,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                     {
                         ClientSecretIdentityModel sourceClientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
-                        ClientSecretIdentityModel targetClientSecretIdentityModel = context.ClientSecretIdentities.Find(sourceClientSecretIdentityModel.ClientSecretIdentityIdentifier);
+                        ClientSecretIdentityModel targetClientSecretIdentityModel = context.ClientSecretIdentities
+                            .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => model.ClientSecretIdentityIdentifier == sourceClientSecretIdentityModel.ClientSecretIdentityIdentifier);
                         if (targetClientSecretIdentityModel == null)
                         {
                             return null;

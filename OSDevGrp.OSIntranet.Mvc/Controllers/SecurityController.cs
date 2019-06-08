@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -63,7 +65,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             UserIdentityViewModel userIdentityViewModel = new UserIdentityViewModel
             {
-                Claims = BuildClaimViewModelCollection(systemClaims),
+                Claims = BuildClaimViewModelCollection(systemClaims, new List<Claim>(0)),
                 EditMode = EditMode.Create
             };
 
@@ -81,6 +83,41 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             ICreateUserIdentityCommand command = _securityViewModelConverter.Convert<UserIdentityViewModel, CreateUserIdentityCommand>(userIdentityViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("UserIdentities", "Security");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateUserIdentity(int identifier)
+        {
+            Task<IEnumerable<Claim>> systemClaimsTask = _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
+            Task<IUserIdentity> userIdentityTask = _queryBus.QueryAsync<IGetUserIdentityQuery, IUserIdentity>(new GetUserIdentityQuery {IdentityIdentifier = identifier});
+
+            IUserIdentity userIdentity = await userIdentityTask;
+            if (userIdentity == null)
+            {
+                return RedirectToAction("UserIdentities", "Security");
+            }
+
+            UserIdentityViewModel userIdentityViewModel = _securityViewModelConverter.Convert<IUserIdentity, UserIdentityViewModel>(userIdentity);
+            userIdentityViewModel.Claims = BuildClaimViewModelCollection(await systemClaimsTask, userIdentity.ToClaimsIdentity().Claims);
+            userIdentityViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdateUserIdentity", userIdentityViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserIdentity(UserIdentityViewModel userIdentityViewModel)
+        {
+            NullGuard.NotNull(userIdentityViewModel, nameof(userIdentityViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdateUserIdentity", userIdentityViewModel);
+            }
+
+            IUpdateUserIdentityCommand command = _securityViewModelConverter.Convert<UserIdentityViewModel, UpdateUserIdentityCommand>(userIdentityViewModel);
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("UserIdentities", "Security");
@@ -106,7 +143,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             ClientSecretIdentityViewModel clientSecretIdentityViewModel = new ClientSecretIdentityViewModel
             {
-                Claims = BuildClaimViewModelCollection(systemClaims),
+                Claims = BuildClaimViewModelCollection(systemClaims, new List<Claim>(0)),
                 EditMode = EditMode.Create
             };
 
@@ -129,11 +166,58 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("ClientSecretIdentities", "Security");
         }
 
-        private List<ClaimViewModel> BuildClaimViewModelCollection(IEnumerable<Claim> systemClaims)
+        [HttpGet]
+        public async Task<IActionResult> UpdateClientSecretIdentity(int identifier)
         {
-            NullGuard.NotNull(systemClaims, nameof(systemClaims));
+            Task<IEnumerable<Claim>> systemClaimsTask = _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
+            Task<IClientSecretIdentity> clientSecretIdentityTask = _queryBus.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(new GetClientSecretIdentityQuery {IdentityIdentifier = identifier});
 
-            return _securityViewModelConverter.Convert<IEnumerable<Claim>, IEnumerable<ClaimViewModel>>(systemClaims).OrderBy(m => m.ClaimType).ToList();
+            IClientSecretIdentity clientSecretIdentity = await clientSecretIdentityTask;
+            if (clientSecretIdentity == null)
+            {
+                return RedirectToAction("ClientSecretIdentities", "Security");
+            }
+
+            ClientSecretIdentityViewModel clientSecretIdentityViewModel = _securityViewModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityViewModel>(clientSecretIdentity);
+            clientSecretIdentityViewModel.Claims = BuildClaimViewModelCollection(await systemClaimsTask, clientSecretIdentity.ToClaimsIdentity().Claims);
+            clientSecretIdentityViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdateClientSecretIdentity", clientSecretIdentityViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateClientSecretIdentity(ClientSecretIdentityViewModel clientSecretIdentityViewModel)
+        {
+            NullGuard.NotNull(clientSecretIdentityViewModel, nameof(clientSecretIdentityViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdateClientSecretIdentity", clientSecretIdentityViewModel);
+            }
+
+            IUpdateClientSecretIdentityCommand command = _securityViewModelConverter.Convert<ClientSecretIdentityViewModel, UpdateClientSecretIdentityCommand>(clientSecretIdentityViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("ClientSecretIdentities", "Security");
+        }
+
+        private List<ClaimViewModel> BuildClaimViewModelCollection(IEnumerable<Claim> systemClaims, IEnumerable<Claim> identityClaims)
+        {
+            NullGuard.NotNull(systemClaims, nameof(systemClaims))
+                .NotNull(identityClaims, nameof(identityClaims));
+
+            List<ClaimViewModel> claimViewModelCollection = _securityViewModelConverter.Convert<IEnumerable<Claim>, IEnumerable<ClaimViewModel>>(systemClaims).OrderBy(m => m.ClaimType).ToList();
+            foreach (Claim identityClaim in identityClaims)
+            {
+                ClaimViewModel claimViewModel = claimViewModelCollection.SingleOrDefault(m => string.CompareOrdinal(m.ClaimType, identityClaim.Type) == 0);
+                if (claimViewModel == null)
+                {
+                    continue;
+                }
+                claimViewModel.IsSelected = true;
+                claimViewModel.ActualValue = string.IsNullOrWhiteSpace(identityClaim.Value) ? claimViewModel.ActualValue : identityClaim.Value;
+            }
+            return claimViewModelCollection;
         }
 
         #endregion

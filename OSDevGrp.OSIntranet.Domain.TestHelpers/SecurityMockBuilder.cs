@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using AutoFixture;
 using Moq;
@@ -9,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class SecurityMockBuilder
     {
-        public static Mock<IUserIdentity> BuildUserIdentityMock(this Fixture fixture)
+        public static Mock<IUserIdentity> BuildUserIdentityMock(this Fixture fixture, IEnumerable<Claim> claims = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -26,10 +27,12 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<DateTime>());
             userIdentityMock.Setup(m => m.ModifiedByIdentifier)
                 .Returns(fixture.Create<string>());
+            userIdentityMock.Setup(m => m.ToClaimsIdentity())
+                .Returns(new ClaimsIdentity(claims ?? new List<Claim>(0)));
             return userIdentityMock;
         }
 
-        public static Mock<IClientSecretIdentity> BuildClientSecretIdentityMock(this Fixture fixture, string clientId = null, string clientSecret = null, IToken token = null)
+        public static Mock<IClientSecretIdentity> BuildClientSecretIdentityMock(this Fixture fixture, string clientId = null, string clientSecret = null, IToken token = null, IEnumerable<Claim> claims = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -53,7 +56,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             clientSecretIdentityMock.Setup(m => m.ModifiedByIdentifier)
                 .Returns(fixture.Create<string>());
             clientSecretIdentityMock.Setup(m => m.ToClaimsIdentity())
-                .Returns(new ClaimsIdentity());
+                .Returns(new ClaimsIdentity(claims ?? new List<Claim>(0)));
             return clientSecretIdentityMock;
         }
 

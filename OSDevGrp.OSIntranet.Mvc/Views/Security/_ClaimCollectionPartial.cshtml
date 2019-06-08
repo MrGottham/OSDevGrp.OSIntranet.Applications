@@ -16,7 +16,14 @@
         </div>
         <div class="col">
             <div class="col form-group">
-                <input asp-for="Claims[i].ActualValue" class="form-control" readonly="@Convert.ToString(Model.Claims[i].IsSelected == false).ToLower()" />
+                @if (Model.Claims[i].IsSelected)
+                {
+                    <input asp-for="Claims[i].ActualValue" class="form-control" />
+                }
+                else
+                {
+                    <input asp-for="Claims[i].ActualValue" class="form-control" readonly="true" />
+                }
                 <span asp-validation-for="Claims[i].ActualValue" class="text-danger"></span>
             </div>
         </div>

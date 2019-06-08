@@ -219,6 +219,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<Claim>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.Run(() => claimCollection ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList()));
 
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateClientSecretIdentityCommand>()))
+                .Returns(Task.Run(() => { }));
+
             Controller controller = new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object);
             if (modelIsValid == false)
             {

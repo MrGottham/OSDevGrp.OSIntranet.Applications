@@ -21,7 +21,11 @@
                 {
                     <tr>
                         <td>@userIdentityViewModel.ExternalUserIdentifier</td>
-                        <td></td>
+                        <td>
+                            <span class="fa-stack">
+                                <a asp-area="" asp-controller="Security" asp-action="UpdateUserIdentity" asp-route-identifier="@userIdentityViewModel.Identifier"><i class="fas fa-pen"></i></a>
+                            </span>
+                        </td>
                     </tr>
                 }
                 </tbody>
