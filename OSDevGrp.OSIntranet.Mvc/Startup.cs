@@ -62,7 +62,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                     opt.SaveTokens = true;
                     opt.Scope.Clear();
                     opt.Scope.Add("User.Read");
-                    opt.Scope.Add("Contacts.Read");
+                    opt.Scope.Add("Contacts.ReadWrite");
                     opt.Scope.Add("offline_access");
                     opt.Events.OnCreatingTicket += o =>
                     {

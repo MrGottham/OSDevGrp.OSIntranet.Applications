@@ -9,7 +9,7 @@ namespace OSDevGrp.OSIntranet.Domain.Common
         #region Private variables
 
         private string _companyIdentificationNumber;
-        private readonly string[] _lines = new string[7]
+        private readonly string[] _lines = new string[]
         {
             null,
             null,

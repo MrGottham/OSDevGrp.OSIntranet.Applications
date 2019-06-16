@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories.Interfaces
@@ -12,6 +14,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IRefreshableToken> RefreshTokenAsync(Uri redirectUri, IRefreshableToken refreshableToken);
 
-        Task GetContacts(IRefreshableToken refreshableToken);
+        Task<IEnumerable<IContact>> GetContacts(IRefreshableToken refreshableToken);
+
+        Task<IContact> GetContact(IRefreshableToken refreshableToken, string identifier);
     }
 }

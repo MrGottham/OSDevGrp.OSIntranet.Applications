@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -20,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         private const string MicrosoftLoginUrl = "https://login.microsoftonline.com";
         private const string MicrosoftGraphUrl = "https://graph.microsoft.com/v1.0";
-        private const string Scope = "User.Read Contacts.Read offline_access";
+        private const string Scope = "User.Read Contacts.ReadWrite offline_access";
 
         #endregion
 
@@ -106,15 +110,40 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Token;
         }
 
-        public async Task GetContacts(IRefreshableToken refreshableToken)
+        public async Task<IEnumerable<IContact>> GetContacts(IRefreshableToken refreshableToken)
         {
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken));
 
             Token = refreshableToken;
 
-            await GetAsync<string>(new Uri($"{MicrosoftGraphUrl}/me/contacts"));
+            List<IContact> contacts = new List<IContact>();
 
-            throw new NotImplementedException();
+            ContactCollectionModel contactCollectionModel = await GetAsync<ContactCollectionModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts"), null, CreateSerializerSettings());
+            contacts.AddRange(_microsoftGraphModelConverter.Convert<ContactCollectionModel, IEnumerable<IContact>>(contactCollectionModel));
+
+            while (string.IsNullOrWhiteSpace(contactCollectionModel.NextLink) == false)
+            {
+                contactCollectionModel = await GetAsync<ContactCollectionModel>(new Uri(contactCollectionModel.NextLink), null, CreateSerializerSettings());
+                contacts.AddRange(_microsoftGraphModelConverter.Convert<ContactCollectionModel, IEnumerable<IContact>>(contactCollectionModel));
+            }
+
+            return contacts.OrderBy(m => m.Name.DisplayName).ToList();
+        }
+
+        public async Task<IContact> GetContact(IRefreshableToken refreshableToken, string identifier)
+        {
+            NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
+                .NotNullOrWhiteSpace(identifier, nameof(identifier));
+
+            Token = refreshableToken;
+
+            ContactModel contactModel = await GetAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{identifier}"), null, CreateSerializerSettings());
+            if (contactModel == null)
+            {
+                return null;
+            }
+
+            return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(contactModel);
         }
 
         protected override IDictionary<string, string> GetParametersToAuthorize(Uri redirectUri, string scope, string state)
@@ -179,6 +208,14 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNull(refreshableToken, nameof(refreshableToken));
 
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(refreshableToken.TokenType, refreshableToken.AccessToken);
+        }
+
+        private DataContractJsonSerializerSettings CreateSerializerSettings()
+        {
+            return new DataContractJsonSerializerSettings
+            {
+                DateTimeFormat = new DateTimeFormat("yyyy-MM-ddTHH:mm:ssZ")
+            };
         }
 
         #endregion
