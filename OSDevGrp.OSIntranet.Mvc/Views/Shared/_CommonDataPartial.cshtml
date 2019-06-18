@@ -1,0 +1,10 @@
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "CommonData")).Succeeded)
+{
+    <li class="nav-item dropdown">
+        <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuCommonData" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Fælles</a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuCommonData">
+        </ul>
+    </li>
+}

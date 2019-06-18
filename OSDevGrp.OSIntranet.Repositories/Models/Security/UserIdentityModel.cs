@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 .AddClaims(claimCollection)
                 .Build();
 
-            if (latestUserIdentityClaimModel == null || latestUserIdentityClaimModel.ModifiedUtcDateTime > userIdentityModel.ModifiedUtcDateTime)
+            if (latestUserIdentityClaimModel == null || latestUserIdentityClaimModel.ModifiedUtcDateTime < userIdentityModel.ModifiedUtcDateTime)
             {
                 userIdentity.AddAuditInformation(userIdentityModel.CreatedUtcDateTime, userIdentityModel.CreatedByIdentifier, userIdentityModel.ModifiedUtcDateTime, userIdentityModel.ModifiedByIdentifier);
             }

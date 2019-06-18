@@ -44,7 +44,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 .Build();
 
 
-            if (latestClientSecretIdentityClaimModel == null || latestClientSecretIdentityClaimModel.ModifiedUtcDateTime > clientSecretIdentityModel.ModifiedUtcDateTime)
+            if (latestClientSecretIdentityClaimModel == null || latestClientSecretIdentityClaimModel.ModifiedUtcDateTime < clientSecretIdentityModel.ModifiedUtcDateTime)
             {
                 clientSecretIdentity.AddAuditInformation(clientSecretIdentityModel.CreatedUtcDateTime, clientSecretIdentityModel.CreatedByIdentifier, clientSecretIdentityModel.ModifiedUtcDateTime, clientSecretIdentityModel.ModifiedByIdentifier);
             }

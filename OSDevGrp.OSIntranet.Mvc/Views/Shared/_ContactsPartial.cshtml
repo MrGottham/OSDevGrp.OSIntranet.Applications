@@ -1,0 +1,10 @@
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Contacts")).Succeeded)
+{
+    <li class="nav-item dropdown">
+        <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuContacts" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Kontakter</a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuContacts">
+        </ul>
+    </li>
+}

@@ -147,14 +147,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                     continue;
                 }
 
+                DateTime utcNow = DateTime.UtcNow;
                 if (entityEntry.State == EntityState.Added)
                 {
-                    auditModel.CreatedUtcDateTime = DateTime.UtcNow;
+                    auditModel.CreatedUtcDateTime = utcNow;
                     auditModel.CreatedByIdentifier = identityIdentifier;
+                    auditModel.ModifiedUtcDateTime = utcNow;
+                    auditModel.ModifiedByIdentifier = identityIdentifier;
+                    continue;
                 }
 
-                auditModel.ModifiedUtcDateTime = DateTime.UtcNow;
-                auditModel.ModifiedByIdentifier = identityIdentifier;
+                if (entityEntry.State == EntityState.Modified)
+                {
+                    auditModel.ModifiedUtcDateTime = utcNow;
+                    auditModel.ModifiedByIdentifier = identityIdentifier;
+                }
             }
         }
 
