@@ -1,4 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
@@ -18,6 +22,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public string Name { get; set; }
 
         public bool Deletable { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        public abstract string GetDeletionLink(IUrlHelper urlHelper);
+
+        public string GetDeletionData(IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"number: {Number}, {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+        }
 
         #endregion
     }

@@ -245,7 +245,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
                     {
-                        UserIdentityModel userIdentityModel = context.UserIdentities.Find(userIdentityIdentifier);
+                        UserIdentityModel userIdentityModel = context.UserIdentities
+                            .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => model.UserIdentityIdentifier == userIdentityIdentifier);
                         if (userIdentityModel == null)
                         {
                             return null;
@@ -396,7 +398,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
                     {
-                        ClientSecretIdentityModel clientSecretIdentityModel = context.ClientSecretIdentities.Find(clientSecretIdentityIdentifier);
+                        ClientSecretIdentityModel clientSecretIdentityModel = context.ClientSecretIdentities
+                            .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
+                            .SingleOrDefault(model => model.ClientSecretIdentityIdentifier == clientSecretIdentityIdentifier);
                         if (clientSecretIdentityModel == null)
                         {
                             return null;

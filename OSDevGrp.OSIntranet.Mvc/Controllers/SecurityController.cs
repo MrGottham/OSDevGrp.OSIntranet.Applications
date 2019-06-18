@@ -73,6 +73,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUserIdentity(UserIdentityViewModel userIdentityViewModel)
         {
             NullGuard.NotNull(userIdentityViewModel, nameof(userIdentityViewModel));
@@ -108,6 +109,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUserIdentity(UserIdentityViewModel userIdentityViewModel)
         {
             NullGuard.NotNull(userIdentityViewModel, nameof(userIdentityViewModel));
@@ -119,6 +121,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             IUpdateUserIdentityCommand command = _securityViewModelConverter.Convert<UserIdentityViewModel, UpdateUserIdentityCommand>(userIdentityViewModel);
             await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("UserIdentities", "Security");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUserIdentity(int identifier)
+        {
+            IDeleteUserIdentityCommand command = new DeleteUserIdentityCommand
+            {
+                Identifier = identifier
+            };
+            await _commandBus.PublishAsync<IDeleteUserIdentityCommand>(command);
 
             return RedirectToAction("UserIdentities", "Security");
         }
@@ -151,6 +166,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateClientSecretIdentity(ClientSecretIdentityViewModel clientSecretIdentityViewModel)
         {
             NullGuard.NotNull(clientSecretIdentityViewModel, nameof(clientSecretIdentityViewModel));
@@ -186,6 +202,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateClientSecretIdentity(ClientSecretIdentityViewModel clientSecretIdentityViewModel)
         {
             NullGuard.NotNull(clientSecretIdentityViewModel, nameof(clientSecretIdentityViewModel));
@@ -197,6 +214,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             IUpdateClientSecretIdentityCommand command = _securityViewModelConverter.Convert<ClientSecretIdentityViewModel, UpdateClientSecretIdentityCommand>(clientSecretIdentityViewModel);
             await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("ClientSecretIdentities", "Security");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteClientSecretIdentity(int identifier)
+        {
+            IDeleteClientSecretIdentityCommand command = new DeleteClientSecretIdentityCommand
+            {
+                Identifier = identifier
+            };
+            await _commandBus.PublishAsync<IDeleteClientSecretIdentityCommand>(command);
 
             return RedirectToAction("ClientSecretIdentities", "Security");
         }

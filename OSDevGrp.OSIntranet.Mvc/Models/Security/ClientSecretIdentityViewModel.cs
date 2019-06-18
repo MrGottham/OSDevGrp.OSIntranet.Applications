@@ -1,5 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Security
 {
@@ -26,6 +29,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Security
         { 
             get => _maskedClientSecret;
             set => _maskedClientSecret = string.IsNullOrWhiteSpace(value) ? null : value.Substring(0, Math.Min(4, value.Length)) + new string('*', value.Length - Math.Min(4, value.Length));
+        }
+
+        #endregion
+
+        #region Methods
+
+        public override string GetDeletionLink(IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteClientSecretIdentity", "Security");
         }
 
         #endregion

@@ -1,21 +1,24 @@
 (function($) {
     $.fn.extend({
-        askForDeletion: function(header, deletionForm) {
-            if (confirm(header + '\r\n\r\nEr du sikker?'))
-            {
-                deletionForm.submit();
+        askForDeletion: function(header, deleteUrl, deleteData, removeElement) {
+            if (confirm(header + '\r\n\r\nEr du sikker?')) {
+                $.post(deleteUrl, deleteData, null, 'html')
+                    .done(function() {
+                        removeElement.remove();
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    });
             }
         },
 
         handleClaimChange: function(claimCheckBox, claimValueInput, defaultValueInput) {
-            defaultValue = '';
-            if (defaultValueInput != null)
-            {
+            var defaultValue = '';
+            if (defaultValueInput != null) {
                 defaultValue = defaultValueInput.value;
             }
 
-            if (claimCheckBox.checked)
-            {
+            if (claimCheckBox.checked) {
                 claimValueInput.readOnly = false;
                 claimValueInput.value = defaultValue;
                 return;

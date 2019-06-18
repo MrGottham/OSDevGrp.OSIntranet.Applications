@@ -24,6 +24,7 @@
                         <td>
                             <span class="fa-stack">
                                 <a asp-area="" asp-controller="Security" asp-action="UpdateUserIdentity" asp-route-identifier="@userIdentityViewModel.Identifier"><i class="fas fa-pen"></i></a>
+                                <a href="#" onclick="javascript:$().askForDeletion('Slet bruger', '@(userIdentityViewModel.GetDeletionLink(Url))', @(userIdentityViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
                             </span>
                         </td>
                     </tr>

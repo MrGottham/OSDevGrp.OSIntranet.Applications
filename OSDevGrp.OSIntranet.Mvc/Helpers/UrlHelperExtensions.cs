@@ -16,14 +16,38 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
             return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action)}";
         }
 
+        internal static string AbsoluteAction(this IUrlHelper urlHelper, string action, string controller)
+        {
+            NullGuard.NotNull(urlHelper, nameof(urlHelper))
+                .NotNullOrWhiteSpace(action, nameof(action))
+                .NotNullOrWhiteSpace(controller, nameof(controller));
+
+            HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
+
+            return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action, controller)}";
+        }
+
         internal static string AbsoluteAction(this IUrlHelper urlHelper, string action, object values)
         {
             NullGuard.NotNull(urlHelper, nameof(urlHelper))
-                .NotNullOrWhiteSpace(action, nameof(action));
+                .NotNullOrWhiteSpace(action, nameof(action))
+                .NotNull(values, nameof(values));
 
             HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
 
             return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action, values)}";
+        }
+
+        internal static string AbsoluteAction(this IUrlHelper urlHelper, string action, string controller, object values)
+        {
+            NullGuard.NotNull(urlHelper, nameof(urlHelper))
+                .NotNullOrWhiteSpace(action, nameof(action))
+                .NotNullOrWhiteSpace(controller, nameof(controller))
+                .NotNull(values, nameof(values));
+
+            HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
+
+            return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action, controller, values)}";
         }
 
         internal static string AbsoluteContent(this IUrlHelper urlHelper, string contentPath)
