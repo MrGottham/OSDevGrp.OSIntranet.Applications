@@ -14,8 +14,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IRefreshableToken> RefreshTokenAsync(Uri redirectUri, IRefreshableToken refreshableToken);
 
-        Task<IEnumerable<IContact>> GetContacts(IRefreshableToken refreshableToken);
+        Task<IEnumerable<IContact>> GetContactsAsync(IRefreshableToken refreshableToken);
 
-        Task<IContact> GetContact(IRefreshableToken refreshableToken, string identifier);
+        Task<IContact> GetContactAsync(IRefreshableToken refreshableToken, string identifier);
+
+        Task<IContact> CreateContactAsync(IRefreshableToken refreshableToken, IContact contact);
+
+        Task<IContact> UpdateContactAsync(IRefreshableToken refreshableToken, IContact contact);
+
+        Task DeleteContactAsync(IRefreshableToken refreshableToken, string identifier);
     }
 }

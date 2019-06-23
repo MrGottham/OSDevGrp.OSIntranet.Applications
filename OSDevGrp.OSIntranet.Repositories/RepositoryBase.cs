@@ -32,6 +32,21 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Methods
 
+        protected void Execute(Action action, MethodBase methodBase)
+        {
+            NullGuard.NotNull(action, nameof(action))
+                .NotNull(methodBase, nameof(methodBase));
+
+            try
+            {
+                action();
+            }
+            catch (AggregateException aggregateException)
+            {
+                throw HandleAndCreateException(aggregateException, methodBase);
+            }
+        }
+
         protected T Execute<T>(Func<T> resultGetter, MethodBase methodBase)
         {
             NullGuard.NotNull(resultGetter, nameof(resultGetter))
@@ -43,18 +58,26 @@ namespace OSDevGrp.OSIntranet.Repositories
             }
             catch (AggregateException aggregateException)
             {
-                Exception handledException = null;
-                aggregateException.Handle(exception =>
-                {
-                    handledException = exception;
-                    return true;
-                });
-
-                throw new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, handledException.Message)
-                    .WithInnerException(handledException)
-                    .WithMethodBase(methodBase)
-                    .Build();
+                throw HandleAndCreateException(aggregateException, methodBase);
             }
+        }
+
+        private Exception HandleAndCreateException(AggregateException aggregateException, MethodBase methodBase)
+        {
+            NullGuard.NotNull(aggregateException, nameof(aggregateException))
+                .NotNull(methodBase, nameof(methodBase));
+
+            Exception handledException = null;
+            aggregateException.Handle(exception =>
+            {
+                handledException = exception;
+                return true;
+            });
+
+            return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, handledException.Message)
+                .WithInnerException(handledException)
+                .WithMethodBase(methodBase)
+                .Build();
         }
 
         #endregion

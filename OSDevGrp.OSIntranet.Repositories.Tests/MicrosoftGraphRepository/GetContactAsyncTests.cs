@@ -9,7 +9,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 {
     [TestFixture]
-    public class GetContactTests : MicrosoftGraphRepositoryTestBase
+    public class GetContactAsyncTests : MicrosoftGraphRepositoryTestBase
     {
         #region Private variables
 
@@ -25,44 +25,44 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 
         [Test]
         [Category("UnitTest")]
-        public void GetContact_WhenRefreshableTokenIsNull_ThrowsArgumentNullException()
+        public void GetContactAsync_WhenRefreshableTokenIsNull_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContact(null, _fixture.Create<string>()));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAsync(null, _fixture.Create<string>()));
 
             Assert.That(result.ParamName, Is.EqualTo("refreshableToken"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetContact_WhenIdentifierIsNull_ThrowsArgumentNullException()
+        public void GetContactAsync_WhenIdentifierIsNull_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContact(_fixture.BuildRefreshableTokenMock().Object, null));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAsync(_fixture.BuildRefreshableTokenMock().Object, null));
 
             Assert.That(result.ParamName, Is.EqualTo("identifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetContact_WhenIdentifierIsEmpty_ThrowsArgumentNullException()
+        public void GetContactAsync_WhenIdentifierIsEmpty_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContact(_fixture.BuildRefreshableTokenMock().Object, string.Empty));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAsync(_fixture.BuildRefreshableTokenMock().Object, string.Empty));
 
             Assert.That(result.ParamName, Is.EqualTo("identifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetContact_WhenIdentifierIsWhiteSpace_ThrowsArgumentNullException()
+        public void GetContactAsync_WhenIdentifierIsWhiteSpace_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContact(_fixture.BuildRefreshableTokenMock().Object, " "));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAsync(_fixture.BuildRefreshableTokenMock().Object, " "));
 
             Assert.That(result.ParamName, Is.EqualTo("identifier"));
         }
@@ -71,11 +71,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
         [Category("IntegrationTest")]
         [TestCase("[TBD]")]
         [Ignore("Test which communicate with Microsoft Graph should only be executed when we have an access token")]
-        public async Task GetContact_WhenCalled_ReturnsContact(string identifier)
+        public async Task GetContactAsync_WhenCalled_ReturnsContact(string identifier)
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            IContact result = await sut.GetContact(CreateToken(), identifier);
+            IContact result = await sut.GetContactAsync(CreateToken(), identifier);
 
             Assert.That(result, Is.Not.Null);
         }

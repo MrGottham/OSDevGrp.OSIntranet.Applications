@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -110,7 +112,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Token;
         }
 
-        public async Task<IEnumerable<IContact>> GetContacts(IRefreshableToken refreshableToken)
+        public async Task<IEnumerable<IContact>> GetContactsAsync(IRefreshableToken refreshableToken)
         {
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken));
 
@@ -130,20 +132,73 @@ namespace OSDevGrp.OSIntranet.Repositories
             return contacts.OrderBy(m => m.Name.DisplayName).ToList();
         }
 
-        public async Task<IContact> GetContact(IRefreshableToken refreshableToken, string identifier)
+        public async Task<IContact> GetContactAsync(IRefreshableToken refreshableToken, string identifier)
         {
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNullOrWhiteSpace(identifier, nameof(identifier));
 
             Token = refreshableToken;
 
-            ContactModel contactModel = await GetAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{identifier}"), null, CreateSerializerSettings());
+            ContactModel contactModel = await GetContactModelAsync(identifier, CreateSerializerSettings());
             if (contactModel == null)
             {
                 return null;
             }
 
             return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(contactModel);
+        }
+
+        public async Task<IContact> CreateContactAsync(IRefreshableToken refreshableToken, IContact contact)
+        {
+            NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
+                .NotNull(contact, nameof(contact));
+
+            Token = refreshableToken;
+
+            ContactModel contactModel = _microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
+
+            DataContractJsonSerializerSettings serializerSettings = CreateSerializerSettings();
+            ContactModel createdContactModel = await PostAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(contactModel, serializerSettings), serializerSettings);
+
+            return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(createdContactModel);
+        }
+
+        public async Task<IContact> UpdateContactAsync(IRefreshableToken refreshableToken, IContact contact)
+        {
+            NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
+                .NotNull(contact, nameof(contact));
+
+            Token = refreshableToken;
+
+            DataContractJsonSerializerSettings serializerSettings = CreateSerializerSettings();
+
+            ContactModel sourceContactModel = await GetContactModelAsync(contact.ExternalIdentifier, serializerSettings);
+            if (sourceContactModel == null)
+            {
+                return null;
+            }
+
+            ContactModel targetContactModel = _microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
+
+            ContactModel updatedContactModel = await PatchAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{targetContactModel.Identifier}"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(targetContactModel.ToChangedOnlyModel(sourceContactModel), serializerSettings), serializerSettings);
+
+            return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(updatedContactModel);
+        }
+
+        public async Task DeleteContactAsync(IRefreshableToken refreshableToken, string identifier)
+        {
+            NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
+                .NotNullOrWhiteSpace(identifier, nameof(identifier));
+
+            Token = refreshableToken;
+
+            ContactModel contactModel = await GetContactModelAsync(identifier, CreateSerializerSettings());
+            if (contactModel == null)
+            {
+                return;
+            }
+
+            await DeleteAsync(new Uri($"{MicrosoftGraphUrl}/me/contacts/{contactModel.Identifier}"));
         }
 
         protected override IDictionary<string, string> GetParametersToAuthorize(Uri redirectUri, string scope, string state)
@@ -210,12 +265,38 @@ namespace OSDevGrp.OSIntranet.Repositories
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(refreshableToken.TokenType, refreshableToken.AccessToken);
         }
 
+        private async Task<ContactModel> GetContactModelAsync(string identifier, DataContractJsonSerializerSettings serializerSettings)
+        {
+            NullGuard.NotNullOrWhiteSpace(identifier, nameof(identifier))
+                .NotNull(serializerSettings, nameof(serializerSettings));
+
+            return await GetAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{identifier}"), null, serializerSettings);
+        }
+
         private DataContractJsonSerializerSettings CreateSerializerSettings()
         {
             return new DataContractJsonSerializerSettings
             {
                 DateTimeFormat = new DateTimeFormat("yyyy-MM-ddTHH:mm:ssZ")
             };
+        }
+
+        private StringContent ModelToStringContent<T>(T model, DataContractJsonSerializerSettings serializerSettings) where T : class
+        {
+            NullGuard.NotNull(model, nameof(model))
+                .NotNull(serializerSettings, nameof(serializerSettings));
+
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(model.GetType(), serializerSettings);
+                serializer.WriteObject(memoryStream, model);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                using (StreamReader reader = new StreamReader(memoryStream))
+                {
+                    return new StringContent(reader.ReadToEnd(), Encoding.UTF8, "application/json");
+                }
+            }
         }
 
         #endregion

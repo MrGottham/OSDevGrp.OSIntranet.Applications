@@ -140,6 +140,53 @@ namespace OSDevGrp.OSIntranet.Repositories
                 serializerSettings);
         }
 
+        protected override async Task<TResult> PatchAsync<TResult>(Uri requestUri, Action<HttpRequestMessage> httpRequestMessageCallback = null, DataContractJsonSerializerSettings serializerSettings = null)
+        {
+            NullGuard.NotNull(requestUri, nameof(requestUri));
+
+            ValidatorToken();
+
+            return await base.PatchAsync<TResult>(
+                requestUri,
+                httpRequestMessage =>
+                {
+                    NullGuard.NotNull(httpRequestMessage, nameof(httpRequestMessage));
+
+                    SetupAuthenticationForRequest(httpRequestMessage, Token);
+
+                    if (httpRequestMessageCallback == null)
+                    {
+                        return;
+                    }
+
+                    httpRequestMessageCallback(httpRequestMessage);
+                },
+                serializerSettings);
+        }
+
+        protected override async Task DeleteAsync(Uri requestUri, Action<HttpRequestMessage> httpRequestMessageCallback = null)
+        {
+            NullGuard.NotNull(requestUri, nameof(requestUri));
+
+            ValidatorToken();
+
+            await base.DeleteAsync(
+                requestUri,
+                httpRequestMessage =>
+                {
+                    NullGuard.NotNull(httpRequestMessage, nameof(httpRequestMessage));
+
+                    SetupAuthenticationForRequest(httpRequestMessage, Token);
+
+                    if (httpRequestMessageCallback == null)
+                    {
+                        return;
+                    }
+
+                    httpRequestMessageCallback(httpRequestMessage);
+                });
+        }
+
         private void ValidatorToken()
         {
             if (Token == null)

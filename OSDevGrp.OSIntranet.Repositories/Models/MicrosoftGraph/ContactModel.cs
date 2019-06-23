@@ -17,49 +17,49 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
         [DataMember(Name = "id", IsRequired = false, EmitDefaultValue = false)]
         public string Identifier { get; set; }
 
-        [DataMember(Name = "displayName", IsRequired = true)]
+        [DataMember(Name = "displayName", IsRequired = false, EmitDefaultValue = false)]
         public string DisplayName { get; set; }
 
-        [DataMember(Name = "givenName", IsRequired = false)]
+        [DataMember(Name = "givenName", IsRequired = false, EmitDefaultValue = false)]
         public string GivenName { get; set; }
 
-        [DataMember(Name = "middleName", IsRequired = false)]
+        [DataMember(Name = "middleName", IsRequired = false, EmitDefaultValue = false)]
         public string MiddleName { get; set; }
 
-        [DataMember(Name = "surname", IsRequired = false)]
+        [DataMember(Name = "surname", IsRequired = false, EmitDefaultValue = false)]
         public string Surname { get; set; }
 
-        [DataMember(Name = "homeAddress", IsRequired = false)]
+        [DataMember(Name = "homeAddress", IsRequired = false, EmitDefaultValue = false)]
         public PhysicalAddressModel HomeAddress { get; set; }
 
-        [DataMember(Name = "homePhones", IsRequired = false)]
+        [DataMember(Name = "homePhones", IsRequired = true, EmitDefaultValue = true)]
         public List<string> HomePhones { get; set; }
 
-        [DataMember(Name = "mobilePhone", IsRequired = false)]
+        [DataMember(Name = "mobilePhone", IsRequired = false, EmitDefaultValue = false)]
         public string MobilePhone { get; set; }
 
-        [DataMember(Name = "birthday", IsRequired = false)]
+        [DataMember(Name = "birthday", IsRequired = false, EmitDefaultValue = false)]
         public DateTime? Birthday { get; set; }
 
-        [DataMember(Name = "emailAddresses", IsRequired = false)]
+        [DataMember(Name = "emailAddresses", IsRequired = true, EmitDefaultValue = true)]
         public List<EmailAddressModel> EmailAddresses { get; set; }
 
-        [DataMember(Name = "companyName", IsRequired = false)]
+        [DataMember(Name = "companyName", IsRequired = false, EmitDefaultValue = false)]
         public string CompanyName { get; set; }
 
-        [DataMember(Name = "businessAddress", IsRequired = false)]
+        [DataMember(Name = "businessAddress", IsRequired = false, EmitDefaultValue = false)]
         public PhysicalAddressModel BusinessAddress { get; set; }
 
-        [DataMember(Name = "businessPhones", IsRequired = false)]
+        [DataMember(Name = "businessPhones", IsRequired = true, EmitDefaultValue = true)]
         public List<string> BusinessPhones { get; set; }
 
-        [DataMember(Name = "businessHomePage", IsRequired = false)]
+        [DataMember(Name = "businessHomePage", IsRequired = false, EmitDefaultValue = false)]
         public string BusinessHomePage { get; set; }
 
-        [DataMember(Name = "createdDateTime", IsRequired = true)]
+        [DataMember(Name = "createdDateTime", IsRequired = false, EmitDefaultValue = false)]
         public DateTime CreatedDateTime { get; set; }
 
-        [DataMember(Name = "lastModifiedDateTime", IsRequired = true)]
+        [DataMember(Name = "lastModifiedDateTime", IsRequired = false, EmitDefaultValue = false)]
         public DateTime LastModifiedDateTime { get; set; }
 
         #endregion
@@ -86,7 +86,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
                 ExternalIdentifier = contactModel.Identifier,
                 HomePhone = homePhone,
                 MobilePhone = contactModel.MobilePhone,
-                Birthday = contactModel.Birthday?.ToLocalTime().Date,
+                Birthday = contactModel.Birthday,
                 MailAddress = contactModel.EmailAddresses == null ? null : microsoftGraphModelConverter.Convert<IEnumerable<EmailAddressModel>, string>(contactModel.EmailAddresses),
                 Company = string.IsNullOrWhiteSpace(contactModel.CompanyName) ? null : microsoftGraphModelConverter.Convert<ContactModel, ICompany>(contactModel)
             };
@@ -152,6 +152,29 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
             NullGuard.NotNull(contactModel, nameof(contactModel));
 
             return new CompanyName(contactModel.CompanyName);
+        }
+
+        internal static ContactModel ToChangedOnlyModel(this ContactModel targetContactModel, ContactModel sourceContactModel)
+        {
+            NullGuard.NotNull(targetContactModel, nameof(targetContactModel))
+                .NotNull(sourceContactModel, nameof(sourceContactModel));
+
+            targetContactModel.Identifier = targetContactModel.Identifier.CalculateChange(sourceContactModel.Identifier);
+            targetContactModel.DisplayName = targetContactModel.DisplayName.CalculateChange(sourceContactModel.DisplayName);
+            targetContactModel.GivenName = targetContactModel.GivenName.CalculateChange(sourceContactModel.GivenName);
+            targetContactModel.MiddleName = targetContactModel.MiddleName.CalculateChange(sourceContactModel.MiddleName);
+            targetContactModel.Surname = targetContactModel.Surname.CalculateChange(sourceContactModel.Surname);
+            targetContactModel.HomeAddress = targetContactModel.HomeAddress.ToChangedOnlyModel(sourceContactModel.HomeAddress);
+            targetContactModel.HomePhones = targetContactModel.HomePhones.CalculateChange(sourceContactModel.HomePhones, 1);
+            targetContactModel.MobilePhone = targetContactModel.MobilePhone.CalculateChange(sourceContactModel.MobilePhone);
+            targetContactModel.Birthday = targetContactModel.Birthday.CalculateChange(sourceContactModel.Birthday);
+            targetContactModel.EmailAddresses = targetContactModel.EmailAddresses.ToChangedOnlyModelCollection(sourceContactModel.EmailAddresses, 1);
+            targetContactModel.CompanyName = targetContactModel.CompanyName.CalculateChange(sourceContactModel.CompanyName);
+            targetContactModel.BusinessAddress = targetContactModel.BusinessAddress.ToChangedOnlyModel(sourceContactModel.BusinessAddress);
+            targetContactModel.BusinessPhones = targetContactModel.BusinessPhones.CalculateChange(sourceContactModel.BusinessPhones, 2);
+            targetContactModel.BusinessHomePage = targetContactModel.BusinessHomePage.CalculateChange(sourceContactModel.BusinessHomePage);
+
+            return targetContactModel;
         }
     }
 }

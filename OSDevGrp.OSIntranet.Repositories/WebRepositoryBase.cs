@@ -49,6 +49,47 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync<TResult>(requestUri, uri => new HttpRequestMessage(HttpMethod.Post, uri), MethodBase.GetCurrentMethod(), httpRequestMessageCallback, serializerSettings);
         }
 
+        protected virtual Task<TResult> PatchAsync<TResult>(Uri requestUri, Action<HttpRequestMessage> httpRequestMessageCallback = null, DataContractJsonSerializerSettings serializerSettings = null) where TResult : class
+        {
+            NullGuard.NotNull(requestUri, nameof(requestUri));
+
+            return ExecuteAsync<TResult>(requestUri, uri => new HttpRequestMessage(new HttpMethod("PATCH"), uri), MethodBase.GetCurrentMethod(), httpRequestMessageCallback, serializerSettings);
+        }
+
+        protected virtual Task DeleteAsync(Uri requestUri, Action<HttpRequestMessage> httpRequestMessageCallback = null)
+        {
+            NullGuard.NotNull(requestUri, nameof(requestUri));
+
+            return ExecuteAsync(requestUri, uri => new HttpRequestMessage(HttpMethod.Delete, uri), MethodBase.GetCurrentMethod(), httpRequestMessageCallback);
+        }
+
+        private Task ExecuteAsync(Uri requestUri, Func<Uri, HttpRequestMessage> httpRequestMessageCreator, MethodBase methodBase, Action<HttpRequestMessage> httpRequestMessageCallback = null)
+        {
+            NullGuard.NotNull(requestUri, nameof(requestUri))
+                .NotNull(httpRequestMessageCreator, nameof(httpRequestMessageCreator))
+                .NotNull(methodBase, nameof(methodBase));
+
+            return Execute(async () =>
+                {
+                    using (HttpClient httpClient = new HttpClient())
+                    {
+                        using (HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback))
+                        {
+                            using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage))
+                            {
+                                if (httpResponseMessage.IsSuccessStatusCode)
+                                {
+                                    return;
+                                }
+
+                                throw await HandleUnsuccessfulResponseAndCreateExceptionAsync(methodBase, httpResponseMessage);
+                            }
+                        }
+                    }
+                },
+                methodBase);
+        }
+
         private Task<TResult> ExecuteAsync<TResult>(Uri requestUri, Func<Uri, HttpRequestMessage> httpRequestMessageCreator, MethodBase methodBase, Action<HttpRequestMessage> httpRequestMessageCallback = null, DataContractJsonSerializerSettings serializerSettings = null) where TResult : class
         {
             NullGuard.NotNull(requestUri, nameof(requestUri))
@@ -59,17 +100,8 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using (HttpClient httpClient = new HttpClient())
                     {
-                        using (HttpRequestMessage httpRequestMessage = httpRequestMessageCreator(requestUri))
+                        using (HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback))
                         {
-                            try
-                            {
-                                httpRequestMessageCallback?.Invoke(httpRequestMessage);
-                            }
-                            catch (TargetInvocationException ex)
-                            {
-                                throw ex.InnerException ?? ex;
-                            }
-
                             using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage))
                             {
                                 if (httpResponseMessage.IsSuccessStatusCode)
@@ -81,25 +113,51 @@ namespace OSDevGrp.OSIntranet.Repositories
                                     }
                                 }
 
-                                switch (httpResponseMessage.StatusCode)
-                                {
-                                    case HttpStatusCode.Unauthorized:
-                                        throw new UnauthorizedAccessException();
-
-                                    default:
-                                        string errorResponse = await httpResponseMessage.Content.ReadAsStringAsync();
-                                        _logger.LogError($"{methodBase}: {Convert.ToString(httpResponseMessage.StatusCode)}, Response={errorResponse}");
-
-                                        throw new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, httpResponseMessage.ReasonPhrase)
-                                            .WithMethodBase(methodBase)
-                                            .Build();
-                                }
+                                throw await HandleUnsuccessfulResponseAndCreateExceptionAsync(methodBase, httpResponseMessage);
                             }
-
                         }
                     }
                 },
                 methodBase);
+        }
+
+        private HttpRequestMessage CreateHttpRequestMessage(Uri requestUri, Func<Uri, HttpRequestMessage> httpRequestMessageCreator, Action<HttpRequestMessage> httpRequestMessageCallback = null)
+        {
+            NullGuard.NotNull(requestUri, nameof(requestUri))
+                .NotNull(httpRequestMessageCreator, nameof(httpRequestMessageCreator));
+
+            HttpRequestMessage httpRequestMessage = httpRequestMessageCreator(requestUri);
+            try
+            {
+                httpRequestMessageCallback?.Invoke(httpRequestMessage);
+            }
+            catch (TargetInvocationException ex)
+            {
+                httpRequestMessage.Dispose();
+
+                throw ex.InnerException ?? ex;
+            }
+            return httpRequestMessage;
+        }
+
+        private async Task<Exception> HandleUnsuccessfulResponseAndCreateExceptionAsync(MethodBase methodBase, HttpResponseMessage httpResponseMessage)
+        {
+            NullGuard.NotNull(methodBase, nameof(methodBase))
+                .NotNull(httpResponseMessage, nameof(httpResponseMessage));
+
+            switch (httpResponseMessage.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedAccessException();
+
+                default:
+                    string errorResponse = await httpResponseMessage.Content.ReadAsStringAsync();
+                    _logger.LogError($"{methodBase}: {Convert.ToString(httpResponseMessage.StatusCode)}, Response={errorResponse}");
+
+                    return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, httpResponseMessage.ReasonPhrase)
+                        .WithMethodBase(methodBase)
+                        .Build();
+            }
         }
 
         #endregion

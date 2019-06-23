@@ -11,19 +11,19 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
     {
         #region Properties
 
-        [DataMember(Name = "token_type", IsRequired = true)]
+        [DataMember(Name = "token_type", IsRequired = true, EmitDefaultValue = true)]
         public string TokenType { get; set; }
 
-        [DataMember(Name = "scope", IsRequired = true)]
+        [DataMember(Name = "scope", IsRequired = true, EmitDefaultValue = true)]
         public string Scope { get; set; }
 
-        [DataMember(Name = "expires_in", IsRequired = true)]
+        [DataMember(Name = "expires_in", IsRequired = true, EmitDefaultValue = true)]
         public int ExpiresIn { get; set; }
 
-        [DataMember(Name = "access_token", IsRequired = true)]
+        [DataMember(Name = "access_token", IsRequired = true, EmitDefaultValue = true)]
         public string AccessToken { get; set; }
 
-        [DataMember(Name = "refresh_token", IsRequired = true)]
+        [DataMember(Name = "refresh_token", IsRequired = true, EmitDefaultValue = true)]
         public string RefreshToken { get; set; }
 
         [IgnoreDataMember] 

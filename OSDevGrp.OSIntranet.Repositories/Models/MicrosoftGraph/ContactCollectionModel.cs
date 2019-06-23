@@ -10,13 +10,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
     [DataContract]
     internal class ContactCollectionModel
     {
-        [DataMember(Name = "@odata.context", IsRequired = true)]
+        [DataMember(Name = "@odata.context", IsRequired = true, EmitDefaultValue = true)]
         public string Context { get; set; }
 
-        [DataMember(Name = "@odata.nextLink", IsRequired = false)]
+        [DataMember(Name = "@odata.nextLink", IsRequired = false, EmitDefaultValue = false)]
         public string NextLink { get; set; }
 
-        [DataMember(Name = "value", IsRequired = true)]
+        [DataMember(Name = "value", IsRequired = true, EmitDefaultValue = true)]
         public List<ContactModel> Collection { get; set; }
     }
 
