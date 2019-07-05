@@ -9,6 +9,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
@@ -139,6 +140,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
@@ -156,6 +158,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             objectValidatorMock.Setup(m => m.ShouldNotBeNull(It.IsAny<T>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
             
+            SetupShouldBeDeletable<T, ICountry>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);

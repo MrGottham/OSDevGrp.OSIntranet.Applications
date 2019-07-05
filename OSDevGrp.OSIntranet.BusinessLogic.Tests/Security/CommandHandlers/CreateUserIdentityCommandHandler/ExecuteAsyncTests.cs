@@ -57,6 +57,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Creat
 
         private CommandHandler CreateSut()
         {
+            _securityRepositoryMock.Setup(m => m.CreateUserIdentityAsync(It.IsAny<IUserIdentity>()))
+                .Returns(Task.Run(() => _fixture.BuildUserIdentityMock().Object));
+
             return new CommandHandler(_validatorMock.Object, _securityRepositoryMock.Object);
         }
 

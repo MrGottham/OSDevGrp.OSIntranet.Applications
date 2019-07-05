@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.DeleteClientSecretIdentityCommandHandler;
 
@@ -55,6 +56,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Delet
 
         private CommandHandler CreateSut()
         {
+            _securityRepositoryMock.Setup(m => m.DeleteClientSecretIdentityAsync(It.IsAny<int>()))
+                .Returns(Task.Run(() => (IClientSecretIdentity) null));
+
             return new CommandHandler(_validatorMock.Object, _securityRepositoryMock.Object);
         }
 

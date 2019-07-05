@@ -99,7 +99,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
 
         private QueryHandler CreateSut(IBudgetAccountGroup budgetAccountGroup = null)
         {
-             _accountingRepositoryMock.Setup(m => m.GetBudgetAccountGroupAsync(It.IsAny<int>()))
+            _accountingRepositoryMock.Setup(m => m.GetBudgetAccountGroupAsync(It.IsAny<int>()))
                 .Returns(Task.Run(() => budgetAccountGroup ?? _fixture.Create<IBudgetAccountGroup>()));
 
            return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);

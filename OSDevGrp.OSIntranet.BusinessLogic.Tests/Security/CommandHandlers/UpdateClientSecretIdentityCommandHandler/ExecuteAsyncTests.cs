@@ -145,6 +145,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Updat
             _securityRepositoryMock.Setup(m => m.GetClientSecretIdentityAsync(It.IsAny<int>()))
                 .Returns(Task.Run(() => hasExistingClientSecretIdentity ? existingClientSecretIdentity ?? _fixture.BuildClientSecretIdentityMock().Object : null));
 
+            _securityRepositoryMock.Setup(m => m.UpdateClientSecretIdentityAsync(It.IsAny<IClientSecretIdentity>()))
+                .Returns(Task.Run(() => _fixture.BuildClientSecretIdentityMock().Object));
+
             return new CommandHandler(_validatorMock.Object, _securityRepositoryMock.Object);
         }
 

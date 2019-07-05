@@ -5,7 +5,6 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
-using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers.DeleteLetterHeadCommandHandler;
 
@@ -58,7 +57,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.DeleteL
         private CommandHandler CreateSut()
         {
             _commonRepositoryMock.Setup(m => m.DeleteLetterHeadAsync(It.IsAny<int>()))
-                .Returns(Task.Run(() => _fixture.BuildLetterHeadMock().Object));
+                .Returns(Task.Run(() => (ILetterHead) null));
 
             return new CommandHandler(_validatorMock.Object, _commonRepositoryMock.Object);
         }
