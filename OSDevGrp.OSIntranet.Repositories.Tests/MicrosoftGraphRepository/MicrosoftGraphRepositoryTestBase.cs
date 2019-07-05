@@ -19,7 +19,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 
         protected IMicrosoftGraphRepository CreateSut()
         {
-            return new Repositories.MicrosoftGraphRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerMock<Repositories.MicrosoftGraphRepository>().Object);
+            return new Repositories.MicrosoftGraphRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
         }
 
         protected IRefreshableToken CreateToken()

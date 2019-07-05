@@ -1,9 +1,9 @@
 ﻿using System.Security.Principal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
-using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests
 {
@@ -26,9 +26,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests
             return principalResolverMock;
         }
 
-        protected Mock<ILogger<T>> CreateLoggerMock<T>() where T : IRepository
+        protected ILoggerFactory CreateLoggerFactory()
         {
-            return new Mock<ILogger<T>>();
+            return NullLoggerFactory.Instance;
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
@@ -24,8 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public CommonRepository(IConfiguration configuration, IPrincipalResolver principalResolver)
-            : base(configuration, principalResolver)
+        public CommonRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
         }
 
@@ -66,12 +67,12 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver))
+                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         return context.LetterHeads.AsParallel()
                             .Select(letterHeadModel => 
                             {
-                                using (CommonContext subContext = new CommonContext(Configuration, PrincipalResolver))
+                                using (CommonContext subContext = new CommonContext(Configuration, PrincipalResolver, LoggerFactory))
                                 {
                                     letterHeadModel.Deletable = CanDeleteLetterHead(subContext, letterHeadModel.LetterHeadIdentifier);
                                 }
@@ -89,7 +90,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver))
+                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         LetterHeadModel letterHeadModel = context.LetterHeads.Find(number);
                         if (letterHeadModel == null)
@@ -111,7 +112,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver))
+                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         LetterHeadModel letterHeadModel = _commonModelConverter.Convert<ILetterHead, LetterHeadModel>(letterHead);
 
@@ -131,7 +132,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver))
+                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         LetterHeadModel letterHeadModel = context.LetterHeads.Find(letterHead.Number);
                         if (letterHeadModel == null)
@@ -161,7 +162,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver))
+                    using (CommonContext context = new CommonContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         LetterHeadModel letterHeadModel = context.LetterHeads.Find(number);
                         if (letterHeadModel == null)

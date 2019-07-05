@@ -111,7 +111,12 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             app.UseAuthentication();
             app.UseHttpsRedirection();
-            app.UseRequestLocalization(options => options.SetDefaultCulture("da-DK"));
+            app.UseRequestLocalization(options => 
+            {
+                options.AddSupportedCultures("da-DK", "da");
+                options.AddSupportedUICultures("da-DK", "da");
+                options.SetDefaultCulture("da-DK");
+            });
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

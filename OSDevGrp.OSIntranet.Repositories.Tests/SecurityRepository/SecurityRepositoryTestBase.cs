@@ -6,7 +6,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
     {
         protected ISecurityRepository CreateSut()
         {
-            return new Repositories.SecurityRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object);
+            return new Repositories.SecurityRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
         }
     }
 }

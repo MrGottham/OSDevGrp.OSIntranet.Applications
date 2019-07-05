@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
@@ -24,8 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public AccountingRepository(IConfiguration configuration, IPrincipalResolver principalResolver)
-            : base(configuration, principalResolver)
+        public AccountingRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
         }
 
@@ -95,12 +96,12 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         return context.AccountGroups.AsParallel()
                             .Select(accountGroupModel => 
                             {
-                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver))
+                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                                 {
                                     accountGroupModel.Deletable = CanDeleteAccountGroup(subContext, accountGroupModel.AccountGroupIdentifier);
                                 }
@@ -118,7 +119,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
                         if (accountGroupModel == null)
@@ -140,7 +141,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         AccountGroupModel accountGroupModel = _accountingModelConverter.Convert<IAccountGroup, AccountGroupModel>(accountGroup);
 
@@ -160,7 +161,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         AccountGroupModel accountGroupModel = context.AccountGroups.Find(accountGroup.Number);
                         if (accountGroupModel == null)
@@ -183,7 +184,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
                         if (accountGroupModel == null)
@@ -217,12 +218,12 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         return context.BudgetAccountGroups.AsParallel()
                             .Select(budgetAccountGroupModel => 
                             {
-                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver))
+                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                                 {
                                     budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(subContext, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
                                 }
@@ -240,7 +241,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
                         if (budgetAccountGroupModel == null)
@@ -262,7 +263,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         BudgetAccountGroupModel budgetAccountGroupModel = _accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>(budgetAccountGroup);
 
@@ -282,7 +283,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(budgetAccountGroup.Number);
                         if (budgetAccountGroupModel == null)
@@ -304,7 +305,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver))
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
                         if (budgetAccountGroupModel == null)

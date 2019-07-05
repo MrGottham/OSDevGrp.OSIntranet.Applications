@@ -6,7 +6,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         protected IContactRepository CreateSut()
         {
-            return new Repositories.ContactRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object);
+            return new Repositories.ContactRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
@@ -14,8 +15,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
         }
 
-        public SecurityContext(IConfiguration configuration, IPrincipalResolver principalResolver)
-            : base(configuration, principalResolver)
+        public SecurityContext(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
         }
 

@@ -6,6 +6,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
@@ -38,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             IPrincipalResolver principalResolver = CreatePrincipalResolver();
             IValidator validator = CreateValidator();
 
-            _commonRepository = new CommonRepository(configuration, principalResolver);
+            _commonRepository = new CommonRepository(configuration, principalResolver, CreateLoggerFactory());
 
             ICommandHandler<ICreateLetterHeadCommand> createLetterHeadCommandHandler = new CreateLetterHeadCommandHandler(validator, _commonRepository);
             _commandBus = new CommandBus(new [] {createLetterHeadCommandHandler});
@@ -87,6 +89,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         {
             IPrincipal currentPrincipal = CreateClaimsPrincipal();
             return new GenericPrincipalResolver(currentPrincipal);
+        }
+
+        private ILoggerFactory CreateLoggerFactory()
+        {
+            return NullLoggerFactory.Instance;
         }
 
         private ClaimsPrincipal CreateClaimsPrincipal()

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
@@ -26,8 +27,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public SecurityRepository(IConfiguration configuration, IPrincipalResolver principalResolver)
-            : base(configuration, principalResolver)
+        public SecurityRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
         }
 
@@ -116,7 +117,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         return context.UserIdentities
                             .Include(userIdentityModel => userIdentityModel.UserIdentityClaims).ThenInclude(e => e.Claim)
@@ -133,7 +134,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         UserIdentityModel userIdentityModel = context.UserIdentities
                             .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
@@ -155,7 +156,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         UserIdentityModel userIdentityModel = context.UserIdentities
                             .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
@@ -177,7 +178,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         UserIdentityModel userIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).WithDefaultIdentifier().With(userIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
@@ -197,7 +198,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         UserIdentityModel sourceUserIdentityModel = _securityModelConverter.Convert<IUserIdentity, UserIdentityModel>(userIdentity).With(userIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
@@ -243,7 +244,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         UserIdentityModel userIdentityModel = context.UserIdentities
                             .Include(model => model.UserIdentityClaims).ThenInclude(e => e.Claim)
@@ -267,7 +268,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         return context.ClientSecretIdentities
                             .Include(clientSecretIdentityModel => clientSecretIdentityModel.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
@@ -284,7 +285,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities
                             .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
@@ -306,7 +307,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         ClientSecretIdentityModel clientSecretIdentityModel= context.ClientSecretIdentities
                             .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
@@ -328,7 +329,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         ClientSecretIdentityModel clientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).WithDefaultIdentifier().With(clientSecretIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
@@ -348,7 +349,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         ClientSecretIdentityModel sourceClientSecretIdentityModel = _securityModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityModel>(clientSecretIdentity).With(clientSecretIdentity.ToClaimsIdentity().Claims, context, _securityModelConverter);
 
@@ -396,7 +397,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         ClientSecretIdentityModel clientSecretIdentityModel = context.ClientSecretIdentities
                             .Include(model=> model.ClientSecretIdentityClaims).ThenInclude(e => e.Claim)
@@ -420,7 +421,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver))
+                    using (SecurityContext context = new SecurityContext(Configuration, PrincipalResolver, LoggerFactory))
                     {
                         return context.Claims.AsParallel()
                             .Select(claimModel => _securityModelConverter.Convert<ClaimModel, Claim>(claimModel))

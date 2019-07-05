@@ -15,20 +15,11 @@ namespace OSDevGrp.OSIntranet.Repositories
 {
     public abstract class WebRepositoryBase : RepositoryBase
     {
-        #region Private variables
-
-        private readonly ILogger _logger;
-
-        #endregion
-
         #region Constructor
 
-        protected WebRepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILogger logger)
-            : base(configuration, principalResolver)
+        protected WebRepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
-            NullGuard.NotNull(logger, nameof(logger));
-
-            _logger = logger;
         }
 
         #endregion
@@ -152,7 +143,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                 default:
                     string errorResponse = await httpResponseMessage.Content.ReadAsStringAsync();
-                    _logger.LogError($"{methodBase}: {Convert.ToString(httpResponseMessage.StatusCode)}, Response={errorResponse}");
+                    Logger.LogError($"{methodBase}: {Convert.ToString(httpResponseMessage.StatusCode)}, Response={errorResponse}");
 
                     return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, httpResponseMessage.ReasonPhrase)
                         .WithMethodBase(methodBase)

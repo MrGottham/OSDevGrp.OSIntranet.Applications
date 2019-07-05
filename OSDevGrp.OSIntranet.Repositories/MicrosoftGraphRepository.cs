@@ -39,8 +39,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public MicrosoftGraphRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILogger<MicrosoftGraphRepository> logger)
-            : base(configuration, principalResolver, logger)
+        public MicrosoftGraphRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
         }
 

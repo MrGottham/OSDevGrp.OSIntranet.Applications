@@ -6,7 +6,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         protected IAccountingRepository CreateSut()
         {
-            return new Repositories.AccountingRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object);
+            return new Repositories.AccountingRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
         }
     }
 }

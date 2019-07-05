@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
@@ -11,13 +12,15 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected RepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver)
+        protected RepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
         {
             NullGuard.NotNull(configuration, nameof(configuration))
-                .NotNull(principalResolver, nameof(principalResolver));
+                .NotNull(principalResolver, nameof(principalResolver))
+                .NotNull(loggerFactory, nameof(loggerFactory));
 
             Configuration = configuration;
             PrincipalResolver = principalResolver;
+            LoggerFactory = loggerFactory;
         }
 
         #endregion
@@ -27,6 +30,10 @@ namespace OSDevGrp.OSIntranet.Repositories
         protected IConfiguration Configuration { get; }
 
         protected IPrincipalResolver PrincipalResolver { get; }
+
+        protected ILoggerFactory LoggerFactory { get; }
+
+        protected ILogger Logger => LoggerFactory.CreateLogger(GetType());
 
         #endregion
 

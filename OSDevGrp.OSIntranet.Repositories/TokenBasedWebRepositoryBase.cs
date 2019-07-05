@@ -19,8 +19,8 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected TokenBasedWebRepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILogger logger)
-            : base(configuration, principalResolver, logger)
+        protected TokenBasedWebRepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+            : base(configuration, principalResolver, loggerFactory)
         {
         }
 

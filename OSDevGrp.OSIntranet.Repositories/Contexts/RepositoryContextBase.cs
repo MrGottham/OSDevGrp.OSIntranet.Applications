@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Resolvers;
@@ -24,15 +26,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                 .AddUserSecrets<AccountingContext>()
                 .Build();
             PrincipalResolver = new GenericPrincipalResolver();
+            LoggerFactory = NullLoggerFactory.Instance;
         }
 
-        protected RepositoryContextBase(IConfiguration configuration, IPrincipalResolver principalResolver)
+        protected RepositoryContextBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
         {
             NullGuard.NotNull(configuration, nameof(configuration))
-                .NotNull(principalResolver, nameof(principalResolver));
+                .NotNull(principalResolver, nameof(principalResolver))
+                .NotNull(loggerFactory, nameof(loggerFactory));
 
             Configuration = configuration;
             PrincipalResolver = principalResolver;
+            LoggerFactory = loggerFactory;
         }
 
         #endregion
@@ -43,6 +48,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         protected IPrincipalResolver PrincipalResolver { get; }
 
+        protected ILoggerFactory LoggerFactory { get; }
+
         #endregion
 
         #region Methods
@@ -51,7 +58,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
             string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
-            AddAuditInformations(identityIdentifier);
+            AddAuditInformation(identityIdentifier);
 
             return base.SaveChanges();
         }
@@ -60,25 +67,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
             string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
-            AddAuditInformations(identityIdentifier);
+            AddAuditInformation(identityIdentifier);
 
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
-        public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
-            AddAuditInformations(identityIdentifier);
+            AddAuditInformation(identityIdentifier);
 
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        public async override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
             string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
-            AddAuditInformations(identityIdentifier);
+            AddAuditInformation(identityIdentifier);
 
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
@@ -87,14 +94,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
             NullGuard.NotNull(optionsBuilder, nameof(optionsBuilder));
 
-            optionsBuilder.UseMySQL(Configuration.GetConnectionString(ConnectionStringNames.IntranetName));
+            optionsBuilder.UseLoggerFactory(LoggerFactory)
+                .UseMySQL(Configuration.GetConnectionString(ConnectionStringNames.IntranetName));
         }
 
-        private string GetIdentityIdentifier(IPrincipal currentPricipal)
+        private string GetIdentityIdentifier(IPrincipal currentPrincipal)
         {
-            NullGuard.NotNull(currentPricipal, nameof(currentPricipal));
+            NullGuard.NotNull(currentPrincipal, nameof(currentPrincipal));
 
-            return GetIdentityIdentifier(currentPricipal.Identity);
+            return GetIdentityIdentifier(currentPrincipal.Identity);
         }
 
         private string GetIdentityIdentifier(IIdentity currentIdentity)
@@ -127,15 +135,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             }
 
             identityIdentifierClaim = currentClaimsIdentity.FindFirst(ClaimTypes.Name);
-            if (identityIdentifierClaim != null)
-            {
-                return identityIdentifierClaim.Value;
-            }
-
-            return null;
+            return identityIdentifierClaim?.Value;
         }
 
-        private void AddAuditInformations(string identityIdentifier)
+        private void AddAuditInformation(string identityIdentifier)
         {
             NullGuard.NotNullOrWhiteSpace(identityIdentifier, nameof(identityIdentifier));
 
