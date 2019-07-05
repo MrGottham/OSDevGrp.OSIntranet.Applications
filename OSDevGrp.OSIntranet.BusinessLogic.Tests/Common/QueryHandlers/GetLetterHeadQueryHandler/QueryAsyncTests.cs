@@ -4,6 +4,7 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.QueryHandlers.GetLetter
     {
         #region Private variables
 
+        private Mock<IValidator> _validatorMock;
         private Mock<ICommonRepository> _commonRepositoryMock;
         private Fixture _fixture;
 
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.QueryHandlers.GetLetter
         [SetUp]
         public void SetUp()
         {
+            _validatorMock = new Mock<IValidator>();
             _commonRepositoryMock = new Mock<ICommonRepository>();
 
             _fixture = new Fixture();
@@ -38,6 +41,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.QueryHandlers.GetLetter
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
             Assert.That(result.ParamName, Is.EqualTo("query"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetLetterHeadQuery()
+        {
+            QueryHandler sut = CreateSut();
+
+            Mock<IGetLetterHeadQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.Validate(
+                    It.Is<IValidator>(value => value == _validatorMock.Object),
+                    It.Is<ICommonRepository>(value => value == _commonRepositoryMock.Object)), 
+                Times.Once);
         }
 
         [Test]
@@ -83,7 +101,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.QueryHandlers.GetLetter
             _commonRepositoryMock.Setup(m => m.GetLetterHeadAsync(It.IsAny<int>()))
                 .Returns(Task.Run(() => letterHead ?? _fixture.BuildLetterHeadMock().Object));
 
-            return new QueryHandler(_commonRepositoryMock.Object);
+            return new QueryHandler(_validatorMock.Object, _commonRepositoryMock.Object);
         }
 
         private Mock<IGetLetterHeadQuery> CreateQueryMock(int? number = null)

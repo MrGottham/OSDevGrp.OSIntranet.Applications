@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -29,21 +30,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(securityRepository, nameof(securityRepository));
 
-            return validator.Integer.ShouldBeGreaterThanZero(Identifier, GetType(), nameof(Identifier));
+            return validator.ValidateIdentityIdentifier(Identifier, GetType(), nameof(Identifier));
         }
 
         protected Task<IUserIdentity> GetUserIdentity(ISecurityRepository securityRepository)
         {
             NullGuard.NotNull(securityRepository, nameof(securityRepository));
 
-            return Task.Run(async () =>  _userIdentity ?? (_userIdentity = await securityRepository.GetUserIdentityAsync(Identifier)));
+            return Task.Run(() => Identifier.GetUserIdentity(securityRepository, ref _userIdentity));
         }
 
         protected Task<IClientSecretIdentity> GetClientSecretIdentity(ISecurityRepository securityRepository)
         {
             NullGuard.NotNull(securityRepository, nameof(securityRepository));
 
-            return Task.Run(async () =>  _clientSecretIdentity ?? (_clientSecretIdentity = await securityRepository.GetClientSecretIdentityAsync(Identifier)));
+            return Task.Run(() => Identifier.GetClientSecretIdentity(securityRepository, ref _clientSecretIdentity));
         }
 
         #endregion

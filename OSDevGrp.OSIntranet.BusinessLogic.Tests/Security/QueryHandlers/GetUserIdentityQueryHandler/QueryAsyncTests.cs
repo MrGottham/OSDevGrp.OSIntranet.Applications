@@ -4,6 +4,7 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
     {
         #region Private variables
 
+        private Mock<IValidator> _validatorMock;
         private Mock<ISecurityRepository> _securityRepositoryMock;
         private Fixture _fixture;
 
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
         [SetUp]
         public void SetUp()
         {
+            _validatorMock = new Mock<IValidator>();
             _securityRepositoryMock = new Mock<ISecurityRepository>();
 
             _fixture = new Fixture();
@@ -43,14 +46,29 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertIdentityIdentifierWasCalledOnGetUserIdentityQuery()
+        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetUserIdentityQuery()
         {
             QueryHandler sut = CreateSut();
 
             Mock<IGetUserIdentityQuery> queryMock = CreateQueryMock();
             await sut.QueryAsync(queryMock.Object);
 
-            queryMock.Verify(m => m.IdentityIdentifier, Times.Once);
+            queryMock.Verify(m => m.Validate(
+                    It.Is<IValidator>(value => value == _validatorMock.Object),
+                    It.Is<ISecurityRepository>(value => value == _securityRepositoryMock.Object)), 
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertIdentifierWasCalledOnGetUserIdentityQuery()
+        {
+            QueryHandler sut = CreateSut();
+
+            Mock<IGetUserIdentityQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.Identifier, Times.Once);
         }
 
         [Test]
@@ -59,11 +77,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
         {
             QueryHandler sut = CreateSut();
 
-            int identityIdentifier = _fixture.Create<int>();
-            IGetUserIdentityQuery query = CreateQueryMock(identityIdentifier).Object;
+            int identifier = _fixture.Create<int>();
+            IGetUserIdentityQuery query = CreateQueryMock(identifier).Object;
             await sut.QueryAsync(query);
 
-            _securityRepositoryMock.Verify(m => m.GetUserIdentityAsync(It.Is<int>(value => value == identityIdentifier)), Times.Once());
+            _securityRepositoryMock.Verify(m => m.GetUserIdentityAsync(It.Is<int>(value => value == identifier)), Times.Once());
         }
 
         [Test]
@@ -84,14 +102,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
             _securityRepositoryMock.Setup(m => m.GetUserIdentityAsync(It.IsAny<int>()))
                 .Returns(Task.Run(() => userIdentity ?? _fixture.Create<IUserIdentity>()));
 
-            return new QueryHandler(_securityRepositoryMock.Object);
+            return new QueryHandler(_validatorMock.Object, _securityRepositoryMock.Object);
         }
 
-        private Mock<IGetUserIdentityQuery> CreateQueryMock(int? identityIdentifier = null)
+        private Mock<IGetUserIdentityQuery> CreateQueryMock(int? identifier = null)
         {
             Mock<IGetUserIdentityQuery> queryMock = new Mock<IGetUserIdentityQuery>();
-            queryMock.Setup(m => m.IdentityIdentifier)
-                .Returns(identityIdentifier ?? _fixture.Create<int>());
+            queryMock.Setup(m => m.Identifier)
+                .Returns(identifier ?? _fixture.Create<int>());
             return queryMock;
         }
     }

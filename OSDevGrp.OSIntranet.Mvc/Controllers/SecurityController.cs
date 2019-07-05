@@ -93,7 +93,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         public async Task<IActionResult> UpdateUserIdentity(int identifier)
         {
             Task<IEnumerable<Claim>> systemClaimsTask = _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
-            Task<IUserIdentity> userIdentityTask = _queryBus.QueryAsync<IGetUserIdentityQuery, IUserIdentity>(new GetUserIdentityQuery {IdentityIdentifier = identifier});
+            Task<IUserIdentity> userIdentityTask = _queryBus.QueryAsync<IGetUserIdentityQuery, IUserIdentity>(new GetUserIdentityQuery {Identifier = identifier});
 
             IUserIdentity userIdentity = await userIdentityTask;
             if (userIdentity == null)
@@ -186,7 +186,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         public async Task<IActionResult> UpdateClientSecretIdentity(int identifier)
         {
             Task<IEnumerable<Claim>> systemClaimsTask = _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
-            Task<IClientSecretIdentity> clientSecretIdentityTask = _queryBus.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(new GetClientSecretIdentityQuery {IdentityIdentifier = identifier});
+            Task<IClientSecretIdentity> clientSecretIdentityTask = _queryBus.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(new GetClientSecretIdentityQuery {Identifier = identifier});
 
             IClientSecretIdentity clientSecretIdentity = await clientSecretIdentityTask;
             if (clientSecretIdentity == null)

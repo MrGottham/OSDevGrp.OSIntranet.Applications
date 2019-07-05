@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Common.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -28,14 +29,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Commands
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(commonRepository, nameof(commonRepository));
 
-            return validator.Integer.ShouldBeBetween(Number, 1, 99, GetType(), nameof(Number));
+            return validator.ValidateLetterHeadIdentifier(Number, GetType(), nameof(Number));
         }
 
         protected Task<ILetterHead> GetLetterHead(ICommonRepository commonRepository)
         {
             NullGuard.NotNull(commonRepository, nameof(commonRepository));
 
-            return Task.Run(async () =>  _letterHead ?? (_letterHead = await commonRepository.GetLetterHeadAsync(Number)));
+            return Task.Run(() => Number.GetLetterHead(commonRepository, ref _letterHead));
         }
 
         #endregion

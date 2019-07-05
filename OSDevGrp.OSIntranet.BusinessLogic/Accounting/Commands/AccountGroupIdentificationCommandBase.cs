@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -29,21 +30,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
-            return validator.Integer.ShouldBeBetween(Number, 1, 99, GetType(), nameof(Number));
+            return validator.ValidateAccountGroupIdentifier(Number, GetType(), nameof(Number));
         }
 
         protected Task<IAccountGroup> GetAccountGroup(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(async () =>  _accountGroup ?? (_accountGroup = await accountingRepository.GetAccountGroupAsync(Number)));
+            return Task.Run(() => Number.GetAccountGroup(accountingRepository, ref _accountGroup));
         }
 
         protected Task<IBudgetAccountGroup> GetBudgetAccountGroup(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(async () =>  _budgetAccountGroup ?? (_budgetAccountGroup = await accountingRepository.GetBudgetAccountGroupAsync(Number)));
+            return Task.Run(() => Number.GetBudgetAccountGroup(accountingRepository, ref _budgetAccountGroup));
         }
 
         #endregion

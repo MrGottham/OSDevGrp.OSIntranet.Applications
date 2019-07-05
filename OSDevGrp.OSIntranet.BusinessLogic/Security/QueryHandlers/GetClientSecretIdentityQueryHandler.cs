@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -11,16 +12,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers
     {
         #region Private variables
 
+        private readonly IValidator _validator;
         private readonly ISecurityRepository _securityRepository;
 
         #endregion
 
         #region Constructor
 
-        public GetClientSecretIdentityQueryHandler(ISecurityRepository securityRepository)
+        public GetClientSecretIdentityQueryHandler(IValidator validator, ISecurityRepository securityRepository)
         {
-            NullGuard.NotNull(securityRepository, nameof(securityRepository));
+            NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(securityRepository, nameof(securityRepository));
 
+            _validator = validator;
             _securityRepository = securityRepository;
         }
 
@@ -32,7 +36,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return _securityRepository.GetClientSecretIdentityAsync(query.IdentityIdentifier);
+            query.Validate(_validator, _securityRepository);
+
+            return _securityRepository.GetClientSecretIdentityAsync(query.Identifier);
         }
 
         #endregion

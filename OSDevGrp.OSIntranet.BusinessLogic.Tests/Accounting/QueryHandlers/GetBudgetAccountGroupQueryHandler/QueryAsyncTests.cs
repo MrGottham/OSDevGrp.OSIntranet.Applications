@@ -4,6 +4,7 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
     {
         #region Private variables
 
+        private Mock<IValidator> _validatorMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
         [SetUp]
         public void SetUp()
         {
+            _validatorMock = new Mock<IValidator>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
 
             _fixture = new Fixture();
@@ -39,6 +42,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.QueryAsync(null));
 
             Assert.That(result.ParamName, Is.EqualTo("query"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetBudgetAccountGroupQuery()
+        {
+            QueryHandler sut = CreateSut();
+
+            Mock<IGetBudgetAccountGroupQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.Validate(
+                    It.Is<IValidator>(value => value == _validatorMock.Object),
+                    It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object)), 
+                Times.Once);
         }
 
         [Test]
@@ -84,7 +102,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
              _accountingRepositoryMock.Setup(m => m.GetBudgetAccountGroupAsync(It.IsAny<int>()))
                 .Returns(Task.Run(() => budgetAccountGroup ?? _fixture.Create<IBudgetAccountGroup>()));
 
-           return new QueryHandler(_accountingRepositoryMock.Object);
+           return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
         }
  
         private Mock<IGetBudgetAccountGroupQuery> CreateQueryMock(int? number = null)

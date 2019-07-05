@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             int identifier = _fixture.Create<int>();
             await sut.UpdateClientSecretIdentity(identifier);
 
-            _queryBusMock.Verify(m => m.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(It.Is<IGetClientSecretIdentityQuery>(query => query != null && query.IdentityIdentifier == identifier)), Times.Once);
+            _queryBusMock.Verify(m => m.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(It.Is<IGetClientSecretIdentityQuery>(query => query != null && query.Identifier == identifier)), Times.Once);
         }
 
         [Test]
