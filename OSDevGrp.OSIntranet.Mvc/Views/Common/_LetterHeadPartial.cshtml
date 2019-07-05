@@ -1,0 +1,56 @@
+@model LetterHeadViewModel;
+<input type="hidden" asp-for="EditMode" />
+@if (Model.EditMode == EditMode.Create)
+{
+    <div class="form-group">
+        <label asp-for="Number"></label>
+        <input asp-for="Number" class="form-control" />
+        <span asp-validation-for="Number" class="text-danger"></span>
+    </div>
+}
+else
+{
+    <div class="form-group">
+        <label asp-for="Number"></label>
+        <input asp-for="Number" class="form-control" readonly="true" />
+    </div>
+}
+<div class="form-group">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Line1"></label>
+    <input asp-for="Line1" class="form-control" />
+    <span asp-validation-for="Line1" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="Line2" class="form-control" />
+    <span asp-validation-for="Line2" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="Line3" class="form-control" />
+    <span asp-validation-for="Line3" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="Line4" class="form-control" />
+    <span asp-validation-for="Line4" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="Line5" class="form-control" />
+    <span asp-validation-for="Line5" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="Line6" class="form-control" />
+    <span asp-validation-for="Line6" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="Line7" class="form-control" />
+    <span asp-validation-for="Line7" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="CompanyIdentificationNumber"></label>
+    <input asp-for="CompanyIdentificationNumber" class="form-control" />
+    <span asp-validation-for="CompanyIdentificationNumber" class="text-danger"></span>
+</div>

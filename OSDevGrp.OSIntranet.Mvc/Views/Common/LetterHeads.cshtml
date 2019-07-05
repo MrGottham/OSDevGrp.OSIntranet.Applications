@@ -1,0 +1,39 @@
+@using OSDevGrp.OSIntranet.Mvc.Helpers;
+@model IEnumerable<LetterHeadViewModel>;
+@{
+    ViewData["Title"] = "Brevhoveder";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Brevhoveder</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nummer</th>
+                        <th>Navn</th>
+                        <th><a asp-area="" asp-controller="Common" asp-action="CreateLetterHead"><i class="fas fa-plus"></i></a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (LetterHeadViewModel letterHeadViewModel in @Model)
+                    {
+                        <tr>
+                            <td>@letterHeadViewModel.Number</td>
+                            <td>@letterHeadViewModel.Name</td>
+                            <td>
+                                <span class="fa-stack">
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
