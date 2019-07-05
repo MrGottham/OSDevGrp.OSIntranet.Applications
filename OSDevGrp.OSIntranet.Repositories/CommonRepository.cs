@@ -71,7 +71,10 @@ namespace OSDevGrp.OSIntranet.Repositories
                         return context.LetterHeads.AsParallel()
                             .Select(letterHeadModel => 
                             {
-                                letterHeadModel.Deletable = CanDeleteLetterHead(context, letterHeadModel.LetterHeadIdentifier);
+                                using (CommonContext subContext = new CommonContext(Configuration, PrincipalResolver))
+                                {
+                                    letterHeadModel.Deletable = CanDeleteLetterHead(subContext, letterHeadModel.LetterHeadIdentifier);
+                                }
 
                                 return _commonModelConverter.Convert<LetterHeadModel, ILetterHead>(letterHeadModel);
                             })
@@ -101,7 +104,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 },
                 MethodBase.GetCurrentMethod());
         }
-        
+
         private ILetterHead CreateLetterHead(ILetterHead letterHead)
         {
             NullGuard.NotNull(letterHead, nameof(letterHead));

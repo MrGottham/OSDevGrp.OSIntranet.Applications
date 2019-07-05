@@ -18,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #endregion
 
-        #region Methods
+        #region Properties
 
         public int Number { get; }
 

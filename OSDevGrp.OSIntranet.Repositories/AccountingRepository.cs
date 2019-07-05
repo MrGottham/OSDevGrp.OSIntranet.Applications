@@ -100,7 +100,10 @@ namespace OSDevGrp.OSIntranet.Repositories
                         return context.AccountGroups.AsParallel()
                             .Select(accountGroupModel => 
                             {
-                                accountGroupModel.Deletable = CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier);
+                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver))
+                                {
+                                    accountGroupModel.Deletable = CanDeleteAccountGroup(subContext, accountGroupModel.AccountGroupIdentifier);
+                                }
 
                                 return _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
                             })
@@ -219,7 +222,10 @@ namespace OSDevGrp.OSIntranet.Repositories
                         return context.BudgetAccountGroups.AsParallel()
                             .Select(budgetAccountGroupModel => 
                             {
-                                budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver))
+                                {
+                                    budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(subContext, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+                                }
 
                                 return _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
                             })
@@ -284,7 +290,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                             return null;
                         }
 
-                        budgetAccountGroupModel.Name = budgetAccountGroup.Name;;
+                        budgetAccountGroupModel.Name = budgetAccountGroup.Name;
 
                         context.SaveChanges();
 

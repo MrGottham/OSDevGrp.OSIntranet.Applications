@@ -123,5 +123,21 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<string>());
             return addressMock;
         }
+
+        public static Mock<ICountry> BuildCountryMock(this Fixture fixture)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<ICountry> countryMock = new Mock<ICountry>();
+            countryMock.Setup(m => m.Code)
+                .Returns(fixture.Create<string>());
+            countryMock.Setup(m => m.Name)
+                .Returns(fixture.Create<string>());
+            countryMock.Setup(m => m.UniversalName)
+                .Returns(fixture.Create<string>());
+            countryMock.Setup(m => m.PhonePrefix)
+                .Returns(fixture.Create<string>());
+            return countryMock;
+        }
     }
 }
