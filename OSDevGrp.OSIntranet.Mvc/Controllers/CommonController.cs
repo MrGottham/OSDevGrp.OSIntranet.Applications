@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -67,6 +69,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateLetterHead(LetterHeadViewModel letterHeadViewModel)
         {
             NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel));
@@ -77,6 +80,38 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             ICreateLetterHeadCommand command = _commonViewModelConverter.Convert<LetterHeadViewModel, CreateLetterHeadCommand>(letterHeadViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("LetterHeads", "Common");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateLetterHead(int number)
+        {
+            IGetLetterHeadQuery query = new GetLetterHeadQuery
+            {
+                Number = number
+            };
+            ILetterHead letterHead = await _queryBus.QueryAsync<IGetLetterHeadQuery, ILetterHead>(query);
+
+            LetterHeadViewModel letterHeadViewModel = _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(letterHead);
+            letterHeadViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdateLetterHead", letterHeadViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateLetterHead(LetterHeadViewModel letterHeadViewModel)
+        {
+            NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdateLetterHead", letterHeadViewModel);
+            }
+
+            IUpdateLetterHeadCommand command = _commonViewModelConverter.Convert<LetterHeadViewModel, UpdateLetterHeadCommand>(letterHeadViewModel);
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("LetterHeads", "Common");

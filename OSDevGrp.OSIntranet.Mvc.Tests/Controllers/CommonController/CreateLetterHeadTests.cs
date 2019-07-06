@@ -7,8 +7,6 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
-using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.CommonController;
@@ -23,7 +21,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Fixture _fixture;
-        private Random _random;
 
         #endregion
 
@@ -32,11 +29,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
-
             _fixture = new Fixture();
-            _fixture.Customize<ILetterHead>(builder => builder.FromFactory(() => _fixture.BuildLetterHeadMock().Object));
-
-            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
