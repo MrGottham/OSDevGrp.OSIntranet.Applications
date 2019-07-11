@@ -27,6 +27,10 @@
                             <td>
                                 <span class="fa-stack">
                                     <a asp-area="" asp-controller="Common" asp-action="UpdateLetterHead" asp-route-number="@letterHeadViewModel.Number"><i class="fas fa-pen"></i></a>
+                                    @if (letterHeadViewModel.Deletable)
+                                    {
+                                        <a href="#" onclick="javascript:$().askForDeletion('Slet brevhoved', '@(letterHeadViewModel.GetDeletionLink(Url))', @(letterHeadViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+                                    }
                                 </span>
                             </td>
                         </tr>

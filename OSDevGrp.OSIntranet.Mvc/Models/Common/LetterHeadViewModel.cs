@@ -1,10 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Common
 {
     public class LetterHeadViewModel : AuditableViewModelBase
     {
+        #region Properties
+
         [Display(Name = "Nummer", ShortName = "Nummer", Description = "Nummer")]
         [Required(ErrorMessage = "Nummeret skal udfyldes.")]
         [Range(1, 99, ErrorMessage = "Nummeret skal være mellem {1} og {2}.")]
@@ -47,5 +53,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Common
         [Display(Name = "Tekst for CVR-nummer", ShortName = "CVR-nr.", Description = "Tekst for CVR-nummer")]
         [StringLength(32, MinimumLength = 0, ErrorMessage = "Længden på teksten til CVR-nummeret skal være mellem {2} og {1} tegn.")]
         public string CompanyIdentificationNumber { get ; set; }
+
+        public bool Deletable { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        public string GetDeletionLink(IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteLetterHead", "Common");
+        }
+
+        public string GetDeletionData(IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"number: {Number}, {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+        }
+
+        #endregion
+
     }
 }

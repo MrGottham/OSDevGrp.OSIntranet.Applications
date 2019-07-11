@@ -117,6 +117,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("LetterHeads", "Common");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteLetterHead(int number)
+        {
+            IDeleteLetterHeadCommand command = new DeleteLetterHeadCommand
+            {
+                Number = number
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("LetterHeads", "Common");
+        }
+
         #endregion
    }
 }
