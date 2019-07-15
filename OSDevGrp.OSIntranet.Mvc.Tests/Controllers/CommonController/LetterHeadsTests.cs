@@ -84,11 +84,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
             Assert.That(result.Model, Is.TypeOf<List<LetterHeadViewModel>>());
 
-            List<LetterHeadViewModel> letterHeadViewModelCollection = ((List<LetterHeadViewModel>) result.Model);
+            List<LetterHeadViewModel> letterHeadViewModelCollection = (List<LetterHeadViewModel>) result.Model;
 
             Assert.That(letterHeadViewModelCollection, Is.Not.Null);
             Assert.That(letterHeadViewModelCollection, Is.Not.Empty);
-            Assert.That(letterHeadViewModelCollection.Count, Is.EqualTo(letterHeadViewModelCollection.Count()));
+            Assert.That(letterHeadViewModelCollection.Count, Is.EqualTo(letterHeadMockCollection.Count()));
         }
 
         private Controller CreateSut(IEnumerable<ILetterHead> letterHeadCollection = null)

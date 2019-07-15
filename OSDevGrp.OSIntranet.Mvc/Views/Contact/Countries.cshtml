@@ -1,0 +1,39 @@
+@using OSDevGrp.OSIntranet.Mvc.Helpers;
+@model IEnumerable<CountryViewModel>;
+@{
+    ViewData["Title"] = "Landekoder";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Landekoder</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Landekode</th>
+                        <th>Navn</th>
+                        <th>Landekode (telefon)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (CountryViewModel countryViewModel in @Model)
+                    {
+                        <tr>
+                            <td>@countryViewModel.Code</td>
+                            <td>@countryViewModel.Name</td>
+                            <td>@countryViewModel.PhonePrefix</td>
+                            <td>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
