@@ -9,6 +9,34 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class AccountingMockBuilder
     {
+        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<IAccounting> accountingMock = new Mock<IAccounting>();
+            accountingMock.Setup(m => m.Number)
+                .Returns(fixture.Create<int>());
+            accountingMock.Setup(m => m.Name)
+                .Returns(fixture.Create<string>());
+            accountingMock.Setup(m => m.LetterHead)
+                .Returns(fixture.BuildLetterHeadMock().Object);
+            accountingMock.Setup(m => m.BalanceBelowZero)
+                .Returns(fixture.Create<BalanceBelowZeroType>());
+            accountingMock.Setup(m => m.BackDating)
+                .Returns(fixture.Create<int>());
+            accountingMock.Setup(m => m.Deletable)
+                .Returns(fixture.Create<bool>());
+            accountingMock.Setup(m => m.CreatedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            accountingMock.Setup(m => m.CreatedByIdentifier)
+                .Returns(fixture.Create<string>());
+            accountingMock.Setup(m => m.ModifiedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            accountingMock.Setup(m => m.ModifiedByIdentifier)
+                .Returns(fixture.Create<string>());
+            return accountingMock;
+        }
+
         public static Mock<IAccountGroup> BuildAccountGroupMock(this Fixture fixture, int? number = null, string name = null, AccountGroupType? accountGroupType = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
