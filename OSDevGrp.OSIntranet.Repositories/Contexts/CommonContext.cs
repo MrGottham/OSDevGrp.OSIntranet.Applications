@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
@@ -26,6 +27,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<LetterHeadModel> LetterHeads { get; set; }
 
+        public DbSet<AccountingModel> Accountings { get; set; }
+
         #endregion
 
         #region Methods
@@ -37,6 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.CreateLetterHeadModel();
+            modelBuilder.CreateAccountingModel();
         }
 
         #endregion

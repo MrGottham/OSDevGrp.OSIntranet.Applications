@@ -189,7 +189,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNull(context, nameof(context));
 
-            return false;
+            return context.Accountings.FirstOrDefault(m => m.LetterHeadIdentifier == letterHeadIdentifier) == null;
         }
 
         #endregion

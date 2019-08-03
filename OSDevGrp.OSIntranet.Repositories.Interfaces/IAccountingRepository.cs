@@ -6,7 +6,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
     public interface IAccountingRepository : IRepository
     {
+        Task<IEnumerable<IAccounting>> GetAccountingsAsync();
+
+        Task<IAccounting> GetAccountingAsync(int number);
+
         Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync();
+
+        Task<IAccounting> CreateAccountingAsync(IAccounting accounting);
+
+        Task<IAccounting> UpdateAccountingAsync(IAccounting accounting);
+
+        Task<IAccounting> DeleteAccountingAsync(int number);
 
         Task<IAccountGroup> GetAccountGroupAsync(int number);
 

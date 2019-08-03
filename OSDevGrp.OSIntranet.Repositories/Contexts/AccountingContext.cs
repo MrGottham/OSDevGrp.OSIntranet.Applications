@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
+using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
@@ -24,6 +25,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #region Properties
 
+        public DbSet<AccountingModel> Accountings { get; set; }
+
+        public DbSet<LetterHeadModel> LetterHeads { get; set; }
+
         public DbSet<AccountGroupModel> AccountGroups { get; set; }
 
         public DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
@@ -38,6 +43,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.CreateAccountingModel();
+            modelBuilder.CreateLetterHeadModel();
             modelBuilder.CreateAccountGroupModel();
             modelBuilder.CreateBudgetAccountGroupModel();
         }

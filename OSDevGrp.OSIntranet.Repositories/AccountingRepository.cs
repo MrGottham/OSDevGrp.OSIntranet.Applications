@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
@@ -33,6 +34,35 @@ namespace OSDevGrp.OSIntranet.Repositories
         #endregion
 
         #region Methods
+
+        public Task<IEnumerable<IAccounting>> GetAccountingsAsync()
+        {
+            return Task.Run(() => GetAccountings());
+        }
+
+        public Task<IAccounting> GetAccountingAsync(int number)
+        {
+            return Task.Run(() => GetAccounting(number));
+        }
+
+        public Task<IAccounting> CreateAccountingAsync(IAccounting accounting)
+        {
+            NullGuard.NotNull(accounting, nameof(accounting));
+
+            return Task.Run(() => CreateAccounting(accounting));
+        }
+
+        public Task<IAccounting> UpdateAccountingAsync(IAccounting accounting)
+        {
+            NullGuard.NotNull(accounting, nameof(accounting));
+
+            return Task.Run(() => UpdateAccounting(accounting));
+        }
+
+        public Task<IAccounting> DeleteAccountingAsync(int number)
+        {
+            return Task.Run(() => DeleteAccounting(number));
+        }
 
         public Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync()
         {
@@ -90,6 +120,141 @@ namespace OSDevGrp.OSIntranet.Repositories
         public Task<IBudgetAccountGroup> DeleteBudgetAccountGroupAsync(int number)
         {
             return Task.Run(() => DeleteBudgetAccountGroup(number));
+        }
+
+        private IEnumerable<IAccounting> GetAccountings()
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        return context.Accountings
+                            .Include(accountingModel => accountingModel.LetterHead)
+                            .AsParallel()
+                            .Select(accountingModel => 
+                            {
+                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                                {
+                                    accountingModel.Deletable = CanDeleteAccounting(subContext, accountingModel.AccountingIdentifier);
+                                }
+
+                                return _accountingModelConverter.Convert<AccountingModel, IAccounting>(accountingModel);
+                            })
+                            .OrderBy(accounting => accounting.Number)
+                            .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IAccounting GetAccounting(int number)
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        AccountingModel accountingModel = context.Accountings
+                            .Include(model => model.LetterHead)
+                            .SingleOrDefault(model => model.AccountingIdentifier == number);
+                        if (accountingModel == null)
+                        {
+                            return null;
+                        }
+
+                        accountingModel.Deletable = CanDeleteAccounting(context, accountingModel.AccountingIdentifier);
+
+                        return  _accountingModelConverter.Convert<AccountingModel, IAccounting>(accountingModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IAccounting CreateAccounting(IAccounting accounting)
+        {
+            NullGuard.NotNull(accounting, nameof(accounting));
+
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        AccountingModel accountingModel = _accountingModelConverter.Convert<IAccounting, AccountingModel>(accounting);
+
+                        accountingModel.LetterHead = context.LetterHeads.Single(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accountingModel.LetterHeadIdentifier);
+
+                        context.Accountings.Add(accountingModel);
+
+                        context.SaveChanges();
+
+                        return GetAccounting(accounting.Number);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IAccounting UpdateAccounting(IAccounting accounting)
+        {
+            NullGuard.NotNull(accounting, nameof(accounting));
+
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        AccountingModel accountingModel = context.Accountings
+                            .Include(model => model.LetterHead)
+                            .SingleOrDefault(model => model.AccountingIdentifier == accounting.Number);
+                        if (accountingModel == null)
+                        {
+                            return null;
+                        }
+
+                        accountingModel.Name = accounting.Name;
+                        accountingModel.LetterHeadIdentifier = accounting.LetterHead.Number;
+                        accountingModel.LetterHead = context.LetterHeads.Single(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accounting.LetterHead.Number);
+                        accountingModel.BalanceBelowZero = accounting.BalanceBelowZero;
+                        accountingModel.BackDating = accounting.BackDating;
+
+                        context.SaveChanges();
+
+                        return GetAccounting(accounting.Number);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IAccounting DeleteAccounting(int number)
+        {
+            return Execute(() =>
+                {
+                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        AccountingModel accountingModel = context.Accountings
+                            .Include(model => model.LetterHead)
+                            .SingleOrDefault(model => model.AccountingIdentifier == number);
+                        if (accountingModel == null)
+                        {
+                            return null;
+                        }
+
+                        if (CanDeleteAccounting(context, accountingModel.AccountingIdentifier) == false)
+                        {
+                            return GetAccounting(accountingModel.AccountingIdentifier);
+                        }
+
+                        context.Accountings.Remove(accountingModel);
+
+                        context.SaveChanges();
+
+                        return null;
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private bool CanDeleteAccounting(AccountingContext context, int accountingIdentifier)
+        {
+            NullGuard.NotNull(context, nameof(context));
+
+            return false;
         }
 
         private IEnumerable<IAccountGroup> GetAccountGroups()

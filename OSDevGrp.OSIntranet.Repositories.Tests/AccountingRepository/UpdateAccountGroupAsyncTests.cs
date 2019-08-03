@@ -9,7 +9,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void UpdateAccountGroupAsync_WhenAccountGroupIsNull_ThrownsArgumentException()
+        public void UpdateAccountGroupAsync_WhenAccountGroupIsNull_ThrowsArgumentException()
         {
             IAccountingRepository sut = CreateSut();
 
