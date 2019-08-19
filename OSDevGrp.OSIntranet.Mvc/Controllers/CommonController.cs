@@ -47,9 +47,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> LetterHeads()
         {
-            IEnumerable<ILetterHead> lettterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
+            IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
 
-            IEnumerable<LetterHeadViewModel> letterHeadViewModels = lettterHeads.AsParallel()
+            IEnumerable<LetterHeadViewModel> letterHeadViewModels = letterHeads.AsParallel()
                 .Select(letterHead => _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(letterHead))
                 .OrderBy(letterHeadViewModel => letterHeadViewModel.Number)
                 .ToList();

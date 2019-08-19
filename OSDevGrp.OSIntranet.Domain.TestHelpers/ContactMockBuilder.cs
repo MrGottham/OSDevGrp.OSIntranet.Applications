@@ -124,20 +124,36 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return addressMock;
         }
 
-        public static Mock<ICountry> BuildCountryMock(this Fixture fixture)
+        public static Mock<ICountry> BuildCountryMock(this Fixture fixture, string code = null, string name = null, string universalName = null, string phonePrefix = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<ICountry> countryMock = new Mock<ICountry>();
             countryMock.Setup(m => m.Code)
-                .Returns(fixture.Create<string>());
+                .Returns(code ?? fixture.Create<string>());
             countryMock.Setup(m => m.Name)
-                .Returns(fixture.Create<string>());
+                .Returns(name ?? fixture.Create<string>());
             countryMock.Setup(m => m.UniversalName)
-                .Returns(fixture.Create<string>());
+                .Returns(universalName ?? fixture.Create<string>());
             countryMock.Setup(m => m.PhonePrefix)
-                .Returns(fixture.Create<string>());
+                .Returns(phonePrefix ?? fixture.Create<string>());
             return countryMock;
+        }
+
+        public static Mock<IPostalCode> BuildPostalCodeMock(this Fixture fixture, ICountry country = null, string code = null, string city = null, string state = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<IPostalCode> postalCodeMock = new Mock<IPostalCode>();
+            postalCodeMock.Setup(m => m.Country)
+                .Returns(country ?? fixture.BuildCountryMock().Object);
+            postalCodeMock.Setup(m => m.Code)
+                .Returns(code ?? fixture.Create<string>());
+            postalCodeMock.Setup(m => m.City)
+                .Returns(city ?? fixture.Create<string>());
+            postalCodeMock.Setup(m => m.State)
+                .Returns(state ?? fixture.Create<string>());
+            return postalCodeMock;
         }
     }
 }

@@ -147,7 +147,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                         }
 
                         countryModel.Name = country.Name;
-                        countryModel.UniversalName = countryModel.UniversalName;
+                        countryModel.UniversalName = country.UniversalName;
                         countryModel.PhonePrefix = country.PhonePrefix;
 
                         context.SaveChanges();

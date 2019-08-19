@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             int number = _fixture.Create<int>();
             await sut.DeleteLetterHead(number);
 
-            _commandBusMock.Verify(m => m.PublishAsync<IDeleteLetterHeadCommand>(It.Is<IDeleteLetterHeadCommand>(value => value.Number == number)), Times.Once);
+            _commandBusMock.Verify(m => m.PublishAsync(It.Is<IDeleteLetterHeadCommand>(value => value.Number == number)), Times.Once);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         [Test]
         [Category("UnitTest")]
-        public async Task DeleteLetterHead_WhenCalledWithNumber_ReturnsRedirectToActionResultWhereContollerNameIsEqualToCommon()
+        public async Task DeleteLetterHead_WhenCalledWithNumber_ReturnsRedirectToActionResultWhereControllerNameIsEqualToCommon()
         {
             Controller sut = CreateSut();
 
@@ -76,7 +76,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         private Controller CreateSut()
         {
-            _commandBusMock.Setup(m => m.PublishAsync<IDeleteLetterHeadCommand>(It.IsAny<IDeleteLetterHeadCommand>()))
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteLetterHeadCommand>()))
                 .Returns(Task.Run(() => { }));
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object);

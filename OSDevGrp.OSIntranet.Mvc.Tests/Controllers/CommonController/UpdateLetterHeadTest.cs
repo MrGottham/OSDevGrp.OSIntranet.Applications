@@ -71,7 +71,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         [Test]
         [Category("UnitTest")]
-        public async Task UpdateLetterHead_WhenCalledWithNumber_ReturnsViewResultWhereModelIsAccountGroupViewModel()
+        public async Task UpdateLetterHead_WhenCalledWithNumber_ReturnsViewResultWhereModelIsLetterHeadViewModel()
         {
             int number = _fixture.Create<int>();
             string name = _fixture.Create<string>();
@@ -126,7 +126,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             LetterHeadViewModel model = CreateModel();
             await sut.UpdateLetterHead(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<IUpdateLetterHeadCommand>(It.IsAny<IUpdateLetterHeadCommand>()), Times.Never);
+            _commandBusMock.Verify(m => m.PublishAsync(It.IsAny<IUpdateLetterHeadCommand>()), Times.Never);
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             LetterHeadViewModel model = CreateModel();
             await sut.UpdateLetterHead(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<IUpdateLetterHeadCommand>(It.Is<IUpdateLetterHeadCommand>(command => 
+            _commandBusMock.Verify(m => m.PublishAsync(It.Is<IUpdateLetterHeadCommand>(command => 
                     command.Number == model.Number && 
                     string.CompareOrdinal(command.Name, model.Name) == 0 && 
                     string.CompareOrdinal(command.Line1, model.Line1) == 0 && 
@@ -206,7 +206,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         [Test]
         [Category("UnitTest")]
-        public async Task UpdateLetterHead_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereContollerNameIsEqualToCommon()
+        public async Task UpdateLetterHead_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereControllerNameIsEqualToCommon()
         {
             Controller sut = CreateSut();
 
@@ -233,7 +233,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             _queryBusMock.Setup(m => m.QueryAsync<IGetLetterHeadQuery, ILetterHead>(It.IsAny<IGetLetterHeadQuery>()))
                 .Returns(Task.Run(() => letterHead ?? _fixture.BuildLetterHeadMock().Object));
 
-            _commandBusMock.Setup(m => m.PublishAsync<IUpdateLetterHeadCommand>(It.IsAny<IUpdateLetterHeadCommand>()))
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IUpdateLetterHeadCommand>()))
                 .Returns(Task.Run(() => { }));
 
             Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);

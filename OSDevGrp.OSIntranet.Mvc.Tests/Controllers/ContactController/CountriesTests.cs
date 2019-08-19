@@ -17,7 +17,7 @@ using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 {
     [TestFixture]
-    public class CountriesTest
+    public class CountriesTests
     {
         #region Private variables
 

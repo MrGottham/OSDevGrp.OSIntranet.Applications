@@ -1,0 +1,25 @@
+﻿@model CountryViewModel;
+@{
+    ViewData["Title"] = "Redigér landekode";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Redigér landekode</h2>
+        <form asp-area="" asp-controller="Contact" asp-action="UpdateCountry" method="post">
+            <partial name="_CountryPartial" />
+            <partial name="_AuditablePartial" />
+            <button type="submit" class="btn btn-primary">Opdatér</button>
+            <a class="btn btn-secondary" asp-controller="Contact" asp-action="Countries">Fortryd</a>
+        </form>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
+
+@section Scripts
+    {
+    <partial name="_ValidationScriptsPartial" />
+}

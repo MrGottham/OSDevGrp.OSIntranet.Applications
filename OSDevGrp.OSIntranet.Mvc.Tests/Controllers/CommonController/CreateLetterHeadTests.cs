@@ -100,7 +100,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             LetterHeadViewModel model = CreateModel();
             await sut.CreateLetterHead(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<ICreateLetterHeadCommand>(It.IsAny<ICreateLetterHeadCommand>()), Times.Never);
+            _commandBusMock.Verify(m => m.PublishAsync(It.IsAny<ICreateLetterHeadCommand>()), Times.Never);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             LetterHeadViewModel model = CreateModel();
             await sut.CreateLetterHead(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<ICreateLetterHeadCommand>(It.Is<ICreateLetterHeadCommand>(command => 
+            _commandBusMock.Verify(m => m.PublishAsync(It.Is<ICreateLetterHeadCommand>(command => 
                     command.Number == model.Number && 
                     string.CompareOrdinal(command.Name, model.Name) == 0 && 
                     string.CompareOrdinal(command.Line1, model.Line1) == 0 && 
@@ -180,7 +180,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         [Test]
         [Category("UnitTest")]
-        public async Task CreateLetterHead_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereContollerNameIsEqualToCommon()
+        public async Task CreateLetterHead_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereControllerNameIsEqualToCommon()
         {
             Controller sut = CreateSut();
 
@@ -204,7 +204,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         private Controller CreateSut(bool modelIsValid = true)
         {
-            _commandBusMock.Setup(m => m.PublishAsync<ICreateLetterHeadCommand>(It.IsAny<ICreateLetterHeadCommand>()))
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateLetterHeadCommand>()))
                 .Returns(Task.Run(() => { }));
 
             Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);

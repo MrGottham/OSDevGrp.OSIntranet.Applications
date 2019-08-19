@@ -52,7 +52,7 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
             {
                 NullGuard.NotNullOrWhiteSpace(value, nameof(value));
 
-                _name = value;
+                _name = value.Trim();
             }
         }
 
@@ -63,7 +63,7 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
             {
                 NullGuard.NotNullOrWhiteSpace(value, nameof(value));
 
-                _universalName = value;
+                _universalName = value.Trim();
             }
         }
 

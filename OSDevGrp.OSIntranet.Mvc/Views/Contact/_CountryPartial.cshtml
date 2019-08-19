@@ -1,0 +1,32 @@
+﻿@model CountryViewModel;
+<input type="hidden" asp-for="EditMode" />
+@if (Model.EditMode == EditMode.Create)
+{
+    <div class="form-group">
+        <label asp-for="Code"></label>
+        <input asp-for="Code" class="form-control" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+}
+else
+{
+    <div class="form-group">
+        <label asp-for="Code"></label>
+        <input asp-for="Code" class="form-control" readonly />
+    </div>
+}
+<div class="form-group">
+    <label asp-for="Name"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="UniversalName"></label>
+    <input asp-for="UniversalName" class="form-control" />
+    <span asp-validation-for="UniversalName" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="PhonePrefix"></label>
+    <input asp-for="PhonePrefix" class="form-control" />
+    <span asp-validation-for="PhonePrefix" class="text-danger"></span>
+</div>

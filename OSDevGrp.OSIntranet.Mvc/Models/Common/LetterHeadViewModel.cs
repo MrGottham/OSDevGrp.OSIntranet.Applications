@@ -75,6 +75,5 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Common
         }
 
         #endregion
-
     }
 }
