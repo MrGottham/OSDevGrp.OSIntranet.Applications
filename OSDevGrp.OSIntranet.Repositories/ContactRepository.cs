@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
@@ -67,6 +68,43 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => DeleteCountry(code));
         }
 
+        public Task<IEnumerable<IPostalCode>> GetPostalCodesAsync(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            return Task.Run(() => GetPostalCodes(countryCode));
+        }
+
+        public Task<IPostalCode> GetPostalCodeAsync(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            return Task.Run(() => GetPostalCode(countryCode, postalCode));
+        }
+
+        public Task<IPostalCode> CreatePostalCodeAsync(IPostalCode postalCode)
+        {
+            NullGuard.NotNull(postalCode, nameof(postalCode));
+
+            return Task.Run(() => CreatePostalCode(postalCode));
+        }
+
+        public Task<IPostalCode> UpdatePostalCodeAsync(IPostalCode postalCode)
+        {
+            NullGuard.NotNull(postalCode, nameof(postalCode));
+
+            return Task.Run(() => UpdatePostalCode(postalCode));
+        }
+
+        public Task<IPostalCode> DeletePostalCodeAsync(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            return Task.Run(() => DeletePostalCode(countryCode, postalCode));
+        }
+
         private IEnumerable<ICountry> GetCountries()
         {
             return Execute(() =>
@@ -83,7 +121,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                                 return _contactModelConverter.Convert<CountryModel, ICountry>(countryModel);
                             })
-                            .OrderBy(countryModel => countryModel.Name)
+                            .OrderBy(country => country.Name)
                             .ToList();
                     }
                 },
@@ -193,6 +231,155 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNullOrWhiteSpace(code, nameof(code));
 
             return false;
+        }
+
+        private IEnumerable<IPostalCode> GetPostalCodes(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            return Execute(() =>
+                {
+                    using (ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        return context.PostalCodes
+                            .Include(postalCodeModel => postalCodeModel.Country)
+                            .Where(postalCodeModel => postalCodeModel.CountryCode == countryCode)
+                            .AsParallel()
+                            .Select(postalCodeModel =>
+                            {
+                                using (ContactContext subContext = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
+                                {
+                                    postalCodeModel.Deletable = CanDeletePostalCode(subContext, postalCodeModel.CountryCode, postalCodeModel.PostalCode);
+                                }
+
+                                return _contactModelConverter.Convert<PostalCodeModel, IPostalCode>(postalCodeModel);
+                            })
+                            .OrderBy(postalCode => postalCode.City)
+                            .ToList();
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IPostalCode GetPostalCode(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            return Execute(() =>
+                {
+                    using (ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        PostalCodeModel postalCodeModel = context.PostalCodes
+                            .Include(m => m.Country)
+                            .SingleOrDefault(m => m.CountryCode == countryCode && m.PostalCode == postalCode);
+                        if (postalCodeModel == null)
+                        {
+                            return null;
+                        }
+
+                        postalCodeModel.Deletable = CanDeletePostalCode(context, postalCodeModel.CountryCode, postalCodeModel.PostalCode);
+
+                        return _contactModelConverter.Convert<PostalCodeModel, IPostalCode>(postalCodeModel);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public IPostalCode CreatePostalCode(IPostalCode postalCode)
+        {
+            NullGuard.NotNull(postalCode, nameof(postalCode));
+
+            return Execute(() =>
+                {
+                    using (ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        CountryModel countryModel = context.Countries.Find(postalCode.Country.Code);
+                        if (countryModel == null)
+                        {
+                            return null;
+                        }
+
+                        PostalCodeModel postalCodeModel = _contactModelConverter.Convert<IPostalCode, PostalCodeModel>(postalCode);
+                        postalCodeModel.CountryCode = countryModel.Code;
+                        postalCodeModel.Country = countryModel;
+
+                        context.PostalCodes.Add(postalCodeModel);
+
+                        context.SaveChanges();
+
+                        return GetPostalCode(postalCodeModel.CountryCode, postalCodeModel.PostalCode);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public IPostalCode UpdatePostalCode(IPostalCode postalCode)
+        {
+            NullGuard.NotNull(postalCode, nameof(postalCode));
+
+            return Execute(() =>
+                {
+                    using (ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        PostalCodeModel postalCodeModel = context.PostalCodes
+                            .Include(m => m.Country)
+                            .SingleOrDefault(m => m.CountryCode == postalCode.Country.Code && m.PostalCode == postalCode.Code);
+                        if (postalCodeModel == null)
+                        {
+                            return null;
+                        }
+
+                        postalCodeModel.City = postalCode.City;
+                        postalCodeModel.State = postalCode.State;
+
+                        context.SaveChanges();
+
+                        return GetPostalCode(postalCodeModel.CountryCode, postalCodeModel.PostalCode);
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public IPostalCode DeletePostalCode(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            return Execute(() =>
+                {
+                    using (ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
+                    {
+                        PostalCodeModel postalCodeModel = context.PostalCodes
+                            .Include(m => m.Country)
+                            .SingleOrDefault(m => m.CountryCode == countryCode && m.PostalCode == postalCode);
+                        if (postalCodeModel == null)
+                        {
+                            return null;
+                        }
+
+                        if (CanDeletePostalCode(context, postalCodeModel.CountryCode, postalCodeModel.PostalCode) == false)
+                        {
+                            return GetPostalCode(postalCodeModel.CountryCode, postalCodeModel.PostalCode);
+                        }
+
+                        context.PostalCodes.Remove(postalCodeModel);
+
+                        context.SaveChanges();
+
+                        return null;
+                    }
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private bool CanDeletePostalCode(ContactContext context, string countryCode, string postalCode)
+        {
+            NullGuard.NotNull(context, nameof(context))
+                .NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            return true;
         }
 
         #endregion

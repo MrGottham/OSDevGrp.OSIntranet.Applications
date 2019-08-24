@@ -26,6 +26,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<CountryModel> Countries { get; set; }
 
+        public DbSet<PostalCodeModel> PostalCodes { get; set; }
+
         #endregion
 
         #region Methods
@@ -37,6 +39,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.CreateCountryModel();
+            modelBuilder.CreatePostalCodeModel();
         }
 
         #endregion

@@ -19,6 +19,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<ICountry, CountryModel>()
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<PostalCodeModel, IPostalCode>()
+                .ConvertUsing(postalCodeModel => postalCodeModel.ToDomain(this));
+
+            mapperConfiguration.CreateMap<IPostalCode, PostalCodeModel>()
+                .ForMember(dest => dest.CountryCode, opt => opt.MapFrom(src => src.Country.Code))
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
         }
 
         #endregion

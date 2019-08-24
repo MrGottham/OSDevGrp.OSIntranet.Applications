@@ -15,5 +15,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
         Task<ICountry> UpdateCountryAsync(ICountry country);
 
         Task<ICountry> DeleteCountryAsync(string code);
+
+        Task<IEnumerable<IPostalCode>> GetPostalCodesAsync(string countryCode);
+
+        Task<IPostalCode> GetPostalCodeAsync(string countryCode, string postalCode);
+
+        Task<IPostalCode> CreatePostalCodeAsync(IPostalCode postalCode);
+
+        Task<IPostalCode> UpdatePostalCodeAsync(IPostalCode postalCode);
+
+        Task<IPostalCode> DeletePostalCodeAsync(string countryCode, string postalCode);
     }
 }
