@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Commands
                 .NotNull(commonRepository, nameof(commonRepository));
 
             return base.Validate(validator, commonRepository)
-                .Object.ShouldBeUnknownValue(Number, number => Task.Run(async () => await GetLetterHead(commonRepository) == null), GetType(), nameof(Number));
+                .Object.ShouldBeUnknownValue(Number, number => Task.Run(async () => await GetLetterHeadAsync(commonRepository) == null), GetType(), nameof(Number));
         }
 
         #endregion

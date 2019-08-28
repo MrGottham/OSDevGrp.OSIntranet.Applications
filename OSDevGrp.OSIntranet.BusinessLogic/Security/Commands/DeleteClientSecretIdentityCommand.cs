@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
                 .NotNull(securityRepository, nameof(securityRepository));
 
             return base.Validate(validator, securityRepository)
-                .Object.ShouldBeKnownValue(Identifier, number => Task.Run(async () => await GetClientSecretIdentity(securityRepository) != null), GetType(), nameof(Identifier));
+                .Object.ShouldBeKnownValue(Identifier, number => Task.Run(async () => await GetClientSecretIdentityAsync(securityRepository) != null), GetType(), nameof(Identifier));
         }
 
         #endregion

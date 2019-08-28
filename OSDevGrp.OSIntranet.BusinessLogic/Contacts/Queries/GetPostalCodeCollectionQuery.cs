@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
+namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries
 {
-    public class UpdateCountryCommand : CountryCommandBase, IUpdateCountryCommand
+    public class GetPostalCodeCollectionQuery : CountryIdentificationQueryBase, IGetPostalCodeCollectionQuery
     {
         #region Methods
 

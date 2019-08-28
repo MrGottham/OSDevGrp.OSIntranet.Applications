@@ -33,14 +33,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries
             return validator.ValidateAccountGroupIdentifier(Number, GetType(), nameof(Number));
         }
 
-        protected Task<IAccountGroup> GetAccountGroup(IAccountingRepository accountingRepository)
+        protected Task<IAccountGroup> GetAccountGroupAsync(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
             return Task.Run(() => Number.GetAccountGroup(accountingRepository, ref _accountGroup));
         }
 
-        protected Task<IBudgetAccountGroup> GetBudgetAccountGroup(IAccountingRepository accountingRepository)
+        protected Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 

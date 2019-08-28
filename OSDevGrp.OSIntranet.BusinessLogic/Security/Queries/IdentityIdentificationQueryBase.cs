@@ -33,14 +33,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Queries
             return validator.ValidateIdentityIdentifier(Identifier, GetType(), nameof(Identifier));
         }
 
-        protected Task<IUserIdentity> GetUserIdentity(ISecurityRepository securityRepository)
+        protected Task<IUserIdentity> GetUserIdentityAsync(ISecurityRepository securityRepository)
         {
             NullGuard.NotNull(securityRepository, nameof(securityRepository));
 
             return Task.Run(() => Identifier.GetUserIdentity(securityRepository, ref _userIdentity));
         }
 
-        protected Task<IClientSecretIdentity> GetClientSecretIdentity(ISecurityRepository securityRepository)
+        protected Task<IClientSecretIdentity> GetClientSecretIdentityAsync(ISecurityRepository securityRepository)
         {
             NullGuard.NotNull(securityRepository, nameof(securityRepository));
 

@@ -42,7 +42,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
             return validator.ValidateCountryCode(CountryCode, GetType(), nameof(CountryCode));
         }
 
-        protected Task<ICountry> GetCountry(IContactRepository contactRepository)
+        protected Task<ICountry> GetCountryAsync(IContactRepository contactRepository)
         {
             NullGuard.NotNull(contactRepository, nameof(contactRepository));
 

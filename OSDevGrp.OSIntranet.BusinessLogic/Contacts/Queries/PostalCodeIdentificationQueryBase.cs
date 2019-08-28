@@ -8,25 +8,25 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries
 {
-    public abstract class CountryIdentificationQueryBase : ICountryIdentificationQuery
+    public abstract class PostalCodeIdentificationQueryBase : CountryIdentificationQueryBase, IPostalCodeIdentificationQuery
     {
         #region Private variables
 
-        private string _countryCode;
-        private ICountry _country;
+        private string _postalCode;
+        private IPostalCode _postalCodeObject;
 
         #endregion
 
         #region Properties
 
-        public string CountryCode
+        public string PostalCode
         {
-            get => _countryCode;
+            get => _postalCode;
             set
             {
                 NullGuard.NotNullOrWhiteSpace(value, nameof(value));
 
-                _countryCode = value.Trim().ToUpper();
+                _postalCode = value.Trim();
             }
         }
 
@@ -34,19 +34,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries
 
         #region Methods
 
-        public virtual IValidator Validate(IValidator validator, IContactRepository contactRepository)
+        public override IValidator Validate(IValidator validator, IContactRepository contactRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(contactRepository, nameof(contactRepository));
 
-            return validator.ValidateCountryCode(CountryCode, GetType(), nameof(CountryCode));
+            return base.Validate(validator, contactRepository)
+                .ValidatePostalCode(PostalCode, GetType(), nameof(PostalCode));
         }
 
-        protected Task<ICountry> GetCountryAsync(IContactRepository contactRepository)
+        protected Task<IPostalCode> GetPostalCodeAsync(IContactRepository contactRepository)
         {
             NullGuard.NotNull(contactRepository, nameof(contactRepository));
 
-            return Task.Run(() => CountryCode.GetCountry(contactRepository, ref _country));
+            return Task.Run(() => PostalCode.GetPostalCode(CountryCode, contactRepository, ref _postalCodeObject));
         }
 
         #endregion

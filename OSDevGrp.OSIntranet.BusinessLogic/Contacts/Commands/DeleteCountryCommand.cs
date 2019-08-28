@@ -20,8 +20,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
 
             return base.Validate(validator, contactRepository)
                 .Object.ShouldBeKnownValue(CountryCode,
-                    countryCode => Task.Run(async () => await GetCountry(contactRepository) != null), GetType(), nameof(CountryCode))
-                .Object.ShouldBeDeletable(CountryCode, countryCode => GetCountry(contactRepository), GetType(), nameof(CountryCode));
+                    countryCode => Task.Run(async () => await GetCountryAsync(contactRepository) != null), GetType(), nameof(CountryCode))
+                .Object.ShouldBeDeletable(CountryCode, countryCode => GetCountryAsync(contactRepository), GetType(), nameof(CountryCode));
         }
 
         #endregion

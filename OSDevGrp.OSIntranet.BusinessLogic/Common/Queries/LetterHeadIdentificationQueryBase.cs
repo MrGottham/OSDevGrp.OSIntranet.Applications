@@ -32,7 +32,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Queries
             return validator.ValidateLetterHeadIdentifier(Number, GetType(), nameof(Number));
         }
 
-        protected Task<ILetterHead> GetLetterHead(ICommonRepository commonRepository)
+        protected Task<ILetterHead> GetLetterHeadAsync(ICommonRepository commonRepository)
         {
             NullGuard.NotNull(commonRepository, nameof(commonRepository));
 

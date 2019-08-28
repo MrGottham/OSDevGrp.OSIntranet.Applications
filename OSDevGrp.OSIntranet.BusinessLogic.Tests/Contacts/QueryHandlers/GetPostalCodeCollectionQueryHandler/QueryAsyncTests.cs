@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -8,9 +10,9 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers.GetCountryQueryHandler;
+using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers.GetPostalCodeCollectionQueryHandler;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCountryQueryHandler
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPostalCodeCollectionQueryHandler
 {
     [TestFixture]
     public class QueryAsyncTests
@@ -20,6 +22,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
         private Mock<IValidator> _validatorMock;
         private Mock<IContactRepository> _contactRepositoryMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -28,7 +31,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
         {
             _validatorMock = new Mock<IValidator>();
             _contactRepositoryMock = new Mock<IContactRepository>();
+            
             _fixture = new Fixture();
+            _fixture.Customize<IPostalCode>(builder => builder.FromFactory(() => _fixture.BuildPostalCodeMock().Object));
+            
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -44,11 +51,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetCountryQuery()
+        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetPostalCodeCollectionQuery()
         {
             QueryHandler sut = CreateSut();
 
-            Mock<IGetCountryQuery> query = CreateQueryMock();
+            Mock<IGetPostalCodeCollectionQuery> query = CreateQueryMock();
             await sut.QueryAsync(query.Object);
 
             query.Verify(m => m.Validate(
@@ -59,11 +66,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertCountryCodeWasCalledOnGetCountryQuery()
+        public async Task QueryAsync_WhenCalled_AssertCountryCodeWasCalledOnGetPostalCodeCollectionQuery()
         {
             QueryHandler sut = CreateSut();
 
-            Mock<IGetCountryQuery> query = CreateQueryMock();
+            Mock<IGetPostalCodeCollectionQuery> query = CreateQueryMock();
             await sut.QueryAsync(query.Object);
 
             query.Verify(m => m.CountryCode, Times.Once);
@@ -71,41 +78,41 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertGetCountryAsyncWasCalledOnContactRepository()
+        public async Task QueryAsync_WhenCalled_AssertGetPostalCodesAsyncWasCalledOnContactRepository()
         {
             QueryHandler sut = CreateSut();
 
             string countryCode = _fixture.Create<string>();
-            IGetCountryQuery query = CreateQueryMock(countryCode).Object;
+            IGetPostalCodeCollectionQuery query = CreateQueryMock(countryCode).Object;
             await sut.QueryAsync(query);
 
-            _contactRepositoryMock.Verify(m => m.GetCountryAsync(It.Is<string>(value => string.CompareOrdinal(value, countryCode) == 0)), Times.Once);
+            _contactRepositoryMock.Verify(m => m.GetPostalCodesAsync(It.Is<string>(value => string.CompareOrdinal(value, countryCode) == 0)), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsCountryFromCommonRepository()
+        public async Task QueryAsync_WhenCalled_ReturnsPostalCodeCollectionFromCommonRepository()
         {
-            ICountry country = _fixture.BuildCountryMock().Object;
-            QueryHandler sut = CreateSut(country);
+            IEnumerable<IPostalCode> postalCodeCollection = _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList();
+            QueryHandler sut = CreateSut(postalCodeCollection);
 
-            IGetCountryQuery query = CreateQueryMock().Object;
-            ICountry result = await sut.QueryAsync(query);
+            IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
+            IEnumerable<IPostalCode> result = await sut.QueryAsync(query);
 
-            Assert.That(result, Is.EqualTo(country));
+            Assert.That(result, Is.EqualTo(postalCodeCollection));
         }
 
-        private QueryHandler CreateSut(ICountry country = null)
+        private QueryHandler CreateSut(IEnumerable<IPostalCode> postalCodeCollection = null)
         {
-            _contactRepositoryMock.Setup(m => m.GetCountryAsync(It.IsAny<string>()))
-                .Returns(Task.Run(() => country ?? _fixture.BuildCountryMock().Object));
+            _contactRepositoryMock.Setup(m => m.GetPostalCodesAsync(It.IsAny<string>()))
+                .Returns(Task.Run(() => postalCodeCollection ?? _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList()));
 
             return new QueryHandler(_validatorMock.Object, _contactRepositoryMock.Object);
         }
 
-        private Mock<IGetCountryQuery> CreateQueryMock(string countryCode = null)
+        private Mock<IGetPostalCodeCollectionQuery> CreateQueryMock(string countryCode = null)
         {
-            Mock<IGetCountryQuery> queryMock = new Mock<IGetCountryQuery>();
+            Mock<IGetPostalCodeCollectionQuery> queryMock = new Mock<IGetPostalCodeCollectionQuery>();
             queryMock.Setup(m => m.CountryCode)
                 .Returns(countryCode ?? _fixture.Create<string>());
             return queryMock;

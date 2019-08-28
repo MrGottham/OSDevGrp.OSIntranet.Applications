@@ -16,8 +16,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Commands
                 .NotNull(commonRepository, nameof(commonRepository));
 
             return base.Validate(validator, commonRepository)
-                .Object.ShouldBeKnownValue(Number, number => Task.Run(async () => await GetLetterHead(commonRepository) != null), GetType(), nameof(Number))
-                .Object.ShouldBeDeletable(Number, number => GetLetterHead(commonRepository), GetType(), nameof(Number));
+                .Object.ShouldBeKnownValue(Number, number => Task.Run(async () => await GetLetterHeadAsync(commonRepository) != null), GetType(), nameof(Number))
+                .Object.ShouldBeDeletable(Number, number => GetLetterHeadAsync(commonRepository), GetType(), nameof(Number));
         }
 
         #endregion

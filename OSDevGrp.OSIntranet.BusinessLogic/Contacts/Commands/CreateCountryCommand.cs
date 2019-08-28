@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
                 .NotNull(contactRepository, nameof(contactRepository));
 
             return base.Validate(validator, contactRepository)
-                .Object.ShouldBeUnknownValue(CountryCode, countryCode => Task.Run(async () => await GetCountry(contactRepository) == null), GetType(), nameof(CountryCode));
+                .Object.ShouldBeUnknownValue(CountryCode, countryCode => Task.Run(async () => await GetCountryAsync(contactRepository) == null), GetType(), nameof(CountryCode));
         }
 
         #endregion

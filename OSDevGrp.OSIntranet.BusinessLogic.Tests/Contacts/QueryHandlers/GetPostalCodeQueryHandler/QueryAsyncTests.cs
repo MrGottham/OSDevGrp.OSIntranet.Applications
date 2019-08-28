@@ -8,9 +8,9 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers.GetCountryQueryHandler;
+using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers.GetPostalCodeQueryHandler;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCountryQueryHandler
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPostalCodeQueryHandler
 {
     [TestFixture]
     public class QueryAsyncTests
@@ -44,11 +44,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetCountryQuery()
+        public async Task QueryAsync_WhenCalled_AssertValidateWasCalledOnGetPostalCodeQuery()
         {
             QueryHandler sut = CreateSut();
 
-            Mock<IGetCountryQuery> query = CreateQueryMock();
+            Mock<IGetPostalCodeQuery> query = CreateQueryMock();
             await sut.QueryAsync(query.Object);
 
             query.Verify(m => m.Validate(
@@ -59,11 +59,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertCountryCodeWasCalledOnGetCountryQuery()
+        public async Task QueryAsync_WhenCalled_AssertCountryCodeWasCalledOnGetPostalCodeQuery()
         {
             QueryHandler sut = CreateSut();
 
-            Mock<IGetCountryQuery> query = CreateQueryMock();
+            Mock<IGetPostalCodeQuery> query = CreateQueryMock();
             await sut.QueryAsync(query.Object);
 
             query.Verify(m => m.CountryCode, Times.Once);
@@ -71,43 +71,61 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertGetCountryAsyncWasCalledOnContactRepository()
+        public async Task QueryAsync_WhenCalled_AssertPostalCodeWasCalledOnGetPostalCodeQuery()
         {
             QueryHandler sut = CreateSut();
 
-            string countryCode = _fixture.Create<string>();
-            IGetCountryQuery query = CreateQueryMock(countryCode).Object;
-            await sut.QueryAsync(query);
+            Mock<IGetPostalCodeQuery> query = CreateQueryMock();
+            await sut.QueryAsync(query.Object);
 
-            _contactRepositoryMock.Verify(m => m.GetCountryAsync(It.Is<string>(value => string.CompareOrdinal(value, countryCode) == 0)), Times.Once);
+            query.Verify(m => m.PostalCode, Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsCountryFromCommonRepository()
+        public async Task QueryAsync_WhenCalled_AssertGetPostalCodeAsyncWasCalledOnContactRepository()
         {
-            ICountry country = _fixture.BuildCountryMock().Object;
-            QueryHandler sut = CreateSut(country);
+            QueryHandler sut = CreateSut();
 
-            IGetCountryQuery query = CreateQueryMock().Object;
-            ICountry result = await sut.QueryAsync(query);
+            string countryCode = _fixture.Create<string>();
+            string postalCode = _fixture.Create<string>();
+            IGetPostalCodeQuery query = CreateQueryMock(countryCode, postalCode).Object;
+            await sut.QueryAsync(query);
 
-            Assert.That(result, Is.EqualTo(country));
+            _contactRepositoryMock.Verify(m => m.GetPostalCodeAsync(
+                    It.Is<string>(value => string.CompareOrdinal(value, countryCode) == 0),
+                    It.Is<string>(value => string.CompareOrdinal(value, postalCode) == 0)),
+                Times.Once);
         }
 
-        private QueryHandler CreateSut(ICountry country = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_ReturnsPostalCodeCollectionFromCommonRepository()
         {
-            _contactRepositoryMock.Setup(m => m.GetCountryAsync(It.IsAny<string>()))
-                .Returns(Task.Run(() => country ?? _fixture.BuildCountryMock().Object));
+            IPostalCode postalCode = _fixture.BuildPostalCodeMock().Object;
+            QueryHandler sut = CreateSut(postalCode);
+
+            IGetPostalCodeQuery query = CreateQueryMock().Object;
+            IPostalCode result = await sut.QueryAsync(query);
+
+            Assert.That(result, Is.EqualTo(postalCode));
+        }
+
+        private QueryHandler CreateSut(IPostalCode postalCode = null)
+        {
+            _contactRepositoryMock.Setup(m => m.GetPostalCodeAsync(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.Run(() => postalCode ?? _fixture.BuildPostalCodeMock().Object));
 
             return new QueryHandler(_validatorMock.Object, _contactRepositoryMock.Object);
         }
 
-        private Mock<IGetCountryQuery> CreateQueryMock(string countryCode = null)
+        private Mock<IGetPostalCodeQuery> CreateQueryMock(string countryCode = null, string postalCode = null)
         {
-            Mock<IGetCountryQuery> queryMock = new Mock<IGetCountryQuery>();
+            Mock<IGetPostalCodeQuery> queryMock = new Mock<IGetPostalCodeQuery>();
             queryMock.Setup(m => m.CountryCode)
                 .Returns(countryCode ?? _fixture.Create<string>());
+            queryMock.Setup(m => m.PostalCode)
+                .Returns(postalCode ?? _fixture.Create<string>());
             return queryMock;
         }
     }

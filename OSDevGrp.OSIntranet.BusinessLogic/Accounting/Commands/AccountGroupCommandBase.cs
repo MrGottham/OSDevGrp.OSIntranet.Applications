@@ -32,7 +32,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
                 .String.ShouldNotBeNullOrWhiteSpace(Name, GetType(), nameof(Name))
                 .String.ShouldHaveMinLength(Name, 1, GetType(), nameof(Name))
                 .String.ShouldHaveMaxLength(Name, 256, GetType(), nameof(Name))
-                .Object.ShouldBeKnownValue(AccountGroupType, IsKnownAccountGroupType, GetType(), nameof(AccountGroupType));
+                .Object.ShouldBeKnownValue(AccountGroupType, IsKnownAccountGroupTypeAsync, GetType(), nameof(AccountGroupType));
         }
 
         public IAccountGroup ToDomain()
@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             return new AccountGroup(Number, Name, AccountGroupType);
         }
 
-        private static Task<bool> IsKnownAccountGroupType(AccountGroupType accountGroupType)
+        private static Task<bool> IsKnownAccountGroupTypeAsync(AccountGroupType accountGroupType)
         {
             return Task.Run(() => Enum.GetValues(typeof(AccountGroupType)).Cast<AccountGroupType>().Contains(accountGroupType));
         }
