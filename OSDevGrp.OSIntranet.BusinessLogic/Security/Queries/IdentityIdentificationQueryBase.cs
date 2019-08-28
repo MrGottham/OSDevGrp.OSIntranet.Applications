@@ -1,22 +1,13 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Queries
 {
     public abstract class IdentityIdentificationQueryBase : IIdentityIdentificationQuery
     {
-        #region Private variables
-
-        private IUserIdentity _userIdentity;
-        private IClientSecretIdentity _clientSecretIdentity;
-
-        #endregion
-
         #region Properties
 
         public int Identifier { get; set; }
@@ -31,20 +22,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Queries
                 .NotNull(securityRepository, nameof(securityRepository));
 
             return validator.ValidateIdentityIdentifier(Identifier, GetType(), nameof(Identifier));
-        }
-
-        protected Task<IUserIdentity> GetUserIdentityAsync(ISecurityRepository securityRepository)
-        {
-            NullGuard.NotNull(securityRepository, nameof(securityRepository));
-
-            return Task.Run(() => Identifier.GetUserIdentity(securityRepository, ref _userIdentity));
-        }
-
-        protected Task<IClientSecretIdentity> GetClientSecretIdentityAsync(ISecurityRepository securityRepository)
-        {
-            NullGuard.NotNull(securityRepository, nameof(securityRepository));
-
-            return Task.Run(() => Identifier.GetClientSecretIdentity(securityRepository, ref _clientSecretIdentity));
         }
 
         #endregion

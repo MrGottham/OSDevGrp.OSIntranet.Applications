@@ -20,7 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 
         #region Methods
 
-        protected async override Task ManageRepositoryAsync(IUpdateAccountGroupCommand command)
+        protected override async Task ManageRepositoryAsync(IUpdateAccountGroupCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 

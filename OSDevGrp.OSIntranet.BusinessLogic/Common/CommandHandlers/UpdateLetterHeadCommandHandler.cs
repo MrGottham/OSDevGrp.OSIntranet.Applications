@@ -20,7 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers
 
         #region Methods
 
-        protected async override Task ManageRepositoryAsync(IUpdateLetterHeadCommand command)
+        protected override async Task ManageRepositoryAsync(IUpdateLetterHeadCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 

@@ -9,6 +9,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
     internal static class IdentityIdentifierHelper
     {
         #region Methods
+
         internal static IValidator ValidateIdentityIdentifier(this IValidator validator, int value, Type validatingType, string validatingField)
         {
             NullGuard.NotNull(validator, nameof(validator))

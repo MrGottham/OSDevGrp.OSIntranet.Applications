@@ -1,21 +1,13 @@
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Queries
 {
     public abstract class LetterHeadIdentificationQueryBase : ILetterHeadIdentificationQuery
     {
-        #region Private variables
-
-        private ILetterHead _letterHead;
-
-        #endregion
-
         #region Properties
 
         public int Number { get; set; }
@@ -30,13 +22,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Queries
                 .NotNull(commonRepository, nameof(commonRepository));
 
             return validator.ValidateLetterHeadIdentifier(Number, GetType(), nameof(Number));
-        }
-
-        protected Task<ILetterHead> GetLetterHeadAsync(ICommonRepository commonRepository)
-        {
-            NullGuard.NotNull(commonRepository, nameof(commonRepository));
-
-            return Task.Run(() => Number.GetLetterHead(commonRepository, ref _letterHead));
         }
 
         #endregion

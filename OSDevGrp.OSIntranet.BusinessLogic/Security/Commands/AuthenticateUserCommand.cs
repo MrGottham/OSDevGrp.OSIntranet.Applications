@@ -9,11 +9,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
     {
         #region Constructors
 
-        public AuthenticateUserCommand(string externalUserIdentifier)
-            : this(externalUserIdentifier, new List<Claim>(0))
-        {
-        }
-
         public AuthenticateUserCommand(string externalUserIdentifier, IEnumerable<Claim> claims)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier))

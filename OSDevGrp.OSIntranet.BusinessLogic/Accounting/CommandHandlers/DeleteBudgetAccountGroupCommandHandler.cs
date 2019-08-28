@@ -19,7 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 
         #region Methods
 
-        protected async override Task ManageRepositoryAsync(IDeleteBudgetAccountGroupCommand command)
+        protected override async Task ManageRepositoryAsync(IDeleteBudgetAccountGroupCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 

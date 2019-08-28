@@ -20,7 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Methods
 
-        protected async override Task ManageRepositoryAsync(ICreateClientSecretIdentityCommand command)
+        protected override async Task ManageRepositoryAsync(ICreateClientSecretIdentityCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 
