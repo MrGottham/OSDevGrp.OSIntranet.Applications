@@ -20,13 +20,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
 
         #region Methods
 
-        protected override Task ManageRepositoryAsync(IUpdateCountryCommand command)
+        protected override async Task ManageRepositoryAsync(IUpdateCountryCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 
             ICountry country = command.ToDomain();
 
-            return ContactRepository.UpdateCountryAsync(country);
+            await ContactRepository.UpdateCountryAsync(country);
         }
 
         #endregion

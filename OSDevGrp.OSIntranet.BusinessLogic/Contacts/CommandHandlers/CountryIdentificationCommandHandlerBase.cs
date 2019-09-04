@@ -33,13 +33,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
 
         #region Methods
 
-        public Task ExecuteAsync(T command)
+        public async Task ExecuteAsync(T command)
         {
             NullGuard.NotNull(command, nameof(command));
 
             command.Validate(Validator, ContactRepository);
 
-            return ManageRepositoryAsync(command);
+            await ManageRepositoryAsync(command);
         }
 
         protected abstract Task ManageRepositoryAsync(T command);

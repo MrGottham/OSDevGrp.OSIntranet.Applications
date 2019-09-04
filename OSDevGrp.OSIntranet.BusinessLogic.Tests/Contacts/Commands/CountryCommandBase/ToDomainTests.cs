@@ -21,16 +21,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.CountryComma
             _fixture = new Fixture();
         }
 
-        private ICountryCommand CreateSut(string countryCode = null, string name = null, string universalName = null, string phonePrefix = null)
-        {
-            return _fixture.Build<Sut>()
-                .With(m => m.CountryCode, countryCode ?? _fixture.Create<string>())
-                .With(m => m.Name, name ?? _fixture.Create<string>())
-                .With(m => m.UniversalName, universalName ?? _fixture.Create<string>())
-                .With(m => m.PhonePrefix, phonePrefix ?? _fixture.Create<string>())
-                .Create();
-        }
-
         [Test]
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_ReturnsCountry()
@@ -88,6 +78,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.CountryComma
             ICountry result = sut.ToDomain();
 
             Assert.That(result.PhonePrefix, Is.EqualTo(phonePrefix));
+        }
+
+        private ICountryCommand CreateSut(string countryCode = null, string name = null, string universalName = null, string phonePrefix = null)
+        {
+            return _fixture.Build<Sut>()
+                .With(m => m.CountryCode, countryCode ?? _fixture.Create<string>())
+                .With(m => m.Name, name ?? _fixture.Create<string>())
+                .With(m => m.UniversalName, universalName ?? _fixture.Create<string>())
+                .With(m => m.PhonePrefix, phonePrefix ?? _fixture.Create<string>())
+                .Create();
         }
 
         private class Sut : BusinessLogic.Contacts.Commands.CountryCommandBase

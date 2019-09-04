@@ -19,11 +19,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
 
         #region Methods
 
-        protected override Task ManageRepositoryAsync(IDeleteCountryCommand command)
+        protected override async Task ManageRepositoryAsync(IDeleteCountryCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 
-            return ContactRepository.DeleteCountryAsync(command.CountryCode);
+            await ContactRepository.DeleteCountryAsync(command.CountryCode);
         }
 
         #endregion

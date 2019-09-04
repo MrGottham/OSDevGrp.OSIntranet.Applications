@@ -33,13 +33,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Methods
 
-        public Task ExecuteAsync(T command)
+        public async Task ExecuteAsync(T command)
         {
             NullGuard.NotNull(command, nameof(command));
 
             command.Validate(Validator, SecurityRepository);
 
-            return ManageRepositoryAsync(command);
+            await ManageRepositoryAsync(command);
         }
 
         protected abstract Task ManageRepositoryAsync(T command);

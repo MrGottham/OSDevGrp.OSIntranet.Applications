@@ -7,11 +7,11 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
 {
-    public class CreateCountryCommandHandler : CountryIdentificationCommandHandlerBase<ICreateCountryCommand>
+    public class CreatePostalCodeCommandHandler : PostalCodeIdentificationCommandBase<ICreatePostalCodeCommand>
     {
         #region Constructor
 
-        public CreateCountryCommandHandler(IValidator validator, IContactRepository contactRepository)
+        public CreatePostalCodeCommandHandler(IValidator validator, IContactRepository contactRepository) 
             : base(validator, contactRepository)
         {
         }
@@ -20,13 +20,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
 
         #region Methods
 
-        protected override async Task ManageRepositoryAsync(ICreateCountryCommand command)
+        protected override async Task ManageRepositoryAsync(ICreatePostalCodeCommand command)
         {
             NullGuard.NotNull(command, nameof(command));
 
-            ICountry country = command.ToDomain();
+            IPostalCode postalCode = command.ToDomain(ContactRepository);
 
-            await ContactRepository.CreateCountryAsync(country);
+            await ContactRepository.CreatePostalCodeAsync(postalCode);
         }
 
         #endregion
