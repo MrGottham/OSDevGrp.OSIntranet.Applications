@@ -230,7 +230,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(context, nameof(context))
                 .NotNullOrWhiteSpace(code, nameof(code));
 
-            return false;
+            return context.PostalCodes.FirstOrDefault(postalCode => postalCode.CountryCode == code) == null;
         }
 
         private IEnumerable<IPostalCode> GetPostalCodes(string countryCode)
