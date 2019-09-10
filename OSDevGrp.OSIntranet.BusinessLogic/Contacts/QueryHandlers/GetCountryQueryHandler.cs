@@ -32,13 +32,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
 
         #region Methods
 
-        public Task<ICountry> QueryAsync(IGetCountryQuery query)
+        public async Task<ICountry> QueryAsync(IGetCountryQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
             query.Validate(_validator, _contactRepository);
 
-            return _contactRepository.GetCountryAsync(query.CountryCode);
+            return await _contactRepository.GetCountryAsync(query.CountryCode);
         }
 
         #endregion

@@ -32,13 +32,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers
 
         #region Methods
 
-        public Task<IClientSecretIdentity> QueryAsync(IGetClientSecretIdentityQuery query)
+        public async Task<IClientSecretIdentity> QueryAsync(IGetClientSecretIdentityQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
             query.Validate(_validator, _securityRepository);
 
-            return _securityRepository.GetClientSecretIdentityAsync(query.Identifier);
+            return await _securityRepository.GetClientSecretIdentityAsync(query.Identifier);
         }
 
         #endregion

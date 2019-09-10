@@ -33,13 +33,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
 
         #region Methods
 
-        public Task<IEnumerable<IPostalCode>> QueryAsync(IGetPostalCodeCollectionQuery query)
+        public async Task<IEnumerable<IPostalCode>> QueryAsync(IGetPostalCodeCollectionQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
             query.Validate(_validator, _contactRepository);
 
-            return _contactRepository.GetPostalCodesAsync(query.CountryCode);
+            return await _contactRepository.GetPostalCodesAsync(query.CountryCode);
         }
 
         #endregion

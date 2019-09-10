@@ -28,11 +28,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers
 
         #region Methods
 
-        public Task<Uri> QueryAsync(IGetAuthorizeUriForMicrosoftGraphQuery query)
+        public async Task<Uri> QueryAsync(IGetAuthorizeUriForMicrosoftGraphQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return _microsoftGraphRepository.GetAuthorizeUriAsync(query.RedirectUri, query.StateIdentifier);
+            return await _microsoftGraphRepository.GetAuthorizeUriAsync(query.RedirectUri, query.StateIdentifier);
         }
 
         #endregion

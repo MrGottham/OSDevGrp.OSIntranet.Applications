@@ -43,14 +43,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         {
             QueryHandler sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.QueryAsync(null));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
             Assert.That(result.ParamName, Is.EqualTo("query"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertGetAccountingsAsyncAsynWasCalledOnAccountingRepository()
+        public async Task QueryAsync_WhenCalled_AssertGetAccountingsAsyncWasCalledOnAccountingRepository()
         {
             QueryHandler sut = CreateSut();
 

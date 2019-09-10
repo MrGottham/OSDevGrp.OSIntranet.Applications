@@ -29,11 +29,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
 
         #region Methods
 
-        public Task<IEnumerable<ICountry>> QueryAsync(EmptyQuery query)
+        public async Task<IEnumerable<ICountry>> QueryAsync(EmptyQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return _contactRepository.GetCountriesAsync();
+            return await _contactRepository.GetCountriesAsync();
         }
 
         #endregion

@@ -39,7 +39,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
         {
             QueryHandler sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.QueryAsync(null));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
             Assert.That(result.ParamName, Is.EqualTo("query"));
         }

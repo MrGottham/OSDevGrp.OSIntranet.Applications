@@ -32,13 +32,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.QueryHandlers
 
         #region Methods
 
-        public Task<ILetterHead> QueryAsync(IGetLetterHeadQuery query)
+        public async Task<ILetterHead> QueryAsync(IGetLetterHeadQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
             query.Validate(_validator, _commonRepository);
 
-            return _commonRepository.GetLetterHeadAsync(query.Number);
+            return await _commonRepository.GetLetterHeadAsync(query.Number);
         }
 
         #endregion

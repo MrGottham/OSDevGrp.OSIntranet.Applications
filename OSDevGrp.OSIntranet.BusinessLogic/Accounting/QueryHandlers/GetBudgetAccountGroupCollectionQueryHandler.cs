@@ -29,11 +29,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
         #region Methods
 
-        public Task<IEnumerable<IBudgetAccountGroup>> QueryAsync(EmptyQuery query)
+        public async Task<IEnumerable<IBudgetAccountGroup>> QueryAsync(EmptyQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return _accountingRepository.GetBudgetAccountGroupsAsync();
+            return await _accountingRepository.GetBudgetAccountGroupsAsync();
         }
 
         #endregion

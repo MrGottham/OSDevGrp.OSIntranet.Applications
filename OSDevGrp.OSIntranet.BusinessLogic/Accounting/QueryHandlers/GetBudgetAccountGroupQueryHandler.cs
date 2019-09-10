@@ -32,13 +32,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
         #region Methods
 
-        public Task<IBudgetAccountGroup> QueryAsync(IGetBudgetAccountGroupQuery query)
+        public async Task<IBudgetAccountGroup> QueryAsync(IGetBudgetAccountGroupQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
             query.Validate(_validator, _accountingRepository);
             
-            return _accountingRepository.GetBudgetAccountGroupAsync(query.Number);
+            return await _accountingRepository.GetBudgetAccountGroupAsync(query.Number);
         }
         
         #endregion

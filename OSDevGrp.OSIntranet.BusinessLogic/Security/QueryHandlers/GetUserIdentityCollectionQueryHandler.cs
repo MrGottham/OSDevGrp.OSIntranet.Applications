@@ -29,11 +29,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers
 
         #region Methods
 
-        public Task<IEnumerable<IUserIdentity>> QueryAsync(EmptyQuery query)
+        public async Task<IEnumerable<IUserIdentity>> QueryAsync(EmptyQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return _securityRepository.GetUserIdentitiesAsync();
+            return await _securityRepository.GetUserIdentitiesAsync();
         }
 
         #endregion

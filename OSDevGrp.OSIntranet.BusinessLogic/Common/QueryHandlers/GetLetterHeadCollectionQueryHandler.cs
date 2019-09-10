@@ -29,11 +29,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.QueryHandlers
 
         #region Methods
 
-        public Task<IEnumerable<ILetterHead>> QueryAsync(EmptyQuery query)
+        public async Task<IEnumerable<ILetterHead>> QueryAsync(EmptyQuery query)
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return _commonRepository.GetLetterHeadsAsync();
+            return await _commonRepository.GetLetterHeadsAsync();
         }
 
         #endregion
