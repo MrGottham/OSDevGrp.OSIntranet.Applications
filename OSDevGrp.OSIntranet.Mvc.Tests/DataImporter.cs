@@ -1,23 +1,34 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Core.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
@@ -28,8 +39,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
     {
         #region Private variables
 
-        private ICommonRepository _commonRepository;
         private ICommandBus _commandBus;
+        private IQueryBus _queryBus;
 
         #endregion
 
@@ -38,12 +49,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         {
             IConfiguration configuration = CreateConfiguration();
             IPrincipalResolver principalResolver = CreatePrincipalResolver();
+            ILoggerFactory loggerFactory = CreateLoggerFactory();
             IValidator validator = CreateValidator();
 
-            _commonRepository = new CommonRepository(configuration, principalResolver, CreateLoggerFactory());
+            ICommonRepository commonRepository = new CommonRepository(configuration, principalResolver, loggerFactory);
+            IContactRepository contactRepository = new ContactRepository(configuration, principalResolver, loggerFactory);
 
-            ICommandHandler<ICreateLetterHeadCommand> createLetterHeadCommandHandler = new CreateLetterHeadCommandHandler(validator, _commonRepository);
-            _commandBus = new CommandBus(new [] {createLetterHeadCommandHandler});
+            ICommandHandler<ICreateLetterHeadCommand> createLetterHeadCommandHandler = new CreateLetterHeadCommandHandler(validator, commonRepository);
+            ICommandHandler<ICreatePostalCodeCommand> createPostalCodeCommand = new CreatePostalCodeCommandHandler(validator, contactRepository);
+            _commandBus = new CommandBus(new ICommandHandler[] {createLetterHeadCommandHandler, createPostalCodeCommand});
+
+            IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(contactRepository);
+            IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(validator, contactRepository);
+            _queryBus = new QueryBus(new IQueryHandler[] {getCountryCollectionQueryHandler, getPostalCodeQueryHandler});
         }
 
         [Test]
@@ -76,6 +94,53 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 };
                 await _commandBus.PublishAsync(command);
             });
+        }
+
+        [Test]
+        [Category("DataImport")]
+        [TestCase("PostalCodes.xml")]
+        [Ignore("Test which imports data should only be run once")]
+        public async Task Import_PostalCodes_FromFile(string fileName)
+        {
+            XmlDocument postalCodeDocument = new XmlDocument();
+            postalCodeDocument.Load(fileName);
+
+            IDictionary<string, ICountry> countryDictionary = (await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery())).ToDictionary(country => country.Code, country => country);
+
+            XmlNodeList postalCodeNodeList = postalCodeDocument.DocumentElement.SelectNodes("PostalCode");
+            foreach (XmlElement postalCodeElement in postalCodeNodeList.OfType<XmlElement>())
+            {
+                string countryCode = GetAttributeValue(postalCodeElement, "countryCode");
+                if (string.IsNullOrWhiteSpace(countryCode) || countryDictionary.ContainsKey(countryCode) == false)
+                {
+                    continue;
+                }
+
+                string code = GetAttributeValue(postalCodeElement, "code");
+                if (string.IsNullOrWhiteSpace(code))
+                {
+                    continue;
+                }
+
+                IGetPostalCodeQuery query = new GetPostalCodeQuery
+                {
+                    CountryCode = countryCode,
+                    PostalCode = code
+                };
+                if (await _queryBus.QueryAsync<IGetPostalCodeQuery, IPostalCode>(query) != null)
+                {
+                    continue;
+                }
+
+                ICreatePostalCodeCommand command = new CreatePostalCodeCommand
+                {
+                    CountryCode = countryCode,
+                    PostalCode = code,
+                    City = GetAttributeValue(postalCodeElement, "city"),
+                    State = GetAttributeValue(postalCodeElement, "state")
+                };
+                await _commandBus.PublishAsync(command);
+            }
         }
 
         private IConfiguration CreateConfiguration()
@@ -149,6 +214,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     return value;
                 })
                 .ToArray();
+        }
+
+        private string GetAttributeValue(XmlElement element, string attributeName)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNullOrWhiteSpace(attributeName, nameof(attributeName));
+
+            XmlAttribute attribute = element.GetAttributeNode(attributeName);
+            if (attribute == null || string.IsNullOrWhiteSpace(attribute.Value))
+            {
+                return null;
+            }
+
+            return attribute.Value.Trim();
         }
     }
 }
