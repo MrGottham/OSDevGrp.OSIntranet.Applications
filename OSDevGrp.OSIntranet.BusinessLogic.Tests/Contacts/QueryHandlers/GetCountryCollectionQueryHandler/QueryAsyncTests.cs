@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
         #region Private variables
 
         private Mock<IContactRepository> _contactRepositoryMock;
+        private Mock<ICountryHelper> _countryHelperMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -28,6 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
         public void SetUp()
         {
             _contactRepositoryMock = new Mock<IContactRepository>();
+            _countryHelperMock = new Mock<ICountryHelper>();
 
             _fixture = new Fixture();
             _fixture.Customize<ICountry>(builder => builder.FromFactory(() => _fixture.BuildCountryMock().Object));
@@ -59,7 +62,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsCountryCollectionFromContactRepository()
+        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnCountryHelperWithCountryCollectionFromContactRepository()
+        {
+            IEnumerable<ICountry> countryCollection = _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList();
+            QueryHandler sut = CreateSut(countryCollection);
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            _countryHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IEnumerable<ICountry>>(value => Equals(value, countryCollection))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_ReturnsCountryCollectionFromCountryHelper()
         {
             IEnumerable<ICountry> countryCollection = _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList();
             QueryHandler sut = CreateSut(countryCollection);
@@ -73,8 +88,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
         {
             _contactRepositoryMock.Setup(m => m.GetCountriesAsync())
                 .Returns(Task.Run(() => countryCollection ?? _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList()));
+            _countryHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<IEnumerable<ICountry>>()))
+                .Returns(countryCollection ?? _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList());
 
-            return new QueryHandler(_contactRepositoryMock.Object);
+            return new QueryHandler(_contactRepositoryMock.Object, _countryHelperMock.Object);
         }
     }
 }

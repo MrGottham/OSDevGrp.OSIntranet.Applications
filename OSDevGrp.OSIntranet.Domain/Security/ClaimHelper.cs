@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Security.Principal;
 using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
@@ -75,6 +76,22 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNullOrWhiteSpace(type, nameof(type));
 
             return new Claim(type, value ?? string.Empty, valueType, IssuerName);
+        }
+
+        public static Claim GetClaim(this IPrincipal principal, string type)
+        {
+            NullGuard.NotNull(principal, nameof(principal))
+                .NotNullOrWhiteSpace(type, nameof(type));
+
+            return GetClaim(new ClaimsPrincipal(principal), type);
+        }
+
+        public static Claim GetClaim(this ClaimsPrincipal claimsPrincipal, string type)
+        {
+            NullGuard.NotNull(claimsPrincipal, nameof(claimsPrincipal))
+                .NotNullOrWhiteSpace(type, nameof(type));
+
+            return claimsPrincipal.FindFirst(type);
         }
 
         #endregion

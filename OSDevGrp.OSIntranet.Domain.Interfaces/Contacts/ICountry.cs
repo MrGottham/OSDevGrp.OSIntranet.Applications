@@ -11,5 +11,9 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
         string UniversalName { get; set; }
 
         string PhonePrefix { get; set; }
+
+        bool DefaultForPrincipal { get; }
+
+        void ApplyDefaultForPrincipal(string defaultCountryCode);
     }
 }

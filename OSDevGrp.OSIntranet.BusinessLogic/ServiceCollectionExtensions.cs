@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers;
+using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.Helpers;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
 
@@ -25,7 +27,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
-            return serviceCollection.AddTransient<ITokenHelper, TokenHelper>();
+            return serviceCollection.AddTransient<ITokenHelper, TokenHelper>()
+                .AddTransient<IClaimResolver, ClaimResolver>()
+                .AddTransient<ICountryHelper, CountryHelper>();
         }
     }
 }

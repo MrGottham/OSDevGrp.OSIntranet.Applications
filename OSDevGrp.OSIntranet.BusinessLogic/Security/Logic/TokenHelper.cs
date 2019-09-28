@@ -3,12 +3,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Helpers
+namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
     public class TokenHelper : ITokenHelper
     {

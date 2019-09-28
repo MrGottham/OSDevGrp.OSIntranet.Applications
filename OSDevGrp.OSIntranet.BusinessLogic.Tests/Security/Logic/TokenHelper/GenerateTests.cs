@@ -3,11 +3,11 @@ using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
 {
     [TestFixture]
     public class GenerateTests : BusinessLogicTestBase
@@ -114,7 +114,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Helpers.TokenHelper
             _configurationMock.Setup(m => m[It.Is<string>(value => string.Compare(value, "Security:JWT:Key", StringComparison.Ordinal) == 0)])
                 .Returns(_fixture.Create<string>());
 
-            return new BusinessLogic.Security.Helpers.TokenHelper(_configurationMock.Object);
+            return new BusinessLogic.Security.Logic.TokenHelper(_configurationMock.Object);
         }
     }
 }

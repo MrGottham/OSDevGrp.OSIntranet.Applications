@@ -137,6 +137,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(universalName ?? fixture.Create<string>());
             countryMock.Setup(m => m.PhonePrefix)
                 .Returns(phonePrefix ?? fixture.Create<string>());
+            countryMock.Setup(m => m.DefaultForPrincipal)
+                .Returns(fixture.Create<bool>());
             return countryMock;
         }
 

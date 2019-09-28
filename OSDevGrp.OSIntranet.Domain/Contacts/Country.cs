@@ -80,6 +80,8 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
 
         public bool Deletable { get; private set; }
 
+        public bool DefaultForPrincipal { get; private set; }
+
         #endregion
 
         #region Methods
@@ -92,6 +94,11 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
         public void DisallowDeletion()
         {
             Deletable = false;
+        }
+
+        public void ApplyDefaultForPrincipal(string defaultCountryCode)
+        {
+            DefaultForPrincipal = string.IsNullOrWhiteSpace(defaultCountryCode) == false && string.CompareOrdinal(Code, defaultCountryCode) == 0;
         }
 
         #endregion

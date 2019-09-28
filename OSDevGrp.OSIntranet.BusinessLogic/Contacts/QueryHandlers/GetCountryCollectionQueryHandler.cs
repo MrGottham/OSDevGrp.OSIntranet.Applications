@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
@@ -13,16 +14,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
         #region Private variables
 
         private readonly IContactRepository _contactRepository;
+        private readonly ICountryHelper _countryHelper;
 
         #endregion
 
         #region Constructor
 
-        public GetCountryCollectionQueryHandler(IContactRepository contactRepository)
+        public GetCountryCollectionQueryHandler(IContactRepository contactRepository, ICountryHelper countryHelper)
         {
-            NullGuard.NotNull(contactRepository, nameof(contactRepository));
+            NullGuard.NotNull(contactRepository, nameof(contactRepository))
+                .NotNull(countryHelper, nameof(countryHelper));
 
             _contactRepository = contactRepository;
+            _countryHelper = countryHelper;
         }
 
         #endregion
@@ -33,7 +37,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
         {
             NullGuard.NotNull(query, nameof(query));
 
-            return await _contactRepository.GetCountriesAsync();
+            IEnumerable<ICountry> countries = await _contactRepository.GetCountriesAsync();
+
+            return _countryHelper.ApplyLogicForPrincipal(countries);
         }
 
         #endregion

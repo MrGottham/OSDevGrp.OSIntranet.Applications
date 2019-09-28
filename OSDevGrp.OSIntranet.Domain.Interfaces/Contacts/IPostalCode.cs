@@ -4,7 +4,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
 {
     public interface IPostalCode : IAuditable, IDeletable
     {
-        ICountry Country { get; }
+        ICountry Country { get; set;  }
 
         string Code { get; set; }
 

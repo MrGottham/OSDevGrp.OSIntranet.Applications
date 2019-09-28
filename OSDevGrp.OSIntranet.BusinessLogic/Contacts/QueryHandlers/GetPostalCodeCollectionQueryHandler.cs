@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -15,18 +17,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
 
         private readonly IValidator _validator;
         private readonly IContactRepository _contactRepository;
+        private readonly ICountryHelper _countryHelper;
 
         #endregion
 
         #region Constructor
 
-        public GetPostalCodeCollectionQueryHandler(IValidator validator, IContactRepository contactRepository)
+        public GetPostalCodeCollectionQueryHandler(IValidator validator, IContactRepository contactRepository, ICountryHelper countryHelper)
         {
             NullGuard.NotNull(validator, nameof(validator))
-                .NotNull(contactRepository, nameof(contactRepository));
+                .NotNull(contactRepository, nameof(contactRepository))
+                .NotNull(countryHelper, nameof(countryHelper));
 
             _validator = validator;
             _contactRepository = contactRepository;
+            _countryHelper = countryHelper;
         }
 
         #endregion
@@ -39,7 +44,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
 
             query.Validate(_validator, _contactRepository);
 
-            return await _contactRepository.GetPostalCodesAsync(query.CountryCode);
+            IEnumerable<IPostalCode> postalCodes = await _contactRepository.GetPostalCodesAsync(query.CountryCode);
+
+            return postalCodes.Select(postalCode =>
+                {
+                    postalCode.Country = _countryHelper.ApplyLogicForPrincipal(postalCode.Country);
+                    return postalCode;
+                })
+                .ToList();
         }
 
         #endregion

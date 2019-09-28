@@ -15,12 +15,16 @@ using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -52,6 +56,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             ILoggerFactory loggerFactory = CreateLoggerFactory();
             IValidator validator = CreateValidator();
 
+            IClaimResolver claimResolver = new ClaimResolver(principalResolver);
+            ICountryHelper countryHelper = new CountryHelper(claimResolver);
+
             ICommonRepository commonRepository = new CommonRepository(configuration, principalResolver, loggerFactory);
             IContactRepository contactRepository = new ContactRepository(configuration, principalResolver, loggerFactory);
 
@@ -59,8 +66,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             ICommandHandler<ICreatePostalCodeCommand> createPostalCodeCommand = new CreatePostalCodeCommandHandler(validator, contactRepository);
             _commandBus = new CommandBus(new ICommandHandler[] {createLetterHeadCommandHandler, createPostalCodeCommand});
 
-            IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(contactRepository);
-            IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(validator, contactRepository);
+            IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(contactRepository, countryHelper);
+            IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(validator, contactRepository, countryHelper);
             _queryBus = new QueryBus(new IQueryHandler[] {getCountryCollectionQueryHandler, getPostalCodeQueryHandler});
         }
 

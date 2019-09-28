@@ -2,7 +2,7 @@
 using System.Security.Principal;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Helpers;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;

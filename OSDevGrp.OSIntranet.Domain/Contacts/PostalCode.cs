@@ -8,6 +8,7 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
     {
         #region Private variables
 
+        private ICountry _country;
         private string _code;
         private string _city;
         private string _state;
@@ -37,7 +38,16 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
 
         #region Properties
 
-        public ICountry Country { get; }
+        public ICountry Country
+        {
+            get => _country;
+            set
+            {
+                NullGuard.NotNull(value, nameof(value));
+
+                _country = value;
+            }
+        }
 
         public string Code
         {
