@@ -35,6 +35,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 
         public bool Deletable { get; set; }
 
+        public bool DefaultForPrincipal { get; set; }
+
         #endregion
 
         #region Methods
@@ -51,6 +53,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
 
             return '{' + $"code: '{Code}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+        }
+
+        public string GetPostalCodeCollectionLink(IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("PostalCodes", "Contact", new {countryCode = Code});
         }
 
         #endregion

@@ -1,0 +1,67 @@
+@model IEnumerable<CountryViewModel>;
+@{
+    ViewData["Title"] = "Postnumre";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Postnumre</h2>
+        <div id="countryCollectionAccordion">
+            @foreach (CountryViewModel countryViewModel in Model)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <a class="card-link" data-toggle="collapse" href="#@countryViewModel.Code">@countryViewModel.Name</a>
+                    </div>
+                    @if (countryViewModel.DefaultForPrincipal)
+                    {
+                        <div id="@countryViewModel.Code" class="collapse show" data-parent="#countryCollectionAccordion">
+                            <div class="card-body">
+                                <div class="spinner-border" role="status" data-url="@countryViewModel.GetPostalCodeCollectionLink(Url)">
+                                    <span class="sr-only">Henter data...</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="@countryViewModel.Code" class="collapse" data-parent="#countryCollectionAccordion">
+                            <div class="card-body">
+                                <div class="spinner-border" role="status" data-url="@countryViewModel.GetPostalCodeCollectionLink(Url)">
+                                    <span class="sr-only">Henter data...</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
+
+@section Scripts
+{
+<script type="text/javascript">
+    @foreach (CountryViewModel countryViewModel in Model)
+    {
+        <text>
+            $('#@countryViewModel.Code').on('shown.bs.collapse', function () {
+                $.fn.replaceWithPartialViewFromUrl($(this).find("div").find("div"));
+            });
+        </text>
+    }
+
+    $(document).ready(function() {
+        @foreach (CountryViewModel countryViewModel in Model.Where(m => m.DefaultForPrincipal))
+        {
+            <text>
+                $.fn.replaceWithPartialViewFromUrl($("#@countryViewModel.Code").find("div").find("div"));
+            </text>
+        }
+    });
+</script>
+}

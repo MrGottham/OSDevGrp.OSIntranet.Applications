@@ -47,12 +47,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> Countries()
         {
-            IEnumerable<ICountry> countries = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery());
-
-            IEnumerable<CountryViewModel> countryViewModels = countries.AsParallel()
-                .Select(country => _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country))
-                .OrderBy(countryViewModel => countryViewModel.Name)
-                .ToList();
+            IEnumerable<CountryViewModel> countryViewModels = await GetCountryViewModels();
 
             return View("Countries", countryViewModels);
         }
@@ -90,11 +85,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNullOrWhiteSpace(code, nameof(code));
 
-            IGetCountryQuery query = new GetCountryQuery
-            {
-                CountryCode = code
-            };
-            ICountry country = await _queryBus.QueryAsync<IGetCountryQuery, ICountry>(query);
+            ICountry country = await GetCountry(code);
 
             CountryViewModel countryViewModel = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country);
             countryViewModel.EditMode = EditMode.Edit;
@@ -132,6 +123,62 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("Countries", "Contact");
+        }
+
+        [HttpGet]
+        [Route("{controller}/{action}/")]
+        public async Task<IActionResult> PostalCodes()
+        {
+            IEnumerable<CountryViewModel> countryViewModels = await GetCountryViewModels();
+
+            return View("PostalCodes", countryViewModels);
+        }
+
+        [HttpGet]
+        [Route("{controller}/{action}/{countryCode}/")]
+        public async Task<IActionResult> PostalCodes(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            ICountry country = await GetCountry(countryCode);
+            if (country == null)
+            {
+                return RedirectToAction("PostalCodes", "Contact");
+            }
+
+            IGetPostalCodeCollectionQuery query = new GetPostalCodeCollectionQuery
+            {
+                CountryCode = countryCode
+            };
+            IEnumerable<IPostalCode> postalCodes = await _queryBus.QueryAsync<IGetPostalCodeCollectionQuery, IEnumerable<IPostalCode>>(query);
+
+            IEnumerable<PostalCodeViewModel> postalCodeViewModels = postalCodes.AsParallel()
+                .Select(postalCode => _contactViewModelConverter.Convert<IPostalCode, PostalCodeViewModel>(postalCode))
+                .OrderBy(postalCodeViewModel => postalCodeViewModel.City)
+                .ToList();
+
+            return PartialView("_PostalCodeTablePartial", postalCodeViewModels);
+        }
+
+        private async Task<IEnumerable<CountryViewModel>> GetCountryViewModels()
+        {
+            IEnumerable<ICountry> countries = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery());
+
+            return countries.AsParallel()
+                .Select(country => _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country))
+                .OrderBy(countryViewModel => countryViewModel.Name)
+                .ToList();
+        }
+
+        private async Task<ICountry> GetCountry(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IGetCountryQuery query = new GetCountryQuery
+            {
+                CountryCode = countryCode
+            };
+            return await _queryBus.QueryAsync<IGetCountryQuery, ICountry>(query);
         }
 
         #endregion

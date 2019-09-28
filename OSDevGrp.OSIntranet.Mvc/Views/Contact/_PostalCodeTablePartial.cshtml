@@ -1,0 +1,26 @@
+@model IEnumerable<PostalCodeViewModel>;
+    
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Postnummer</th>
+                <th>By</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (PostalCodeViewModel postalCodeViewModel in Model)
+            {
+                <tr>
+                    <td>@postalCodeViewModel.Code</td>
+                    <td>@postalCodeViewModel.City</td>
+                    <td>
+                        <span class="fa-stack">
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
