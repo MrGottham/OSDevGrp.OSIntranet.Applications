@@ -1,0 +1,24 @@
+@model PostalCodeViewModel;
+@{
+    ViewData["Title"] = "Opret postnummer";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Opret postnummer</h2>
+        <form asp-area="" asp-controller="Contact" asp-action="CreatePostalCode" method="post">
+            <partial name="_PostalCodePartial" />
+            <button type="submit" class="btn btn-primary">Opret</button>
+            <a class="btn btn-secondary" asp-controller="Contact" asp-action="PostalCodes">Fortryd</a>
+        </form>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
+
+@section Scripts
+    {
+    <partial name="_ValidationScriptsPartial" />
+}

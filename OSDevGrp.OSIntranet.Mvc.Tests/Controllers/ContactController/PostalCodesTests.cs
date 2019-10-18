@@ -234,7 +234,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             IEnumerable<IPostalCode> postalCodeMockCollection = _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList();
             Controller sut = CreateSut(postalCodeCollection: postalCodeMockCollection);
 
-            PartialViewResult result = (PartialViewResult) await sut.PostalCodes(_fixture.Create<string>());
+            string countryCode = _fixture.Create<string>();
+            PartialViewResult result = (PartialViewResult) await sut.PostalCodes(countryCode);
+
+            Assert.That(result.ViewData, Is.Not.Null);
+            Assert.That(result.ViewData.ContainsKey("CountryCode"), Is.True);
+            Assert.That(result.ViewData["CountryCode"], Is.EqualTo(countryCode));
 
             Assert.That(result.Model, Is.TypeOf<List<PostalCodeViewModel>>());
 

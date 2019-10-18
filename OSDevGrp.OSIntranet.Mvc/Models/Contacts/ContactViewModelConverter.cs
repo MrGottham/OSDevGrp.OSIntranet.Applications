@@ -30,25 +30,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<PostalCodeViewModel, CreatePostalCodeCommand>()
-                .ForMember(dest => dest.PostalCode, opt =>
+                .ForMember(dest => dest.CountryCode, opt =>
                 {
                     opt.Condition(src => src.Country != null && string.IsNullOrWhiteSpace(src.Country.Code) == false);
                     opt.MapFrom(src => src.Country.Code);
-                });
+                })
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code));
 
             mapperConfiguration.CreateMap<PostalCodeViewModel, UpdatePostalCodeCommand>()
-                .ForMember(dest => dest.PostalCode, opt =>
+                .ForMember(dest => dest.CountryCode, opt =>
                 {
                     opt.Condition(src => src.Country != null && string.IsNullOrWhiteSpace(src.Country.Code) == false);
                     opt.MapFrom(src => src.Country.Code);
-                });
+                })
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code));
 
             mapperConfiguration.CreateMap<PostalCodeViewModel, DeletePostalCodeCommand>()
-                .ForMember(dest => dest.PostalCode, opt =>
+                .ForMember(dest => dest.CountryCode, opt =>
                 {
                     opt.Condition(src => src.Country != null && string.IsNullOrWhiteSpace(src.Country.Code) == false);
                     opt.MapFrom(src => src.Country.Code);
-                });
+                })
+                .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code));
         }
 
         #endregion

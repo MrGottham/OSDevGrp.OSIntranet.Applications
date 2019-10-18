@@ -157,7 +157,99 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 .OrderBy(postalCodeViewModel => postalCodeViewModel.City)
                 .ToList();
 
-            return PartialView("_PostalCodeTablePartial", postalCodeViewModels);
+            PartialViewResult result = PartialView("_PostalCodeTablePartial", postalCodeViewModels);
+            result.ViewData.Add("CountryCode", countryCode);
+            return result;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreatePostalCode(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            ICountry country = await GetCountry(countryCode);
+            if (country == null)
+            {
+                return RedirectToAction("PostalCodes", "Contact");
+            }
+
+            PostalCodeViewModel postalCodeViewModel = new PostalCodeViewModel
+            {
+                Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country),
+                EditMode = EditMode.Create
+            };
+
+            return View("CreatePostalCode", postalCodeViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePostalCode(PostalCodeViewModel postalCodeViewModel)
+        {
+            NullGuard.NotNull(postalCodeViewModel, nameof(postalCodeViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("CreatePostalCode", postalCodeViewModel);
+            }
+
+            ICreatePostalCodeCommand command = _contactViewModelConverter.Convert<PostalCodeViewModel, CreatePostalCodeCommand>(postalCodeViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("PostalCodes", "Contact");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdatePostalCode(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            IGetPostalCodeQuery query = new GetPostalCodeQuery
+            {
+                CountryCode = countryCode,
+                PostalCode = postalCode
+            };
+            IPostalCode postalCodeObj = await _queryBus.QueryAsync<IGetPostalCodeQuery, IPostalCode>(query);
+
+            PostalCodeViewModel postalCodeViewModel = _contactViewModelConverter.Convert<IPostalCode, PostalCodeViewModel>(postalCodeObj);
+            postalCodeViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdatePostalCode", postalCodeViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePostalCode(PostalCodeViewModel postalCodeViewModel)
+        {
+            NullGuard.NotNull(postalCodeViewModel, nameof(postalCodeViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdatePostalCode", postalCodeViewModel);
+            }
+
+            IUpdatePostalCodeCommand command = _contactViewModelConverter.Convert<PostalCodeViewModel, UpdatePostalCodeCommand>(postalCodeViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("PostalCodes", "Contact");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePostalCode(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            IDeletePostalCodeCommand command = new DeletePostalCodeCommand
+            {
+                CountryCode = countryCode,
+                PostalCode = postalCode
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("PostalCodes", "Contact");
         }
 
         private async Task<IEnumerable<CountryViewModel>> GetCountryViewModels()

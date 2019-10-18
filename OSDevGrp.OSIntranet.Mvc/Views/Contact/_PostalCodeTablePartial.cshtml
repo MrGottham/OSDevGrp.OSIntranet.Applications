@@ -6,7 +6,7 @@
             <tr>
                 <th>Postnummer</th>
                 <th>By</th>
-                <th></th>
+                <th><a asp-area="" asp-controller="Contact" asp-action="CreatePostalCode" asp-route-countryCode="@ViewData["CountryCode"]"><i class="fas fa-plus"></i></a></th>
             </tr>
         </thead>
         <tbody>
@@ -17,6 +17,11 @@
                     <td>@postalCodeViewModel.City</td>
                     <td>
                         <span class="fa-stack">
+                            <a asp-area="" asp-controller="Contact" asp-action="UpdatePostalCode" asp-route-countryCode="@postalCodeViewModel.Country.Code" asp-route-postalCode="@postalCodeViewModel.Code"><i class="fas fa-pen"></i></a>
+                            @if (postalCodeViewModel.Deletable)
+                            {
+                                <a href="#" onclick="javascript:$().askForDeletion('Slet landekode', '@(postalCodeViewModel.GetDeletionLink(Url))', @(postalCodeViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+                            }
                         </span>
                     </td>
                 </tr>
