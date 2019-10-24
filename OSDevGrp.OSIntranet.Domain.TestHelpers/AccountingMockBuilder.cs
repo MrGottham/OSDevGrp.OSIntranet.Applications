@@ -82,5 +82,17 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<string>());
             return budgetAccountGroupMock;
         }
+
+        public static Mock<IPaymentTerm> BuildPaymentTermMock(this Fixture fixture)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<IPaymentTerm> paymentTermMock = new Mock<IPaymentTerm>();
+            paymentTermMock.Setup(m => m.Number)
+                .Returns(fixture.Create<int>());
+            paymentTermMock.Setup(m => m.Name)
+                .Returns(fixture.Create<string>());
+            return paymentTermMock;
+        }
     }
 }
