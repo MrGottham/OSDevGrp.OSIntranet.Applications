@@ -1,13 +1,13 @@
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
     public enum AccountGroupType
     {
-        [DisplayName("Aktiver")]
+        [Display(Name = "Aktiver")]
         Assets,
 
-        [DisplayName("Passiver")]
+        [Display(Name = "Passiver")]
         Liabilities
     }
 }

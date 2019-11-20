@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Html;
@@ -13,13 +13,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
             Type enumValueType = enumValue.GetType();
             MemberInfo enumValueMemberInfo = enumValueType.GetMember(enumValue.ToString()).First();
 
-            DisplayNameAttribute displayNameAttribute = (DisplayNameAttribute) enumValueMemberInfo.GetCustomAttributes(typeof(DisplayNameAttribute)).FirstOrDefault();
-            if (displayNameAttribute == null)
+            DisplayAttribute displayAttribute = (DisplayAttribute) enumValueMemberInfo.GetCustomAttributes(typeof(DisplayAttribute)).FirstOrDefault();
+            if (displayAttribute == null)
             {
                 return new HtmlString(enumValue.ToString());
             }
 
-            return new HtmlString(string.IsNullOrWhiteSpace(displayNameAttribute.DisplayName) == false ? displayNameAttribute.DisplayName : enumValue.ToString());
+            return new HtmlString(string.IsNullOrWhiteSpace(displayAttribute.Name) == false ? displayAttribute.Name : enumValue.ToString());
         }
     }
 }
