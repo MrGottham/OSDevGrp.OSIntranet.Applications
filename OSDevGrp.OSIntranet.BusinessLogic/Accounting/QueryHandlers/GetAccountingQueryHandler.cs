@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
             query.Validate(_validator, _accountingRepository);
 
-            return await _accountingRepository.GetAccountingAsync(query.AccountingNumber);
+            return await _accountingRepository.GetAccountingAsync(query.AccountingNumber, query.StatusDate);
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
@@ -8,15 +9,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
     {
         Task<IEnumerable<IAccounting>> GetAccountingsAsync();
 
-        Task<IAccounting> GetAccountingAsync(int number);
-
-        Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync();
+        Task<IAccounting> GetAccountingAsync(int number, DateTime statusDate);
 
         Task<IAccounting> CreateAccountingAsync(IAccounting accounting);
 
         Task<IAccounting> UpdateAccountingAsync(IAccounting accounting);
 
         Task<IAccounting> DeleteAccountingAsync(int number);
+
+        Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync();
 
         Task<IAccountGroup> GetAccountGroupAsync(int number);
 

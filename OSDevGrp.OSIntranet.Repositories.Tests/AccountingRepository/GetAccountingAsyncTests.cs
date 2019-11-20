@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -14,7 +15,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
         {
             IAccountingRepository sut = CreateSut();
 
-            IAccounting result = await sut.GetAccountingAsync(1);
+            IAccounting result = await sut.GetAccountingAsync(1, DateTime.Today);
 
             Assert.That(result, Is.Not.Null);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
@@ -37,7 +38,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(() => AccountingNumber.GetAccounting(accountingRepository, ref _accounting));
+            return Task.Run(() => AccountingNumber.GetAccounting(DateTime.Today, accountingRepository, ref _accounting));
         }
 
         #endregion

@@ -75,15 +75,31 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertStatusDateWasCalledOnGetAccountingQuery()
+        {
+            QueryHandler sut = CreateSut();
+
+            Mock<IGetAccountingQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.StatusDate, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task QueryAsync_WhenCalled_AssertGetAccountingAsyncWasCalledOnAccountingRepository()
         {
             QueryHandler sut = CreateSut();
 
             int accountingNumber = _fixture.Create<int>();
-            IGetAccountingQuery query = CreateQueryMock(accountingNumber).Object;
+            DateTime statusDate = _fixture.Create<DateTime>();
+            IGetAccountingQuery query = CreateQueryMock(accountingNumber, statusDate).Object;
             await sut.QueryAsync(query);
 
-            _accountingRepositoryMock.Verify(m => m.GetAccountingAsync(It.Is<int>(value => value == accountingNumber)), Times.Once);
+            _accountingRepositoryMock.Verify(m => m.GetAccountingAsync(
+                    It.Is<int>(value => value == accountingNumber), 
+                    It.Is<DateTime>(value => value == statusDate)),
+                Times.Once);
         }
 
         [Test]
@@ -101,17 +117,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         private QueryHandler CreateSut(IAccounting accounting = null)
         {
-             _accountingRepositoryMock.Setup(m => m.GetAccountingAsync(It.IsAny<int>()))
+             _accountingRepositoryMock.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
                 .Returns(Task.Run(() => accounting ?? _fixture.Create<IAccounting>()));
 
            return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
         }
 
-        private Mock<IGetAccountingQuery> CreateQueryMock(int? accountingNumber = null)
+        private Mock<IGetAccountingQuery> CreateQueryMock(int? accountingNumber = null, DateTime? statusDate = null)
         {
             Mock<IGetAccountingQuery> queryMock = new Mock<IGetAccountingQuery>();
             queryMock.Setup(m => m.AccountingNumber)
                 .Returns(accountingNumber ?? _fixture.Create<int>());
+            queryMock.Setup(m => m.StatusDate)
+                .Returns(statusDate ?? _fixture.Create<DateTime>());
             return queryMock;
         }
     }

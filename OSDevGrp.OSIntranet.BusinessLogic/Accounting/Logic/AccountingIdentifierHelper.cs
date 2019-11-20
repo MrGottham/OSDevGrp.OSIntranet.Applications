@@ -19,11 +19,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
             return validator.Integer.ShouldBeBetween(value, 1, 99, validatingType, validatingField);
         }
 
-        internal static IAccounting GetAccounting(this int accountingNumber, IAccountingRepository accountingRepository, ref IAccounting accounting)
+        internal static IAccounting GetAccounting(this int accountingNumber, DateTime statusDate, IAccountingRepository accountingRepository, ref IAccounting accounting)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return accounting ?? (accounting = accountingRepository.GetAccountingAsync(accountingNumber).GetAwaiter().GetResult());
+            return accounting ?? (accounting = accountingRepository.GetAccountingAsync(accountingNumber, statusDate).GetAwaiter().GetResult());
         }
 
         #endregion

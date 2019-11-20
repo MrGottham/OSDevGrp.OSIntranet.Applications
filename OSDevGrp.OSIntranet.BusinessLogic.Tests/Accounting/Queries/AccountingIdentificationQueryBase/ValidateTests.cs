@@ -70,6 +70,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountingI
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldBePastDateOrTodayWasCalledOnDateTimeValidator()
+        {
+            DateTime statusDate = _fixture.Create<DateTime>();
+            IAccountingIdentificationQuery sut = CreateSut(statusDate: statusDate);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+
+            _validatorMockContext.DateTimeValidatorMock.Verify(m => m.ShouldBePastDateOrToday(
+                    It.Is<DateTime>(value => value == statusDate.Date),
+                    It.Is<Type>(type => type == sut.GetType()),
+                    It.Is<string>(field => string.Compare(field, "StatusDate", false) == 0)),
+                Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_ReturnsValidator()
         {
             IAccountingIdentificationQuery sut = CreateSut();
@@ -79,10 +95,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountingI
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IAccountingIdentificationQuery CreateSut(int? accountingNumber = null)
+        private IAccountingIdentificationQuery CreateSut(int? accountingNumber = null, DateTime? statusDate = null)
         {
             return _fixture.Build<Sut>()
                 .With(m => m.AccountingNumber, accountingNumber ?? _fixture.Create<int>())
+                .With(m => m.StatusDate, statusDate ?? _fixture.Create<DateTime>())
                 .Create();
         }
 

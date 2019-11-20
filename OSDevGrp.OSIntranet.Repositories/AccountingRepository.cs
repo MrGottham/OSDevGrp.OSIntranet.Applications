@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -40,9 +41,9 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => GetAccountings());
         }
 
-        public Task<IAccounting> GetAccountingAsync(int number)
+        public Task<IAccounting> GetAccountingAsync(int number, DateTime statusDate)
         {
-            return Task.Run(() => GetAccounting(number));
+            return Task.Run(() => GetAccounting(number, statusDate));
         }
 
         public Task<IAccounting> CreateAccountingAsync(IAccounting accounting)
@@ -147,7 +148,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
-        private IAccounting GetAccounting(int number)
+        private IAccounting GetAccounting(int number, DateTime statusDate)
         {
             return Execute(() =>
                 {
@@ -185,7 +186,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                         context.SaveChanges();
 
-                        return GetAccounting(accounting.Number);
+                        return GetAccounting(accounting.Number, DateTime.Today);
                     }
                 },
                 MethodBase.GetCurrentMethod());
@@ -215,7 +216,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                         context.SaveChanges();
 
-                        return GetAccounting(accounting.Number);
+                        return GetAccounting(accounting.Number, DateTime.Today);
                     }
                 },
                 MethodBase.GetCurrentMethod());
@@ -237,7 +238,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                         if (CanDeleteAccounting(context, accountingModel.AccountingIdentifier) == false)
                         {
-                            return GetAccounting(accountingModel.AccountingIdentifier);
+                            return GetAccounting(accountingModel.AccountingIdentifier, DateTime.Today);
                         }
 
                         context.Accountings.Remove(accountingModel);
