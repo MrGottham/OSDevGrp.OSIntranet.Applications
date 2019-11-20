@@ -141,6 +141,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<BalanceBelowZeroType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
@@ -160,6 +161,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             
             SetupShouldBeDeletable<T, ICountry>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPostalCode>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IAccounting>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
