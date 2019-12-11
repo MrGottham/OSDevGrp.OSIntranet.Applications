@@ -6,6 +6,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
     public interface IContactRepository : IRepository
     {
+        Task<IEnumerable<IContactGroup>> GetContactGroupsAsync();
+
+        Task<IContactGroup> GetContactGroupAsync(int number);
+
+        Task<IContactGroup> CreateContactGroupAsync(IContactGroup contactGroup);
+
+        Task<IContactGroup> UpdateContactGroupAsync(IContactGroup contactGroup);
+
+        Task<IContactGroup> DeleteContactGroupAsync(int number);
+
         Task<IEnumerable<ICountry>> GetCountriesAsync();
 
         Task<ICountry> GetCountryAsync(string code);

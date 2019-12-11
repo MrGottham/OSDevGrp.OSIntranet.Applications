@@ -33,6 +33,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
 
+        public DbSet<PaymentTermModel> PaymentTerms { get; set; }
+
         #endregion
 
         #region Methods
@@ -47,6 +49,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateLetterHeadModel();
             modelBuilder.CreateAccountGroupModel();
             modelBuilder.CreateBudgetAccountGroupModel();
+            modelBuilder.CreatePaymentTermModel();
         }
 
         #endregion

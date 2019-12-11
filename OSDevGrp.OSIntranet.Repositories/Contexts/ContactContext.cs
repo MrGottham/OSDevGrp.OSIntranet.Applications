@@ -24,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #region Properties
 
+        public DbSet<ContactGroupModel> ContactGroups { get; set; }
+
         public DbSet<CountryModel> Countries { get; set; }
 
         public DbSet<PostalCodeModel> PostalCodes { get; set; }
@@ -38,6 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.CreateContactGroupModel();
             modelBuilder.CreateCountryModel();
             modelBuilder.CreatePostalCodeModel();
         }

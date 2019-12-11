@@ -47,6 +47,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.BudgetAccountGroupIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<PaymentTermModel, IPaymentTerm>()
+                .ConvertUsing(paymentTermModel => paymentTermModel.ToDomain());
+
+            mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermModel>()
+                .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
         }
 
         #endregion

@@ -36,5 +36,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
         Task<IBudgetAccountGroup> UpdateBudgetAccountGroupAsync(IBudgetAccountGroup budgetAccountGroup);
 
         Task<IBudgetAccountGroup> DeleteBudgetAccountGroupAsync(int number);
+
+        Task<IEnumerable<IPaymentTerm>> GetPaymentTermsAsync();
+
+        Task<IPaymentTerm> GetPaymentTermAsync(int number);
+
+        Task<IPaymentTerm> CreatePaymentTermAsync(IPaymentTerm paymentTerm);
+
+        Task<IPaymentTerm> UpdatePaymentTermAsync(IPaymentTerm paymentTerm);
+
+        Task<IPaymentTerm> DeletePaymentTermAsync(int number);
     }
 }

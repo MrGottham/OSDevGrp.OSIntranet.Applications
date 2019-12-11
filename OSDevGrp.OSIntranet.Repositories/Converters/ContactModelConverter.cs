@@ -13,6 +13,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
+            mapperConfiguration.CreateMap<ContactGroupModel, IContactGroup>()
+                .ConvertUsing(contactGroupModel => contactGroupModel.ToDomain());
+
+            mapperConfiguration.CreateMap<IContactGroup, ContactGroupModel>()
+                .ForMember(dest => dest.ContactGroupIdentifier, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
             mapperConfiguration.CreateMap<CountryModel, ICountry>()
                 .ConvertUsing(countryModel => countryModel.ToDomain());
 

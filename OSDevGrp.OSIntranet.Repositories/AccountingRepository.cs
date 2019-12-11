@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         public Task<IEnumerable<IAccounting>> GetAccountingsAsync()
         {
-            return Task.Run(() => GetAccountings());
+            return Task.Run(GetAccountings);
         }
 
         public Task<IAccounting> GetAccountingAsync(int number, DateTime statusDate)
@@ -67,7 +67,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         public Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync()
         {
-            return Task.Run(() => GetAccountGroups());
+            return Task.Run(GetAccountGroups);
         }
 
         public Task<IAccountGroup> GetAccountGroupAsync(int number)
@@ -96,7 +96,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         public Task<IEnumerable<IBudgetAccountGroup>> GetBudgetAccountGroupsAsync()
         {
-            return Task.Run(() => GetBudgetAccountGroups());
+            return Task.Run(GetBudgetAccountGroups);
         }
 
         public Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(int number)
@@ -123,27 +123,54 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => DeleteBudgetAccountGroup(number));
         }
 
+        public Task<IEnumerable<IPaymentTerm>> GetPaymentTermsAsync()
+        {
+            return Task.Run(GetPaymentTerms);
+        }
+
+        public Task<IPaymentTerm> GetPaymentTermAsync(int number)
+        {
+            return Task.Run(() => GetPaymentTerm(number));
+        }
+
+        public Task<IPaymentTerm> CreatePaymentTermAsync(IPaymentTerm paymentTerm)
+        {
+            NullGuard.NotNull(paymentTerm, nameof(paymentTerm));
+
+            return Task.Run(() => CreatePaymentTerm(paymentTerm));
+        }
+
+        public Task<IPaymentTerm> UpdatePaymentTermAsync(IPaymentTerm paymentTerm)
+        {
+            NullGuard.NotNull(paymentTerm, nameof(paymentTerm));
+
+            return Task.Run(() => UpdatePaymentTerm(paymentTerm));
+        }
+
+        public Task<IPaymentTerm> DeletePaymentTermAsync(int number)
+        {
+            return Task.Run(() => DeletePaymentTerm(number));
+        }
+
         private IEnumerable<IAccounting> GetAccountings()
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                    {
-                        return context.Accountings
-                            .Include(accountingModel => accountingModel.LetterHead)
-                            .AsParallel()
-                            .Select(accountingModel => 
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    return context.Accountings
+                        .Include(accountingModel => accountingModel.LetterHead)
+                        .AsParallel()
+                        .Select(accountingModel => 
+                        {
+                            using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                             {
-                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                                {
-                                    accountingModel.Deletable = CanDeleteAccounting(subContext, accountingModel.AccountingIdentifier);
-                                }
+                                accountingModel.Deletable = CanDeleteAccounting(subContext, accountingModel.AccountingIdentifier);
+                            }
 
-                                return _accountingModelConverter.Convert<AccountingModel, IAccounting>(accountingModel);
-                            })
-                            .OrderBy(accounting => accounting.Number)
-                            .ToList();
-                    }
+                            return _accountingModelConverter.Convert<AccountingModel, IAccounting>(accountingModel);
+                        })
+                        .OrderBy(accounting => accounting.Number)
+                        .ToList();
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -152,20 +179,18 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountingModel accountingModel = context.Accountings
+                        .Include(model => model.LetterHead)
+                        .SingleOrDefault(model => model.AccountingIdentifier == number);
+                    if (accountingModel == null)
                     {
-                        AccountingModel accountingModel = context.Accountings
-                            .Include(model => model.LetterHead)
-                            .SingleOrDefault(model => model.AccountingIdentifier == number);
-                        if (accountingModel == null)
-                        {
-                            return null;
-                        }
-
-                        accountingModel.Deletable = CanDeleteAccounting(context, accountingModel.AccountingIdentifier);
-
-                        return  _accountingModelConverter.Convert<AccountingModel, IAccounting>(accountingModel);
+                        return null;
                     }
+
+                    accountingModel.Deletable = CanDeleteAccounting(context, accountingModel.AccountingIdentifier);
+
+                    return  _accountingModelConverter.Convert<AccountingModel, IAccounting>(accountingModel);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -176,18 +201,16 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                    {
-                        AccountingModel accountingModel = _accountingModelConverter.Convert<IAccounting, AccountingModel>(accounting);
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountingModel accountingModel = _accountingModelConverter.Convert<IAccounting, AccountingModel>(accounting);
 
-                        accountingModel.LetterHead = context.LetterHeads.Single(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accountingModel.LetterHeadIdentifier);
+                    accountingModel.LetterHead = context.LetterHeads.Single(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accountingModel.LetterHeadIdentifier);
 
-                        context.Accountings.Add(accountingModel);
+                    context.Accountings.Add(accountingModel);
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        return GetAccounting(accounting.Number, DateTime.Today);
-                    }
+                    return GetAccounting(accounting.Number, DateTime.Today);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -198,26 +221,24 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountingModel accountingModel = context.Accountings
+                        .Include(model => model.LetterHead)
+                        .SingleOrDefault(model => model.AccountingIdentifier == accounting.Number);
+                    if (accountingModel == null)
                     {
-                        AccountingModel accountingModel = context.Accountings
-                            .Include(model => model.LetterHead)
-                            .SingleOrDefault(model => model.AccountingIdentifier == accounting.Number);
-                        if (accountingModel == null)
-                        {
-                            return null;
-                        }
-
-                        accountingModel.Name = accounting.Name;
-                        accountingModel.LetterHeadIdentifier = accounting.LetterHead.Number;
-                        accountingModel.LetterHead = context.LetterHeads.Single(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accounting.LetterHead.Number);
-                        accountingModel.BalanceBelowZero = accounting.BalanceBelowZero;
-                        accountingModel.BackDating = accounting.BackDating;
-
-                        context.SaveChanges();
-
-                        return GetAccounting(accounting.Number, DateTime.Today);
+                        return null;
                     }
+
+                    accountingModel.Name = accounting.Name;
+                    accountingModel.LetterHeadIdentifier = accounting.LetterHead.Number;
+                    accountingModel.LetterHead = context.LetterHeads.Single(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accounting.LetterHead.Number);
+                    accountingModel.BalanceBelowZero = accounting.BalanceBelowZero;
+                    accountingModel.BackDating = accounting.BackDating;
+
+                    context.SaveChanges();
+
+                    return GetAccounting(accounting.Number, DateTime.Today);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -226,27 +247,25 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountingModel accountingModel = context.Accountings
+                        .Include(model => model.LetterHead)
+                        .SingleOrDefault(model => model.AccountingIdentifier == number);
+                    if (accountingModel == null)
                     {
-                        AccountingModel accountingModel = context.Accountings
-                            .Include(model => model.LetterHead)
-                            .SingleOrDefault(model => model.AccountingIdentifier == number);
-                        if (accountingModel == null)
-                        {
-                            return null;
-                        }
-
-                        if (CanDeleteAccounting(context, accountingModel.AccountingIdentifier) == false)
-                        {
-                            return GetAccounting(accountingModel.AccountingIdentifier, DateTime.Today);
-                        }
-
-                        context.Accountings.Remove(accountingModel);
-
-                        context.SaveChanges();
-
                         return null;
                     }
+
+                    if (CanDeleteAccounting(context, accountingModel.AccountingIdentifier) == false)
+                    {
+                        return GetAccounting(accountingModel.AccountingIdentifier, DateTime.Today);
+                    }
+
+                    context.Accountings.Remove(accountingModel);
+
+                    context.SaveChanges();
+
+                    return null;
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -262,21 +281,19 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                    {
-                        return context.AccountGroups.AsParallel()
-                            .Select(accountGroupModel => 
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    return context.AccountGroups.AsParallel()
+                        .Select(accountGroupModel => 
+                        {
+                            using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                             {
-                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                                {
-                                    accountGroupModel.Deletable = CanDeleteAccountGroup(subContext, accountGroupModel.AccountGroupIdentifier);
-                                }
+                                accountGroupModel.Deletable = CanDeleteAccountGroup(subContext, accountGroupModel.AccountGroupIdentifier);
+                            }
 
-                                return _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
-                            })
-                            .OrderBy(accountGroup => accountGroup.Number)
-                            .ToList();
-                    }
+                            return _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
+                        })
+                        .OrderBy(accountGroup => accountGroup.Number)
+                        .ToList();
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -285,18 +302,16 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
+                    if (accountGroupModel == null)
                     {
-                        AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
-                        if (accountGroupModel == null)
-                        {
-                            return null;
-                        }
-
-                        accountGroupModel.Deletable = CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier);
-
-                        return  _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
+                        return null;
                     }
+
+                    accountGroupModel.Deletable = CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier);
+
+                    return  _accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountGroupModel);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -307,16 +322,14 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                    {
-                        AccountGroupModel accountGroupModel = _accountingModelConverter.Convert<IAccountGroup, AccountGroupModel>(accountGroup);
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountGroupModel accountGroupModel = _accountingModelConverter.Convert<IAccountGroup, AccountGroupModel>(accountGroup);
 
-                        context.AccountGroups.Add(accountGroupModel);
+                    context.AccountGroups.Add(accountGroupModel);
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        return GetAccountGroup(accountGroup.Number);
-                    }
+                    return GetAccountGroup(accountGroup.Number);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -327,21 +340,19 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountGroupModel accountGroupModel = context.AccountGroups.Find(accountGroup.Number);
+                    if (accountGroupModel == null)
                     {
-                        AccountGroupModel accountGroupModel = context.AccountGroups.Find(accountGroup.Number);
-                        if (accountGroupModel == null)
-                        {
-                            return null;
-                        }
-
-                        accountGroupModel.Name = accountGroup.Name;
-                        accountGroupModel.AccountGroupType = accountGroup.AccountGroupType;
-
-                        context.SaveChanges();
-
-                        return GetAccountGroup(accountGroup.Number);
+                        return null;
                     }
+
+                    accountGroupModel.Name = accountGroup.Name;
+                    accountGroupModel.AccountGroupType = accountGroup.AccountGroupType;
+
+                    context.SaveChanges();
+
+                    return GetAccountGroup(accountGroup.Number);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -350,25 +361,23 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
+                    if (accountGroupModel == null)
                     {
-                        AccountGroupModel accountGroupModel = context.AccountGroups.Find(number);
-                        if (accountGroupModel == null)
-                        {
-                            return null;
-                        }
-
-                        if (CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier) == false)
-                        {
-                            return GetAccountGroup(accountGroupModel.AccountGroupIdentifier);
-                        }
-
-                        context.AccountGroups.Remove(accountGroupModel);
-
-                        context.SaveChanges();
-
                         return null;
                     }
+
+                    if (CanDeleteAccountGroup(context, accountGroupModel.AccountGroupIdentifier) == false)
+                    {
+                        return GetAccountGroup(accountGroupModel.AccountGroupIdentifier);
+                    }
+
+                    context.AccountGroups.Remove(accountGroupModel);
+
+                    context.SaveChanges();
+
+                    return null;
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -384,21 +393,19 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                    {
-                        return context.BudgetAccountGroups.AsParallel()
-                            .Select(budgetAccountGroupModel => 
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    return context.BudgetAccountGroups.AsParallel()
+                        .Select(budgetAccountGroupModel => 
+                        {
+                            using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
                             {
-                                using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                                {
-                                    budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(subContext, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
-                                }
+                                budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(subContext, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+                            }
 
-                                return _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
-                            })
-                            .OrderBy(budgetAccountGroup => budgetAccountGroup.Number)
-                            .ToList();
-                    }
+                            return _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
+                        })
+                        .OrderBy(budgetAccountGroup => budgetAccountGroup.Number)
+                        .ToList();
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -407,18 +414,16 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
+                    if (budgetAccountGroupModel == null)
                     {
-                        BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
-                        if (budgetAccountGroupModel == null)
-                        {
-                            return null;
-                        }
-
-                        budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
-
-                        return  _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
+                        return null;
                     }
+
+                    budgetAccountGroupModel.Deletable = CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+
+                    return  _accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountGroupModel);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -429,16 +434,14 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
-                    {
-                        BudgetAccountGroupModel budgetAccountGroupModel = _accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>(budgetAccountGroup);
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    BudgetAccountGroupModel budgetAccountGroupModel = _accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>(budgetAccountGroup);
 
-                        context.BudgetAccountGroups.Add(budgetAccountGroupModel);
+                    context.BudgetAccountGroups.Add(budgetAccountGroupModel);
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        return GetBudgetAccountGroup(budgetAccountGroup.Number);
-                    }
+                    return GetBudgetAccountGroup(budgetAccountGroup.Number);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -449,20 +452,18 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(budgetAccountGroup.Number);
+                    if (budgetAccountGroupModel == null)
                     {
-                        BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(budgetAccountGroup.Number);
-                        if (budgetAccountGroupModel == null)
-                        {
-                            return null;
-                        }
-
-                        budgetAccountGroupModel.Name = budgetAccountGroup.Name;
-
-                        context.SaveChanges();
-
-                        return GetBudgetAccountGroup(budgetAccountGroup.Number);
+                        return null;
                     }
+
+                    budgetAccountGroupModel.Name = budgetAccountGroup.Name;
+
+                    context.SaveChanges();
+
+                    return GetBudgetAccountGroup(budgetAccountGroup.Number);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -471,30 +472,139 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return Execute(() =>
                 {
-                    using (AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
+                    if (budgetAccountGroupModel == null)
                     {
-                        BudgetAccountGroupModel budgetAccountGroupModel = context.BudgetAccountGroups.Find(number);
-                        if (budgetAccountGroupModel == null)
-                        {
-                            return null;
-                        }
-
-                        if (CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier) == false)
-                        {
-                            return GetBudgetAccountGroup(budgetAccountGroupModel.BudgetAccountGroupIdentifier);
-                        }
-
-                        context.BudgetAccountGroups.Remove(budgetAccountGroupModel);
-
-                        context.SaveChanges();
-
                         return null;
                     }
+
+                    if (CanDeleteBudgetAccountGroup(context, budgetAccountGroupModel.BudgetAccountGroupIdentifier) == false)
+                    {
+                        return GetBudgetAccountGroup(budgetAccountGroupModel.BudgetAccountGroupIdentifier);
+                    }
+
+                    context.BudgetAccountGroups.Remove(budgetAccountGroupModel);
+
+                    context.SaveChanges();
+
+                    return null;
                 },
                 MethodBase.GetCurrentMethod());
         }
 
         private bool CanDeleteBudgetAccountGroup(AccountingContext context, int budgetAccountGroupIdentifier)
+        {
+            NullGuard.NotNull(context, nameof(context));
+
+            return false;
+        }
+
+        private IEnumerable<IPaymentTerm> GetPaymentTerms()
+        {
+            return Execute(() =>
+                {
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    return context.PaymentTerms.AsParallel()
+                        .Select(paymentTermModel =>
+                        {
+                            using (AccountingContext subContext = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory))
+                            {
+                                paymentTermModel.Deletable = CanDeletePaymentTerm(subContext, paymentTermModel.PaymentTermIdentifier);
+                            }
+
+                            return _accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(paymentTermModel);
+                        })
+                        .OrderBy(paymentTerm => paymentTerm.Number)
+                        .ToList();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IPaymentTerm GetPaymentTerm(int number)
+        {
+            return Execute(() =>
+                {
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    PaymentTermModel paymentTermModel = context.PaymentTerms.Find(number);
+                    if (paymentTermModel == null)
+                    {
+                        return null;
+                    }
+
+                    paymentTermModel.Deletable = CanDeletePaymentTerm(context, paymentTermModel.PaymentTermIdentifier);
+
+                    return _accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(paymentTermModel);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IPaymentTerm CreatePaymentTerm(IPaymentTerm paymentTerm)
+        {
+            NullGuard.NotNull(paymentTerm, nameof(paymentTerm));
+
+            return Execute(() =>
+                {
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    PaymentTermModel paymentTermModel = _accountingModelConverter.Convert<IPaymentTerm, PaymentTermModel>(paymentTerm);
+
+                    context.PaymentTerms.Add(paymentTermModel);
+
+                    context.SaveChanges();
+
+                    return GetPaymentTerm(paymentTerm.Number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IPaymentTerm UpdatePaymentTerm(IPaymentTerm paymentTerm)
+        {
+            NullGuard.NotNull(paymentTerm, nameof(paymentTerm));
+
+            return Execute(() =>
+                {
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    PaymentTermModel paymentTermModel = context.PaymentTerms.Find(paymentTerm.Number);
+                    if (paymentTermModel == null)
+                    {
+                        return null;
+                    }
+
+                    paymentTermModel.Name = paymentTerm.Name;
+
+                    context.SaveChanges();
+
+                    return GetPaymentTerm(paymentTerm.Number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IPaymentTerm DeletePaymentTerm(int number)
+        {
+            return Execute(() =>
+                {
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    PaymentTermModel paymentTermModel = context.PaymentTerms.Find(number);
+                    if (paymentTermModel == null)
+                    {
+                        return null;
+                    }
+
+                    if (CanDeletePaymentTerm(context, paymentTermModel.PaymentTermIdentifier) == false)
+                    {
+                        return GetPaymentTerm(paymentTermModel.PaymentTermIdentifier);
+                    }
+
+                    context.PaymentTerms.Remove(paymentTermModel);
+
+                    context.SaveChanges();
+
+                    return null;
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private bool CanDeletePaymentTerm(AccountingContext context, int paymentTermIdentifier)
         {
             NullGuard.NotNull(context, nameof(context));
 
