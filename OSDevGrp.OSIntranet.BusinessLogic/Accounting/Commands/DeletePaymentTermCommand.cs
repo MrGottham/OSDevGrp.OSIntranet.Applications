@@ -1,0 +1,25 @@
+﻿using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+
+namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
+{
+    public class DeletePaymentTermCommand : PaymentTermIdentificationCommandBase, IDeletePaymentTermCommand
+    {
+        #region Methods
+
+        public override IValidator Validate(IValidator validator, IAccountingRepository accountingRepository)
+        {
+            NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(accountingRepository, nameof(accountingRepository));
+
+            return base.Validate(validator, accountingRepository)
+                .Object.ShouldBeKnownValue(Number, number => Task.Run(async () => await GetPaymentTermAsync(accountingRepository) != null), GetType(), nameof(Number))
+                .Object.ShouldBeDeletable(Number, number => GetPaymentTermAsync(accountingRepository), GetType(), nameof(Number));
+        }
+
+        #endregion
+    }
+}

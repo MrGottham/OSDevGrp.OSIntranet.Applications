@@ -17,8 +17,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
                 .NotNull(commonRepository, nameof(commonRepository));
 
             return base.Validate(validator, accountingRepository, commonRepository)
-                .Object.ShouldBeKnownValue(AccountingNumber, accountingNumber => Task.Run(() => GetAccountingAsync(accountingRepository) == null), GetType(), nameof(AccountingNumber))
-                .Object.ShouldBeDeletable(AccountingNumber, AccountingNumber => GetAccountingAsync(accountingRepository), GetType(), nameof(AccountingNumber));
+                .Object.ShouldBeKnownValue(AccountingNumber, accountingNumber => Task.Run(async () => await GetAccountingAsync(accountingRepository) != null), GetType(), nameof(AccountingNumber))
+                .Object.ShouldBeDeletable(AccountingNumber, accountingNumber => GetAccountingAsync(accountingRepository), GetType(), nameof(AccountingNumber));
         }
 
         #endregion

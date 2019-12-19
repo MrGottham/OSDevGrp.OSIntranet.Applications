@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
 {
-    public class DeleteCountryCommand : CountryIdentificationCommandBase, IDeleteCountryCommand
+    public class DeleteContactGroupCommand : ContactGroupIdentificationCommandBase, IDeleteContactGroupCommand
     {
         #region Methods
 
@@ -16,8 +16,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
                 .NotNull(contactRepository, nameof(contactRepository));
 
             return base.Validate(validator, contactRepository)
-                .Object.ShouldBeKnownValue(CountryCode, countryCode => Task.Run(async () => await GetCountryAsync(contactRepository) != null), GetType(), nameof(CountryCode))
-                .Object.ShouldBeDeletable(CountryCode, countryCode => GetCountryAsync(contactRepository), GetType(), nameof(CountryCode));
+                .Object.ShouldBeKnownValue(Number, number => Task.Run(async () => await GetContactGroupAsync(contactRepository) != null), GetType(), nameof(Number))
+                .Object.ShouldBeDeletable(Number, number => GetContactGroupAsync(contactRepository), GetType(), nameof(Number));
         }
 
         #endregion

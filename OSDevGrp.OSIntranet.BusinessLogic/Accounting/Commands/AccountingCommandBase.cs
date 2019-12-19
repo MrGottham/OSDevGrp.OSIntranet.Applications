@@ -44,8 +44,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
                 .String.ShouldNotBeNullOrWhiteSpace(Name, GetType(), nameof(Name))
                 .String.ShouldHaveMinLength(Name, 1, GetType(), nameof(Name))
                 .String.ShouldHaveMaxLength(Name, 256, GetType(), nameof(Name))
-                .Integer.ShouldBeBetween(LetterHeadNumber, 1, 99, GetType(), nameof(LetterHeadNumber))
-                .Object.ShouldBeKnownValue(LetterHeadNumber, letterHeadNumber => Task.Run(() => GetLetterHead(commonRepository) != null), GetType(), nameof(LetterHeadNumber))
+                .ValidateLetterHeadIdentifier(LetterHeadNumber, GetType(), nameof(LetterHeadNumber))
+                .Object.ShouldBeKnownValue(LetterHeadNumber, letterHeadNumber => Task.Run(async () => await GetLetterHead(commonRepository) != null), GetType(), nameof(LetterHeadNumber))
                 .Object.ShouldBeKnownValue(BalanceBelowZero, IsKnownBalanceBelowZeroType, GetType(), nameof(BalanceBelowZero))
                 .Integer.ShouldBeGreaterThanOrEqualToZero(BackDating, GetType(), nameof(BackDating));
         }

@@ -158,12 +158,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
                 .Returns(validatorMock.Object);
             objectValidatorMock.Setup(m => m.ShouldNotBeNull(It.IsAny<T>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
-            
+
+            SetupShouldBeDeletable<T, IContactGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ICountry>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPostalCode>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IAccounting>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IPaymentTerm>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
         }
 
