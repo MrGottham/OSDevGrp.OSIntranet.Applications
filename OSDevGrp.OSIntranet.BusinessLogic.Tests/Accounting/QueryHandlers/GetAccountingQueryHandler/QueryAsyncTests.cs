@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         private Mock<IValidator> _validatorMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
+        private Mock<IAccountingHelper> _accountingHelperMock;
         private Fixture _fixture;
 
         #endregion
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         {
             _validatorMock = new Mock<IValidator>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
+            _accountingHelperMock = new Mock<IAccountingHelper>();
 
             _fixture = new Fixture();
             _fixture.Customize<ILetterHead>(builder => builder.FromFactory(() => _fixture.BuildLetterHeadMock().Object));
@@ -104,7 +107,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsAccountingFromAccountingRepository()
+        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnAccountingHelper()
+        {
+            IAccounting accounting = _fixture.Create<IAccounting>();
+            QueryHandler sut = CreateSut(accounting);
+
+            IGetAccountingQuery query = CreateQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            _accountingHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IAccounting>(value => value == accounting)), Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_ReturnsAccountingFromAccountingHelper()
         {
             IAccounting accounting = _fixture.Create<IAccounting>();
             QueryHandler sut = CreateSut(accounting);
@@ -117,10 +133,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         private QueryHandler CreateSut(IAccounting accounting = null)
         {
-             _accountingRepositoryMock.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
+            _accountingRepositoryMock.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
                 .Returns(Task.Run(() => accounting ?? _fixture.Create<IAccounting>()));
+            _accountingHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<IAccounting>()))
+                .Returns(accounting ?? _fixture.Create<IAccounting>());
 
-           return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
+            return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object, _accountingHelperMock.Object);
         }
 
         private Mock<IGetAccountingQuery> CreateQueryMock(int? accountingNumber = null, DateTime? statusDate = null)

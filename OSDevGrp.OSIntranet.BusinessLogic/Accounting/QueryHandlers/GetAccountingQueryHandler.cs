@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -14,18 +15,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
         private readonly IValidator _validator;
         private readonly IAccountingRepository _accountingRepository;
+        private readonly IAccountingHelper _accountingHelper;
 
         #endregion
 
         #region Constructor
 
-        public GetAccountingQueryHandler(IValidator validator, IAccountingRepository accountingRepository)
+        public GetAccountingQueryHandler(IValidator validator, IAccountingRepository accountingRepository, IAccountingHelper accountingHelper)
         {
             NullGuard.NotNull(validator, nameof(validator))
-                .NotNull(accountingRepository, nameof(accountingRepository));
+                .NotNull(accountingRepository, nameof(accountingRepository))
+                .NotNull(accountingHelper, nameof(accountingHelper));
 
             _validator = validator;
             _accountingRepository = accountingRepository;
+            _accountingHelper = accountingHelper;
         }
 
         #endregion
@@ -38,7 +42,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
             query.Validate(_validator, _accountingRepository);
 
-            return await _accountingRepository.GetAccountingAsync(query.AccountingNumber, query.StatusDate);
+            IAccounting accounting = await _accountingRepository.GetAccountingAsync(query.AccountingNumber, query.StatusDate);
+
+            return _accountingHelper.ApplyLogicForPrincipal(accounting);
         }
 
         #endregion

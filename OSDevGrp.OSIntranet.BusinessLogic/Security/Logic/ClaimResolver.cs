@@ -41,6 +41,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             return countryCodeClaim.Value;
         }
 
+        public int? GetAccountingNumber()
+        {
+            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
+
+            Claim accountingClaim = currentPrincipal.GetClaim(ClaimHelper.AccountingClaimType);
+            if (accountingClaim == null || int.TryParse(accountingClaim.Value, out int accoutingNumber) == false)
+            {
+                return null;
+            }
+
+            return accoutingNumber;
+        }
+
         #endregion
     }
 }

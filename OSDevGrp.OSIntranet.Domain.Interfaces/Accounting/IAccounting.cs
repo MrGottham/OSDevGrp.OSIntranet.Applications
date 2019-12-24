@@ -15,5 +15,9 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         BalanceBelowZeroType BalanceBelowZero { get; set; }
 
         int BackDating { get; set; }
+
+        bool DefaultForPrincipal { get; }
+
+        void ApplyDefaultForPrincipal(int? defaultAccountingNumber);
     }
 }

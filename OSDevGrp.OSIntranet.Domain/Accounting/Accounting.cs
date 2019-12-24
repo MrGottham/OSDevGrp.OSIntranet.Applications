@@ -58,6 +58,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool Deletable { get; private set; }
 
+        public bool DefaultForPrincipal { get; private set; }
+
         #endregion
 
         #region Methods
@@ -70,6 +72,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         public void DisallowDeletion()
         {
             Deletable = false;
+        }
+
+        public void ApplyDefaultForPrincipal(int? defaultAccountingNumber)
+        {
+            DefaultForPrincipal = defaultAccountingNumber.HasValue && defaultAccountingNumber.Value == Number;
         }
 
         #endregion

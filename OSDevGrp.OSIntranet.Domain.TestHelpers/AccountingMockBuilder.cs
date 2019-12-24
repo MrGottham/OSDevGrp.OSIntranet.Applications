@@ -26,6 +26,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<int>());
             accountingMock.Setup(m => m.Deletable)
                 .Returns(fixture.Create<bool>());
+            accountingMock.Setup(m => m.DefaultForPrincipal)
+                .Returns(fixture.Create<bool>());
             accountingMock.Setup(m => m.CreatedDateTime)
                 .Returns(fixture.Create<DateTime>());
             accountingMock.Setup(m => m.CreatedByIdentifier)

@@ -3,5 +3,7 @@
     public interface IClaimResolver
     {
         string GetCountryCode();
+
+        int? GetAccountingNumber();
     }
 }

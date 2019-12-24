@@ -11,7 +11,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
     [TestFixture]
-    public class GetCountryCode
+    public class GetAccountingNumberTests
     {
         #region Private variables
 
@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetCountryCode_WhenCalled_AssertGetCurrentPrincipalWasCalledOnPrincipalResolver()
+        public void GetAccountingNumber_WhenCalled_AssertGetCurrentPrincipalWasCalledOnPrincipalResolver()
         {
             IClaimResolver sut = CreateSut();
 
@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetCountryCode_WhenCalledAndPrincipalDoesNotHaveCountryCodeClaim_ReturnsNull()
+        public void GetAccountingNumber_WhenCalledAndPrincipalDoesNotHaveAccountingClaim_ReturnsNull()
         {
             IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
             IClaimResolver sut = CreateSut(principal);
@@ -52,15 +52,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetCountryCode_WhenCalledAndPrincipalHasCountryCodeClaim_ReturnsCountryCode()
+        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaim_ReturnsAccoutingNumber()
         {
-            string countryCode = _fixture.Create<string>();
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCountryCodeClaim(countryCode)});
+            int accountingNumber = _fixture.Create<int>();
+            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim(accountingNumber)});
             IClaimResolver sut = CreateSut(principal);
 
-            string result = sut.GetCountryCode();
+            int? result = sut.GetAccountingNumber();
 
-            Assert.That(result, Is.EqualTo(countryCode));
+            Assert.That(result, Is.EqualTo(accountingNumber));
         }
 
         private IClaimResolver CreateSut(IPrincipal principal = null)
