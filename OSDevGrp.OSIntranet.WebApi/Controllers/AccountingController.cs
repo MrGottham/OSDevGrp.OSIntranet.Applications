@@ -47,9 +47,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Methods
 
-        // ReSharper disable StringLiteralTypo
         [HttpGet("accountgroups")]
-        // ReSharper restore StringLiteralTypo
         public async Task<ActionResult<IEnumerable<AccountGroupModel>>> AccountGroupsAsync()
         {
             try
@@ -73,9 +71,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             }
         }
 
-        // ReSharper disable StringLiteralTypo
         [HttpGet("budgetaccountgroups")]
-        // ReSharper restore StringLiteralTypo
         public async Task<ActionResult<IEnumerable<BudgetAccountGroupModel>>> BudgetAccountGroupsAsync()
         {
             try
@@ -88,6 +84,30 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     .ToList();
 
                 return new OkObjectResult(budgetAccountGroupModels);
+            }
+            catch (IntranetExceptionBase ex)
+            {
+                return BadRequest(_coreModelConverter.Convert<IntranetExceptionBase, ErrorModel>(ex));
+            }
+            catch (AggregateException ex)
+            {
+                return BadRequest(ex.ToErrorModel(_coreModelConverter));
+            }
+        }
+
+        [HttpGet("paymentterms")]
+        public async Task<ActionResult<IEnumerable<PaymentTermModel>>> PaymentTermsAsync()
+        {
+            try
+            {
+                IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
+
+                IEnumerable<PaymentTermModel> paymentTermModels = paymentTerms.AsParallel()
+                    .Select(paymentTerm => _accountingModelConverter.Convert<IPaymentTerm, PaymentTermModel>(paymentTerm))
+                    .OrderBy(paymentTermModel => paymentTermModel.Number)
+                    .ToList();
+
+                return new OkObjectResult(paymentTermModels);
             }
             catch (IntranetExceptionBase ex)
             {

@@ -16,6 +16,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 
             mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupModel>();
 
+            mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermModel>();
+
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
         }
 
