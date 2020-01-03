@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,7 +35,11 @@ namespace OSDevGrp.OSIntranet.WebApi
         {
             NullGuard.NotNull(services, nameof(services));
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(opt => 
+            {
+                opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                opt.JsonSerializerOptions.IgnoreNullValues = true;
+            });
 
             services.AddApiVersioning(opt => opt.ApiVersionReader = new HeaderApiVersionReader());
 
@@ -59,6 +64,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             {
                 opt.AddPolicy("SecurityAdmin", policy => policy.RequireClaim(ClaimHelper.SecurityAdminClaimType));
                 opt.AddPolicy("Accounting", policy => policy.RequireClaim(ClaimHelper.AccountingClaimType));
+                opt.AddPolicy("CommonData", policy => policy.RequireClaim(ClaimHelper.CommonDataClaimType));
             });
 
             services.AddHealthChecks();
