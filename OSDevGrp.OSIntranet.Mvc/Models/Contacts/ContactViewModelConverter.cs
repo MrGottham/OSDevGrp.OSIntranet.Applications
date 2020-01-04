@@ -14,6 +14,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
+            mapperConfiguration.CreateMap<IContactGroup, ContactGroupViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<ContactGroupViewModel, CreateContactGroupCommand>();
+            mapperConfiguration.CreateMap<ContactGroupViewModel, UpdateContactGroupCommand>();
+            mapperConfiguration.CreateMap<ContactGroupViewModel, DeleteContactGroupCommand>();
+
             mapperConfiguration.CreateMap<ICountry, CountryViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 

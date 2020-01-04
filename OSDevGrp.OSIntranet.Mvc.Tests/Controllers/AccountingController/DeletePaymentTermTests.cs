@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -11,7 +11,7 @@ using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 {
     [TestFixture]
-    public class DeleteAccountGroupTests
+    public class DeletePaymentTermTests
     {
         #region Private variables
 
@@ -31,52 +31,52 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public async Task DeleteAccountGroup_WhenCalledWithNumber_AssertPublishAsyncWasCalledOnCommandBus()
+        public async Task DeletePaymentTerm_WhenCalledWithNumber_AssertPublishAsyncWasCalledOnCommandBus()
         {
             Controller sut = CreateSut();
 
             int number = _fixture.Create<int>();
-            await sut.DeleteAccountGroup(number);
+            await sut.DeletePaymentTerm(number);
 
-            _commandBusMock.Verify(m => m.PublishAsync(It.Is<IDeleteAccountGroupCommand>(value => value.Number == number)), Times.Once);
+            _commandBusMock.Verify(m => m.PublishAsync(It.Is<IDeletePaymentTermCommand>(value => value.Number == number)), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task DeleteAccountGroup_WhenCalledWithNumber_ReturnsRedirectToActionResult()
+        public async Task DeletePaymentTerm_WhenCalledWithNumber_ReturnsRedirectToActionResult()
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.DeleteAccountGroup(_fixture.Create<int>());
+            IActionResult result = await sut.DeletePaymentTerm(_fixture.Create<int>());
 
             Assert.That(result, Is.TypeOf<RedirectToActionResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task DeleteAccountGroup_WhenCalledWithNumber_ReturnsRedirectToActionResultWhereControllerNameIsEqualToAccounting()
+        public async Task DeletePaymentTerm_WhenCalledWithNumber_ReturnsRedirectToActionResultWhereControllerNameIsEqualToAccounting()
         {
             Controller sut = CreateSut();
 
-            RedirectToActionResult result = (RedirectToActionResult) await sut.DeleteAccountGroup(_fixture.Create<int>());
+            RedirectToActionResult result = (RedirectToActionResult) await sut.DeletePaymentTerm(_fixture.Create<int>());
 
             Assert.That(result.ControllerName, Is.EqualTo("Accounting"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task DeleteAccountGroup_WhenCalledWithNumber_ReturnsRedirectToActionResultWhereActionNameIsEqualToAccountGroups()
+        public async Task DeletePaymentTerm_WhenCalledWithNumber_ReturnsRedirectToActionResultWhereActionNameIsEqualToPaymentTerms()
         {
             Controller sut = CreateSut();
 
-            RedirectToActionResult result = (RedirectToActionResult) await sut.DeleteAccountGroup(_fixture.Create<int>());
+            RedirectToActionResult result = (RedirectToActionResult) await sut.DeletePaymentTerm(_fixture.Create<int>());
 
-            Assert.That(result.ActionName, Is.EqualTo("AccountGroups"));
+            Assert.That(result.ActionName, Is.EqualTo("PaymentTerms"));
         }
 
         private Controller CreateSut()
         {
-            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteAccountGroupCommand>()))
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IUpdateAccountingCommand>()))
                 .Returns(Task.Run(() => { }));
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object);

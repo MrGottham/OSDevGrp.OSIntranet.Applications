@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             BudgetAccountGroupViewModel model = CreateModel();
             await sut.CreateBudgetAccountGroup(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<ICreateBudgetAccountGroupCommand>(It.IsAny<ICreateBudgetAccountGroupCommand>()), Times.Never);
+            _commandBusMock.Verify(m => m.PublishAsync(It.IsAny<ICreateBudgetAccountGroupCommand>()), Times.Never);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             BudgetAccountGroupViewModel model = CreateModel();
             await sut.CreateBudgetAccountGroup(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<ICreateBudgetAccountGroupCommand>(It.Is<ICreateBudgetAccountGroupCommand>(command => command.Number == model.Number && string.Compare(command.Name, model.Name, false) == 0)), Times.Once);
+            _commandBusMock.Verify(m => m.PublishAsync(It.Is<ICreateBudgetAccountGroupCommand>(command => command.Number == model.Number && string.CompareOrdinal(command.Name, model.Name) == 0)), Times.Once);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public async Task CreateBudgetAccountGroup_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereContollerNameIsEqualToAccounting()
+        public async Task CreateBudgetAccountGroup_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereControllerNameIsEqualToAccounting()
         {
             Controller sut = CreateSut();
 
@@ -185,7 +185,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         private Controller CreateSut(bool modelIsValid = true)
         {
-            _commandBusMock.Setup(m => m.PublishAsync<ICreateBudgetAccountGroupCommand>(It.IsAny<ICreateBudgetAccountGroupCommand>()))
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateBudgetAccountGroupCommand>()))
                 .Returns(Task.Run(() => { }));
 
             Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);

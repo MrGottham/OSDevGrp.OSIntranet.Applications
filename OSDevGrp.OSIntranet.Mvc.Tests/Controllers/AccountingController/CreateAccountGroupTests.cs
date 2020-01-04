@@ -93,7 +93,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             AccountGroupViewModel model = CreateModel();
             await sut.CreateAccountGroup(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<ICreateAccountGroupCommand>(It.IsAny<ICreateAccountGroupCommand>()), Times.Never);
+            _commandBusMock.Verify(m => m.PublishAsync(It.IsAny<ICreateAccountGroupCommand>()), Times.Never);
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             AccountGroupViewModel model = CreateModel();
             await sut.CreateAccountGroup(model);
 
-            _commandBusMock.Verify(m => m.PublishAsync<ICreateAccountGroupCommand>(It.Is<ICreateAccountGroupCommand>(command => command.Number == model.Number && string.Compare(command.Name, model.Name, false) == 0 && string.Compare(Convert.ToString(command.AccountGroupType), Convert.ToString(model.AccountGroupType), false) == 0)), Times.Once);
+            _commandBusMock.Verify(m => m.PublishAsync(It.Is<ICreateAccountGroupCommand>(command => command.Number == model.Number && string.CompareOrdinal(command.Name, model.Name) == 0 && string.CompareOrdinal(Convert.ToString(command.AccountGroupType), Convert.ToString(model.AccountGroupType)) == 0)), Times.Once);
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public async Task CreateAccountGroup_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereContollerNameIsEqualToAccounting()
+        public async Task CreateAccountGroup_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereControllerNameIsEqualToAccounting()
         {
             Controller sut = CreateSut();
 
@@ -186,7 +186,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         private Controller CreateSut(bool modelIsValid = true)
         {
-            _commandBusMock.Setup(m => m.PublishAsync<ICreateAccountGroupCommand>(It.IsAny<ICreateAccountGroupCommand>()))
+            _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateAccountGroupCommand>()))
                 .Returns(Task.Run(() => { }));
 
             Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);

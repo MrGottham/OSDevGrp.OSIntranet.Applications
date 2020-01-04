@@ -85,15 +85,15 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return budgetAccountGroupMock;
         }
 
-        public static Mock<IPaymentTerm> BuildPaymentTermMock(this Fixture fixture)
+        public static Mock<IPaymentTerm> BuildPaymentTermMock(this Fixture fixture, int? number = null, string name = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IPaymentTerm> paymentTermMock = new Mock<IPaymentTerm>();
             paymentTermMock.Setup(m => m.Number)
-                .Returns(fixture.Create<int>());
+                .Returns(number ?? fixture.Create<int>());
             paymentTermMock.Setup(m => m.Name)
-                .Returns(fixture.Create<string>());
+                .Returns(name ?? fixture.Create<string>());
             return paymentTermMock;
         }
     }

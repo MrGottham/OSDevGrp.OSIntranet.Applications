@@ -45,6 +45,92 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         #region Methods
 
         [HttpGet]
+        public async Task<IActionResult> ContactGroups()
+        {
+            IEnumerable<IContactGroup> contactGroups =  await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IContactGroup>>(new EmptyQuery());
+
+            IEnumerable<ContactGroupViewModel> contactGroupViewModels = contactGroups.AsParallel()
+                .Select(contactGroup => _contactViewModelConverter.Convert<IContactGroup, ContactGroupViewModel>(contactGroup))
+                .OrderBy(contactGroupViewModel => contactGroupViewModel.Number)
+                .ToList();
+
+            return View("ContactGroups", contactGroupViewModels);
+        }
+
+        [HttpGet]
+        public IActionResult CreateContactGroup()
+        {
+            ContactGroupViewModel contactGroupViewModel = new ContactGroupViewModel
+            {
+                EditMode = EditMode.Create
+            };
+
+            return View("CreateContactGroup", contactGroupViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateContactGroup(ContactGroupViewModel contactGroupViewModel)
+        {
+            NullGuard.NotNull(contactGroupViewModel, nameof(contactGroupViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("CreateContactGroup", contactGroupViewModel);
+            }
+
+            ICreateContactGroupCommand command = _contactViewModelConverter.Convert<ContactGroupViewModel, CreateContactGroupCommand>(contactGroupViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("ContactGroups", "Contact");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateContactGroup(int number)
+        {
+            IGetContactGroupQuery query = new GetContactGroupQuery
+            {
+                Number = number
+            };
+            IContactGroup contactGroup = await _queryBus.QueryAsync<IGetContactGroupQuery, IContactGroup>(query);
+
+            ContactGroupViewModel contactGroupViewModel = _contactViewModelConverter.Convert<IContactGroup, ContactGroupViewModel>(contactGroup);
+            contactGroupViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdateContactGroup", contactGroupViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateContactGroup(ContactGroupViewModel contactGroupViewModel)
+        {
+            NullGuard.NotNull(contactGroupViewModel, nameof(contactGroupViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdateContactGroup", contactGroupViewModel);
+            }
+
+            IUpdateContactGroupCommand command = _contactViewModelConverter.Convert<ContactGroupViewModel, UpdateContactGroupCommand>(contactGroupViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("ContactGroups", "Contact");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteContactGroup(int number)
+        {
+            IDeleteContactGroupCommand command = new DeleteContactGroupCommand
+            {
+                Number = number
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("ContactGroups", "Contact");
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Countries()
         {
             IEnumerable<CountryViewModel> countryViewModels = await GetCountryViewModels();

@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers;
@@ -18,6 +21,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
@@ -32,6 +36,8 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Core.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -61,20 +67,39 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
             ICommonRepository commonRepository = new CommonRepository(configuration, principalResolver, loggerFactory);
             IContactRepository contactRepository = new ContactRepository(configuration, principalResolver, loggerFactory);
+            IAccountingRepository accountingRepository = new AccountingRepository(configuration, principalResolver, loggerFactory);
 
             ICommandHandler<ICreateLetterHeadCommand> createLetterHeadCommandHandler = new CreateLetterHeadCommandHandler(validator, commonRepository);
-            ICommandHandler<ICreatePostalCodeCommand> createPostalCodeCommand = new CreatePostalCodeCommandHandler(validator, contactRepository);
-            _commandBus = new CommandBus(new ICommandHandler[] {createLetterHeadCommandHandler, createPostalCodeCommand});
+            ICommandHandler<ICreateContactGroupCommand> createContactGroupCommandHandler = new CreateContactGroupCommandHandler(validator, contactRepository);
+            ICommandHandler<ICreatePostalCodeCommand> createPostalCodeCommandHandler = new CreatePostalCodeCommandHandler(validator, contactRepository);
+            ICommandHandler<ICreateAccountingCommand> createAccountingCommandHandler = new CreateAccountingCommandHandler(validator, accountingRepository, commonRepository);
+            ICommandHandler<IUpdateAccountingCommand> updateAccountingCommandHandler = new UpdateAccountingCommandHandler(validator, accountingRepository, commonRepository);
+            ICommandHandler<ICreatePaymentTermCommand> createPaymentTermCommandHandler = new CreatePaymentTermCommandHandler(validator, accountingRepository);
+            _commandBus = new CommandBus(new ICommandHandler[]
+            {
+                createLetterHeadCommandHandler,
+                createContactGroupCommandHandler,
+                createPostalCodeCommandHandler, 
+                createAccountingCommandHandler,
+                updateAccountingCommandHandler,
+                createPaymentTermCommandHandler
+            });
 
             IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(contactRepository, countryHelper);
             IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(validator, contactRepository, countryHelper);
-            _queryBus = new QueryBus(new IQueryHandler[] {getCountryCollectionQueryHandler, getPostalCodeQueryHandler});
+            IQueryHandler<EmptyQuery, IEnumerable<IAccounting>> getAccountingCollectionQueryHandler = new GetAccountingCollectionQueryHandler(accountingRepository);
+            _queryBus = new QueryBus(new IQueryHandler[]
+            {
+                getCountryCollectionQueryHandler,
+                getPostalCodeQueryHandler,
+                getAccountingCollectionQueryHandler
+            });
         }
 
         [Test]
         [Category("DataImport")]
         [TestCase("LetterHeads.csv")]
-        [Ignore("Test which imports data should only be run once")]
+        [Ignore("Test which imports data and should only be run once")]
         public async Task Import_LetterHeads_FromFile(string fileName)
         {
             await ImportFromFile(fileName, Encoding.UTF7, async (lineNumber, line) =>
@@ -105,8 +130,40 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
         [Test]
         [Category("DataImport")]
+        [TestCase("ContactGroups.xml")] 
+        [Ignore("Test which imports data and should only be run once")]
+        public async Task Import_ContactGroups_FromFile(string fileName)
+        {
+            XmlDocument contactGroupDocument = new XmlDocument();
+            contactGroupDocument.Load(fileName);
+
+            XmlNodeList contactGroupNodeList = contactGroupDocument.DocumentElement.SelectNodes("ContactGroup");
+            foreach (XmlElement contactGroupElement in contactGroupNodeList.OfType<XmlElement>())
+            {
+                if (int.TryParse(contactGroupElement.GetAttribute("number"), out int contactGroupNumber) == false)
+                {
+                    continue;
+                }
+
+                string contactGroupName = contactGroupElement.GetAttribute("name");
+                if (string.IsNullOrWhiteSpace(contactGroupName))
+                {
+                    continue;
+                }
+
+                ICreateContactGroupCommand createContactGroupCommand = new CreateContactGroupCommand
+                {
+                    Number = contactGroupNumber,
+                    Name = contactGroupName
+                };
+                await _commandBus.PublishAsync(createContactGroupCommand);
+            }
+        }
+
+        [Test]
+        [Category("DataImport")]
         [TestCase("PostalCodes.xml")]
-        [Ignore("Test which imports data should only be run once")]
+        [Ignore("Test which imports data and should only be run once")]
         public async Task Import_PostalCodes_FromFile(string fileName)
         {
             XmlDocument postalCodeDocument = new XmlDocument();
@@ -147,6 +204,94 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     State = GetAttributeValue(postalCodeElement, "state")
                 };
                 await _commandBus.PublishAsync(command);
+            }
+        }
+
+        [Test]
+        [Category("DataImport")]
+        [TestCase("Accountings.xml")] 
+        [Ignore("Test which imports data and should only be run once")]
+        public async Task Import_Accountings_FromFile(string fileName)
+        {
+            XmlDocument accountingDocument = new XmlDocument();
+            accountingDocument.Load(fileName);
+
+            IDictionary<int, IAccounting> accountingDictionary = (await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery())).ToDictionary(accounting => accounting.Number, accounting => accounting);
+
+            XmlNodeList accountingNodeList = accountingDocument.DocumentElement.SelectNodes("Accounting");
+            foreach (XmlElement accountingElement in accountingNodeList.OfType<XmlElement>())
+            {
+                if (int.TryParse(accountingElement.GetAttribute("number"), out int accountingNumber) == false)
+                {
+                    continue;
+                }
+
+                string accountingName = accountingElement.GetAttribute("name");
+                if (string.IsNullOrWhiteSpace(accountingName))
+                {
+                    continue;
+                }
+
+                if (int.TryParse(accountingElement.GetAttribute("letterHeadNumber"), out int letterHeadNumber) == false)
+                {
+                    continue;
+                }
+
+                if (accountingDictionary.ContainsKey(accountingNumber))
+                {
+                    IUpdateAccountingCommand updateAccountingCommand = new UpdateAccountingCommand
+                    {
+                        AccountingNumber = accountingNumber,
+                        Name = accountingName,
+                        LetterHeadNumber = letterHeadNumber,
+                        BalanceBelowZero = accountingDictionary[accountingNumber].BalanceBelowZero,
+                        BackDating = accountingDictionary[accountingNumber].BackDating
+                    };
+                    await _commandBus.PublishAsync(updateAccountingCommand);
+                    continue;
+                }
+
+                ICreateAccountingCommand createAccountingCommand = new CreateAccountingCommand
+                {
+                    AccountingNumber = accountingNumber,
+                    Name = accountingName,
+                    LetterHeadNumber = letterHeadNumber,
+                    BalanceBelowZero = BalanceBelowZeroType.Debtors,
+                    BackDating = 30
+                };
+                await _commandBus.PublishAsync(createAccountingCommand);
+            }
+        }
+
+        [Test]
+        [Category("DataImport")]
+        [TestCase(@"PaymentTerms.xml")]
+        [Ignore("Test which imports data and should only be run once")]
+        public async Task Import_PaymentTerms_FromFile(string fileName)
+        {
+            XmlDocument paymentTermDocument = new XmlDocument();
+            paymentTermDocument.Load(fileName);
+
+            XmlNodeList paymentTermNodeList = paymentTermDocument.DocumentElement.SelectNodes("PaymentTerm");
+            foreach (XmlElement paymentTermElement in paymentTermNodeList.OfType<XmlElement>())
+            {
+                if (int.TryParse(paymentTermElement.GetAttribute("number"), out int paymentTermNumber) == false)
+                {
+                    continue;
+                }
+
+                string paymentTermName = paymentTermElement.GetAttribute("name");
+                if (string.IsNullOrWhiteSpace(paymentTermName))
+                {
+                    continue;
+                }
+
+                ICreatePaymentTermCommand createPaymentTermCommand = new CreatePaymentTermCommand
+                {
+                    Number = paymentTermNumber,
+                    Name = paymentTermName
+                };
+                await _commandBus.PublishAsync(createPaymentTermCommand);
             }
         }
 

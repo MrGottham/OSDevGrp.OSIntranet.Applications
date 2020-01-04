@@ -158,15 +158,15 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return postalCodeMock;
         }
 
-        public static Mock<IContactGroup> BuildContactGroupMock(this Fixture fixture)
+        public static Mock<IContactGroup> BuildContactGroupMock(this Fixture fixture, int? number = null, string name = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IContactGroup> contactGroupMock = new Mock<IContactGroup>();
             contactGroupMock.Setup(m => m.Number)
-                .Returns(fixture.Create<int>());
+                .Returns(number ?? fixture.Create<int>());
             contactGroupMock.Setup(m => m.Name)
-                .Returns(fixture.Create<string>());
+                .Returns(name ?? fixture.Create<string>());
             return contactGroupMock;
         }
     }

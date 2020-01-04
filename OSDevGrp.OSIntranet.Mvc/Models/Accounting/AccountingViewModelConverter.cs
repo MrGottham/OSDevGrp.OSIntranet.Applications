@@ -30,6 +30,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
             mapperConfiguration.CreateMap<AccountGroupType, Domain.Interfaces.Accounting.Enums.AccountGroupType>();
+
+            mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<PaymentTermViewModel, CreatePaymentTermCommand>();
+            mapperConfiguration.CreateMap<PaymentTermViewModel, UpdatePaymentTermCommand>();
+            mapperConfiguration.CreateMap<PaymentTermViewModel, DeletePaymentTermCommand>();
+
         }
 
         #endregion

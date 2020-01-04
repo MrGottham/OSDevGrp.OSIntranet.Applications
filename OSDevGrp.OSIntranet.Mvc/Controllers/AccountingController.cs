@@ -125,7 +125,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             {
                 Number = number
             };
-            await _commandBus.PublishAsync<IDeleteAccountGroupCommand>(command);
+            await _commandBus.PublishAsync(command);
 
             return RedirectToAction("AccountGroups", "Accounting");
         }
@@ -211,9 +211,95 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             {
                 Number = number
             };
-            await _commandBus.PublishAsync<IDeleteBudgetAccountGroupCommand>(command);
+            await _commandBus.PublishAsync(command);
 
             return RedirectToAction("BudgetAccountGroups", "Accounting");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaymentTerms()
+        {
+            IEnumerable<IPaymentTerm> paymentTerms =  await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
+
+            IEnumerable<PaymentTermViewModel> paymentTermViewModels = paymentTerms.AsParallel()
+                .Select(paymentTerm => _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm))
+                .OrderBy(paymentTermViewModel => paymentTermViewModel.Number)
+                .ToList();
+
+            return View("PaymentTerms", paymentTermViewModels);
+        }
+
+        [HttpGet]
+        public IActionResult CreatePaymentTerm()
+        {
+            PaymentTermViewModel paymentTermViewModel = new PaymentTermViewModel
+            {
+                EditMode = EditMode.Create
+            };
+
+            return View("CreatePaymentTerm", paymentTermViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePaymentTerm(PaymentTermViewModel paymentTermViewModel)
+        {
+            NullGuard.NotNull(paymentTermViewModel, nameof(paymentTermViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("CreatePaymentTerm", paymentTermViewModel);
+            }
+
+            ICreatePaymentTermCommand command = _accountingViewModelConverter.Convert<PaymentTermViewModel, CreatePaymentTermCommand>(paymentTermViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("PaymentTerms", "Accounting");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdatePaymentTerm(int number)
+        {
+            IGetPaymentTermQuery query = new GetPaymentTermQuery
+            {
+                Number = number
+            };
+            IPaymentTerm paymentTerm = await _queryBus.QueryAsync<IGetPaymentTermQuery, IPaymentTerm>(query);
+
+            PaymentTermViewModel paymentTermViewModel =  _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm);
+            paymentTermViewModel.EditMode = EditMode.Edit;
+
+            return View("UpdatePaymentTerm", paymentTermViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePaymentTerm(PaymentTermViewModel paymentTermViewModel)
+        {
+            NullGuard.NotNull(paymentTermViewModel, nameof(paymentTermViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return View("UpdatePaymentTerm", paymentTermViewModel);
+            }
+
+            IUpdatePaymentTermCommand command =  _accountingViewModelConverter.Convert<PaymentTermViewModel, UpdatePaymentTermCommand>(paymentTermViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("PaymentTerms", "Accounting");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePaymentTerm(int number)
+        {
+            IDeletePaymentTermCommand command = new DeletePaymentTermCommand
+            {
+                Number = number
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("PaymentTerms", "Accounting");
         }
 
         #endregion

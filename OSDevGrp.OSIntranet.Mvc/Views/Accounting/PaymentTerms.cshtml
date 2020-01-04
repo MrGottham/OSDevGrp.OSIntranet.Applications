@@ -1,0 +1,43 @@
+@model IEnumerable<PaymentTermViewModel>;
+@{
+    ViewData["Title"] = "Betalingsbetingelser";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Betalingsbetingelser</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nummer</th>
+                        <th>Navn</th>
+                        <th><a asp-area="" asp-controller="Accounting" asp-action="CreatePaymentTerm"><i class="fas fa-plus"></i></a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PaymentTermViewModel paymentTermViewModel in @Model)
+                    {
+                        <tr>
+                            <td>@paymentTermViewModel.Number</td>
+                            <td>@paymentTermViewModel.Name</td>
+                            <td>
+                                <span class="fa-stack">
+                                    <a asp-area="" asp-controller="Accounting" asp-action="UpdatePaymentTerm" asp-route-number="@paymentTermViewModel.Number"><i class="fas fa-pen"></i></a>
+                                    @if (paymentTermViewModel.Deletable)
+                                    {
+                                        <a href="#" onclick="javascript:$().askForDeletion('Slet betalingsbetingelse', '@(paymentTermViewModel.GetDeletionLink(Url))', @(paymentTermViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+                                    }
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>

@@ -1,0 +1,24 @@
+﻿@model ContactGroupViewModel;
+@{
+    ViewData["Title"] = "Opret kontaktgruppe";
+}
+
+<div class="row">
+    <div class="col-xl-1">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>Opret kontaktgruppe</h2>
+        <form asp-area="" asp-controller="Contact" asp-action="CreateContactGroup" method="post">
+            <partial name="_ContactGroupPartial" />
+            <button type="submit" class="btn btn-primary">Opret</button>
+            <a class="btn btn-secondary" asp-controller="Contact" asp-action="ContactGroups">Fortryd</a>
+        </form>
+    </div>
+    <div class="col-xl-1">
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
