@@ -35,6 +35,16 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.Company)
                 .Returns(fixture.BuildCompanyMock().Object);
+            contactMock.Setup(m => m.ContactGroup)
+                .Returns(fixture.BuildContactGroupMock().Object);
+            contactMock.Setup(m => m.Acquaintance)
+                .Returns(fixture.Create<string>());
+            contactMock.Setup(m => m.PersonalHomePage)
+                .Returns(fixture.Create<string>());
+            contactMock.Setup(m => m.LendingLimit)
+                .Returns(fixture.Create<int>());
+            contactMock.Setup(m => m.PaymentTerm)
+                .Returns(fixture.BuildPaymentTermMock().Object);
             contactMock.Setup(m => m.CreatedByIdentifier)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.CreatedDateTime)

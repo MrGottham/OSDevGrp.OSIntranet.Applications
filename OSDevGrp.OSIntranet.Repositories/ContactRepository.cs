@@ -21,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         #region Private variables
 
         private readonly IConverter _contactModelConverter = new ContactModelConverter();
+        private readonly IConverter _accountingModelConverter = new AccountingModelConverter();
 
         #endregion
 
@@ -34,6 +35,34 @@ namespace OSDevGrp.OSIntranet.Repositories
         #endregion
 
         #region Methods
+
+        public Task<IContact> ApplyContactSupplementAsync(IContact contact)
+        {
+            NullGuard.NotNull(contact, nameof(contact));
+
+            return Task.Run(() => ApplyContactSupplement(contact));
+        }
+
+        public Task<IEnumerable<IContact>> ApplyContactSupplementAsync(IEnumerable<IContact> contacts)
+        {
+            NullGuard.NotNull(contacts, nameof(contacts));
+
+            return Task.Run(() => ApplyContactSupplement(contacts));
+        }
+
+        public Task<IContact> CreateOrUpdateContactSupplementAsync(IContact contact)
+        {
+            NullGuard.NotNull(contact, nameof(contact));
+
+            return Task.Run(() => CreateOrUpdateContactSupplement(contact));
+        }
+
+        public Task<IContact> DeleteContactSupplementAsync(string externalIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier));
+
+            return Task.Run(() => DeleteContactSupplement(externalIdentifier));
+        }
 
         public Task<IEnumerable<IContactGroup>> GetContactGroupsAsync()
         {
@@ -132,6 +161,99 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
 
             return Task.Run(() => DeletePostalCode(countryCode, postalCode));
+        }
+
+        private IContact ApplyContactSupplement(IContact contact)
+        {
+            NullGuard.NotNull(contact, nameof(contact));
+
+            return Execute(() =>
+                {
+                    if (string.IsNullOrWhiteSpace(contact.ExternalIdentifier))
+                    {
+                        return contact;
+                    }
+
+                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
+                    ContactSupplementModel contactSupplementModel = context.ContactSupplements.SingleOrDefault(m => m.ExternalIdentifier == contact.ExternalIdentifier);
+                    if (contactSupplementModel == null)
+                    {
+                        return contact;
+                    }
+
+                    return contactSupplementModel.ApplyContactSupplement(contact, _contactModelConverter, _accountingModelConverter);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IEnumerable<IContact> ApplyContactSupplement(IEnumerable<IContact> contacts)
+        {
+            NullGuard.NotNull(contacts, nameof(contacts));
+
+            return Execute(() => contacts.AsParallel()
+                    .Select(ApplyContactSupplement)
+                    .ToList(),
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IContact CreateOrUpdateContactSupplement(IContact contact)
+        {
+            NullGuard.NotNull(contact, nameof(contact));
+
+            return Execute(() =>
+                {
+                    if (string.IsNullOrWhiteSpace(contact.ExternalIdentifier))
+                    {
+                        return contact;
+                    }
+
+                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
+                    ContactSupplementModel contactSupplementModel = context.ContactSupplements.SingleOrDefault(m => m.ExternalIdentifier == contact.ExternalIdentifier);
+                    if (contactSupplementModel == null)
+                    {
+                        context.ContactSupplements.Add(_contactModelConverter.Convert<IContact, ContactSupplementModel>(contact));
+
+                        context.SaveChanges();
+
+                        return ApplyContactSupplement(contact);
+                    }
+
+                    contactSupplementModel.Birthday = contact.Birthday;
+                    contactSupplementModel.ContactGroupIdentifier = contact.ContactGroup.Number;
+                    contactSupplementModel.ContactGroup = context.ContactGroups.Single(contactGroupModel => contactGroupModel.ContactGroupIdentifier == contact.ContactGroup.Number);
+                    contactSupplementModel.Acquaintance = contact.Acquaintance;
+                    contactSupplementModel.PersonalHomePage = contact.PersonalHomePage;
+                    contactSupplementModel.LendingLimit = contact.LendingLimit;
+                    contactSupplementModel.PaymentTermIdentifier = contact.PaymentTerm.Number;
+                    contactSupplementModel.PaymentTerm = context.PaymentTerms.Single(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contact.PaymentTerm.Number);
+
+                    context.SaveChanges();
+
+                    return ApplyContactSupplement(contact);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private IContact DeleteContactSupplement(string externalIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier));
+
+            return Execute(() =>
+                {
+                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
+                    ContactSupplementModel contactSupplementModel = context.ContactSupplements.SingleOrDefault(m => m.ExternalIdentifier == externalIdentifier);
+                    if (contactSupplementModel == null)
+                    {
+                        return null;
+                    }
+
+                    context.ContactSupplements.Remove(contactSupplementModel);
+
+                    context.SaveChanges();
+
+                    return (IContact) null;
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         private IEnumerable<IContactGroup> GetContactGroups()
@@ -242,7 +364,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNull(context, nameof(context));
 
-            return false;
+            return context.ContactSupplements.FirstOrDefault(contactSupplementModel => contactSupplementModel.ContactGroupIdentifier == contactGroupIdentifier) == null;
         }
 
         private IEnumerable<ICountry> GetCountries()

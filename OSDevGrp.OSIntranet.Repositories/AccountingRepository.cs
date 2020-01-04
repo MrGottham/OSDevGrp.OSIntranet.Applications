@@ -608,7 +608,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNull(context, nameof(context));
 
-            return false;
+            return context.ContactSupplements.FirstOrDefault(contactSupplementModel => contactSupplementModel.PaymentTermIdentifier == paymentTermIdentifier) == null;
         }
 
         #endregion

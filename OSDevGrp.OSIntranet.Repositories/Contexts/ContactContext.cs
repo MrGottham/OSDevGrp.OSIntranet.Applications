@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
@@ -24,7 +25,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #region Properties
 
+        public DbSet<ContactSupplementModel> ContactSupplements { get; set; }
+
         public DbSet<ContactGroupModel> ContactGroups { get; set; }
+
+        public DbSet<PaymentTermModel> PaymentTerms { get; set; }
 
         public DbSet<CountryModel> Countries { get; set; }
 
@@ -40,7 +45,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.CreateContactSupplementModel();
             modelBuilder.CreateContactGroupModel();
+            modelBuilder.CreatePaymentTermModel();
             modelBuilder.CreateCountryModel();
             modelBuilder.CreatePostalCodeModel();
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 
 namespace OSDevGrp.OSIntranet.Domain.Contacts
@@ -14,6 +15,10 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
         private string _primaryPhone;
         private string _secondaryPhone;
         private string _mailAddress;
+        private IContactGroup _contactGroup;
+        private string _acquaintance;
+        private string _personalHomePage;
+        private IPaymentTerm _paymentTerm;
 
         #endregion
 
@@ -96,6 +101,42 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
         }
 
         public ICompany Company { get; set; }
+
+        public IContactGroup ContactGroup
+        {
+            get => _contactGroup;
+            set
+            {
+                NullGuard.NotNull(value, nameof(value));
+
+                _contactGroup = value;
+            }
+        }
+
+        public string Acquaintance
+        {
+            get => _acquaintance;
+            set => _acquaintance = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        public string PersonalHomePage
+        {
+            get => _personalHomePage;
+            set => _personalHomePage = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        public int LendingLimit { get; set; }
+
+        public IPaymentTerm PaymentTerm
+        {
+            get => _paymentTerm;
+            set
+            {
+                NullGuard.NotNull(value, nameof(value));
+
+                _paymentTerm = value;
+            }
+        }
 
         #endregion
     }

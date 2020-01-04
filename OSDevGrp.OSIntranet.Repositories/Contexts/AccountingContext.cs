@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
+using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
@@ -35,6 +36,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<PaymentTermModel> PaymentTerms { get; set; }
 
+        public DbSet<ContactSupplementModel> ContactSupplements { get; set; }
+
+        public DbSet<ContactGroupModel> ContactGroups { get; set; }
+
         #endregion
 
         #region Methods
@@ -50,6 +55,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateAccountGroupModel();
             modelBuilder.CreateBudgetAccountGroupModel();
             modelBuilder.CreatePaymentTermModel();
+            modelBuilder.CreateContactSupplementModel();
+            modelBuilder.CreateContactGroupModel();
         }
 
         #endregion

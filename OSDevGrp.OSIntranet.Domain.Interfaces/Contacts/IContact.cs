@@ -1,4 +1,5 @@
 ﻿using System;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
@@ -26,5 +27,15 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
         string MailAddress { get; set; }
 
         ICompany Company { get; set; }
+
+        IContactGroup ContactGroup { get; set; }
+
+        string Acquaintance { get; set; }
+
+        string PersonalHomePage { get; set; }
+
+        int LendingLimit { get; set; }
+
+        IPaymentTerm PaymentTerm { get; set; }
     }
 }
