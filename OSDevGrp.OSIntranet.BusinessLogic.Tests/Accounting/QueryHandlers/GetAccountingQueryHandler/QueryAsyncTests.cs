@@ -7,7 +7,6 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetAccountingQueryHandler;
@@ -34,8 +33,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
             _accountingHelperMock = new Mock<IAccountingHelper>();
 
             _fixture = new Fixture();
-            _fixture.Customize<ILetterHead>(builder => builder.FromFactory(() => _fixture.BuildLetterHeadMock().Object));
-            _fixture.Customize<IAccounting>(builder => builder.FromFactory(() => _fixture.BuildAccountingMock().Object));
         }
 
         [Test]
@@ -107,36 +104,52 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnAccountingHelper()
+        public async Task QueryAsync_WhenCalled_AssertCalculateAsyncWasCalledOnAccounting()
         {
-            IAccounting accounting = _fixture.Create<IAccounting>();
+            Mock<IAccounting> accountingMock = _fixture.BuildAccountingMock();
+            QueryHandler sut = CreateSut(accountingMock.Object);
+
+            DateTime statusDate = _fixture.Create<DateTime>();
+            IGetAccountingQuery query = CreateQueryMock(statusDate: statusDate).Object;
+            await sut.QueryAsync(query);
+
+            accountingMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnAccountingHelperWithCalculatedAccounting()
+        {
+            IAccounting calculatedAccounting = _fixture.BuildAccountingMock().Object;
+            IAccounting accounting = _fixture.BuildAccountingMock(calculatedAccounting).Object;
             QueryHandler sut = CreateSut(accounting);
 
             IGetAccountingQuery query = CreateQueryMock().Object;
             await sut.QueryAsync(query);
 
-            _accountingHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IAccounting>(value => value == accounting)), Times.Once());
+            _accountingHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IAccounting>(value => value == calculatedAccounting)), Times.Once());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsAccountingFromAccountingHelper()
+        public async Task QueryAsync_WhenCalled_ReturnsCalculatedAccountingFromAccountingHelper()
         {
-            IAccounting accounting = _fixture.Create<IAccounting>();
-            QueryHandler sut = CreateSut(accounting);
+            IAccounting calculatedAccounting = _fixture.BuildAccountingMock().Object;
+            IAccounting accounting = _fixture.BuildAccountingMock(calculatedAccounting).Object;
+            QueryHandler sut = CreateSut(accounting, calculatedAccounting);
 
             IGetAccountingQuery query = CreateQueryMock().Object;
             IAccounting result = await sut.QueryAsync(query);
 
-            Assert.That(result, Is.EqualTo(accounting));
+            Assert.That(result, Is.EqualTo(calculatedAccounting));
         }
 
-        private QueryHandler CreateSut(IAccounting accounting = null)
+        private QueryHandler CreateSut(IAccounting accounting = null, IAccounting calculatedAccounting = null)
         {
             _accountingRepositoryMock.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
-                .Returns(Task.Run(() => accounting ?? _fixture.Create<IAccounting>()));
+                .Returns(Task.Run(() => accounting ?? _fixture.BuildAccountingMock().Object));
             _accountingHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<IAccounting>()))
-                .Returns(accounting ?? _fixture.Create<IAccounting>());
+                .Returns(calculatedAccounting ?? _fixture.BuildAccountingMock().Object);
 
             return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object, _accountingHelperMock.Object);
         }

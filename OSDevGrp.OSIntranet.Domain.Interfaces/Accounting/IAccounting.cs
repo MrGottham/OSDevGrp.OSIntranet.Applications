@@ -4,7 +4,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IAccounting : IAuditable, IDeletable
+    public interface IAccounting : IAuditable, ICalculable<IAccounting>, IDeletable
     {
         int Number { get; }
 

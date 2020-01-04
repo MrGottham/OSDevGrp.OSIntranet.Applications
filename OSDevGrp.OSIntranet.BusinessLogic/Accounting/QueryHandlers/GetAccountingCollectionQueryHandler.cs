@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.Core;
@@ -39,7 +41,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
             IEnumerable<IAccounting> accountings = await _accountingRepository.GetAccountingsAsync();
 
-            return _accountingHelper.ApplyLogicForPrincipal(accountings);
+            IEnumerable<IAccounting> calculatedAccountings = await Task.WhenAll(accountings.Select(accounting => accounting.CalculateAsync(DateTime.Today)).ToArray());
+
+            return _accountingHelper.ApplyLogicForPrincipal(calculatedAccountings);
         }
 
         #endregion

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
@@ -9,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class AccountingMockBuilder
     {
-        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture)
+        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture, IAccounting calculatedAccounting = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -24,6 +25,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<BalanceBelowZeroType>());
             accountingMock.Setup(m => m.BackDating)
                 .Returns(fixture.Create<int>());
+            accountingMock.Setup(m => m.StatusDate)
+                .Returns(fixture.Create<DateTime>().Date);
             accountingMock.Setup(m => m.Deletable)
                 .Returns(fixture.Create<bool>());
             accountingMock.Setup(m => m.DefaultForPrincipal)
@@ -36,6 +39,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<DateTime>());
             accountingMock.Setup(m => m.ModifiedByIdentifier)
                 .Returns(fixture.Create<string>());
+            accountingMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
+                .Returns(Task.Run(() => calculatedAccounting ?? accountingMock.Object));
             return accountingMock;
         }
 

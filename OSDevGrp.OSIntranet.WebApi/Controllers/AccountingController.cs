@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -46,6 +48,57 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         #endregion
 
         #region Methods
+
+        [HttpGet]
+        [HttpGet("accountings")]
+        public async Task<ActionResult<IEnumerable<AccountingModel>>> AccountingsAsync()
+        {
+            try
+            {
+                IEnumerable<IAccounting> accountings = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery());
+
+                IEnumerable<AccountingModel> accountingModels = accountings.AsParallel()
+                    .Select(accounting => _accountingModelConverter.Convert<IAccounting, AccountingModel>(accounting))
+                    .OrderBy(accountingModel => accountingModel.Number)
+                    .ToList();
+
+                return new OkObjectResult(accountingModels);
+            }
+            catch (IntranetExceptionBase ex)
+            {
+                return BadRequest(_coreModelConverter.Convert<IntranetExceptionBase, ErrorModel>(ex));
+            }
+            catch (AggregateException ex)
+            {
+                return BadRequest(ex.ToErrorModel(_coreModelConverter));
+            }
+        }
+
+        [HttpGet("{accountingNumber}")]
+        public async Task<ActionResult<AccountingModel>> AccountingAsync(int accountingNumber, DateTime? statusDate = null)
+        {
+            try
+            {
+                IGetAccountingQuery query = new GetAccountingQuery
+                {
+                    AccountingNumber = accountingNumber,
+                    StatusDate = statusDate?.Date ?? DateTime.Today
+                };
+                IAccounting accounting = await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(query);
+
+                AccountingModel accountingModel = _accountingModelConverter.Convert<IAccounting, AccountingModel>(accounting);
+
+                return new OkObjectResult(accountingModel);
+            }
+            catch (IntranetExceptionBase ex)
+            {
+                return BadRequest(_coreModelConverter.Convert<IntranetExceptionBase, ErrorModel>(ex));
+            }
+            catch (AggregateException ex)
+            {
+                return BadRequest(ex.ToErrorModel(_coreModelConverter));
+            }
+        }
 
         [HttpGet("accountgroups")]
         public async Task<ActionResult<IEnumerable<AccountGroupModel>>> AccountGroupsAsync()

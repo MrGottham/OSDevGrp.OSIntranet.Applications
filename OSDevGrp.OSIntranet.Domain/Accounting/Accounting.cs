@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
@@ -56,6 +58,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public int BackDating { get; set; }
 
+        public DateTime StatusDate { get; private set; }
+
         public bool Deletable { get; private set; }
 
         public bool DefaultForPrincipal { get; private set; }
@@ -63,6 +67,16 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         #endregion
 
         #region Methods
+
+        public Task<IAccounting> CalculateAsync(DateTime statusDate)
+        {
+            return Task.Run(() => 
+            {
+                StatusDate = statusDate.Date;
+
+                return (IAccounting) this;
+            });
+        }
 
         public void AllowDeletion()
         {

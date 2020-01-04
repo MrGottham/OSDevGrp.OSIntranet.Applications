@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
@@ -42,9 +43,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
             query.Validate(_validator, _accountingRepository);
 
-            IAccounting accounting = await _accountingRepository.GetAccountingAsync(query.AccountingNumber, query.StatusDate);
+            DateTime statusDate = query.StatusDate;
 
-            return _accountingHelper.ApplyLogicForPrincipal(accounting);
+            IAccounting accounting = await _accountingRepository.GetAccountingAsync(query.AccountingNumber, statusDate);
+
+            IAccounting calculatedAccounting = await accounting.CalculateAsync(statusDate);
+
+            return _accountingHelper.ApplyLogicForPrincipal(calculatedAccounting);
         }
 
         #endregion

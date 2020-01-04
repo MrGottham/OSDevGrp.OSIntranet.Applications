@@ -64,34 +64,53 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnAccountingHelper()
+        public async Task QueryAsync_WhenCalled_AssertCalculateAsyncWasCalledOnEachAccounting()
         {
-            IEnumerable<IAccounting> accountingMockCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
-            QueryHandler sut = CreateSut(accountingMockCollection);
+            List<Mock<IAccounting>> accountingMockCollection = new List<Mock<IAccounting>>(_random.Next(5, 10));
+            while (accountingMockCollection.Count < accountingMockCollection.Capacity)
+            {
+                accountingMockCollection.Add(_fixture.BuildAccountingMock());
+            }
+            QueryHandler sut = CreateSut(accountingMockCollection.Select(m => m.Object).ToList());
 
             await sut.QueryAsync(new EmptyQuery());
 
-            _accountingHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IEnumerable<IAccounting>>(value => value == accountingMockCollection)), Times.Once);
+            foreach (Mock<IAccounting> accountingMock in accountingMockCollection)
+            {
+                accountingMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == DateTime.Today)), Times.Once);
+            }
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnAccountingCollectionFromAccountingHelper()
+        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnAccountingHelperWithCalculatedAccountingCollection()
         {
-            IEnumerable<IAccounting> accountingMockCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
-            QueryHandler sut = CreateSut(accountingMockCollection);
+            IEnumerable<IAccounting> calculatedAccountingCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
+            QueryHandler sut = CreateSut(calculatedAccountingCollection.Select(calculatedAccounting => _fixture.BuildAccountingMock(calculatedAccounting).Object).ToList());
+
+            await sut.QueryAsync(new EmptyQuery());
+            
+            _accountingHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IEnumerable<IAccounting>>(value => value.All(accounting => calculatedAccountingCollection.Any(calculatedAccounting => calculatedAccounting == accounting)))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_ReturnCalculatedAccountingCollectionFromAccountingHelper()
+        {
+            IEnumerable<IAccounting> calculatedAccountingCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
+            QueryHandler sut = CreateSut(calculatedAccountingCollection.Select(calculatedAccounting => _fixture.BuildAccountingMock(calculatedAccounting).Object).ToList(), calculatedAccountingCollection);
 
             IEnumerable<IAccounting> result = await sut.QueryAsync(new EmptyQuery());
 
-            Assert.That(result, Is.EqualTo(accountingMockCollection));
+            Assert.That(result, Is.EqualTo(calculatedAccountingCollection));
         }
 
-        private QueryHandler CreateSut(IEnumerable<IAccounting> accountingCollection = null)
+        private QueryHandler CreateSut(IEnumerable<IAccounting> accountingCollection = null, IEnumerable<IAccounting> calculatedAccountingCollection = null)
         {
             _accountingRepositoryMock.Setup(m => m.GetAccountingsAsync())
                 .Returns(Task.Run(() => accountingCollection ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList()));
             _accountingHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<IEnumerable<IAccounting>>()))
-                .Returns(accountingCollection ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList());
+                .Returns(calculatedAccountingCollection ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList());
 
            return new QueryHandler(_accountingRepositoryMock.Object, _accountingHelperMock.Object);
         }
