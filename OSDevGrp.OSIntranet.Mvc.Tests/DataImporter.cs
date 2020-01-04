@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
@@ -22,6 +23,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
@@ -64,6 +66,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
             IClaimResolver claimResolver = new ClaimResolver(principalResolver);
             ICountryHelper countryHelper = new CountryHelper(claimResolver);
+            IAccountingHelper accountingHelper = new AccountingHelper(claimResolver);
 
             ICommonRepository commonRepository = new CommonRepository(configuration, principalResolver, loggerFactory);
             IContactRepository contactRepository = new ContactRepository(configuration, principalResolver, loggerFactory);
@@ -87,7 +90,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
             IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(contactRepository, countryHelper);
             IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(validator, contactRepository, countryHelper);
-            IQueryHandler<EmptyQuery, IEnumerable<IAccounting>> getAccountingCollectionQueryHandler = new GetAccountingCollectionQueryHandler(accountingRepository);
+            IQueryHandler<EmptyQuery, IEnumerable<IAccounting>> getAccountingCollectionQueryHandler = new GetAccountingCollectionQueryHandler(accountingRepository, accountingHelper);
             _queryBus = new QueryBus(new IQueryHandler[]
             {
                 getCountryCollectionQueryHandler,
