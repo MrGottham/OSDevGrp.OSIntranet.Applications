@@ -95,6 +95,12 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         TokenHasExpired = 1030,
 
         [ErrorCode("The value for the object named '{0}' is null.", typeof(IntranetSystemException))]
-        ObjectIsNull = 1031
+        ObjectIsNull = 1031,
+
+        [ErrorCode("The date and time value for the submitted field '{0}' should be in the past.", typeof(IntranetValidationException))]
+        ValueShouldBePastDateTime = 1032,
+
+        [ErrorCode("The date and time value for the submitted field '{0}' should be in the future.", typeof(IntranetValidationException))]
+        ValueShouldBeFutureDateTime = 1033
     }
 }

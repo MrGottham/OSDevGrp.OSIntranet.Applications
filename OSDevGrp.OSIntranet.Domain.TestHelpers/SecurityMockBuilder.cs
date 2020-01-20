@@ -4,6 +4,8 @@ using System.Security.Claims;
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Commands;
+using OSDevGrp.OSIntranet.Core.Interfaces.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
@@ -88,6 +90,66 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             refreshableTokenMock.Setup(m => m.Expires)
                 .Returns(expires ?? DateTime.UtcNow.AddMinutes(new Random(fixture.Create<int>()).Next(30, 60)));
             return refreshableTokenMock;
+        }
+
+        public static Mock<ITokenBasedQuery> BuildTokenBasedQueryMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<ITokenBasedQuery> tokenBasedQueryMock = new Mock<ITokenBasedQuery>();
+            tokenBasedQueryMock.Setup(m => m.TokenType)
+                .Returns(tokenType ?? fixture.Create<string>());
+            tokenBasedQueryMock.Setup(m => m.AccessToken)
+                .Returns(accessToken?? fixture.Create<string>());
+            tokenBasedQueryMock.Setup(m => m.Expires)
+                .Returns(expires ?? fixture.Create<DateTime>());
+            return tokenBasedQueryMock;
+        }
+
+        public static Mock<IRefreshableTokenBasedQuery> BuildRefreshableTokenBasedQueryMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<IRefreshableTokenBasedQuery> refreshableTokenBasedQueryMock = new Mock<IRefreshableTokenBasedQuery>();
+            refreshableTokenBasedQueryMock.Setup(m => m.TokenType)
+                .Returns(tokenType ?? fixture.Create<string>());
+            refreshableTokenBasedQueryMock.Setup(m => m.AccessToken)
+                .Returns(accessToken ?? fixture.Create<string>());
+            refreshableTokenBasedQueryMock.Setup(m => m.RefreshToken)
+                .Returns(refreshToken ?? fixture.Create<string>());
+            refreshableTokenBasedQueryMock.Setup(m => m.Expires)
+                .Returns(expires ?? fixture.Create<DateTime>());
+            return refreshableTokenBasedQueryMock;
+        }
+
+        public static Mock<ITokenBasedCommand> BuildTokenBasedCommandMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<ITokenBasedCommand> tokenBasedCommandMock = new Mock<ITokenBasedCommand>();
+            tokenBasedCommandMock.Setup(m => m.TokenType)
+                .Returns(tokenType ?? fixture.Create<string>());
+            tokenBasedCommandMock.Setup(m => m.AccessToken)
+                .Returns(accessToken ?? fixture.Create<string>());
+            tokenBasedCommandMock.Setup(m => m.Expires)
+                .Returns(expires ?? fixture.Create<DateTime>());
+            return tokenBasedCommandMock;
+        }
+
+        public static Mock<IRefreshableTokenBasedCommand> BuildRefreshableTokenBasedCommandMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Mock<IRefreshableTokenBasedCommand> refreshableTokenBasedCommandMock = new Mock<IRefreshableTokenBasedCommand>();
+            refreshableTokenBasedCommandMock.Setup(m => m.TokenType)
+                .Returns(tokenType ?? fixture.Create<string>());
+            refreshableTokenBasedCommandMock.Setup(m => m.AccessToken)
+                .Returns(accessToken ?? fixture.Create<string>());
+            refreshableTokenBasedCommandMock.Setup(m => m.RefreshToken)
+                .Returns(refreshToken ?? fixture.Create<string>());
+            refreshableTokenBasedCommandMock.Setup(m => m.Expires)
+                .Returns(expires ?? fixture.Create<DateTime>());
+            return refreshableTokenBasedCommandMock;
         }
     }
 }

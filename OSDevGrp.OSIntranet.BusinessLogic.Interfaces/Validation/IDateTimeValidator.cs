@@ -8,11 +8,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation
 
         IValidator ShouldBePastDateOrToday(DateTime value, Type validatingType, string validatingField);
 
+        IValidator ShouldBePastDateTime(DateTime value, Type validatingType, string validatingField);
+
         IValidator ShouldBeToday(DateTime value, Type validatingType, string validatingField);
 
         IValidator ShouldBeFutureDate(DateTime value, Type validatingType, string validatingField);
 
         IValidator ShouldBeFutureDateOrToday(DateTime value, Type validatingType, string validatingField);
+
+        IValidator ShouldBeFutureDateTime(DateTime value, Type validatingType, string validatingField);
 
         IValidator ShouldBePastDateWithinDaysFromOffsetDate(DateTime value, int days, DateTime offsetDate, Type validatingType, string validatingField);
 

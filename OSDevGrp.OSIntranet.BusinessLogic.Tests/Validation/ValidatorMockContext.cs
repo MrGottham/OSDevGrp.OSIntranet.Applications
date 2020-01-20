@@ -117,11 +117,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
                 .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBePastDateOrToday(It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
+            dateTimeValidatorMock.Setup(m => m.ShouldBePastDateTime(It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
+                .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBeToday(It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBeFutureDate(It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBeFutureDateOrToday(It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
+                .Returns(validatorMock.Object);
+            dateTimeValidatorMock.Setup(m => m.ShouldBeFutureDateTime(It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBePastDateWithinDaysFromOffsetDate(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);

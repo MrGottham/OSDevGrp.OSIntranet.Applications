@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date < System.DateTime.Today)
+            if (UtcDate(value) < UtcDate(System.DateTime.Today))
             {
                 return this;
             }
@@ -30,7 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date <= System.DateTime.Today)
+            if (UtcDate(value) <= UtcDate(System.DateTime.Today))
             {
                 return this;
             }
@@ -41,12 +41,28 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                 .Build();
         }
 
+        public IValidator ShouldBePastDateTime(DateTime value, Type validatingType, string validatingField)
+        {
+            NullGuard.NotNull(validatingType, nameof(validatingType))
+                .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+            if (UtcDateTime(value) < System.DateTime.UtcNow)
+            {
+                return this;
+            }
+
+            throw new IntranetExceptionBuilder(ErrorCode.ValueShouldBePastDateTime, validatingField)
+                .WithValidatingType(validatingType)
+                .WithValidatingField(validatingField)
+                .Build();
+        }
+
         public IValidator ShouldBeToday(DateTime value, Type validatingType, string validatingField)
         {
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date == System.DateTime.Today)
+            if (UtcDate(value) == UtcDate(System.DateTime.Today))
             {
                 return this;
             }
@@ -62,7 +78,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date > System.DateTime.Today)
+            if (UtcDate(value) > UtcDate(System.DateTime.Today))
             {
                 return this;
             }
@@ -78,7 +94,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date >= System.DateTime.Today)
+            if (UtcDate(value) >= UtcDate(System.DateTime.Today))
             {
                 return this;
             }
@@ -89,13 +105,29 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                 .Build();
         }
 
+        public IValidator ShouldBeFutureDateTime(DateTime value, Type validatingType, string validatingField)
+        {
+            NullGuard.NotNull(validatingType, nameof(validatingType))
+                .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+            if (UtcDateTime(value) > System.DateTime.UtcNow)
+            {
+                return this;
+            }
+
+            throw new IntranetExceptionBuilder(ErrorCode.ValueShouldBeFutureDateTime, validatingField)
+                .WithValidatingType(validatingType)
+                .WithValidatingField(validatingField)
+                .Build();
+        }
+
         public IValidator ShouldBePastDateWithinDaysFromOffsetDate(DateTime value, int days, DateTime offsetDate, Type validatingType, string validatingField)
         {
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            DateTime minDate = offsetDate.Date.AddDays(Math.Abs(days) * -1);
-            if (value.Date >= minDate.Date && value.Date <= offsetDate.Date)
+            DateTime minUtcDate = UtcDate(offsetDate).AddDays(Math.Abs(days) * -1);
+            if (UtcDate(value) >= minUtcDate && UtcDate(value) <= UtcDate(offsetDate))
             {
                 return this;
             }
@@ -111,8 +143,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            DateTime maxDate = offsetDate.Date.AddDays(Math.Abs(days));
-            if (value.Date >= offsetDate.Date && value.Date <= maxDate.Date)
+            DateTime maxDate = UtcDate(offsetDate).AddDays(Math.Abs(days));
+            if (UtcDate(value) >= UtcDate(offsetDate) && UtcDate(value) <= maxDate)
             {
                 return this;
             }
@@ -128,7 +160,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date > offsetDate.Date)
+            if (UtcDate(value) > UtcDate(offsetDate))
             {
                 return this;
             }
@@ -144,7 +176,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            if (value.Date >= offsetDate.Date)
+            if (UtcDate(value) >= UtcDate(offsetDate))
             {
                 return this;
             }
@@ -153,6 +185,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                 .WithValidatingType(validatingType)
                 .WithValidatingField(validatingField)
                 .Build();
+        }
+
+        private DateTime UtcDate(DateTime value)
+        {
+            return UtcDateTime(value).Date;
+        }
+
+        private DateTime UtcDateTime(DateTime value)
+        {
+            return value.Date.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
         }
 
         #endregion
