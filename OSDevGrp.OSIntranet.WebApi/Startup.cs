@@ -35,6 +35,8 @@ namespace OSDevGrp.OSIntranet.WebApi
         {
             NullGuard.NotNull(services, nameof(services));
 
+            services.Configure<CookiePolicyOptions>(opt => opt.MinimumSameSitePolicy = SameSiteMode.None);
+
             services.AddControllers().AddJsonOptions(opt => 
             {
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -93,6 +95,8 @@ namespace OSDevGrp.OSIntranet.WebApi
             {
                 app.UseHsts();
             }
+
+            app.UseCookiePolicy();
 
             app.UseHttpsRedirection();
             app.UseDefaultFiles();

@@ -17,7 +17,7 @@ using OSDevGrp.OSIntranet.WebApi.Models.Core;
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
     [Authorize(Policy = "CommonData")]
-    [ApiVersion("0.1")]
+    [ApiVersion("1.0")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]
     public class CommonController : ControllerBase
