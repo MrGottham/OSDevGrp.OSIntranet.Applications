@@ -1,5 +1,6 @@
 ﻿using System;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
@@ -37,5 +38,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
         int LendingLimit { get; set; }
 
         IPaymentTerm PaymentTerm { get; set; }
+
+        bool IsMatch(string searchFor, SearchOptions searchOptions);
     }
 }

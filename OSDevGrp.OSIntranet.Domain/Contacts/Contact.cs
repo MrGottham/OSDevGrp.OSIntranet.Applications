@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts.Enums;
 
 namespace OSDevGrp.OSIntranet.Domain.Contacts
 {
@@ -136,6 +138,106 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
 
                 _paymentTerm = value;
             }
+        }
+
+        #endregion
+
+        #region Methods
+
+        public bool IsMatch(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            return MatchingName(searchFor, searchOptions) ||
+                   MatchingMailAddress(searchFor, searchOptions) ||
+                   MatchingPrimaryPhone(searchFor, searchOptions) ||
+                   MatchingSecondaryPhone(searchFor, searchOptions) ||
+                   MatchingHomePhone(searchFor, searchOptions) ||
+                   MatchingMobilePhone(searchFor, searchOptions);
+        }
+
+        private bool MatchingName(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            if (Name == null || searchOptions.HasFlag(SearchOptions.Name) == false)
+            {
+                return false;
+            }
+
+            Regex pattern = new Regex(searchFor, RegexOptions.Compiled);
+
+            return pattern.IsMatch(Name.DisplayName);
+        }
+
+        private bool MatchingMailAddress(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            if (string.IsNullOrWhiteSpace(MailAddress) || searchOptions.HasFlag(SearchOptions.MailAddress) == false)
+            {
+                return false;
+            }
+
+            return MatchingValue(searchFor, MailAddress);
+       }
+
+        private bool MatchingPrimaryPhone(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            if (string.IsNullOrWhiteSpace(PrimaryPhone) || searchOptions.HasFlag(SearchOptions.PrimaryPhone) == false)
+            {
+                return false;
+            }
+
+            return MatchingValue(searchFor, PrimaryPhone);
+        }
+
+        private bool MatchingSecondaryPhone(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            if (string.IsNullOrWhiteSpace(SecondaryPhone) || searchOptions.HasFlag(SearchOptions.SecondaryPhone) == false)
+            {
+                return false;
+            }
+
+            return MatchingValue(searchFor, SecondaryPhone);
+        }
+
+        private bool MatchingHomePhone(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            if (string.IsNullOrWhiteSpace(HomePhone) || searchOptions.HasFlag(SearchOptions.HomePhone) == false)
+            {
+                return false;
+            }
+
+            return MatchingValue(searchFor, HomePhone);
+        }
+
+        private bool MatchingMobilePhone(string searchFor, SearchOptions searchOptions)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
+
+            if (string.IsNullOrWhiteSpace(MobilePhone) || searchOptions.HasFlag(SearchOptions.MobilePhone) == false)
+            {
+                return false;
+            }
+
+            return MatchingValue(searchFor, MobilePhone);
+        }
+
+        private bool MatchingValue(string searchFor, string value)
+        {
+            NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor))
+                .NotNullOrWhiteSpace(value, nameof(value));
+
+            Regex pattern = new Regex(searchFor, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+
+            return pattern.IsMatch(value);
         }
 
         #endregion

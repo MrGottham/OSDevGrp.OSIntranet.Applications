@@ -3,12 +3,13 @@ using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts.Enums;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool? isMatch = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -53,6 +54,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.ModifiedDateTime)
                 .Returns(fixture.Create<DateTime>());
+            contactMock.Setup(m => m.IsMatch(It.IsAny<string>(), It.IsAny<SearchOptions>()))
+                .Returns(isMatch ?? fixture.Create<bool>());
             return contactMock;
         }
 
@@ -74,13 +77,13 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return companyMock;
         }
 
-        public static Mock<IName> BuildNameMock(this Fixture fixture)
+        public static Mock<IName> BuildNameMock(this Fixture fixture, string displayName = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IName> nameMock = new Mock<IName>();
             nameMock.Setup(m => m.DisplayName)
-                .Returns(fixture.Create<string>());
+                .Returns(displayName ?? fixture.Create<string>());
             return nameMock;
         }
 
