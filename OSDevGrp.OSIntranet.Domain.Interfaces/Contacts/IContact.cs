@@ -40,5 +40,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
         IPaymentTerm PaymentTerm { get; set; }
 
         bool IsMatch(string searchFor, SearchOptions searchOptions);
+
+        bool HasBirthdayWithinDays(int days);
     }
 }

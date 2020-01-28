@@ -156,6 +156,19 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
                    MatchingMobilePhone(searchFor, searchOptions);
         }
 
+        public bool HasBirthdayWithinDays(int days)
+        {
+            if (Birthday.HasValue == false)
+            {
+                return false;
+            }
+
+            DateTime birthdayThisYear = new DateTime(DateTime.Today.Year, Birthday.Value.Month, Birthday.Value.Day, 0, 0, 0, DateTimeKind.Local);
+            int daysToBirthdayThisYear = birthdayThisYear.Subtract(DateTime.Today).Days;
+
+            return daysToBirthdayThisYear >= 0 && daysToBirthdayThisYear <= days;
+        }
+
         private bool MatchingName(string searchFor, SearchOptions searchOptions)
         {
             NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));

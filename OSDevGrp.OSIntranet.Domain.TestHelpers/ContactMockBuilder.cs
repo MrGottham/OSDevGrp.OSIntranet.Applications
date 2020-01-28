@@ -9,7 +9,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool? isMatch = null)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -56,6 +56,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<DateTime>());
             contactMock.Setup(m => m.IsMatch(It.IsAny<string>(), It.IsAny<SearchOptions>()))
                 .Returns(isMatch ?? fixture.Create<bool>());
+            contactMock.Setup(m => m.HasBirthdayWithinDays(It.IsAny<int>()))
+                .Returns(hasBirthdayWithinDays ?? fixture.Create<bool>());
             return contactMock;
         }
 
