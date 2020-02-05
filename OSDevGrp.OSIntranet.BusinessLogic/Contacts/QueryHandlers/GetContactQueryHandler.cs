@@ -27,10 +27,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
                 .NotNull(token, nameof(token));
 
             IContact contact = await MicrosoftGraphRepository.GetContactAsync(token, query.ExternalIdentifier);
+            if (contact == null)
+            {
+                return null;
+            }
 
             return await ContactRepository.ApplyContactSupplementAsync(contact);
         }
-        
+
         #endregion
     }
 }

@@ -114,7 +114,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.PostalCodeId
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
                     It.Is<string>(value => string.CompareOrdinal(value, postalCode) == 0),
-                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), "[0-9]{1,16}") == 0),
+                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), RegexTestHelper.PostalCodeRegexPattern) == 0),
                     It.Is<Type>(type => type == sut.GetType()),
                     It.Is<string>(field => string.CompareOrdinal(field, "PostalCode") == 0),
                     It.Is<bool>(value => value == false)),

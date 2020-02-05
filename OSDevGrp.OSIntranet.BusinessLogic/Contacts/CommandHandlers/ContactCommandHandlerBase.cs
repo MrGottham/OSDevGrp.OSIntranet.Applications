@@ -46,7 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
         {
             NullGuard.NotNull(command, nameof(command));
 
-            command.Validate(Validator, ContactRepository, AccountingRepository);
+            command.Validate(Validator, MicrosoftGraphRepository, ContactRepository, AccountingRepository);
 
             await ManageRepositoryAsync(command, command.ToToken());
         }

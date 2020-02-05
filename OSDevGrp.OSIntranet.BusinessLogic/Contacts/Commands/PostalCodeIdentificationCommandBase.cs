@@ -30,7 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
                 .NotNull(contactRepository, nameof(contactRepository));
 
             return base.Validate(validator, contactRepository)
-                .ValidatePostalCode(PostalCode, GetType(), nameof(PostalCode));
+                .ValidateRequiredPostalCode(PostalCode, GetType(), nameof(PostalCode));
         }
 
         protected Task<IPostalCode> GetPostalCodeAsync(IContactRepository contactRepository)

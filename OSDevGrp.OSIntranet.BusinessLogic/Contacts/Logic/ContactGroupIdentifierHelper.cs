@@ -23,7 +23,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic
         {
             NullGuard.NotNull(contactRepository, nameof(contactRepository));
 
-            return contactGroup ?? (contactGroup = contactRepository.GetContactGroupAsync(number).GetAwaiter().GetResult());
+            return contactGroup ??= contactRepository.GetContactGroupAsync(number).GetAwaiter().GetResult();
         }
 
         #endregion

@@ -58,6 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Conta
 
             commandMock.Verify(m => m.Validate(
                     It.Is<IValidator>(value => value == _validatorMockContext.ValidatorMock.Object),
+                    It.Is<IMicrosoftGraphRepository>(value => value == _microsoftGraphRepositoryMock.Object),
                     It.Is<IContactRepository>(value => value == _contactRepositoryMock.Object),
                     It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object)),
                 Times.Once);

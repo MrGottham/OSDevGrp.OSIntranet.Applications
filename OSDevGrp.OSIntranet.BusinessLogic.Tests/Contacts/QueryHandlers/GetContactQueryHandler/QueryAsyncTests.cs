@@ -64,10 +64,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyContactSupplementAsyncWasCalledOnContactRepositoryWithContactFromMicrosoftGraphRepository()
+        public async Task QueryAsync_WhenCalledAndNoContactWasReturnedFromMicrosoftGraphRepository_AssertApplyContactSupplementAsyncWasNotCalledOnContactRepository()
+        {
+            QueryHandler sut = CreateSut(hasMicrosoftGraphContact: false);
+
+            IGetContactQuery query = CreateGetContactQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            _contactRepositoryMock.Verify(m => m.ApplyContactSupplementAsync(It.IsAny<IContact>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndNoContactWasReturnedFromMicrosoftGraphRepository_ReturnsNull()
+        {
+            QueryHandler sut = CreateSut(hasMicrosoftGraphContact: false);
+
+            IGetContactQuery query = CreateGetContactQueryMock().Object;
+            IContact result = await sut.QueryAsync(query);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndContactWasReturnedFromMicrosoftGraphRepository_AssertApplyContactSupplementAsyncWasCalledOnContactRepositoryWithContactFromMicrosoftGraphRepository()
         {
             IContact microsoftGraphContact = _fixture.BuildContactMock().Object;
-            QueryHandler sut = CreateSut(microsoftGraphContact);
+            QueryHandler sut = CreateSut(microsoftGraphContact: microsoftGraphContact);
 
             IGetContactQuery query = CreateGetContactQueryMock().Object;
             await sut.QueryAsync(query);
@@ -77,7 +101,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsAppliedContactSupplementFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndContactWasReturnedFromMicrosoftGraphRepository_ReturnsAppliedContactSupplementFromContactRepository()
         {
             IContact appliedContactSupplement = _fixture.BuildContactMock().Object;
             QueryHandler sut = CreateSut(appliedContactSupplement: appliedContactSupplement);
@@ -88,10 +112,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
             Assert.That(result, Is.EqualTo(appliedContactSupplement));
         }
 
-        private QueryHandler CreateSut(IContact microsoftGraphContact = null, IContact appliedContactSupplement = null)
+        private QueryHandler CreateSut(bool hasMicrosoftGraphContact = true, IContact microsoftGraphContact = null, IContact appliedContactSupplement = null)
         {
             _microsoftGraphRepositoryMock.Setup(m => m.GetContactAsync(It.IsAny<IRefreshableToken>(), It.IsAny<string>()))
-                .Returns(Task.Run(() => microsoftGraphContact ?? _fixture.BuildContactMock().Object));
+                .Returns(Task.Run(() => hasMicrosoftGraphContact ? microsoftGraphContact ?? _fixture.BuildContactMock().Object : null));
             _contactRepositoryMock.Setup(m => m.ApplyContactSupplementAsync(It.IsAny<IContact>()))
                 .Returns(Task.Run(() => appliedContactSupplement ?? _fixture.BuildContactMock().Object));
 

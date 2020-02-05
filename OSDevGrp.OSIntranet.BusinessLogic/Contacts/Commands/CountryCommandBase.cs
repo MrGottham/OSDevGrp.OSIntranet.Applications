@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -34,10 +34,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
                 .String.ShouldNotBeNullOrWhiteSpace(UniversalName, GetType(), nameof(UniversalName))
                 .String.ShouldHaveMinLength(UniversalName, 1, GetType(), nameof(UniversalName))
                 .String.ShouldHaveMaxLength(UniversalName, 256, GetType(), nameof(UniversalName))
-                .String.ShouldNotBeNullOrWhiteSpace(PhonePrefix, GetType(), nameof(PhonePrefix))
-                .String.ShouldHaveMinLength(PhonePrefix, 1, GetType(), nameof(PhonePrefix))
-                .String.ShouldHaveMaxLength(PhonePrefix, 4, GetType(), nameof(PhonePrefix))
-                .String.ShouldMatchPattern(PhonePrefix, new Regex(@"\+[0-9]{1,3}", RegexOptions.Compiled), GetType(), nameof(PhonePrefix));
+                .ValidatePhonePrefix(PhonePrefix, GetType(), nameof(PhonePrefix));
         }
 
         public ICountry ToDomain()

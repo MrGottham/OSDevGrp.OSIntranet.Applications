@@ -23,7 +23,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return paymentTerm ?? (paymentTerm = accountingRepository.GetPaymentTermAsync(number).GetAwaiter().GetResult());
+            return paymentTerm ??= accountingRepository.GetPaymentTermAsync(number).GetAwaiter().GetResult();
         }
 
         #endregion

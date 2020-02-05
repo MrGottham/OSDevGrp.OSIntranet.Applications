@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries
                 .NotNull(contactRepository, nameof(contactRepository));
 
             return base.Validate(validator, contactRepository)
-                .ValidatePostalCode(PostalCode, GetType(), nameof(PostalCode));
+                .ValidateRequiredPostalCode(PostalCode, GetType(), nameof(PostalCode));
         }
 
         #endregion

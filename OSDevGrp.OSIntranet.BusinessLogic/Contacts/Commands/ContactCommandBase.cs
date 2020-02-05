@@ -13,9 +13,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
     {
         #region Methods
 
-        public virtual IValidator Validate(IValidator validator, IContactRepository contactRepository, IAccountingRepository accountingRepository)
+        public virtual IValidator Validate(IValidator validator, IMicrosoftGraphRepository microsoftGraphRepository, IContactRepository contactRepository, IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(microsoftGraphRepository, nameof(microsoftGraphRepository))
                 .NotNull(contactRepository, nameof(contactRepository))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 

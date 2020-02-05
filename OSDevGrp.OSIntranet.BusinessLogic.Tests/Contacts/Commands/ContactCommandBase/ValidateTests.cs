@@ -15,6 +15,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
         #region Private variables
 
         private ValidatorMockContext _validatorMockContext;
+        private Mock<IMicrosoftGraphRepository> _microsoftGraphRepositoryMock;
         private Mock<IContactRepository> _contactRepositoryMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
@@ -25,6 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
         public void SetUp()
         {
             _validatorMockContext = new ValidatorMockContext();
+            _microsoftGraphRepositoryMock = new Mock<IMicrosoftGraphRepository>();
             _contactRepositoryMock = new Mock<IContactRepository>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
@@ -36,9 +38,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
         {
             IContactCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _contactRepositoryMock.Object, _accountingRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object));
 
             Assert.That(result.ParamName, Is.EqualTo("validator"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenMicrosoftGraphRepositoryIsNull_ThrowsArgumentNullException()
+        {
+            IContactCommand sut = CreateSut();
+
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _contactRepositoryMock.Object, _accountingRepositoryMock.Object));
+
+            Assert.That(result.ParamName, Is.EqualTo("microsoftGraphRepository"));
         }
 
         [Test]
@@ -47,7 +60,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
         {
             IContactCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _accountingRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, null, _accountingRepositoryMock.Object));
 
             Assert.That(result.ParamName, Is.EqualTo("contactRepository"));
         }
@@ -58,7 +71,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
         {
             IContactCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _contactRepositoryMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, null));
 
             Assert.That(result.ParamName, Is.EqualTo("accountingRepository"));
         }
@@ -70,7 +83,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
             string tokenType = _fixture.Create<string>();
             IContactCommand sut = CreateSut(tokenType);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.CompareOrdinal(value, tokenType) == 0),
@@ -86,7 +99,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
             string accessToken = _fixture.Create<string>();
             IContactCommand sut = CreateSut(accessToken: accessToken);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object); 
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object); 
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.CompareOrdinal(value, accessToken) == 0),
@@ -102,7 +115,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
             string refreshToken = _fixture.Create<string>();
             IContactCommand sut = CreateSut(refreshToken: refreshToken);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.CompareOrdinal(value, refreshToken) == 0),
@@ -118,7 +131,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
             DateTime expires = _fixture.Create<DateTime>();
             IContactCommand sut = CreateSut(expires: expires);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.DateTimeValidatorMock.Verify(m => m.ShouldBeFutureDateTime(
                     It.Is<DateTime>(value => value == expires),
@@ -133,7 +146,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactComma
         {
             IContactCommand sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }

@@ -7,7 +7,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands
 {
     public interface IContactCommand : IRefreshableTokenBasedCommand
     {
-        IValidator Validate(IValidator validator, IContactRepository contactRepository, IAccountingRepository accountingRepository);
+        IValidator Validate(IValidator validator, IMicrosoftGraphRepository microsoftGraphRepository, IContactRepository contactRepository, IAccountingRepository accountingRepository);
 
         IRefreshableToken ToToken();
     }

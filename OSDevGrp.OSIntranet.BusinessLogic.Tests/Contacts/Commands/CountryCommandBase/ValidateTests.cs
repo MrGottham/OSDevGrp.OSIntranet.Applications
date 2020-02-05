@@ -218,7 +218,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.CountryComma
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
                     It.Is<string>(value => string.CompareOrdinal(value, phonePrefix) == 0),
-                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), @"\+[0-9]{1,3}") == 0),
+                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), RegexTestHelper.PhonePrefixRegexPattern) == 0),
                     It.Is<Type>(type => type == sut.GetType()),
                     It.Is<string>(field => string.CompareOrdinal(field, "PhonePrefix") == 0),
                     It.Is<bool>(value => value == false)),

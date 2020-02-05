@@ -114,7 +114,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.CountryIdent
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
                     It.Is<string>(value => string.CompareOrdinal(value, countryCode.ToUpper()) == 0),
-                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), "[A-Z]{1,4}") == 0),
+                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), RegexTestHelper.CountryCodeRegexPattern) == 0),
                     It.Is<Type>(type => type == sut.GetType()),
                     It.Is<string>(field => string.CompareOrdinal(field, "CountryCode") == 0),
                     It.Is<bool>(value => value == false)),
