@@ -23,7 +23,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Common.Logic
         {
             NullGuard.NotNull(commonRepository, nameof(commonRepository));
 
-            return letterHead ?? (letterHead = commonRepository.GetLetterHeadAsync(number).GetAwaiter().GetResult());
+            return letterHead ??= commonRepository.GetLetterHeadAsync(number).GetAwaiter().GetResult();
         }
 
         #endregion

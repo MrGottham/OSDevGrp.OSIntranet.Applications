@@ -87,10 +87,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnCountryHelperWithCountryFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndCountryWasNotReturnedFromContactRepository_AssertApplyLogicForPrincipalWasNotCalledOnCountryHelper()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IGetCountryQuery query = CreateQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            _countryHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.IsAny<ICountry>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndCountryWasNotReturnedFromContactRepository_ReturnsNull()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IGetCountryQuery query = CreateQueryMock().Object;
+            ICountry result = await sut.QueryAsync(query);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndCountryWasReturnedFromContactRepository_AssertApplyLogicForPrincipalWasCalledOnCountryHelperWithCountryFromContactRepository()
         {
             ICountry country = _fixture.BuildCountryMock().Object;
-            QueryHandler sut = CreateSut(country);
+            QueryHandler sut = CreateSut(country: country);
 
             IGetCountryQuery query = CreateQueryMock().Object;
             await sut.QueryAsync(query);
@@ -100,10 +124,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsCountryFromCountryHelper()
+        public async Task QueryAsync_WhenCalledAndCountryWasReturnedFromContactRepository_ReturnsCountryFromCountryHelper()
         {
             ICountry country = _fixture.BuildCountryMock().Object;
-            QueryHandler sut = CreateSut(country);
+            QueryHandler sut = CreateSut(country: country);
 
             IGetCountryQuery query = CreateQueryMock().Object;
             ICountry result = await sut.QueryAsync(query);
@@ -111,10 +135,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
             Assert.That(result, Is.EqualTo(country));
         }
 
-        private QueryHandler CreateSut(ICountry country = null)
+        private QueryHandler CreateSut(bool hasCountry = true, ICountry country = null)
         {
             _contactRepositoryMock.Setup(m => m.GetCountryAsync(It.IsAny<string>()))
-                .Returns(Task.Run(() => country ?? _fixture.BuildCountryMock().Object));
+                .Returns(Task.Run(() => hasCountry ? country ?? _fixture.BuildCountryMock().Object : null));
             _countryHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<ICountry>()))
                 .Returns(country ?? _fixture.BuildCountryMock().Object);
 

@@ -83,10 +83,60 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyContactSupplementAsyncWasCalledOnContactRepositoryWithContactCollectionFromMicrosoftGraphRepository()
+        public async Task QueryAsync_WhenCalledAndContactCollectionWasNotReturnedFromMicrosoftGraphRepository_AssertApplyContactSupplementAsyncWasNotCalledOnContactRepository()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IGetContactWithBirthdayCollectionQuery query = CreateGetContactWithBirthdayCollectionQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            _contactRepositoryMock.Verify(m => m.ApplyContactSupplementAsync(It.IsAny<IEnumerable<IContact>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndContactCollectionWasNotReturnedFromMicrosoftGraphRepository_AssertHasBirthdayWithinDaysWasNotCalledOnAnyContact()
+        {
+            IEnumerable<Mock<IContact>> microsoftGraphContactMockCollection = new List<Mock<IContact>>
+            {
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock()
+            };
+            QueryHandler sut = CreateSut(false, microsoftGraphContactMockCollection.Select(m => m.Object).ToArray());
+
+            IGetContactWithBirthdayCollectionQuery query = CreateGetContactWithBirthdayCollectionQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            foreach (Mock<IContact> contactMock in microsoftGraphContactMockCollection)
+            {
+                contactMock.Verify(m => m.HasBirthdayWithinDays(It.IsAny<int>()), Times.Never);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndContactCollectionWasNotReturnedFromMicrosoftGraphRepository_ReturnsEmptyContactCollection()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IGetContactWithBirthdayCollectionQuery query = CreateGetContactWithBirthdayCollectionQueryMock().Object;
+            IList<IContact> result = (await sut.QueryAsync(query)).ToList();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndContactCollectionWasReturnedFromMicrosoftGraphRepository_AssertApplyContactSupplementAsyncWasCalledOnContactRepositoryWithContactCollectionFromMicrosoftGraphRepository()
         {
             IEnumerable<IContact> microsoftGraphContactCollection = _fixture.CreateMany<IContact>(_random.Next(5, 15)).ToList();
-            QueryHandler sut = CreateSut(microsoftGraphContactCollection);
+            QueryHandler sut = CreateSut(microsoftGraphContactCollection: microsoftGraphContactCollection);
 
             IGetContactWithBirthdayCollectionQuery query = CreateGetContactWithBirthdayCollectionQueryMock().Object;
             await sut.QueryAsync(query);
@@ -96,7 +146,45 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertHasBirthdayWithinDaysWasCalledOnEachContactWithinAppliedContactSupplementCollectionFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndAppliedContactSupplementCollectionWasNotReturnedFromContactRepository_AssertHasBirthdayWithinDaysWasNotCalledOnAnyContact()
+        {
+            IEnumerable<Mock<IContact>> appliedContactSupplementMockCollection = new List<Mock<IContact>>
+            {
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock(),
+                _fixture.BuildContactMock()
+            };
+            QueryHandler sut = CreateSut(hasAppliedContactSupplementCollection: false, appliedContactSupplementCollection: appliedContactSupplementMockCollection.Select(m => m.Object).ToArray());
+
+            IGetContactWithBirthdayCollectionQuery query = CreateGetContactWithBirthdayCollectionQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            foreach (Mock<IContact> contactMock in appliedContactSupplementMockCollection)
+            {
+                contactMock.Verify(m => m.HasBirthdayWithinDays(It.IsAny<int>()), Times.Never);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndAppliedContactSupplementCollectionWasNotReturnedFromContactRepository_ReturnsEmptyContactCollection()
+        {
+            QueryHandler sut = CreateSut(hasAppliedContactSupplementCollection: false);
+
+            IGetContactWithBirthdayCollectionQuery query = CreateGetContactWithBirthdayCollectionQueryMock().Object;
+            IList<IContact> result = (await sut.QueryAsync(query)).ToList();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndAppliedContactSupplementCollectionWasReturnedFromContactRepository_AssertHasBirthdayWithinDaysWasCalledOnEachContactWithinAppliedContactSupplementCollectionFromContactRepository()
         {
             IEnumerable<Mock<IContact>> appliedContactSupplementMockCollection = new List<Mock<IContact>>
             {
@@ -122,7 +210,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsContactWithBirthdayCollectionBasedOnAppliedContactSupplementCollection()
+        public async Task QueryAsync_WhenCalledAndAppliedContactSupplementCollectionWasReturnedFromContactRepository_ReturnsContactWithBirthdayCollectionBasedOnAppliedContactSupplementCollection()
         {
             IEnumerable<IContact> appliedContactSupplementCollection = new List<IContact>
             {
@@ -142,12 +230,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCont
             Assert.That(result.All(contact => contact.HasBirthdayWithinDays(It.IsAny<int>())), Is.True);
         }
 
-        private QueryHandler CreateSut(IEnumerable<IContact> microsoftGraphContactCollection = null, IEnumerable<IContact> appliedContactSupplementCollection = null)
+        private QueryHandler CreateSut(bool hasMicrosoftGraphContactCollection = true, IEnumerable<IContact> microsoftGraphContactCollection = null, bool hasAppliedContactSupplementCollection = true, IEnumerable<IContact> appliedContactSupplementCollection = null)
         {
             _microsoftGraphRepositoryMock.Setup(m => m.GetContactsAsync(It.IsAny<IRefreshableToken>()))
-                .Returns(Task.Run(() => microsoftGraphContactCollection ?? _fixture.CreateMany<IContact>(_random.Next(5, 15)).ToList()));
+                .Returns(Task.Run(() => hasMicrosoftGraphContactCollection ? microsoftGraphContactCollection ?? _fixture.CreateMany<IContact>(_random.Next(5, 15)).ToList() : null));
             _contactRepositoryMock.Setup(m => m.ApplyContactSupplementAsync(It.IsAny<IEnumerable<IContact>>()))
-                .Returns(Task.Run(() => appliedContactSupplementCollection ?? _fixture.CreateMany<IContact>(_random.Next(5, 15)).ToList()));
+                .Returns(Task.Run(() => hasAppliedContactSupplementCollection ? appliedContactSupplementCollection ?? _fixture.CreateMany<IContact>(_random.Next(5, 15)).ToList() : null));
 
             return new QueryHandler(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object);
         }

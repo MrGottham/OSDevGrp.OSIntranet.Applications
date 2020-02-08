@@ -46,12 +46,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
 
             Claim accountingClaim = currentPrincipal.GetClaim(ClaimHelper.AccountingClaimType);
-            if (accountingClaim == null || int.TryParse(accountingClaim.Value, out int accoutingNumber) == false)
+            if (accountingClaim == null || int.TryParse(accountingClaim.Value, out int accountingNumber) == false)
             {
                 return null;
             }
 
-            return accoutingNumber;
+            return accountingNumber;
         }
 
         #endregion

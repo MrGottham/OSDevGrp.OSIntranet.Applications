@@ -38,6 +38,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
             NullGuard.NotNull(query, nameof(query));
 
             IEnumerable<ICountry> countries = await _contactRepository.GetCountriesAsync();
+            if (countries == null)
+            {
+                return new List<ICountry>(0);
+            }
 
             return _countryHelper.ApplyLogicForPrincipal(countries);
         }

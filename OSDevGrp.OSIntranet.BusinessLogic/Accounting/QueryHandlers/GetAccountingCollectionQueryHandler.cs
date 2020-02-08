@@ -40,6 +40,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
             NullGuard.NotNull(query, nameof(query));
 
             IEnumerable<IAccounting> accountings = await _accountingRepository.GetAccountingsAsync();
+            if (accountings == null)
+            {
+                return new List<IAccounting>(0);
+            }
 
             IEnumerable<IAccounting> calculatedAccountings = await Task.WhenAll(accountings.Select(accounting => accounting.CalculateAsync(DateTime.Today)).ToArray());
 

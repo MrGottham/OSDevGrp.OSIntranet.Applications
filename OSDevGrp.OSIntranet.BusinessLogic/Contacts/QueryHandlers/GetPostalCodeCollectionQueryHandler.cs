@@ -45,6 +45,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
             query.Validate(_validator, _contactRepository);
 
             IEnumerable<IPostalCode> postalCodes = await _contactRepository.GetPostalCodesAsync(query.CountryCode);
+            if (postalCodes == null)
+            {
+                return new List<IPostalCode>(0);
+            }
 
             return postalCodes.Select(postalCode =>
                 {

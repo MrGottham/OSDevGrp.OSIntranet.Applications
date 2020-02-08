@@ -23,14 +23,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         {
             NullGuard.NotNull(securityRepository, nameof(securityRepository));
 
-            return userIdentity ?? (userIdentity = securityRepository.GetUserIdentityAsync(identifier).GetAwaiter().GetResult());
+            return userIdentity ??= securityRepository.GetUserIdentityAsync(identifier).GetAwaiter().GetResult();
         }
 
         internal static IClientSecretIdentity GetClientSecretIdentity(this int identifier, ISecurityRepository securityRepository, ref IClientSecretIdentity clientSecretIdentity)
         {
             NullGuard.NotNull(securityRepository, nameof(securityRepository));
 
-            return clientSecretIdentity ?? (clientSecretIdentity = securityRepository.GetClientSecretIdentityAsync(identifier).GetAwaiter().GetResult());
+            return clientSecretIdentity ??= securityRepository.GetClientSecretIdentityAsync(identifier).GetAwaiter().GetResult();
         }
 
         #endregion

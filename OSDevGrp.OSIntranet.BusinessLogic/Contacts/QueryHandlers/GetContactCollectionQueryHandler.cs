@@ -28,6 +28,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
                 .NotNull(token, nameof(token));
 
             IEnumerable<IContact> contacts = await MicrosoftGraphRepository.GetContactsAsync(token);
+            if (contacts == null)
+            {
+                return new List<IContact>(0);
+            }
 
             return await ContactRepository.ApplyContactSupplementAsync(contacts);
         }

@@ -41,6 +41,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(GetAccountings);
         }
 
+        public Task<bool> AccountingExistsAsync(int number)
+        {
+            return Task.Run(() => AccountingExists(number));
+        }
+
         public Task<IAccounting> GetAccountingAsync(int number, DateTime statusDate)
         {
             return Task.Run(() => GetAccounting(number, statusDate));
@@ -171,6 +176,16 @@ namespace OSDevGrp.OSIntranet.Repositories
                         })
                         .OrderBy(accounting => accounting.Number)
                         .ToList();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private bool AccountingExists(int number)
+        {
+            return Execute(() =>
+                {
+                    using AccountingContext context = new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
+                    return context.Accountings.SingleOrDefault(model => model.AccountingIdentifier == number) != null;
                 },
                 MethodBase.GetCurrentMethod());
         }

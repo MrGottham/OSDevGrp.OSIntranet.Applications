@@ -35,7 +35,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             IIdentity identity = await GetIdentityAsync(command);
             if (identity == null || IsMatch(command, identity) == false)
             {
-                return default(TResult);
+                return default;
             }
 
             return CreateAuthenticatedIdentity(command, identity);

@@ -32,7 +32,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
             string searchFor = query.SearchFor;
             SearchOptions searchOptions = query.SearchOptions;
 
-            IEnumerable<IContact> matchingContacts = (await MicrosoftGraphRepository.GetContactsAsync(token))
+            IEnumerable<IContact> contacts = await MicrosoftGraphRepository.GetContactsAsync(token);
+            if (contacts == null)
+            {
+                return new List<IContact>(0);
+            }
+
+            IEnumerable<IContact> matchingContacts = contacts
                 .Where(contact => contact.IsMatch(searchFor, searchOptions))
                 .ToArray();
 

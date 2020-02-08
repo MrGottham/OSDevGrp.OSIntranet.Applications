@@ -43,6 +43,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
             query.Validate(_validator, _contactRepository);
 
             IPostalCode postalCode = await _contactRepository.GetPostalCodeAsync(query.CountryCode, query.PostalCode);
+            if (postalCode == null)
+            {
+                return null;
+            }
+
             postalCode.Country = _countryHelper.ApplyLogicForPrincipal(postalCode.Country);
 
             return postalCode;

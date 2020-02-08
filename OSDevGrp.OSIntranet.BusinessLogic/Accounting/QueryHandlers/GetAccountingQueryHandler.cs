@@ -46,8 +46,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
             DateTime statusDate = query.StatusDate;
 
             IAccounting accounting = await _accountingRepository.GetAccountingAsync(query.AccountingNumber, statusDate);
+            if (accounting == null)
+            {
+                return null;
+            }
 
             IAccounting calculatedAccounting = await accounting.CalculateAsync(statusDate);
+            if (calculatedAccounting == null)
+            {
+                return null;
+            }
 
             return _accountingHelper.ApplyLogicForPrincipal(calculatedAccounting);
         }

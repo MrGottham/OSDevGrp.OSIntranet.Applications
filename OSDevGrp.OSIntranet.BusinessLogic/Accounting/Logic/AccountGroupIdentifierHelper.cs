@@ -23,14 +23,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return accountGroup ?? (accountGroup = accountingRepository.GetAccountGroupAsync(number).GetAwaiter().GetResult());
+            return accountGroup ??= accountingRepository.GetAccountGroupAsync(number).GetAwaiter().GetResult();
         }
 
         internal static IBudgetAccountGroup GetBudgetAccountGroup(this int number, IAccountingRepository accountingRepository, ref IBudgetAccountGroup budgetAccountGroup)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return budgetAccountGroup ?? (budgetAccountGroup = accountingRepository.GetBudgetAccountGroupAsync(number).GetAwaiter().GetResult());
+            return budgetAccountGroup ??= accountingRepository.GetBudgetAccountGroupAsync(number).GetAwaiter().GetResult();
         }
 
         #endregion

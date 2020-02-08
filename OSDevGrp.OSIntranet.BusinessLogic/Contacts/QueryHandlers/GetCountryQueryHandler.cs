@@ -44,7 +44,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
 
             ICountry country = await _contactRepository.GetCountryAsync(query.CountryCode);
 
-            return _countryHelper.ApplyLogicForPrincipal(country);
+            return country == null ? null : _countryHelper.ApplyLogicForPrincipal(country);
         }
 
         #endregion

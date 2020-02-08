@@ -31,8 +31,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers
             int birthdayWithinDays = query.BirthdayWithinDays;
 
             IEnumerable<IContact> contacts = await MicrosoftGraphRepository.GetContactsAsync(token);
+            if (contacts == null)
+            {
+                return new List<IContact>(0);
+            }
 
-            return (await ContactRepository.ApplyContactSupplementAsync(contacts))
+            IEnumerable<IContact> appliedSupplementContacts = await ContactRepository.ApplyContactSupplementAsync(contacts);
+            if (appliedSupplementContacts == null)
+            {
+                return new List<IContact>(0);
+            }
+
+            return appliedSupplementContacts
                 .Where(contact => contact.HasBirthdayWithinDays(birthdayWithinDays))
                 .ToList();
         }

@@ -95,10 +95,56 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPost
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnCountryHelperForEachPostalCodeFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndPostalCodeCollectionWasNotReturnedFromContactRepository_AssertApplyLogicForPrincipalWasNotCalledOnCountryHelperForAnyPostalCode()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            _countryHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.IsAny<ICountry>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndPostalCodeCollectionWasNotReturnedFromContactRepository_AssertCountrySetterWasNotCalledOnAnyPostalCode()
+        {
+            IEnumerable<Mock<IPostalCode>> postalCodeMockCollection = new List<Mock<IPostalCode>>
+            {
+                _fixture.BuildPostalCodeMock(),
+                _fixture.BuildPostalCodeMock(),
+                _fixture.BuildPostalCodeMock()
+            };
+            QueryHandler sut = CreateSut(false, postalCodeMockCollection.Select(m => m.Object).ToList());
+
+            IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
+            await sut.QueryAsync(query);
+
+            foreach (Mock<IPostalCode> postalCodeMock in postalCodeMockCollection)
+            {
+                postalCodeMock.VerifySet(m => m.Country = It.IsAny<ICountry>(), Times.Never);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndPostalCodeCollectionWasNotReturnedFromContactRepository_ReturnsEmptyPostalCodeCollection()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
+            IList<IPostalCode> result = (await sut.QueryAsync(query)).ToList();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndPostalCodeCollectionWasReturnedFromContactRepository_AssertApplyLogicForPrincipalWasCalledOnCountryHelperForEachPostalCodeFromContactRepository()
         {
             IEnumerable<IPostalCode> postalCodeCollection = _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList();
-            QueryHandler sut = CreateSut(postalCodeCollection);
+            QueryHandler sut = CreateSut(postalCodeCollection: postalCodeCollection);
 
             IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
             await sut.QueryAsync(query);
@@ -111,7 +157,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPost
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertCountrySetterWasCalledOnEachPostalCodeFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndPostalCodeCollectionWasReturnedFromContactRepository_AssertCountrySetterWasCalledOnEachPostalCodeFromContactRepository()
         {
             IEnumerable<Mock<IPostalCode>> postalCodeMockCollection = new List<Mock<IPostalCode>>
             {
@@ -120,7 +166,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPost
                 _fixture.BuildPostalCodeMock()
             };
             ICountry country = _fixture.BuildCountryMock().Object;
-            QueryHandler sut = CreateSut(postalCodeMockCollection.Select(m => m.Object).ToList(), country);
+            QueryHandler sut = CreateSut(postalCodeCollection: postalCodeMockCollection.Select(m => m.Object).ToList(), country: country);
 
             IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
             await sut.QueryAsync(query);
@@ -133,10 +179,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPost
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsPostalCodeCollectionFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndPostalCodeCollectionWasReturnedFromContactRepository_ReturnsPostalCodeCollectionFromContactRepository()
         {
             IEnumerable<IPostalCode> postalCodeCollection = _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList();
-            QueryHandler sut = CreateSut(postalCodeCollection);
+            QueryHandler sut = CreateSut(postalCodeCollection: postalCodeCollection);
 
             IGetPostalCodeCollectionQuery query = CreateQueryMock().Object;
             IEnumerable<IPostalCode> result = await sut.QueryAsync(query);
@@ -144,10 +190,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetPost
             Assert.That(result, Is.EqualTo(postalCodeCollection));
         }
 
-        private QueryHandler CreateSut(IEnumerable<IPostalCode> postalCodeCollection = null, ICountry country = null)
+        private QueryHandler CreateSut(bool hasPostalCodeCollection = true, IEnumerable<IPostalCode> postalCodeCollection = null, ICountry country = null)
         {
             _contactRepositoryMock.Setup(m => m.GetPostalCodesAsync(It.IsAny<string>()))
-                .Returns(Task.Run(() => postalCodeCollection ?? _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList()));
+                .Returns(Task.Run(() => hasPostalCodeCollection ? postalCodeCollection ?? _fixture.CreateMany<IPostalCode>(_random.Next(10, 25)).ToList() : null));
             _countryHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<ICountry>()))
                 .Returns(country ?? _fixture.BuildCountryMock().Object);
 

@@ -10,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class AccountingMockBuilder
     {
-        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture, IAccounting calculatedAccounting = null)
+        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture, bool hasCalculatedAccounting = true, IAccounting calculatedAccounting = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             accountingMock.Setup(m => m.ModifiedByIdentifier)
                 .Returns(fixture.Create<string>());
             accountingMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
-                .Returns(Task.Run(() => calculatedAccounting ?? accountingMock.Object));
+                .Returns(Task.Run(() => hasCalculatedAccounting ? calculatedAccounting ?? accountingMock.Object : null));
             return accountingMock;
         }
 

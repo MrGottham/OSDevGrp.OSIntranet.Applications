@@ -62,10 +62,33 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_AssertApplyLogicForPrincipalWasCalledOnCountryHelperWithCountryCollectionFromContactRepository()
+        public async Task QueryAsync_WhenCalledAndCountryCollectionWasNotReturnedFromContactRepository_AssertApplyLogicForPrincipalWasNotCalledOnCountryHelper()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            _countryHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.IsAny<IEnumerable<ICountry>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndCountryCollectionWasNotReturnedFromContactRepository_ReturnsEmptyCountryCollection()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IList<ICountry> result = (await sut.QueryAsync(new EmptyQuery())).ToList();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalledAndCountryCollectionWasReturnedFromContactRepository_AssertApplyLogicForPrincipalWasCalledOnCountryHelperWithCountryCollectionFromContactRepository()
         {
             IEnumerable<ICountry> countryCollection = _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList();
-            QueryHandler sut = CreateSut(countryCollection);
+            QueryHandler sut = CreateSut(countryCollection: countryCollection);
 
             await sut.QueryAsync(new EmptyQuery());
 
@@ -74,20 +97,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetCoun
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsCountryCollectionFromCountryHelper()
+        public async Task QueryAsync_WhenCalledAndCountryCollectionWasReturnedFromContactRepository_ReturnsCountryCollectionFromCountryHelper()
         {
             IEnumerable<ICountry> countryCollection = _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList();
-            QueryHandler sut = CreateSut(countryCollection);
+            QueryHandler sut = CreateSut(countryCollection: countryCollection);
 
             IEnumerable<ICountry> result = await sut.QueryAsync(new EmptyQuery());
 
             Assert.That(result, Is.EqualTo(countryCollection));
         }
 
-        private QueryHandler CreateSut(IEnumerable<ICountry> countryCollection = null)
+        private QueryHandler CreateSut(bool hasCountryCollection = true, IEnumerable<ICountry> countryCollection = null)
         {
             _contactRepositoryMock.Setup(m => m.GetCountriesAsync())
-                .Returns(Task.Run(() => countryCollection ?? _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList()));
+                .Returns(Task.Run(() => hasCountryCollection ? countryCollection ?? _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList() : null));
             _countryHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<IEnumerable<ICountry>>()))
                 .Returns(countryCollection ?? _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList());
 

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -17,7 +16,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
                 .NotNull(commonRepository, nameof(commonRepository));
 
             return base.Validate(validator, accountingRepository, commonRepository)
-                .Object.ShouldBeKnownValue(AccountingNumber, accountingNumber => Task.Run(async () => await GetAccountingAsync(accountingRepository) != null), GetType(), nameof(AccountingNumber));
+                .Object.ShouldBeKnownValue(AccountingNumber, accountingNumber => AccountingExistsAsync(accountingRepository), GetType(), nameof(AccountingNumber));
         }
 
         #endregion

@@ -34,6 +34,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             return validator.ValidateAccountingIdentifier(AccountingNumber, GetType(), nameof(AccountingNumber));
         }
 
+        protected async Task<bool> AccountingExistsAsync(IAccountingRepository accountingRepository)
+        {
+            NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
+
+            return await accountingRepository.AccountingExistsAsync(AccountingNumber);
+        }
+
         protected Task<IAccounting> GetAccountingAsync(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));

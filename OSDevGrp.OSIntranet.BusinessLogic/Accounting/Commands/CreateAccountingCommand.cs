@@ -17,7 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
                 .NotNull(commonRepository, nameof(commonRepository));
 
             return base.Validate(validator, accountingRepository, commonRepository)
-                .Object.ShouldBeUnknownValue(AccountingNumber, accountingNumber => Task.Run(async () => await GetAccountingAsync(accountingRepository) == null), GetType(), nameof(AccountingNumber));
+                .Object.ShouldBeUnknownValue(AccountingNumber, accountingNumber => Task.Run(async () => await AccountingExistsAsync(accountingRepository) == false), GetType(), nameof(AccountingNumber));
         }
 
         #endregion

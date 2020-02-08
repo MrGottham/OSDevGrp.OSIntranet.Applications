@@ -9,6 +9,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
     {
         Task<IEnumerable<IAccounting>> GetAccountingsAsync();
 
+        Task<bool> AccountingExistsAsync(int number);
+
         Task<IAccounting> GetAccountingAsync(int number, DateTime statusDate);
 
         Task<IAccounting> CreateAccountingAsync(IAccounting accounting);
