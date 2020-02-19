@@ -10,9 +10,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IEnumerable<IContact>> ApplyContactSupplementAsync(IEnumerable<IContact> contacts);
 
-        Task<IContact> CreateOrUpdateContactSupplementAsync(IContact contact);
+        Task<IContact> CreateOrUpdateContactSupplementAsync(IContact contact, string existingExternalIdentifier = null);
 
-        Task<IContact> DeleteContactSupplementAsync(string externalIdentifier);
+        Task<IContact> DeleteContactSupplementAsync(IContact contact);
 
         Task<IEnumerable<IContactGroup>> GetContactGroupsAsync();
 

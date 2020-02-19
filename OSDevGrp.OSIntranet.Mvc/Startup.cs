@@ -71,7 +71,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Scope.Add("offline_access");
                 opt.Events.OnCreatingTicket += o =>
                 {
-                    int seconds = o.ExpiresIn?.Seconds ?? 0;
+                    double seconds = o.ExpiresIn?.TotalSeconds ?? 0;
                     IRefreshableToken refreshableToken = new RefreshableToken(o.TokenType, o.AccessToken, o.RefreshToken, DateTime.UtcNow.AddSeconds(seconds));
                     AccountController.StoreMicrosoftGraphToken(o.HttpContext, refreshableToken);
                     return Task.CompletedTask;

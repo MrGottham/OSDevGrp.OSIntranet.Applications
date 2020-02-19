@@ -36,6 +36,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
                 .Object.ShouldBeKnownValue(ExternalIdentifier, externalIdentifier => Task.Run(async () => await GetContactAsync(microsoftGraphRepository, contactRepository) != null), GetType(), nameof(ExternalIdentifier));
         }
 
+        public Task<IContact> GetExistingContactAsync(IMicrosoftGraphRepository microsoftGraphRepository, IContactRepository contactRepository)
+        {
+            NullGuard.NotNull(microsoftGraphRepository, nameof(microsoftGraphRepository))
+                .NotNull(contactRepository, nameof(contactRepository));
+
+            return GetContactAsync(microsoftGraphRepository, contactRepository);
+        }
+
         protected Task<IContact> GetContactAsync(IMicrosoftGraphRepository microsoftGraphRepository, IContactRepository contactRepository)
         {
             NullGuard.NotNull(microsoftGraphRepository, nameof(microsoftGraphRepository))

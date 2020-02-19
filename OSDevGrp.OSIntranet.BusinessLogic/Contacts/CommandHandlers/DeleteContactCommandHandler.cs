@@ -2,6 +2,7 @@
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
@@ -31,9 +32,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
                 return;
             }
 
-            await ContactRepository.DeleteContactSupplementAsync(externalIdentifier);
+            IContact existingContact = await command.GetExistingContactAsync(MicrosoftGraphRepository, ContactRepository);
+            if (existingContact == null)
+            {
+                return;
+            }
 
-            await MicrosoftGraphRepository.DeleteContactAsync(token, externalIdentifier);
+            string existingExternalIdentifier = existingContact.ExternalIdentifier;
+            if (string.IsNullOrWhiteSpace(existingExternalIdentifier))
+            {
+                return;
+            }
+
+            await ContactRepository.DeleteContactSupplementAsync(existingContact);
+
+            await MicrosoftGraphRepository.DeleteContactAsync(token, existingExternalIdentifier);
         }
 
         #endregion

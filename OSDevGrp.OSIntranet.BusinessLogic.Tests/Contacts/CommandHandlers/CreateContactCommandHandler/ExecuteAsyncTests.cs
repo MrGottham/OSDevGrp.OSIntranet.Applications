@@ -81,6 +81,32 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Creat
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndNoCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertExternalIdentifierWasNotCalledOnCreatedContactFromMicrosoftGraphRepository()
+        {
+            Mock<IContact> createdMicrosoftGraphContactMock = _fixture.BuildContactMock();
+            CommandHandler sut = CreateSut(false, createdMicrosoftGraphContactMock.Object);
+
+            ICreateContactCommand command = CreateCreateContactCommandMock().Object;
+            await sut.ExecuteAsync(command);
+
+            createdMicrosoftGraphContactMock.Verify(m => m.ExternalIdentifier, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndNoCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertExternalIdentifierSetterWasNotCalledOnContactFromToDomainOnCommand()
+        {
+            CommandHandler sut = CreateSut(false);
+
+            Mock<IContact> contactMock = _fixture.BuildContactMock();
+            ICreateContactCommand command = CreateCreateContactCommandMock(contact: contactMock.Object).Object;
+            await sut.ExecuteAsync(command);
+
+            contactMock.VerifySet(m => m.ExternalIdentifier = It.IsAny<string>(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenCalledAndNoCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertCreateOrUpdateContactSupplementAsyncWasNotCalledOnContactRepository()
         {
             CommandHandler sut = CreateSut(false);
@@ -88,27 +114,55 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Creat
             ICreateContactCommand command = CreateCreateContactCommandMock().Object;
             await sut.ExecuteAsync(command);
 
-            _contactRepositoryMock.Verify(m => m.CreateOrUpdateContactSupplementAsync(It.IsAny<IContact>()), Times.Never);
+            _contactRepositoryMock.Verify(m => m.CreateOrUpdateContactSupplementAsync(It.IsAny<IContact>(), It.IsAny<string>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenCalledAndCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertCreateOrUpdateContactSupplementAsyncWasCalledOnContactRepositoryWithCreatedContactFromMicrosoftGraphRepository()
+        public async Task ExecuteAsync_WhenCalledAndCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertExternalIdentifierWasCalledOnCreatedContactFromMicrosoftGraphRepository()
         {
-            IContact createdMicrosoftGraphContact = _fixture.BuildContactMock().Object;
-            CommandHandler sut = CreateSut(createdMicrosoftGraphContact: createdMicrosoftGraphContact);
+            Mock<IContact> createdMicrosoftGraphContactMock = _fixture.BuildContactMock();
+            CommandHandler sut = CreateSut(createdMicrosoftGraphContact: createdMicrosoftGraphContactMock.Object);
 
             ICreateContactCommand command = CreateCreateContactCommandMock().Object;
             await sut.ExecuteAsync(command);
 
-            _contactRepositoryMock.Verify(m => m.CreateOrUpdateContactSupplementAsync(It.Is<IContact>(value => value == createdMicrosoftGraphContact)), Times.Once);
+            createdMicrosoftGraphContactMock.Verify(m => m.ExternalIdentifier, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertExternalIdentifierSetterWasCalledOnContactFromToDomainOnCommandExternalIdentifierFromCreatedContactFromMicrosoftGraphRepository()
+        {
+            string externalIdentifier = _fixture.Create<string>();
+            IContact createdMicrosoftGraphContact = _fixture.BuildContactMock(externalIdentifier: externalIdentifier).Object;
+            CommandHandler sut = CreateSut(createdMicrosoftGraphContact: createdMicrosoftGraphContact);
+
+            Mock<IContact> contactMock = _fixture.BuildContactMock();
+            ICreateContactCommand command = CreateCreateContactCommandMock(contact: contactMock.Object).Object;
+            await sut.ExecuteAsync(command);
+
+            contactMock.VerifySet(m => m.ExternalIdentifier = It.Is<string>(value => string.CompareOrdinal(value, externalIdentifier) == 0), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCreatedContactWasReturnedFromMicrosoftGraphRepository_AssertCreateOrUpdateContactSupplementAsyncWasCalledOnContactRepositoryWithContactFromToDomainOnCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            IContact contact = _fixture.BuildContactMock().Object;
+            ICreateContactCommand command = CreateCreateContactCommandMock(contact: contact).Object;
+            await sut.ExecuteAsync(command);
+
+            _contactRepositoryMock.Verify(m => m.CreateOrUpdateContactSupplementAsync(It.Is<IContact>(value => value == contact), It.Is<string>(value => value == null)), Times.Once);
         }
 
         private CommandHandler CreateSut(bool hasCreatedMicrosoftGraphContact = true, IContact createdMicrosoftGraphContact = null)
         {
             _microsoftGraphRepositoryMock.Setup(m => m.CreateContactAsync(It.IsAny<IRefreshableToken>(), It.IsAny<IContact>()))
                 .Returns(Task.Run(() => hasCreatedMicrosoftGraphContact ? createdMicrosoftGraphContact ?? _fixture.BuildContactMock().Object : null));
-            _contactRepositoryMock.Setup(m => m.CreateOrUpdateContactSupplementAsync(It.IsAny<IContact>()))
+            _contactRepositoryMock.Setup(m => m.CreateOrUpdateContactSupplementAsync(It.IsAny<IContact>(), It.IsAny<string>()))
                 .Returns(Task.Run(() => _fixture.BuildContactMock().Object));
 
             return new CommandHandler(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);

@@ -48,6 +48,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
             return contact;
         }
 
+        public Task<IContact> GetExistingContactAsync(IMicrosoftGraphRepository microsoftGraphRepository, IContactRepository contactRepository)
+        {
+            NullGuard.NotNull(microsoftGraphRepository, nameof(microsoftGraphRepository))
+                .NotNull(contactRepository, nameof(contactRepository));
+
+            return GetContactAsync(microsoftGraphRepository, contactRepository);
+        }
+
         protected Task<IContact> GetContactAsync(IMicrosoftGraphRepository microsoftGraphRepository, IContactRepository contactRepository)
         {
             NullGuard.NotNull(microsoftGraphRepository, nameof(microsoftGraphRepository))

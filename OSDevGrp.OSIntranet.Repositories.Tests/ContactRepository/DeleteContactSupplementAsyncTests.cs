@@ -8,35 +8,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void DeleteContactSupplementAsync_WhenExternalIdentifierIsNull_ThrowsArgumentNullException()
+        public void DeleteContactSupplementAsync_WhenContactIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactSupplementAsync(null));
 
-            Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void DeleteContactSupplementAsync_WhenExternalIdentifierIsEmpty_ThrowsArgumentNullException()
-        {
-            IContactRepository sut = CreateSut();
-
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactSupplementAsync(string.Empty));
-
-            Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void DeleteContactSupplementAsync_WhenExternalIdentifierIsWhiteSpace_ThrowsArgumentNullException()
-        {
-            IContactRepository sut = CreateSut();
-
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactSupplementAsync(" "));
-
-            Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
+            Assert.That(result.ParamName, Is.EqualTo("contact"));
         }
     }
 }

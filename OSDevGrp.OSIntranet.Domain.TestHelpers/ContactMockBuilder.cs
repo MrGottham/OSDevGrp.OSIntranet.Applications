@@ -9,15 +9,15 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<IContact> contactMock = new Mock<IContact>();
             contactMock.Setup(m => m.InternalIdentifier)
-                .Returns(fixture.Create<string>());
+                .Returns(hasInternalIdentifier ? internalIdentifier ?? fixture.Create<string>() : null);
             contactMock.Setup(m => m.ExternalIdentifier)
-                .Returns(fixture.Create<string>());
+                .Returns(hasExternalIdentifier ? externalIdentifier ?? fixture.Create<string>() : null);
             contactMock.Setup(m => m.Name)
                 .Returns(fixture.BuildNameMock().Object);
             contactMock.Setup(m => m.Address)

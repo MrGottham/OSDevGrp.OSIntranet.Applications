@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -12,8 +13,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
     internal class ContactSupplementModel : AuditModelBase
     {
         public virtual int ContactSupplementIdentifier { get; set; }
-
-        public virtual string ExternalIdentifier { get; set; }
 
         public virtual DateTime? Birthday { get; set; }
 
@@ -30,6 +29,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
         public virtual int PaymentTermIdentifier { get; set; }
 
         public virtual PaymentTermModel PaymentTerm { get; set; }
+
+        public virtual List<ContactSupplementBindingModel> ContactSupplementBindings { get; set; }
     }
 
     internal static class ContactSupplementModelExtensions
@@ -42,7 +43,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
             contact.InternalIdentifier = Convert.ToString(contactSupplementModel.ContactSupplementIdentifier);
-            contact.ExternalIdentifier = contactSupplementModel.ExternalIdentifier;
 
             if (contact.Birthday.HasValue == false && contactSupplementModel.Birthday.HasValue)
             {
@@ -56,7 +56,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 
             DateTime createdUtcDateTime = contact.CreatedDateTime.ToUniversalTime();
             string createdByIdentifier = contact.CreatedByIdentifier;
-            if (contactSupplementModel.CreatedUtcDateTime < createdUtcDateTime)
+            if (createdUtcDateTime == DateTime.MinValue || string.IsNullOrWhiteSpace(createdByIdentifier) || contactSupplementModel.CreatedUtcDateTime < createdUtcDateTime)
             {
                 createdUtcDateTime = contactSupplementModel.CreatedUtcDateTime;
                 createdByIdentifier = contactSupplementModel.CreatedByIdentifier;
@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 
             DateTime modifiedUtcDateTime = contact.ModifiedDateTime.ToUniversalTime();
             string modifiedByIdentifier = contact.ModifiedByIdentifier;
-            if (contactSupplementModel.ModifiedUtcDateTime > modifiedUtcDateTime)
+            if (modifiedUtcDateTime == DateTime.MinValue || string.IsNullOrWhiteSpace(modifiedByIdentifier) || contactSupplementModel.ModifiedUtcDateTime > modifiedUtcDateTime)
             {
                 modifiedUtcDateTime = contactSupplementModel.ModifiedUtcDateTime;
                 modifiedByIdentifier = contactSupplementModel.ModifiedByIdentifier;
@@ -83,7 +83,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
             {
                 entity.HasKey(e => e.ContactSupplementIdentifier);
                 entity.Property(e => e.ContactSupplementIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
-                entity.Property(e => e.ExternalIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.Birthday).IsRequired(false);
                 entity.Property(e => e.ContactGroupIdentifier).IsRequired();
                 entity.Property(e => e.Acquaintance).IsRequired(false).IsUnicode().HasMaxLength(4096);
@@ -94,7 +93,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-                entity.HasIndex(e => e.ExternalIdentifier).IsUnique();
                 entity.HasOne(e => e.ContactGroup);
                 entity.HasOne(e => e.PaymentTerm);
             });

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
 using System.Text.RegularExpressions;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Core;
@@ -169,6 +172,22 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
             return daysToBirthdayThisYear >= 0 && daysToBirthdayThisYear <= days;
         }
 
+        public string CalculateIdentifier()
+        {
+            string identifierBase = $"{CalculateIdentifierValue(Name.DisplayName)}|{CalculateIdentifierValue(MailAddress)}|{CalculateIdentifierValue(PrimaryPhone)}|{CalculateIdentifierValue(SecondaryPhone)}";
+
+            using MemoryStream sourceMemoryStream = new MemoryStream(Encoding.UTF8.GetBytes(identifierBase));
+
+            using MemoryStream targetMemoryStream = new MemoryStream();
+            using GZipStream gZipStream = new GZipStream(targetMemoryStream, CompressionMode.Compress);
+            gZipStream.Write(sourceMemoryStream.ToArray());
+            gZipStream.Flush();
+
+            targetMemoryStream.Seek(0, SeekOrigin.Begin);
+
+            return Convert.ToBase64String(targetMemoryStream.ToArray());
+        }
+
         private bool MatchingName(string searchFor, SearchOptions searchOptions)
         {
             NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor));
@@ -251,6 +270,11 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
             Regex pattern = new Regex(searchFor, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
             return pattern.IsMatch(value);
+        }
+
+        private static string CalculateIdentifierValue(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? "{null}" : value.Trim().Replace(" ", "");
         }
 
         #endregion

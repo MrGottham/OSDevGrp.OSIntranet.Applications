@@ -34,7 +34,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
                 return;
             }
 
-            await ContactRepository.CreateOrUpdateContactSupplementAsync(createdContact);
+            contact.ExternalIdentifier = createdContact.ExternalIdentifier;
+
+            await ContactRepository.CreateOrUpdateContactSupplementAsync(contact);
         }
 
         #endregion

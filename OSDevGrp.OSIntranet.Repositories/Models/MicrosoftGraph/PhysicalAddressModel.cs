@@ -66,7 +66,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
                     t.State = t.State.CalculateChange(s.State);
                     t.CountryOrRegion = t.CountryOrRegion.CalculateChange(s.CountryOrRegion);
 
-                    return t.IsEmpty() == false ? t : null;
+                    if (t.IsEmpty())
+                    {
+                        return null;
+                    }
+
+                    t.Street ??= s.Street;
+                    t.PostalCode ??= s.PostalCode;
+                    t.City ??= s.City;
+                    t.State ??= s.State;
+                    t.CountryOrRegion ??= s.CountryOrRegion;
+
+                    return t;
                 });
         }
 

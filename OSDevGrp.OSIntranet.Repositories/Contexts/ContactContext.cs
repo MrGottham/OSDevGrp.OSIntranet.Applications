@@ -27,6 +27,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<ContactSupplementModel> ContactSupplements { get; set; }
 
+        public DbSet<ContactSupplementBindingModel> ContactSupplementBindings { get; set; }
+
         public DbSet<ContactGroupModel> ContactGroups { get; set; }
 
         public DbSet<PaymentTermModel> PaymentTerms { get; set; }
@@ -46,6 +48,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.CreateContactSupplementModel();
+            modelBuilder.CreateContactSupplementBindingModel();
             modelBuilder.CreateContactGroupModel();
             modelBuilder.CreatePaymentTermModel();
             modelBuilder.CreateCountryModel();

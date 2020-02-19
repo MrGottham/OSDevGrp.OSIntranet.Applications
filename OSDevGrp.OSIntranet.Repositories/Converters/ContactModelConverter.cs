@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -24,16 +25,30 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IContact, ContactSupplementModel>()
                 .ForMember(dest => dest.ContactSupplementIdentifier, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.InternalIdentifier) ? default : int.Parse(src.InternalIdentifier)))
-                .ForMember(dest => dest.Birthday, opt =>
-                {
-                    opt.Condition(src => src.Birthday.HasValue);
-                    opt.MapFrom(src => src.Birthday.Value.Date);
-                })
-                .ForMember(dest => dest.ContactGroupIdentifier, opt => opt.MapFrom(src => src.ContactGroup.Name))
+                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(new NullableDateTimeResolver<IContact, ContactSupplementModel>(contact => contact.Birthday)))
+                .ForMember(dest => dest.ContactGroupIdentifier, opt => opt.MapFrom(src => src.ContactGroup.Number))
                 .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.PaymentTerm.Number))
                 .ForMember(dest => dest.PaymentTerm, opt => opt.MapFrom(src => _accountingConverter.Convert<IPaymentTerm, PaymentTermModel>(src.PaymentTerm)))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ContactSupplementBindings, opt => opt.Ignore())
+                .AfterMap((src, dest) =>
+                {
+                    dest.ContactSupplementBindings = new List<ContactSupplementBindingModel>();
+
+                    if (string.IsNullOrWhiteSpace(src.ExternalIdentifier) == false)
+                    {
+                        dest.ContactSupplementBindings.Add(new ContactSupplementBindingModel {ContactSupplement = dest, ExternalIdentifier = src.ExternalIdentifier});
+                    }
+
+                    string calculatedIdentifier = src.CalculateIdentifier();
+                    if (string.IsNullOrWhiteSpace(calculatedIdentifier))
+                    {
+                        return;
+                    }
+
+                    dest.ContactSupplementBindings.Add(new ContactSupplementBindingModel {ContactSupplement = dest, ExternalIdentifier = calculatedIdentifier});
+                });
 
             mapperConfiguration.CreateMap<ContactGroupModel, IContactGroup>()
                 .ConvertUsing(contactGroupModel => contactGroupModel.ToDomain());

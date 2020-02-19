@@ -61,14 +61,39 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Delet
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandDoesNotHaveExternalIdentifier_AssertGetExistingContactAsyncWasNotCalledOnCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            Mock<IDeleteContactCommand> commandMock = CreateDeleteContactCommandMock(false);
+            await sut.ExecuteAsync(commandMock.Object);
+
+            commandMock.Verify(m => m.GetExistingContactAsync(It.IsAny<IMicrosoftGraphRepository>(), It.IsAny<IContactRepository>()), Times.Never());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandDoesNotHaveExternalIdentifier_AssertExternalIdentifierWasNotCalledOnExistingContactFromCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            Mock<IContact> existingContactMock = _fixture.BuildContactMock();
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(false, existingContact: existingContactMock.Object).Object;
+            await sut.ExecuteAsync(command);
+
+            existingContactMock.Verify(m => m.ExternalIdentifier, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenCalledAndCommandDoesNotHaveExternalIdentifier_AssertDeleteContactSupplementAsyncWasNotCalledOnContactRepository()
         {
             CommandHandler sut = CreateSut();
 
-            IDeleteContactCommand command = CreateDeleteContactCommandMock(hasExternalIdentifier: false).Object;
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(false).Object;
             await sut.ExecuteAsync(command);
 
-            _contactRepositoryMock.Verify(m => m.DeleteContactSupplementAsync(It.IsAny<string>()), Times.Never());
+            _contactRepositoryMock.Verify(m => m.DeleteContactSupplementAsync(It.IsAny<IContact>()), Times.Never());
         }
 
         [Test]
@@ -77,37 +102,126 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Delet
         {
             CommandHandler sut = CreateSut();
 
-            IDeleteContactCommand command = CreateDeleteContactCommandMock(hasExternalIdentifier: false).Object;
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(false).Object;
             await sut.ExecuteAsync(command);
 
-            _microsoftGraphRepositoryMock.Verify(m => m.DeleteContactAsync(
-                    It.IsAny<IRefreshableToken>(),
-                    It.IsAny<string>()),
-                Times.Never);
+            _microsoftGraphRepositoryMock.Verify(m => m.DeleteContactAsync(It.IsAny<IRefreshableToken>(), It.IsAny<string>()), Times.Never());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifier_AssertDeleteContactSupplementAsyncWasCalledOnContactRepository()
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifier_AssertGetExistingContactAsyncWasCalledOnCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            Mock<IDeleteContactCommand> commandMock = CreateDeleteContactCommandMock();
+            await sut.ExecuteAsync(commandMock.Object);
+
+            commandMock.Verify(m => m.GetExistingContactAsync(
+                    It.Is<IMicrosoftGraphRepository>(value => value == _microsoftGraphRepositoryMock.Object),
+                    It.Is<IContactRepository>(value => value == _contactRepositoryMock.Object)),
+                Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndNoExistingContactWasReturnedFromCommand_AssertExternalIdentifierWasNotCalledOnExistingContactFromCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            Mock<IContact> existingContactMock = _fixture.BuildContactMock();
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(hasExistingContact: false, existingContact: existingContactMock.Object).Object;
+            await sut.ExecuteAsync(command);
+
+            existingContactMock.Verify(m => m.ExternalIdentifier, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndNoExistingContactWasReturnedFromCommand_AssertDeleteContactSupplementAsyncWasNotCalledOnContactRepository()
+        {
+            CommandHandler sut = CreateSut();
+
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(hasExistingContact: false).Object;
+            await sut.ExecuteAsync(command);
+
+            _contactRepositoryMock.Verify(m => m.DeleteContactSupplementAsync(It.IsAny<IContact>()), Times.Never());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndNoExistingContactWasReturnedFromCommand_AssertDeleteContactAsyncWasNotCalledOnMicrosoftGraphRepository()
+        {
+            CommandHandler sut = CreateSut();
+
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(hasExistingContact: false).Object;
+            await sut.ExecuteAsync(command);
+
+            _microsoftGraphRepositoryMock.Verify(m => m.DeleteContactAsync(It.IsAny<IRefreshableToken>(), It.IsAny<string>()), Times.Never());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndExistingContactWasReturnedFromCommand_AssertExternalIdentifierWasCalledOnExistingContactFromCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            Mock<IContact> existingContactMock = _fixture.BuildContactMock();
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(existingContact: existingContactMock.Object).Object;
+            await sut.ExecuteAsync(command);
+
+            existingContactMock.Verify(m => m.ExternalIdentifier, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndExistingContactWithoutExternalIdentifierWasReturnedFromCommand_AssertDeleteContactSupplementAsyncWasNotCalledOnContactRepository()
+        {
+            CommandHandler sut = CreateSut();
+
+            IContact existingContact = _fixture.BuildContactMock(hasExternalIdentifier: false).Object;
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(existingContact: existingContact).Object;
+            await sut.ExecuteAsync(command);
+
+            _contactRepositoryMock.Verify(m => m.DeleteContactSupplementAsync(It.IsAny<IContact>()), Times.Never());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndExistingContactWithoutExternalIdentifierWasReturnedFromCommand_AssertDeleteContactAsyncWasNotCalledOnMicrosoftGraphRepository()
+        {
+            CommandHandler sut = CreateSut();
+
+            IContact existingContact = _fixture.BuildContactMock(hasExternalIdentifier: false).Object;
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(existingContact: existingContact).Object;
+            await sut.ExecuteAsync(command);
+
+            _microsoftGraphRepositoryMock.Verify(m => m.DeleteContactAsync(It.IsAny<IRefreshableToken>(), It.IsAny<string>()), Times.Never());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndExistingContactWithExternalIdentifierWasReturnedFromCommand_AssertDeleteContactSupplementAsyncWasCalledOnContactRepositoryWithExistingContactFromCommand()
+        {
+            CommandHandler sut = CreateSut();
+
+            IContact existingContact = _fixture.BuildContactMock().Object;
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(existingContact: existingContact).Object;
+            await sut.ExecuteAsync(command);
+
+            _contactRepositoryMock.Verify(m => m.DeleteContactSupplementAsync(It.Is<IContact>(value => value == existingContact)), Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifierAndExistingContactWithExternalIdentifierWasReturnedFromCommand_AssertDeleteContactAsyncWasCalledOnMicrosoftGraphRepositoryWithExternalIdentifierFromExistingContactFromCommand()
         {
             CommandHandler sut = CreateSut();
 
             string externalIdentifier = _fixture.Create<string>();
-            IDeleteContactCommand command = CreateDeleteContactCommandMock(externalIdentifier: externalIdentifier).Object;
-            await sut.ExecuteAsync(command);
-
-            _contactRepositoryMock.Verify(m => m.DeleteContactSupplementAsync(It.Is<string>(value => string.CompareOrdinal(value, externalIdentifier) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenCalledAndCommandHasExternalIdentifier_AssertDeleteContactAsyncWasCalledOnMicrosoftGraphRepository()
-        {
-            CommandHandler sut = CreateSut();
-
+            IContact existingContact = _fixture.BuildContactMock(externalIdentifier: externalIdentifier).Object;
             IRefreshableToken refreshableToken = _fixture.BuildRefreshableTokenMock().Object;
-            string externalIdentifier = _fixture.Create<string>();
-            IDeleteContactCommand command = CreateDeleteContactCommandMock(refreshableToken, externalIdentifier: externalIdentifier).Object;
+            IDeleteContactCommand command = CreateDeleteContactCommandMock(existingContact: existingContact, refreshableToken: refreshableToken).Object;
             await sut.ExecuteAsync(command);
 
             _microsoftGraphRepositoryMock.Verify(m => m.DeleteContactAsync(
@@ -118,7 +232,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Delet
 
         private CommandHandler CreateSut()
         {
-            _contactRepositoryMock.Setup(m => m.DeleteContactSupplementAsync(It.IsAny<string>()))
+            _contactRepositoryMock.Setup(m => m.DeleteContactSupplementAsync(It.IsAny<IContact>()))
                 .Returns(Task.Run(() => (IContact) null));
             _microsoftGraphRepositoryMock.Setup(m => m.DeleteContactAsync(It.IsAny<IRefreshableToken>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
@@ -126,13 +240,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.CommandHandlers.Delet
             return new CommandHandler(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
         }
 
-        private Mock<IDeleteContactCommand> CreateDeleteContactCommandMock(IRefreshableToken refreshableToken = null, bool hasExternalIdentifier = true, string externalIdentifier = null)
+        private Mock<IDeleteContactCommand> CreateDeleteContactCommandMock(bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasExistingContact = true, IContact existingContact = null, IRefreshableToken refreshableToken = null)
         {
             Mock<IDeleteContactCommand> deleteContactCommandMock = new Mock<IDeleteContactCommand>();
-            deleteContactCommandMock.Setup(m => m.ToToken())
-                .Returns(refreshableToken ?? _fixture.BuildRefreshableTokenMock().Object);
             deleteContactCommandMock.Setup(m => m.ExternalIdentifier)
                 .Returns(hasExternalIdentifier ? externalIdentifier ?? _fixture.Create<string>() : null);
+            deleteContactCommandMock.Setup(m => m.GetExistingContactAsync(It.IsAny<IMicrosoftGraphRepository>(), It.IsAny<IContactRepository>()))
+                .Returns(Task.Run(() => hasExistingContact ? existingContact ?? _fixture.BuildContactMock().Object : null));
+            deleteContactCommandMock.Setup(m => m.ToToken())
+                .Returns(refreshableToken ?? _fixture.BuildRefreshableTokenMock().Object);
             return deleteContactCommandMock;
         }
     }

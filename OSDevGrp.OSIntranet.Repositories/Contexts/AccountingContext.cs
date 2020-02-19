@@ -38,6 +38,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<ContactSupplementModel> ContactSupplements { get; set; }
 
+        public DbSet<ContactSupplementBindingModel> ContactSupplementBindings { get; set; }
+
         public DbSet<ContactGroupModel> ContactGroups { get; set; }
 
         #endregion
@@ -56,6 +58,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateBudgetAccountGroupModel();
             modelBuilder.CreatePaymentTermModel();
             modelBuilder.CreateContactSupplementModel();
+            modelBuilder.CreateContactSupplementBindingModel();
             modelBuilder.CreateContactGroupModel();
         }
 

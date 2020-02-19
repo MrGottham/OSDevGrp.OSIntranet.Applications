@@ -183,13 +183,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.QueryHandlers.GetMatc
         {
             IEnumerable<IContact> microsoftGraphContactCollection = new List<IContact>
             {
-                _fixture.BuildContactMock(true).Object,
-                _fixture.BuildContactMock(false).Object,
-                _fixture.BuildContactMock(true).Object,
-                _fixture.BuildContactMock(false).Object,
-                _fixture.BuildContactMock(true).Object,
-                _fixture.BuildContactMock(false).Object,
-                _fixture.BuildContactMock(true).Object
+                _fixture.BuildContactMock(isMatch: true).Object,
+                _fixture.BuildContactMock(isMatch: false).Object,
+                _fixture.BuildContactMock(isMatch: true).Object,
+                _fixture.BuildContactMock(isMatch: false).Object,
+                _fixture.BuildContactMock(isMatch: true).Object,
+                _fixture.BuildContactMock(isMatch: false).Object,
+                _fixture.BuildContactMock(isMatch: true).Object
             };
             QueryHandler sut = CreateSut(microsoftGraphContactCollection: microsoftGraphContactCollection);
 

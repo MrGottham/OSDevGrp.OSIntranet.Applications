@@ -26,7 +26,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
             NullGuard.NotNull(command, nameof(command))
                 .NotNull(token, nameof(token));
 
+            if (string.IsNullOrWhiteSpace(command.ExternalIdentifier))
+            {
+                return;
+            }
+
             IContact contact = command.ToDomain(ContactRepository, AccountingRepository);
+            
+            IContact existingContact = await command.GetExistingContactAsync(MicrosoftGraphRepository, ContactRepository);
+            if (existingContact == null)
+            {
+                return;
+            }
+
+            string existingInternalIdentifier = existingContact.InternalIdentifier;
+            if (string.IsNullOrWhiteSpace(existingInternalIdentifier) == false)
+            {
+                contact.InternalIdentifier = existingInternalIdentifier;
+            }
 
             IContact updatedContact = await MicrosoftGraphRepository.UpdateContactAsync(token, contact);
             if (updatedContact == null)
@@ -34,7 +51,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers
                 return;
             }
 
-            await ContactRepository.CreateOrUpdateContactSupplementAsync(updatedContact);
+            string updatedExternalIdentifier = updatedContact.ExternalIdentifier;
+            if (string.IsNullOrWhiteSpace(updatedExternalIdentifier))
+            {
+                return;
+            }
+
+            contact.ExternalIdentifier = updatedExternalIdentifier;
+
+            await ContactRepository.CreateOrUpdateContactSupplementAsync(contact, existingContact.ExternalIdentifier);
         }
 
         #endregion

@@ -50,18 +50,18 @@ namespace OSDevGrp.OSIntranet.Repositories
             return Task.Run(() => ApplyContactSupplement(contacts));
         }
 
-        public Task<IContact> CreateOrUpdateContactSupplementAsync(IContact contact)
+        public Task<IContact> CreateOrUpdateContactSupplementAsync(IContact contact, string existingExternalIdentifier = null)
         {
             NullGuard.NotNull(contact, nameof(contact));
 
-            return Task.Run(() => CreateOrUpdateContactSupplement(contact));
+            return Task.Run(() => CreateOrUpdateContactSupplement(contact, existingExternalIdentifier));
         }
 
-        public Task<IContact> DeleteContactSupplementAsync(string externalIdentifier)
+        public Task<IContact> DeleteContactSupplementAsync(IContact contact)
         {
-            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier));
+            NullGuard.NotNull(contact, nameof(contact));
 
-            return Task.Run(() => DeleteContactSupplement(externalIdentifier));
+            return Task.Run(() => DeleteContactSupplement(contact));
         }
 
         public Task<IEnumerable<IContactGroup>> GetContactGroupsAsync()
@@ -169,19 +169,15 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return Execute(() =>
                 {
-                    if (string.IsNullOrWhiteSpace(contact.ExternalIdentifier))
-                    {
-                        return contact;
-                    }
-
                     using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactSupplementModel contactSupplementModel = context.ContactSupplements.SingleOrDefault(m => m.ExternalIdentifier == contact.ExternalIdentifier);
-                    if (contactSupplementModel == null)
-                    {
-                        return contact;
-                    }
 
-                    return contactSupplementModel.ApplyContactSupplement(contact, _contactModelConverter, _accountingModelConverter);
+                    ContactSupplementModel contactSupplementModel = GetContactSupplementModel(contact, context);
+                    if (contactSupplementModel != null)
+                    {
+                        return contactSupplementModel.ApplyContactSupplement(contact, _contactModelConverter, _accountingModelConverter);
+                    }
+                    
+                    return contact;
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -196,22 +192,22 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
-        private IContact CreateOrUpdateContactSupplement(IContact contact)
+        private IContact CreateOrUpdateContactSupplement(IContact contact, string existingExternalIdentifier = null)
         {
             NullGuard.NotNull(contact, nameof(contact));
 
             return Execute(() =>
                 {
-                    if (string.IsNullOrWhiteSpace(contact.ExternalIdentifier))
-                    {
-                        return contact;
-                    }
-
                     using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactSupplementModel contactSupplementModel = context.ContactSupplements.SingleOrDefault(m => m.ExternalIdentifier == contact.ExternalIdentifier);
+
+                    ContactSupplementModel contactSupplementModel = GetContactSupplementModel(contact, context, existingExternalIdentifier);
                     if (contactSupplementModel == null)
                     {
-                        context.ContactSupplements.Add(_contactModelConverter.Convert<IContact, ContactSupplementModel>(contact));
+                        contactSupplementModel = _contactModelConverter.Convert<IContact, ContactSupplementModel>(contact);
+                        contactSupplementModel.ContactGroup = context.ContactGroups.Single(contactGroupModel => contactGroupModel.ContactGroupIdentifier == contact.ContactGroup.Number);
+                        contactSupplementModel.PaymentTerm = context.PaymentTerms.Single(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contact.PaymentTerm.Number);
+
+                        context.ContactSupplements.Add(contactSupplementModel);
 
                         context.SaveChanges();
 
@@ -227,6 +223,22 @@ namespace OSDevGrp.OSIntranet.Repositories
                     contactSupplementModel.PaymentTermIdentifier = contact.PaymentTerm.Number;
                     contactSupplementModel.PaymentTerm = context.PaymentTerms.Single(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contact.PaymentTerm.Number);
 
+                    string[] externalIdentifierCollection = GetExternalIdentifierCollection(contact);
+                    foreach (ContactSupplementBindingModel contactSupplementBindingModel in contactSupplementModel.ContactSupplementBindings.Where(m => externalIdentifierCollection.Any(externalIdentifier => externalIdentifier == m.ExternalIdentifier) == false).ToArray())
+                    {
+                        contactSupplementModel.ContactSupplementBindings.Remove(contactSupplementBindingModel);
+                    }
+                    foreach (string externalIdentifier in externalIdentifierCollection.Where(m => contactSupplementModel.ContactSupplementBindings.Any(contactSupplementBindingModel => contactSupplementBindingModel.ExternalIdentifier == m) == false))
+                    {
+                        ContactSupplementBindingModel contactSupplementBindingModel = new ContactSupplementBindingModel
+                        {
+                            ContactSupplementIdentifier = contactSupplementModel.ContactSupplementIdentifier,
+                            ContactSupplement = contactSupplementModel,
+                            ExternalIdentifier = externalIdentifier
+                        };
+                        contactSupplementModel.ContactSupplementBindings.Add(contactSupplementBindingModel);
+                    }
+
                     context.SaveChanges();
 
                     return ApplyContactSupplement(contact);
@@ -234,14 +246,15 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
-        private IContact DeleteContactSupplement(string externalIdentifier)
+        private IContact DeleteContactSupplement(IContact contact)
         {
-            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier));
+            NullGuard.NotNull(contact, nameof(contact));
 
             return Execute(() =>
                 {
                     using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactSupplementModel contactSupplementModel = context.ContactSupplements.SingleOrDefault(m => m.ExternalIdentifier == externalIdentifier);
+
+                    ContactSupplementModel contactSupplementModel = GetContactSupplementModel(contact, context);
                     if (contactSupplementModel == null)
                     {
                         return null;
@@ -254,6 +267,49 @@ namespace OSDevGrp.OSIntranet.Repositories
                     return (IContact) null;
                 },
                 MethodBase.GetCurrentMethod());
+        }
+
+        private ContactSupplementModel GetContactSupplementModel(IContact contact, ContactContext context, string existingExternalIdentifier = null)
+        {
+            NullGuard.NotNull(contact, nameof(contact))
+                .NotNull(context, nameof(context));
+
+            if (string.IsNullOrWhiteSpace(contact.InternalIdentifier) == false && int.TryParse(contact.InternalIdentifier, out int internalIdentifier))
+            {
+                ContactSupplementModel contactSupplementModel = context.ContactSupplements
+                    .Include(model => model.ContactGroup)
+                    .Include(model => model.PaymentTerm)
+                    .Include(model => model.ContactSupplementBindings)
+                    .SingleOrDefault(model => model.ContactSupplementIdentifier == internalIdentifier);
+                if (contactSupplementModel != null)
+                {
+                    return contactSupplementModel;
+                }
+            }
+
+            foreach (string externalIdentifier in GetExternalIdentifierCollection(contact, existingExternalIdentifier))
+            {
+                ContactSupplementBindingModel contactSupplementBindingModel = context.ContactSupplementBindings
+                    .Include(model => model.ContactSupplement).ThenInclude(model => model.ContactGroup)
+                    .Include(model => model.ContactSupplement).ThenInclude(model => model.PaymentTerm)
+                    .Include(model => model.ContactSupplement).ThenInclude(model => model.ContactSupplementBindings)
+                    .SingleOrDefault(model => model.ExternalIdentifier == externalIdentifier);
+                if (contactSupplementBindingModel != null)
+                {
+                    return contactSupplementBindingModel.ContactSupplement;
+                }
+            }
+
+            return null;
+        }
+
+        private string[] GetExternalIdentifierCollection(IContact contact, string existingExternalIdentifier = null)
+        {
+            NullGuard.NotNull(contact, nameof(contact));
+
+            return new[] {contact.CalculateIdentifier(), existingExternalIdentifier ?? contact.ExternalIdentifier}
+                .Where(m => string.IsNullOrWhiteSpace(m) == false)
+                .ToArray();
         }
 
         private IEnumerable<IContactGroup> GetContactGroups()

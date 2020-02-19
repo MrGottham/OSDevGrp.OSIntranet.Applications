@@ -44,18 +44,19 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 })
                 .ForMember(dest => dest.GivenName, opt =>
                 {
-                    opt.Condition(src => src.Name is IPersonName personName && string.IsNullOrWhiteSpace(personName.GivenName) == false);
-                    opt.MapFrom(src => ((IPersonName) src.Name).GivenName);
+                    opt.Condition(src => src.Name is IPersonName || src.Name is ICompanyName);
+                    opt.MapFrom(src => src.Name is IPersonName ? string.IsNullOrWhiteSpace((src.Name as IPersonName).GivenName) ? string.Empty : (src.Name as IPersonName).GivenName : string.Empty);
                 })
                 .ForMember(dest => dest.MiddleName, opt =>
                 {
+                    opt.PreCondition(src => src.Name is IPersonName);
                     opt.Condition(src => src.Name is IPersonName personName && string.IsNullOrWhiteSpace(personName.MiddleName) == false);
                     opt.MapFrom(src => ((IPersonName) src.Name).MiddleName);
                 })
                 .ForMember(dest => dest.Surname, opt =>
                 {
-                    opt.Condition(src => src.Name is IPersonName personName && string.IsNullOrWhiteSpace(personName.Surname) == false || src.Name is ICompanyName companyName && string.IsNullOrWhiteSpace(companyName.FullName) == false);
-                    opt.MapFrom(src => (IPersonName) src.Name != null ? ((IPersonName) src.Name).Surname : ((ICompanyName) src.Name).FullName);
+                    opt.Condition(src => src.Name is IPersonName || src.Name is ICompanyName);
+                    opt.MapFrom(src => src.Name is IPersonName ? string.IsNullOrWhiteSpace(((IPersonName) src.Name).Surname) ? string.Empty : ((IPersonName) src.Name).Surname : string.IsNullOrWhiteSpace(((ICompanyName) src.Name).FullName) ? string.Empty : ((ICompanyName) src.Name).FullName);
                 })
                 .ForMember(dest => dest.HomeAddress, opt =>
                 {
@@ -68,11 +69,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.MobilePhone) == false);
                     opt.MapFrom(src => src.MobilePhone);
                 })
-                .ForMember(dest => dest.Birthday, opt =>
-                {
-                    opt.Condition(src => src.Birthday.HasValue);
-                    opt.MapFrom(src => src.Birthday);
-                })
+                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(new NullableDateTimeResolver<IContact, ContactModel>(contact => contact.Birthday)))
                 .ForMember(dest => dest.EmailAddresses, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.MailAddress) == false ? new[] {src} : new IContact[0]))
                 .ForMember(dest => dest.CompanyName, opt =>
                 {

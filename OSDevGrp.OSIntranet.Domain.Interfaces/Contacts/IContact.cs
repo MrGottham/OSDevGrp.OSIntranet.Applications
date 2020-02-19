@@ -42,5 +42,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
         bool IsMatch(string searchFor, SearchOptions searchOptions);
 
         bool HasBirthdayWithinDays(int days);
+
+        string CalculateIdentifier();
     }
 }
