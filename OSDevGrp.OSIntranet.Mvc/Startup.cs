@@ -14,6 +14,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Controllers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Repositories;
 
 namespace OSDevGrp.OSIntranet.Mvc
@@ -101,6 +102,7 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
+            services.AddTransient<ITrustedDomainHelper, TrustedDomainHelper>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

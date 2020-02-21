@@ -54,6 +54,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
             Assert.That(result, Is.Not.Empty);
         }
 
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithSecurityTrustedDomainCollection_ReturnsTrustedDomainCollection()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut["Security:TrustedDomainCollection"];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+        }
+
         private IConfiguration CreateSut()
         {
             return new ConfigurationBuilder()

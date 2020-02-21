@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,21 +18,23 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers
             HttpContext httpContext = new DefaultHttpContext();
             httpContext.Request.Scheme = scheme ?? "http";
             httpContext.Request.Host = new HostString(host ?? "localhost");
-            httpContext.Request.PathBase = pathBase ?? $"/{fixture.Create<string>()}";
+            httpContext.Request.PathBase = $"/{pathBase ?? fixture.Create<string>()}";
 
             ActionContext actionContext = new ActionContext
             {
                 HttpContext = httpContext
             };
 
+            Uri requestUri = new Uri($"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.PathBase}");
+
             urlHelperMock.Setup(m => m.ActionContext)
                 .Returns(actionContext);
 
             urlHelperMock.Setup(m => m.Action(It.IsAny<UrlActionContext>()))
-                .Returns(absolutePath ?? $"/{fixture.Create<string>()}");
+                .Returns(absolutePath ?? requestUri.AbsolutePath);
 
             urlHelperMock.Setup(m => m.Content(It.IsAny<string>()))
-                .Returns(absolutePath ?? $"/{fixture.Create<string>()}");
+                .Returns(absolutePath ?? requestUri.AbsolutePath);
         }
     }
 }

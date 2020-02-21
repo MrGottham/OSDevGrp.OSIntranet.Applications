@@ -18,6 +18,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
@@ -28,23 +29,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
+        private readonly ITrustedDomainHelper _trustedDomainHelper;
 
         #endregion
 
         #region Constructor
 
-        public AccountController(ICommandBus commandBus, IQueryBus queryBus)
+        public AccountController(ICommandBus commandBus, IQueryBus queryBus, ITrustedDomainHelper trustedDomainHelper)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+                .NotNull(queryBus, nameof(queryBus))
+                .NotNull(trustedDomainHelper, nameof(trustedDomainHelper));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _trustedDomainHelper = trustedDomainHelper;
         }
 
         #endregion
 
         #region Properties
+
         private Uri RedirectUriForMicrosoftGraph => new Uri(Url.AbsoluteAction("MicrosoftGraphCallback").ToLower());
 
         #endregion
@@ -60,18 +65,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return View("Login");
             }
 
-            if (Uri.TryCreate(returnUrl, UriKind.Absolute, out Uri absoluteUri))
+            Uri returnUri = ConvertToAbsoluteUri(returnUrl);
+            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
             {
-                return View("Login", absoluteUri);
+                return BadRequest();
             }
 
-            if (Uri.TryCreate(returnUrl, UriKind.Relative, out Uri relativeUri))
-            {
-                string absoluteContent = Url.AbsoluteContent(relativeUri.OriginalString);
-                return View("Login", new Uri(absoluteContent));
-            }
-
-            return View("Login");
+            return View("Login", returnUri);
         }
 
         [HttpPost]
@@ -79,10 +79,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult LoginWithMicrosoftAccount(string returnUrl = null)
         {
+            Uri returnUri = ConvertToAbsoluteUri(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl);
+            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            {
+                return BadRequest();
+            }
+
             return new ChallengeResult(MicrosoftAccountDefaults.AuthenticationScheme,
                 new AuthenticationProperties
                 {
-                    RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), new {returnUrl = string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl})
+                    RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
                 });
         }
 
@@ -91,10 +97,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult LoginWithGoogleAccount(string returnUrl = null)
         {
+            Uri returnUri = ConvertToAbsoluteUri(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl);
+            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            {
+                return BadRequest();
+            }
+
             return new ChallengeResult(GoogleDefaults.AuthenticationScheme,
                 new AuthenticationProperties
                 {
-                    RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), new {returnUrl = string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl})
+                    RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
                 });
         }
 
@@ -102,6 +114,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LoginCallback(string returnUrl = null)
         {
+            Uri returnUri = null;
+            if (string.IsNullOrWhiteSpace(returnUrl) == false)
+            {
+                returnUri = ConvertToAbsoluteUri(returnUrl);
+                if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+                {
+                    return Unauthorized();
+                }
+            }
+
             AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync("OSDevGrp.OSIntranet.External");
             if (authenticateResult.Succeeded == false)
             {
@@ -124,9 +146,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, "OSDevGrp.OSIntranet.Internal");
             await HttpContext.SignInAsync("OSDevGrp.OSIntranet.Internal", new ClaimsPrincipal(claimsIdentity));
 
-            if (string.IsNullOrWhiteSpace(returnUrl) == false)
+            if (returnUri != null)
             {
-                return Redirect(returnUrl);
+                return Redirect(returnUri.AbsoluteUri);
             }
 
             return LocalRedirect("/Home/Index");
@@ -148,21 +170,37 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             await HttpContext.SignOutAsync("OSDevGrp.OSIntranet.Internal");
 
-            if (string.IsNullOrWhiteSpace(returnUrl) == false)
+            if (string.IsNullOrWhiteSpace(returnUrl))
             {
-                return Redirect(returnUrl);
+                return LocalRedirect("/Home/Index");
             }
 
-            return LocalRedirect("/Home/Index");
+            Uri returnUri = ConvertToAbsoluteUri(returnUrl);
+            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            {
+                return BadRequest();
+            }
+
+            return Redirect(returnUri.AbsoluteUri);
         }
 
         [HttpGet]
         public async Task<IActionResult> AuthorizeMicrosoftGraph(string returnUrl = null)
         {
+            Uri returnUri = null;
+            if (string.IsNullOrWhiteSpace(returnUrl) == false)
+            {
+                returnUri = ConvertToAbsoluteUri(returnUrl);
+                if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+                {
+                    return BadRequest();
+                }
+            }
+
             Guid stateIdentifier = Guid.NewGuid();
 
             string cookieName = GetStateCookieName(stateIdentifier);
-            string cookieValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(string.IsNullOrWhiteSpace(returnUrl) ? string.Empty : returnUrl));
+            string cookieValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(returnUri == null ? string.Empty : returnUri.AbsoluteUri));
             HttpContext.Response.Cookies.Append(cookieName, cookieValue, new CookieOptions {Expires = DateTimeOffset.Now.AddMinutes(15)});
             try
             {
@@ -208,7 +246,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                     {
                         return RedirectToAction("Index", "Home");
                     }
-                    return Redirect(returnUrl);
+
+                    Uri returnUri = ConvertToAbsoluteUri(returnUrl);
+                    if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                    return Redirect(returnUri.AbsoluteUri);
                 }
                 catch
                 {
@@ -240,6 +285,23 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 .NotNull(refreshableToken, nameof(refreshableToken));
 
             httpContext.Response.Cookies.Append(GetMicrosoftGraphTokenCookieName(), refreshableToken.ToBase64(), new CookieOptions {Expires = DateTimeOffset.Now.AddHours(3)});
+        }
+
+        private Uri ConvertToAbsoluteUri(string returnUrl)
+        {
+            NullGuard.NotNullOrWhiteSpace(returnUrl, nameof(returnUrl));
+
+            if (Uri.TryCreate(returnUrl, UriKind.RelativeOrAbsolute, out Uri returnUri) == false)
+            {
+                return null;
+            }
+
+            if (returnUri.IsAbsoluteUri)
+            {
+                return returnUri;
+            }
+
+            return ConvertToAbsoluteUri(Url.AbsoluteContent(returnUri.OriginalString));
         }
 
         private static string GetMicrosoftGraphTokenCookieName()

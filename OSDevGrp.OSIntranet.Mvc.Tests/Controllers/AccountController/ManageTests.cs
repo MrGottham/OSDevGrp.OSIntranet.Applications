@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
@@ -14,6 +15,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
 
         #endregion
 
@@ -22,6 +24,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
         }
 
         [Test]
@@ -59,7 +62,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         private Controller CreateSut()
         {
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object);
         }
      }
 }

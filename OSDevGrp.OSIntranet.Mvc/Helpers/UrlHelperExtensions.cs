@@ -13,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
             HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
 
-            return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action)}";
+            return MakeAbsoluteUri(request, urlHelper.Action(action, urlHelper.Action(action)));
         }
 
         internal static string AbsoluteAction(this IUrlHelper urlHelper, string action, string controller)
@@ -24,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
             HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
 
-            return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action, controller)}";
+            return MakeAbsoluteUri(request, urlHelper.Action(action, controller));
         }
 
         internal static string AbsoluteAction(this IUrlHelper urlHelper, string action, object values)
@@ -35,7 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
             HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
 
-            return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action, values)}";
+            return MakeAbsoluteUri(request, urlHelper.Action(action, values));
         }
 
         internal static string AbsoluteAction(this IUrlHelper urlHelper, string action, string controller, object values)
@@ -47,7 +47,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
             HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
 
-            return $"{request.Scheme}://{request.Host}{request.PathBase}{urlHelper.Action(action, controller, values)}";
+            return MakeAbsoluteUri(request, urlHelper.Action(action, controller, values));
         }
 
         internal static string AbsoluteContent(this IUrlHelper urlHelper, string contentPath)
@@ -57,11 +57,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
             HttpRequest request = urlHelper.ActionContext.HttpContext.Request;
 
-            string contentResult = null;
+            string contentResult;
             if (contentPath.StartsWith("~/"))
             {
                 contentResult = urlHelper.Content(contentPath);
-            } else if (contentPath.StartsWith("/"))
+            }
+            else if (contentPath.StartsWith("/"))
             {
                 contentResult = urlHelper.Content($"~{contentPath}");
             }
@@ -70,7 +71,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
                 contentResult = urlHelper.Content($"~/{contentPath}");
             }
 
-            return $"{request.Scheme}://{request.Host}{request.PathBase}{contentResult}";
+            return MakeAbsoluteUri(request, contentResult);
+        }
+
+        private static string MakeAbsoluteUri(HttpRequest request, string path)
+        {
+            NullGuard.NotNull(request, nameof(request))
+                .NotNullOrWhiteSpace(path, nameof(path));
+
+            return $"{request.Scheme}://{request.Host}{request.PathBase}{path}";
         }
     }
 }
