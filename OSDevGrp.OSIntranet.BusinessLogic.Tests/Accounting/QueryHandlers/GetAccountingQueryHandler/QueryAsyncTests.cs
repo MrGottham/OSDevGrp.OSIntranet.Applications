@@ -157,7 +157,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         [Category("UnitTest")]
         public async Task QueryAsync_WhenCalledAndCalculatedAccountingWasNotReturnedFromAccounting_AssertApplyLogicForPrincipalWasNotCalledOnAccountingHelper()
         {
-            IAccounting accounting = _fixture.BuildAccountingMock(false).Object;
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: false).Object;
             QueryHandler sut = CreateSut(accounting: accounting);
 
             IGetAccountingQuery query = CreateQueryMock().Object;
@@ -170,7 +170,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         [Category("UnitTest")]
         public async Task QueryAsync_WhenCalledAndCalculatedAccountingWasNotReturnedFromAccounting_ReturnsNull()
         {
-            IAccounting accounting = _fixture.BuildAccountingMock(false).Object;
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: false).Object;
             QueryHandler sut = CreateSut(accounting: accounting);
 
             IGetAccountingQuery query = CreateQueryMock().Object;

@@ -18,6 +18,12 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 
         bool DefaultForPrincipal { get; }
 
+        IAccountCollection AccountCollection { get; }
+
+        IBudgetAccountCollection BudgetAccountCollection { get; }
+
+        IContactAccountCollection ContactAccountCollection { get; }
+
         void ApplyDefaultForPrincipal(int? defaultAccountingNumber);
     }
 }

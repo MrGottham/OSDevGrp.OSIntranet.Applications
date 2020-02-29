@@ -29,10 +29,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 .NotNull(letterHead, nameof(letterHead));
 
             Number = number;
-            Name = name;
+            Name = name.Trim();
             LetterHead = letterHead;
             BalanceBelowZero = balanceBelowZero;
             BackDating = backDating;
+            AccountCollection = new AccountCollection();
+            BudgetAccountCollection = new BudgetAccountCollection();
+            ContactAccountCollection = new ContactAccountCollection();
         }
 
         #endregion
@@ -64,18 +67,30 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool DefaultForPrincipal { get; private set; }
 
+        public IAccountCollection AccountCollection { get; protected set; }
+
+        public IBudgetAccountCollection BudgetAccountCollection { get; protected set; }
+
+        public IContactAccountCollection ContactAccountCollection { get; protected set; }
+
         #endregion
 
         #region Methods
 
-        public Task<IAccounting> CalculateAsync(DateTime statusDate)
+        public async Task<IAccounting> CalculateAsync(DateTime statusDate)
         {
-            return Task.Run(() => 
-            {
-                StatusDate = statusDate.Date;
+            StatusDate = statusDate.Date;
 
-                return (IAccounting) this;
-            });
+            Task<IAccountCollection> calculateAccountCollectionTask = AccountCollection.CalculateAsync(StatusDate);
+            Task<IBudgetAccountCollection> calculateBudgetAccountCollectionTask = BudgetAccountCollection.CalculateAsync(StatusDate);
+            Task<IContactAccountCollection> calculateContactAccountCollectionTask = ContactAccountCollection.CalculateAsync(StatusDate);
+            await Task.WhenAll(calculateAccountCollectionTask, calculateBudgetAccountCollectionTask, calculateContactAccountCollectionTask);
+
+            AccountCollection = calculateAccountCollectionTask.Result;
+            BudgetAccountCollection = calculateBudgetAccountCollectionTask.Result;
+            ContactAccountCollection = calculateContactAccountCollectionTask.Result;
+
+            return (IAccounting) this;
         }
 
         public void AllowDeletion()
