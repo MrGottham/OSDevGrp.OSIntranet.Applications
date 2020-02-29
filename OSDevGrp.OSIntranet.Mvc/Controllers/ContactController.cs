@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,9 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Attributes;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
@@ -25,24 +29,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
+        private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IConverter _contactViewModelConverter = new ContactViewModelConverter();
 
         #endregion
 
         #region Constructor
 
-        public ContactController(ICommandBus commandBus, IQueryBus queryBus)
+        public ContactController(ICommandBus commandBus, IQueryBus queryBus, ITokenHelperFactory tokenHelperFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+                .NotNull(queryBus, nameof(queryBus))
+                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _tokenHelperFactory = tokenHelperFactory;
         }
 
         #endregion
 
         #region Methods
+
+        [AcquireToken(TokenType.MicrosoftGraphToken)]
+        public Task<IActionResult> Contacts()
+        {
+            throw new NotImplementedException();
+        }
 
         [HttpGet]
         public async Task<IActionResult> ContactGroups()

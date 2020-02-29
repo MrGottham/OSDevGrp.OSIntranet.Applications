@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +13,10 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
-using OSDevGrp.OSIntranet.Mvc.Controllers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Filters;
 using OSDevGrp.OSIntranet.Repositories;
 
 namespace OSDevGrp.OSIntranet.Mvc
@@ -40,8 +42,12 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)));
             services.AddRazorPages();
+
+            services.AddDataProtection()
+                .SetApplicationName("OSDevGrp.OSIntranet.Mvc")
+                .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
             services.AddAuthentication(opt => 
             {
@@ -53,12 +59,14 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.LoginPath = "/Account/Login";
                 opt.LogoutPath = "/Account/Logoff";
                 opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddCookie("OSDevGrp.OSIntranet.External", opt =>
             {
                 opt.LoginPath = "/Account/Login";
                 opt.LogoutPath = "/Account/Logoff";
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddMicrosoftAccount(opt => 
             {
@@ -74,15 +82,17 @@ namespace OSDevGrp.OSIntranet.Mvc
                 {
                     double seconds = o.ExpiresIn?.TotalSeconds ?? 0;
                     IRefreshableToken refreshableToken = new RefreshableToken(o.TokenType, o.AccessToken, o.RefreshToken, DateTime.UtcNow.AddSeconds(seconds));
-                    AccountController.StoreMicrosoftGraphToken(o.HttpContext, refreshableToken);
+                    o.Properties.Items.Add($".{TokenType.MicrosoftGraphToken}", refreshableToken.ToBase64());
                     return Task.CompletedTask;
                 };
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddGoogle(opt =>
             {
                 opt.ClientId = Configuration["Security:Google:ClientId"];
                 opt.ClientSecret = Configuration["Security:Google:ClientSecret"];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
             services.AddAuthorization(opt =>
             {
@@ -103,6 +113,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
             services.AddTransient<ITrustedDomainHelper, TrustedDomainHelper>();
+            services.AddTransient<ITokenHelperFactory, TokenHelperFactory>();
+            services.AddTransient<ITokenHelper, MicrosoftGraphTokenHelper>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

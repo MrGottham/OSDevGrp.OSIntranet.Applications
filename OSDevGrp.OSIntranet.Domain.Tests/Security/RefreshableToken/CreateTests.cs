@@ -27,9 +27,37 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.RefreshableToken
 
         [Test]
         [Category("UnitTest")]
+        public void Create_WhenByteArrayIsNull_ThrowsArgumentNullException()
+        {
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.Token.Create<Sut>((byte[]) null));
+
+            Assert.That(result.ParamName, Is.EqualTo("byteArray"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Create_WhenCalledWithByteArray_AssertRefreshableTokenIsDeserialized()
+        {
+            string tokenType = _fixture.Create<string>();
+            string accessToken = _fixture.Create<string>();
+            string refreshToken = _fixture.Create<string>();
+            DateTime expires = _fixture.Create<DateTime>().ToUniversalTime();
+            byte[] byteArray = CreateByteArray(tokenType, accessToken, refreshToken, expires);
+
+            IRefreshableToken result = Domain.Security.Token.Create<Sut>(byteArray);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.TokenType, Is.EqualTo(tokenType));
+            Assert.That(result.AccessToken, Is.EqualTo(accessToken));
+            Assert.That(result.RefreshToken, Is.EqualTo(refreshToken));
+            Assert.That(result.Expires, Is.EqualTo(expires));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Create_WhenBase64StringIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.Token.Create<Sut>(null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.Token.Create<Sut>((string) null));
 
             Assert.That(result.ParamName, Is.EqualTo("base64String"));
         }
@@ -213,6 +241,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.RefreshableToken
             Assert.That(result.AccessToken, Is.EqualTo(accessToken));
             Assert.That(result.RefreshToken, Is.EqualTo(refreshToken));
             Assert.That(result.Expires, Is.EqualTo(expires));
+        }
+
+        private byte[] CreateByteArray(string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null)
+        {
+            return new Domain.Security.RefreshableToken(tokenType ?? _fixture.Create<string>(), accessToken ?? _fixture.Create<string>(), refreshToken ?? _fixture.Create<string>(), expires ?? _fixture.Create<DateTime>().ToUniversalTime()).ToByteArray();
         }
 
         private string CreateBase64String(string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null)

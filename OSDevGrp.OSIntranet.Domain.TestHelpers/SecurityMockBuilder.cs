@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using AutoFixture;
 using Moq;
@@ -62,9 +63,11 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return clientSecretIdentityMock;
         }
 
-        public static Mock<IToken> BuildTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null)
+        public static Mock<IToken> BuildTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null, bool hasExpired = false, byte[] tokenByteArray = null, string base64Token = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
+
+            Random random = new Random(fixture.Create<int>());
 
             Mock<IToken> tokenMock = new Mock<IToken>();
             tokenMock.Setup(m => m.TokenType)
@@ -73,12 +76,20 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(accessToken ?? fixture.Create<string>());
             tokenMock.Setup(m => m.Expires)
                 .Returns(expires ?? DateTime.UtcNow.AddMinutes(new Random(fixture.Create<int>()).Next(30, 60)));
+            tokenMock.Setup(m => m.HasExpired)
+                .Returns(hasExpired);
+            tokenMock.Setup(m => m.ToByteArray())
+                .Returns(tokenByteArray ?? fixture.CreateMany<byte>(random.Next(512, 1024)).ToArray());
+            tokenMock.Setup(m => m.ToBase64())
+                .Returns(base64Token ?? fixture.Create<string>());
             return tokenMock;
         }
 
-        public static Mock<IRefreshableToken> BuildRefreshableTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null)
+        public static Mock<IRefreshableToken> BuildRefreshableTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null, bool hasExpired = false, byte[] tokenByteArray = null, string base64Token = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
+
+            Random random = new Random(fixture.Create<int>());
 
             Mock<IRefreshableToken> refreshableTokenMock = new Mock<IRefreshableToken>();
             refreshableTokenMock.Setup(m => m.TokenType)
@@ -89,6 +100,12 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(refreshToken ?? fixture.Create<string>());
             refreshableTokenMock.Setup(m => m.Expires)
                 .Returns(expires ?? DateTime.UtcNow.AddMinutes(new Random(fixture.Create<int>()).Next(30, 60)));
+            refreshableTokenMock.Setup(m => m.HasExpired)
+                .Returns(hasExpired);
+            refreshableTokenMock.Setup(m => m.ToByteArray())
+                .Returns(tokenByteArray ?? fixture.CreateMany<byte>(random.Next(512, 1024)).ToArray());
+            refreshableTokenMock.Setup(m => m.ToBase64())
+                .Returns(base64Token ?? fixture.Create<string>());
             return refreshableTokenMock;
         }
 

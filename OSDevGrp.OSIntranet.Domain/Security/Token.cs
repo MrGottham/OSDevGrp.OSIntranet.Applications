@@ -33,27 +33,41 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public DateTime Expires { get; }
 
+        public bool HasExpired => (Expires.Kind == DateTimeKind.Utc ? Expires : Expires.ToUniversalTime()) < DateTime.UtcNow;
+
         #endregion
 
         #region Methods
 
-        public string ToBase64()
+        public byte[] ToByteArray()
         {
             using MemoryStream memoryStream = new MemoryStream();
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             binaryFormatter.Serialize(memoryStream, this);
 
             memoryStream.Seek(0, SeekOrigin.Begin);
-            return Convert.ToBase64String(memoryStream.ToArray());
+            return memoryStream.ToArray();
+        }
+
+        public string ToBase64()
+        {
+            return Convert.ToBase64String(ToByteArray());
+        }
+
+        public static TToken Create<TToken>(byte[] byteArray) where TToken : class, IToken
+        {
+            NullGuard.NotNull(byteArray, nameof(byteArray));
+
+            using MemoryStream memoryStream = new MemoryStream(byteArray);
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            return (TToken) binaryFormatter.Deserialize(memoryStream);
         }
 
         public static TToken Create<TToken>(string base64String) where TToken : class, IToken
         {
             NullGuard.NotNullOrWhiteSpace(base64String, nameof(base64String));
 
-            using MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(base64String));
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            return (TToken) binaryFormatter.Deserialize(memoryStream);
+            return Create<TToken>(Convert.FromBase64String(base64String));
         }
 
         public static IToken Create(ITokenBasedQuery tokenBasedQuery)

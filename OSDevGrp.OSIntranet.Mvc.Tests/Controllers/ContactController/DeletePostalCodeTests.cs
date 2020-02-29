@@ -9,6 +9,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Fixture _fixture;
 
         #endregion
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
 
             _fixture = new Fixture();
             _fixture.Customize<ICountry>(builder => builder.FromFactory(() => _fixture.BuildCountryMock().Object));
@@ -152,7 +155,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeletePostalCodeCommand>()))
                 .Returns(Task.CompletedTask);
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _tokenHelperFactoryMock.Object);
         }
     }
 }

@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
 
@@ -23,6 +24,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -33,6 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
 
             _fixture = new Fixture();
             _fixture.Customize<IContactGroup>(builder => builder.FromFactory(() => _fixture.BuildContactGroupMock().Object));
@@ -96,7 +99,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<IContactGroup>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.Run(() => contactGroupCollection ?? _fixture.CreateMany<IContactGroup>(_random.Next(5, 10)).ToList()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _tokenHelperFactoryMock.Object);
         }
     }
 }

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
@@ -14,8 +13,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
-        private Mock<IQueryBus> _queryBusMock;
         private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
+        private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
 
         #endregion
 
@@ -23,8 +22,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
-            _queryBusMock = new Mock<IQueryBus>();
             _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
+            _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
         }
 
         [Test]
@@ -62,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         private Controller CreateSut()
         {
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object);
+            return new Controller(_commandBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object);
         }
      }
 }

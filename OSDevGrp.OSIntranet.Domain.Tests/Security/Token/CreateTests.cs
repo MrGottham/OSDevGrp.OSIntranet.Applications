@@ -27,9 +27,35 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
 
         [Test]
         [Category("UnitTest")]
+        public void Create_WhenByteArrayIsNull_ThrowsArgumentNullException()
+        {
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>((byte[]) null));
+
+            Assert.That(result.ParamName, Is.EqualTo("byteArray"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Create_WhenCalledWithByteArray_AssertTokenIsDeserialized()
+        {
+            string tokenType = _fixture.Create<string>();
+            string accessToken = _fixture.Create<string>();
+            DateTime expires = _fixture.Create<DateTime>().ToUniversalTime();
+            byte[] byteArray = CreateByteArray(tokenType, accessToken, expires);
+
+            IToken result = Sut.Create<Sut>(byteArray);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.TokenType, Is.EqualTo(tokenType));
+            Assert.That(result.AccessToken, Is.EqualTo(accessToken));
+            Assert.That(result.Expires, Is.EqualTo(expires));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Create_WhenBase64StringIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>(null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>((string) null));
 
             Assert.That(result.ParamName, Is.EqualTo("base64String"));
         }
@@ -185,6 +211,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
             Assert.That(result.TokenType, Is.EqualTo(tokenType));
             Assert.That(result.AccessToken, Is.EqualTo(accessToken));
             Assert.That(result.Expires, Is.EqualTo(expires));
+        }
+
+        private byte[] CreateByteArray(string tokenType = null, string accessToken = null, DateTime? expires = null)
+        {
+            return new Domain.Security.Token(tokenType ?? _fixture.Create<string>(), accessToken ?? _fixture.Create<string>(), expires ?? _fixture.Create<DateTime>().ToUniversalTime()).ToByteArray();
         }
 
         private string CreateBase64String(string tokenType = null, string accessToken = null, DateTime? expires = null)

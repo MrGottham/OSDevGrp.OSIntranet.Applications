@@ -10,6 +10,10 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 
         DateTime Expires { get; }
 
+        bool HasExpired { get; }
+
+        byte[] ToByteArray();
+
         string ToBase64();
     }
 }

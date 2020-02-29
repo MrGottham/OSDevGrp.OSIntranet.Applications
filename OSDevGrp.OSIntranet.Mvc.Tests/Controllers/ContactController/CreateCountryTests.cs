@@ -7,6 +7,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Fixture _fixture;
 
         #endregion
@@ -29,7 +31,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
-
+            _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
             _fixture = new Fixture();
         }
 
@@ -196,7 +198,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateCountryCommand>()))
                 .Returns(Task.Run(() => { }));
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _tokenHelperFactoryMock.Object);
             if (modelIsValid == false)
             {
                 controller.ModelState.AddModelError(_fixture.Create<string>(), _fixture.Create<string>());

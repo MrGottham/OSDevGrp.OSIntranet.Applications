@@ -6,6 +6,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
@@ -17,6 +18,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Fixture _fixture;
 
         #endregion
@@ -26,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
             _fixture = new Fixture();
         }
 
@@ -79,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteContactGroupCommand>()))
                 .Returns(Task.Run(() => { }));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _tokenHelperFactoryMock.Object);
         }
     }
 }

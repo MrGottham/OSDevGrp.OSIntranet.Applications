@@ -196,7 +196,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     .Build();
             }
 
-            if (Token.Expires < DateTime.UtcNow)
+            if (Token.HasExpired)
             {
                 throw new IntranetExceptionBuilder(ErrorCode.TokenHasExpired, GetType().Name)
                     .WithMethodBase(MethodBase.GetCurrentMethod())
