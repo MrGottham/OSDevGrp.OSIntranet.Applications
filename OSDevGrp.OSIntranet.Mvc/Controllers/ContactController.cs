@@ -8,6 +8,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -29,6 +30,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
+        private readonly IClaimResolver _claimResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IConverter _contactViewModelConverter = new ContactViewModelConverter();
 
@@ -36,14 +38,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         #region Constructor
 
-        public ContactController(ICommandBus commandBus, IQueryBus queryBus, ITokenHelperFactory tokenHelperFactory)
+        public ContactController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
+                .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _claimResolver = claimResolver;
             _tokenHelperFactory = tokenHelperFactory;
         }
 
@@ -51,10 +55,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         #region Methods
 
+        [HttpGet]
         [AcquireToken(TokenType.MicrosoftGraphToken)]
-        public Task<IActionResult> Contacts()
+        public IActionResult Contacts(string filter = null)
         {
-            throw new NotImplementedException();
+            ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
+            {
+                Filter = string.IsNullOrWhiteSpace(filter) ? null : filter,
+                DefaultCountryCode = _claimResolver.GetCountryCode()
+            };
+
+            return View("Contacts", contactOptionsViewModel);
         }
 
         [HttpGet]
