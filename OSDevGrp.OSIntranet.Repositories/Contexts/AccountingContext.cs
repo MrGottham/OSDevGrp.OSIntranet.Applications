@@ -28,6 +28,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<AccountingModel> Accountings { get; set; }
 
+        public DbSet<BasicAccountModel> BasicAccounts { get; set; }
+
         public DbSet<LetterHeadModel> LetterHeads { get; set; }
 
         public DbSet<AccountGroupModel> AccountGroups { get; set; }
@@ -53,6 +55,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.CreateAccountingModel();
+            modelBuilder.CreateBasicAccountModel();
             modelBuilder.CreateLetterHeadModel();
             modelBuilder.CreateAccountGroupModel();
             modelBuilder.CreateBudgetAccountGroupModel();

@@ -32,6 +32,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
+            mapperConfiguration.CreateMap<IAccount, BasicAccountModel>()
+                .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<IBudgetAccount, BasicAccountModel>()
+                .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<IContactAccount, BasicAccountModel>()
+                .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
             mapperConfiguration.CreateMap<AccountGroupModel, IAccountGroup>()
                 .ConvertUsing(accountGroupModel => accountGroupModel.ToDomain());
 
