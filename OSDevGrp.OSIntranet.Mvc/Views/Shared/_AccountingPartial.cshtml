@@ -2,9 +2,9 @@
 @inject IAuthorizationService AuthorizationService
 @if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Accounting")).Succeeded)
 {
-    <li class="nav-item dropdown">
-        <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuAccounting" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Finansstyring</a>
-        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuAccounting">
+    <div class="dropdown dropright dropdown-submenu">
+        <button class="text-dark dropdown-item dropdown-toggle" type="button" data-toggle="dropdown">Finansstyring</button>
+        <ul class="dropdown-menu">
             <li class="nav-item">
                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Accounting" asp-action="AccountGroups">Kontogrupper</a>
             </li>
@@ -15,5 +15,5 @@
                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Accounting" asp-action="PaymentTerms">Betalingsbetingelser</a>
             </li>
         </ul>
-    </li>
+    </div>
 }

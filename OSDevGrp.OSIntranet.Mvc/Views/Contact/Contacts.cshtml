@@ -4,24 +4,35 @@
 }
 
 <div class="row">
-    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-3">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        <h2>Kontakter</h2>
+    </div>
+</div>
+<div class="row">
+    <div id="leftContent" class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-4">
         <div class="row">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                <h2>Kontakter</h2>
+            <div id="contactOperations" class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                @await Html.PartialAsync("_ContactOperationsPartial", Model)
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                <p>Contact operations</p>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div id="contactCollection" class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                 <p>Contact collection</p>
             </div>
         </div>
     </div>
-    <div class="col-md-8 col-lg-8 col-xl-9 d-none d-md-block d-lg-block d-xl-block">
+    <div id="rightContent" class="col-md-7 col-lg-7 col-xl-8 d-none d-md-block d-lg-block d-xl-block">
         <p>Contact content</p>
     </div>
 </div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <environment include="Development">
+        <script src="~/js/contacts.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/contacts.min.js" asp-append-version="true"></script>
+    </environment>
+}

@@ -28,7 +28,7 @@
             claimValueInput.readOnly = true;
         },
 
-        replaceWithPartialViewFromUrl: function (replaceElement) {
+        replaceWithPartialViewFromUrl: function(replaceElement) {
             var url = $(replaceElement).data("url");
             if (url == null) {
                 return;
@@ -39,8 +39,13 @@
                     $(replaceElement).replaceWith(data);
                 })
                 .fail(function(jqXhr, textStatus, errorThrown) {
-                    $(replaceElement).replaceWith("<div class=\"alert alert-danger\" role=\"alert\">" + errorThrown + "</div>");
+                    $(replaceElement)
+                        .replaceWith("<div class=\"alert alert-danger\" role=\"alert\">" + errorThrown + "</div>");
                 });
         }
+    });
+
+    $(document).ready(function() {
+        $("[data-submenu]").submenupicker();
     });
 })(jQuery);

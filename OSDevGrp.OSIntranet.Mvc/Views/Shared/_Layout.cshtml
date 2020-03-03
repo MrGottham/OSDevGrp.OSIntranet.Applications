@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -14,6 +16,7 @@
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.css" />
         <link rel="stylesheet" href="~/lib/fontawesome/dist/css/all.css" />
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
@@ -24,7 +27,8 @@
               asp-fallback-test-property="position"
               asp-fallback-test-value="absolute"
               crossorigin="anonymous"
-              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"/>
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+        <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
               crossorigin="anonymous"
               integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay">
@@ -33,7 +37,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 fixed-top">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3 fixed-top">
             <div class="container">
                 @if (User.Identity.IsAuthenticated)
                 {
@@ -47,15 +51,36 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
+                        <li class="nav-item d-none d-lg-block d-xl-block">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Start</a>
                         </li>
-                        <partial name="_ContactsPartial" />
-                        <partial name="_AccountingPartial" />
-                        <partial name="_CommonDataPartial" />
-                        <partial name="_SecurityPartial" />
+                        @if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Contacts")).Succeeded)
+                        {
+                            <li class="nav-item d-none d-md-block d-lg-block d-xl-block">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Contact" asp-action="Contacts">Kontakter</a>
+                            </li>
+                        }
+                        @if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Accounting")).Succeeded)
+                        {
+                        }
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown flex-grow-1">
+                                <a href="#" class="nav-link text-dark dropdown-toggle" data-toggle="dropdown" data-submenu>Administration</a>
+                                <div class="dropdown-menu">
+                                    <partial name="_ContactsPartial" />
+                                    <partial name="_AccountingPartial" />
+                                    <partial name="_CommonDataPartial" />
+                                    <partial name="_SecurityPartial" />
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="flex-grow-1" />
+                        }
+                        <partial name="_LoginPartial" />
                     </ul>
                 </div>
             </div>
@@ -72,13 +97,13 @@
         @if (User.Identity.IsAuthenticated)
         {
             <div class="container">
-                OS Development Group &copy; 2019 - OS Intranet
+                OS Development Group &copy; 2020 - OS Intranet
             </div>
         }
         else
         {
             <div class="container">
-                OS Development Group &copy; 2019 - Mr. Gottham&lsquo;s Homepage
+                OS Development Group &copy; 2020 - Mr. Gottham&lsquo;s Homepage
             </div>
         }
     </footer>
@@ -86,6 +111,7 @@
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery-3.4.1.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+        <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.js"></script>
         <script defer src="~/lib/fontawesome/dist/js/all.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
@@ -96,6 +122,7 @@
                 crossorigin="anonymous"
                 integrity="sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh">
         </script>
+        <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
                 asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
                 asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"

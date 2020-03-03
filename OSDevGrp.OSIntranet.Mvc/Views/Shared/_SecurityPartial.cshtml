@@ -2,9 +2,9 @@
 @inject IAuthorizationService AuthorizationService
 @if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "SecurityAdmin")).Succeeded)
 {
-    <li class="nav-item dropdown">
-        <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuSecurity" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sikkerhedsstyring</a>
-        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuSecurity">
+    <div class="dropdown dropright dropdown-submenu">
+        <button class="text-dark dropdown-item dropdown-toggle" type="button" data-toggle="dropdown">Sikkerhedsstyring</button>
+        <ul class="dropdown-menu">
             <li class="nav-item">
                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Security" asp-action="UserIdentities">Brugere</a>
             </li>
@@ -12,5 +12,5 @@
                 <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Security" asp-action="ClientSecretIdentities">Web API klienter</a>
             </li>
         </ul>
-    </li>
+    </div>
 }

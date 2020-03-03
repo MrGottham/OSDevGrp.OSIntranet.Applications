@@ -1,0 +1,10 @@
+﻿@model ContactOptionsViewModel;
+<div class="pb-2">
+    <a href="#" onclick="javascript:$().newContact('@Model.DefaultCountryCode');"><i class="fas fa-plus"></i> Ny kontakt</a>
+</div>
+<form class="form-inline pb-2" onsubmit="javascript:$().searchContacts($(this).find('#contactOperationsFilter').val(), '@Model.DefaultCountryCode');return false;">
+    <div class="form-group pr-2">
+        <input id="contactOperationsFilter" type="text" value="@Model.Filter" class="form-control" readonly />
+    </div>
+    <button id="contactOperationsSearch" type="submit" class="btn btn-primary" disabled>Søg</button>
+</form>
