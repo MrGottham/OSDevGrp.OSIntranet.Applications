@@ -17,7 +17,7 @@
                     </div>
                     @if (countryViewModel.DefaultForPrincipal)
                     {
-                        <div id="@countryViewModel.Code" class="collapse show" data-parent="#countryCollectionAccordion">
+                        <div id="@countryViewModel.Code" class="collapse show" data-parent="#countryCollectionAccordion" data-url-instant-loading>
                             <div class="card-body">
                                 <div class="spinner-border" role="status" data-url="@countryViewModel.GetPostalCodeCollectionLink(Url)">
                                     <span class="sr-only">Henter data...</span>
@@ -27,7 +27,7 @@
                     }
                     else
                     {
-                        <div id="@countryViewModel.Code" class="collapse" data-parent="#countryCollectionAccordion">
+                        <div id="@countryViewModel.Code" class="collapse" data-parent="#countryCollectionAccordion" data-url-collapse-loading>
                             <div class="card-body">
                                 <div class="spinner-border" role="status" data-url="@countryViewModel.GetPostalCodeCollectionLink(Url)">
                                     <span class="sr-only">Henter data...</span>
@@ -42,26 +42,3 @@
     <div class="col-xl-1 d-none d-xl-block">
     </div>
 </div>
-
-@section Scripts
-{
-<script type="text/javascript">
-    @foreach (CountryViewModel countryViewModel in Model)
-    {
-        <text>
-            $('#@countryViewModel.Code').on('shown.bs.collapse', function () {
-                $.fn.replaceWithPartialViewFromUrl($(this).find("div").find("div"));
-            });
-        </text>
-    }
-
-    $(document).ready(function() {
-        @foreach (CountryViewModel countryViewModel in Model.Where(m => m.DefaultForPrincipal))
-        {
-            <text>
-                $.fn.replaceWithPartialViewFromUrl($("#@countryViewModel.Code").find("div").find("div"));
-            </text>
-        }
-    });
-</script>
-}

@@ -12,20 +12,30 @@
             }
         },
 
-        handleClaimChange: function(claimCheckBox, claimValueInput, defaultValueInput) {
-            var defaultValue = "";
-            if (defaultValueInput != null) {
-                defaultValue = defaultValueInput.value;
-            }
+        handleUrlInstantLoading: function(document) {
+            var elementArray = $.makeArray(document.find("[data-url-instant-loading]"));
+            $.each(elementArray, function() {
+                var replaceElement = $(this).find("[data-url]");
+                if (replaceElement == null) {
+                    return;
+                }
 
-            if (claimCheckBox.checked) {
-                claimValueInput.readOnly = false;
-                claimValueInput.value = defaultValue;
-                return;
-            }
+                $().replaceWithPartialViewFromUrl(replaceElement);
+            });
+        },
 
-            claimValueInput.value = defaultValue;
-            claimValueInput.readOnly = true;
+        handleUrlCollapseLoading: function(document) {
+            var elementArray = $.makeArray(document.find("[data-url-collapse-loading]"));
+            $.each(elementArray, function() {
+                var replaceElement = $(this).find("[data-url]");
+                if (replaceElement == null) {
+                    return;
+                }
+
+                $(this).on("shown.bs.collapse", function() {
+                    $().replaceWithPartialViewFromUrl(replaceElement);
+                });
+            });
         },
 
         replaceWithPartialViewFromUrl: function(replaceElement) {
@@ -39,13 +49,15 @@
                     $(replaceElement).replaceWith(data);
                 })
                 .fail(function(jqXhr, textStatus, errorThrown) {
-                    $(replaceElement)
-                        .replaceWith("<div class=\"alert alert-danger\" role=\"alert\">" + errorThrown + "</div>");
+                    $(replaceElement).replaceWith("<div class=\"alert alert-danger\" role=\"alert\">" + errorThrown + "</div>");
                 });
         }
     });
 
     $(document).ready(function() {
         $("[data-submenu]").submenupicker();
+
+        $().handleUrlInstantLoading($(document));
+        $().handleUrlCollapseLoading($(document));
     });
 })(jQuery);
