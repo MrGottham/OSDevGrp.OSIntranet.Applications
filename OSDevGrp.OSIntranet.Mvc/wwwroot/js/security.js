@@ -14,6 +14,6 @@
 
             claimValueInput.value = defaultValue;
             claimValueInput.readOnly = true;
-        },
+        }
     });
 })(jQuery);

@@ -1,10 +1,17 @@
-﻿using AutoFixture;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Queries;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
@@ -21,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
         private Mock<IClaimResolver> _claimResolverMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -31,60 +39,75 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             _queryBusMock = new Mock<IQueryBus>();
             _claimResolverMock = new Mock<IClaimResolver>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+
             _fixture = new Fixture();
+            _fixture.Customize<ICountry>(builder => builder.FromFactory(() => _fixture.BuildCountryMock().Object));
+
+            _random = new Random();
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenCalled_AssertGetCountryCodeWasCalledOnClaimResolver()
+        public async Task Contacts_WhenCalled_AssertGetCountryCodeWasCalledOnClaimResolver()
         {
             Controller sut = CreateSut();
 
-            sut.Contacts();
+            await sut.Contacts();
 
             _claimResolverMock.Verify(m => m.GetCountryCode(), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenCalled_ReturnsViewResult()
+        public async Task Contacts_WhenCalled_AssertQueryAsyncWasCalledOnQueryBusToGetCountryCollection()
         {
             Controller sut = CreateSut();
 
-            IActionResult result = sut.Contacts();
+            await sut.Contacts();
+
+            _queryBusMock.Verify(m => m.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(It.Is<EmptyQuery>(emptyQuery => emptyQuery != null)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Contacts_WhenCalled_ReturnsViewResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.Contacts();
 
             Assert.That(result, Is.TypeOf<ViewResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenCalled_ReturnsViewResultWhereViewNameIsEqualToContacts()
+        public async Task Contacts_WhenCalled_ReturnsViewResultWhereViewNameIsEqualToContacts()
         {
             Controller sut = CreateSut();
 
-            ViewResult result = (ViewResult) sut.Contacts();
+            ViewResult result = (ViewResult) await sut.Contacts();
 
             Assert.That(result.ViewName, Is.EqualTo("Contacts"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenCalled_ReturnsViewResultWhereModelIsContactOptionsViewModel()
+        public async Task Contacts_WhenCalled_ReturnsViewResultWhereModelIsContactOptionsViewModel()
         {
             Controller sut = CreateSut();
 
-            ViewResult result = (ViewResult) sut.Contacts();
+            ViewResult result = (ViewResult) await sut.Contacts();
 
             Assert.That(result.Model, Is.TypeOf<ContactOptionsViewModel>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenFilterIsNull_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsNull()
+        public async Task Contacts_WhenFilterIsNull_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsNull()
         {
             Controller sut = CreateSut();
 
-            ViewResult result = (ViewResult) sut.Contacts();
+            ViewResult result = (ViewResult) await sut.Contacts();
 
             ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
 
@@ -93,11 +116,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenFilterIsEmpty_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsNull()
+        public async Task Contacts_WhenFilterIsEmpty_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsNull()
         {
             Controller sut = CreateSut();
 
-            ViewResult result = (ViewResult) sut.Contacts(string.Empty);
+            ViewResult result = (ViewResult) await sut.Contacts(string.Empty);
 
             ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
 
@@ -106,11 +129,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenFilterIsWhiteSpace_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsNull()
+        public async Task Contacts_WhenFilterIsWhiteSpace_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsNull()
         {
             Controller sut = CreateSut();
 
-            ViewResult result = (ViewResult) sut.Contacts(" ");
+            ViewResult result = (ViewResult) await sut.Contacts(" ");
 
             ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
 
@@ -119,12 +142,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenFilterIsNotNullEmptyOrWhiteSpace_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsEqualToFilterFromArgument()
+        public async Task Contacts_WhenFilterIsNotNullEmptyOrWhiteSpace_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereFilterIsEqualToFilterFromArgument()
         {
             Controller sut = CreateSut();
 
             string filter = _fixture.Create<string>();
-            ViewResult result = (ViewResult) sut.Contacts(filter);
+            ViewResult result = (ViewResult) await sut.Contacts(filter);
 
             ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
 
@@ -133,23 +156,38 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void Contacts_WhenCalled_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereDefaultCountryCodeIsEqualToCountryCodeFromClaimResolver()
+        public async Task Contacts_WhenCalled_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereDefaultCountryCodeIsEqualToCountryCodeFromClaimResolver()
         {
             string countryCode = _fixture.Create<string>();
-            Controller sut = CreateSut(countryCode);
+            Controller sut = CreateSut(countryCode: countryCode);
 
-            ViewResult result = (ViewResult) sut.Contacts();
+            ViewResult result = (ViewResult) await sut.Contacts();
 
             ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
-
 
             Assert.That(contactOptionsViewModel.DefaultCountryCode, Is.EqualTo(countryCode));
         }
 
-        private Controller CreateSut(string countryCode = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task Contacts_WhenCalled_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereCountriesContainsViewModelForCountries()
+        {
+            IEnumerable<ICountry> countryCollection = _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList();
+            Controller sut = CreateSut(countryCollection: countryCollection);
+
+            ViewResult result = (ViewResult) await sut.Contacts();
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.Countries.All(countryViewModel => countryCollection.SingleOrDefault(country => string.CompareOrdinal(countryViewModel.Code, country.Code) == 0) != null), Is.True);
+        }
+
+        private Controller CreateSut(bool hasCountryCode = true, string countryCode = null, IEnumerable<ICountry> countryCollection = null)
         {
             _claimResolverMock.Setup(m => m.GetCountryCode())
-                .Returns(countryCode ?? _fixture.Create<string>());
+                .Returns(hasCountryCode ? countryCode ?? _fixture.Create<string>() : null);
+            _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(It.IsAny<EmptyQuery>()))
+                .Returns(Task.Run(() => countryCollection ?? _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList()));
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object);
         }

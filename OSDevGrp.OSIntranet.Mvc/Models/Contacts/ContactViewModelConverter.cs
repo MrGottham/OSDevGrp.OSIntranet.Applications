@@ -14,6 +14,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
+            mapperConfiguration.CreateMap<IContact, ContactIdentificationViewModel>()
+                .ForMember(m => m.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
+                .ForMember(m => m.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(m => m.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContact, ContactInfoViewModel>()
+                .ForMember(m => m.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
+                .ForMember(m => m.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(m => m.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
             mapperConfiguration.CreateMap<IContactGroup, ContactGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 

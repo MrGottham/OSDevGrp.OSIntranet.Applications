@@ -15,6 +15,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Attributes;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
@@ -57,15 +58,76 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpGet]
         [AcquireToken(TokenType.MicrosoftGraphToken)]
-        public IActionResult Contacts(string filter = null)
+        public async Task<IActionResult> Contacts(string filter = null)
         {
+            string defaultCountryCode = _claimResolver.GetCountryCode();
+
+            IEnumerable<CountryViewModel> countryViewModels = await GetCountryViewModels();
+
             ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
             {
                 Filter = string.IsNullOrWhiteSpace(filter) ? null : filter,
-                DefaultCountryCode = _claimResolver.GetCountryCode()
+                DefaultCountryCode = defaultCountryCode,
+                Countries = countryViewModels?.ToList() ?? new List<CountryViewModel>(0)
             };
 
             return View("Contacts", contactOptionsViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> StartLoadingContacts(string filter = null)
+        {
+            if (await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext) == null)
+            {
+                return Unauthorized();
+            }
+
+            ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
+            {
+                Filter = string.IsNullOrWhiteSpace(filter) ? null : filter
+            };
+
+            return PartialView("_LoadingContactsPartial", contactOptionsViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadContacts(string filter = null)
+        {
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            IEnumerable<IContact> contacts;
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                IGetContactCollectionQuery query = CreateContactQueryBase<GetContactCollectionQuery>(token);
+                contacts = await _queryBus.QueryAsync<IGetContactCollectionQuery, IEnumerable<IContact>>(query);
+            }
+            else
+            {
+                IGetMatchingContactCollectionQuery query = CreateContactQueryBase<GetMatchingContactCollectionQuery>(token);
+                query.SearchFor = filter;
+                query.SearchWithinName = true;
+                query.SearchWithinMailAddress = true;
+                query.SearchWithinHomePhone = true;
+                query.SearchWithinMobilePhone = true;
+                contacts = await _queryBus.QueryAsync<IGetMatchingContactCollectionQuery, IEnumerable<IContact>>(query);
+            }
+
+            IEnumerable<ContactInfoViewModel> contactInfoViewModels = contacts.AsParallel()
+                .Select(contact => _contactViewModelConverter.Convert<IContact, ContactInfoViewModel>(contact))
+                .OrderBy(contactInfoViewModel => contactInfoViewModel.DisplayName)
+                .ToList();
+
+            return PartialView("_ContactCollectionPartial", contactInfoViewModels);
+        }
+
+        [HttpGet]
+        public IActionResult Contact(string externalIdentifier)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpGet]
@@ -360,6 +422,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("PostalCodes", "Contact");
+        }
+
+        private T CreateContactQueryBase<T>(IRefreshableToken refreshableToken) where T : class, IContactQuery, new()
+        {
+            NullGuard.NotNull(refreshableToken, nameof(refreshableToken));
+
+            return new T
+            {
+                TokenType = refreshableToken.TokenType,
+                AccessToken = refreshableToken.AccessToken,
+                RefreshToken = refreshableToken.RefreshToken,
+                Expires = refreshableToken.Expires
+            };
         }
 
         private async Task<IEnumerable<CountryViewModel>> GetCountryViewModels()

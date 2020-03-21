@@ -53,3 +53,29 @@ body {
   height: 60px;
   line-height: 60px; /* Vertically center the text there */
 }
+
+/* Fixed area height styles
+-------------------------------------------------- */
+.fixed-area-height-300 {
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+}
+
+.fixed-area-height-350 {
+    height: 350px;
+    min-height: 350px;
+    max-height: 350px;
+}
+
+.fixed-area-height-400 {
+    height: 400px;
+    min-height: 400px;
+    max-height: 400px;
+}
+
+.fixed-area-height-450 {
+    height: 450px;
+    min-height: 450px;
+    max-height: 450px;
+}

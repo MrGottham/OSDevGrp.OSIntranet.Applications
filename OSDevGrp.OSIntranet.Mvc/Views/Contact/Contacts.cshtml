@@ -16,8 +16,8 @@
             </div>
         </div>
         <div class="row">
-            <div id="contactCollection" class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                <p>Contact collection</p>
+            <div id="contactCollection" class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 fixed-area-height-350" data-url-instant-loading>
+                @await Html.PartialAsync("_LoadingContactsPartial", Model)
             </div>
         </div>
     </div>
@@ -26,8 +26,7 @@
     </div>
 </div>
 
-@section Scripts
-{
+@section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <environment include="Development">
         <script src="~/js/contacts.js" asp-append-version="true"></script>
