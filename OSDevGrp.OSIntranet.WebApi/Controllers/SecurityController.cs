@@ -50,8 +50,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         #region Methods
 
         [AllowAnonymous]
-        [Route("/api/authenticate")]
-        [HttpPost("authenticate")]
+        [HttpPost("/api/authorize")]
+        [HttpPost("/api/authenticate")]
         public async Task<ActionResult<AccessTokenModel>> AuthenticateAsync()
         {
             try
