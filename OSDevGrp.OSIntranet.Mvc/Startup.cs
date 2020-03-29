@@ -40,6 +40,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             {
                 opt.CheckConsentNeeded = context => true;
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
+                opt.Secure = CookieSecurePolicy.Always;
             });
 
             services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)));
@@ -59,6 +60,8 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.LoginPath = "/Account/Login";
                 opt.LogoutPath = "/Account/Logoff";
                 opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
+                opt.Cookie.SameSite = SameSiteMode.None;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddCookie("OSDevGrp.OSIntranet.External", opt =>
@@ -66,6 +69,8 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.LoginPath = "/Account/Login";
                 opt.LogoutPath = "/Account/Logoff";
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
+                opt.Cookie.SameSite = SameSiteMode.None;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddMicrosoftAccount(opt => 
@@ -73,6 +78,8 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.ClientId = Configuration["Security:Microsoft:ClientId"];
                 opt.ClientSecret = Configuration["Security:Microsoft:ClientSecret"];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
+                opt.CorrelationCookie.SameSite = SameSiteMode.None;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -92,6 +99,8 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.ClientId = Configuration["Security:Google:ClientId"];
                 opt.ClientSecret = Configuration["Security:Google:ClientSecret"];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
+                opt.CorrelationCookie.SameSite = SameSiteMode.None;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
             services.AddAuthorization(opt =>

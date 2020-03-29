@@ -35,7 +35,11 @@ namespace OSDevGrp.OSIntranet.WebApi
         {
             NullGuard.NotNull(services, nameof(services));
 
-            services.Configure<CookiePolicyOptions>(opt => opt.MinimumSameSitePolicy = SameSiteMode.None);
+            services.Configure<CookiePolicyOptions>(opt =>
+            {
+                opt.MinimumSameSitePolicy = SameSiteMode.None;
+                opt.Secure = CookieSecurePolicy.Always;
+            });
 
             services.AddControllers().AddJsonOptions(opt => 
             {

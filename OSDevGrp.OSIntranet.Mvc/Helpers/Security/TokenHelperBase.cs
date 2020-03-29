@@ -201,7 +201,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
             byte[] tokenByteArray = dataProtector.Protect(token.ToByteArray());
 
             TimeSpan expireTimeSpan = (token.Expires.Kind == DateTimeKind.Utc ? token.Expires.ToLocalTime() : token.Expires).Subtract(DateTime.Now);
-            httpContext.Response.Cookies.Append(TokenCookieName, Convert.ToBase64String(tokenByteArray), new CookieOptions {Expires = DateTimeOffset.Now.Add(expireTimeSpan).AddDays(1)});
+            httpContext.Response.Cookies.Append(TokenCookieName, Convert.ToBase64String(tokenByteArray), new CookieOptions {Expires = DateTimeOffset.Now.Add(expireTimeSpan).AddDays(1), Secure = true, SameSite = SameSiteMode.None});
         }
 
         private T RestoreTokenCookie(HttpContext httpContext)
@@ -240,7 +240,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
             byte[] state = dataProtector.Protect(Encoding.UTF8.GetBytes(returnUri.AbsoluteUri));
 
             string stateCookieName = GetStateCookieName(stateIdentifier);
-            httpContext.Response.Cookies.Append(stateCookieName, Convert.ToBase64String(state), new CookieOptions {Expires = DateTimeOffset.Now.AddMinutes(15)});
+            httpContext.Response.Cookies.Append(stateCookieName, Convert.ToBase64String(state), new CookieOptions {Expires = DateTimeOffset.Now.AddMinutes(15), Secure = true, SameSite = SameSiteMode.None});
         }
 
         private Uri RestoreStateCookie(HttpContext httpContext, Guid stateIdentifier)
