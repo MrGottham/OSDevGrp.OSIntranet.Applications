@@ -21,17 +21,17 @@
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only"
               asp-fallback-test-property="position"
               asp-fallback-test-value="absolute"
               crossorigin="anonymous"
-              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" />
         <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
               crossorigin="anonymous"
-              integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay">
+              integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V">
         <link rel="stylesheet" href="~/css/site.min.css" />
     </environment>
 </head>
@@ -111,7 +111,8 @@
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery-3.4.1.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+        <script src="~/lib/popper/dist/popper.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.js"></script>
         <script defer src="~/lib/fontawesome/dist/js/all.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
@@ -123,16 +124,22 @@
                 crossorigin="anonymous"
                 integrity="sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh">
         </script>
-        <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"
+                asp-fallback-src="~/lib/popper/dist/popper.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha256-/ijcOLwFf26xEYAjW75FizKVo5tnTYiQddPZoLUHHZ8=">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
                 asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
                 asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
                 crossorigin="anonymous"
-                integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o">
+                integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6">
         </script>
-        <script defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js"
+        <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.min.js"></script>
+        <script defer src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"
                 crossorigin="anonymous"
-                integrity="sha384-DJ25uNYET2XCl5ZF++U8eNxPWqcKohUUBUpKGlNLMchM7q4Wjg2CUpjHLaL8yYPH">
+                integrity="sha384-ujbKXb9V3HdK7jcWL6kHL1c+2Lj4MR4Gkjl7UtwpSHg/ClpViddK9TI7yU53frPN">
         </script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
