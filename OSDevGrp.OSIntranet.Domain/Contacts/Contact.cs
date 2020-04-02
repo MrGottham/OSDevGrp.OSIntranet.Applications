@@ -223,7 +223,7 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
                 return false;
             }
 
-            return MatchingValue(searchFor, PrimaryPhone);
+            return MatchingValue(searchFor, PrimaryPhone, true);
         }
 
         private bool MatchingSecondaryPhone(string searchFor, SearchOptions searchOptions)
@@ -235,7 +235,7 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
                 return false;
             }
 
-            return MatchingValue(searchFor, SecondaryPhone);
+            return MatchingValue(searchFor, SecondaryPhone, true);
         }
 
         private bool MatchingHomePhone(string searchFor, SearchOptions searchOptions)
@@ -247,7 +247,7 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
                 return false;
             }
 
-            return MatchingValue(searchFor, HomePhone);
+            return MatchingValue(searchFor, HomePhone, true);
         }
 
         private bool MatchingMobilePhone(string searchFor, SearchOptions searchOptions)
@@ -259,17 +259,17 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
                 return false;
             }
 
-            return MatchingValue(searchFor, MobilePhone);
+            return MatchingValue(searchFor, MobilePhone, true);
         }
 
-        private bool MatchingValue(string searchFor, string value)
+        private bool MatchingValue(string searchFor, string value, bool removeSpaces = false)
         {
             NullGuard.NotNullOrWhiteSpace(searchFor, nameof(searchFor))
                 .NotNullOrWhiteSpace(value, nameof(value));
 
-            Regex pattern = new Regex(searchFor, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            Regex pattern = new Regex(removeSpaces ? searchFor.Replace(" ", "") : searchFor, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
-            return pattern.IsMatch(value);
+            return pattern.IsMatch(removeSpaces ? value.Replace(" ", "") : value);
         }
 
         private static string CalculateIdentifierValue(string value)

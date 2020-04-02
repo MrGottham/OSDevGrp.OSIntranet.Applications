@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         public ContactType ContactType { get; set; }
     }
 
-    public static class ContactIdentificationViewModelBaseExtensions
+    public static class ContactIdentificationViewModelExtensions
     {
         public static string GetContactUrl(this ContactIdentificationViewModel contactIdentificationViewModel, IUrlHelper urlHelper)
         {

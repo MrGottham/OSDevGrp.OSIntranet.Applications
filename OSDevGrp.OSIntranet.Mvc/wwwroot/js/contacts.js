@@ -75,11 +75,15 @@
             $().setReadOnly("#contactOperationsFilter", false);
             $().setDisabled("#contactOperationsSearch", false);
 
-            $.each(loadedContactCollectionElementArray, function () {
+            $.each(loadedContactCollectionElementArray, function() {
                 $.each($(this).find("a"), function() {
-                    $(this).on("click", function (e) {
+                    $(this).on("click", function(e) {
                         e.preventDefault();
-                        $().getContact($(this).data("url"));
+                        $(this).tab("show");
+                    });
+
+                    $(this).on("shown.bs.tab", function(e) {
+                        $().getContact($(e.target).data("url"));
                     });
                 });
             });
