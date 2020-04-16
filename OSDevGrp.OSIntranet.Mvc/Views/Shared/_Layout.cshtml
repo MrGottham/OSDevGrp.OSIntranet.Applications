@@ -63,6 +63,9 @@
                         }
                         @if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Accounting")).Succeeded)
                         {
+                            <li class="nav-item d-none d-md-block d-lg-block d-xl-block">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Accounting" asp-action="Accountings">Finansstyring</a>
+                            </li>
                         }
                         @if (User.Identity.IsAuthenticated)
                         {

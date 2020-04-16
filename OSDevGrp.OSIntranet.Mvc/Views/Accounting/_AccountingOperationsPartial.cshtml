@@ -1,0 +1,10 @@
+@model AccountingOptionsViewModel;
+<div class="pb-2" onsubmit="javascript:return false;">
+    <input id="accountingOptionsAccountingNumber" type="hidden" value="@Model.DefaultAccountingNumber"/>
+    <div class="form-group">
+        <a href="#" onclick="javascript:$().newAccounting();"><i class="fas fa-plus"></i>&nbsp;Nyt regnskab</a>
+    </div>
+    <div class="form-group">
+        <a href="#" onclick="javascript:$().refreshAccountings('@Model.GetStartLoadingAccountingsUrl(Url)');"><i class="fas fa-sync"></i>&nbsp;Genindlæs regnskaber</a>
+    </div>
+</div>

@@ -14,6 +14,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
+            mapperConfiguration.CreateMap<IAccounting, AccountingIdentificationViewModel>()
+                .ForMember(dest => dest.AccountingNumber, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 

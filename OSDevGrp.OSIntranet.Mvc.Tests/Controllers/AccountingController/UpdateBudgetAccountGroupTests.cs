@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -23,6 +24,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Fixture _fixture;
 
         #endregion
@@ -32,6 +34,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _fixture = new Fixture();
         }
 
@@ -209,7 +212,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             _queryBusMock.Setup(m => m.QueryAsync<IGetBudgetAccountGroupQuery, IBudgetAccountGroup>(It.IsAny<IGetBudgetAccountGroupQuery>()))
                 .Returns(Task.Run(() => budgetAccountGroup ?? _fixture.BuildBudgetAccountGroupMock().Object));
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
             if (modelIsValid == false)
             {
                 controller.ModelState.AddModelError(_fixture.Create<string>(), _fixture.Create<string>());

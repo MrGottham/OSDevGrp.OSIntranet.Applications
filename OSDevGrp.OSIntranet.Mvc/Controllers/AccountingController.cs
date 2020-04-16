@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -25,24 +27,73 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
+        private readonly IClaimResolver _claimResolver;
         private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
 
         #endregion
 
         #region Constructor
 
-        public AccountingController(ICommandBus commandBus, IQueryBus queryBus)
+        public AccountingController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+                .NotNull(queryBus, nameof(queryBus))
+                .NotNull(claimResolver, nameof(claimResolver));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _claimResolver = claimResolver;
         }
 
         #endregion
 
         #region Methods
+
+        [HttpGet]
+        public IActionResult Accountings()
+        {
+            AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel
+            {
+                DefaultAccountingNumber = _claimResolver.GetAccountingNumber()
+            };
+
+            return View("Accountings", accountingOptionsViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult StartLoadingAccountings(int? accountingNumber = null)
+        {
+            AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel
+            {
+                DefaultAccountingNumber = accountingNumber
+            };
+
+            return PartialView("_LoadingAccountingsPartial", accountingOptionsViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadAccountings(int? accountingNumber = null)
+        {
+            IEnumerable<IAccounting> accountings = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery());
+
+            IEnumerable<AccountingIdentificationViewModel> accountingIdentificationViewModels = accountings.AsParallel()
+                .Select(accounting => _accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting))
+                .OrderBy(accountingIdentificationViewModel => accountingIdentificationViewModel.AccountingNumber)
+                .ToList();
+
+            if (accountingNumber.HasValue)
+            {
+                ViewData.Add("AccountingNumber", accountingNumber);
+            }
+
+            return PartialView("_AccountingCollectionPartial", accountingIdentificationViewModels);
+        }
+
+        [HttpGet]
+        public Task<IActionResult> Accounting(int accountingNumber)
+        {
+            throw new NotImplementedException();
+        }
 
         [HttpGet]
         public async Task<IActionResult> AccountGroups()

@@ -1,0 +1,29 @@
+@using System.Reflection.Metadata.Ecma335
+@model IEnumerable<AccountingIdentificationViewModel>;
+<div id="loadedAccountingCollection" class="list-group overflow-auto fixed-area-height-400">
+    @foreach (AccountingIdentificationViewModel accountingIdentificationViewModel in Model)
+    {
+        @if (ViewData.ContainsKey("AccountingNumber") && accountingIdentificationViewModel.AccountingNumber == Convert.ToInt32(ViewData["AccountingNumber"]))
+        {
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active" data-accounting-number="@accountingIdentificationViewModel.AccountingNumber" data-url="@accountingIdentificationViewModel.GetAccountingUrl(Url)">
+                <div class="d-flex w-100 justify-content-start">
+                    <i class="fas fa-money-bill-wave-alt"></i>
+                    <div class="ml-4">
+                        <h5 class="mb-1 text-wrap">@accountingIdentificationViewModel.Name</h5>
+                    </div>
+                </div>
+            </a>
+        }
+        else
+        {
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" data-accounting-number="@accountingIdentificationViewModel.AccountingNumber" data-url="@accountingIdentificationViewModel.GetAccountingUrl(Url)">
+                <div class="d-flex w-100 justify-content-start">
+                    <i class="fas fa-money-bill-wave-alt"></i>
+                    <div class="ml-4">
+                        <h5 class="mb-1 text-wrap">@accountingIdentificationViewModel.Name</h5>
+                    </div>
+                </div>
+            </a>
+        }
+    }
+</div>

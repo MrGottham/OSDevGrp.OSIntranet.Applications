@@ -1,0 +1,4 @@
+@model AccountingOptionsViewModel;
+<div class="spinner-border" role="status" data-url="@Model.GetLoadAccountingsUrl(Url, Model.DefaultAccountingNumber)">
+    <span class="sr-only">Henter data...</span>
+</div>

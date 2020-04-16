@@ -1,0 +1,37 @@
+@model AccountingOptionsViewModel;
+@{
+    ViewData["Title"] = "Regnskaber";
+}
+
+<div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        <h2>Regnskaber</h2>
+    </div>
+</div>
+<div class="row">
+    <div id="leftContent" class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-4">
+        <div class="row">
+            <div id="accountingOperations" class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                @await Html.PartialAsync("_AccountingOperationsPartial", Model)
+            </div>
+        </div>
+        <div class="row">
+            <div id="accountingCollection" class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 fixed-area-height-350" data-url-instant-loading>
+                @await Html.PartialAsync("_LoadingAccountingsPartial", Model)
+            </div>
+        </div>
+    </div>
+    <div id="rightContent" class="col-md-7 col-lg-7 col-xl-8 d-none d-md-block d-lg-block d-xl-block">
+        <p>Accounting content</p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <environment include="Development">
+        <script src="~/js/accountings.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/accountings.min.js" asp-append-version="true"></script>
+    </environment>
+}
