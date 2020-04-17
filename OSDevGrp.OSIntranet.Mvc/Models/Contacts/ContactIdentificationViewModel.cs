@@ -16,12 +16,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 
     public static class ContactIdentificationViewModelExtensions
     {
-        public static string GetContactUrl(this ContactIdentificationViewModel contactIdentificationViewModel, IUrlHelper urlHelper)
+        public static string GetStartLoadingContactUrl(this ContactIdentificationViewModel contactIdentificationViewModel, IUrlHelper urlHelper)
         {
             NullGuard.NotNull(contactIdentificationViewModel, nameof(contactIdentificationViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
-            return urlHelper.AbsoluteAction("Contact", "Contact", new {ExternalIdentifier = contactIdentificationViewModel.ExternalIdentifier});
+            return urlHelper.AbsoluteAction("StartLoadingContact", "Contact", new {ExternalIdentifier = contactIdentificationViewModel.ExternalIdentifier, CountryCode = "{countryCode}"});
+        }
+
+        public static string GetLoadContactUrl(this ContactIdentificationViewModel contactIdentificationViewModel, IUrlHelper urlHelper, string countryCode)
+        {
+            NullGuard.NotNull(contactIdentificationViewModel, nameof(contactIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper))
+                .NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            return urlHelper.AbsoluteAction("LoadContact", "Contact", new {ExternalIdentifier = contactIdentificationViewModel.ExternalIdentifier, CountryCode = countryCode});
         }
     }
 }

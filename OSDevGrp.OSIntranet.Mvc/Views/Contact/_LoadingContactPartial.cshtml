@@ -1,0 +1,4 @@
+﻿@model ContactIdentificationViewModel;
+<div class="spinner-border" role="status" data-url="@Model.GetLoadContactUrl(Url, Convert.ToString(ViewData["CountryCode"]))">
+    <span class="sr-only">Henter data...</span>
+</div>

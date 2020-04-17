@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -14,11 +13,13 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Attributes;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
@@ -34,6 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly IClaimResolver _claimResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IConverter _contactViewModelConverter = new ContactViewModelConverter();
+        private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
 
         #endregion
 
@@ -125,20 +127,69 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
-        public IActionResult Contact(string externalIdentifier)
+        public async Task<IActionResult> StartLoadingContact(string externalIdentifier, string countryCode)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier))
+                .NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            ContactIdentificationViewModel contactIdentificationViewModel = new ContactIdentificationViewModel
+            {
+                ExternalIdentifier = externalIdentifier,
+                ContactType = ContactType.Unknown
+            };
+
+            ViewData.Add("CountryCode", countryCode);
+
+            return PartialView("_LoadingContactPartial", contactIdentificationViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadContact(string externalIdentifier, string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier))
+                .NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            IGetContactQuery getContactQuery = CreateContactQueryBase<GetContactQuery>(token);
+            getContactQuery.ExternalIdentifier = externalIdentifier;
+
+            Task<IEnumerable<ContactGroupViewModel>> getContactGroupViewModelCollectionTask = GetContactGroupViewModels();
+            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
+            Task<IEnumerable<CountryViewModel>> getCountryViewModelCollectionTask = GetCountryViewModels();
+            Task<ICountry> getCountryTask = GetCountry(countryCode);
+            Task<IContact> getContactTask = _queryBus.QueryAsync<IGetContactQuery, IContact>(getContactQuery);
+            await Task.WhenAll(
+                getContactGroupViewModelCollectionTask,
+                getPaymentTermViewModelCollectionTask,
+                getCountryViewModelCollectionTask,
+                getCountryTask,
+                getContactTask);
+
+            ICountry country = getCountryTask.Result;
+            IContact contact = getContactTask.Result;
+            if (country == null || contact == null)
+            {
+                return BadRequest();
+            }
+
+            return null;
         }
 
         [HttpGet]
         public async Task<IActionResult> ContactGroups()
         {
-            IEnumerable<IContactGroup> contactGroups =  await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IContactGroup>>(new EmptyQuery());
-
-            IEnumerable<ContactGroupViewModel> contactGroupViewModels = contactGroups.AsParallel()
-                .Select(contactGroup => _contactViewModelConverter.Convert<IContactGroup, ContactGroupViewModel>(contactGroup))
-                .OrderBy(contactGroupViewModel => contactGroupViewModel.Number)
-                .ToList();
+            IEnumerable<ContactGroupViewModel> contactGroupViewModels = await GetContactGroupViewModels();
 
             return View("ContactGroups", contactGroupViewModels);
         }
@@ -437,6 +488,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             };
         }
 
+        private async Task<IEnumerable<ContactGroupViewModel>> GetContactGroupViewModels()
+        {
+            IEnumerable<IContactGroup> contactGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IContactGroup>>(new EmptyQuery());
+
+            return contactGroups.AsParallel()
+                .Select(contactGroup => _contactViewModelConverter.Convert<IContactGroup, ContactGroupViewModel>(contactGroup))
+                .OrderBy(contactGroupViewModel => contactGroupViewModel.Number)
+                .ToList();
+        }
+
         private async Task<IEnumerable<CountryViewModel>> GetCountryViewModels()
         {
             IEnumerable<ICountry> countries = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery());
@@ -456,6 +517,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 CountryCode = countryCode
             };
             return await _queryBus.QueryAsync<IGetCountryQuery, ICountry>(query);
+        }
+
+        private async Task<IEnumerable<PaymentTermViewModel>> GetPaymentTermViewModels()
+        {
+            IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
+
+            return paymentTerms.AsParallel()
+                .Select(paymentTerm => _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm))
+                .OrderBy(paymentTermViewModel => paymentTermViewModel.Number)
+                .ToList();
         }
 
         #endregion

@@ -2,7 +2,7 @@
 <div id="loadedContactCollection" class="list-group overflow-auto fixed-area-height-350">
     @foreach (ContactInfoViewModel contactInfoViewModel in Model)
     {
-        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" data-url="@contactInfoViewModel.GetContactUrl(Url)">
+        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" data-url="@contactInfoViewModel.GetStartLoadingContactUrl(Url)">
             <div class="d-flex w-100 justify-content-start">
                 @if (contactInfoViewModel.ContactType == ContactType.Company)
                 {
