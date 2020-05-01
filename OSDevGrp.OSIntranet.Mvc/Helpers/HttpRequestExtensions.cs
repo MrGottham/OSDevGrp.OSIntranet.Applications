@@ -10,7 +10,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
             NullGuard.NotNull(request, nameof(request))
                 .NotNullOrWhiteSpace(path, nameof(path));
 
-            return $"{request.Scheme}://{request.Host}{request.PathBase}{path}";
+            string scheme = request.Scheme;
+            if (request.IsHttps && scheme.ToLower().EndsWith("s") == false)
+            {
+                scheme = scheme + "s";
+            }
+
+            return $"{scheme}://{request.Host}{request.PathBase}{path}";
         }
     }
 }

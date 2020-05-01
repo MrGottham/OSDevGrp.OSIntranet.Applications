@@ -1,9 +1,11 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,8 @@ namespace OSDevGrp.OSIntranet.WebApi
 {
     public class Startup
     {
+        private const string DotnetRunningInContainerEnvironmentVariable = "DOTNET_RUNNING_IN_CONTAINER";
+
         public Startup(IConfiguration configuration)
         {
             NullGuard.NotNull(configuration, nameof(configuration));
@@ -35,10 +39,17 @@ namespace OSDevGrp.OSIntranet.WebApi
         {
             NullGuard.NotNull(services, nameof(services));
 
+            services.Configure<ForwardedHeadersOptions>(opt => 
+            {
+                opt.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                opt.KnownNetworks.Clear();
+                opt.KnownProxies.Clear();
+            });
+
             services.Configure<CookiePolicyOptions>(opt =>
             {
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
-                opt.Secure = CookieSecurePolicy.Always;
+                opt.Secure = CookieSecurePolicy.SameAsRequest;
             });
 
             services.AddControllers().AddJsonOptions(opt => 
@@ -91,6 +102,8 @@ namespace OSDevGrp.OSIntranet.WebApi
             NullGuard.NotNull(app, nameof(app))
                 .NotNull(env, nameof(env));
 
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -100,11 +113,14 @@ namespace OSDevGrp.OSIntranet.WebApi
                 app.UseHsts();
             }
 
-            app.UseCookiePolicy();
-
-            app.UseHttpsRedirection();
+            if (RunningInDocker() == false)
+            {
+                app.UseHttpsRedirection();
+            }
             app.UseDefaultFiles();
             app.UseStaticFiles();
+
+            app.UseCookiePolicy();
 
             app.UseRouting();
 
@@ -118,6 +134,21 @@ namespace OSDevGrp.OSIntranet.WebApi
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapHealthChecks("/health");
             });
+        }
+
+        private static bool RunningInDocker()
+        {
+            return RunningInDocker(Environment.GetEnvironmentVariable(DotnetRunningInContainerEnvironmentVariable));
+        }
+
+        private static bool RunningInDocker(string environmentVariable)
+        {
+            if (string.IsNullOrWhiteSpace(environmentVariable) || bool.TryParse(environmentVariable, out bool result) == false)
+            {
+                return false;
+            }
+
+            return result;
         }
     }
 }

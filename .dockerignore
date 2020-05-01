@@ -1,0 +1,16 @@
+# Directories
+.git/
+.vs/
+.vscode/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Oo]ut/
+
+# Files
+.dockerignore
+.gitignore
+OSDevGrp.OSIntranet.Builder.Dockerfile
+OSDevGrp.OSIntranet.Mvc.Dockerfile
+OSDevGrp.OSIntranet.WebApi.Dockerfile
+Nginx.Dockerfile
+docker-compose.yaml

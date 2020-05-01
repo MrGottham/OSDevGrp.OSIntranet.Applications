@@ -201,7 +201,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
             byte[] tokenByteArray = dataProtector.Protect(token.ToByteArray());
 
             TimeSpan expireTimeSpan = (token.Expires.Kind == DateTimeKind.Utc ? token.Expires.ToLocalTime() : token.Expires).Subtract(DateTime.Now);
-            httpContext.Response.Cookies.Append(TokenCookieName, Convert.ToBase64String(tokenByteArray), new CookieOptions {Expires = DateTimeOffset.Now.Add(expireTimeSpan).AddDays(1), Secure = true, SameSite = SameSiteMode.None});
+            httpContext.Response.Cookies.Append(TokenCookieName, Convert.ToBase64String(tokenByteArray), new CookieOptions {Expires = DateTimeOffset.Now.Add(expireTimeSpan).AddDays(1), Secure = IsHttpRequestSecure(httpContext.Request), SameSite = SameSiteMode.None});
         }
 
         private T RestoreTokenCookie(HttpContext httpContext)
@@ -240,7 +240,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
             byte[] state = dataProtector.Protect(Encoding.UTF8.GetBytes(returnUri.AbsoluteUri));
 
             string stateCookieName = GetStateCookieName(stateIdentifier);
-            httpContext.Response.Cookies.Append(stateCookieName, Convert.ToBase64String(state), new CookieOptions {Expires = DateTimeOffset.Now.AddMinutes(15), Secure = true, SameSite = SameSiteMode.None});
+            httpContext.Response.Cookies.Append(stateCookieName, Convert.ToBase64String(state), new CookieOptions {Expires = DateTimeOffset.Now.AddMinutes(15), Secure = IsHttpRequestSecure(httpContext.Request), SameSite = SameSiteMode.None});
         }
 
         private Uri RestoreStateCookie(HttpContext httpContext, Guid stateIdentifier)
@@ -282,6 +282,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
         private static string GetStateCookieName(Guid stateIdentifier)
         {
             return $"OSDevGrp.OSIntranet.State.{stateIdentifier:D}";
+        }
+
+        private static bool IsHttpRequestSecure(HttpRequest httpRequest)
+        {
+            NullGuard.NotNull(httpRequest, nameof(httpRequest));
+
+            bool isHttps = httpRequest.IsHttps;
+            string scheme = httpRequest.Scheme;
+
+            if (string.IsNullOrWhiteSpace(scheme))
+            {
+                return isHttps;
+            }
+
+            return isHttps || scheme.ToLower().EndsWith("s");
         }
 
         #endregion

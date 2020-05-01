@@ -1,0 +1,65 @@
+version: "3.7"
+
+services:
+
+  builder:
+    image: builder-osintranet
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile
+    restart: "no"
+
+  reverseproxy:
+    image: reverseproxy-osintranet
+    build:
+      context: .
+      dockerfile: Nginx.Dockerfile
+      args:
+        certificateSubject: /C=DK/ST=/L=Copenhagen/O=OS Development Group/OU=/CN=localhost
+        certificatePassword: MjRiZmUzMjItZDExMi00NzcwLTg2ZGEtMGY1ZDdjMGQ0ZDAz
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    restart: always
+
+  mvc:
+    image: mvc-osintranet
+    environment: 
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ASPNETCORE_URLS=http://*:80
+      - connectionStrings__OSDevGrp.OSIntranet=[TBD]
+      - Security__Microsoft__ClientId=[TBD]
+      - Security__Microsoft__ClientSecret=[TBD]
+      - Security__Microsoft__Tenant=[TBD]
+      - Security__Google__ClientId=[TBD]
+      - Security__Google__ClientSecret=[TBD]
+      - Security__TrustedDomainCollection=[TBD]
+    depends_on:
+      - reverseproxy
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
+      cache_from:
+        - builder-osintranet
+    expose:
+      - "80"
+    restart: always
+
+  webapi:
+    image: webapi-osintranet
+    environment: 
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ASPNETCORE_URLS=http://*:80
+      - connectionStrings__OSDevGrp.OSIntranet=[TBD]
+      - Security__JWT__Key=[TBD]
+    depends_on:
+      - reverseproxy
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile
+      cache_from:
+        - builder-osintranet
+    expose:
+      - "80"
+    restart: always

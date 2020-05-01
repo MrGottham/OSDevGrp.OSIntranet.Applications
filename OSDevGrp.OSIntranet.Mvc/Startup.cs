@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Mvc
 {
     public class Startup
     {
+        private const string DotnetRunningInContainerEnvironmentVariable = "DOTNET_RUNNING_IN_CONTAINER";
+
         public Startup(IConfiguration configuration)
         {
             NullGuard.NotNull(configuration, nameof(configuration));
@@ -36,19 +39,29 @@ namespace OSDevGrp.OSIntranet.Mvc
         {
             NullGuard.NotNull(services, nameof(services));
 
+            services.Configure<ForwardedHeadersOptions>(opt => 
+            {
+                opt.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                opt.KnownNetworks.Clear();
+                opt.KnownProxies.Clear();
+            });
+
             services.Configure<CookiePolicyOptions>(opt =>
             {
                 opt.CheckConsentNeeded = context => true;
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
-                opt.Secure = CookieSecurePolicy.Always;
+                opt.Secure = CookieSecurePolicy.SameAsRequest;
             });
-
-            services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)));
-            services.AddRazorPages();
 
             services.AddDataProtection()
                 .SetApplicationName("OSDevGrp.OSIntranet.Mvc")
+                .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
+
+            services.AddAntiforgery();
+
+            services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)));
+            services.AddRazorPages();
 
             services.AddAuthentication(opt => 
             {
@@ -61,7 +74,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.LogoutPath = "/Account/Logoff";
                 opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
                 opt.Cookie.SameSite = SameSiteMode.None;
-                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddCookie("OSDevGrp.OSIntranet.External", opt =>
@@ -70,7 +83,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.LogoutPath = "/Account/Logoff";
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
                 opt.Cookie.SameSite = SameSiteMode.None;
-                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddMicrosoftAccount(opt => 
@@ -79,7 +92,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.ClientSecret = Configuration["Security:Microsoft:ClientSecret"];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -100,7 +113,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.ClientSecret = Configuration["Security:Google:ClientSecret"];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
             services.AddAuthorization(opt =>
@@ -131,6 +144,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             NullGuard.NotNull(app, nameof(app))
                 .NotNull(env, nameof(env));
 
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -141,6 +156,12 @@ namespace OSDevGrp.OSIntranet.Mvc
                 app.UseHsts();
             }
 
+            if (RunningInDocker() == false)
+            {
+                app.UseHttpsRedirection();
+            }
+            app.UseStaticFiles();
+
             app.UseRequestLocalization(options => 
             {
                 options.AddSupportedCultures("da-DK", "da");
@@ -149,9 +170,6 @@ namespace OSDevGrp.OSIntranet.Mvc
             });
 
             app.UseCookiePolicy();
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -167,6 +185,21 @@ namespace OSDevGrp.OSIntranet.Mvc
                 endpoints.MapHealthChecks("/health");
             });
 
+        }
+
+        private static bool RunningInDocker()
+        {
+            return RunningInDocker(Environment.GetEnvironmentVariable(DotnetRunningInContainerEnvironmentVariable));
+        }
+
+        private static bool RunningInDocker(string environmentVariable)
+        {
+            if (string.IsNullOrWhiteSpace(environmentVariable) || bool.TryParse(environmentVariable, out bool result) == false)
+            {
+                return false;
+            }
+
+            return result;
         }
     }
 }
