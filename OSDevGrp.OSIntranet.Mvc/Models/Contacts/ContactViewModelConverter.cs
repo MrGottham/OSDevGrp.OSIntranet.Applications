@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
@@ -15,14 +17,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<IContact, ContactIdentificationViewModel>()
-                .ForMember(m => m.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
-                .ForMember(m => m.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
-                .ForMember(m => m.EditMode, opt => opt.MapFrom(src => EditMode.None));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
+                .ForMember(dest => dest.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContact, ContactInfoViewModel>()
-                .ForMember(m => m.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
-                .ForMember(m => m.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
-                .ForMember(m => m.EditMode, opt => opt.MapFrom(src => EditMode.None));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
+                .ForMember(dest => dest.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContact, ContactViewModel>()
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
+                .ForMember(dest => dest.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(dest => dest.GivenName, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).GivenName : null))
+                .ForMember(dest => dest.MiddleName, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).MiddleName : null))
+                .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).Surname : src.Name is ICompanyName ? ((ICompanyName) src.Name).FullName : src.Name.DisplayName))
+                .ForMember(opt => opt.CompanyName, opt => opt.Ignore())
+                .ForMember(dest => dest.Country, opt => opt.Ignore())
+                .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => new List<CountryViewModel>(0)))
+                .ForMember(dest => dest.ContactGroups, opt => opt.MapFrom(src => new List<ContactGroupViewModel>(0)))
+                .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContactGroup, ContactGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));

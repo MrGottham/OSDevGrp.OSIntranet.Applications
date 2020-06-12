@@ -1,0 +1,40 @@
+﻿@model ContactViewModel
+@if (string.IsNullOrWhiteSpace(Model.DisplayName) == false || Model.EditMode == EditMode.None)
+{
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="float-left flex-grow-1">
+                @if (string.IsNullOrWhiteSpace(Model.DisplayName) == false)
+                {
+                    <h3>@Model.DisplayName</h3>
+                }
+            </div>
+            <div class="float-right fa-stack">
+                @if (Model.EditMode == EditMode.None)
+                {
+                    <a href="#" onclick="javascript:$().editContact();"><i class="fas fa-pen"></i></a>
+                }
+            </div>
+        </div>
+    </div>
+}
+@if (Model.EditMode == EditMode.Create || Model.EditMode == EditMode.Edit)
+{
+    <div class="row d-block">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            @await Html.PartialAsync("_EditContactPartial", Model)
+        </div>
+    </div>
+}
+else
+{
+    <div id="editContact" class="row d-none">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            @await Html.PartialAsync("_EditContactPartial", Model)
+        </div>
+    </div>
+    <div id="presentContact" class="row d-block">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        </div>
+    </div>
+}

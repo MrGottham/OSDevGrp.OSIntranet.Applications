@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
@@ -11,6 +12,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 
         public string DisplayName { get; set; }
 
+        [Display(Name = "Kontakttype", ShortName = "Kontakttype", Description = "Typen på kontakten")]
+        [Required(ErrorMessage = "Typen på kontakten skal vælges.")]
         public ContactType ContactType { get; set; }
     }
 
@@ -21,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             NullGuard.NotNull(contactIdentificationViewModel, nameof(contactIdentificationViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
-            return urlHelper.AbsoluteAction("StartLoadingContact", "Contact", new {ExternalIdentifier = contactIdentificationViewModel.ExternalIdentifier, CountryCode = "{countryCode}"});
+            return urlHelper.AbsoluteAction("StartLoadingContact", "Contact", new {contactIdentificationViewModel.ExternalIdentifier, CountryCode = "{countryCode}"});
         }
 
         public static string GetLoadContactUrl(this ContactIdentificationViewModel contactIdentificationViewModel, IUrlHelper urlHelper, string countryCode)
@@ -30,7 +33,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .NotNull(urlHelper, nameof(urlHelper))
                 .NotNullOrWhiteSpace(countryCode, nameof(countryCode));
 
-            return urlHelper.AbsoluteAction("LoadContact", "Contact", new {ExternalIdentifier = contactIdentificationViewModel.ExternalIdentifier, CountryCode = countryCode});
+            return urlHelper.AbsoluteAction("LoadContact", "Contact", new {contactIdentificationViewModel.ExternalIdentifier, CountryCode = countryCode});
         }
     }
 }

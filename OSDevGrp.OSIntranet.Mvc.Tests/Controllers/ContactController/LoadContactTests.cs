@@ -18,6 +18,8 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
@@ -280,6 +282,115 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             IActionResult result = await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            Assert.That(result, Is.TypeOf<PartialViewResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereViewNameIsEqualToContactPartial()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            Assert.That(result.ViewName, Is.EqualTo("_ContactPartial"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModel()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            Assert.That(result.Model, Is.TypeOf<ContactViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereEditModeIsEqualToNone()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.EditMode, Is.EqualTo(EditMode.None));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCountryIsEqualToCountryReturnedFromQueryBus()
+        {
+            string countryCode = _fixture.Create<string>();
+            ICountry country = _fixture.BuildCountryMock(countryCode).Object;
+            Controller sut = CreateSut(country: country);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Country.Code, Is.EqualTo(countryCode));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCountriesIsEqualToCountryCollectionReturnedFromQueryBus()
+        {
+            IEnumerable<ICountry> countryCollection = _fixture.CreateMany<ICountry>(_random.Next(5, 10)).ToList();
+            Controller sut = CreateSut(countryCollection: countryCollection);
+
+            PartialViewResult result = (PartialViewResult)await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Countries, Is.Not.Null);
+            Assert.That(contactViewModel.Countries.Count, Is.EqualTo(countryCollection.Count()));
+            Assert.That(contactViewModel.Countries.All(countryViewModel => countryCollection.Any(country => string.CompareOrdinal(country.Code, countryViewModel.Code) == 0)), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupsIsEqualToContactGroupCollectionReturnedFromQueryBus()
+        {
+            IEnumerable<IContactGroup> contactGroupCollection = _fixture.CreateMany<IContactGroup>(_random.Next(5, 10)).ToList();
+            Controller sut = CreateSut(contactGroupCollection: contactGroupCollection);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroups, Is.Not.Null);
+            Assert.That(contactViewModel.ContactGroups.Count, Is.EqualTo(contactGroupCollection.Count()));
+            Assert.That(contactViewModel.ContactGroups.All(contactGroupViewModel => contactGroupCollection.Any(contactGroup => contactGroup.Number == contactGroupViewModel.Number)), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermsIsEqualToPaymentTermCollectionReturnedFromQueryBus()
+        {
+            IEnumerable<IPaymentTerm> paymentTermCollection = _fixture.CreateMany<IPaymentTerm>(_random.Next(5, 10)).ToList();
+            Controller sut = CreateSut(paymentTermCollection: paymentTermCollection);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerms, Is.Not.Null);
+            Assert.That(contactViewModel.PaymentTerms.Count, Is.EqualTo(paymentTermCollection.Count()));
+            Assert.That(contactViewModel.PaymentTerms.All(paymentTermViewModel => paymentTermCollection.Any(paymentTerm => paymentTerm.Number == paymentTermViewModel.Number)), Is.True);
         }
 
         private Controller CreateSut(bool hasRefreshableToken = true, IRefreshableToken refreshableToken = null, IEnumerable<IContactGroup> contactGroupCollection = null, IEnumerable<IPaymentTerm> paymentTermCollection = null, IEnumerable<ICountry> countryCollection = null, bool hasCountry = true, ICountry country = null, bool hasContact = true, IContact contact = null)

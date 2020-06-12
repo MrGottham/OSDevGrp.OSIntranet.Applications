@@ -183,7 +183,74 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            return null;
+            ContactViewModel contactViewModel = _contactViewModelConverter.Convert<IContact, ContactViewModel>(contact);
+            contactViewModel.Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country);
+            contactViewModel.Countries = getCountryViewModelCollectionTask.Result.ToList();
+            contactViewModel.ContactGroups = getContactGroupViewModelCollectionTask.Result.ToList();
+            contactViewModel.PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToList();
+
+            return PartialView("_ContactPartial", contactViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> StartCreatingContact(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
+            {
+                DefaultCountryCode = countryCode
+            };
+
+            return PartialView("_CreatingContactPartial", contactOptionsViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateContact(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            Task<IEnumerable<ContactGroupViewModel>> getContactGroupViewModelCollectionTask = GetContactGroupViewModels();
+            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
+            Task<IEnumerable<CountryViewModel>> getCountryViewModelCollectionTask = GetCountryViewModels();
+            Task<ICountry> getCountryTask = GetCountry(countryCode);
+            await Task.WhenAll(
+                getContactGroupViewModelCollectionTask,
+                getPaymentTermViewModelCollectionTask,
+                getCountryViewModelCollectionTask,
+                getCountryTask);
+
+            ICountry country = getCountryTask.Result;
+            if (country == null)
+            {
+                return BadRequest();
+            }
+
+            ContactViewModel contactViewModel = new ContactViewModel
+            {
+                ContactType = ContactType.Person,
+                HomePhone = country.PhonePrefix,
+                MobilePhone = country.PhonePrefix,
+                Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country),
+                Countries = getCountryViewModelCollectionTask.Result.ToList(),
+                ContactGroups = getContactGroupViewModelCollectionTask.Result.ToList(),
+                PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToList(),
+                EditMode = EditMode.Create
+            };
+
+            return PartialView("_ContactPartial", contactViewModel);
         }
 
         [HttpGet]

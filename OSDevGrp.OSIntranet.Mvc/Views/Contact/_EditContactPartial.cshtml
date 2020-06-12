@@ -1,0 +1,42 @@
+﻿@model ContactViewModel
+<form id="editContactForm" asp-area="" asp-controller="Contact" asp-action="@Model.GetAction()">
+    <input type="hidden" asp-for="EditMode" />
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-check-inline">
+                <label class="form-check-input">
+                    <input asp-for="ContactType" type="radio" value="@ContactType.Person" onclick="javascript:$().applyPersonContent();" />&nbsp;@ContactType.Person.EnumDisplayNameFor()
+                </label>
+            </div>
+            <div class="form-check-inline">
+                <label class="form-check-input">
+                    <input asp-for="ContactType" type="radio" value="@ContactType.Company" onclick="javascript:$().applyCompanyContent();" />&nbsp;@ContactType.Company.EnumDisplayNameFor()
+                </label>
+            </div>
+            <div id="editContactPersonName" class="d-none">
+                <div class="form-group">
+                    <label asp-for="GivenName"></label>
+                    <input asp-for="GivenName" class="form-control" />
+                    <span asp-validation-for="GivenName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MiddleName"></label>
+                    <input asp-for="MiddleName" class="form-control" />
+                    <span asp-validation-for="MiddleName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Surname"></label>
+                    <input asp-for="Surname" class="form-control" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+            </div>
+            <div id="editContactCompanyName" class="d-none">
+                <div class="form-group">
+                    <label asp-for="CompanyName"></label>
+                    <input asp-for="CompanyName" class="form-control" />
+                    <span asp-validation-for="CompanyName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

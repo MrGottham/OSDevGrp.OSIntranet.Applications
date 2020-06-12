@@ -28,7 +28,7 @@
 
         handleUrlCollapseLoading: function(document) {
             var elementArray = $.makeArray(document.find("[data-url-collapse-loading]"));
-            $.each(elementArray, function () {
+            $.each(elementArray, function() {
                 var replaceElementArray = $(this).find("[data-url]");
                 if (replaceElementArray.length === 0) {
                     return;
@@ -76,6 +76,54 @@
 
             $.each(elementArray, function() {
                 $(this).prop("disabled", disabled);
+            });
+        },
+
+        toggleDisplay: function(elementId) {
+            var elementArray = $(document).find(elementId);
+            if (elementArray.length === 0) {
+                return;
+            }
+
+            $.each(elementArray, function() {
+                if ($(this).hasClass("d-none")) {
+                    $(this).addClass("d-block").removeClass("d-none").show();
+                    return;
+                }
+
+                if ($(this).hasClass("d-block")) {
+                    $(this).addClass("d-none").removeClass("d-block").hide();
+                }
+            });
+        },
+
+        isDisplayed: function(elementId) {
+            return $(elementId).hasClass("d-block");
+        },
+
+        getRadioValue: function(elementId) {
+            if ($(document).find(elementId) === 0) {
+                return null;
+            }
+
+            var selectedValue = $(document).find(elementId + ":checked").val();
+            if (selectedValue === undefined) {
+                return null;
+            }
+
+            return selectedValue;
+        },
+
+        enableFormValidation: function(formId) {
+            var formArray = $(document).find(formId);
+            if (formArray.length === 0) {
+                return;
+            }
+
+            $.each(formArray, function() {
+                $(this).removeData("validator");
+                $(this).removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse($(this));
             });
         }
     });

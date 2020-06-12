@@ -66,5 +66,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 ? urlHelper.AbsoluteAction("LoadContacts", "Contact")
                 : urlHelper.AbsoluteAction("LoadContacts", "Contact", new {Filter = filter});
         }
+
+        public static string GetStartCreatingContactUrl(this ContactOptionsViewModel contactOptionsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(contactOptionsViewModel, nameof(contactOptionsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingContact", "Contact", new {CountryCode = "{countryCode}" });
+        }
+
+        public static string GetCreateContactUrl(this ContactOptionsViewModel contactOptionsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(contactOptionsViewModel, nameof(contactOptionsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("CreateContact", "Contact", new {CountryCode = contactOptionsViewModel.DefaultCountryCode});
+        }
     }
 }

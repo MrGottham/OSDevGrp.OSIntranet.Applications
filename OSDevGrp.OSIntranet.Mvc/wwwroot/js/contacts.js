@@ -8,8 +8,20 @@
             return $("#contactOperationsCountryCode").val();
         },
 
-        newContact: function(countryCode) {
-            alert("OS Debug: newContact, countryCode=" + countryCode);
+        newContact: function(createContactUrl) {
+            var presentContactElement = $().getPresentContactElement();
+            if (presentContactElement === null) {
+                return;
+            }
+
+            createContactUrl = decodeURI(createContactUrl).replace("{countryCode}", $().getCountryCode());
+            $(presentContactElement).data("url", encodeURI(createContactUrl));
+
+            $.each($(presentContactElement).parent(), function() {
+                $().startPresentingContactObserver(this);
+            });
+
+            $().replaceWithPartialViewFromUrl(presentContactElement);
         },
 
         getContact: function(contactUrl) {
@@ -26,6 +38,15 @@
             });
 
             $().replaceWithPartialViewFromUrl(presentContactElement);
+        },
+
+        editContact: function() {
+            if ($().isDisplayed("#editContact")) {
+                return;
+            }
+
+            $().toggleDisplay("#presentContact");
+            $().toggleDisplay("#editContact");
         },
 
         refreshContacts: function(refreshUrl) {
@@ -136,12 +157,89 @@
             var loadContactElementArray = $(mutationsList[0].target).find("[data-url]");
             if (loadContactElementArray.length === 0) {
                 observer.disconnect();
+
+                if ($().isPerson()) {
+                    $().toggleDisplay("#editContactPersonName");
+                } else if ($().isCompany()) {
+                    $().toggleDisplay("#editContactCompanyName");
+                }
+
+                $().enableFormValidation("#editContactForm");
+
                 return;
             }
 
-            $.each(loadContactElementArray, function () {
+            $.each(loadContactElementArray, function() {
                 $().replaceWithPartialViewFromUrl(this);
             });
+        },
+
+        isPerson: function() {
+            return $().getRadioValue("#ContactType") === "Person";
+        },
+
+        applyPersonContent: function() {
+            if ($().isDisplayed("#editContactPersonName")) {
+                return;
+            }
+
+            if ($().isDisplayed("#editContactCompanyName")) {
+                var companyName = $("#CompanyName").val();
+                if (companyName !== undefined && companyName !== null && companyName.length > 0) {
+                    $("#Surname").val(companyName);
+                };
+                $("#CompanyName").val("");
+
+                $().toggleDisplay("#editContactCompanyName");
+            }
+
+            $().toggleDisplay("#editContactPersonName");
+        },
+
+        isCompany: function() {
+            return $().getRadioValue("#ContactType") === "Company";
+        },
+
+        applyCompanyContent: function() {
+            if ($().isDisplayed("#editContactCompanyName")) {
+                return;
+            }
+
+            if ($().isDisplayed("#editContactPersonName")) {
+                var companyName = "";
+
+                var givenName = $("#GivenName").val();
+                if (givenName !== undefined && givenName !== null && givenName.length > 0) {
+                    companyName = givenName;
+                };
+                $("#GivenName").val("");
+
+                var middleName = $("#MiddleName").val();
+                if (middleName !== undefined && middleName !== null && middleName.length > 0) {
+                    if (companyName.length > 0) {
+                        companyName = companyName + " " + middleName;
+                    } else {
+                        companyName = middleName;
+                    }
+                }
+                $("#MiddleName").val("");
+
+                var surname = $("#Surname").val();
+                if (surname !== undefined && surname !== null && surname.length > 0) {
+                    if (companyName.length > 0) {
+                        companyName = companyName + " " + surname;
+                    } else {
+                        companyName = surname;
+                    }
+                }
+                $("#Surname").val("");
+
+                $("#CompanyName").val(companyName);
+
+                $().toggleDisplay("#editContactPersonName");
+            }
+
+            $().toggleDisplay("#editContactCompanyName");
         }
     });
 

@@ -5,7 +5,7 @@
         <select id="contactOperationsCountryCode" asp-for="DefaultCountryCode" asp-items="Model.GetCountryItems()" class="form-control"></select>
     </div>
     <div class="form-group">
-        <a href="#" onclick="javascript:$().newContact($().getCountryCode());"><i class="fas fa-plus"></i>&nbsp;Ny kontakt</a>
+        <a href="#" onclick="javascript:$().newContact('@Model.GetStartCreatingContactUrl(Url)');"><i class="fas fa-plus"></i>&nbsp;Ny kontakt</a>
     </div>
     <div class="form-group">
         <a href="#" onclick="javascript:$().refreshContacts('@Model.GetStartLoadingContactsUrl(Url)');"><i class="fas fa-sync"></i>&nbsp;Genindlæs kontakter</a>
