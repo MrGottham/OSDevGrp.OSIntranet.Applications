@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
@@ -75,5 +78,22 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Common
         }
 
         #endregion
+    }
+
+    public static class LetterHeadViewModelExtensions
+    {
+        public static SelectListItem SelectListItemFor(this LetterHeadViewModel letterHeadViewModel, bool selected)
+        {
+            NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel));
+
+            return new SelectListItem(letterHeadViewModel.Name, Convert.ToString(letterHeadViewModel.Number), selected);
+        }
+
+        public static IEnumerable<SelectListItem> SelectListFor(this IEnumerable<LetterHeadViewModel> letterHeadViewModels, int? selectedValue)
+        {
+            NullGuard.NotNull(letterHeadViewModels, nameof(letterHeadViewModels));
+
+            return letterHeadViewModels.Select(letterHeadViewModel => letterHeadViewModel.SelectListItemFor(selectedValue.HasValue && selectedValue.Value == letterHeadViewModel.Number)).ToArray();
+        }
     }
 }

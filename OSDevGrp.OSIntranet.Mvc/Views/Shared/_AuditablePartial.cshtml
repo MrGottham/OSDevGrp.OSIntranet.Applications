@@ -1,5 +1,5 @@
 @model AuditableViewModelBase;
-@if (Model.EditMode == EditMode.Edit)
+@if (Model.EditMode != EditMode.Create)
 {
     <div class="form-group">
         <input type="hidden" asp-for="CreatedDateTime" />

@@ -31,5 +31,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return urlHelper.AbsoluteAction("LoadAccountings", "Accounting");
         }
+
+        public static string GetStartCreatingAccountingUrl(this AccountingOptionsViewModel accountingOptionsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingOptionsViewModel, nameof(accountingOptionsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingAccounting", "Accounting");
+        }
+
+        public static string GetCreateAccountingUrl(this AccountingOptionsViewModel accountingOptionsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingOptionsViewModel, nameof(accountingOptionsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("CreateAccounting", "Accounting");
+        }
     }
 }

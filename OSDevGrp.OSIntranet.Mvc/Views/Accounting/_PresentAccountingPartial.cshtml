@@ -1,0 +1,68 @@
+@model AccountingViewModel;
+@if (string.IsNullOrWhiteSpace(Model.Name) == false || Model.EditMode == EditMode.None)
+{
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="float-left flex-grow-1">
+                @if (string.IsNullOrWhiteSpace(Model.Name) == false)
+                {
+                    <h3>@Model.Name</h3>
+                }
+            </div>
+            <div class="float-right fa-stack">
+                @if (Model.EditMode == EditMode.None)
+                {
+                    <a href="#" onclick="javascript:$().editAccounting();"><i class="fas fa-pen"></i></a>
+                }
+            </div>
+        </div>
+    </div>
+}
+@if (Model.EditMode == EditMode.Create || Model.EditMode == EditMode.Edit)
+{
+    <div class="row d-block">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            @await Html.PartialAsync("_EditAccountingPartial", Model)
+        </div>
+    </div>
+}
+else
+{
+    <div id="editAccounting" class="row d-none">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            @await Html.PartialAsync("_EditAccountingPartial", Model)
+        </div>
+    </div>
+    <div id="presentAccounting" class="row d-block">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div id="accountingAccordion">
+                <div class="card">
+                    <div class="card-header">
+                        <a class="card-link" data-toggle="collapse" href="#collapseBasicInformation">
+                            <h5>Stamdata</h5>
+                        </a>
+                    </div>
+                    <div id="collapseBasicInformation" class="collapse show" data-parent="#accountingAccordion">
+                        <div class="card-body">
+                            <dl>
+                                @if (Model.LetterHead != null && string.IsNullOrWhiteSpace(Model.LetterHead.Name) == false)
+                                {
+                                    <dt class="small">@Html.LabelFor(m => m.LetterHead)</dt>
+                                    <dd>@Html.Raw(Model.LetterHead.Name)</dd>
+                                }
+                            </dl>
+                            <dl>
+                                <dt class="small">@Html.LabelFor(m => m.BalanceBelowZero)</dt>
+                                <dd>@Model.BalanceBelowZero.EnumDisplayNameFor()</dd>
+                            </dl>
+                            <dl>
+                                <dt class="small">@Html.LabelFor(m => m.BackDating)</dt>
+                                <dd>@Html.Raw(Model.BackDating)&nbsp;@Html.Raw(Model.BackDating == 1 ? "dag" : "dage")</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

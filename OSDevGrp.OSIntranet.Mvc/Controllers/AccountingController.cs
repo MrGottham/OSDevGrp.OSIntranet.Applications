@@ -15,8 +15,10 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
+using OSDevGrp.OSIntranet.Mvc.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly IQueryBus _queryBus;
         private readonly IClaimResolver _claimResolver;
         private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
+        private readonly IConverter _commonViewModelConverter = new CommonViewModelConverter();
 
         #endregion
 
@@ -90,9 +93,66 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
-        public Task<IActionResult> Accounting(int accountingNumber)
+        public IActionResult StartLoadingAccounting(int accountingNumber)
         {
-            throw new NotImplementedException();
+            AccountingIdentificationViewModel accountingIdentificationViewModel = new AccountingIdentificationViewModel
+            {
+                AccountingNumber = accountingNumber
+            };
+
+            return PartialView("_LoadingAccountingPartial", accountingIdentificationViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadAccounting(int accountingNumber)
+        {
+            IGetAccountingQuery getAccountingQuery = new GetAccountingQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = DateTime.Today
+            };
+
+            Task<IEnumerable<LetterHeadViewModel>> getLetterHeadViewModelCollectionTask = GetLetterHeadViewModels();
+            Task<IAccounting> getAccountingTask = _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(getAccountingQuery);
+            await Task.WhenAll(
+                getLetterHeadViewModelCollectionTask,
+                getAccountingTask);
+
+            IAccounting accounting = getAccountingTask.Result;
+            if (accounting == null)
+            {
+                return BadRequest();
+            }
+
+            AccountingViewModel accountingViewModel = _accountingViewModelConverter.Convert<IAccounting, AccountingViewModel>(accounting);
+            accountingViewModel.LetterHeads = getLetterHeadViewModelCollectionTask.Result.ToList();
+
+            return PartialView("_PresentAccountingPartial", accountingViewModel);
+        }
+
+        [HttpGet]
+        public IActionResult StartCreatingAccounting()
+        {
+            AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel();
+
+            return PartialView("_CreatingAccountingPartial", accountingOptionsViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateAccounting()
+        {
+            List<LetterHeadViewModel> letterHeadViewModelCollection = (await GetLetterHeadViewModels()).ToList();
+
+            AccountingViewModel accountingViewModel = new AccountingViewModel
+            {
+                LetterHead =  letterHeadViewModelCollection.FirstOrDefault(),
+                BalanceBelowZero = BalanceBelowZeroType.Creditors,
+                BackDating = 30,
+                LetterHeads = letterHeadViewModelCollection,
+                EditMode = EditMode.Create
+            };
+
+            return PartialView("_PresentAccountingPartial", accountingViewModel);
         }
 
         [HttpGet]
@@ -351,6 +411,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("PaymentTerms", "Accounting");
+        }
+
+        private async Task<IEnumerable<LetterHeadViewModel>> GetLetterHeadViewModels()
+        {
+            IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
+
+            return letterHeads.AsParallel()
+                .Select(letterHead => _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(letterHead))
+                .OrderBy(letterHeadViewModel => letterHeadViewModel.Number)
+                .ToList();
         }
 
         #endregion

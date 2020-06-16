@@ -50,12 +50,43 @@
             return activeAccountingUrl;
         },
 
-        newAccounting: function() {
-            alert("OS Debug: newAccounting");
+        newAccounting: function(createAccountingUrl) {
+            var presentAccountingElement = $().getPresentAccountingElement();
+            if (presentAccountingElement === null) {
+                return;
+            }
+
+            $(presentAccountingElement).data("url", encodeURI(createAccountingUrl));
+
+            $.each($(presentAccountingElement).parent(), function() {
+                $().startPresentingAccountingObserver(this);
+            });
+
+            $().replaceWithPartialViewFromUrl(presentAccountingElement);
         },
 
         getAccounting: function(accountingUrl) {
-            alert("OS Debug: getAccounting, accountingUrl=" + accountingUrl);
+            var presentAccountingElement = $().getPresentAccountingElement();
+            if (presentAccountingElement === null) {
+                return;
+            }
+
+            $(presentAccountingElement).data("url", encodeURI(accountingUrl));
+
+            $.each($(presentAccountingElement).parent(), function() {
+                $().startPresentingAccountingObserver(this);
+            });
+
+            $().replaceWithPartialViewFromUrl(presentAccountingElement);
+        },
+
+        editAccounting: function() {
+            if ($().isDisplayed("#editAccounting")) {
+                return;
+            }
+
+            $().toggleDisplay("#presentAccounting");
+            $().toggleDisplay("#editAccounting");
         },
 
         refreshAccountings: function(refreshUrl) {
@@ -105,8 +136,14 @@
 
             observer.disconnect();
 
+            var rightContentIsHidden = $("#rightContent").is(":hidden");
+
             $.each(loadedAccountingCollectionElementArray, function() {
                 $.each($(this).find("a"), function() {
+                    if (rightContentIsHidden === true && $(this).hasClass("active")) {
+                        $(this).removeClass("active");
+                    }
+
                     $(this).on("click", function(e) {
                         e.preventDefault();
                         $(this).tab("show");
@@ -118,12 +155,62 @@
                 });
             });
 
+            if (rightContentIsHidden === true) {
+                return;
+            }
+
             var activeAccountingUrl = $().getActiveAccountingUrl();
             if (activeAccountingUrl === undefined || activeAccountingUrl === null) {
                 return;
             }
 
             $().getAccounting(activeAccountingUrl);
+        },
+
+        getPresentAccountingElement: function() {
+            var element = $("#rightContent");
+            if (element.is(":hidden")) {
+                element = $("#leftContent");
+            }
+
+            var presentAccountingElement = null;
+
+            var elementNo = 0;
+            $.each($(element).children("div"), function() {
+                if (elementNo !== 0) {
+                    $(this).remove();
+                    return;
+                }
+
+                presentAccountingElement = $(this);
+                elementNo++;
+            });
+
+            return presentAccountingElement;
+        },
+
+        startPresentingAccountingObserver: function(element) {
+            var presentingAccountingObserver = new MutationObserver($().presentingAccountingCallback);
+            presentingAccountingObserver.observe(element, { childList: true });
+        },
+
+        presentingAccountingCallback: function(mutationsList, observer) {
+            if (mutationsList.length === 0) {
+                return;
+            }
+
+            var loadAccountingElementArray = $(mutationsList[0].target).find("[data-url]");
+            if (loadAccountingElementArray.length === 0) {
+                observer.disconnect();
+
+                $().enableFormValidation("#editAccountingForm");
+
+                return;
+            }
+
+            $.each(loadAccountingElementArray, function() {
+                $().replaceWithPartialViewFromUrl(this);
+            });
         }
     });
 

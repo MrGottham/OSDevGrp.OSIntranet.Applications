@@ -11,7 +11,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         #region Private variables
 
-        private IConverter _commonModelConverter = new CommonModelConverter();
+        private readonly IConverter _commonModelConverter = new CommonModelConverter();
 
         #endregion
 
