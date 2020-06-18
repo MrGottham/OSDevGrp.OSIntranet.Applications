@@ -1,0 +1,8 @@
+﻿@model AddressViewModel
+@if (Model != null && Model.IsEmpty == false)
+{
+    <dl>
+        <dt class="small">@Html.LabelFor(m => m.DisplayAddress)</dt>
+        <dd>@Model.DisplayAddress.ToHtmlString()</dd>
+    </dl>
+}

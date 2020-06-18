@@ -1,4 +1,6 @@
 (function($) {
+    var onPostalCodeChangeTimer = undefined;
+
     $.fn.extend({
         getFilter: function() {
             return $("#contactOperationsFilter").val();
@@ -17,9 +19,10 @@
             createContactUrl = decodeURI(createContactUrl).replace("{countryCode}", $().getCountryCode());
             $(presentContactElement).data("url", encodeURI(createContactUrl));
 
-            $.each($(presentContactElement).parent(), function() {
-                $().startPresentingContactObserver(this);
-            });
+            $.each($(presentContactElement).parent(),
+                function() {
+                    $().startPresentingContactObserver(this);
+                });
 
             $().replaceWithPartialViewFromUrl(presentContactElement);
         },
@@ -33,9 +36,10 @@
             contactUrl = decodeURI(contactUrl).replace("{countryCode}", $().getCountryCode());
             $(presentContactElement).data("url", encodeURI(contactUrl));
 
-            $.each($(presentContactElement).parent(), function() {
-                $().startPresentingContactObserver(this);
-            });
+            $.each($(presentContactElement).parent(),
+                function() {
+                    $().startPresentingContactObserver(this);
+                });
 
             $().replaceWithPartialViewFromUrl(presentContactElement);
         },
@@ -55,9 +59,10 @@
                 return;
             }
 
-            $.each($("#contactOperationsFilter"), function() {
-                $(this).val("");
-            });
+            $.each($("#contactOperationsFilter"),
+                function() {
+                    $(this).val("");
+                });
 
             $().startLoadingContacts(refreshUrl);
         },
@@ -77,14 +82,16 @@
             $().setReadOnly("#contactOperationsFilter", true);
             $().setDisabled("#contactOperationsSearch", true);
 
-            $.each($("#contactCollection"), function() {
-                $().startContactCollectionObserver(this);
+            $.each($("#contactCollection"),
+                function() {
+                    $().startContactCollectionObserver(this);
 
-                $.each($(this).children("#loadedContactCollection"), function() {
-                    $(this).data("url", url);
-                    $().replaceWithPartialViewFromUrl(this);
+                    $.each($(this).children("#loadedContactCollection"),
+                        function() {
+                            $(this).data("url", url);
+                            $().replaceWithPartialViewFromUrl(this);
+                        });
                 });
-            });
         },
 
         startContactCollectionObserver: function(element) {
@@ -108,18 +115,22 @@
             $().setReadOnly("#contactOperationsFilter", false);
             $().setDisabled("#contactOperationsSearch", false);
 
-            $.each(loadedContactCollectionElementArray, function() {
-                $.each($(this).find("a"), function() {
-                    $(this).on("click", function(e) {
-                        e.preventDefault();
-                        $(this).tab("show");
-                    });
+            $.each(loadedContactCollectionElementArray,
+                function() {
+                    $.each($(this).find("a"),
+                        function() {
+                            $(this).on("click",
+                                function(e) {
+                                    e.preventDefault();
+                                    $(this).tab("show");
+                                });
 
-                    $(this).on("shown.bs.tab", function(e) {
-                        $().getContact($(e.target).data("url"));
-                    });
+                            $(this).on("shown.bs.tab",
+                                function(e) {
+                                    $().getContact($(e.target).data("url"));
+                                });
+                        });
                 });
-            });
         },
 
         getPresentContactElement: function() {
@@ -131,15 +142,16 @@
             var presentContactElement = null;
 
             var elementNo = 0;
-            $.each($(element).children("div"), function() {
-                if (elementNo !== 0) {
-                    $(this).remove();
-                    return;
-                }
+            $.each($(element).children("div"),
+                function() {
+                    if (elementNo !== 0) {
+                        $(this).remove();
+                        return;
+                    }
 
-                presentContactElement = $(this);
-                elementNo++;
-            });
+                    presentContactElement = $(this);
+                    elementNo++;
+                });
 
             return presentContactElement;
         },
@@ -169,9 +181,10 @@
                 return;
             }
 
-            $.each(loadContactElementArray, function() {
-                $().replaceWithPartialViewFromUrl(this);
-            });
+            $.each(loadContactElementArray,
+                function() {
+                    $().replaceWithPartialViewFromUrl(this);
+                });
         },
 
         isPerson: function() {
@@ -240,6 +253,40 @@
             }
 
             $().toggleDisplay("#editContactCompanyName");
+        },
+
+        onPostalCodeChange: function(postalCodeElementId, cityElementId, stateElementId, countryElementId, resolveUrl) {
+            if (onPostalCodeChangeTimer !== undefined) {
+                clearTimeout(onPostalCodeChangeTimer);
+            }
+
+            onPostalCodeChangeTimer = setTimeout(function() {
+                    var countryCode = $().getCountryCode();
+                    if (countryCode === undefined || countryCode === null || countryCode.length === 0) {
+                        return;
+                    }
+
+                    var postalCode = $(postalCodeElementId).val();
+                    if (postalCode === undefined || postalCode === null || postalCode.length === 0) {
+                        return;
+                    }
+
+                    resolveUrl = encodeURI(decodeURI(resolveUrl)
+                        .replace("{countryCode}", countryCode)
+                        .replace("{postalCode}", postalCode));
+
+                    $.get(resolveUrl, null, null, "json")
+                        .done(function(jsonData) {
+                            $(cityElementId).val(jsonData.city);
+                            $(stateElementId).val(jsonData.state);
+                            if (jsonData.country.defaultForPrincipal) {
+                                $(countryElementId).val("");
+                            } else {
+                                $(countryElementId).val(jsonData.country.universalName);
+                            }
+                        });
+                },
+                500);
         }
     });
 

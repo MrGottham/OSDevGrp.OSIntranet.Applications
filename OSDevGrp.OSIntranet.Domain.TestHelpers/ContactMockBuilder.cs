@@ -9,7 +9,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactMock.Setup(m => m.Name)
                 .Returns(fixture.BuildNameMock().Object);
             contactMock.Setup(m => m.Address)
-                .Returns(fixture.BuildAddressMock().Object);
+                .Returns(hasAddress ? address ?? fixture.BuildAddressMock().Object : null);
             contactMock.Setup(m => m.PrimaryPhone)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.SecondaryPhone)
@@ -139,7 +139,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return addressMock;
         }
 
-        public static Mock<ICountry> BuildCountryMock(this Fixture fixture, string code = null, string name = null, string universalName = null, string phonePrefix = null)
+        public static Mock<ICountry> BuildCountryMock(this Fixture fixture, string code = null, string name = null, string universalName = null, string phonePrefix = null, bool? defaultForPrincipal = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -153,7 +153,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             countryMock.Setup(m => m.PhonePrefix)
                 .Returns(phonePrefix ?? fixture.Create<string>());
             countryMock.Setup(m => m.DefaultForPrincipal)
-                .Returns(fixture.Create<bool>());
+                .Returns(defaultForPrincipal ?? fixture.Create<bool>());
             return countryMock;
         }
 

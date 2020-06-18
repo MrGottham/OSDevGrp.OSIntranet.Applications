@@ -19,7 +19,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         [RegularExpression(@"[0-9]{1,16}", ErrorMessage = "Postnummeret følger ikke det lovlige mønster: {1}")]
         public string Code { get; set; }
 
-        [Display(Name = "By", ShortName = "By", Description = "By")]
+        [Display(Name = "By", ShortName = "By", Description = "Bynavn")]
         [Required(ErrorMessage = "Bynavnet skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(256, MinimumLength = 1, ErrorMessage = "Længden på bynavnet skal være mellem {2} og {1} tegn.")]
         public string City { get; set; }

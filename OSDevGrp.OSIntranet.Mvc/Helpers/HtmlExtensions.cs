@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers
@@ -42,6 +44,29 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
             return Enum.GetValues(selectedEnumValue.GetType())
                 .Cast<T>()
                 .SelectListFor(selectedEnumValue);
+        }
+
+        public static HtmlString ToHtmlString(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return new HtmlString(string.Empty);
+            }
+
+            return new HtmlString(value.Replace(Environment.NewLine, "<br>"));
+        }
+
+        public static Task<IHtmlContent> PartialAsync(this IHtmlHelper htmlHelper, string partialViewName, object model, string htmlFieldPrefix)
+        {
+            NullGuard.NotNull(htmlHelper, nameof(htmlHelper))
+                .NotNullOrWhiteSpace(partialViewName, nameof(partialViewName))
+                .NotNull(model, nameof(model))
+                .NotNullOrWhiteSpace(htmlFieldPrefix, nameof(htmlFieldPrefix));
+
+            ViewDataDictionary viewData = new ViewDataDictionary(htmlHelper.ViewData);
+            viewData.TemplateInfo.HtmlFieldPrefix = htmlFieldPrefix;
+
+            return htmlHelper.PartialAsync(partialViewName, model, viewData);
         }
     }
 }

@@ -290,6 +290,61 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsAddressViewModel()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address, Is.TypeOf<AddressViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWhichAreDefaultForPrincipalWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCountryInAddressIsEqualToNull()
+        {
+            ICountry country = _fixture.BuildCountryMock(defaultForPrincipal: true).Object;
+            Controller sut = CreateSut(country: country);
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address.Country, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWhichAreNotDefaultForPrincipalWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCountryInAddressIsEqualToUniversalNameFromCountry()
+        {
+            string universalName = _fixture.Create<string>();
+            ICountry country = _fixture.BuildCountryMock(universalName: universalName, defaultForPrincipal: false).Object;
+            Controller sut = CreateSut(country: country);
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address.Country, Is.EqualTo(universalName));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereEditModeIsEqualToCreate()
         {
             Controller sut = CreateSut();

@@ -243,6 +243,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 ContactType = ContactType.Person,
                 HomePhone = country.PhonePrefix,
                 MobilePhone = country.PhonePrefix,
+                Address = new AddressViewModel
+                {
+                    Country = country.DefaultForPrincipal ? null : country.UniversalName
+                },
                 Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country),
                 Countries = getCountryViewModelCollectionTask.Result.ToList(),
                 ContactGroups = getContactGroupViewModelCollectionTask.Result.ToList(),
@@ -495,12 +499,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
                 .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
 
-            IGetPostalCodeQuery query = new GetPostalCodeQuery
-            {
-                CountryCode = countryCode,
-                PostalCode = postalCode
-            };
-            IPostalCode postalCodeObj = await _queryBus.QueryAsync<IGetPostalCodeQuery, IPostalCode>(query);
+            IPostalCode postalCodeObj = await GetPostalCode(countryCode, postalCode);
 
             PostalCodeViewModel postalCodeViewModel = _contactViewModelConverter.Convert<IPostalCode, PostalCodeViewModel>(postalCodeObj);
             postalCodeViewModel.EditMode = EditMode.Edit;
@@ -540,6 +539,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("PostalCodes", "Contact");
+        }
+
+        [HttpGet("/api/countries/{countryCode}/postalcodes/{postalCode}")]
+        public async Task<IActionResult> ResolvePostalCode(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            IPostalCode postalCodeObj = await GetPostalCode(countryCode, postalCode);
+
+            return Ok(_contactViewModelConverter.Convert<IPostalCode, PostalCodeViewModel>(postalCodeObj));
         }
 
         private T CreateContactQueryBase<T>(IRefreshableToken refreshableToken) where T : class, IContactQuery, new()
@@ -584,6 +594,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 CountryCode = countryCode
             };
             return await _queryBus.QueryAsync<IGetCountryQuery, ICountry>(query);
+        }
+
+        private async Task<IPostalCode> GetPostalCode(string countryCode, string postalCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
+                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
+
+            IGetPostalCodeQuery query = new GetPostalCodeQuery
+            {
+                CountryCode = countryCode,
+                PostalCode = postalCode
+            };
+            return await _queryBus.QueryAsync<IGetPostalCodeQuery, IPostalCode>(query);
         }
 
         private async Task<IEnumerable<PaymentTermViewModel>> GetPaymentTermViewModels()

@@ -1,0 +1,30 @@
+﻿@model AddressViewModel
+<div class="form-group">
+    <label asp-for="StreetLine1"></label>
+    <input asp-for="StreetLine1" class="form-control" />
+    <span asp-validation-for="StreetLine1" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <input asp-for="StreetLine2" class="form-control" />
+    <span asp-validation-for="StreetLine2" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="PostalCode"></label>
+    <input asp-for="PostalCode" class="form-control" oninput="javascript:$().onPostalCodeChange('#'+this.id,'#@Html.IdFor(m => m.City)','#@Html.IdFor(m => m.State)','#@Html.IdFor(m => m.Country)','@Model.GetResolvePostalCodeUrl(Url)');" />
+    <span asp-validation-for="PostalCode" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="City"></label>
+    <input asp-for="City" class="form-control" />
+    <span asp-validation-for="City" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="State"></label>
+    <input asp-for="State" class="form-control" />
+    <span asp-validation-for="State" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Country"></label>
+    <input asp-for="Country" class="form-control" />
+    <span asp-validation-for="Country" class="text-danger"></span>
+</div>

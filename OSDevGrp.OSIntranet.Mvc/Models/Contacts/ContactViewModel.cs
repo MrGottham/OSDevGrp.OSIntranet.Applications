@@ -26,6 +26,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             set => Surname = value;
         }
 
+        [Display(Name = "Adresse", ShortName = "Adresse", Description = "Adresseoplysninger")]
+        [Required(ErrorMessage = "Adressen skal angives.")]
+        public AddressViewModel Address { get; set; }
+
         public CountryViewModel Country { get; set; }
 
         public List<CountryViewModel> Countries { get; set; }

@@ -10,6 +10,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 {
     internal class ContactViewModelConverter : ConverterBase
     {
+        #region Private variables
+
+        private readonly IValueConverter<IAddress, AddressViewModel> _addressViewModelConverter = new AddressViewModelConverter();
+
+        #endregion
+
         #region Methods
 
         protected override void Initialize(IMapperConfigurationExpression mapperConfiguration)
@@ -33,11 +39,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.MiddleName, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).MiddleName : null))
                 .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).Surname : src.Name is ICompanyName ? ((ICompanyName) src.Name).FullName : src.Name.DisplayName))
                 .ForMember(opt => opt.CompanyName, opt => opt.Ignore())
+                .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressViewModelConverter))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
                 .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => new List<CountryViewModel>(0)))
                 .ForMember(dest => dest.ContactGroups, opt => opt.MapFrom(src => new List<ContactGroupViewModel>(0)))
                 .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IAddress, AddressViewModel>();
 
             mapperConfiguration.CreateMap<IContactGroup, ContactGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -84,6 +93,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                     opt.MapFrom(src => src.Country.Code);
                 })
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code));
+        }
+
+        #endregion
+
+        #region Private classes
+
+        private class AddressViewModelConverter : IValueConverter<IAddress, AddressViewModel>
+        {
+            #region Methods
+
+            public AddressViewModel Convert(IAddress sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(context, nameof(context));
+
+                return sourceMember == null ? new AddressViewModel() : context.Mapper.Map<IAddress, AddressViewModel>(sourceMember);
+            }
+
+            #endregion
         }
 
         #endregion

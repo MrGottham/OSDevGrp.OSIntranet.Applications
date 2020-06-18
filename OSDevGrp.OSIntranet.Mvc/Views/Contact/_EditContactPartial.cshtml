@@ -1,6 +1,10 @@
 ﻿@model ContactViewModel
 <form id="editContactForm" asp-area="" asp-controller="Contact" asp-action="@Model.GetAction()">
-    <input type="hidden" asp-for="EditMode" />
+    @if (Model.EditMode != EditMode.Create)
+    {
+        <input type="hidden" asp-for="ExternalIdentifier"/>
+    }
+    <input type="hidden" asp-for="EditMode"/>
     <div class="row">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
             <div class="form-check-inline">
@@ -37,6 +41,7 @@
                     <span asp-validation-for="CompanyName" class="text-danger"></span>
                 </div>
             </div>
+            @await Html.PartialAsync("_EditAddressPartial", Model.Address, "Address")
         </div>
     </div>
 </form>

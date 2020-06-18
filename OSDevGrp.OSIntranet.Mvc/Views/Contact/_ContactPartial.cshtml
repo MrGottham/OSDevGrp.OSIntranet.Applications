@@ -35,6 +35,23 @@ else
     </div>
     <div id="presentContact" class="row d-block">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div id="contactAccordion">
+                @if (Model.Address.IsEmpty == false)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseAddress">
+                                <h5>Adresseoplysninger</h5>
+                            </a>
+                        </div>
+                        <div id="collapseAddress" class="collapse show" data-parent="#contactAccordion">
+                            <div class="card-body">
+                                @await Html.PartialAsync("_AddressPartial", Model.Address)
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 }

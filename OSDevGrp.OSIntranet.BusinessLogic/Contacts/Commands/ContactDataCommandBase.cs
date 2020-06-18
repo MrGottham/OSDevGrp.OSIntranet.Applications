@@ -76,9 +76,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
                 .Object.ShouldBeKnownValue(ContactGroupIdentifier, contactGroupIdentifier => Task.Run(async () => await GetContactGroupAsync(contactRepository) != null), GetType(), nameof(ContactGroupIdentifier))
                 .String.ShouldHaveMinLength(Acquaintance, 1, GetType(), nameof(Acquaintance),  true)
                 .String.ShouldHaveMaxLength(Acquaintance, 4096, GetType(), nameof(Acquaintance), true)
-                .ValidatePaymentTermIdentifier(PaymentTermIdentifier, GetType(), nameof(PaymentTermIdentifier))
                 .ValidateUrl(PersonalHomePage, GetType(), nameof(PersonalHomePage))
                 .Integer.ShouldBeBetween(LendingLimit, 1, 365, GetType(), nameof(LendingLimit))
+                .ValidatePaymentTermIdentifier(PaymentTermIdentifier, GetType(), nameof(PaymentTermIdentifier))
                 .Object.ShouldBeKnownValue(PaymentTermIdentifier, paymentTermIdentifier => Task.Run(async () => await GetPaymentTermAsync(accountingRepository) != null), GetType(), nameof(PaymentTermIdentifier));
         }
 

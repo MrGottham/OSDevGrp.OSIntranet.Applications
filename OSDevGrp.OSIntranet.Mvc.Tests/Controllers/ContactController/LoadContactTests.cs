@@ -319,6 +319,62 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNul()
+        {
+            IContact contact = _fixture.BuildContactMock(hasAddress: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsAddressViewModel()
+        {
+            IContact contact = _fixture.BuildContactMock(hasAddress: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address, Is.TypeOf<AddressViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNul()
+        {
+            IContact contact = _fixture.BuildContactMock().Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsAddressViewModel()
+        {
+            IContact contact = _fixture.BuildContactMock().Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Address, Is.TypeOf<AddressViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task LoadContact_WhenCountryAndContactWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereEditModeIsEqualToNone()
         {
             Controller sut = CreateSut();
