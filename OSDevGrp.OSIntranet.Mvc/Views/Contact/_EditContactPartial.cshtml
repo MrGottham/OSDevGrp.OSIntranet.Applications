@@ -42,6 +42,35 @@
                 </div>
             </div>
             @await Html.PartialAsync("_EditAddressPartial", Model.Address, "Address")
+            <div class="form-group">
+                <label asp-for="MailAddress"></label>
+                <input asp-for="MailAddress" class="form-control" />
+                <span asp-validation-for="MailAddress" class="text-danger"></span>
+            </div>
+            <div id="editContactCompanyPhoneNumbers" class="d-none">
+                <div class="form-group">
+                    <label asp-for="PrimaryPhone"></label>
+                    <input asp-for="PrimaryPhone" class="form-control" />
+                    <span asp-validation-for="PrimaryPhone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SecondaryPhone"></label>
+                    <input asp-for="SecondaryPhone" class="form-control" />
+                    <span asp-validation-for="SecondaryPhone" class="text-danger"></span>
+                </div>
+            </div>
+            <div id="editContactPersonPhoneNumbers" class="d-none">
+                <div class="form-group">
+                    <label asp-for="MobilePhone"></label>
+                    <input asp-for="MobilePhone" class="form-control" />
+                    <span asp-validation-for="MobilePhone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="HomePhone"></label>
+                    <input asp-for="HomePhone" class="form-control" />
+                    <span asp-validation-for="HomePhone" class="text-danger"></span>
+                </div>
+            </div>
         </div>
     </div>
 </form>

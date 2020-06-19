@@ -30,11 +30,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             mapperConfiguration.CreateMap<IContact, ContactInfoViewModel>()
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
                 .ForMember(dest => dest.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(dest => dest.HomePhone, opt => opt.Ignore())
+                .ForMember(dest => dest.MobilePhone, opt => opt.Ignore())
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContact, ContactViewModel>()
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name.DisplayName))
                 .ForMember(dest => dest.ContactType, opt => opt.MapFrom(src => src.ToContactType()))
+                .ForMember(dest => dest.HomePhone, opt => opt.Ignore())
+                .ForMember(dest => dest.MobilePhone, opt => opt.Ignore())
                 .ForMember(dest => dest.GivenName, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).GivenName : null))
                 .ForMember(dest => dest.MiddleName, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).MiddleName : null))
                 .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).Surname : src.Name is ICompanyName ? ((ICompanyName) src.Name).FullName : src.Name.DisplayName))

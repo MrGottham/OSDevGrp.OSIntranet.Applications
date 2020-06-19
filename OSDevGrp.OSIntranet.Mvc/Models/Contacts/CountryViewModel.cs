@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         [Display(Name = "Landekode", ShortName = "Kode", Description = "Landekode")]
         [Required(ErrorMessage = "Landekoden skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(4, MinimumLength = 1, ErrorMessage = "Længden på landekoden skal være mellem {2} og {1} tegn.")]
-        [RegularExpression(@"[A-Z]{1,4}", ErrorMessage = "Landekoden følger ikke det lovlige mønster: {1}")]
+        [RegularExpression(ValidationRegexPatterns.CountryCodeRegexPattern, ErrorMessage = "Landekoden følger ikke det lovlige mønster: {1}")]
         public string Code { get; set; }
 
         [Display(Name = "Navn", ShortName = "Navn", Description = "Navn")]
@@ -30,7 +30,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         [Display(Name = "Landekode (telefon)", ShortName = "Kode (telefon)", Description = "Landekode (telefon)")]
         [Required(ErrorMessage = "Landekoden til telefon skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(4, MinimumLength = 1, ErrorMessage = "Længden på landekoden til telefon skal være mellem {2} og {1} tegn.")]
-        [RegularExpression(@"\+[0-9]{1,3}", ErrorMessage = "Landekoden til telefon følger ikke det lovlige mønster: {1}")]
+        [RegularExpression(ValidationRegexPatterns.PhoneNumberPrefixRegexPattern, ErrorMessage = "Landekoden til telefon følger ikke det lovlige mønster: {1}")]
         public string PhonePrefix { get; set; }
 
         public bool Deletable { get; set; }

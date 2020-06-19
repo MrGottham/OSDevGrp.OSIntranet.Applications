@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         [Display(Name = "Postnummer", ShortName = "Postnr.", Description = "Postnummer")]
         [Required(ErrorMessage = "Postnummeret skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(16, MinimumLength = 1, ErrorMessage = "Længden på postnummeret skal være mellem {2} og {1} tegn.")]
-        [RegularExpression(@"[0-9]{1,16}", ErrorMessage = "Postnummeret følger ikke det lovlige mønster: {1}")]
+        [RegularExpression(ValidationRegexPatterns.PostalCodeRegexPattern, ErrorMessage = "Postnummeret følger ikke det lovlige mønster: {1}")]
         public string Code { get; set; }
 
         [Display(Name = "By", ShortName = "By", Description = "Bynavn")]

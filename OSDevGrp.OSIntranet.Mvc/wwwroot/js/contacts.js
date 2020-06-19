@@ -172,8 +172,10 @@
 
                 if ($().isPerson()) {
                     $().toggleDisplay("#editContactPersonName");
+                    $().toggleDisplay("#editContactPersonPhoneNumbers");
                 } else if ($().isCompany()) {
                     $().toggleDisplay("#editContactCompanyName");
+                    $().toggleDisplay("#editContactCompanyPhoneNumbers");
                 }
 
                 $().enableFormValidation("#editContactForm");
@@ -206,7 +208,15 @@
                 $().toggleDisplay("#editContactCompanyName");
             }
 
+            if ($().isDisplayed("#editContactCompanyPhoneNumbers")) {
+                $().toggleDisplay("#editContactCompanyPhoneNumbers");
+            }
+
             $().toggleDisplay("#editContactPersonName");
+
+            if ($().isDisplayed("#editContactPersonPhoneNumbers") === false) {
+                $().toggleDisplay("#editContactPersonPhoneNumbers");
+            }
         },
 
         isCompany: function() {
@@ -252,7 +262,15 @@
                 $().toggleDisplay("#editContactPersonName");
             }
 
+            if ($().isDisplayed("#editContactPersonPhoneNumbers")) {
+                $().toggleDisplay("#editContactPersonPhoneNumbers");
+            }
+
             $().toggleDisplay("#editContactCompanyName");
+
+            if ($().isDisplayed("#editContactCompanyPhoneNumbers") === false) {
+                $().toggleDisplay("#editContactCompanyPhoneNumbers");
+            }
         },
 
         onPostalCodeChange: function(postalCodeElementId, cityElementId, stateElementId, countryElementId, resolveUrl) {

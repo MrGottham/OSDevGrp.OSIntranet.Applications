@@ -51,6 +51,53 @@ else
                         </div>
                     </div>
                 }
+                @if (Model.HasContactInfo)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseContactInfo">
+                                <h5>Kontaktoplysninger</h5>
+                            </a>
+                        </div>
+                        <div id="collapseContactInfo" class="collapse show" data-parent="#contactAccordion">
+                            <div class="card-body">
+                                <dl>
+                                    @if (string.IsNullOrWhiteSpace(Model.MailAddress) == false)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.MailAddress)</dt>
+                                        <dd>@Model.MailAddress&nbsp;<a href="mailto:@Model.MailAddress"><i class="fas fa-envelope"></i></a></dd>
+                                    }
+                                    @if (Model.ContactType == ContactType.Company)
+                                    {
+                                        @if (string.IsNullOrWhiteSpace(Model.PrimaryPhone) == false)
+                                        {
+                                            <dt class="small">@Html.LabelFor(m => m.PrimaryPhone)</dt>
+                                            <dd>@Model.PrimaryPhone&nbsp;<a href="tel:@Model.PrimaryPhone"><i class="fas fa-phone"></i></a></dd>
+                                        }
+                                        @if (string.IsNullOrWhiteSpace(Model.SecondaryPhone) == false)
+                                        {
+                                            <dt class="small">@Html.LabelFor(m => m.SecondaryPhone)</dt>
+                                            <dd>@Model.SecondaryPhone&nbsp;<a href="tel:@Model.SecondaryPhone"><i class="fas fa-phone"></i></a></dd>
+                                        }
+                                    }
+                                    @if (Model.ContactType == ContactType.Person)
+                                    {
+                                        @if (string.IsNullOrWhiteSpace(Model.MobilePhone) == false)
+                                        {
+                                            <dt class="small">@Html.LabelFor(m => m.MobilePhone)</dt>
+                                            <dd>@Model.MobilePhone&nbsp;<a href="tel:@Model.MobilePhone"><i class="fas fa-phone"></i></a></dd>
+                                        }
+                                        @if (string.IsNullOrWhiteSpace(Model.HomePhone) == false)
+                                        {
+                                            <dt class="small">@Html.LabelFor(m => m.HomePhone)</dt>
+                                            <dd>@Model.HomePhone&nbsp;<a href="tel:@Model.HomePhone"><i class="fas fa-phone"></i></a></dd>
+                                        }
+                                    }
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
