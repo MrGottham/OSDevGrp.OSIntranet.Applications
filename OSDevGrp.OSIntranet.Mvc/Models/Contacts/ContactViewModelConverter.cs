@@ -2,6 +2,8 @@
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
@@ -13,6 +15,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         #region Private variables
 
         private readonly IValueConverter<IAddress, AddressViewModel> _addressViewModelConverter = new AddressViewModelConverter();
+        private readonly IValueConverter<IContactGroup, ContactGroupViewModel> _contactGroupViewModelConverter = new ContactGroupViewModelConverter();
+        private readonly IValueConverter<IPaymentTerm, PaymentTermViewModel> _paymentTermViewModelConverter = new PaymentTermViewModelConverter();
 
         #endregion
 
@@ -44,6 +48,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Name is IPersonName ? ((IPersonName) src.Name).Surname : src.Name is ICompanyName ? ((ICompanyName) src.Name).FullName : src.Name.DisplayName))
                 .ForMember(opt => opt.CompanyName, opt => opt.Ignore())
                 .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressViewModelConverter))
+                .ForMember(dest => dest.ContactGroup, opt => opt.ConvertUsing(_contactGroupViewModelConverter))
+                .ForMember(dest => dest.HomePage, opt => opt.MapFrom(src => src.PersonalHomePage))
+                .ForMember(dest => dest.PaymentTerm, opt => opt.ConvertUsing(_paymentTermViewModelConverter))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
                 .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => new List<CountryViewModel>(0)))
                 .ForMember(dest => dest.ContactGroups, opt => opt.MapFrom(src => new List<ContactGroupViewModel>(0)))
@@ -112,6 +119,40 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 NullGuard.NotNull(context, nameof(context));
 
                 return sourceMember == null ? new AddressViewModel() : context.Mapper.Map<IAddress, AddressViewModel>(sourceMember);
+            }
+
+            #endregion
+        }
+
+        private class ContactGroupViewModelConverter : IValueConverter<IContactGroup, ContactGroupViewModel>
+        {
+            #region Methods
+
+            public ContactGroupViewModel Convert(IContactGroup sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(context, nameof(context));
+
+                return sourceMember == null ? new ContactGroupViewModel() : context.Mapper.Map<IContactGroup, ContactGroupViewModel>(sourceMember);
+            }
+
+            #endregion
+        }
+
+        private class PaymentTermViewModelConverter : IValueConverter<IPaymentTerm, PaymentTermViewModel>
+        {
+            #region Private variables
+
+            private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
+
+            #endregion
+            
+            #region Methods
+
+            public PaymentTermViewModel Convert(IPaymentTerm sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(context, nameof(context));
+
+                return sourceMember == null ? new PaymentTermViewModel() : _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(sourceMember);
             }
 
             #endregion

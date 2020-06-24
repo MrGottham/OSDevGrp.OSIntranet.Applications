@@ -345,6 +345,72 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroup, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsEqualToFirstContactGroupReturnedFromQueryBus()
+        {
+            IEnumerable<IContactGroup> contactGroupCollection = _fixture.CreateMany<IContactGroup>(_random.Next(5, 10)).ToList();
+            Controller sut = CreateSut(contactGroupCollection: contactGroupCollection);
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroup.Number, Is.EqualTo(contactGroupCollection.Min(contactGroup => contactGroup.Number)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereLendingLimitIsEqualTo14()
+        {
+            Controller sut = CreateSut();
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.LendingLimit, Is.EqualTo(14));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerm, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsEqualToFirstPaymentTermReturnedFromQueryBus()
+        {
+            IEnumerable<IPaymentTerm> paymentTermCollection = _fixture.CreateMany<IPaymentTerm>(_random.Next(5, 10)).ToList();
+            Controller sut = CreateSut(paymentTermCollection: paymentTermCollection);
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerm.Number, Is.EqualTo(paymentTermCollection.Min(paymentTerm => paymentTerm.Number)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereEditModeIsEqualToCreate()
         {
             Controller sut = CreateSut();

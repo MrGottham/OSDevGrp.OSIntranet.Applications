@@ -6,7 +6,7 @@
             <div class="float-left flex-grow-1">
                 @if (string.IsNullOrWhiteSpace(Model.DisplayName) == false)
                 {
-                    <h3>@Model.DisplayName</h3>
+                    <h3>@Html.DisplayFor(m => m.DisplayName)</h3>
                 }
             </div>
             <div class="float-right fa-stack">
@@ -65,19 +65,19 @@ else
                                     @if (string.IsNullOrWhiteSpace(Model.MailAddress) == false)
                                     {
                                         <dt class="small">@Html.LabelFor(m => m.MailAddress)</dt>
-                                        <dd>@Model.MailAddress&nbsp;<a href="mailto:@Model.MailAddress"><i class="fas fa-envelope"></i></a></dd>
+                                        <dd>@Html.DisplayFor(m => m.MailAddress)&nbsp;<a href="mailto:@Model.MailAddress"><i class="fas fa-envelope"></i></a></dd>
                                     }
                                     @if (Model.ContactType == ContactType.Company)
                                     {
                                         @if (string.IsNullOrWhiteSpace(Model.PrimaryPhone) == false)
                                         {
                                             <dt class="small">@Html.LabelFor(m => m.PrimaryPhone)</dt>
-                                            <dd>@Model.PrimaryPhone&nbsp;<a href="tel:@Model.PrimaryPhone"><i class="fas fa-phone"></i></a></dd>
+                                            <dd>@Html.DisplayFor(m => m.PrimaryPhone)&nbsp;<a href="tel:@Model.PrimaryPhone"><i class="fas fa-phone"></i></a></dd>
                                         }
                                         @if (string.IsNullOrWhiteSpace(Model.SecondaryPhone) == false)
                                         {
                                             <dt class="small">@Html.LabelFor(m => m.SecondaryPhone)</dt>
-                                            <dd>@Model.SecondaryPhone&nbsp;<a href="tel:@Model.SecondaryPhone"><i class="fas fa-phone"></i></a></dd>
+                                            <dd>@Html.DisplayFor(m => m.SecondaryPhone)&nbsp;<a href="tel:@Model.SecondaryPhone"><i class="fas fa-phone"></i></a></dd>
                                         }
                                     }
                                     @if (Model.ContactType == ContactType.Person)
@@ -85,13 +85,59 @@ else
                                         @if (string.IsNullOrWhiteSpace(Model.MobilePhone) == false)
                                         {
                                             <dt class="small">@Html.LabelFor(m => m.MobilePhone)</dt>
-                                            <dd>@Model.MobilePhone&nbsp;<a href="tel:@Model.MobilePhone"><i class="fas fa-phone"></i></a></dd>
+                                            <dd>@Html.DisplayFor(m => m.MobilePhone)&nbsp;<a href="tel:@Model.MobilePhone"><i class="fas fa-phone"></i></a></dd>
                                         }
                                         @if (string.IsNullOrWhiteSpace(Model.HomePhone) == false)
                                         {
                                             <dt class="small">@Html.LabelFor(m => m.HomePhone)</dt>
-                                            <dd>@Model.HomePhone&nbsp;<a href="tel:@Model.HomePhone"><i class="fas fa-phone"></i></a></dd>
+                                            <dd>@Html.DisplayFor(m => m.HomePhone)&nbsp;<a href="tel:@Model.HomePhone"><i class="fas fa-phone"></i></a></dd>
                                         }
+                                    }
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if ((Model.ContactType == ContactType.Person && Model.Birthday.HasValue) || (Model.ContactGroup.IsKnownContactGroup(Model.ContactGroups) && string.IsNullOrWhiteSpace(Model.ContactGroup.Name) == false) || (string.IsNullOrWhiteSpace(Model.Acquaintance) == false) || (string.IsNullOrWhiteSpace(Model.HomePage) == false) || (Model.LendingLimit > 0) || (Model.PaymentTerm.IsKnownPaymentTerm(Model.PaymentTerms) && string.IsNullOrWhiteSpace(Model.PaymentTerm.Name) == false))
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseSupplements">
+                                <h5>Øvrige oplysninger</h5>
+                            </a>
+                        </div>
+                        <div id="collapseSupplements" class="collapse show" data-parent="#contactAccordion">
+                            <div class="card-body">
+                                <dl>
+                                    @if (Model.ContactType == ContactType.Person && Model.Birthday.HasValue)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.Birthday)</dt>
+                                        <dd>@Html.DisplayFor(m => m.Birthday)</dd>
+                                    }
+                                    @if (Model.ContactGroup.IsKnownContactGroup(Model.ContactGroups) && string.IsNullOrWhiteSpace(Model.ContactGroup.Name) == false)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.ContactGroup)</dt>
+                                        <dd>@Html.DisplayFor(m => m.ContactGroup.Name)</dd>
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(Model.Acquaintance) == false)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.Acquaintance)</dt>
+                                        <dd>@Model.Acquaintance.ToHtmlString()</dd>
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(Model.HomePage) == false)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.HomePage)</dt>
+                                        <dd>@Html.DisplayFor(m => m.HomePage)&nbsp;<a href="@Model.HomePage" target="_blank"><i class="fas fa-globe"></i></a></dd>
+                                    }
+                                    @if (Model.LendingLimit > 0)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.LendingLimit)</dt>
+                                        <dd>@Html.DisplayFor(m => m.LendingLimit)&nbsp;@(Model.LendingLimit == 1 ? "dag" : "dage")</dd>
+                                    }
+                                    @if (Model.PaymentTerm.IsKnownPaymentTerm(Model.PaymentTerms) && string.IsNullOrWhiteSpace(Model.PaymentTerm.Name) == false)
+                                    {
+                                        <dt class="small">@Html.LabelFor(m => m.PaymentTerm)</dt>
+                                        <dd>@Html.DisplayFor(m => m.PaymentTerm.Name)</dd>
                                     }
                                 </dl>
                             </div>

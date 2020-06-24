@@ -71,6 +71,40 @@
                     <span asp-validation-for="HomePhone" class="text-danger"></span>
                 </div>
             </div>
+            <div id="editContactBirthday" class="d-none">
+                <div class="form-group">
+                    <label asp-for="Birthday"></label>
+                    <div class="input-group date">
+                        <input asp-for="Birthday" class="form-control" /><span class="input-group-addon"><i class="fas fa-2x fa-calendar"></i></span>
+                    </div>
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactGroup"></label>
+                <select asp-for="ContactGroup.Number" asp-items="Model.ContactGroups.SelectListFor(Model.ContactGroup.Number)" class="form-control"></select>
+                <span asp-validation-for="ContactGroup" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Acquaintance"></label>
+                @Html.EditorFor(m => m.Acquaintance, new { htmlAttributes = new { @class = "form-control" } })
+                <span asp-validation-for="Acquaintance" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HomePage"></label>
+                <input asp-for="HomePage" class="form-control" />
+                <span asp-validation-for="HomePage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LendingLimit"></label>
+                <input asp-for="LendingLimit" class="form-control" />
+                <span asp-validation-for="LendingLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentTerm"></label>
+                <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm.Number)" class="form-control"></select>
+                <span asp-validation-for="PaymentTerm" class="text-danger"></span>
+            </div>
         </div>
     </div>
 </form>

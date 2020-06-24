@@ -2,6 +2,7 @@
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts.Enums;
 
@@ -9,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool hasContactGroup = true, IContactGroup contactGroup = null, bool hasPaymentTerm = true, IPaymentTerm paymentTerm = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -37,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactMock.Setup(m => m.Company)
                 .Returns(fixture.BuildCompanyMock().Object);
             contactMock.Setup(m => m.ContactGroup)
-                .Returns(fixture.BuildContactGroupMock().Object);
+                .Returns(hasContactGroup ? contactGroup ?? fixture.BuildContactGroupMock().Object : null);
             contactMock.Setup(m => m.Acquaintance)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.PersonalHomePage)
@@ -45,7 +46,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactMock.Setup(m => m.LendingLimit)
                 .Returns(fixture.Create<int>());
             contactMock.Setup(m => m.PaymentTerm)
-                .Returns(fixture.BuildPaymentTermMock().Object);
+                .Returns(hasPaymentTerm ? paymentTerm ?? fixture.BuildPaymentTermMock().Object : null);
             contactMock.Setup(m => m.CreatedByIdentifier)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.CreatedDateTime)

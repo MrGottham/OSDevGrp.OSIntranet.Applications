@@ -60,28 +60,26 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Common
         public bool Deletable { get; set; }
 
         #endregion
-
-        #region Methods
-
-        public string GetDeletionLink(IUrlHelper urlHelper)
-        {
-            NullGuard.NotNull(urlHelper, nameof(urlHelper));
-
-            return urlHelper.AbsoluteAction("DeleteLetterHead", "Common");
-        }
-
-        public string GetDeletionData(IHtmlHelper htmlHelper)
-        {
-            NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
-
-            return '{' + $"number: {Number}, {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
-        }
-
-        #endregion
     }
 
     public static class LetterHeadViewModelExtensions
     {
+        public static string GetDeletionLink(this LetterHeadViewModel letterHeadViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteLetterHead", "Common");
+        }
+
+        public static string GetDeletionData(this LetterHeadViewModel letterHeadViewModel, IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"number: {letterHeadViewModel.Number}, {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+        }
+
         public static SelectListItem SelectListItemFor(this LetterHeadViewModel letterHeadViewModel, bool selected)
         {
             NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel));

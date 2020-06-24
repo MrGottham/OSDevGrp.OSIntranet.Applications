@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
@@ -24,23 +27,46 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         public bool Deletable { get; set; }
 
         #endregion
+    }
 
-        #region Methods
-
-        public string GetDeletionLink(IUrlHelper urlHelper)
+    public static class ContactGroupViewModelExtensions
+    {
+        public static string GetDeletionLink(this ContactGroupViewModel contactGroupViewModel, IUrlHelper urlHelper)
         {
-            NullGuard.NotNull(urlHelper, nameof(urlHelper));
+            NullGuard.NotNull(contactGroupViewModel, nameof(contactGroupViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
 
             return urlHelper.AbsoluteAction("DeleteContactGroup", "Contact");
         }
 
-        public string GetDeletionData(IHtmlHelper htmlHelper)
+        public static string GetDeletionData(this ContactGroupViewModel contactGroupViewModel, IHtmlHelper htmlHelper)
         {
-            NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
+            NullGuard.NotNull(contactGroupViewModel, nameof(contactGroupViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
 
-            return '{' + $"number: '{Number}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+            return '{' + $"number: '{contactGroupViewModel.Number}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
 
-        #endregion
+        public static bool IsKnownContactGroup(this ContactGroupViewModel contactGroupViewModel, IEnumerable<ContactGroupViewModel> knownContactGroupViewModels)
+        {
+            NullGuard.NotNull(contactGroupViewModel, nameof(contactGroupViewModel))
+                .NotNull(knownContactGroupViewModels, nameof(knownContactGroupViewModels));
+
+            return knownContactGroupViewModels.Any(knownContactGroupViewModel => knownContactGroupViewModel.Number == contactGroupViewModel.Number);
+        }
+
+        public static SelectListItem SelectListItemFor(this ContactGroupViewModel contactGroupViewModel, bool selected)
+        {
+            NullGuard.NotNull(contactGroupViewModel, nameof(contactGroupViewModel));
+
+            return new SelectListItem(contactGroupViewModel.Name, Convert.ToString(contactGroupViewModel.Number), selected);
+        }
+
+        public static IEnumerable<SelectListItem> SelectListFor(this IEnumerable<ContactGroupViewModel> contactGroupViewModels, int? selectedValue)
+        {
+            NullGuard.NotNull(contactGroupViewModels, nameof(contactGroupViewModels));
+
+            return contactGroupViewModels.Select(contactGroupViewModel => contactGroupViewModel.SelectListItemFor(selectedValue.HasValue && selectedValue.Value == contactGroupViewModel.Number)).ToArray();
+        }
     }
 }

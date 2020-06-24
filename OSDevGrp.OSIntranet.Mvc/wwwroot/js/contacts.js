@@ -173,10 +173,17 @@
                 if ($().isPerson()) {
                     $().toggleDisplay("#editContactPersonName");
                     $().toggleDisplay("#editContactPersonPhoneNumbers");
+                    $().toggleDisplay("#editContactBirthday");
                 } else if ($().isCompany()) {
                     $().toggleDisplay("#editContactCompanyName");
                     $().toggleDisplay("#editContactCompanyPhoneNumbers");
                 }
+
+                $(".input-group.date").datepicker({
+                    format: "d. MM yyyy",
+                    clearBtn: true,
+                    language: "da"
+                });
 
                 $().enableFormValidation("#editContactForm");
 
@@ -216,6 +223,10 @@
 
             if ($().isDisplayed("#editContactPersonPhoneNumbers") === false) {
                 $().toggleDisplay("#editContactPersonPhoneNumbers");
+            }
+
+            if ($().isDisplayed("#editContactBirthday") === false) {
+                $().toggleDisplay("#editContactBirthday");
             }
         },
 
@@ -264,6 +275,10 @@
 
             if ($().isDisplayed("#editContactPersonPhoneNumbers")) {
                 $().toggleDisplay("#editContactPersonPhoneNumbers");
+            }
+
+            if ($().isDisplayed("#editContactBirthday")) {
+                $().toggleDisplay("#editContactBirthday");
             }
 
             $().toggleDisplay("#editContactCompanyName");

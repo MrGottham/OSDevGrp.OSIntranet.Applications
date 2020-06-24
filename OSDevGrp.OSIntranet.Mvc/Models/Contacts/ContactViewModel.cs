@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
@@ -29,6 +30,34 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         [Display(Name = "Adresse", ShortName = "Adresse", Description = "Adresseoplysninger")]
         [Required(ErrorMessage = "Adressen skal angives.")]
         public AddressViewModel Address { get; set; }
+
+        [DataType(DataType.Text)]
+        [Display(Name = "Fødselsdato", ShortName = "Fødselsdato", Description = "Fødselsdato")]
+        [DisplayFormat(DataFormatString = "{0:d. MMMM yyyy}", ApplyFormatInEditMode = true, NullDisplayText = "", ConvertEmptyStringToNull = true)]
+        public DateTime? Birthday { get; set; }
+
+        [Display(Name = "Kontaktgruppe", ShortName = "Kontaktgruppe", Description = "Kontaktgruppe")]
+        [Required(ErrorMessage = "Kontaktgruppen skal vælges.")]
+        public ContactGroupViewModel ContactGroup { get; set; }
+
+        [DataType(DataType.MultilineText)]
+        [Display(Name = "Bekendtskab", ShortName = "Bekendtskab", Description = "Bekendtskab")]
+        [StringLength(4096, MinimumLength = 0, ErrorMessage = "Længden på bekendtskabet skal være mellem {2} og {1} tegn.")]
+        public string Acquaintance { get; set; }
+
+        [Display(Name = "Webside", ShortName = "Webside", Description = "Webside")]
+        [StringLength(256, MinimumLength = 0, ErrorMessage = "Længden på websiden skal være mellem {2} og {1} tegn.")]
+        [RegularExpression(ValidationRegexPatterns.UrlRegexPattern, ErrorMessage = "Websiden følger ikke det lovlige mønster: {1}")]
+        public string HomePage { get; set; }
+
+        [Display(Name = "Udlånsfrist", ShortName = "Udlånsfrist", Description = "Udlånsfrist i dage")]
+        [Required(ErrorMessage = "Udlånsfristen skal udfyldes-")]
+        [Range(1, 365, ErrorMessage = "Udlånsfristen skal være mellem {1} og {2}.")]
+        public int LendingLimit { get; set; }
+
+        [Display(Name = "Betalingsbetingelse", ShortName = "Betalingsbetingelse", Description = "Betalingsbetingelse")]
+        [Required(ErrorMessage = "Betalingsbetingelsen skal vælges.")]
+        public PaymentTermViewModel PaymentTerm { get; set; }
 
         public CountryViewModel Country { get; set; }
 

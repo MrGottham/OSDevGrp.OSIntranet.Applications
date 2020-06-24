@@ -238,6 +238,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
+            List<ContactGroupViewModel> contactGroupViewModels = getContactGroupViewModelCollectionTask.Result.ToList();
+            List<PaymentTermViewModel> paymentTermViewModels = getPaymentTermViewModelCollectionTask.Result.ToList();
+
             ContactViewModel contactViewModel = new ContactViewModel
             {
                 ContactType = ContactType.Person,
@@ -247,10 +250,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 {
                     Country = country.DefaultForPrincipal ? null : country.UniversalName
                 },
+                ContactGroup = contactGroupViewModels.FirstOrDefault() ?? new ContactGroupViewModel(),
+                PaymentTerm = paymentTermViewModels.FirstOrDefault() ?? new PaymentTermViewModel(),
                 Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country),
                 Countries = getCountryViewModelCollectionTask.Result.ToList(),
-                ContactGroups = getContactGroupViewModelCollectionTask.Result.ToList(),
-                PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToList(),
+                ContactGroups = contactGroupViewModels,
+                LendingLimit = 14,
+                PaymentTerms = paymentTermViewModels,
                 EditMode = EditMode.Create
             };
 

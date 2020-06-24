@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
@@ -24,23 +27,46 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public bool Deletable { get; set; }
 
         #endregion
+    }
 
-        #region Methods
-
-        public string GetDeletionLink(IUrlHelper urlHelper)
+    public static class PaymentTermViewModelExtensions
+    {
+        public static string GetDeletionLink(this PaymentTermViewModel paymentTermViewModel, IUrlHelper urlHelper)
         {
-            NullGuard.NotNull(urlHelper, nameof(urlHelper));
+            NullGuard.NotNull(paymentTermViewModel, nameof(paymentTermViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
 
             return urlHelper.AbsoluteAction("DeletePaymentTerm", "Accounting");
         }
 
-        public string GetDeletionData(IHtmlHelper htmlHelper)
+        public static string GetDeletionData(this PaymentTermViewModel paymentTermViewModel, IHtmlHelper htmlHelper)
         {
-            NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
+            NullGuard.NotNull(paymentTermViewModel, nameof(paymentTermViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
 
-            return '{' + $"number: '{Number}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+            return '{' + $"number: '{paymentTermViewModel.Number}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
 
-        #endregion
+        public static bool IsKnownPaymentTerm(this PaymentTermViewModel paymentTermViewModel, IEnumerable<PaymentTermViewModel> knownPaymentTermViewModels)
+        {
+            NullGuard.NotNull(paymentTermViewModel, nameof(paymentTermViewModel))
+                .NotNull(knownPaymentTermViewModels, nameof(knownPaymentTermViewModels));
+
+            return knownPaymentTermViewModels.Any(knownPaymentTermViewModel => knownPaymentTermViewModel.Number == paymentTermViewModel.Number);
+        }
+
+        public static SelectListItem SelectListItemFor(this PaymentTermViewModel paymentTermViewModel, bool selected)
+        {
+            NullGuard.NotNull(paymentTermViewModel, nameof(paymentTermViewModel));
+
+            return new SelectListItem(paymentTermViewModel.Name, Convert.ToString(paymentTermViewModel.Number), selected);
+        }
+
+        public static IEnumerable<SelectListItem> SelectListFor(this IEnumerable<PaymentTermViewModel> paymentTermViewModels, int? selectedValue)
+        {
+            NullGuard.NotNull(paymentTermViewModels, nameof(paymentTermViewModels));
+
+            return paymentTermViewModels.Select(paymentTermViewModel => paymentTermViewModel.SelectListItemFor(selectedValue.HasValue && selectedValue.Value == paymentTermViewModel.Number)).ToArray();
+        }
     }
 }

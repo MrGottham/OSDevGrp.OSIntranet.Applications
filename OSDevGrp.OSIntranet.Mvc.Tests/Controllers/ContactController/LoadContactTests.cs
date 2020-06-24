@@ -18,6 +18,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
@@ -371,6 +372,119 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             ContactViewModel contactViewModel = (ContactViewModel) result.Model;
 
             Assert.That(contactViewModel.Address, Is.TypeOf<AddressViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNul()
+        {
+            IContact contact = _fixture.BuildContactMock(hasContactGroup: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroup, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsContactGroupViewModel()
+        {
+            IContact contact = _fixture.BuildContactMock(hasContactGroup: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroup, Is.TypeOf<ContactGroupViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNul()
+        {
+            IContact contact = _fixture.BuildContactMock().Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroup, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsMapped()
+        {
+            IContactGroup contactGroup = _fixture.BuildContactGroupMock().Object;
+            IContact contact = _fixture.BuildContactMock(contactGroup: contactGroup).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.ContactGroup.Number, Is.EqualTo(contactGroup.Number));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNul()
+        {
+            IContact contact = _fixture.BuildContactMock(hasPaymentTerm: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerm, Is.Not.Null);
+        }
+
+        [Test] [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsPaymentTermViewModel()
+        {
+            IContact contact = _fixture.BuildContactMock(hasPaymentTerm: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerm, Is.TypeOf<PaymentTermViewModel>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNul()
+        {
+            IContact contact = _fixture.BuildContactMock().Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerm, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsMapped()
+        {
+            IPaymentTerm paymentTerm = _fixture.BuildPaymentTermMock().Object;
+            IContact contact = _fixture.BuildContactMock(paymentTerm: paymentTerm).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.PaymentTerm.Number, Is.EqualTo(paymentTerm.Number));
         }
 
         [Test]

@@ -14,26 +14,28 @@
         <title>@ViewData["Title"] - Mr. Gottham's Homepage</title>
     }
 
-    <environment include="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.css" />
-        <link rel="stylesheet" href="~/lib/fontawesome/dist/css/all.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only"
-              asp-fallback-test-property="position"
-              asp-fallback-test-value="absolute"
-              crossorigin="anonymous"
-              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" />
-        <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
-              crossorigin="anonymous"
-              integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V">
-        <link rel="stylesheet" href="~/css/site.min.css" />
-    </environment>
+<environment include="Development">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome/dist/css/all.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</environment>
+<environment exclude="Development">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+          asp-fallback-test-class="sr-only"
+          asp-fallback-test-property="position"
+          asp-fallback-test-value="absolute"
+          crossorigin="anonymous"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" />
+    <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
+          crossorigin="anonymous"
+          integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V">
+    <link rel="stylesheet" href="~/css/site.min.css" />
+</environment>
 </head>
 <body>
     <header>
@@ -116,6 +118,8 @@
         <script src="~/lib/jquery/dist/jquery-3.4.1.js"></script>
         <script src="~/lib/popper/dist/popper.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script defer src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+        <script defer src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js"></script>
         <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.js"></script>
         <script defer src="~/lib/fontawesome/dist/js/all.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
@@ -139,6 +143,8 @@
                 crossorigin="anonymous"
                 integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6">
         </script>
+        <script defer src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+        <script defer src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js"></script>
         <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.min.js"></script>
         <script defer src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"
                 crossorigin="anonymous"
