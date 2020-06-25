@@ -41,8 +41,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.HasIndex(e => new {e.ClientSecretIdentityIdentifier, e.ClaimIdentifier}).IsUnique();
-                entity.HasOne(e => e.ClientSecretIdentity).WithMany(e => e.ClientSecretIdentityClaims).HasForeignKey(e => e.ClientSecretIdentityIdentifier).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(e => e.Claim);
+                entity.HasOne(e => e.ClientSecretIdentity)
+                    .WithMany(e => e.ClientSecretIdentityClaims)
+                    .HasForeignKey(e => e.ClientSecretIdentityIdentifier)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.Claim)
+                    .WithMany(e => e.ClientSecretIdentityClaims)
+                    .HasForeignKey(e => e.ClaimIdentifier)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

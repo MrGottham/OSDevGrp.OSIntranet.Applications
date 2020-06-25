@@ -69,7 +69,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermModel>()
                 .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ContactSupplements, opt => opt.Ignore());
         }
 
         #endregion

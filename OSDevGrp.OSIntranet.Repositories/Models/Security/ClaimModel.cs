@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -13,6 +14,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
         public virtual string ClaimType { get; set; }
 
         public virtual string ClaimValue { get; set; }
+
+        public virtual List<UserIdentityClaimModel> UserIdentityClaims { get; set; }
+
+        public virtual List<ClientSecretIdentityClaimModel> ClientSecretIdentityClaims { get; set; }
     }
 
     internal static class ClaimModelExtensions

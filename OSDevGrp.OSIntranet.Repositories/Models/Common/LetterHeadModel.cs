@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Common;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Common
@@ -30,6 +32,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Common
         public virtual string CompanyIdentificationNumber { get ; set; }
 
         public virtual bool Deletable { get; set; }
+
+        public virtual List<AccountingModel> Accountings { get; set; }
     }
 
     internal static class LetterHeadModelExtensions

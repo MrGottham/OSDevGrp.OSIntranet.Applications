@@ -56,7 +56,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<IContactGroup, ContactGroupModel>()
                 .ForMember(dest => dest.ContactGroupIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ContactSupplements, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<CountryModel, ICountry>()
                 .ConvertUsing(countryModel => countryModel.ToDomain());

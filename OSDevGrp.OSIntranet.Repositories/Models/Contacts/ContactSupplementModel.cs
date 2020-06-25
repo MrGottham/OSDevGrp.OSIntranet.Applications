@@ -93,8 +93,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-                entity.HasOne(e => e.ContactGroup);
-                entity.HasOne(e => e.PaymentTerm);
+                entity.HasOne(e => e.ContactGroup)
+                    .WithMany(e => e.ContactSupplements)
+                    .HasForeignKey(e => e.ContactGroupIdentifier)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(e => e.PaymentTerm)
+                    .WithMany(e => e.ContactSupplements)
+                    .HasForeignKey(e => e.PaymentTermIdentifier)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

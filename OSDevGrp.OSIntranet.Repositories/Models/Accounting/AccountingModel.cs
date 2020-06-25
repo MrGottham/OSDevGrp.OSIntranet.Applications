@@ -61,7 +61,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Ignore(e => e.Deletable);
                 entity.HasIndex(e => new {e.LetterHeadIdentifier, e.AccountingIdentifier}).IsUnique();
-                entity.HasOne(e => e.LetterHead);
+                entity.HasOne(e => e.LetterHead)
+                    .WithMany(e => e.Accountings)
+                    .HasForeignKey(e => e.LetterHeadIdentifier)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

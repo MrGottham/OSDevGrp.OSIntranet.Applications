@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
@@ -14,6 +16,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual string Name { get; set; }
 
         public virtual bool Deletable { get; set; }
+
+        public virtual List<ContactSupplementModel> ContactSupplements { get; set; }
     }
 
     internal static class PaymentTermModelExtensions

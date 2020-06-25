@@ -19,7 +19,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<ILetterHead, LetterHeadModel>()
                 .ForMember(dest => dest.LetterHeadIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.Accountings, opt => opt.Ignore());
         }
 
         #endregion
