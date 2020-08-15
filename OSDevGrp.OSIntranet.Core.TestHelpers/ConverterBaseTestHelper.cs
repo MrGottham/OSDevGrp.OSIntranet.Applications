@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.Core.TestHelpers
             Mapper mapper = (Mapper) mapperFieldInfo.GetValue(converterBase);
             try
             {
-                mapper.DefaultContext.ConfigurationProvider.AssertConfigurationIsValid();
+                mapper.ConfigurationProvider.AssertConfigurationIsValid();
 
                 return null;
             }
