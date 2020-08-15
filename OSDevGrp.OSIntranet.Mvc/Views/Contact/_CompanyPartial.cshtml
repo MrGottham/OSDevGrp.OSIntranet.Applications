@@ -1,0 +1,32 @@
+﻿@model CompanyViewModel
+@if (string.IsNullOrWhiteSpace(Model.CompanyName) == false)
+{
+    <dl>
+        @if (string.IsNullOrWhiteSpace(Model.CompanyName) == false)
+        {
+            <dt class="small">@Html.LabelFor(m => m.CompanyName)</dt>
+            <dd>@Html.DisplayFor(m => m.CompanyName)</dd>
+        }
+    </dl>
+    @await Html.PartialAsync("_AddressPartial", Model.Address)
+    @if (string.IsNullOrWhiteSpace(Model.PrimaryPhone) == false || string.IsNullOrWhiteSpace(Model.SecondaryPhone) == false || string.IsNullOrWhiteSpace(Model.HomePage) == false)
+    {
+        <dl>
+            @if (string.IsNullOrWhiteSpace(Model.PrimaryPhone) == false)
+            {
+                <dt class="small">@Html.LabelFor(m => m.PrimaryPhone)</dt>
+                <dd>@Html.DisplayFor(m => m.PrimaryPhone)&nbsp;<a href="tel:@Model.PrimaryPhone"><i class="fas fa-phone"></i></a></dd>
+            }
+            @if (string.IsNullOrWhiteSpace(Model.SecondaryPhone) == false)
+            {
+                <dt class="small">@Html.LabelFor(m => m.SecondaryPhone)</dt>
+                <dd>@Html.DisplayFor(m => m.SecondaryPhone)&nbsp;<a href="tel:@Model.SecondaryPhone"><i class="fas fa-phone"></i></a></dd>
+            }
+            @if (string.IsNullOrWhiteSpace(Model.HomePage) == false)
+            {
+                <dt class="small">@Html.LabelFor(m => m.HomePage)</dt>
+                <dd>@Html.DisplayFor(m => m.HomePage)&nbsp;<a href="@Model.HomePage" target="_blank"><i class="fas fa-globe"></i></a></dd>
+            }
+        </dl>
+    }
+}

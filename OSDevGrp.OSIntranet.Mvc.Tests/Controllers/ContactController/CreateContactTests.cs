@@ -411,6 +411,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCompanyIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateContact(_fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Company, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CreateContact_WhenCountryWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereEditModeIsEqualToCreate()
         {
             Controller sut = CreateSut();

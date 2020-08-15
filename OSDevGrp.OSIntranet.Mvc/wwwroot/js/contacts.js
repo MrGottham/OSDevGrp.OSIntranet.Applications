@@ -78,6 +78,29 @@
             $().startLoadingContacts(encodeURI(url));
         },
 
+        addAssociatedCompany: function(startAddingAssociatedCompanyUrl) {
+            var associatedCompanyElement = $("#addAssociatedCompany").children("div").first();
+            if (associatedCompanyElement === undefined || associatedCompanyElement === null) {
+                return;
+            }
+
+            startAddingAssociatedCompanyUrl = decodeURI(startAddingAssociatedCompanyUrl).replace("{countryCode}", $().getCountryCode());
+            associatedCompanyElement.data("url", encodeURI(startAddingAssociatedCompanyUrl));
+
+            $.each($(associatedCompanyElement).parent(),
+                function() {
+                    $().startAddingAssociatedCompanyObserver(this);
+                });
+
+            $().replaceWithPartialViewFromUrl(associatedCompanyElement);
+        },
+
+        removeAssociatedCompany: function() {
+            $.each($("#associatedCompany"), function() {
+                $(this).remove();
+            });
+        },
+
         startLoadingContacts: function(url) {
             $().setReadOnly("#contactOperationsFilter", true);
             $().setDisabled("#contactOperationsSearch", true);
@@ -174,9 +197,17 @@
                     $().toggleDisplay("#editContactPersonName");
                     $().toggleDisplay("#editContactPersonPhoneNumbers");
                     $().toggleDisplay("#editContactBirthday");
+                    if ($().hasAssociatedCompany()) {
+                        $().toggleDisplay("#editAssociatedCompany");
+                    } else {
+                        $().toggleDisplay("#addAssociatedCompany");
+                    }
                 } else if ($().isCompany()) {
                     $().toggleDisplay("#editContactCompanyName");
                     $().toggleDisplay("#editContactCompanyPhoneNumbers");
+                    if ($().hasAssociatedCompany()) {
+                        $().toggleDisplay("#editAssociatedCompany");
+                    }
                 }
 
                 $(".input-group.date").datepicker({
@@ -191,6 +222,31 @@
             }
 
             $.each(loadContactElementArray,
+                function() {
+                    $().replaceWithPartialViewFromUrl(this);
+                });
+        },
+
+        startAddingAssociatedCompanyObserver: function(element) {
+            var addingAssociatedCompanyObserver = new MutationObserver($().addingAssociatedCompanyCallback);
+            addingAssociatedCompanyObserver.observe(element, { childList: true });
+        },
+
+        addingAssociatedCompanyCallback: function(mutationsList, observer) {
+            if (mutationsList.length === 0) {
+                return;
+            }
+
+            var addAssociatedCompanyElementArray = $(mutationsList[0].target).find("[data-url]");
+            if (addAssociatedCompanyElementArray.length === 0) {
+                observer.disconnect();
+
+                $().enableFormValidation("#editContactForm");
+
+                return;
+            }
+
+            $.each(addAssociatedCompanyElementArray,
                 function() {
                     $().replaceWithPartialViewFromUrl(this);
                 });
@@ -227,6 +283,22 @@
 
             if ($().isDisplayed("#editContactBirthday") === false) {
                 $().toggleDisplay("#editContactBirthday");
+            }
+
+            if ($().hasAssociatedCompany()) {
+                if ($().isDisplayed("#addAssociatedCompany")) {
+                    $().toggleDisplay("#addAssociatedCompany");
+                }
+                if ($().isDisplayed("#editAssociatedCompany") === false) {
+                    $().toggleDisplay("#editAssociatedCompany");
+                }
+            } else {
+                if ($().isDisplayed("#addAssociatedCompany") === false) {
+                    $().toggleDisplay("#addAssociatedCompany");
+                }
+                if ($().isDisplayed("#editAssociatedCompany")) {
+                    $().toggleDisplay("#editAssociatedCompany");
+                }
             }
         },
 
@@ -286,6 +358,26 @@
             if ($().isDisplayed("#editContactCompanyPhoneNumbers") === false) {
                 $().toggleDisplay("#editContactCompanyPhoneNumbers");
             }
+
+            if ($().hasAssociatedCompany()) {
+                if ($().isDisplayed("#addAssociatedCompany")) {
+                    $().toggleDisplay("#addAssociatedCompany");
+                }
+                if ($().isDisplayed("#editAssociatedCompany") === false) {
+                    $().toggleDisplay("#editAssociatedCompany");
+                }
+            } else {
+                if ($().isDisplayed("#addAssociatedCompany")) {
+                    $().toggleDisplay("#addAssociatedCompany");
+                }
+                if ($().isDisplayed("#editAssociatedCompany")) {
+                    $().toggleDisplay("#editAssociatedCompany");
+                }
+            }
+        },
+
+        hasAssociatedCompany: function() {
+            return $("#associatedCompany").length > 0;
         },
 
         onPostalCodeChange: function(postalCodeElementId, cityElementId, stateElementId, countryElementId, resolveUrl) {

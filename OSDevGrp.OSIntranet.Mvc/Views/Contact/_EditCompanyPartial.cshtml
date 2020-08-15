@@ -1,0 +1,44 @@
+﻿@model CompanyViewModel
+<div id="associatedCompany">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <hr />
+            <div class="float-left flex-grow-1">
+                <h5>Firma</h5>
+            </div>
+            <div class="float-right">
+                <a href="#" onclick="javascript:$().removeAssociatedCompany();" class="float-right"><i class="fas fa-trash"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <label asp-for="CompanyName"></label>
+                <input asp-for="CompanyName" class="form-control" />
+                <span asp-validation-for="CompanyName" class="text-danger"></span>
+            </div>
+            @await Html.PartialAsync("_EditAddressPartial", Model.Address, $"{ViewData.TemplateInfo.HtmlFieldPrefix}_Address")
+            <div class="form-group">
+                <label asp-for="PrimaryPhone"></label>
+                <input asp-for="PrimaryPhone" class="form-control" />
+                <span asp-validation-for="PrimaryPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SecondaryPhone"></label>
+                <input asp-for="SecondaryPhone" class="form-control" />
+                <span asp-validation-for="SecondaryPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HomePage"></label>
+                <input asp-for="HomePage" class="form-control" />
+                <span asp-validation-for="HomePage" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <hr />
+        </div>
+    </div>
+</div>

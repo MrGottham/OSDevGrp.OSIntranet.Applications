@@ -82,5 +82,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 
             return urlHelper.AbsoluteAction("CreateContact", "Contact", new {CountryCode = contactOptionsViewModel.DefaultCountryCode});
         }
+
+        public static string GetAddAssociatedCompanyUrl(this ContactOptionsViewModel contactOptionsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(contactOptionsViewModel, nameof(contactOptionsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("AddAssociatedCompany", "Contact", new {CountryCode = contactOptionsViewModel.DefaultCountryCode});
+        }
     }
 }

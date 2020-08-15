@@ -57,6 +57,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
+            mapperConfiguration.CreateMap<ICompany, CompanyViewModel>()
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Name.FullName))
+                .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressViewModelConverter));
+
             mapperConfiguration.CreateMap<IAddress, AddressViewModel>();
 
             mapperConfiguration.CreateMap<IContactGroup, ContactGroupViewModel>()

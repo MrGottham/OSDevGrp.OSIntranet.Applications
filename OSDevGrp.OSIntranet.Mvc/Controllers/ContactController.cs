@@ -264,6 +264,57 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> StartAddingAssociatedCompany(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
+            {
+                DefaultCountryCode = countryCode
+            };
+
+            return PartialView("_AddingAssociatedCompanyPartial", contactOptionsViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddAssociatedCompany(string countryCode)
+        {
+            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            ICountry country = await GetCountry(countryCode);
+            if (country == null)
+            {
+                return BadRequest();
+            }
+
+            CompanyViewModel companyViewModel = new CompanyViewModel
+            {
+                Address = new AddressViewModel
+                {
+                    Country = country.DefaultForPrincipal ? null : country.UniversalName
+                },
+                PrimaryPhone = country.PhonePrefix,
+                SecondaryPhone = country.PhonePrefix
+            };
+
+            ViewData.TemplateInfo.HtmlFieldPrefix = "Company";
+
+            return PartialView("_EditCompanyPartial", companyViewModel);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ContactGroups()
         {
             IEnumerable<ContactGroupViewModel> contactGroupViewModels = await GetContactGroupViewModels();

@@ -10,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool hasContactGroup = true, IContactGroup contactGroup = null, bool hasPaymentTerm = true, IPaymentTerm paymentTerm = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool hasCompany = true, ICompany company = null, bool hasContactGroup = true, IContactGroup contactGroup = null, bool hasPaymentTerm = true, IPaymentTerm paymentTerm = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactMock.Setup(m => m.MailAddress)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.Company)
-                .Returns(fixture.BuildCompanyMock().Object);
+                .Returns(hasCompany ? company ?? fixture.BuildCompanyMock().Object : null);
             contactMock.Setup(m => m.ContactGroup)
                 .Returns(hasContactGroup ? contactGroup ?? fixture.BuildContactGroupMock().Object : null);
             contactMock.Setup(m => m.Acquaintance)
@@ -62,13 +62,13 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return contactMock;
         }
 
-        public static Mock<ICompany> BuildCompanyMock(this Fixture fixture)
+        public static Mock<ICompany> BuildCompanyMock(this Fixture fixture, ICompanyName companyName = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<ICompany> companyMock = new Mock<ICompany>();
             companyMock.Setup(m => m.Name)
-                .Returns(fixture.BuildCompanyNameMock().Object);
+                .Returns(companyName ?? fixture.BuildCompanyNameMock().Object);
             companyMock.Setup(m => m.Address)
                 .Returns(fixture.BuildAddressMock().Object);
             companyMock.Setup(m => m.PrimaryPhone)
@@ -106,13 +106,13 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return personNameMock;
         }
 
-        public static Mock<ICompanyName> BuildCompanyNameMock(this Fixture fixture)
+        public static Mock<ICompanyName> BuildCompanyNameMock(this Fixture fixture, string fullName = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Mock<ICompanyName> companyNameMock = new Mock<ICompanyName>();
             companyNameMock.Setup(m => m.FullName)
-                .Returns(fixture.Create<string>());
+                .Returns(fullName ?? fixture.Create<string>());
             companyNameMock.Setup(m => m.DisplayName)
                 .Returns(fixture.Create<string>());
             return companyNameMock;

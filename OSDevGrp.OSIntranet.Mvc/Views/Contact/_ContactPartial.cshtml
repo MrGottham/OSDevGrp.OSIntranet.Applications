@@ -98,7 +98,7 @@ else
                         </div>
                     </div>
                 }
-                @if ((Model.ContactType == ContactType.Person && Model.Birthday.HasValue) || (Model.ContactGroup.IsKnownContactGroup(Model.ContactGroups) && string.IsNullOrWhiteSpace(Model.ContactGroup.Name) == false) || (string.IsNullOrWhiteSpace(Model.Acquaintance) == false) || (string.IsNullOrWhiteSpace(Model.HomePage) == false) || (Model.LendingLimit > 0) || (Model.PaymentTerm.IsKnownPaymentTerm(Model.PaymentTerms) && string.IsNullOrWhiteSpace(Model.PaymentTerm.Name) == false))
+                @if (Model.ContactType == ContactType.Person && Model.Birthday.HasValue || Model.ContactGroup.IsKnownContactGroup(Model.ContactGroups) && string.IsNullOrWhiteSpace(Model.ContactGroup.Name) == false || string.IsNullOrWhiteSpace(Model.Acquaintance) == false || string.IsNullOrWhiteSpace(Model.HomePage) == false || Model.LendingLimit > 0 || Model.PaymentTerm.IsKnownPaymentTerm(Model.PaymentTerms) && string.IsNullOrWhiteSpace(Model.PaymentTerm.Name) == false)
                 {
                     <div class="card">
                         <div class="card-header">
@@ -140,6 +140,21 @@ else
                                         <dd>@Html.DisplayFor(m => m.PaymentTerm.Name)</dd>
                                     }
                                 </dl>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.Company != null && Model.Company.IsEmpty == false)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseCompany">
+                                <h5>Firma</h5>
+                            </a>
+                        </div>
+                        <div id="collapseCompany" class="collapse show" data-parent="#contactAccordion">
+                            <div class="card-body">
+                                @await Html.PartialAsync("_CompanyPartial", Model.Company)
                             </div>
                         </div>
                     </div>

@@ -105,6 +105,17 @@
                 <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm.Number)" class="form-control"></select>
                 <span asp-validation-for="PaymentTerm" class="text-danger"></span>
             </div>
+            <div id="addAssociatedCompany" class="d-none">
+                <div class="form-group">
+                    <a href="#" onclick="javascript:$().addAssociatedCompany('@Model.GetStartAddingAssociatedCompanyUrl(Url)');"><i class="fas fa-plus"></i>&nbsp;Tilknyt firma</a>
+                </div>
+            </div>
+            <div id="editAssociatedCompany" class="d-none">
+                @if (Model.Company != null && Model.Company.IsEmpty == false)
+                {
+                    @await Html.PartialAsync("_EditCompanyPartial", Model.Company, "Company")
+                }
+            </div>
         </div>
     </div>
 </form>

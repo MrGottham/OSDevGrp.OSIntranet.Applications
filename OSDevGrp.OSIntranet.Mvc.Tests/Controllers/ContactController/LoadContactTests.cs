@@ -320,7 +320,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithoutAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNul()
+        public async Task LoadContact_WhenCountryAndContactWithoutAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNull()
         {
             IContact contact = _fixture.BuildContactMock(hasAddress: false).Object;
             Controller sut = CreateSut(contact: contact);
@@ -348,7 +348,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNul()
+        public async Task LoadContact_WhenCountryAndContactWithAddressWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereAddressIsNotNull()
         {
             IContact contact = _fixture.BuildContactMock().Object;
             Controller sut = CreateSut(contact: contact);
@@ -376,7 +376,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithoutContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNul()
+        public async Task LoadContact_WhenCountryAndContactWithoutContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNull()
         {
             IContact contact = _fixture.BuildContactMock(hasContactGroup: false).Object;
             Controller sut = CreateSut(contact: contact);
@@ -404,7 +404,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNul()
+        public async Task LoadContact_WhenCountryAndContactWithContactGroupWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereContactGroupIsNotNull()
         {
             IContact contact = _fixture.BuildContactMock().Object;
             Controller sut = CreateSut(contact: contact);
@@ -433,7 +433,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithoutPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNul()
+        public async Task LoadContact_WhenCountryAndContactWithoutPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNull()
         {
             IContact contact = _fixture.BuildContactMock(hasPaymentTerm: false).Object;
             Controller sut = CreateSut(contact: contact);
@@ -460,7 +460,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNul()
+        public async Task LoadContact_WhenCountryAndContactWithPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsNotNull()
         {
             IContact contact = _fixture.BuildContactMock().Object;
             Controller sut = CreateSut(contact: contact);
@@ -474,7 +474,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task LoadContact_WhenCountryAndContactWithoutPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsMapped()
+        public async Task LoadContact_WhenCountryAndContactWithPaymentTermWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWherePaymentTermIsMapped()
         {
             IPaymentTerm paymentTerm = _fixture.BuildPaymentTermMock().Object;
             IContact contact = _fixture.BuildContactMock(paymentTerm: paymentTerm).Object;
@@ -485,6 +485,51 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             ContactViewModel contactViewModel = (ContactViewModel) result.Model;
 
             Assert.That(contactViewModel.PaymentTerm.Number, Is.EqualTo(paymentTerm.Number));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithoutCompanyWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCompanyIsNull()
+        {
+            IContact contact = _fixture.BuildContactMock(hasCompany: false).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Company, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithCompanyWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCompanyIsNotNull()
+        {
+            IContact contact = _fixture.BuildContactMock().Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Company, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContact_WhenCountryAndContactWithCompanyWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsContactViewModelWhereCompanyIsMapped()
+        {
+            string fullName = _fixture.Create<string>();
+            ICompanyName companyName = _fixture.BuildCompanyNameMock(fullName).Object;
+            ICompany company = _fixture.BuildCompanyMock(companyName).Object;
+            IContact contact = _fixture.BuildContactMock(company: company).Object;
+            Controller sut = CreateSut(contact: contact);
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContact(_fixture.Create<string>(), _fixture.Create<string>());
+
+            ContactViewModel contactViewModel = (ContactViewModel) result.Model;
+
+            Assert.That(contactViewModel.Company.CompanyName, Is.EqualTo(fullName));
         }
 
         [Test]

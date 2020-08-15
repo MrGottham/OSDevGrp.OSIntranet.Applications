@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
@@ -59,6 +61,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         [Required(ErrorMessage = "Betalingsbetingelsen skal vælges.")]
         public PaymentTermViewModel PaymentTerm { get; set; }
 
+        public CompanyViewModel Company { get; set; }
+
         public CountryViewModel Country { get; set; }
 
         public List<CountryViewModel> Countries { get; set; }
@@ -75,6 +79,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             NullGuard.NotNull(contactViewModel, nameof(contactViewModel));
 
             return contactViewModel.EditMode == EditMode.Create ? "CreateContact" : "UpdateContact";
+        }
+
+        public static string GetStartAddingAssociatedCompanyUrl(this ContactViewModel contactViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(contactViewModel, nameof(contactViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartAddingAssociatedCompany", "Contact", new {countryCode = "{countryCode}"});
         }
     }
 }
