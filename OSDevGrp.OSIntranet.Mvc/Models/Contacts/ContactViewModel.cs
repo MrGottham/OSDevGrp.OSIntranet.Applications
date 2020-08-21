@@ -81,6 +81,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             return contactViewModel.EditMode == EditMode.Create ? "CreateContact" : "UpdateContact";
         }
 
+        public static string GetActionText(this ContactViewModel contactViewModel)
+        {
+            NullGuard.NotNull(contactViewModel, nameof(contactViewModel));
+
+            return contactViewModel.EditMode == EditMode.Create ? "Opret" : "Opdatér";
+        }
+
         public static string GetStartAddingAssociatedCompanyUrl(this ContactViewModel contactViewModel, IUrlHelper urlHelper)
         {
             NullGuard.NotNull(contactViewModel, nameof(contactViewModel))

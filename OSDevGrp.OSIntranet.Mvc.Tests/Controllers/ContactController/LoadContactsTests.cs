@@ -417,6 +417,62 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             Assert.IsTrue(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)));
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsNull_ReturnsPartialViewResultWhereViewDataDoesNotContainExternalIdentifier()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContacts();
+
+            Assert.That(result.ViewData.ContainsKey("ExternalIdentifier"), Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsEmpty_ReturnsPartialViewResultWhereViewDataDoesNotContainExternalIdentifier()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContacts(externalIdentifier: string.Empty);
+
+            Assert.That(result.ViewData.ContainsKey("ExternalIdentifier"), Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsWhiteSpace_ReturnsPartialViewResultWhereViewDataDoesNotContainExternalIdentifier()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadContacts(externalIdentifier: " ");
+
+            Assert.That(result.ViewData.ContainsKey("ExternalIdentifier"), Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsNotNullEmptyOrWhiteSpace_ReturnsPartialViewResultWhereViewDataContainingExternalIdentifier()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.LoadContacts(externalIdentifier: _fixture.Create<string>());
+
+            Assert.That(result.ViewData.ContainsKey("ExternalIdentifier"), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsNotNullEmptyOrWhiteSpace_ReturnsPartialViewResultWhereViewDataContainingExternalIdentifierWithValueEqualToExternalIdentifierArgument()
+        {
+            Controller sut = CreateSut();
+
+            string externalIdentifier = _fixture.Create<string>();
+            PartialViewResult result = (PartialViewResult) await sut.LoadContacts(externalIdentifier: externalIdentifier);
+
+            Assert.That(result.ViewData["ExternalIdentifier"], Is.EqualTo(externalIdentifier));
+        }
+
         private Controller CreateSut(bool hasRefreshableToken = true, IRefreshableToken refreshableToken = null, IEnumerable<IContact> contactCollection = null)
         {
             _tokenHelperFactoryMock.Setup(m => m.GetTokenAsync<IRefreshableToken>(It.IsAny<TokenType>(), It.IsAny<HttpContext>()))

@@ -146,6 +146,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task StartCreatingContact_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.StartCreatingContact(_fixture.Create<string>());
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task StartCreatingContact_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereDefaultCountryCodeIsEqualToCountryCode()
         {
             Controller sut = CreateSut();

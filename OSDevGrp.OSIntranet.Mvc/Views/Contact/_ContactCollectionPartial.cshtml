@@ -2,24 +2,49 @@
 <div id="loadedContactCollection" class="list-group overflow-auto fixed-area-height-350">
     @foreach (ContactInfoViewModel contactInfoViewModel in Model)
     {
-        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" data-url="@contactInfoViewModel.GetStartLoadingContactUrl(Url)">
-            <div class="d-flex w-100 justify-content-start">
-                @if (contactInfoViewModel.ContactType == ContactType.Company)
-                {
-                    <i class="fas fa-building"></i>
-                }
-                else if (contactInfoViewModel.ContactType == ContactType.Person)
-                {
-                    <i class="fas fa-user"></i>
-                }
-                <div class="ml-4">
-                    <h5 class="mb-1 text-wrap">@contactInfoViewModel.DisplayName</h5>
-                    @if (string.IsNullOrWhiteSpace(contactInfoViewModel.DisplayContactInfo()) == false)
+        @if (ViewData.ContainsKey("ExternalIdentifier") && string.CompareOrdinal(contactInfoViewModel.ExternalIdentifier, Convert.ToString(ViewData["ExternalIdentifier"])) == 0)
+        {
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active" data-url="@contactInfoViewModel.GetStartLoadingContactUrl(Url)">
+                <div class="d-flex w-100 justify-content-start">
+                    @if (contactInfoViewModel.ContactType == ContactType.Company)
                     {
-                        <small>@contactInfoViewModel.DisplayContactInfo()</small>
+                        <i class="fas fa-building"></i>
                     }
+                    else if (contactInfoViewModel.ContactType == ContactType.Person)
+                    {
+                        <i class="fas fa-user"></i>
+                    }
+                    <div class="ml-4">
+                        <h5 class="mb-1 text-wrap">@contactInfoViewModel.DisplayName</h5>
+                        @if (string.IsNullOrWhiteSpace(contactInfoViewModel.DisplayContactInfo()) == false)
+                        {
+                            <small>@contactInfoViewModel.DisplayContactInfo()</small>
+                        }
+                    </div>
                 </div>
-            </div>
-        </a>
+            </a>
+        }
+        else
+        {
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" data-url="@contactInfoViewModel.GetStartLoadingContactUrl(Url)">
+                <div class="d-flex w-100 justify-content-start">
+                    @if (contactInfoViewModel.ContactType == ContactType.Company)
+                    {
+                        <i class="fas fa-building"></i>
+                    }
+                    else if (contactInfoViewModel.ContactType == ContactType.Person)
+                    {
+                        <i class="fas fa-user"></i>
+                    }
+                    <div class="ml-4">
+                        <h5 class="mb-1 text-wrap">@contactInfoViewModel.DisplayName</h5>
+                        @if (string.IsNullOrWhiteSpace(contactInfoViewModel.DisplayContactInfo()) == false)
+                        {
+                            <small>@contactInfoViewModel.DisplayContactInfo()</small>
+                        }
+                    </div>
+                </div>
+            </a>
+        }
     }
 </div>

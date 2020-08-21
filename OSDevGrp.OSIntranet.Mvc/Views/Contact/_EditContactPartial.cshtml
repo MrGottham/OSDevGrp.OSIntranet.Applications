@@ -116,6 +116,12 @@
                     @await Html.PartialAsync("_EditCompanyPartial", Model.Company, "Company")
                 }
             </div>
+            @if (Model.EditMode != EditMode.Create)
+            {
+                @await Html.PartialAsync("_AuditablePartial", Model)
+            }
+            <button type="submit" class="btn btn-primary">@Model.GetActionText()</button>
+            <a class="btn btn-secondary" onclick="javascript:$().cancelEditContact();">Fortryd</a>
         </div>
     </div>
 </form>

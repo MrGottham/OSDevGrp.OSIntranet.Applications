@@ -18,7 +18,7 @@
                 <input asp-for="CompanyName" class="form-control" />
                 <span asp-validation-for="CompanyName" class="text-danger"></span>
             </div>
-            @await Html.PartialAsync("_EditAddressPartial", Model.Address, $"{ViewData.TemplateInfo.HtmlFieldPrefix}_Address")
+            @await Html.PartialAsync("_EditAddressPartial", Model.Address, $"{ViewData.TemplateInfo.HtmlFieldPrefix}.Address")
             <div class="form-group">
                 <label asp-for="PrimaryPhone"></label>
                 <input asp-for="PrimaryPhone" class="form-control" />

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -60,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpGet]
         [AcquireToken(TokenType.MicrosoftGraphToken)]
-        public async Task<IActionResult> Contacts(string filter = null)
+        public async Task<IActionResult> Contacts(string filter = null, string externalIdentifier = null)
         {
             string defaultCountryCode = _claimResolver.GetCountryCode();
 
@@ -69,6 +70,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
             {
                 Filter = string.IsNullOrWhiteSpace(filter) ? null : filter,
+                ExternalIdentifier = string.IsNullOrWhiteSpace(externalIdentifier) ? null : externalIdentifier,
                 DefaultCountryCode = defaultCountryCode,
                 Countries = countryViewModels?.ToList() ?? new List<CountryViewModel>(0)
             };
@@ -77,7 +79,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> StartLoadingContacts(string filter = null)
+        public async Task<IActionResult> StartLoadingContacts(string filter = null, string externalIdentifier = null)
         {
             if (await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext) == null)
             {
@@ -86,14 +88,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             ContactOptionsViewModel contactOptionsViewModel = new ContactOptionsViewModel
             {
-                Filter = string.IsNullOrWhiteSpace(filter) ? null : filter
+                Filter = string.IsNullOrWhiteSpace(filter) ? null : filter,
+                ExternalIdentifier = string.IsNullOrWhiteSpace(externalIdentifier) ? null : externalIdentifier
             };
 
             return PartialView("_LoadingContactsPartial", contactOptionsViewModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> LoadContacts(string filter = null)
+        public async Task<IActionResult> LoadContacts(string filter = null, string externalIdentifier = null)
         {
             IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
             if (token == null)
@@ -122,6 +125,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 .Select(contact => _contactViewModelConverter.Convert<IContact, ContactInfoViewModel>(contact))
                 .OrderBy(contactInfoViewModel => contactInfoViewModel.DisplayName)
                 .ToList();
+
+            if (string.IsNullOrWhiteSpace(externalIdentifier) == false)
+            {
+                ViewData.Add("ExternalIdentifier", externalIdentifier);
+            }
 
             return PartialView("_ContactCollectionPartial", contactInfoViewModels);
         }
@@ -312,6 +320,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix = "Company";
 
             return PartialView("_EditCompanyPartial", companyViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateContact(ContactViewModel contactViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> UpdateContact(ContactViewModel contactViewModel)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpGet]

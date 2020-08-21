@@ -152,6 +152,58 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task StartLoadingContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsNull_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.StartLoadingContacts();
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task StartLoadingContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsEmpty_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.StartLoadingContacts(externalIdentifier: string.Empty);
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task StartLoadingContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsWhiteSpace_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.StartLoadingContacts(externalIdentifier: " ");
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task StartLoadingContacts_WhenTokenWasReturnedFromTokenHelperFactoryAndExternalIdentifierIsNotNullEmptyOrWhiteSpace_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsEqualToExternalIdentifierFromArgument()
+        {
+            Controller sut = CreateSut();
+
+            string externalIdentifier = _fixture.Create<string>();
+            PartialViewResult result = (PartialViewResult) await sut.StartLoadingContacts(externalIdentifier: externalIdentifier);
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.EqualTo(externalIdentifier)); }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task StartLoadingContacts_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsPartialViewResultWhereModelIsContactOptionsViewModelWhereDefaultCountryCodeIsNull()
         {
             Controller sut = CreateSut();

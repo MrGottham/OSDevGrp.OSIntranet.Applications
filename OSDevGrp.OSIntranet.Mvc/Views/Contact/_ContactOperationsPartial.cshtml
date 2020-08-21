@@ -1,5 +1,11 @@
 ﻿@model ContactOptionsViewModel;
 <form class="pb-2" onsubmit="javascript:$().searchContacts($().getFilter(), '@Model.GetStartLoadingContactsUrl(Url, "{filter}")');return false;">
+    @if (string.IsNullOrWhiteSpace(Model.ExternalIdentifier) == false)
+    {
+        <div data-url="@Model.GetStartLoadingContactUrlForExternalIdentifier(Url)">
+            @Html.HiddenFor(m => m.ExternalIdentifier)
+        </div>
+    }
     <div class="form-group">
         <label asp-for="DefaultCountryCode"></label>
         <select id="contactOperationsCountryCode" asp-for="DefaultCountryCode" asp-items="Model.GetCountryItems()" class="form-control"></select>
@@ -11,7 +17,7 @@
         <a href="#" onclick="javascript:$().refreshContacts('@Model.GetStartLoadingContactsUrl(Url)');"><i class="fas fa-sync"></i>&nbsp;Genindlæs kontakter</a>
     </div>
     <div class="form-group form-inline">
-        <input id="contactOperationsFilter" type="text" value="@Model.Filter" class="form-control pr-2 flex-grow-1" readonly />
+        <input id="contactOperationsFilter" type="text" value="@Model.Filter" class="form-control pr-2 flex-grow-1" readonly/>
         <button id="contactOperationsSearch" type="submit" class="btn btn-primary" disabled>Søg</button>
     </div>
 </form>

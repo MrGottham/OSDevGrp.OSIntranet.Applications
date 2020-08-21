@@ -156,6 +156,59 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Contacts_WhenExternalIdentifierIsNull_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            ViewResult result = (ViewResult) await sut.Contacts();
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Contacts_WhenExternalIdentifierIsEmpty_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            ViewResult result = (ViewResult) await sut.Contacts(externalIdentifier: string.Empty);
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Contacts_WhenExternalIdentifierIsWhiteSpace_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsNull()
+        {
+            Controller sut = CreateSut();
+
+            ViewResult result = (ViewResult) await sut.Contacts(externalIdentifier: " ");
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Contacts_WhenExternalIdentifierIsNotNullEmptyOrWhiteSpace_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereExternalIdentifierIsEqualToFilterFromArgument()
+        {
+            Controller sut = CreateSut();
+
+            string externalIdentifier = _fixture.Create<string>();
+            ViewResult result = (ViewResult) await sut.Contacts(externalIdentifier: externalIdentifier);
+
+            ContactOptionsViewModel contactOptionsViewModel = (ContactOptionsViewModel) result.Model;
+
+            Assert.That(contactOptionsViewModel.ExternalIdentifier, Is.EqualTo(externalIdentifier));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Contacts_WhenCalled_ReturnsViewResultWhereModelIsContactOptionsViewModelWhereDefaultCountryCodeIsEqualToCountryCodeFromClaimResolver()
         {
             string countryCode = _fixture.Create<string>();
