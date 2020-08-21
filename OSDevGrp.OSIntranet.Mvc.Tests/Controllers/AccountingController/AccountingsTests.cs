@@ -33,13 +33,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void Accountings_WhenCalled_AssertGetAccountingNumberWasCalledOnClaimResolver()
+        public void Accountings_WhenAccountingNumberIsNull_AssertGetAccountingNumberWasCalledOnClaimResolver()
         {
             Controller sut = CreateSut();
 
             sut.Accountings();
 
-            _claimResolverMock.Verify(m => m.GetAccountingNumber());
+            _claimResolverMock.Verify(m => m.GetAccountingNumber(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Accountings_WhenAccountingNumberIsNotNull_AssertGetAccountingNumberWasNotCalledOnClaimResolver()
+        {
+            Controller sut = CreateSut();
+
+            sut.Accountings(_fixture.Create<int>());
+
+            _claimResolverMock.Verify(m => m.GetAccountingNumber(), Times.Never);
         }
 
         [Test]
@@ -77,25 +88,39 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void Accountings_WhenAccountingNumberWasNotReturnedFromClaimResolver_ReturnsViewResultWhereModelIsAccountingOptionsViewModelWhereDefaultAccountingNumberIsNull()
+        public void Accountings_WhenAccountingNumberIsNullAndAccountingNumberWasNotReturnedFromClaimResolver_ReturnsViewResultWhereModelIsAccountingOptionsViewModelWhereDefaultAccountingNumberIsNull()
         {
             Controller sut = CreateSut(false);
 
             ViewResult result = (ViewResult) sut.Accountings();
 
             AccountingOptionsViewModel accountingOptionsViewModel = (AccountingOptionsViewModel) result.Model;
-            
+
             Assert.That(accountingOptionsViewModel.DefaultAccountingNumber, Is.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Accountings_WhenAccountingNumberWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsAccountingOptionsViewModelWhereDefaultAccountingNumberIsEqualToAccountingNumberFromClaimResolver()
+        public void Accountings_WhenAccountingNumberIsNullAccountingNumberWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsAccountingOptionsViewModelWhereDefaultAccountingNumberIsEqualToAccountingNumberFromClaimResolver()
         {
             int accountingNumber = _fixture.Create<int>();
             Controller sut = CreateSut(accountingNumber: accountingNumber);
 
             ViewResult result = (ViewResult) sut.Accountings();
+
+            AccountingOptionsViewModel accountingOptionsViewModel = (AccountingOptionsViewModel) result.Model;
+
+            Assert.That(accountingOptionsViewModel.DefaultAccountingNumber, Is.EqualTo(accountingNumber));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Accountings_WhenAccountingNumberIsNotNull_ReturnsViewResultWhereModelIsAccountingOptionsViewModelWhereDefaultAccountingNumberIsEqualToAccountingNumberArgument()
+        {
+            Controller sut = CreateSut();
+
+            int accountingNumber = _fixture.Create<int>();
+            ViewResult result = (ViewResult) sut.Accountings(accountingNumber);
 
             AccountingOptionsViewModel accountingOptionsViewModel = (AccountingOptionsViewModel) result.Model;
 

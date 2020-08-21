@@ -47,5 +47,23 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return urlHelper.AbsoluteAction("CreateAccounting", "Accounting");
         }
+
+        public static string GetStartLoadingAccountingUrlForDefaultAccountingNumber(this AccountingOptionsViewModel accountingOptionsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingOptionsViewModel, nameof(accountingOptionsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            if (accountingOptionsViewModel.DefaultAccountingNumber.HasValue == false)
+            {
+                return null;
+            }
+
+            AccountingIdentificationViewModel accountingIdentificationViewModel = new AccountingIdentificationViewModel
+            {
+                AccountingNumber = accountingOptionsViewModel.DefaultAccountingNumber.Value
+            };
+
+            return accountingIdentificationViewModel.GetStartLoadingAccountingUrl(urlHelper);
+        }
     }
 }

@@ -1,5 +1,5 @@
 @model AccountingViewModel;
-<form id="editAccountingForm" asp-area="" asp-controller="Contact" asp-action="@Model.GetAction()">
+<form id="editAccountingForm" asp-area="" asp-controller="Accounting" asp-action="@Model.GetAction()">
     <input type="hidden" asp-for="EditMode" />
     <div class="row">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -42,6 +42,8 @@
             {
                 @await Html.PartialAsync("_AuditablePartial", Model)
             }
+            <button type="submit" class="btn btn-primary">@Model.GetActionText()</button>
+            <a class="btn btn-secondary" onclick="javascript:$().cancelEditAccounting();">Fortryd</a>
         </div>
     </div>
 </form>

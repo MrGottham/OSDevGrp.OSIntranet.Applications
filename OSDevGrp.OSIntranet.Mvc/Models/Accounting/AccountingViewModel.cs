@@ -32,5 +32,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return accountingViewModel.EditMode == EditMode.Create ? "CreateAccounting" : "UpdateAccounting";
         }
+
+        public static string GetActionText(this AccountingViewModel accountingViewModel)
+        {
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel));
+
+            return accountingViewModel.EditMode == EditMode.Create ? "Opret" : "Opdatér";
+        }
     }
 }

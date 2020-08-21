@@ -1,12 +1,21 @@
 (function($) {
     $.fn.extend({
         getDefaultAccountingNumber: function() {
-            var defaultAccountingNumber = $("#accountingOptionsAccountingNumber").val();
-            if (defaultAccountingNumber.length === 0) {
+            var defaultAccountingNumber = $("#accountingOperations").find("#DefaultAccountingNumber").val();
+            if (defaultAccountingNumber === undefined || defaultAccountingNumber === null || defaultAccountingNumber.length === 0) {
                 return null;
             }
 
             return parseInt(defaultAccountingNumber);
+        },
+
+        getUrlForDefaultAccountingNumber: function() {
+            var urlForDefaultAccountingNumber = $("#accountingOperations").find("#DefaultAccountingNumber").parent().data("url");
+            if (urlForDefaultAccountingNumber === undefined || urlForDefaultAccountingNumber === null || urlForDefaultAccountingNumber.length === 0) {
+                return null;
+            }
+
+            return urlForDefaultAccountingNumber;
         },
 
         getActiveAccountingNumber: function() {
@@ -32,22 +41,6 @@
             }
 
             return $().getDefaultAccountingNumber();
-        },
-
-        getActiveAccountingUrl: function() {
-            var accountingNumberElementArray = $("#loadedAccountingCollection").children("[data-url]");
-            if (accountingNumberElementArray.length === 0) {
-                return null;
-            }
-
-            var activeAccountingUrl = null;
-            $.each(accountingNumberElementArray, function() {
-                if ($(this).hasClass("active") && activeAccountingUrl === null) {
-                    activeAccountingUrl = $(this).data("url");
-                }
-            });
-
-            return activeAccountingUrl;
         },
 
         newAccounting: function(createAccountingUrl) {
@@ -87,6 +80,21 @@
 
             $().toggleDisplay("#presentAccounting");
             $().toggleDisplay("#editAccounting");
+        },
+
+        cancelEditAccounting: function() {
+            if ($("#editAccounting").length === 0) {
+                $("#editAccountingForm").remove();
+
+                return;
+            }
+
+            if ($().isDisplayed("#editAccounting") === false) {
+                return;
+            }
+
+            $().toggleDisplay("#editAccounting");
+            $().toggleDisplay("#presentAccounting");
         },
 
         refreshAccountings: function(refreshUrl) {
@@ -136,7 +144,7 @@
 
             observer.disconnect();
 
-            var rightContentIsHidden = $("#rightContent").is(":hidden");
+            var rightContentIsHidden = $().isRightContentHidden();
 
             $.each(loadedAccountingCollectionElementArray, function() {
                 $.each($(this).find("a"), function() {
@@ -154,17 +162,10 @@
                     });
                 });
             });
+        },
 
-            if (rightContentIsHidden === true) {
-                return;
-            }
-
-            var activeAccountingUrl = $().getActiveAccountingUrl();
-            if (activeAccountingUrl === undefined || activeAccountingUrl === null) {
-                return;
-            }
-
-            $().getAccounting(activeAccountingUrl);
+        isRightContentHidden: function() {
+            return $("#rightContent").is(":hidden");
         },
 
         getPresentAccountingElement: function() {
@@ -216,5 +217,16 @@
 
     $(document).ready(function() {
         $().startAccountingCollectionObserver(document.getElementById("accountingCollection"));
+
+        var urlForDefaultAccountingNumber = $().getUrlForDefaultAccountingNumber();
+        if (urlForDefaultAccountingNumber === null) {
+            return;
+        }
+
+        if ($().isRightContentHidden()) {
+            return;
+        }
+
+        $().getAccounting(urlForDefaultAccountingNumber);
     });
 })(jQuery);

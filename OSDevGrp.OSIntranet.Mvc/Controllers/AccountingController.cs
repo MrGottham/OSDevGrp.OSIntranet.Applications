@@ -53,11 +53,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         #region Methods
 
         [HttpGet]
-        public IActionResult Accountings()
+        public IActionResult Accountings(int? accountingNumber = null)
         {
             AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel
             {
-                DefaultAccountingNumber = _claimResolver.GetAccountingNumber()
+                DefaultAccountingNumber = accountingNumber ?? _claimResolver.GetAccountingNumber()
             };
 
             return View("Accountings", accountingOptionsViewModel);
@@ -153,6 +153,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             };
 
             return PartialView("_PresentAccountingPartial", accountingViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateAccounting(AccountingViewModel accountingViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> UpdateAccounting(AccountingViewModel accountingViewModel)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpGet]
