@@ -44,13 +44,13 @@ else
                     </div>
                     <div id="collapseBasicInformation" class="collapse show" data-parent="#accountingAccordion">
                         <div class="card-body">
-                            <dl>
-                                @if (Model.LetterHead != null && string.IsNullOrWhiteSpace(Model.LetterHead.Name) == false)
-                                {
+                            @if (Model.LetterHead.IsKnownLetterHead(Model.LetterHeads) && string.IsNullOrWhiteSpace(Model.LetterHead.Name) == false)
+                            {
+                                <dl>
                                     <dt class="small">@Html.LabelFor(m => m.LetterHead)</dt>
                                     <dd>@Html.Raw(Model.LetterHead.Name)</dd>
-                                }
-                            </dl>
+                                </dl>
+                            }
                             <dl>
                                 <dt class="small">@Html.LabelFor(m => m.BalanceBelowZero)</dt>
                                 <dd>@Model.BalanceBelowZero.EnumDisplayNameFor()</dd>

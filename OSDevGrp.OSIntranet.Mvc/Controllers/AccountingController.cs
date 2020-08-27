@@ -157,16 +157,36 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> CreateAccounting(AccountingViewModel accountingViewModel)
+        public async Task<IActionResult> CreateAccounting(AccountingViewModel accountingViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return RedirectToAction("Accountings", "Accounting");
+            }
+
+            ICreateAccountingCommand command = _accountingViewModelConverter.Convert<AccountingViewModel, CreateAccountingCommand>(accountingViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> UpdateAccounting(AccountingViewModel accountingViewModel)
+        public async Task<IActionResult> UpdateAccounting(AccountingViewModel accountingViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                return RedirectToAction("Accountings", "Accounting", new {accountingViewModel.AccountingNumber});
+            }
+
+            IUpdateAccountingCommand command = _accountingViewModelConverter.Convert<AccountingViewModel, UpdateAccountingCommand>(accountingViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingViewModel.AccountingNumber});
         }
 
         [HttpGet]

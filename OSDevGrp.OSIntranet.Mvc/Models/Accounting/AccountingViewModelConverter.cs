@@ -34,6 +34,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.LetterHeads, opt => opt.MapFrom(src => new List<LetterHeadViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
+            mapperConfiguration.CreateMap<AccountingViewModel, CreateAccountingCommand>()
+                .ForMember(m => m.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
+
+            mapperConfiguration.CreateMap<AccountingViewModel, UpdateAccountingCommand>()
+                .ForMember(m => m.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 

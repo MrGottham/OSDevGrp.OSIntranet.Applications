@@ -80,6 +80,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Common
             return '{' + $"number: {letterHeadViewModel.Number}, {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
 
+        public static bool IsKnownLetterHead(this LetterHeadViewModel letterHeadViewModel, IEnumerable<LetterHeadViewModel> knownLetterHeadViewModels)
+        {
+            NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel))
+                .NotNull(knownLetterHeadViewModels, nameof(knownLetterHeadViewModels));
+
+            return knownLetterHeadViewModels.Any(knownLetterHeadViewModel => knownLetterHeadViewModel.Number == letterHeadViewModel.Number);
+        }
+
         public static SelectListItem SelectListItemFor(this LetterHeadViewModel letterHeadViewModel, bool selected)
         {
             NullGuard.NotNull(letterHeadViewModel, nameof(letterHeadViewModel));
