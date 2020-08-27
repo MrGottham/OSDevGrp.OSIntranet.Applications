@@ -287,7 +287,6 @@
                 if (companyName !== undefined && companyName !== null && companyName.length > 0) {
                     $("#Surname").val(companyName);
                 };
-                $("#CompanyName").val("");
 
                 $().toggleDisplay("#editContactCompanyName");
             }
@@ -359,7 +358,6 @@
                         companyName = surname;
                     }
                 }
-                $("#Surname").val("");
 
                 $("#CompanyName").val(companyName);
 
@@ -399,6 +397,14 @@
 
         hasAssociatedCompany: function() {
             return $("#associatedCompany").length > 0;
+        },
+
+        onSurnameChange: function() {
+            $("#CompanyName").val($("#Surname").val());
+        },
+
+        onCompanyNameChange: function() {
+            $("#Surname").val($("#CompanyName").val());
         },
 
         onPostalCodeChange: function(postalCodeElementId, cityElementId, stateElementId, countryElementId, resolveUrl) {

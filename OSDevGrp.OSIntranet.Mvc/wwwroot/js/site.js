@@ -125,6 +125,10 @@
                 $(this).removeData("unobtrusiveValidation");
                 $.validator.unobtrusive.parse($(this));
             });
+        },
+
+        applyValue: function(elementId, value) {
+            $(elementId).val(value);
         }
     });
 

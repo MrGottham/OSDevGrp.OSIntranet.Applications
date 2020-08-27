@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -324,16 +323,58 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> CreateContact(ContactViewModel contactViewModel)
+        public async Task<IActionResult> CreateContact(ContactViewModel contactViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(contactViewModel, nameof(contactViewModel));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            if (ModelState.IsValid == false)
+            {
+                return RedirectToAction("Contacts", "Contact");
+            }
+
+            ICreateContactCommand createContactCommand = _contactViewModelConverter.Convert<ContactViewModel, CreateContactCommand>(contactViewModel);
+            createContactCommand.TokenType = token.TokenType;
+            createContactCommand.AccessToken = token.AccessToken;
+            createContactCommand.RefreshToken = token.RefreshToken;
+            createContactCommand.Expires = token.Expires;
+
+            await _commandBus.PublishAsync(createContactCommand);
+
+            return RedirectToAction("Contacts", "Contact");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> UpdateContact(ContactViewModel contactViewModel)
+        public async Task<IActionResult> UpdateContact(ContactViewModel contactViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(contactViewModel, nameof(contactViewModel));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            if (ModelState.IsValid == false)
+            {
+                return RedirectToAction("Contacts", "Contact", new {contactViewModel.ExternalIdentifier});
+            }
+
+            IUpdateContactCommand updateContactCommand = _contactViewModelConverter.Convert<ContactViewModel, UpdateContactCommand>(contactViewModel);
+            updateContactCommand.TokenType = token.TokenType;
+            updateContactCommand.AccessToken = token.AccessToken;
+            updateContactCommand.RefreshToken = token.RefreshToken;
+            updateContactCommand.Expires = token.Expires;
+
+            await _commandBus.PublishAsync(updateContactCommand);
+
+            return RedirectToAction("Contacts", "Contact", new {contactViewModel.ExternalIdentifier});
         }
 
         [HttpGet]

@@ -69,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.MobilePhone) == false);
                     opt.MapFrom(src => src.MobilePhone);
                 })
-                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(new NullableDateTimeResolver<IContact, ContactModel>(contact => contact.Birthday)))
+                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(new NullableDateTimeResolver<IContact, ContactModel>(contact => contact.Birthday?.Date.AddHours(12))))
                 .ForMember(dest => dest.EmailAddresses, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.MailAddress) == false ? new[] {src} : new IContact[0]))
                 .ForMember(dest => dest.CompanyName, opt =>
                 {

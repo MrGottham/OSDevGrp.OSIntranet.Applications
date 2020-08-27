@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -14,7 +16,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
     {
         #region Private variables
 
+        private readonly IValueConverter<ContactViewModel, INameCommand> _nameCommandConverter = new NameCommandConverter();
+        private readonly IValueConverter<CompanyViewModel, ICompanyNameCommand> _companyNameCommandConverter = new CompanyNameCommandConverter();
+        private readonly IValueConverter<CompanyViewModel, ICompanyCommand> _companyCommandConverter = new CompanyCommandConverter();
         private readonly IValueConverter<IAddress, AddressViewModel> _addressViewModelConverter = new AddressViewModelConverter();
+        private readonly IValueConverter<AddressViewModel, IAddressCommand> _addressCommandConverter = new AddressCommandConverter();
         private readonly IValueConverter<IContactGroup, ContactGroupViewModel> _contactGroupViewModelConverter = new ContactGroupViewModelConverter();
         private readonly IValueConverter<IPaymentTerm, PaymentTermViewModel> _paymentTermViewModelConverter = new PaymentTermViewModelConverter();
 
@@ -57,11 +63,61 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
+            mapperConfiguration.CreateMap<ContactViewModel, CreateContactCommand>()
+                .ForMember(dest => dest.Name, opt => opt.Ignore())
+                .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressCommandConverter))
+                .ForMember(dest => dest.Company, opt => opt.ConvertUsing(_companyCommandConverter))
+                .ForMember(dest => dest.ContactGroupIdentifier, opt => opt.MapFrom(src => src.ContactGroup.Number))
+                .ForMember(dest => dest.PersonalHomePage, opt => opt.MapFrom(src => src.HomePage))
+                .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.PaymentTerm.Number))
+                .ForMember(dest => dest.TokenType, opt => opt.Ignore())
+                .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
+                .ForMember(dest => dest.RefreshToken, opt => opt.Ignore())
+                .ForMember(dest => dest.Expires, opt => opt.Ignore())
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.Name = _nameCommandConverter.Convert(src, context);
+                });
+
+            mapperConfiguration.CreateMap<ContactViewModel, UpdateContactCommand>()
+                .ForMember(dest => dest.Name, opt => opt.Ignore())
+                .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressCommandConverter))
+                .ForMember(dest => dest.Company, opt => opt.ConvertUsing(_companyCommandConverter))
+                .ForMember(dest => dest.ContactGroupIdentifier, opt => opt.MapFrom(src => src.ContactGroup.Number))
+                .ForMember(dest => dest.PersonalHomePage, opt => opt.MapFrom(src => src.HomePage))
+                .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.PaymentTerm.Number))
+                .ForMember(dest => dest.TokenType, opt => opt.Ignore())
+                .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
+                .ForMember(dest => dest.RefreshToken, opt => opt.Ignore())
+                .ForMember(dest => dest.Expires, opt => opt.Ignore())
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.Name = _nameCommandConverter.Convert(src, context);
+                });
+
+            mapperConfiguration.CreateMap<ContactViewModel, PersonNameCommand>();
+
+            mapperConfiguration.CreateMap<ContactViewModel, CompanyNameCommand>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.CompanyName));
+
             mapperConfiguration.CreateMap<ICompany, CompanyViewModel>()
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Name.FullName))
                 .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressViewModelConverter));
 
+            mapperConfiguration.CreateMap<CompanyViewModel, CompanyCommand>()
+                .ForMember(dest => dest.Name, opt => opt.Ignore())
+                .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressCommandConverter))
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.Name = _companyNameCommandConverter.Convert(src, context);
+                });
+
+            mapperConfiguration.CreateMap<CompanyViewModel, CompanyNameCommand>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.CompanyName));
+
             mapperConfiguration.CreateMap<IAddress, AddressViewModel>();
+
+            mapperConfiguration.CreateMap<AddressViewModel, AddressCommand>();
 
             mapperConfiguration.CreateMap<IContactGroup, ContactGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -114,6 +170,59 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 
         #region Private classes
 
+        private class NameCommandConverter : IValueConverter<ContactViewModel, INameCommand>
+        {
+            #region Methods
+
+            public INameCommand Convert(ContactViewModel sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(sourceMember, nameof(sourceMember))
+                    .NotNull(context, nameof(context));
+
+                switch (sourceMember.ContactType)
+                {
+                    case ContactType.Person:
+                        return context.Mapper.Map<ContactViewModel, PersonNameCommand>(sourceMember);
+
+                    case ContactType.Company:
+                        return context.Mapper.Map<ContactViewModel, CompanyNameCommand>(sourceMember);
+                }
+
+                throw new NotSupportedException($"Unable to convert {sourceMember.ContactType} to an INameCommand.");
+            }
+
+            #endregion
+        }
+
+        private class CompanyNameCommandConverter : IValueConverter<CompanyViewModel, ICompanyNameCommand>
+        {
+            #region Methods
+
+            public ICompanyNameCommand Convert(CompanyViewModel sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(sourceMember, nameof(sourceMember))
+                    .NotNull(context, nameof(context));
+
+                return context.Mapper.Map<CompanyViewModel, CompanyNameCommand>(sourceMember);
+            }
+
+            #endregion
+        }
+
+        private class CompanyCommandConverter : IValueConverter<CompanyViewModel, ICompanyCommand>
+        {
+            #region Methods
+
+            public ICompanyCommand Convert(CompanyViewModel sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(context, nameof(context));
+
+                return sourceMember == null ? null : context.Mapper.Map<CompanyViewModel, CompanyCommand>(sourceMember);
+            }
+
+            #endregion
+        }
+
         private class AddressViewModelConverter : IValueConverter<IAddress, AddressViewModel>
         {
             #region Methods
@@ -123,6 +232,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 NullGuard.NotNull(context, nameof(context));
 
                 return sourceMember == null ? new AddressViewModel() : context.Mapper.Map<IAddress, AddressViewModel>(sourceMember);
+            }
+
+            #endregion
+        }
+
+        private class AddressCommandConverter : IValueConverter<AddressViewModel, IAddressCommand>
+        {
+            #region Methods
+
+            public IAddressCommand Convert(AddressViewModel sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(context, nameof(context));
+
+                if (sourceMember == null || sourceMember.IsEmpty)
+                {
+                    return new AddressCommand
+                    {
+                        StreetLine1 = string.Empty,
+                        StreetLine2 = string.Empty,
+                        PostalCode = string.Empty,
+                        City = string.Empty,
+                        State = string.Empty,
+                        Country = string.Empty
+                    };
+                }
+
+                return context.Mapper.Map<AddressViewModel, AddressCommand>(sourceMember);
             }
 
             #endregion

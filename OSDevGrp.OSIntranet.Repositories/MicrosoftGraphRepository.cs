@@ -158,7 +158,8 @@ namespace OSDevGrp.OSIntranet.Repositories
             ContactModel contactModel = _microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
 
             DataContractJsonSerializerSettings serializerSettings = CreateSerializerSettings();
-            ContactModel createdContactModel = await PostAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(contactModel, serializerSettings), serializerSettings);
+
+            ContactModel createdContactModel = await PostAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(contactModel, CreateSerializerSettings("yyyy-MM-dd")), serializerSettings);
 
             return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(createdContactModel);
         }
@@ -180,7 +181,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             ContactModel targetContactModel = _microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
 
-            ContactModel updatedContactModel = await PatchAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{targetContactModel.Identifier}"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(targetContactModel.ToChangedOnlyModel(sourceContactModel), serializerSettings), serializerSettings);
+            ContactModel updatedContactModel = await PatchAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{targetContactModel.Identifier}"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(targetContactModel.ToChangedOnlyModel(sourceContactModel), CreateSerializerSettings("yyyy-MM-dd")), serializerSettings);
 
             return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(updatedContactModel);
         }
@@ -273,11 +274,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             return await GetAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{identifier}"), null, serializerSettings);
         }
 
-        private DataContractJsonSerializerSettings CreateSerializerSettings()
+        private DataContractJsonSerializerSettings CreateSerializerSettings(string dateTimeFormat = "yyyy-MM-ddTHH:mm:ssZ") 
         {
             return new DataContractJsonSerializerSettings
             {
-                DateTimeFormat = new DateTimeFormat("yyyy-MM-ddTHH:mm:ssZ")
+                DateTimeFormat = new DateTimeFormat(dateTimeFormat)
             };
         }
 

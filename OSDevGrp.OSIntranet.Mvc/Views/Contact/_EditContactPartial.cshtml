@@ -2,9 +2,25 @@
 <form id="editContactForm" asp-area="" asp-controller="Contact" asp-action="@Model.GetAction()">
     @if (Model.EditMode != EditMode.Create)
     {
-        <input type="hidden" asp-for="ExternalIdentifier"/>
+        <input type="hidden" asp-for="ExternalIdentifier" />
     }
-    <input type="hidden" asp-for="EditMode"/>
+    <input type="hidden" asp-for="EditMode" />
+    @if (Model.ContactGroup.IsKnownContactGroup(Model.ContactGroups) && string.IsNullOrWhiteSpace(Model.ContactGroup.Name) == false)
+    {
+        <input type="hidden" asp-for="ContactGroup.Name" />
+    }
+    else
+    {
+        <input type="hidden" id="@Html.IdFor(m => m.ContactGroup.Name)" name="@Html.NameFor(m => m.ContactGroup.Name)" value="@Model.ContactGroups.FirstOrDefault()?.Name" />
+    }
+    @if (Model.PaymentTerm.IsKnownPaymentTerm(Model.PaymentTerms) && string.IsNullOrWhiteSpace(Model.PaymentTerm.Name) == false)
+    {
+        <input type="hidden" asp-for="PaymentTerm.Name" />
+    }
+    else
+    {
+        <input type="hidden" id="@Html.IdFor(m => m.PaymentTerm.Name)" name="@Html.NameFor(m => m.PaymentTerm.Name)" value="@Model.PaymentTerms.FirstOrDefault()?.Name" />
+    }
     <div class="row">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
             <div class="form-check-inline">
@@ -30,14 +46,14 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="Surname"></label>
-                    <input asp-for="Surname" class="form-control" />
+                    <input asp-for="Surname" class="form-control" oninput="javascript:$().onSurnameChange();" />
                     <span asp-validation-for="Surname" class="text-danger"></span>
                 </div>
             </div>
             <div id="editContactCompanyName" class="d-none">
                 <div class="form-group">
                     <label asp-for="CompanyName"></label>
-                    <input asp-for="CompanyName" class="form-control" />
+                    <input asp-for="CompanyName" class="form-control" oninput="javascript:$().onCompanyNameChange();" />
                     <span asp-validation-for="CompanyName" class="text-danger"></span>
                 </div>
             </div>
@@ -82,7 +98,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="ContactGroup"></label>
-                <select asp-for="ContactGroup.Number" asp-items="Model.ContactGroups.SelectListFor(Model.ContactGroup.Number)" class="form-control"></select>
+                <select asp-for="ContactGroup.Number" asp-items="Model.ContactGroups.SelectListFor(Model.ContactGroup.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.ContactGroup.Name)', $(this).find('option:selected').text());"></select>
                 <span asp-validation-for="ContactGroup" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -102,7 +118,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PaymentTerm"></label>
-                <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm.Number)" class="form-control"></select>
+                <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.PaymentTerm.Name)', $(this).find('option:selected').text());"></select>
                 <span asp-validation-for="PaymentTerm" class="text-danger"></span>
             </div>
             <div id="addAssociatedCompany" class="d-none">
