@@ -1,10 +1,18 @@
 (function($) {
     $.fn.extend({
-        askForDeletion: function(header, deleteUrl, deleteData, removeElement) {
+        askForDeletion: function(header, deleteUrl, deleteData, removeElement = null, presentResult = false) {
             if (confirm(header + "\r\n\r\nEr du sikker?")) {
                 $.post(deleteUrl, deleteData, null, "html")
-                    .done(function() {
-                        removeElement.remove();
+                    .done(function(html) {
+                        if (removeElement !== undefined && removeElement !== null) {
+                            removeElement.remove();
+                        }
+
+                        if (presentResult !== undefined && presentResult !== null && presentResult) {
+                            var newDocument = document.open("text/html", "replace");
+                            newDocument.write(html);
+                            newDocument.close();
+                        }
                     })
                     .fail(function(jqXhr, textStatus, errorThrown) {
                         alert(errorThrown);

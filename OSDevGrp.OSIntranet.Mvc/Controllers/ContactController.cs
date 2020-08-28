@@ -377,6 +377,31 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("Contacts", "Contact", new {contactViewModel.ExternalIdentifier});
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteContact(string externalIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(externalIdentifier, nameof(externalIdentifier));
+
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            IDeleteContactCommand command = new DeleteContactCommand
+            {
+                ExternalIdentifier = externalIdentifier,
+                TokenType = token.TokenType,
+                AccessToken = token.AccessToken,
+                RefreshToken = token.RefreshToken,
+                Expires = token.Expires,
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Contacts", "Contact");
+        }
+
         [HttpGet]
         public async Task<IActionResult> ContactGroups()
         {

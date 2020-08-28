@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
@@ -86,6 +87,22 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
             NullGuard.NotNull(contactViewModel, nameof(contactViewModel));
 
             return contactViewModel.EditMode == EditMode.Create ? "Opret" : "Opdatér";
+        }
+
+        public static string GetDeletionLink(this ContactViewModel contactViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(contactViewModel, nameof(contactViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteContact", "Contact");
+        }
+
+        public static string GetDeletionData(this ContactViewModel contactViewModel, IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(contactViewModel, nameof(contactViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"externalIdentifier: '{contactViewModel.ExternalIdentifier}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
 
         public static string GetStartAddingAssociatedCompanyUrl(this ContactViewModel contactViewModel, IUrlHelper urlHelper)

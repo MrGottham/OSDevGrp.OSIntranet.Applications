@@ -9,10 +9,13 @@
                     <h3>@Html.DisplayFor(m => m.DisplayName)</h3>
                 }
             </div>
-            <div class="float-right fa-stack">
+            <div class="float-right">
                 @if (Model.EditMode == EditMode.None)
                 {
-                    <a href="#" onclick="javascript:$().editContact();"><i class="fas fa-pen"></i></a>
+                    <div class="fa-stack">
+                        <a href="#" onclick="javascript:$().editContact();"><i class="fas fa-pen"></i></a>
+                        <a href="#" onclick="javascript:$().askForDeletion('Slet kontakt', '@Model.GetDeletionLink(Url)', @Model.GetDeletionData(Html), null, true);"><i class="fas fa-trash"></i></a>
+                    </div>
                 }
             </div>
         </div>
