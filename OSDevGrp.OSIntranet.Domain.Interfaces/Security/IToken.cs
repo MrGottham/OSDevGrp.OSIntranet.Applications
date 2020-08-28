@@ -15,5 +15,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
         byte[] ToByteArray();
 
         string ToBase64();
+
+        bool WillExpireWithin(TimeSpan timeSpan);
     }
 }

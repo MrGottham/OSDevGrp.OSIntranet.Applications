@@ -54,6 +54,16 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return Convert.ToBase64String(ToByteArray());
         }
 
+        public bool WillExpireWithin(TimeSpan timeSpan)
+        {
+            if (HasExpired)
+            {
+                return true;
+            }
+
+            return (Expires.Kind == DateTimeKind.Utc ? Expires : Expires.ToUniversalTime()) < DateTime.UtcNow.Add(timeSpan);
+        }
+
         public static TToken Create<TToken>(byte[] byteArray) where TToken : class, IToken
         {
             NullGuard.NotNull(byteArray, nameof(byteArray));
