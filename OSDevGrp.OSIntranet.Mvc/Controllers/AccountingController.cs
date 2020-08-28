@@ -189,6 +189,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("Accountings", "Accounting", new {accountingViewModel.AccountingNumber});
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccounting(int accountingNumber)
+        {
+            IDeleteAccountingCommand command = new DeleteAccountingCommand
+            {
+                AccountingNumber = accountingNumber
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting");
+        }
+
         [HttpGet]
         public async Task<IActionResult> AccountGroups()
         {

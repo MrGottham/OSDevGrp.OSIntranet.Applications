@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
@@ -21,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Range(0, 365, ErrorMessage = "Antallet af dage for tilbagedatering skal være mellem {1} og {2} dage.")]
         public int BackDating { get; set; }
 
+        public bool Deletable { get; set; }
+
         public List<LetterHeadViewModel> LetterHeads { get; set; }
     }
 
@@ -38,6 +43,22 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel));
 
             return accountingViewModel.EditMode == EditMode.Create ? "Opret" : "Opdatér";
+        }
+
+        public static string GetDeletionLink(this AccountingViewModel accountingViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteAccounting", "Accounting");
+        }
+
+        public static string GetDeletionData(this AccountingViewModel accountingViewModel, IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"accountingNumber: '{accountingViewModel.AccountingNumber}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
     }
 }
