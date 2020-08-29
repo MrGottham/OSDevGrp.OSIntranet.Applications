@@ -25,6 +25,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Contacts
 
         DateTime? Birthday { get; set; }
 
+        ushort? Age { get; }
+
         string MailAddress { get; set; }
 
         ICompany Company { get; set; }

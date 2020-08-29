@@ -99,6 +99,8 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
 
         public DateTime? Birthday { get; set; }
 
+        public ushort? Age => CalculateAge();
+
         public string MailAddress
         {
             get => _mailAddress;
@@ -270,6 +272,24 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
             Regex pattern = new Regex(removeSpaces ? searchFor.Replace(" ", "") : searchFor, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
             return pattern.IsMatch(removeSpaces ? value.Replace(" ", "") : value);
+        }
+
+        private ushort? CalculateAge()
+        {
+            if (Birthday.HasValue == false)
+            {
+                return null;
+            }
+
+            DateTime today = DateTime.Today;
+            ushort age = Convert.ToUInt16(today.Year - Birthday.Value.Year);
+
+            if (age > 0 && (Birthday.Value.Month > today.Month || Birthday.Value.Month == today.Month && Birthday.Value.Day > today.Day))
+            {
+                return Convert.ToUInt16(age - 1);
+            }
+
+            return age;
         }
 
         private static string CalculateIdentifierValue(string value)

@@ -14,6 +14,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
+            Random random = new Random(fixture.Create<int>());
+
             Mock<IContact> contactMock = new Mock<IContact>();
             contactMock.Setup(m => m.InternalIdentifier)
                 .Returns(hasInternalIdentifier ? internalIdentifier ?? fixture.Create<string>() : null);
@@ -33,6 +35,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.Birthday)
                 .Returns(fixture.Create<DateTime>().Date);
+            contactMock.Setup(m => m.Age)
+                .Returns((ushort) random.Next(10, 75));
             contactMock.Setup(m => m.MailAddress)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.Company)
