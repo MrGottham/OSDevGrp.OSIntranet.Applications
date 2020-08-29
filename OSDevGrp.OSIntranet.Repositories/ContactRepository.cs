@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using OSDevGrp.OSIntranet.Repositories.ModelHandlers.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 
 namespace OSDevGrp.OSIntranet.Repositories
@@ -66,31 +68,56 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         public Task<IEnumerable<IContactGroup>> GetContactGroupsAsync()
         {
-            return Task.Run(GetContactGroups);
+            return ExecuteAsync(async () =>
+                {
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await contactGroupModelHandler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IContactGroup> GetContactGroupAsync(int number)
         {
-            return Task.Run(() => GetContactGroup(number));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await contactGroupModelHandler.ReadAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IContactGroup> CreateContactGroupAsync(IContactGroup contactGroup)
         {
             NullGuard.NotNull(contactGroup, nameof(contactGroup));
 
-            return Task.Run(() => CreateContactGroup(contactGroup));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await contactGroupModelHandler.CreateAsync(contactGroup);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IContactGroup> UpdateContactGroupAsync(IContactGroup contactGroup)
         {
             NullGuard.NotNull(contactGroup, nameof(contactGroup));
 
-            return Task.Run(() => UpdateContactGroup(contactGroup));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await contactGroupModelHandler.UpdateAsync(contactGroup);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IContactGroup> DeleteContactGroupAsync(int number)
         {
-            return Task.Run(() => DeleteContactGroup(number));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await contactGroupModelHandler.DeleteAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IEnumerable<ICountry>> GetCountriesAsync()
@@ -130,7 +157,12 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
 
-            return Task.Run(() => GetPostalCodes(countryCode));
+            return ExecuteAsync(async () =>
+                {
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await postalCodeModelHandler.ReadAsync(postalCodeModel => postalCodeModel.CountryCode == countryCode);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IPostalCode> GetPostalCodeAsync(string countryCode, string postalCode)
@@ -138,21 +170,36 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
                 .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
 
-            return Task.Run(() => GetPostalCode(countryCode, postalCode));
+            return ExecuteAsync(async () =>
+                {
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await postalCodeModelHandler.ReadAsync(new Tuple<string, string>(countryCode, postalCode));
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IPostalCode> CreatePostalCodeAsync(IPostalCode postalCode)
         {
             NullGuard.NotNull(postalCode, nameof(postalCode));
 
-            return Task.Run(() => CreatePostalCode(postalCode));
+            return ExecuteAsync(async () =>
+                {
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await postalCodeModelHandler.CreateAsync(postalCode);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IPostalCode> UpdatePostalCodeAsync(IPostalCode postalCode)
         {
             NullGuard.NotNull(postalCode, nameof(postalCode));
 
-            return Task.Run(() => UpdatePostalCode(postalCode));
+            return ExecuteAsync(async () =>
+                {
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await postalCodeModelHandler.UpdateAsync(postalCode);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IPostalCode> DeletePostalCodeAsync(string countryCode, string postalCode)
@@ -160,7 +207,17 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
                 .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
 
-            return Task.Run(() => DeletePostalCode(countryCode, postalCode));
+            return ExecuteAsync(async () =>
+                {
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await postalCodeModelHandler.DeleteAsync(new Tuple<string, string>(countryCode, postalCode));
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        private ContactContext CreateContactContext()
+        {
+            return new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
         }
 
         private IContact ApplyContactSupplement(IContact contact)
@@ -312,117 +369,6 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .ToArray();
         }
 
-        private IEnumerable<IContactGroup> GetContactGroups()
-        {
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    return context.ContactGroups.AsParallel()
-                        .Select(contactGroupModel =>
-                        {
-                            using (ContactContext subContext = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
-                            {
-                                contactGroupModel.Deletable = CanDeleteContactGroup(subContext, contactGroupModel.ContactGroupIdentifier);
-                            }
-
-                            return _contactModelConverter.Convert<ContactGroupModel, IContactGroup>(contactGroupModel);
-                        })
-                        .OrderBy(contactGroup => contactGroup.Number)
-                        .ToList();
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IContactGroup GetContactGroup(int number)
-        {
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactGroupModel contactGroupModel = context.ContactGroups.Find(number);
-                    if (contactGroupModel == null)
-                    {
-                        return null;
-                    }
-
-                    contactGroupModel.Deletable = CanDeleteContactGroup(context, contactGroupModel.ContactGroupIdentifier);
-
-                    return _contactModelConverter.Convert<ContactGroupModel, IContactGroup>(contactGroupModel);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IContactGroup CreateContactGroup(IContactGroup contactGroup)
-        {
-            NullGuard.NotNull(contactGroup, nameof(contactGroup));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactGroupModel contactGroupModel = _contactModelConverter.Convert<IContactGroup, ContactGroupModel>(contactGroup);
-
-                    context.ContactGroups.Add(contactGroupModel);
-
-                    context.SaveChanges();
-
-                    return GetContactGroup(contactGroupModel.ContactGroupIdentifier);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IContactGroup UpdateContactGroup(IContactGroup contactGroup)
-        {
-            NullGuard.NotNull(contactGroup, nameof(contactGroup));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactGroupModel contactGroupModel = context.ContactGroups.Find(contactGroup.Number);
-                    if (contactGroupModel == null)
-                    {
-                        return null;
-                    }
-
-                    contactGroupModel.Name = contactGroup.Name;
-
-                    context.SaveChanges();
-
-                    return GetContactGroup(contactGroupModel.ContactGroupIdentifier);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IContactGroup DeleteContactGroup(int number)
-        {
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    ContactGroupModel contactGroupModel = context.ContactGroups.Find(number);
-                    if (contactGroupModel == null)
-                    {
-                        return null;
-                    }
-
-                    if (CanDeleteContactGroup(context, contactGroupModel.ContactGroupIdentifier) == false)
-                    {
-                        return GetContactGroup(contactGroupModel.ContactGroupIdentifier);
-                    }
-
-                    context.ContactGroups.Remove(contactGroupModel);
-
-                    context.SaveChanges();
-
-                    return null;
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private bool CanDeleteContactGroup(ContactContext context, int contactGroupIdentifier)
-        {
-            NullGuard.NotNull(context, nameof(context));
-
-            return context.ContactSupplements.FirstOrDefault(contactSupplementModel => contactSupplementModel.ContactGroupIdentifier == contactGroupIdentifier) == null;
-        }
-
         private IEnumerable<ICountry> GetCountries()
         {
             return Execute(() =>
@@ -539,145 +485,6 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNullOrWhiteSpace(code, nameof(code));
 
             return context.PostalCodes.FirstOrDefault(postalCode => postalCode.CountryCode == code) == null;
-        }
-
-        private IEnumerable<IPostalCode> GetPostalCodes(string countryCode)
-        {
-            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    return context.PostalCodes
-                        .Include(postalCodeModel => postalCodeModel.Country)
-                        .Where(postalCodeModel => postalCodeModel.CountryCode == countryCode)
-                        .AsParallel()
-                        .Select(postalCodeModel =>
-                        {
-                            using (ContactContext subContext = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
-                            {
-                                postalCodeModel.Deletable = CanDeletePostalCode(subContext, postalCodeModel.CountryCode, postalCodeModel.PostalCode);
-                            }
-
-                            return _contactModelConverter.Convert<PostalCodeModel, IPostalCode>(postalCodeModel);
-                        })
-                        .OrderBy(postalCode => postalCode.City)
-                        .ToList();
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IPostalCode GetPostalCode(string countryCode, string postalCode)
-        {
-            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
-                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    PostalCodeModel postalCodeModel = context.PostalCodes
-                        .Include(m => m.Country)
-                        .SingleOrDefault(m => m.CountryCode == countryCode && m.PostalCode == postalCode);
-                    if (postalCodeModel == null)
-                    {
-                        return null;
-                    }
-
-                    postalCodeModel.Deletable = CanDeletePostalCode(context, postalCodeModel.CountryCode, postalCodeModel.PostalCode);
-
-                    return _contactModelConverter.Convert<PostalCodeModel, IPostalCode>(postalCodeModel);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        public IPostalCode CreatePostalCode(IPostalCode postalCode)
-        {
-            NullGuard.NotNull(postalCode, nameof(postalCode));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    CountryModel countryModel = context.Countries.Find(postalCode.Country.Code);
-                    if (countryModel == null)
-                    {
-                        return null;
-                    }
-
-                    PostalCodeModel postalCodeModel = _contactModelConverter.Convert<IPostalCode, PostalCodeModel>(postalCode);
-                    postalCodeModel.CountryCode = countryModel.Code;
-                    postalCodeModel.Country = countryModel;
-
-                    context.PostalCodes.Add(postalCodeModel);
-
-                    context.SaveChanges();
-
-                    return GetPostalCode(postalCodeModel.CountryCode, postalCodeModel.PostalCode);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        public IPostalCode UpdatePostalCode(IPostalCode postalCode)
-        {
-            NullGuard.NotNull(postalCode, nameof(postalCode));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    PostalCodeModel postalCodeModel = context.PostalCodes
-                        .Include(m => m.Country)
-                        .SingleOrDefault(m => m.CountryCode == postalCode.Country.Code && m.PostalCode == postalCode.Code);
-                    if (postalCodeModel == null)
-                    {
-                        return null;
-                    }
-
-                    postalCodeModel.City = postalCode.City;
-                    postalCodeModel.State = postalCode.State;
-
-                    context.SaveChanges();
-
-                    return GetPostalCode(postalCodeModel.CountryCode, postalCodeModel.PostalCode);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        public IPostalCode DeletePostalCode(string countryCode, string postalCode)
-        {
-            NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode))
-                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    PostalCodeModel postalCodeModel = context.PostalCodes
-                        .Include(m => m.Country)
-                        .SingleOrDefault(m => m.CountryCode == countryCode && m.PostalCode == postalCode);
-                    if (postalCodeModel == null)
-                    {
-                        return null;
-                    }
-
-                    if (CanDeletePostalCode(context, postalCodeModel.CountryCode, postalCodeModel.PostalCode) == false)
-                    {
-                        return GetPostalCode(postalCodeModel.CountryCode, postalCodeModel.PostalCode);
-                    }
-
-                    context.PostalCodes.Remove(postalCodeModel);
-
-                    context.SaveChanges();
-
-                    return null;
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private bool CanDeletePostalCode(ContactContext context, string countryCode, string postalCode)
-        {
-            NullGuard.NotNull(context, nameof(context))
-                .NotNullOrWhiteSpace(countryCode, nameof(countryCode))
-                .NotNullOrWhiteSpace(postalCode, nameof(postalCode));
-
-            return true;
         }
 
         #endregion

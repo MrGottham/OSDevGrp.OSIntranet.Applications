@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
@@ -39,21 +40,6 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Methods
 
-        protected void Execute(Action action, MethodBase methodBase)
-        {
-            NullGuard.NotNull(action, nameof(action))
-                .NotNull(methodBase, nameof(methodBase));
-
-            try
-            {
-                action();
-            }
-            catch (AggregateException aggregateException)
-            {
-                throw HandleAndCreateException(aggregateException, methodBase);
-            }
-        }
-
         protected T Execute<T>(Func<T> resultGetter, MethodBase methodBase)
         {
             NullGuard.NotNull(resultGetter, nameof(resultGetter))
@@ -66,6 +52,21 @@ namespace OSDevGrp.OSIntranet.Repositories
             catch (AggregateException aggregateException)
             {
                 throw HandleAndCreateException(aggregateException, methodBase);
+            }
+        }
+
+        protected async Task<T> ExecuteAsync<T>(Func<Task<T>> resultGetter, MethodBase methodBase)
+        {
+            NullGuard.NotNull(resultGetter, nameof(resultGetter))
+                .NotNull(methodBase, nameof(methodBase));
+
+            try
+            {
+                return await resultGetter();
+            }
+            catch (Exception exception)
+            {
+                throw HandleAndCreateException(exception, methodBase);
             }
         }
 
@@ -83,6 +84,17 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, handledException.Message)
                 .WithInnerException(handledException)
+                .WithMethodBase(methodBase)
+                .Build();
+        }
+
+        private Exception HandleAndCreateException(Exception exception, MethodBase methodBase)
+        {
+            NullGuard.NotNull(exception, nameof(exception))
+                .NotNull(methodBase, nameof(methodBase));
+
+            return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, exception.Message)
+                .WithInnerException(exception)
                 .WithMethodBase(methodBase)
                 .Build();
         }
