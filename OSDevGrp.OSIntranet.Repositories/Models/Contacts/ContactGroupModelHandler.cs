@@ -8,10 +8,9 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
-using OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core;
-using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
+using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
-namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Contacts
+namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
     internal class ContactGroupModelHandler : ModelHandlerBase<IContactGroup, ContactContext, ContactGroupModel, int>
     {
@@ -26,17 +25,17 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Contacts
 
         #region Properties
 
-        protected override Func<ContactContext, DbSet<ContactGroupModel>> Entities => dbContext => dbContext.ContactGroups;
+        protected override DbSet<ContactGroupModel> Entities => DbContext.ContactGroups;
 
         protected override Func<IContactGroup, int> PrimaryKey => contactGroup => contactGroup.Number;
-
-        protected override Expression<Func<ContactGroupModel, bool>> EntitySelector(int primaryKey) => contactGroupModel => contactGroupModel.ContactGroupIdentifier == primaryKey;
 
         #endregion
 
         #region Methods
 
-        protected override Task<IEnumerable<IContactGroup>> Sort(IEnumerable<IContactGroup> contactGroupCollection)
+        protected override Expression<Func<ContactGroupModel, bool>> EntitySelector(int primaryKey) => contactGroupModel => contactGroupModel.ContactGroupIdentifier == primaryKey;
+
+        protected override Task<IEnumerable<IContactGroup>> SortAsync(IEnumerable<IContactGroup> contactGroupCollection)
         {
             NullGuard.NotNull(contactGroupCollection, nameof(contactGroupCollection));
 

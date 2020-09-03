@@ -8,10 +8,9 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
-using OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core;
-using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
+using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
-namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Contacts
+namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
     internal class PostalCodeModelHandler : ModelHandlerBase<IPostalCode, ContactContext, PostalCodeModel, Tuple<string, string>>
     {
@@ -26,19 +25,19 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Contacts
 
         #region Properties
 
-        protected override Func<ContactContext, DbSet<PostalCodeModel>> Entities => dbContext => dbContext.PostalCodes;
+        protected override DbSet<PostalCodeModel> Entities => DbContext.PostalCodes;
 
         protected override Func<IPostalCode, Tuple<string, string>> PrimaryKey => postalCode => new Tuple<string, string>(postalCode.Country.Code, postalCode.Code);
 
-        protected override Expression<Func<PostalCodeModel, bool>> EntitySelector(Tuple<string, string> primaryKey) => postalCodeModel => postalCodeModel.CountryCode == primaryKey.Item1 && postalCodeModel.PostalCode == primaryKey.Item2;
-
-        protected override IQueryable<PostalCodeModel> Reader => Entities(DbContext).Include(m => m.Country);
+        protected override IQueryable<PostalCodeModel> Reader => Entities.Include(m => m.Country);
 
         #endregion
 
         #region Methods
 
-        protected override Task<IEnumerable<IPostalCode>> Sort(IEnumerable<IPostalCode> postalCodeCollection)
+        protected override Expression<Func<PostalCodeModel, bool>> EntitySelector(Tuple<string, string> primaryKey) => postalCodeModel => postalCodeModel.CountryCode == primaryKey.Item1 && postalCodeModel.PostalCode == primaryKey.Item2;
+
+        protected override Task<IEnumerable<IPostalCode>> SortAsync(IEnumerable<IPostalCode> postalCodeCollection)
         {
             NullGuard.NotNull(postalCodeCollection, nameof(postalCodeCollection));
 

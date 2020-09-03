@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
@@ -13,7 +11,6 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using OSDevGrp.OSIntranet.Repositories.ModelHandlers.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 
 namespace OSDevGrp.OSIntranet.Repositories
@@ -42,28 +39,48 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNull(contact, nameof(contact));
 
-            return Task.Run(() => ApplyContactSupplement(contact));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateContactContext(), _contactModelConverter, _accountingModelConverter);
+                    return await contactSupplementModelHandler.ApplyContactSupplementAsync(contact);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IEnumerable<IContact>> ApplyContactSupplementAsync(IEnumerable<IContact> contacts)
         {
             NullGuard.NotNull(contacts, nameof(contacts));
 
-            return Task.Run(() => ApplyContactSupplement(contacts));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateContactContext(), _contactModelConverter, _accountingModelConverter);
+                    return await contactSupplementModelHandler.ApplyContactSupplementAsync(contacts);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IContact> CreateOrUpdateContactSupplementAsync(IContact contact, string existingExternalIdentifier = null)
         {
             NullGuard.NotNull(contact, nameof(contact));
 
-            return Task.Run(() => CreateOrUpdateContactSupplement(contact, existingExternalIdentifier));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateContactContext(), _contactModelConverter, _accountingModelConverter);
+                    return await contactSupplementModelHandler.CreateOrUpdateContactSupplementAsync(contact, existingExternalIdentifier);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IContact> DeleteContactSupplementAsync(IContact contact)
         {
             NullGuard.NotNull(contact, nameof(contact));
 
-            return Task.Run(() => DeleteContactSupplement(contact));
+            return ExecuteAsync(async () =>
+                {
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateContactContext(), _contactModelConverter, _accountingModelConverter);
+                    return await contactSupplementModelHandler.DeleteAsync(contact);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IEnumerable<IContactGroup>> GetContactGroupsAsync()
@@ -122,35 +139,60 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         public Task<IEnumerable<ICountry>> GetCountriesAsync()
         {
-            return Task.Run(GetCountries);
+            return ExecuteAsync(async () =>
+                {
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await countryModelHandler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<ICountry> GetCountryAsync(string code)
         {
             NullGuard.NotNullOrWhiteSpace(code, nameof(code));
 
-            return Task.Run(() => GetCountry(code));
+            return ExecuteAsync(async () =>
+                {
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await countryModelHandler.ReadAsync(code);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<ICountry> CreateCountryAsync(ICountry country)
         {
             NullGuard.NotNull(country, nameof(country));
 
-            return Task.Run(() => CreateCountry(country));
+            return ExecuteAsync(async () =>
+                {
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await countryModelHandler.CreateAsync(country);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<ICountry> UpdateCountryAsync(ICountry country)
         {
             NullGuard.NotNull(country, nameof(country));
 
-            return Task.Run(() => UpdateCountry(country));
+            return ExecuteAsync(async () =>
+                {
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await countryModelHandler.UpdateAsync(country);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<ICountry> DeleteCountryAsync(string code)
         {
             NullGuard.NotNullOrWhiteSpace(code, nameof(code));
 
-            return Task.Run(() => DeleteCountry(code));
+            return ExecuteAsync(async () =>
+                {
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateContactContext(), _contactModelConverter);
+                    return await countryModelHandler.DeleteAsync(code);
+                },
+                MethodBase.GetCurrentMethod());
         }
 
         public Task<IEnumerable<IPostalCode>> GetPostalCodesAsync(string countryCode)
@@ -218,273 +260,6 @@ namespace OSDevGrp.OSIntranet.Repositories
         private ContactContext CreateContactContext()
         {
             return new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-        }
-
-        private IContact ApplyContactSupplement(IContact contact)
-        {
-            NullGuard.NotNull(contact, nameof(contact));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-
-                    ContactSupplementModel contactSupplementModel = GetContactSupplementModel(contact, context);
-                    if (contactSupplementModel != null)
-                    {
-                        return contactSupplementModel.ApplyContactSupplement(contact, _contactModelConverter, _accountingModelConverter);
-                    }
-                    
-                    return contact;
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IEnumerable<IContact> ApplyContactSupplement(IEnumerable<IContact> contacts)
-        {
-            NullGuard.NotNull(contacts, nameof(contacts));
-
-            return Execute(() => contacts.AsParallel()
-                    .Select(ApplyContactSupplement)
-                    .ToList(),
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IContact CreateOrUpdateContactSupplement(IContact contact, string existingExternalIdentifier = null)
-        {
-            NullGuard.NotNull(contact, nameof(contact));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-
-                    ContactSupplementModel contactSupplementModel = GetContactSupplementModel(contact, context, existingExternalIdentifier);
-                    if (contactSupplementModel == null)
-                    {
-                        contactSupplementModel = _contactModelConverter.Convert<IContact, ContactSupplementModel>(contact);
-                        contactSupplementModel.ContactGroup = context.ContactGroups.Single(contactGroupModel => contactGroupModel.ContactGroupIdentifier == contact.ContactGroup.Number);
-                        contactSupplementModel.PaymentTerm = context.PaymentTerms.Single(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contact.PaymentTerm.Number);
-
-                        context.ContactSupplements.Add(contactSupplementModel);
-
-                        context.SaveChanges();
-
-                        return ApplyContactSupplement(contact);
-                    }
-
-                    contactSupplementModel.Birthday = contact.Birthday;
-                    contactSupplementModel.ContactGroupIdentifier = contact.ContactGroup.Number;
-                    contactSupplementModel.ContactGroup = context.ContactGroups.Single(contactGroupModel => contactGroupModel.ContactGroupIdentifier == contact.ContactGroup.Number);
-                    contactSupplementModel.Acquaintance = contact.Acquaintance;
-                    contactSupplementModel.PersonalHomePage = contact.PersonalHomePage;
-                    contactSupplementModel.LendingLimit = contact.LendingLimit;
-                    contactSupplementModel.PaymentTermIdentifier = contact.PaymentTerm.Number;
-                    contactSupplementModel.PaymentTerm = context.PaymentTerms.Single(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contact.PaymentTerm.Number);
-
-                    string[] externalIdentifierCollection = GetExternalIdentifierCollection(contact);
-                    foreach (ContactSupplementBindingModel contactSupplementBindingModel in contactSupplementModel.ContactSupplementBindings.Where(m => externalIdentifierCollection.Any(externalIdentifier => externalIdentifier == m.ExternalIdentifier) == false).ToArray())
-                    {
-                        contactSupplementModel.ContactSupplementBindings.Remove(contactSupplementBindingModel);
-                    }
-                    foreach (string externalIdentifier in externalIdentifierCollection.Where(m => contactSupplementModel.ContactSupplementBindings.Any(contactSupplementBindingModel => contactSupplementBindingModel.ExternalIdentifier == m) == false))
-                    {
-                        ContactSupplementBindingModel contactSupplementBindingModel = new ContactSupplementBindingModel
-                        {
-                            ContactSupplementIdentifier = contactSupplementModel.ContactSupplementIdentifier,
-                            ContactSupplement = contactSupplementModel,
-                            ExternalIdentifier = externalIdentifier
-                        };
-                        contactSupplementModel.ContactSupplementBindings.Add(contactSupplementBindingModel);
-                    }
-
-                    context.SaveChanges();
-
-                    return ApplyContactSupplement(contact);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private IContact DeleteContactSupplement(IContact contact)
-        {
-            NullGuard.NotNull(contact, nameof(contact));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-
-                    ContactSupplementModel contactSupplementModel = GetContactSupplementModel(contact, context);
-                    if (contactSupplementModel == null)
-                    {
-                        return null;
-                    }
-
-                    context.ContactSupplements.Remove(contactSupplementModel);
-
-                    context.SaveChanges();
-
-                    return (IContact) null;
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private ContactSupplementModel GetContactSupplementModel(IContact contact, ContactContext context, string existingExternalIdentifier = null)
-        {
-            NullGuard.NotNull(contact, nameof(contact))
-                .NotNull(context, nameof(context));
-
-            if (string.IsNullOrWhiteSpace(contact.InternalIdentifier) == false && int.TryParse(contact.InternalIdentifier, out int internalIdentifier))
-            {
-                ContactSupplementModel contactSupplementModel = context.ContactSupplements
-                    .Include(model => model.ContactGroup)
-                    .Include(model => model.PaymentTerm)
-                    .Include(model => model.ContactSupplementBindings)
-                    .SingleOrDefault(model => model.ContactSupplementIdentifier == internalIdentifier);
-                if (contactSupplementModel != null)
-                {
-                    return contactSupplementModel;
-                }
-            }
-
-            foreach (string externalIdentifier in GetExternalIdentifierCollection(contact, existingExternalIdentifier))
-            {
-                ContactSupplementBindingModel contactSupplementBindingModel = context.ContactSupplementBindings
-                    .Include(model => model.ContactSupplement).ThenInclude(model => model.ContactGroup)
-                    .Include(model => model.ContactSupplement).ThenInclude(model => model.PaymentTerm)
-                    .Include(model => model.ContactSupplement).ThenInclude(model => model.ContactSupplementBindings)
-                    .SingleOrDefault(model => model.ExternalIdentifier == externalIdentifier);
-                if (contactSupplementBindingModel != null)
-                {
-                    return contactSupplementBindingModel.ContactSupplement;
-                }
-            }
-
-            return null;
-        }
-
-        private string[] GetExternalIdentifierCollection(IContact contact, string existingExternalIdentifier = null)
-        {
-            NullGuard.NotNull(contact, nameof(contact));
-
-            return new[] {contact.CalculateIdentifier(), existingExternalIdentifier ?? contact.ExternalIdentifier}
-                .Where(m => string.IsNullOrWhiteSpace(m) == false)
-                .ToArray();
-        }
-
-        private IEnumerable<ICountry> GetCountries()
-        {
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    return context.Countries.AsParallel()
-                        .Select(countryModel =>
-                        {
-                            using (ContactContext subContext = new ContactContext(Configuration, PrincipalResolver, LoggerFactory))
-                            {
-                                countryModel.Deletable = CanDeleteCountry(subContext, countryModel.Code);
-                            }
-
-                            return _contactModelConverter.Convert<CountryModel, ICountry>(countryModel);
-                        })
-                        .OrderBy(country => country.Name)
-                        .ToList();
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private ICountry GetCountry(string code)
-        {
-            NullGuard.NotNullOrWhiteSpace(code, nameof(code));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    CountryModel countryModel = context.Countries.Find(code);
-                    if (countryModel == null)
-                    {
-                        return null;
-                    }
-
-                    countryModel.Deletable = CanDeleteCountry(context, countryModel.Code);
-
-                    return _contactModelConverter.Convert<CountryModel, ICountry>(countryModel);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private ICountry CreateCountry(ICountry country)
-        {
-            NullGuard.NotNull(country, nameof(country));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    CountryModel countryModel = _contactModelConverter.Convert<ICountry, CountryModel>(country);
-
-                    context.Countries.Add(countryModel);
-
-                    context.SaveChanges();
-
-                    return GetCountry(countryModel.Code);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private ICountry UpdateCountry(ICountry country)
-        {
-            NullGuard.NotNull(country, nameof(country));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    CountryModel countryModel = context.Countries.Find(country.Code);
-                    if (countryModel == null)
-                    {
-                        return null;
-                    }
-
-                    countryModel.Name = country.Name;
-                    countryModel.UniversalName = country.UniversalName;
-                    countryModel.PhonePrefix = country.PhonePrefix;
-
-                    context.SaveChanges();
-
-                    return GetCountry(countryModel.Code);
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private ICountry DeleteCountry(string code)
-        {
-            NullGuard.NotNullOrWhiteSpace(code, nameof(code));
-
-            return Execute(() =>
-                {
-                    using ContactContext context = new ContactContext(Configuration, PrincipalResolver, LoggerFactory);
-                    CountryModel countryModel = context.Countries.Find(code);
-                    if (countryModel == null)
-                    {
-                        return null;
-                    }
-
-                    if (CanDeleteCountry(context, countryModel.Code) == false)
-                    {
-                        return GetCountry(countryModel.Code);
-                    }
-
-                    context.Countries.Remove(countryModel);
-
-                    context.SaveChanges();
-
-                    return null;
-                },
-                MethodBase.GetCurrentMethod());
-        }
-
-        private bool CanDeleteCountry(ContactContext context, string code)
-        {
-            NullGuard.NotNull(context, nameof(context))
-                .NotNullOrWhiteSpace(code, nameof(code));
-
-            return context.PostalCodes.FirstOrDefault(postalCode => postalCode.CountryCode == code) == null;
         }
 
         #endregion

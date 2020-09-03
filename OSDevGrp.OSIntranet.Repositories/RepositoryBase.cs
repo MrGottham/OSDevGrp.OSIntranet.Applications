@@ -40,18 +40,22 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Methods
 
-        protected T Execute<T>(Func<T> resultGetter, MethodBase methodBase)
+        protected async Task ExecuteAsync(Func<Task> action, MethodBase methodBase)
         {
-            NullGuard.NotNull(resultGetter, nameof(resultGetter))
+            NullGuard.NotNull(action, nameof(action))
                 .NotNull(methodBase, nameof(methodBase));
 
             try
             {
-                return resultGetter();
+                await action();
             }
             catch (AggregateException aggregateException)
             {
                 throw HandleAndCreateException(aggregateException, methodBase);
+            }
+            catch (Exception exception)
+            {
+                throw HandleAndCreateException(exception, methodBase);
             }
         }
 
@@ -63,6 +67,10 @@ namespace OSDevGrp.OSIntranet.Repositories
             try
             {
                 return await resultGetter();
+            }
+            catch (AggregateException aggregateException)
+            {
+                throw HandleAndCreateException(aggregateException, methodBase);
             }
             catch (Exception exception)
             {

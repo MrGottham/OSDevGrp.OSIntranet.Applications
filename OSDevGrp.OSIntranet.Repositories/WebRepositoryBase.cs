@@ -60,7 +60,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNull(httpRequestMessageCreator, nameof(httpRequestMessageCreator))
                 .NotNull(methodBase, nameof(methodBase));
 
-            return Execute(async () =>
+            return ExecuteAsync(async () =>
                 {
                     using HttpClient httpClient = new HttpClient();
                     using HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback);
@@ -82,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNull(httpRequestMessageCreator, nameof(httpRequestMessageCreator))
                 .NotNull(methodBase, nameof(methodBase));
 
-            return Execute(async () =>
+            return ExecuteAsync(async () =>
                 {
                     using HttpClient httpClient = new HttpClient();
                     using HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback);

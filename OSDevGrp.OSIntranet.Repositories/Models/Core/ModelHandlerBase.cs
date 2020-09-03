@@ -4,10 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 
-namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
+namespace OSDevGrp.OSIntranet.Repositories.Models.Core
 {
     internal abstract class ModelHandlerBase<TDomainModel, TDbContext, TEntityModel, TPrimaryKey> : IDisposable where TDomainModel : class where TDbContext : DbContext where TEntityModel : class, new()
     {
@@ -30,13 +31,11 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
 
         protected IConverter ModelConverter { get; }
 
-        protected abstract Func<TDbContext, DbSet<TEntityModel>> Entities { get; }
+        protected abstract DbSet<TEntityModel> Entities { get; }
 
         protected abstract Func<TDomainModel, TPrimaryKey> PrimaryKey { get; }
 
-        protected abstract Expression<Func<TEntityModel, bool>> EntitySelector(TPrimaryKey primaryKey);
-
-        protected virtual IQueryable<TEntityModel> Reader => Entities(DbContext);
+        protected virtual IQueryable<TEntityModel> Reader => Entities;
 
         protected virtual IQueryable<TEntityModel> UpdateReader => Reader;
 
@@ -49,6 +48,8 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
         public void Dispose()
         {
             DbContext.Dispose();
+
+            OnDispose();
         }
 
         internal async Task<TDomainModel> CreateAsync(TDomainModel domainModel)
@@ -56,11 +57,11 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
             NullGuard.NotNull(domainModel, nameof(domainModel));
 
             TEntityModel entityModel = ModelConverter.Convert<TDomainModel, TEntityModel>(domainModel);
-            await Entities(DbContext).AddAsync(await OnCreateAsync(domainModel, entityModel));
+            EntityEntry<TEntityModel> entityEntry = await Entities.AddAsync(await OnCreateAsync(domainModel, entityModel));
 
             await DbContext.SaveChangesAsync();
 
-            return await ReadAsync(PrimaryKey(domainModel));
+            return await OnReloadAsync(domainModel, entityEntry.Entity);
         }
 
         internal async Task<TDomainModel> ReadAsync(TPrimaryKey primaryKey)
@@ -80,11 +81,14 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
         {
             TEntityModel[] entityModelCollection = await Task.FromResult((filterPredicate != null ? Reader.Where(filterPredicate) : Reader).ToArray());
 
-            TDomainModel[] domainModelCollection = await Task.FromResult(entityModelCollection
-                .Select(entityModel => ModelConverter.Convert<TEntityModel, TDomainModel>(OnReadAsync(entityModel).GetAwaiter().GetResult()))
-                .ToArray());
+            Task<TEntityModel>[] readEntityModelTaskCollection = entityModelCollection.Select(OnReadAsync).ToArray();
+            TEntityModel[] riddenEntityModelCollection = await Task.WhenAll(readEntityModelTaskCollection);
 
-            return (await Sort(domainModelCollection)).ToList();
+            TDomainModel[] domainModelCollection = riddenEntityModelCollection.AsParallel()
+                .Select(riddenEntityModel => ModelConverter.Convert<TEntityModel, TDomainModel>(riddenEntityModel))
+                .ToArray();
+
+            return (await SortAsync(domainModelCollection)).ToList();
         }
 
         internal async Task<TDomainModel> UpdateAsync(TDomainModel domainModel)
@@ -103,7 +107,7 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
 
             await DbContext.SaveChangesAsync();
 
-            return await ReadAsync(primaryKey);
+            return await OnReloadAsync(primaryKey, entityModel);
         }
 
         internal async Task<TDomainModel> DeleteAsync(TPrimaryKey primaryKey)
@@ -118,17 +122,23 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
 
             if (await CanDeleteAsync(entityModel) == false)
             {
-                return await ReadAsync(primaryKey);
+                return await OnReloadAsync(primaryKey, entityModel);
             }
 
-            Entities(DbContext).Remove(await OnDeleteAsync(entityModel));
+            Entities.Remove(await OnDeleteAsync(entityModel));
 
             await DbContext.SaveChangesAsync();
 
             return null;
         }
 
-        protected abstract Task<IEnumerable<TDomainModel>> Sort(IEnumerable<TDomainModel> domainModelCollection);
+        protected abstract Expression<Func<TEntityModel, bool>> EntitySelector(TPrimaryKey primaryKey);
+
+        protected abstract Task<IEnumerable<TDomainModel>> SortAsync(IEnumerable<TDomainModel> domainModelCollection);
+
+        protected virtual void OnDispose()
+        {
+        }
 
         protected virtual Task<TEntityModel> OnCreateAsync(TDomainModel domainModel, TEntityModel entityModel)
         {
@@ -159,6 +169,22 @@ namespace OSDevGrp.OSIntranet.Repositories.ModelHandlers.Core
             NullGuard.NotNull(entityModel, nameof(entityModel));
 
             return Task.FromResult(entityModel);
+        }
+
+        protected virtual Task<TDomainModel> OnReloadAsync(TDomainModel domainModel, TEntityModel entityModel)
+        {
+            NullGuard.NotNull(domainModel, nameof(domainModel))
+                .NotNull(entityModel, nameof(entityModel));
+
+            return OnReloadAsync(PrimaryKey(domainModel), entityModel);
+        }
+
+        protected virtual Task<TDomainModel> OnReloadAsync(TPrimaryKey primaryKey, TEntityModel entityModel)
+        {
+            NullGuard.NotNull(primaryKey, nameof(primaryKey))
+                .NotNull(entityModel, nameof(entityModel));
+
+            return ReadAsync(primaryKey);
         }
 
         #endregion
