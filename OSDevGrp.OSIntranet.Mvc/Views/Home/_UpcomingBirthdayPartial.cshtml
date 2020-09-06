@@ -1,0 +1,33 @@
+﻿@model ContactWithUpcomingBirthdayViewModel;
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@Html.DisplayFor(m => m.DisplayName)&nbsp;@Html.DisplayFor(m => m.AgeOnUpcomingBirthday)&nbsp;år</h5>
+        @if (Model.ContactType == ContactType.Company && string.IsNullOrWhiteSpace(Model.PrimaryPhone) == false)
+        {
+            <p class="card-text">@Html.DisplayFor(m => m.PrimaryPhone)&nbsp;<a href="tel:@Model.PrimaryPhone"><i class="fas fa-phone"></i></a></p>
+        }
+        else if (Model.ContactType == ContactType.Company && string.IsNullOrWhiteSpace(Model.SecondaryPhone) == false)
+        {
+            <p class="card-text">@Html.DisplayFor(m => m.SecondaryPhone)&nbsp;<a href="tel:@Model.SecondaryPhone"><i class="fas fa-phone"></i></a></p>
+        }
+        else if (Model.ContactType == ContactType.Person && string.IsNullOrWhiteSpace(Model.MobilePhone) == false)
+        {
+            <p class="card-text">@Html.DisplayFor(m => m.MobilePhone)&nbsp;<a href="tel:@Model.MobilePhone"><i class="fas fa-phone"></i></a></p>
+        }
+        else if (Model.ContactType == ContactType.Person && string.IsNullOrWhiteSpace(Model.HomePhone) == false)
+        {
+            <p class="card-text">@Html.DisplayFor(m => m.HomePhone)&nbsp;<a href="tel:@Model.HomePhone"><i class="fas fa-phone"></i></a></p>
+        }
+        else if (string.IsNullOrWhiteSpace(Model.MailAddress) == false)
+        {
+            <p class="card-text">@Html.DisplayFor(m => m.MailAddress)&nbsp;<a href="mailto:@Model.MailAddress"><i class="fas fa-envelope"></i></a></p>
+        }
+        @if (string.IsNullOrWhiteSpace(Model.ExternalIdentifier) == false)
+        {
+            <a asp-controller="Contact" asp-action="Contacts" asp-route-filter="@Model.DisplayName" asp-route-externalIdentifier="@Model.ExternalIdentifier" class="btn btn-primary">Vis</a>
+        }
+    </div>
+    <div class="card-footer text-muted">
+        @Html.DisplayFor(m => m.WeekDayForUpcomingBirthday)&nbsp;den&nbsp;@Html.DisplayFor(m => m.UpcomingBirthday)
+    </div>
+</div>

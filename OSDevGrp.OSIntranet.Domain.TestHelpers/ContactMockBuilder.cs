@@ -10,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ContactMockBuilder
     {
-        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool hasCompany = true, ICompany company = null, bool hasContactGroup = true, IContactGroup contactGroup = null, bool hasPaymentTerm = true, IPaymentTerm paymentTerm = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
+        public static Mock<IContact> BuildContactMock(this Fixture fixture, bool hasInternalIdentifier = true, string internalIdentifier = null, bool hasExternalIdentifier = true, string externalIdentifier = null, bool hasAddress = true, IAddress address = null, bool hasBirthday = true, DateTime? birthday = null, bool hasCompany = true, ICompany company = null, bool hasContactGroup = true, IContactGroup contactGroup = null, bool hasPaymentTerm = true, IPaymentTerm paymentTerm = null, bool? isMatch = null, bool? hasBirthdayWithinDays = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -34,9 +34,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactMock.Setup(m => m.MobilePhone)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.Birthday)
-                .Returns(fixture.Create<DateTime>().Date);
+                .Returns(hasBirthday ? birthday ?? DateTime.Today.AddYears(random.Next(10, 75) * -1).AddDays(random.Next(0, 365)) : (DateTime?) null);
             contactMock.Setup(m => m.Age)
-                .Returns((ushort) random.Next(10, 75));
+                .Returns(hasBirthday ? (ushort?) random.Next(10, 75) : null);
             contactMock.Setup(m => m.MailAddress)
                 .Returns(fixture.Create<string>());
             contactMock.Setup(m => m.Company)

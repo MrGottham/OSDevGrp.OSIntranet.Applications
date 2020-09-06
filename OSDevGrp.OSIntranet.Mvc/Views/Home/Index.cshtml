@@ -1,3 +1,41 @@
-﻿@{
+﻿@model HomeOperationsViewModel;
+@{
     ViewData["Title"] = "Start";
 }
+
+<div class="row">
+    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-9">
+        @if (Model.CanAccessAccountings && Model.AccountingNumber.HasValue)
+        {
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" data-url-instant-loading>
+                    <div class="spinner-border" role="status" data-url="@Model.GetAccountingInformationUrl(Url)">
+                        <span class="sr-only">Henter data...</span>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (Model.CanAccessContacts && Model.HasAcquiredMicrosoftGraphToken)
+        {
+            <div class="row d-block d-sm-block d-md-none d-lg-none d-xl-none">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" data-url-instant-loading>
+                    <div class="spinner-border" role="status" data-url="@Model.GetUpcomingBirthdaysUrl(Url)">
+                        <span class="sr-only">Henter data...</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-4 col-lg-4 col-xl-3 d-none d-md-block d-lg-block d-xl-block">
+        @if (Model.CanAccessContacts && Model.HasAcquiredMicrosoftGraphToken)
+        {
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" data-url-instant-loading>
+                    <div class="spinner-border" role="status" data-url="@Model.GetUpcomingBirthdaysUrl(Url)">
+                        <span class="sr-only">Henter data...</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

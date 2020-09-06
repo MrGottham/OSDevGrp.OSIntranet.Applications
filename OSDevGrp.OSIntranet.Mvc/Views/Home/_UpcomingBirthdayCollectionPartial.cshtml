@@ -1,0 +1,5 @@
+﻿@model IEnumerable<ContactWithUpcomingBirthdayViewModel>;
+@foreach (ContactWithUpcomingBirthdayViewModel contactWithUpcomingBirthdayViewModel in Model)
+{
+    @await Html.PartialAsync("_UpcomingBirthdayPartial", contactWithUpcomingBirthdayViewModel)
+}
