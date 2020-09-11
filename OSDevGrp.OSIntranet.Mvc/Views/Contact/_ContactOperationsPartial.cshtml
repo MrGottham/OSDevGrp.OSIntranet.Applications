@@ -16,8 +16,11 @@
     <div class="form-group">
         <a href="#" onclick="javascript:$().refreshContacts('@Model.GetStartLoadingContactsUrl(Url)');"><i class="fas fa-sync"></i>&nbsp;Genindlæs kontakter</a>
     </div>
+    <div class="form-group">
+        <a asp-controller="Contact" asp-action="ExportContacts"><i class="fas fa-download"></i>&nbsp;Eksportér kontakter</a>
+    </div>
     <div class="form-group form-inline">
-        <input id="contactOperationsFilter" type="text" value="@Model.Filter" class="form-control pr-2 flex-grow-1" readonly/>
+        <input id="contactOperationsFilter" type="text" value="@Model.Filter" class="form-control pr-2 flex-grow-1" readonly />
         <button id="contactOperationsSearch" type="submit" class="btn btn-primary" disabled>Søg</button>
     </div>
 </form>

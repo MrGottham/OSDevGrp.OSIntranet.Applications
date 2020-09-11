@@ -395,11 +395,32 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 TokenType = token.TokenType,
                 AccessToken = token.AccessToken,
                 RefreshToken = token.RefreshToken,
-                Expires = token.Expires,
+                Expires = token.Expires
             };
             await _commandBus.PublishAsync(command);
 
             return RedirectToAction("Contacts", "Contact");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportContacts()
+        {
+            IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
+            if (token == null)
+            {
+                return Unauthorized();
+            }
+
+            IExportContactCollectionQuery query = new ExportContactCollectionQuery
+            {
+                TokenType = token.TokenType,
+                AccessToken = token.AccessToken,
+                RefreshToken = token.RefreshToken,
+                Expires = token.Expires
+            };
+            byte[] fileContent = await _queryBus.QueryAsync<IExportContactCollectionQuery, byte[]>(query);
+
+            return File(fileContent, "application/csv", "Contacts.csv");
         }
 
         [HttpGet]

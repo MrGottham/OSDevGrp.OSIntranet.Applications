@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Core
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
                 .NotNull(assembly, nameof(assembly));
 
-            return serviceCollection.AddHandlers(assembly, typeof(ICommandHandler));
+            return serviceCollection.AddHandlers(assembly, typeof(ICommandHandler).GetTypeInfo());
         }
 
         public static IServiceCollection AddQueryBus(this IServiceCollection serviceCollection)
@@ -36,34 +36,56 @@ namespace OSDevGrp.OSIntranet.Core
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
                 .NotNull(assembly, nameof(assembly));
 
-            return serviceCollection.AddHandlers(assembly, typeof(IQueryHandler));
+            return serviceCollection.AddHandlers(assembly, typeof(IQueryHandler).GetTypeInfo());
         }
 
-        private static IServiceCollection AddHandlers(this IServiceCollection serviceCollection, Assembly assembly, Type handlerInterface)
+        private static IServiceCollection AddHandlers(this IServiceCollection serviceCollection, Assembly assembly, TypeInfo handlerInterfaceTypeInfo)
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
                 .NotNull(assembly, nameof(assembly))
-                .NotNull(handlerInterface, nameof(handlerInterface));
+                .NotNull(handlerInterfaceTypeInfo, nameof(handlerInterfaceTypeInfo));
 
-            TypeInfo[] classArray = assembly.ExportedTypes.Select(exportedType => exportedType.GetTypeInfo())
-                .Where(typeInfo => typeInfo.IsClass && typeInfo.IsAbstract == false)
-                .ToArray();
-
-            foreach (TypeInfo classTypeInfo in classArray)
+            foreach (TypeInfo implementingClassTypeInfo in GetImplementingClassTypeInfos(assembly, handlerInterfaceTypeInfo))
             {
-                TypeInfo[] interfaceArray = classTypeInfo.ImplementedInterfaces.Select(implementedInterface => implementedInterface.GetTypeInfo()).ToArray();
-                foreach (TypeInfo interfaceTypeInfo in interfaceArray)
-                {
-                    if (interfaceTypeInfo.AsType() != handlerInterface)
-                    {
-                        continue;
-                    }
+                TypeInfo[] interfaceTypeInfoArray = GetInterfaceTypeInfos(implementingClassTypeInfo)
+                    .Where(interfaceTypeInfo => interfaceTypeInfo == handlerInterfaceTypeInfo || GetInterfaceTypeInfos(interfaceTypeInfo).Contains(handlerInterfaceTypeInfo))
+                    .ToArray();
 
-                    serviceCollection.AddTransient(interfaceTypeInfo.AsType(), classTypeInfo.AsType());
+                foreach (TypeInfo interfaceTypeInfo in interfaceTypeInfoArray)
+                {
+                    serviceCollection.AddTransient(interfaceTypeInfo.AsType(), implementingClassTypeInfo.AsType());
                 }
             }
 
             return serviceCollection;
+        }
+
+        private static IEnumerable<TypeInfo> GetImplementingClassTypeInfos(Assembly assembly, TypeInfo handlerInterfaceTypeInfo)
+        {
+            NullGuard.NotNull(assembly, nameof(assembly))
+                .NotNull(handlerInterfaceTypeInfo, nameof(handlerInterfaceTypeInfo));
+
+            return assembly.ExportedTypes
+                .Select(exportedType => exportedType.GetTypeInfo())
+                .Where(typeInfo =>
+                {
+                    if (typeInfo.IsClass == false || typeInfo.IsAbstract)
+                    {
+                        return false;
+                    }
+
+                    return GetInterfaceTypeInfos(typeInfo).Contains(handlerInterfaceTypeInfo);
+                })
+                .ToArray();
+        }
+
+        private static IEnumerable<TypeInfo> GetInterfaceTypeInfos(TypeInfo typeInfo)
+        {
+            NullGuard.NotNull(typeInfo, nameof(typeInfo));
+
+            return typeInfo.ImplementedInterfaces
+                .Select(implementedInterface => implementedInterface.GetTypeInfo())
+                .ToArray();
         }
     }
 }

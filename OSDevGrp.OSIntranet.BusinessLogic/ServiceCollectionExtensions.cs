@@ -31,6 +31,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
 
             return serviceCollection.AddTransient<ITokenHelper, TokenHelper>()
                 .AddTransient<IClaimResolver, ClaimResolver>()
+                .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()
                 .AddTransient<IAccountingHelper, AccountingHelper>();
         }
