@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -16,6 +17,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -35,21 +37,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly IQueryBus _queryBus;
         private readonly IClaimResolver _claimResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
+        private readonly IAcmeChallengeResolver _acmeChallengeResolver;
         private readonly IConverter _homeViewModelConverter = new HomeViewModelConverter();
 
         #endregion
 
         #region Constructor
 
-        public HomeController(IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory)
+        public HomeController(IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory, IAcmeChallengeResolver acmeChallengeResolver)
         {
             NullGuard.NotNull(queryBus, nameof(queryBus))
                 .NotNull(claimResolver, nameof(claimResolver))
-                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
+                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
+                .NotNull(acmeChallengeResolver, nameof(acmeChallengeResolver));
 
             _queryBus = queryBus;
             _claimResolver = claimResolver;
             _tokenHelperFactory = tokenHelperFactory;
+            _acmeChallengeResolver = acmeChallengeResolver;
         }
 
         #endregion
@@ -134,6 +139,22 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             return ExceptionToView(exceptionHandlerPathFeature.Error, requestId);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("/.well-known/acme-challenge/{challengeToken}")]
+        public IActionResult AcmeChallenge(string challengeToken)
+        {
+            NullGuard.NotNullOrWhiteSpace(challengeToken, nameof(challengeToken));
+
+            string constructedKeyAuthorization = _acmeChallengeResolver.GetConstructedKeyAuthorization(challengeToken);
+            if (string.IsNullOrWhiteSpace(constructedKeyAuthorization))
+            {
+                return BadRequest();
+            }
+
+            return File(Encoding.UTF8.GetBytes(constructedKeyAuthorization), "application/octet-stream");
         }
 
         private HomeOperationsViewModel BuildHomeOperationsViewModelForUnauthenticatedUser()

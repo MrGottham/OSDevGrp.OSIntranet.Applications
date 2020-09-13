@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
@@ -27,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IClaimResolver> _claimResolverMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
+        private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -38,6 +40,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _queryBusMock = new Mock<IQueryBus>();
             _claimResolverMock = new Mock<IClaimResolver>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+            _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
@@ -498,7 +501,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _claimResolverMock.Setup(m => m.GetAccountingNumber())
                 .Returns(hasAccountingNumber ?? _random.Next(100) > 50 ? accountingNumber ?? (int?) _fixture.Create<int>() : null);
 
-            Controller controller = new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object)
+            Controller controller = new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, _acmeChallengeResolverMock.Object)
             {
                 ControllerContext = new ControllerContext
                 {

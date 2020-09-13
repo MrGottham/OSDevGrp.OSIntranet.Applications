@@ -9,6 +9,15 @@ services:
       dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile
     restart: "no"
 
+  executor:
+    image: executor-osintranet
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.Executor.Dockerfile
+      args:
+        sshPassword: [TBD]
+    restart: "no"
+
   reverseproxy:
     image: reverseproxy-osintranet
     build:
@@ -26,6 +35,7 @@ services:
   mvc:
     image: mvc-osintranet
     environment: 
+      - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_URLS=http://*:80
       - connectionStrings__OSDevGrp.OSIntranet=[TBD]
@@ -35,6 +45,8 @@ services:
       - Security__Google__ClientId=[TBD]
       - Security__Google__ClientSecret=[TBD]
       - Security__TrustedDomainCollection=[TBD]
+      - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
+      - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
       - reverseproxy
     build:
@@ -42,17 +54,22 @@ services:
       dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
       cache_from:
         - builder-osintranet
+        - executor-osintranet
     expose:
       - "80"
+      - "2222"
     restart: always
 
   webapi:
     image: webapi-osintranet
     environment: 
+      - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_URLS=http://*:80
       - connectionStrings__OSDevGrp.OSIntranet=[TBD]
       - Security__JWT__Key=[TBD]
+      - Security__AcmeChallenge__WellKnownChallengeToken[TBD]
+      - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
       - reverseproxy
     build:
@@ -60,6 +77,26 @@ services:
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile
       cache_from:
         - builder-osintranet
+        - executor-osintranet
     expose:
       - "80"
+      - "2222"
     restart: always
+
+  certbot:
+    image: certbot-osintranet
+    build:
+      context: .
+      dockerfile: Certbot.Dockerfile
+      args:
+        sshPassword: [TBD]
+    ports:
+      - "8022:2222"
+    restart: "always"
+    volumes:
+      - letsencrypt-config:/etc/letsencrypt
+      - letsencrypt-data:/var/lib/letsencrypt
+
+volumes:
+  letsencrypt-config:
+  letsencrypt-data:

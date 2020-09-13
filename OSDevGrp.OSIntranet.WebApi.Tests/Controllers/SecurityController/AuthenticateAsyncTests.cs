@@ -14,6 +14,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Security;
@@ -30,6 +31,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<ISecurityContextReader> _securityContextReaderMock;
+        private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -41,6 +43,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock = new Mock<ICommandBus>();
             _securityContextReaderMock = new Mock<ISecurityContextReader>();
             _fixture = new Fixture();
+            _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -313,7 +316,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     .Returns(() => Task.Run(() => hasClientSecretIdentity ? clientSecretIdentity ?? _fixture.BuildClientSecretIdentityMock().Object : null));
             }
 
-            return new Controller(_commandBusMock.Object, _securityContextReaderMock.Object);
+            return new Controller(_commandBusMock.Object, _securityContextReaderMock.Object, _acmeChallengeResolverMock.Object);
         }
 
         private AuthenticationHeaderValue CreateBasicAuthenticationHeader(string parameter = null)
@@ -328,18 +331,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private string CreateMd5Hash()
         {
-            using (MD5 md5Hash = MD5.Create())
+            using MD5 md5Hash = MD5.Create();
+            
+            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(_fixture.Create<string>()));
+
+            StringBuilder resultBuilder = new StringBuilder();
+            foreach (byte b in data)
             {
-                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(_fixture.Create<string>()));
-
-                StringBuilder resultBuilder = new StringBuilder();
-                foreach (byte b in data)
-                {
-                    resultBuilder.Append(b.ToString("x2"));
-                }
-
-                return resultBuilder.ToString();
+                resultBuilder.Append(b.ToString("x2"));
             }
-       }
+
+            return resultBuilder.ToString();
+        }
     }
 }

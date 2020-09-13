@@ -7,6 +7,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
@@ -23,6 +24,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IClaimResolver> _claimResolverMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
+        private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
 
         #endregion
@@ -33,6 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _queryBusMock = new Mock<IQueryBus>();
             _claimResolverMock = new Mock<IClaimResolver>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+            _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _fixture = new Fixture();
         }
 
@@ -107,7 +110,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _queryBusMock.Setup(m => m.QueryAsync<IGetAccountingQuery, IAccounting>(It.IsAny<IGetAccountingQuery>()))
                 .Returns(Task.FromResult(hasAccounting ? accounting ?? _fixture.BuildAccountingMock().Object : null));
 
-            return new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object);
+            return new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, _acmeChallengeResolverMock.Object);
         }
     }
 }

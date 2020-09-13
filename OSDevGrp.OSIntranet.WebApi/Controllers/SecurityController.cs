@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Security;
 using OSDevGrp.OSIntranet.WebApi.Models.Core;
@@ -28,6 +29,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly ISecurityContextReader _securityContextReader;
+        private readonly IAcmeChallengeResolver _acmeChallengeResolver;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
         private readonly IConverter _coreModelConverter = new CoreModelConverter();
         private readonly Regex _basicAuthenticationRegex = new Regex("^([a-f0-9]{32}):([a-f0-9]{32})$", RegexOptions.Compiled);
@@ -36,13 +38,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, ISecurityContextReader securityContextReader)
+        public SecurityController(ICommandBus commandBus, ISecurityContextReader securityContextReader, IAcmeChallengeResolver acmeChallengeResolver)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(securityContextReader, nameof(securityContextReader));
+                .NotNull(securityContextReader, nameof(securityContextReader))
+                .NotNull(acmeChallengeResolver, nameof(acmeChallengeResolver));
 
             _commandBus = commandBus;
             _securityContextReader = securityContextReader;
+            _acmeChallengeResolver = acmeChallengeResolver;
         }
 
         #endregion
@@ -84,6 +88,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 return BadRequest(_coreModelConverter.Convert<IntranetExceptionBase, ErrorModel>(ex));
             }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("/.well-known/acme-challenge/{challengeToken}")]
+        public IActionResult AcmeChallenge(string challengeToken)
+        {
+            NullGuard.NotNullOrWhiteSpace(challengeToken, nameof(challengeToken));
+
+            string constructedKeyAuthorization = _acmeChallengeResolver.GetConstructedKeyAuthorization(challengeToken);
+            if (string.IsNullOrWhiteSpace(constructedKeyAuthorization))
+            {
+                return BadRequest();
+            }
+
+            return File(Encoding.UTF8.GetBytes(constructedKeyAuthorization), "application/octet-stream");
         }
 
         #endregion

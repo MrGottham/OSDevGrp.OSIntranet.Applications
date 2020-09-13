@@ -128,6 +128,7 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
+            services.AddResolvers();
             services.AddRepositories();
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
