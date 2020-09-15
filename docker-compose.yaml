@@ -38,7 +38,7 @@ services:
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_URLS=http://*:80
-      - connectionStrings__OSDevGrp.OSIntranet=[TBD]
+      - connectionStrings__OSIntranet=[TBD]
       - Security__Microsoft__ClientId=[TBD]
       - Security__Microsoft__ClientSecret=[TBD]
       - Security__Microsoft__Tenant=[TBD]
@@ -66,9 +66,9 @@ services:
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_URLS=http://*:80
-      - connectionStrings__OSDevGrp.OSIntranet=[TBD]
+      - connectionStrings__OSIntranet=[TBD]
       - Security__JWT__Key=[TBD]
-      - Security__AcmeChallenge__WellKnownChallengeToken[TBD]
+      - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
       - reverseproxy

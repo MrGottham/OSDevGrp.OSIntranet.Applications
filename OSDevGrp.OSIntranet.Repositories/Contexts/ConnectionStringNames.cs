@@ -2,6 +2,6 @@
 {
     public static class ConnectionStringNames
     {
-        public const string IntranetName = "OSDevGrp.OSIntranet";
+        public const string IntranetName = "OSIntranet";
     }
 }
