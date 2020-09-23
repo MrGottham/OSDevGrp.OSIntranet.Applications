@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(CommonContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190504000_CreateLetterHeads")]
     internal class CreateLetterHeads : Migration
     {
@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.PrimaryKey("PK_LetterHeads", m => m.LetterHeadIdentifier);
                 });
         }
- 
+
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             NullGuard.NotNull(migrationBuilder, nameof(migrationBuilder));

@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Common
 {
-    internal class LetterHeadModelHandler : ModelHandlerBase<ILetterHead, CommonContext, LetterHeadModel, int>
+    internal class LetterHeadModelHandler : ModelHandlerBase<ILetterHead, RepositoryContext, LetterHeadModel, int>
     {
         #region Constructor
 
-        public LetterHeadModelHandler(CommonContext dbContext, IConverter modelConverter) 
+        public LetterHeadModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

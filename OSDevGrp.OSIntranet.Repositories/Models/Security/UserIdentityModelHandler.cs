@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 {
-    internal class UserIdentityModelHandler : ModelHandlerBase<IUserIdentity, SecurityContext, UserIdentityModel, int>
+    internal class UserIdentityModelHandler : ModelHandlerBase<IUserIdentity, RepositoryContext, UserIdentityModel, int>
     {
         #region Constructor
 
-        public UserIdentityModelHandler(SecurityContext dbContext, IConverter modelConverter) 
+        public UserIdentityModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

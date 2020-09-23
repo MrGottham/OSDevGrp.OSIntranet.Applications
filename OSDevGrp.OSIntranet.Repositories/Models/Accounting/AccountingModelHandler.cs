@@ -12,7 +12,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class AccountingModelHandler : ModelHandlerBase<IAccounting, AccountingContext, AccountingModel, int>
+    internal class AccountingModelHandler : ModelHandlerBase<IAccounting, RepositoryContext, AccountingModel, int>
     {
         #region Private variables
 
@@ -24,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         #region Constructor
 
-        public AccountingModelHandler(AccountingContext dbContext, IConverter modelConverter, DateTime statusDate, bool includeAccounts, bool includePostingLines) 
+        public AccountingModelHandler(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includeAccounts, bool includePostingLines) 
             : base(dbContext, modelConverter)
         {
             _statusDate = statusDate;
@@ -109,11 +109,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             // TODO: Update all accounting lines.
         }
 
-        protected override Task<bool> CanDeleteAsync(AccountingModel accountingModel)
+        protected override async Task<bool> CanDeleteAsync(AccountingModel accountingModel)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            return Task.FromResult(false);
+            bool usedOnAccount = await DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier) != null;
+            bool usedOnBudgetAccount = await DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier) != null;
+            bool usedOnContactAccount = await DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier) != null;
+
+            return usedOnAccount == false && usedOnBudgetAccount == false && usedOnContactAccount == false;
         }
 
         protected override Task<AccountingModel> OnDeleteAsync(AccountingModel accountingModel)

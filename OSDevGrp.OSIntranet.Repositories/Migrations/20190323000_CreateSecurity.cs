@@ -8,7 +8,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(SecurityContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190323000_CreateSecurity")]
     internal class CreateSecurity : Migration
     {

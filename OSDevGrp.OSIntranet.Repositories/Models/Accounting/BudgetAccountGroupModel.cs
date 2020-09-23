@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Core;
@@ -9,6 +10,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
     internal class BudgetAccountGroupModel : AccountGroupModelBase
     {
         public virtual int BudgetAccountGroupIdentifier { get; set; }
+
+        public virtual List<BudgetAccountModel> BudgetAccounts { get; set; }
     }
 
     internal static class BudgetAccountGroupModelExtensions

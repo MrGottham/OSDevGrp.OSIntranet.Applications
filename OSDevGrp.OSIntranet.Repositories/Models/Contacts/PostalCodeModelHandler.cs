@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class PostalCodeModelHandler : ModelHandlerBase<IPostalCode, ContactContext, PostalCodeModel, Tuple<string, string>>
+    internal class PostalCodeModelHandler : ModelHandlerBase<IPostalCode, RepositoryContext, PostalCodeModel, Tuple<string, string>>
     {
         #region Constructor
 
-        public PostalCodeModelHandler(ContactContext dbContext, IConverter modelConverter) 
+        public PostalCodeModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

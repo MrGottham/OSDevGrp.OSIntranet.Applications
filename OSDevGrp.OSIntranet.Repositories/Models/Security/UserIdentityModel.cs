@@ -57,7 +57,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             return userIdentityModel;
         }
 
-        internal static UserIdentityModel With(this UserIdentityModel userIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context, IConverter securityModelConverter)
+        internal static UserIdentityModel With(this UserIdentityModel userIdentityModel, IEnumerable<Claim> claimCollection, RepositoryContext context, IConverter securityModelConverter)
         {
             NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel))
                 .NotNull(claimCollection, nameof(claimCollection))

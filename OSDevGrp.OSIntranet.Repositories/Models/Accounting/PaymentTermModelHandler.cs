@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class PaymentTermModelHandler : ModelHandlerBase<IPaymentTerm, AccountingContext, PaymentTermModel, int>
+    internal class PaymentTermModelHandler : ModelHandlerBase<IPaymentTerm, RepositoryContext, PaymentTermModel, int>
     {
         #region Constructor
 
-        public PaymentTermModelHandler(AccountingContext dbContext, IConverter modelConverter) 
+        public PaymentTermModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }
@@ -65,7 +65,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(paymentTermModel, nameof(paymentTermModel));
 
-            return await DbContext.ContactSupplements.FirstOrDefaultAsync(contactSupplementModel => contactSupplementModel.PaymentTermIdentifier == paymentTermModel.PaymentTermIdentifier) == null;
+            bool usedOnContactAccount = await DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.PaymentTermIdentifier == paymentTermModel.PaymentTermIdentifier) != null;
+            bool usedOnContactSupplement = await DbContext.ContactSupplements.FirstOrDefaultAsync(contactSupplementModel => contactSupplementModel.PaymentTermIdentifier == paymentTermModel.PaymentTermIdentifier) != null;
+
+            return usedOnContactAccount == false && usedOnContactSupplement == false;
         }
 
         #endregion

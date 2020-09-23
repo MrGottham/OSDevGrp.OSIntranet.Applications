@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(SecurityContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190415000_AddAuditFields")]
     internal class AddAuditFieldsToSecurityContext : Migration
     {
@@ -21,9 +21,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                 migrationBuilder.AddColumn<string>("CreatedByIdentifier", tableName, "NVARCHAR(256)", true, 256, nullable: true);
                 migrationBuilder.AddColumn<DateTime>("ModifiedUtcDateTime", tableName, "DATETIME", nullable: true);
                 migrationBuilder.AddColumn<string>("ModifiedByIdentifier", tableName, "NVARCHAR(256)", true, 256, nullable: true);
-                
+
                 migrationBuilder.Sql($"UPDATE {tableName} SET CreatedUtcDateTime='{utcNow}',CreatedByIdentifier='OSDevGrp.OSIntranet.Repositories.Migrations',ModifiedUtcDateTime='{utcNow}',ModifiedByIdentifier='OSDevGrp.OSIntranet.Repositories.Migrations'");
-                
+
                 migrationBuilder.AlterColumn<DateTime>("CreatedUtcDateTime", tableName, nullable: false);
                 migrationBuilder.AlterColumn<string>("CreatedByIdentifier", tableName, "NVARCHAR(256)", true, 256, nullable: false);
                 migrationBuilder.AlterColumn<DateTime>("ModifiedUtcDateTime", tableName, nullable: false);

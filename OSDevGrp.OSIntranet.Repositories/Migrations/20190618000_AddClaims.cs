@@ -9,7 +9,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(SecurityContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190618000_AddClaims")]
     internal class AddClaims : Migration
     {

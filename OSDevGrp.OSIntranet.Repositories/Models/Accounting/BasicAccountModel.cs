@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
@@ -13,6 +14,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual string Description { get; set; }
 
         public virtual string Note { get; set; }
+
+        public virtual List<AccountModel> Accounts { get; set; }
+
+        public virtual List<BudgetAccountModel> BudgetAccounts { get; set; }
+
+        public virtual List<ContactAccountModel> ContactAccounts { get; set; }
     }
 
     internal static class BasicAccountModelExtensions

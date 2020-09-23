@@ -12,7 +12,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class ContactSupplementModelHandler : ModelHandlerBase<IContact, ContactContext, ContactSupplementModel, int>
+    internal class ContactSupplementModelHandler : ModelHandlerBase<IContact, RepositoryContext, ContactSupplementModel, int>
     {
         #region Private variables
 
@@ -23,7 +23,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 
         #region Constructor
 
-        public ContactSupplementModelHandler(ContactContext dbContext, IConverter modelConverter, IConverter accountingModelConverter) 
+        public ContactSupplementModelHandler(RepositoryContext dbContext, IConverter modelConverter, IConverter accountingModelConverter) 
             : base(dbContext, modelConverter)
         {
             NullGuard.NotNull(accountingModelConverter, nameof(accountingModelConverter));

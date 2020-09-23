@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class CountryModelHandler : ModelHandlerBase<ICountry, ContactContext, CountryModel, string>
+    internal class CountryModelHandler : ModelHandlerBase<ICountry, RepositoryContext, CountryModel, string>
     {
         #region Constructor
 
-        public CountryModelHandler(ContactContext dbContext, IConverter modelConverter) 
+        public CountryModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

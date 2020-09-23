@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(AccountingContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20191112001_CreatePaymentTerms")]
     internal class CreatePaymentTerms : Migration
     {

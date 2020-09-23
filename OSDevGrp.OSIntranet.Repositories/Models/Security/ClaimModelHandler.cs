@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 {
-    internal class ClaimModelHandler : ModelHandlerBase<Claim, SecurityContext, ClaimModel, string>
+    internal class ClaimModelHandler : ModelHandlerBase<Claim, RepositoryContext, ClaimModel, string>
     {
         #region Constructor
 
-        public ClaimModelHandler(SecurityContext dbContext, IConverter modelConverter) 
+        public ClaimModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

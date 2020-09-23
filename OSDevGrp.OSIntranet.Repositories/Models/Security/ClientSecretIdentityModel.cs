@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             return clientSecretIdentityModel;
         }
 
-        internal static ClientSecretIdentityModel With(this ClientSecretIdentityModel clientSecretIdentityModel, IEnumerable<Claim> claimCollection, SecurityContext context, IConverter securityModelConverter)
+        internal static ClientSecretIdentityModel With(this ClientSecretIdentityModel clientSecretIdentityModel, IEnumerable<Claim> claimCollection, RepositoryContext context, IConverter securityModelConverter)
         {
             NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel))
                 .NotNull(claimCollection, nameof(claimCollection))

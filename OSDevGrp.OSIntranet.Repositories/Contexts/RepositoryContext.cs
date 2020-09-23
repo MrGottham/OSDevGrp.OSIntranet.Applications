@@ -12,24 +12,28 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
+using OSDevGrp.OSIntranet.Repositories.Models.Common;
+using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using OSDevGrp.OSIntranet.Repositories.Models.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
-    internal abstract class RepositoryContextBase : DbContext
+    internal class RepositoryContext : DbContext
     {
         #region Constructors
 
-        protected RepositoryContextBase()
+        public RepositoryContext()
         {
             Configuration = new ConfigurationBuilder()
-                .AddUserSecrets<AccountingContext>()
+                .AddUserSecrets<RepositoryContext>()
                 .Build();
             PrincipalResolver = new GenericPrincipalResolver();
             LoggerFactory = NullLoggerFactory.Instance;
         }
 
-        protected RepositoryContextBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+        public RepositoryContext(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
         {
             NullGuard.NotNull(configuration, nameof(configuration))
                 .NotNull(principalResolver, nameof(principalResolver))
@@ -42,13 +46,67 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #endregion
 
+        #region DbSets for Common data
+
+        public DbSet<LetterHeadModel> LetterHeads { get; set; }
+
+        #endregion
+
+        #region DbSets for Contact data
+
+        public DbSet<ContactSupplementModel> ContactSupplements { get; set; }
+
+        public DbSet<ContactSupplementBindingModel> ContactSupplementBindings { get; set; }
+
+        public DbSet<ContactGroupModel> ContactGroups { get; set; }
+
+        public DbSet<CountryModel> Countries { get; set; }
+
+        public DbSet<PostalCodeModel> PostalCodes { get; set; }
+
+        #endregion
+
+        #region DbSets for Accounting data
+
+        public DbSet<AccountingModel> Accountings { get; set; }
+
+        public DbSet<AccountModel> Accounts { get; set; }
+
+        public DbSet<BudgetAccountModel> BudgetAccounts { get; set; }
+
+        public DbSet<ContactAccountModel> ContactAccounts { get; set; }
+
+        public DbSet<BasicAccountModel> BasicAccounts { get; set; }
+
+        public DbSet<AccountGroupModel> AccountGroups { get; set; }
+
+        public DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
+
+        public DbSet<PaymentTermModel> PaymentTerms { get; set; }
+
+        #endregion
+
+        #region DbSets for Security data
+
+        public DbSet<UserIdentityModel> UserIdentities { get; set; }
+
+        public DbSet<UserIdentityClaimModel> UserIdentityClaims { get; set; }
+
+        public DbSet<ClientSecretIdentityModel> ClientSecretIdentities { get; set; }
+
+        public DbSet<ClientSecretIdentityClaimModel> ClientSecretIdentityClaims { get; set; }
+
+        public DbSet<ClaimModel> Claims { get; set; }
+
+        #endregion
+
         #region Properties
 
-        protected IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
-        protected IPrincipalResolver PrincipalResolver { get; }
+        private IPrincipalResolver PrincipalResolver { get; }
 
-        protected ILoggerFactory LoggerFactory { get; }
+        private ILoggerFactory LoggerFactory { get; }
 
         #endregion
 
@@ -96,6 +154,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             optionsBuilder.UseLoggerFactory(LoggerFactory)
                 .UseMySQL(Configuration.GetConnectionString(ConnectionStringNames.IntranetName));
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            CreateModelsForCommonData(modelBuilder);
+            CreateModelsForContactData(modelBuilder);
+            CreateModelsForAccountingData(modelBuilder);
+            CreateModelsForSecurityData(modelBuilder);
         }
 
         private string GetIdentityIdentifier(IPrincipal currentPrincipal)
@@ -166,6 +234,49 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                     auditModel.ModifiedByIdentifier = identityIdentifier;
                 }
             }
+        }
+
+        private void CreateModelsForCommonData(ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            modelBuilder.CreateLetterHeadModel();
+        }
+
+        private void CreateModelsForContactData(ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            modelBuilder.CreateContactSupplementModel();
+            modelBuilder.CreateContactSupplementBindingModel();
+            modelBuilder.CreateContactGroupModel();
+            modelBuilder.CreateCountryModel();
+            modelBuilder.CreatePostalCodeModel();
+        }
+
+        private void CreateModelsForAccountingData(ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            modelBuilder.CreateAccountingModel();
+            modelBuilder.CreateAccountModel();
+            modelBuilder.CreateBudgetAccountModel();
+            modelBuilder.CreateContactAccountModel();
+            modelBuilder.CreateBasicAccountModel();
+            modelBuilder.CreateAccountGroupModel();
+            modelBuilder.CreateBudgetAccountGroupModel();
+            modelBuilder.CreatePaymentTermModel();
+        }
+
+        private void CreateModelsForSecurityData(ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            modelBuilder.CreateUserIdentityModel();
+            modelBuilder.CreateUserIdentityClaimModel();
+            modelBuilder.CreateClientSecretIdentityModel();
+            modelBuilder.CreateClientSecretIdentityClaimModel();
+            modelBuilder.CreateClaimModel();
         }
 
         #endregion

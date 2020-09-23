@@ -7,7 +7,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(SecurityContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190323002_SecurityRelations")]
     public class SecurityRelations : Migration
     {
@@ -88,7 +88,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             sqlBuilder.AppendLine($"WHERE userIdentities.ExternalUserIdentifier='{externalUserIdentifier}' AND claims.ClaimType='{claimType}'");
 
             return sqlBuilder.ToString();
-
         }
 
         private string GetClientSecretIdentityClaimModelInsertSql(string friendlyName, string claimType, string claimValue = null)
@@ -105,7 +104,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             sqlBuilder.AppendLine($"WHERE clientSecretIdentities.FriendlyName='{friendlyName}' AND claims.ClaimType='{claimType}'");
 
             return sqlBuilder.ToString();
-
         }
     }
 }

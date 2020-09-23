@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class ContactSupplementBindingModelHandler : ModelHandlerBase<IContact, ContactContext, ContactSupplementBindingModel, int>
+    internal class ContactSupplementBindingModelHandler : ModelHandlerBase<IContact, RepositoryContext, ContactSupplementBindingModel, int>
     {
         #region Constructor
 
-        public ContactSupplementBindingModelHandler(ContactContext dbContext, IConverter modelConverter) 
+        public ContactSupplementBindingModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(ContactContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20191112000_CreateContactGroups")]
     internal class CreateContactGroups : Migration
     {

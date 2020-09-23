@@ -8,7 +8,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(AccountingContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190319000_InitialCreate")]
     internal class InitialCreate : Migration
     {

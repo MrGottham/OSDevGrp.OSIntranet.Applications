@@ -23,29 +23,77 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<AccountingModel, IAccounting>()
-                .ConvertUsing(accountingModel => accountingModel.ToDomain(_commonModelConverter));
+                .ConvertUsing(accountingModel => accountingModel.ToDomain(this, _commonModelConverter));
 
             mapperConfiguration.CreateMap<IAccounting, AccountingModel>()
                 .ForMember(dest => dest.AccountingIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.LetterHeadIdentifier, opt => opt.MapFrom(src => src.LetterHead.Number))
                 .ForMember(dest => dest.LetterHead, opt => opt.MapFrom(src => _commonModelConverter.Convert<ILetterHead, LetterHeadModel>(src.LetterHead)))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.AccountCollection))
+                .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
+                .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection));
+
+            mapperConfiguration.CreateMap<AccountModel, IAccount>()
+                .ConvertUsing(accountModel => accountModel.ToDomain(this));
+
+            mapperConfiguration.CreateMap<IAccount, AccountModel>()
+                .ForMember(dest => dest.AccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.AccountingIdentifier, opt => opt.MapFrom(src => src.Accounting.Number))
+                .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.BasicAccount, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.AccountGroupIdentifier, opt => opt.MapFrom(src => src.AccountGroup.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<IAccount, BasicAccountModel>()
                 .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.Accounts, opt => opt.Ignore())
+                .ForMember(dest => dest.BudgetAccounts, opt => opt.Ignore())
+                .ForMember(dest => dest.ContactAccounts, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<BudgetAccountModel, IBudgetAccount>()
+                .ConvertUsing(budgetAccountModel => budgetAccountModel.ToDomain(this));
+
+            mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountModel>()
+                .ForMember(dest => dest.BudgetAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.AccountingIdentifier, opt => opt.MapFrom(src => src.Accounting.Number))
+                .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.BasicAccount, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.BudgetAccountGroupIdentifier, opt => opt.MapFrom(src => src.BudgetAccountGroup.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<IBudgetAccount, BasicAccountModel>()
                 .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.Accounts, opt => opt.Ignore())
+                .ForMember(dest => dest.BudgetAccounts, opt => opt.Ignore())
+                .ForMember(dest => dest.ContactAccounts, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<ContactAccountModel, IContactAccount>()
+                .ConvertUsing(contactAccountModel => contactAccountModel.ToDomain(this));
+
+            mapperConfiguration.CreateMap<IContactAccount, ContactAccountModel>()
+                .ForMember(dest => dest.ContactAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.AccountingIdentifier, opt => opt.MapFrom(src => src.Accounting.Number))
+                .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.BasicAccount, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.PaymentTerm.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<IContactAccount, BasicAccountModel>()
                 .ForMember(dest => dest.BasicAccountIdentifier, opt => opt.MapFrom(src => default(int)))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.Accounts, opt => opt.Ignore())
+                .ForMember(dest => dest.BudgetAccounts, opt => opt.Ignore())
+                .ForMember(dest => dest.ContactAccounts, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<AccountGroupModel, IAccountGroup>()
                 .ConvertUsing(accountGroupModel => accountGroupModel.ToDomain());
@@ -53,7 +101,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupModel>()
                 .ForMember(dest => dest.AccountGroupIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.Accounts, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<BudgetAccountGroupModel, IBudgetAccountGroup>()
                 .ConvertUsing(budgetAccountGroupModel => budgetAccountGroupModel.ToDomain());
@@ -61,7 +110,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupModel>()
                 .ForMember(dest => dest.BudgetAccountGroupIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
-                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.BudgetAccounts, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<PaymentTermModel, IPaymentTerm>()
                 .ConvertUsing(paymentTermModel => paymentTermModel.ToDomain());
@@ -70,6 +120,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.PaymentTermIdentifier, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ContactAccounts, opt => opt.Ignore())
                 .ForMember(dest => dest.ContactSupplements, opt => opt.Ignore());
         }
 

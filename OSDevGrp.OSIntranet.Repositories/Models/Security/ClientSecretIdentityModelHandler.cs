@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 {
-    internal class ClientSecretIdentityModelHandler : ModelHandlerBase<IClientSecretIdentity, SecurityContext, ClientSecretIdentityModel, int>
+    internal class ClientSecretIdentityModelHandler : ModelHandlerBase<IClientSecretIdentity, RepositoryContext, ClientSecretIdentityModel, int>
     {
         #region Constructor
 
-        public ClientSecretIdentityModelHandler(SecurityContext dbContext, IConverter modelConverter) 
+        public ClientSecretIdentityModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }

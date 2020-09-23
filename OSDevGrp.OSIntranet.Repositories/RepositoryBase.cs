@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -39,6 +40,11 @@ namespace OSDevGrp.OSIntranet.Repositories
         #endregion
 
         #region Methods
+
+        internal RepositoryContext CreateRepositoryContext()
+        {
+            return new RepositoryContext(Configuration, PrincipalResolver, LoggerFactory);
+        }
 
         protected async Task ExecuteAsync(Func<Task> action, MethodBase methodBase)
         {

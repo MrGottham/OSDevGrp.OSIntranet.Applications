@@ -12,11 +12,11 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class BudgetAccountGroupModelHandler : ModelHandlerBase<IBudgetAccountGroup, AccountingContext, BudgetAccountGroupModel, int>
+    internal class BudgetAccountGroupModelHandler : ModelHandlerBase<IBudgetAccountGroup, RepositoryContext, BudgetAccountGroupModel, int>
     {
         #region Constructor
 
-        public BudgetAccountGroupModelHandler(AccountingContext dbContext, IConverter modelConverter) 
+        public BudgetAccountGroupModelHandler(RepositoryContext dbContext, IConverter modelConverter) 
             : base(dbContext, modelConverter)
         {
         }
@@ -61,11 +61,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return Task.CompletedTask;
         }
 
-        protected override Task<bool> CanDeleteAsync(BudgetAccountGroupModel budgetAccountGroupModel)
+        protected override async Task<bool> CanDeleteAsync(BudgetAccountGroupModel budgetAccountGroupModel)
         {
             NullGuard.NotNull(budgetAccountGroupModel, nameof(budgetAccountGroupModel));
 
-            return Task.FromResult(false);
+            return await DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.BudgetAccountGroupIdentifier == budgetAccountGroupModel.BudgetAccountGroupIdentifier) == null;
         }
 
         #endregion

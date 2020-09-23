@@ -8,7 +8,6 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
-using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
@@ -38,7 +37,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateAccountingContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
                     return await accountingModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -48,7 +47,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateAccountingContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
                     return await accountingModelHandler.ExistsAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -58,7 +57,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateAccountingContext(), _accountingModelConverter, statusDate, true, true);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
                     return await accountingModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -70,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateAccountingContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
                     return await accountingModelHandler.CreateAsync(accounting);
                 },
                 MethodBase.GetCurrentMethod());
@@ -82,7 +81,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateAccountingContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
                     return await accountingModelHandler.UpdateAsync(accounting);
                 },
                 MethodBase.GetCurrentMethod());
@@ -92,7 +91,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateAccountingContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
                     return await accountingModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -102,7 +101,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await accountGroupModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -112,7 +111,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await accountGroupModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -124,7 +123,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await accountGroupModelHandler.CreateAsync(accountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -136,7 +135,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await accountGroupModelHandler.UpdateAsync(accountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -146,7 +145,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await accountGroupModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -156,7 +155,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await budgetAccountGroupModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -166,7 +165,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await budgetAccountGroupModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -178,7 +177,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await budgetAccountGroupModelHandler.CreateAsync(budgetAccountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -190,7 +189,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await budgetAccountGroupModelHandler.UpdateAsync(budgetAccountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -200,7 +199,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await budgetAccountGroupModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -210,7 +209,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await paymentTermModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -220,7 +219,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await paymentTermModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -232,7 +231,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await paymentTermModelHandler.CreateAsync(paymentTerm);
                 },
                 MethodBase.GetCurrentMethod());
@@ -244,7 +243,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await paymentTermModelHandler.UpdateAsync(paymentTerm);
                 },
                 MethodBase.GetCurrentMethod());
@@ -254,15 +253,10 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateAccountingContext(), _accountingModelConverter);
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(CreateRepositoryContext(), _accountingModelConverter);
                     return await paymentTermModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
-        }
-
-        private AccountingContext CreateAccountingContext()
-        {
-            return new AccountingContext(Configuration, PrincipalResolver, LoggerFactory);
         }
 
         #endregion

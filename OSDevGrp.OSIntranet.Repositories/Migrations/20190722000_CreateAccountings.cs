@@ -7,7 +7,7 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(AccountingContext))]
+    [DbContext(typeof(RepositoryContext))]
     [Migration("20190722000_CreateAccountings")]
     internal class CreateAccountings : Migration
     {

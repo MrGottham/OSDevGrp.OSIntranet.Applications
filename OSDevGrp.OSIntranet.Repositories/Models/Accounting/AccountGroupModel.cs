@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Core;
@@ -12,6 +13,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual int AccountGroupIdentifier { get; set; }
 
         public virtual AccountGroupType AccountGroupType { get; set; }
+
+        public virtual List<AccountModel> Accounts { get; set;}
     }
 
     internal static class AccountGroupModelExtensions

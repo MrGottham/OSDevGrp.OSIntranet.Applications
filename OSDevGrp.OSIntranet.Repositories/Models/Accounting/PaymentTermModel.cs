@@ -17,6 +17,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         public virtual bool Deletable { get; set; }
 
+        public virtual List<ContactAccountModel> ContactAccounts { get; set; }
+
         public virtual List<ContactSupplementModel> ContactSupplements { get; set; }
     }
 
