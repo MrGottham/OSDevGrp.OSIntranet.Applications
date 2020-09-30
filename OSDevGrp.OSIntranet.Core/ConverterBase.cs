@@ -9,6 +9,7 @@ namespace OSDevGrp.OSIntranet.Core
     {
         #region Private variables
 
+        private IConverterCache _converterCache;
         private static readonly IDictionary<Type, MapperConfiguration> MapperConfigurations = new Dictionary<Type, MapperConfiguration>();
         private static readonly object SyncRoot = new object();
 
@@ -27,6 +28,21 @@ namespace OSDevGrp.OSIntranet.Core
             MapperConfiguration mapperConfiguration = ResolveMapperConfiguration(GetType());
 
             Mapper = mapperConfiguration.CreateMapper();
+        }
+
+        #endregion
+
+        #region Properties
+
+        public IConverterCache Cache
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    return _converterCache ??= new ConverterCache();
+                }
+            }
         }
 
         #endregion

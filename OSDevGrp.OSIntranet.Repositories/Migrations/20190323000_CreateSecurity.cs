@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -19,7 +20,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.CreateTable("UserIdentities",
                 table => new
                 {
-                    UserIdentityIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    UserIdentityIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ExternalUserIdentifier = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256)
                 },
                 constraints: table =>
@@ -28,10 +29,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.UniqueConstraint("IX_UserIdentities_ExternalUserIdentifier", m => m.ExternalUserIdentifier);
                 });
 
+            migrationBuilder.Sql("ALTER TABLE UserIdentities MODIFY UserIdentityIdentifier INT NOT NULL AUTO_INCREMENT");
+
             migrationBuilder.CreateTable("ClientSecretIdentities",
                 table => new
                 {
-                    ClientSecretIdentityIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    ClientSecretIdentityIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     FriendlyName = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256),
                     ClientId = table.Column<string>("CHAR(32)", unicode: true, nullable: false, maxLength: 32),
                     ClientSecret = table.Column<string>("CHAR(32)", unicode: true, nullable: false, maxLength: 32)
@@ -42,6 +45,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.UniqueConstraint("IX_ClientSecretIdentities_FriendlyName", m => m.FriendlyName);
                     table.UniqueConstraint("IX_ClientSecretIdentities_ClientId", m => m.ClientId);
                 });
+
+            migrationBuilder.Sql("ALTER TABLE ClientSecretIdentities MODIFY ClientSecretIdentityIdentifier INT NOT NULL AUTO_INCREMENT");
 
             InsertUserIdentityModels(migrationBuilder);
             InsertClientSecretModels(migrationBuilder);

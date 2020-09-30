@@ -81,7 +81,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             modelBuilder.Entity<UserIdentityModel>(entity =>
             {
                 entity.HasKey(e => e.UserIdentityIdentifier);
-                entity.Property(e => e.UserIdentityIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.UserIdentityIdentifier).IsRequired().ValueGeneratedOnAdd();
                 entity.Property(e => e.ExternalUserIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.CreatedUtcDateTime).IsRequired();
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);

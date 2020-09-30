@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
@@ -19,7 +20,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.CreateTable("Claims",
                 table => new
                 {
-                    ClaimIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    ClaimIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ClaimType = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256),
                     ClaimValue = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: true, maxLength: 256)
                 },
@@ -28,6 +29,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.PrimaryKey("PK_Claims", m => m.ClaimIdentifier);
                     table.UniqueConstraint("IX_Claims_ClaimType", m => m.ClaimType);
                 });
+
+            migrationBuilder.Sql("ALTER TABLE Claims MODIFY ClaimIdentifier INT NOT NULL AUTO_INCREMENT");
 
             InsertClaimModels(migrationBuilder);
         }

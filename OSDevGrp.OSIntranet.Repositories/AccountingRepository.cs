@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -81,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, true);
                     return await accountingModelHandler.UpdateAsync(accounting);
                 },
                 MethodBase.GetCurrentMethod());
@@ -91,8 +92,230 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, true);
                     return await accountingModelHandler.DeleteAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IAccountCollection> GetAccountsAsync(int accountingNumber, DateTime statusDate)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
+
+                    IAccountCollection accountCollection = new AccountCollection();
+                    accountCollection.Add(await accountModelHandler.ReadAsync(accountModel => accountModel.AccountingIdentifier == accountingNumber));
+
+                    return accountCollection;
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<bool> AccountExistsAsync(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    return await accountModelHandler.ExistsAsync(accountingNumber, accountNumber);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IAccount> GetAccountAsync(int accountingNumber, string accountNumber, DateTime statusDate)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
+                    return await accountModelHandler.ReadAsync(accountingNumber, accountNumber);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IAccount> CreateAccountAsync(IAccount account)
+        {
+            NullGuard.NotNull(account, nameof(account));
+
+            return ExecuteAsync(async () =>
+                {
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, false);
+                    return await accountModelHandler.CreateAsync(account);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IAccount> UpdateAccountAsync(IAccount account)
+        {
+            NullGuard.NotNull(account, nameof(account));
+
+            return ExecuteAsync(async () =>
+                {
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, true);
+                    return await accountModelHandler.UpdateAsync(account);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IAccount> DeleteAccountAsync(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, true);
+                    return await accountModelHandler.DeleteAsync(new Tuple<int, string>(accountingNumber, accountNumber));
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IBudgetAccountCollection> GetBudgetAccountsAsync(int accountingNumber, DateTime statusDate)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
+
+                    IBudgetAccountCollection budgetAccountCollection = new BudgetAccountCollection();
+                    budgetAccountCollection.Add(await budgetAccountModelHandler.ReadAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingNumber));
+
+                    return budgetAccountCollection;
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<bool> BudgetAccountExistsAsync(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false, false);
+                    return await budgetAccountModelHandler.ExistsAsync(accountingNumber, accountNumber);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IBudgetAccount> GetBudgetAccountAsync(int accountingNumber, string accountNumber, DateTime statusDate)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
+                    return await budgetAccountModelHandler.ReadAsync(accountingNumber, accountNumber);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IBudgetAccount> CreateBudgetAccountAsync(IBudgetAccount budgetAccount)
+        {
+            NullGuard.NotNull(budgetAccount, nameof(budgetAccount));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, false);
+                    return await budgetAccountModelHandler.CreateAsync(budgetAccount);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IBudgetAccount> UpdateBudgetAccountAsync(IBudgetAccount budgetAccount)
+        {
+            NullGuard.NotNull(budgetAccount, nameof(budgetAccount));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, true);
+                    return await budgetAccountModelHandler.UpdateAsync(budgetAccount);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IBudgetAccount> DeleteBudgetAccountAsync(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true, true);
+                    return await budgetAccountModelHandler.DeleteAsync(new Tuple<int, string>(accountingNumber, accountNumber));
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IContactAccountCollection> GetContactAccountsAsync(int accountingNumber, DateTime statusDate)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true);
+
+                    IContactAccountCollection contactAccountCollection = new ContactAccountCollection();
+                    contactAccountCollection.Add(await contactAccountModelHandler.ReadAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingNumber));
+
+                    return contactAccountCollection;
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<bool> ContactAccountExistsAsync(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false);
+                    return await contactAccountModelHandler.ExistsAsync(accountingNumber, accountNumber);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IContactAccount> GetContactAccountAsync(int accountingNumber, string accountNumber, DateTime statusDate)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true);
+                    return await contactAccountModelHandler.ReadAsync(accountingNumber, accountNumber);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IContactAccount> CreateContactAccountAsync(IContactAccount contactAccount)
+        {
+            NullGuard.NotNull(contactAccount, nameof(contactAccount));
+
+            return ExecuteAsync(async () =>
+                {
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, false);
+                    return await contactAccountModelHandler.CreateAsync(contactAccount);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IContactAccount> UpdateContactAccountAsync(IContactAccount contactAccount)
+        {
+            NullGuard.NotNull(contactAccount, nameof(contactAccount));
+
+            return ExecuteAsync(async () =>
+                {
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true);
+                    return await contactAccountModelHandler.UpdateAsync(contactAccount);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IContactAccount> DeleteContactAccountAsync(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return ExecuteAsync(async () =>
+                {
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, DateTime.Today, true);
+                    return await contactAccountModelHandler.DeleteAsync(new Tuple<int, string>(accountingNumber, accountNumber));
                 },
                 MethodBase.GetCurrentMethod());
         }

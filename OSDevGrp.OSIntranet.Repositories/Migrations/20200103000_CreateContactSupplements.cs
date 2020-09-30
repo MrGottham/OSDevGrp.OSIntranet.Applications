@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 
@@ -17,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.CreateTable("ContactSupplements",
                 table => new
                 {
-                    ContactSupplementIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    ContactSupplementIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ExternalIdentifier = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256),
                     Birthday = table.Column<DateTime>("DATE", nullable: true),
                     ContactGroupIdentifier = table.Column<int>(),
@@ -37,6 +38,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.ForeignKey("FK_ContactGroups_ContactGroupIdentifier", m => m.ContactGroupIdentifier, "ContactGroups", "ContactGroupIdentifier", onUpdate: ReferentialAction.Cascade, onDelete: ReferentialAction.Cascade);
                     table.ForeignKey("FK_PaymentTerms_ContactSupplementPaymentTermIdentifier", m => m.PaymentTermIdentifier, "PaymentTerms", "PaymentTermIdentifier", onUpdate: ReferentialAction.Cascade, onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.Sql("ALTER TABLE ContactSupplements MODIFY ContactSupplementIdentifier INT NOT NULL AUTO_INCREMENT");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

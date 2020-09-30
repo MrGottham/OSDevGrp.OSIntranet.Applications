@@ -24,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
             modelBuilder.Entity<ContactSupplementBindingModel>(entity =>
             {
                 entity.HasKey(e => e.ContactSupplementBindingIdentifier);
-                entity.Property(e => e.ContactSupplementBindingIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ContactSupplementBindingIdentifier).IsRequired().ValueGeneratedOnAdd();
                 entity.Property(e => e.ContactSupplementIdentifier).IsRequired();
                 entity.Property(e => e.ExternalIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.CreatedUtcDateTime).IsRequired();

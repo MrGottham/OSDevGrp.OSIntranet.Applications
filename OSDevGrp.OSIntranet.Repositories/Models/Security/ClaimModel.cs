@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             modelBuilder.Entity<ClaimModel>(entity =>
             {
                 entity.HasKey(e => e.ClaimIdentifier);
-                entity.Property(e => e.ClaimIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ClaimIdentifier).IsRequired().ValueGeneratedOnAdd();
                 entity.Property(e => e.ClaimType).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ClaimValue).IsRequired(false).IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.CreatedUtcDateTime).IsRequired();

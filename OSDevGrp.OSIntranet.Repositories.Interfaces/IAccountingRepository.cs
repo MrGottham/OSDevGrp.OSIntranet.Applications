@@ -19,6 +19,42 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IAccounting> DeleteAccountingAsync(int number);
 
+        Task<IAccountCollection> GetAccountsAsync(int accountingNumber, DateTime statusDate);
+
+        Task<bool> AccountExistsAsync(int accountingNumber, string accountNumber);
+
+        Task<IAccount> GetAccountAsync(int accountingNumber, string accountNumber, DateTime statusDate);
+
+        Task<IAccount> CreateAccountAsync(IAccount account);
+
+        Task<IAccount> UpdateAccountAsync(IAccount account);
+
+        Task<IAccount> DeleteAccountAsync(int accountingNumber, string accountNumber);
+
+        Task<IBudgetAccountCollection> GetBudgetAccountsAsync(int accountingNumber, DateTime statusDate);
+
+        Task<bool> BudgetAccountExistsAsync(int accountingNumber, string accountNumber);
+
+        Task<IBudgetAccount> GetBudgetAccountAsync(int accountingNumber, string accountNumber, DateTime statusDate);
+
+        Task<IBudgetAccount> CreateBudgetAccountAsync(IBudgetAccount budgetAccount);
+
+        Task<IBudgetAccount> UpdateBudgetAccountAsync(IBudgetAccount budgetAccount);
+
+        Task<IBudgetAccount> DeleteBudgetAccountAsync(int accountingNumber, string accountNumber);
+
+        Task<IContactAccountCollection> GetContactAccountsAsync(int accountingNumber, DateTime statusDate);
+
+        Task<bool> ContactAccountExistsAsync(int accountingNumber, string accountNumber);
+
+        Task<IContactAccount> GetContactAccountAsync(int accountingNumber, string accountNumber, DateTime statusDate);
+
+        Task<IContactAccount> CreateContactAccountAsync(IContactAccount contactAccount);
+
+        Task<IContactAccount> UpdateContactAccountAsync(IContactAccount contactAccount);
+
+        Task<IContactAccount> DeleteContactAccountAsync(int accountingNumber, string accountNumber);
+
         Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync();
 
         Task<IAccountGroup> GetAccountGroupAsync(int number);

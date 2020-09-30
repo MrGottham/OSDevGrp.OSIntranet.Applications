@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 
@@ -17,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.CreateTable("ContactSupplementBindings",
                 table => new
                 {
-                    ContactSupplementBindingIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    ContactSupplementBindingIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ContactSupplementIdentifier = table.Column<int>(),
                     ExternalIdentifier = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256),
                     CreatedUtcDateTime = table.Column<DateTime>("DATETIME", nullable: false),
@@ -32,6 +33,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.UniqueConstraint("IX_ContactSupplementBindings_ExternalIdentifier", m => m.ExternalIdentifier);
                     table.ForeignKey("FK_ContactSupplements_ContactSupplementIdentifier", m => m.ContactSupplementIdentifier, "ContactSupplements", "ContactSupplementIdentifier", onUpdate: ReferentialAction.Cascade, onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.Sql("ALTER TABLE ContactSupplementBindings MODIFY ContactSupplementBindingIdentifier INT NOT NULL AUTO_INCREMENT");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

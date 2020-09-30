@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System.Security.Claims;
+using System.Security.Principal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -22,13 +23,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests
         {
             Mock<IPrincipalResolver> principalResolverMock = new Mock<IPrincipalResolver>();
             principalResolverMock.Setup(m => m.GetCurrentPrincipal())
-                .Returns(principal ?? new Mock<IPrincipal>().Object);
+                .Returns(principal ?? CreateClaimsPrincipal());
             return principalResolverMock;
         }
 
         protected ILoggerFactory CreateLoggerFactory()
         {
             return NullLoggerFactory.Instance;
+        }
+
+        private ClaimsPrincipal CreateClaimsPrincipal()
+        {
+            Claim nameClaim = new Claim(ClaimTypes.Name, "OSDevGrp.OSIntranet.Repositories.Tests");
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] {nameClaim});
+
+            return new ClaimsPrincipal(claimsIdentity);
         }
 
         #endregion

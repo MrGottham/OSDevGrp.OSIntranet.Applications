@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 
@@ -17,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.CreateTable("BasicAccounts",
                 table => new
                 {
-                    BasicAccountIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    BasicAccountIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     AccountName = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256),
                     Description = table.Column<string>("NVARCHAR(512)", unicode: true, nullable: true, maxLength: 512),
                     Note = table.Column<string>("NVARCHAR(4096)", unicode: true, nullable: true, maxLength: 4096),
@@ -27,6 +28,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     ModifiedByIdentifier = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: false, maxLength: 256)
                 },
                 constraints: table => table.PrimaryKey("PK_BasicAccounts", m => m.BasicAccountIdentifier));
+
+            migrationBuilder.Sql("ALTER TABLE BasicAccounts MODIFY BasicAccountIdentifier INT NOT NULL AUTO_INCREMENT");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

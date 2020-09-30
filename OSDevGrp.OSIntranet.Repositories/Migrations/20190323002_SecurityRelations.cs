@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using MySql.Data.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
@@ -18,7 +19,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.CreateTable("UserIdentityClaims",
                 table => new
                 {
-                    UserIdentityClaimIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    UserIdentityClaimIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserIdentityIdentifier = table.Column<int>(),
                     ClaimIdentifier = table.Column<int>(),
                     ClaimValue = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: true, maxLength: 256)
@@ -31,10 +32,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.ForeignKey("FK_Claims_UserClaimIdentifier", m => m.ClaimIdentifier, "Claims", "ClaimIdentifier", onUpdate: ReferentialAction.Cascade, onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.Sql("ALTER TABLE UserIdentityClaims MODIFY UserIdentityClaimIdentifier INT NOT NULL AUTO_INCREMENT");
+
             migrationBuilder.CreateTable("ClientSecretIdentityClaims",
                 table => new
                 {
-                    ClientSecretIdentityClaimIdentifier = table.Column<int>().Annotation("MySQL:AutoIncrement", true),
+                    ClientSecretIdentityClaimIdentifier = table.Column<int>().Annotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ClientSecretIdentityIdentifier = table.Column<int>(),
                     ClaimIdentifier = table.Column<int>(),
                     ClaimValue = table.Column<string>("NVARCHAR(256)", unicode: true, nullable: true, maxLength: 256)
@@ -46,6 +49,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                     table.ForeignKey("FK_ClientSecretIdentities_ClientSecretIdentityIdentifier", m => m.ClientSecretIdentityIdentifier, "ClientSecretIdentities", "ClientSecretIdentityIdentifier", onUpdate: ReferentialAction.Cascade, onDelete: ReferentialAction.Cascade);
                     table.ForeignKey("FK_Claims_ClientSecretClaimIdentifier", m => m.ClaimIdentifier, "Claims", "ClaimIdentifier", onUpdate: ReferentialAction.Cascade, onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.Sql("ALTER TABLE ClientSecretIdentityClaims MODIFY ClientSecretIdentityClaimIdentifier INT NOT NULL AUTO_INCREMENT");
 
             InsertUserIdentityClaimModels(migrationBuilder);
             InsertClientSecretIdentityClaimModels(migrationBuilder);

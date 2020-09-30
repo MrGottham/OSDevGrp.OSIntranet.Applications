@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -43,30 +44,58 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter))
                 .NotNull(commonModelConverter, nameof(commonModelConverter));
 
-            ILetterHead letterHead = commonModelConverter.Convert<LetterHeadModel, ILetterHead>(accountingModel.LetterHead);
-
-            IAccounting accounting = new Domain.Accounting.Accounting(accountingModel.AccountingIdentifier, accountingModel.Name, letterHead, accountingModel.BalanceBelowZero, accountingModel.BackDating);
-            accounting.AddAuditInformation(accountingModel.CreatedUtcDateTime, accountingModel.CreatedByIdentifier, accountingModel.ModifiedUtcDateTime, accountingModel.ModifiedByIdentifier);
-            accounting.SetDeletable(accountingModel.Deletable);
-
-            if (accountingModel.Accounts != null)
+            IAccounting accounting;
+            lock (accountingModelConverter.Cache.SyncRoot)
             {
-                accounting.AccountCollection.Add(accountingModel.Accounts.AsParallel().Select(accountModel => accountingModelConverter.Convert<AccountModel, IAccount>(accountModel)).ToArray());
+                accounting = accountingModelConverter.Cache.FromMemory<IAccounting>(Convert.ToString(accountingModel.AccountingIdentifier));
+                if (accounting != null)
+                {
+                    return accounting;
+                }
+
+                ILetterHead letterHead = commonModelConverter.Convert<LetterHeadModel, ILetterHead>(accountingModel.LetterHead);
+
+                accounting = new Domain.Accounting.Accounting(accountingModel.AccountingIdentifier, accountingModel.Name, letterHead, accountingModel.BalanceBelowZero, accountingModel.BackDating);
+                accounting.AddAuditInformation(accountingModel.CreatedUtcDateTime, accountingModel.CreatedByIdentifier, accountingModel.ModifiedUtcDateTime, accountingModel.ModifiedByIdentifier);
+                accounting.SetDeletable(accountingModel.Deletable);
+
+                accountingModelConverter.Cache.Remember(accounting, m => Convert.ToString(m.Number));
             }
 
-            if (accountingModel.BudgetAccounts != null)
+            try
             {
-                accounting.BudgetAccountCollection.Add(accountingModel.BudgetAccounts.AsParallel().Select(budgetAccountModel => accountingModelConverter.Convert<BudgetAccountModel, IBudgetAccount>(budgetAccountModel)).ToArray());
-            }
+                if (accountingModel.Accounts != null)
+                {
+                    accounting.AccountCollection.Add(accountingModel.Accounts.AsParallel()
+                        .Where(accountModel => accountModel.Accounting != null && accountModel.BasicAccount != null && accountModel.AccountGroup != null)
+                        .Select(accountingModelConverter.Convert<AccountModel, IAccount>)
+                        .ToArray());
+                }
 
-            if (accountingModel.ContactAccounts != null)
+                if (accountingModel.BudgetAccounts != null)
+                {
+                    accounting.BudgetAccountCollection.Add(accountingModel.BudgetAccounts.AsParallel()
+                        .Where(budgetAccountModel => budgetAccountModel.Accounting != null && budgetAccountModel.BasicAccount != null && budgetAccountModel.BudgetAccountGroup != null)
+                        .Select(accountingModelConverter.Convert<BudgetAccountModel, IBudgetAccount>)
+                        .ToArray());
+                }
+
+                if (accountingModel.ContactAccounts != null)
+                {
+                    accounting.ContactAccountCollection.Add(accountingModel.ContactAccounts.AsParallel()
+                        .Where(contactAccountModel => contactAccountModel.Accounting != null && contactAccountModel.BasicAccount != null && contactAccountModel.PaymentTerm != null)
+                        .Select(accountingModelConverter.Convert<ContactAccountModel, IContactAccount>)
+                        .ToArray());
+                }
+
+                return accounting;
+            }
+            finally
             {
-                accounting.ContactAccountCollection.Add(accountingModel.ContactAccounts.AsParallel().Select(contactAccountModel => accountingModelConverter.Convert<ContactAccountModel, IContactAccount>(contactAccountModel)).ToArray());
+                accountingModelConverter.Cache.Forget<IAccounting>(Convert.ToString(accountingModel.AccountingIdentifier));
             }
-
-            return accounting;
         }
- 
+
         internal static void CreateAccountingModel(this ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));

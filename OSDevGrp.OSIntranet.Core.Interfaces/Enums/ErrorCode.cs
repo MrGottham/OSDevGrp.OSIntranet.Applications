@@ -63,7 +63,7 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
 
         [ErrorCode("The date value for the submitted field '{0}' should be in the future.", typeof(IntranetValidationException))]
         ValueShouldBeFutureDate = 1020,
-        
+
         [ErrorCode("The date value for the submitted field '{0}' should be today or in the future.", typeof(IntranetValidationException))]
         ValueShouldBeFutureDateOrToday = 1021,
 
@@ -104,6 +104,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ValueShouldBeFutureDateTime = 1033,
 
         [ErrorCode("A matching object of the type '{0}' already exists.", typeof(IntranetSystemException))]
-        ObjectAlreadyExists = 1034
+        ObjectAlreadyExists = 1034,
+
+        [ErrorCode("Unable to delete one or more objects of the type '{0}'.", typeof(IntranetRepositoryException))]
+        UnableToDeleteOneOrMoreObjects = 1035
     }
 }

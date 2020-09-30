@@ -11,13 +11,24 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetAccountingAsync_WhenCalled_ReturnsAccounting()
+        public async Task GetAccountingAsync_WhenAccountingNumberExists_ReturnsAccounting()
         {
             IAccountingRepository sut = CreateSut();
 
-            IAccounting result = await sut.GetAccountingAsync(1, DateTime.Today);
+            IAccounting result = await sut.GetAccountingAsync(WithExistingAccountingNumber(), DateTime.Today);
 
             Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public async Task GetAccountingAsync_WhenAccountingNumberDoesNotExist_ReturnsNull()
+        {
+            IAccountingRepository sut = CreateSut();
+
+            IAccounting result = await sut.GetAccountingAsync(WithNonExistingAccountingNumber(), DateTime.Today);
+
+            Assert.That(result, Is.Null);
         }
     }
 }

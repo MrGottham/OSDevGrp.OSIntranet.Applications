@@ -82,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
             modelBuilder.Entity<ContactSupplementModel>(entity =>
             {
                 entity.HasKey(e => e.ContactSupplementIdentifier);
-                entity.Property(e => e.ContactSupplementIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ContactSupplementIdentifier).IsRequired().ValueGeneratedOnAdd();
                 entity.Property(e => e.Birthday).IsRequired(false);
                 entity.Property(e => e.ContactGroupIdentifier).IsRequired();
                 entity.Property(e => e.Acquaintance).IsRequired(false).IsUnicode().HasMaxLength(4096);

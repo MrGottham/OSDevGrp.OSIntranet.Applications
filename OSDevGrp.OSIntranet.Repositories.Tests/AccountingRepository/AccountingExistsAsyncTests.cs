@@ -13,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
         {
             IAccountingRepository sut = CreateSut();
 
-            bool result = await sut.AccountingExistsAsync(1);
+            bool result = await sut.AccountingExistsAsync(WithExistingAccountingNumber());
 
             Assert.That(result, Is.True);
         }
@@ -24,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
         {
             IAccountingRepository sut = CreateSut();
 
-            bool result = await sut.AccountingExistsAsync(100);
+            bool result = await sut.AccountingExistsAsync(WithNonExistingAccountingNumber());
 
             Assert.That(result, Is.False);
         }

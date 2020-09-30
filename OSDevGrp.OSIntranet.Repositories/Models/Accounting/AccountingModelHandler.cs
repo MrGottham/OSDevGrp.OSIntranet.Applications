@@ -16,9 +16,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
     {
         #region Private variables
 
-        private readonly DateTime _statusDate;
         private readonly bool _includeAccounts;
         private readonly bool _includePostingLines;
+        private readonly AccountModelHandler _accountModelHandler;
+        private readonly BudgetAccountModelHandler _budgetAccountModelHandler;
+        private readonly ContactAccountModelHandler _contactAccountModelHandler;
 
         #endregion
 
@@ -27,9 +29,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public AccountingModelHandler(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includeAccounts, bool includePostingLines) 
             : base(dbContext, modelConverter)
         {
-            _statusDate = statusDate;
             _includeAccounts = includeAccounts;
             _includePostingLines = includePostingLines;
+            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, statusDate, true, includePostingLines);
+            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, statusDate, true, includePostingLines);
+            _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, statusDate, includePostingLines);
         }
 
         #endregion
@@ -43,9 +47,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         protected override IQueryable<AccountingModel> Reader => Entities
             .Include(accountingModel => accountingModel.LetterHead);
 
-        protected override IQueryable<AccountingModel> UpdateReader => Reader; // TODO: Include all account types and posting lines.
-
-        protected override IQueryable<AccountingModel> DeleteReader => Reader; // TODO: Include all account types and posting lines.
+        protected override IQueryable<AccountingModel> DeleteReader => Reader
+            .Include(accountingModel => accountingModel.Accounts)
+            .Include(accountingModel => accountingModel.BudgetAccounts)
+            .Include(accountingModel => accountingModel.ContactAccounts); // TODO: Include posting lines.
 
         #endregion
 
@@ -63,6 +68,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(accountingCollection, nameof(accountingCollection));
 
             return Task.FromResult(accountingCollection.OrderBy(accounting => accounting.Number).AsEnumerable());
+        }
+
+        protected override void OnDispose()
+        {
+            _accountModelHandler.Dispose();
+            _budgetAccountModelHandler.Dispose();
+            _contactAccountModelHandler.Dispose();
         }
 
         protected override async Task<AccountingModel> OnCreateAsync(IAccounting accounting, AccountingModel accountingModel)
@@ -83,12 +95,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             if (_includeAccounts)
             {
-                // TODO: Include all account types for the given status date.
+                accountingModel.Accounts = (await _accountModelHandler.ReadAsync(accountingModel)).ToList();
+                accountingModel.BudgetAccounts = (await _budgetAccountModelHandler.ReadAsync(accountingModel)).ToList();
+                accountingModel.ContactAccounts = (await _contactAccountModelHandler.ReadAsync(accountingModel)).ToList();
             }
 
             if (_includePostingLines)
             {
-                // TODO: Include all accounting lines for the given status date.
+                // TODO: Include all posting lines for the given status date.
             }
 
             return accountingModel;
@@ -104,9 +118,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountingModel.LetterHead = await DbContext.LetterHeads.SingleAsync(letterHeadModel => letterHeadModel.LetterHeadIdentifier == accountingModel.LetterHeadIdentifier);
             accountingModel.BalanceBelowZero = accounting.BalanceBelowZero;
             accountingModel.BackDating = accounting.BackDating;
-
-            // TODO: Update all account types.
-            // TODO: Update all accounting lines.
         }
 
         protected override async Task<bool> CanDeleteAsync(AccountingModel accountingModel)
@@ -120,14 +131,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return usedOnAccount == false && usedOnBudgetAccount == false && usedOnContactAccount == false;
         }
 
-        protected override Task<AccountingModel> OnDeleteAsync(AccountingModel accountingModel)
+        protected override async Task<AccountingModel> OnDeleteAsync(AccountingModel accountingModel)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            // TODO: Delete all account types.
-            // TODO: Delete all accounting lines.
+            await _accountModelHandler.DeleteAsync(accountingModel.Accounts);
+            await _budgetAccountModelHandler.DeleteAsync(accountingModel.BudgetAccounts);
+            await _contactAccountModelHandler.DeleteAsync(accountingModel.ContactAccounts);
 
-            return Task.FromResult(accountingModel);
+            // TODO: Delete all posting lines.
+
+            return accountingModel;
         }
 
         #endregion

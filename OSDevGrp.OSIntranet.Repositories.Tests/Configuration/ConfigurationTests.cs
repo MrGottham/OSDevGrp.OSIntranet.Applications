@@ -41,5 +41,55 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
         }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataAccountingExistingAccountingNumber_ReturnsExistingAccountingNumber()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut["TestData:Accounting:ExistingAccountingNumber"];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+
+            Assert.That(int.Parse(result), Is.GreaterThan(0));
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataAccountingExistingAccountNumberForAccount_ReturnsExistingAccountNumberForAccount()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut["TestData:Accounting:ExistingAccountNumberForAccount"];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataAccountingExistingAccountNumberForBudgetAccount_ReturnsExistingAccountNumberForBudgetAccount()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut["TestData:Accounting:ExistingAccountNumberForBudgetAccount"];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataAccountingExistingAccountNumberForContactAccount_ReturnsExistingAccountNumberForContactAccount()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut["TestData:Accounting:ExistingAccountNumberForContactAccount"];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+        }
     }
 }

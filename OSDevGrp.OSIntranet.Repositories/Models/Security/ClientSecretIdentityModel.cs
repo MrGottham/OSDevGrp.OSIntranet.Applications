@@ -88,7 +88,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             modelBuilder.Entity<ClientSecretIdentityModel>(entity =>
             {
                 entity.HasKey(e => e.ClientSecretIdentityIdentifier);
-                entity.Property(e => e.ClientSecretIdentityIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.ClientSecretIdentityIdentifier).IsRequired().ValueGeneratedOnAdd();
                 entity.Property(e => e.FriendlyName).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ClientId).IsRequired().IsUnicode().HasMaxLength(32);
                 entity.Property(e => e.ClientSecret).IsRequired().IsUnicode().HasMaxLength(32);

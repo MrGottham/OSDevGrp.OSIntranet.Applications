@@ -31,7 +31,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             modelBuilder.Entity<BasicAccountModel>(entity =>
             {
                 entity.HasKey(e => e.BasicAccountIdentifier);
-                entity.Property(e => e.BasicAccountIdentifier).IsRequired().HasAnnotation("MySQL:AutoIncrement", true);
+                entity.Property(e => e.BasicAccountIdentifier).IsRequired().ValueGeneratedOnAdd();
                 entity.Property(e => e.AccountName).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.Description).IsRequired(false).IsUnicode().HasMaxLength(512);
                 entity.Property(e => e.Note).IsRequired(false).IsUnicode().HasMaxLength(4096);
