@@ -217,6 +217,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactDataC
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorForHomePhone()
+        {
+            string homePhone = _fixture.Create<string>();
+            IContactCommand sut = CreateSut(homePhone: homePhone);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
+                    It.Is<string>(value => string.CompareOrdinal(value, homePhone) == 0),
+                    It.Is<int>(value => value == 32),
+                    It.Is<Type>(value => value == sut.GetType()),
+                    It.Is<string>(value => string.CompareOrdinal(value, "HomePhone") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorForHomePhone()
         {
             string homePhone = _fixture.Create<string>();
@@ -253,6 +271,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactDataC
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorForMobilePhone()
+        {
+            string mobilePhone = _fixture.Create<string>();
+            IContactCommand sut = CreateSut(mobilePhone: mobilePhone);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
+                    It.Is<string>(value => string.CompareOrdinal(value, mobilePhone) == 0),
+                    It.Is<int>(value => value == 32),
+                    It.Is<Type>(value => value == sut.GetType()),
+                    It.Is<string>(value => string.CompareOrdinal(value, "MobilePhone") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorForMobilePhone()
         {
             string mobilePhone = _fixture.Create<string>();
@@ -281,6 +317,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.ContactDataC
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.CompareOrdinal(value, mailAddress) == 0),
                     It.Is<int>(value => value == 1),
+                    It.Is<Type>(value => value == sut.GetType()),
+                    It.Is<string>(value => string.CompareOrdinal(value, "MailAddress") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorForMailAddress()
+        {
+            string mailAddress = _fixture.Create<string>();
+            IContactCommand sut = CreateSut(mailAddress: mailAddress);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _microsoftGraphRepositoryMock.Object, _contactRepositoryMock.Object, _accountingRepositoryMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
+                    It.Is<string>(value => string.CompareOrdinal(value, mailAddress) == 0),
+                    It.Is<int>(value => value == 256),
                     It.Is<Type>(value => value == sut.GetType()),
                     It.Is<string>(value => string.CompareOrdinal(value, "MailAddress") == 0),
                     It.Is<bool>(value => value)),

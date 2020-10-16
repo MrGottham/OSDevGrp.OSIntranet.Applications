@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
@@ -29,13 +30,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries
 
         #region Methods
 
-        public IValidator Validate(IValidator validator, IAccountingRepository accountingRepository)
+        public virtual IValidator Validate(IValidator validator, IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
             return validator.ValidateAccountingIdentifier(AccountingNumber, GetType(), nameof(AccountingNumber))
                 .DateTime.ShouldBePastDateOrToday(StatusDate, GetType(), nameof(StatusDate));
+        }
+
+        protected async Task<bool> AccountingExistsAsync(IAccountingRepository accountingRepository)
+        {
+            NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
+
+            return await accountingRepository.AccountingExistsAsync(AccountingNumber);
         }
 
         #endregion

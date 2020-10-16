@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(() => Number.GetPaymentTerm(accountingRepository, ref _paymentTerm));
+            return Task.FromResult(Number.GetPaymentTerm(accountingRepository, ref _paymentTerm));
         }
 
         #endregion

@@ -169,6 +169,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupShouldBeDeletable<T, ICountry>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPostalCode>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IAccounting>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IAccount>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IBudgetAccount>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IContactAccount>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPaymentTerm>(validatorMock, objectValidatorMock);

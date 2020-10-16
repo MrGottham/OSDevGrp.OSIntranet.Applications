@@ -33,8 +33,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
             Address?.Validate(validator);
 
             return validator.Object.ShouldNotBeNull(Name, GetType(), nameof(Name))
-                .ValidatePhoneNumber(PrimaryPhone, GetType(), nameof(PrimaryPhone))
-                .ValidatePhoneNumber(SecondaryPhone, GetType(), nameof(SecondaryPhone))
+                .ValidatePhoneNumber(PrimaryPhone, GetType(), nameof(PrimaryPhone), true)
+                .ValidatePhoneNumber(SecondaryPhone, GetType(), nameof(SecondaryPhone), true)
                 .ValidateUrl(HomePage, GetType(), nameof(HomePage));
         }
 

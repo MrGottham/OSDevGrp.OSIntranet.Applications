@@ -69,9 +69,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
 
             return base.Validate(validator, microsoftGraphRepository, contactRepository, accountingRepository)
                 .Object.ShouldNotBeNull(Name, GetType(), nameof(Name))
-                .ValidatePhoneNumber(HomePhone, GetType(), nameof(HomePhone))
-                .ValidatePhoneNumber(MobilePhone, GetType(), nameof(MobilePhone))
-                .ValidateMailAddress(MailAddress, GetType(), nameof(MailAddress))
+                .ValidatePhoneNumber(HomePhone, GetType(), nameof(HomePhone), true)
+                .ValidatePhoneNumber(MobilePhone, GetType(), nameof(MobilePhone), true)
+                .ValidateMailAddress(MailAddress, GetType(), nameof(MailAddress), true)
                 .ValidateContactGroupIdentifier(ContactGroupIdentifier, GetType(), nameof(ContactGroupIdentifier))
                 .Object.ShouldBeKnownValue(ContactGroupIdentifier, contactGroupIdentifier => Task.Run(async () => await GetContactGroupAsync(contactRepository) != null), GetType(), nameof(ContactGroupIdentifier))
                 .String.ShouldHaveMinLength(Acquaintance, 1, GetType(), nameof(Acquaintance),  true)
@@ -99,14 +99,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
         {
             NullGuard.NotNull(contactRepository, nameof(contactRepository));
 
-            return Task.Run(() => ContactGroupIdentifier.GetContactGroup(contactRepository, ref _contactGroup));
+            return Task.FromResult(ContactGroupIdentifier.GetContactGroup(contactRepository, ref _contactGroup));
         }
 
         protected Task<IPaymentTerm> GetPaymentTermAsync(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(() => PaymentTermIdentifier.GetPaymentTerm(accountingRepository, ref _paymentTerm));
+            return Task.FromResult(PaymentTermIdentifier.GetPaymentTerm(accountingRepository, ref _paymentTerm));
         }
 
         private IContact FillContact(IContact contact, IContactGroup contactGroup, IPaymentTerm paymentTerm)

@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
         {
             NullGuard.NotNull(contactRepository, nameof(contactRepository));
 
-            return Task.Run(() => Number.GetContactGroup(contactRepository, ref _contactGroup));
+            return Task.FromResult(Number.GetContactGroup(contactRepository, ref _contactGroup));
         }
 
         #endregion

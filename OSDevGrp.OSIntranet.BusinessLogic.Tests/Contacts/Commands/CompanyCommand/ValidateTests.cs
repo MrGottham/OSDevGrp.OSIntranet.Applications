@@ -121,6 +121,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.CompanyComma
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorForPrimaryPhone()
+        {
+            string primaryPhone = _fixture.Create<string>();
+            ICompanyCommand sut = CreateSut(primaryPhone: primaryPhone);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
+                    It.Is<string>(value => string.CompareOrdinal(value, primaryPhone) == 0),
+                    It.Is<int>(value => value == 32),
+                    It.Is<Type>(value => value == sut.GetType()),
+                    It.Is<string>(value => string.CompareOrdinal(value, "PrimaryPhone") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorForPrimaryPhone()
         {
             string primaryPhone = _fixture.Create<string>();
@@ -149,6 +167,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.CompanyComma
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.CompareOrdinal(value, secondaryPhone) == 0),
                     It.Is<int>(value => value == 1),
+                    It.Is<Type>(value => value == sut.GetType()),
+                    It.Is<string>(value => string.CompareOrdinal(value, "SecondaryPhone") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorForSecondaryPhone()
+        {
+            string secondaryPhone = _fixture.Create<string>();
+            ICompanyCommand sut = CreateSut(secondaryPhone: secondaryPhone);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
+                    It.Is<string>(value => string.CompareOrdinal(value, secondaryPhone) == 0),
+                    It.Is<int>(value => value == 32),
                     It.Is<Type>(value => value == sut.GetType()),
                     It.Is<string>(value => string.CompareOrdinal(value, "SecondaryPhone") == 0),
                     It.Is<bool>(value => value)),

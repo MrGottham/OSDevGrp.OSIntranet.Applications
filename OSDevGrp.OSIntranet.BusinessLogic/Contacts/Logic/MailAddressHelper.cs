@@ -15,14 +15,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic
 
         #region Methods
 
-        internal static IValidator ValidateMailAddress(this IValidator validator, string value, Type validatingType, string validatingField)
+        internal static IValidator ValidateMailAddress(this IValidator validator, string value, Type validatingType, string validatingField, bool allowNull = false)
         {
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
 
-            return validator.String.ShouldHaveMinLength(value, 1, validatingType, validatingField, true)
-                .String.ShouldMatchPattern(value, MailAddressRegex, validatingType, validatingField, true);
+            return validator.String.ShouldHaveMinLength(value, 1, validatingType, validatingField, allowNull)
+                .String.ShouldHaveMaxLength(value, 256, validatingType, validatingField, allowNull)
+                .String.ShouldMatchPattern(value, MailAddressRegex, validatingType, validatingField, allowNull);
         }
 
         #endregion

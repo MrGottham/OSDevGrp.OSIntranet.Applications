@@ -37,14 +37,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(() => Number.GetAccountGroup(accountingRepository, ref _accountGroup));
+            return Task.FromResult(Number.GetAccountGroup(accountingRepository, ref _accountGroup));
         }
 
         protected Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(accountingRepository, nameof(accountingRepository));
 
-            return Task.Run(() => Number.GetBudgetAccountGroup(accountingRepository, ref _budgetAccountGroup));
+            return Task.FromResult(Number.GetBudgetAccountGroup(accountingRepository, ref _budgetAccountGroup));
         }
 
         #endregion
