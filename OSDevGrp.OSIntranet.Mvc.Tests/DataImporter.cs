@@ -16,6 +16,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
@@ -26,6 +27,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
@@ -101,6 +103,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             ICommandHandler<ICreatePostalCodeCommand> createPostalCodeCommandHandler = new CreatePostalCodeCommandHandler(_validator, _contactRepository);
             ICommandHandler<ICreateAccountingCommand> createAccountingCommandHandler = new CreateAccountingCommandHandler(_validator, _accountingRepository, commonRepository);
             ICommandHandler<IUpdateAccountingCommand> updateAccountingCommandHandler = new UpdateAccountingCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<ICreateAccountCommand> createAccountCommandHandler = new CreateAccountCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<IUpdateAccountCommand> updateAccountCommandHandler = new UpdateAccountCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<ICreateBudgetAccountCommand> createBudgetAccountCommandHandler = new CreateBudgetAccountCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<IUpdateBudgetAccountCommand> updateBudgetAccountCommandHandler = new UpdateBudgetAccountCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<ICreateContactAccountCommand> createContactAccountCommandHandler = new CreateContactAccountCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<IUpdateContactAccountCommand> updateContactAccountCommandHandler = new UpdateContactAccountCommandHandler(_validator, _accountingRepository, commonRepository);
             ICommandHandler<ICreatePaymentTermCommand> createPaymentTermCommandHandler = new CreatePaymentTermCommandHandler(_validator, _accountingRepository);
             _commandBus = new CommandBus(new ICommandHandler[]
             {
@@ -112,6 +120,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 createPostalCodeCommandHandler, 
                 createAccountingCommandHandler,
                 updateAccountingCommandHandler,
+                createAccountCommandHandler,
+                updateAccountCommandHandler,
+                createBudgetAccountCommandHandler,
+                updateBudgetAccountCommandHandler,
+                createContactAccountCommandHandler,
+                updateContactAccountCommandHandler,
                 createPaymentTermCommandHandler
             });
 
@@ -119,12 +133,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(_contactRepository, countryHelper);
             IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(_validator, _contactRepository, countryHelper);
             IQueryHandler<EmptyQuery, IEnumerable<IAccounting>> getAccountingCollectionQueryHandler = new GetAccountingCollectionQueryHandler(_accountingRepository, accountingHelper);
+            IQueryHandler<IGetAccountCollectionQuery, IAccountCollection> getAccountCollectionQueryHandler = new GetAccountCollectionQueryHandler(_validator, _accountingRepository);
+            IQueryHandler<IGetAccountingQuery, IAccounting> getAccountingQueryHandler = new GetAccountingQueryHandler(_validator, _accountingRepository, accountingHelper);
+            IQueryHandler<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection> getBudgetAccountCollectionQueryHandler = new GetBudgetAccountCollectionQueryHandler(_validator, _accountingRepository);
+            IQueryHandler<IGetContactAccountCollectionQuery, IContactAccountCollection> getContactAccountCollectionQueryHandler = new GetContactAccountCollectionQueryHandler(_validator, _accountingRepository);
             _queryBus = new QueryBus(new IQueryHandler[]
             {
                 getMatchingContactCollectionQueryHandler,
                 getCountryCollectionQueryHandler,
                 getPostalCodeQueryHandler,
-                getAccountingCollectionQueryHandler
+                getAccountingCollectionQueryHandler,
+                getAccountingQueryHandler,
+                getAccountCollectionQueryHandler,
+                getBudgetAccountCollectionQueryHandler,
+                getContactAccountCollectionQueryHandler
             });
         }
 
@@ -241,57 +263,36 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
         [Test]
         [Category("DataImport")]
-        [TestCase("Accountings.xml")] 
+        [TestCase("Accountings.xml")]
         [Ignore("Test which imports data and should only be run once")]
         public async Task Import_Accountings_FromFile(string fileName)
         {
             XmlDocument accountingDocument = new XmlDocument();
             accountingDocument.Load(fileName);
 
+            XmlNodeList accountingNodeList = accountingDocument.DocumentElement?.SelectNodes("Accounting");
+            if (accountingNodeList == null)
+            {
+                return;
+            }
+
             IDictionary<int, IAccounting> accountingDictionary = (await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery())).ToDictionary(accounting => accounting.Number, accounting => accounting);
 
-            XmlNodeList accountingNodeList = accountingDocument.DocumentElement.SelectNodes("Accounting");
             foreach (XmlElement accountingElement in accountingNodeList.OfType<XmlElement>())
             {
-                if (int.TryParse(accountingElement.GetAttribute("number"), out int accountingNumber) == false)
+                IAccounting accounting = await HandleAccountingElementAsync(accountingElement, accountingDictionary);
+                if (accounting == null)
                 {
                     continue;
                 }
 
-                string accountingName = accountingElement.GetAttribute("name");
-                if (string.IsNullOrWhiteSpace(accountingName))
-                {
-                    continue;
-                }
+                IDictionary<string, IAccount> accountDictionary = (await _queryBus.QueryAsync<IGetAccountCollectionQuery, IAccountCollection>(new GetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
+                IDictionary<string, IBudgetAccount> budgetAccountDictionary = (await _queryBus.QueryAsync<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection>(new GetBudgetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
+                IDictionary<string, IContactAccount> contactAccountDictionary = (await _queryBus.QueryAsync<IGetContactAccountCollectionQuery, IContactAccountCollection>(new GetContactAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
 
-                if (int.TryParse(accountingElement.GetAttribute("letterHeadNumber"), out int letterHeadNumber) == false)
-                {
-                    continue;
-                }
-
-                if (accountingDictionary.ContainsKey(accountingNumber))
-                {
-                    IUpdateAccountingCommand updateAccountingCommand = new UpdateAccountingCommand
-                    {
-                        AccountingNumber = accountingNumber,
-                        Name = accountingName,
-                        LetterHeadNumber = letterHeadNumber,
-                        BalanceBelowZero = accountingDictionary[accountingNumber].BalanceBelowZero,
-                        BackDating = accountingDictionary[accountingNumber].BackDating
-                    };
-                    await _commandBus.PublishAsync(updateAccountingCommand);
-                    continue;
-                }
-
-                ICreateAccountingCommand createAccountingCommand = new CreateAccountingCommand
-                {
-                    AccountingNumber = accountingNumber,
-                    Name = accountingName,
-                    LetterHeadNumber = letterHeadNumber,
-                    BalanceBelowZero = BalanceBelowZeroType.Debtors,
-                    BackDating = 30
-                };
-                await _commandBus.PublishAsync(createAccountingCommand);
+                await HandleAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("Account"), accountDictionary);
+                await HandleBudgetAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("BudgetAccount"), budgetAccountDictionary);
+                await HandleContactAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("ContactAccount"), contactAccountDictionary);
             }
         }
 
@@ -407,6 +408,232 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                         throw new NotSupportedException($"Unhandled element: {element.OuterXml}");
                 }
                 await _commandBus.PublishAsync(updateContactCommand);
+            }
+        }
+
+        private async Task<IAccounting> HandleAccountingElementAsync(XmlElement accountingElement, IDictionary<int, IAccounting> accountingDictionary)
+        {
+            NullGuard.NotNull(accountingElement, nameof(accountingElement))
+                .NotNull(accountingElement, nameof(accountingDictionary));
+
+            if (int.TryParse(GetAttributeValue(accountingElement, "number"), out int accountingNumber) == false)
+            {
+                return null;
+            }
+
+            string accountingName = GetAttributeValue(accountingElement, "name");
+            if (string.IsNullOrWhiteSpace(accountingName))
+            {
+                return null;
+            }
+
+            if (int.TryParse(GetAttributeValue(accountingElement, "letterHeadNumber"), out int letterHeadNumber) == false)
+            {
+                return null;
+            }
+
+            if (accountingDictionary.ContainsKey(accountingNumber))
+            {
+                IUpdateAccountingCommand updateAccountingCommand = new UpdateAccountingCommand
+                {
+                    AccountingNumber = accountingNumber,
+                    Name = accountingName,
+                    LetterHeadNumber = letterHeadNumber,
+                    BalanceBelowZero = accountingDictionary[accountingNumber].BalanceBelowZero,
+                    BackDating = accountingDictionary[accountingNumber].BackDating
+                };
+                await _commandBus.PublishAsync(updateAccountingCommand);
+
+                return await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
+            }
+
+            ICreateAccountingCommand createAccountingCommand = new CreateAccountingCommand
+            {
+                AccountingNumber = accountingNumber,
+                Name = accountingName,
+                LetterHeadNumber = letterHeadNumber,
+                BalanceBelowZero = BalanceBelowZeroType.Debtors,
+                BackDating = 30
+            };
+            await _commandBus.PublishAsync(createAccountingCommand);
+
+            return await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
+        }
+
+        private async Task HandleAccountElementCollectionAsync(int accountingNumber, XmlNodeList accountElementCollection, IDictionary<string, IAccount> accountDictionary)
+        {
+            NullGuard.NotNull(accountElementCollection, nameof(accountElementCollection))
+                .NotNull(accountDictionary, nameof(accountDictionary));
+
+            foreach (XmlElement accountElement in accountElementCollection.OfType<XmlElement>())
+            {
+                string accountNumber = GetAttributeValue(accountElement, "accountNumber")?.ToUpper();
+                if (string.IsNullOrWhiteSpace(accountNumber))
+                {
+                    continue;
+                }
+
+                string accountName = GetAttributeValue(accountElement, "accountName");
+                if (string.IsNullOrWhiteSpace(accountName))
+                {
+                    continue;
+                }
+
+                if (int.TryParse(GetAttributeValue(accountElement, "accountGroup"), out int accountGroupNumber) == false)
+                {
+                    continue;
+                }
+
+                if (accountDictionary.ContainsKey(accountNumber))
+                {
+                    IUpdateAccountCommand updateAccountCommand = new UpdateAccountCommand
+                    {
+                        AccountingNumber = accountingNumber,
+                        AccountNumber = accountNumber,
+                        AccountName = accountName,
+                        Description = GetAttributeValue(accountElement, "description") ?? accountDictionary[accountNumber].Description,
+                        Note = GetAttributeValue(accountElement, "note") ?? accountDictionary[accountNumber].Note,
+                        AccountGroupNumber = accountGroupNumber
+                    };
+                    await _commandBus.PublishAsync(updateAccountCommand);
+
+                    continue;
+                }
+
+                ICreateAccountCommand createAccountCommand = new CreateAccountCommand
+                {
+                    AccountingNumber = accountingNumber,
+                    AccountNumber = accountNumber,
+                    AccountName = accountName,
+                    Description = GetAttributeValue(accountElement, "description"),
+                    Note = GetAttributeValue(accountElement, "note"),
+                    AccountGroupNumber = accountGroupNumber
+                };
+                await _commandBus.PublishAsync(createAccountCommand);
+            }
+        }
+
+        private async Task HandleBudgetAccountElementCollectionAsync(int accountingNumber, XmlNodeList budgetAccountElementCollection, IDictionary<string, IBudgetAccount> budgetAccountDictionary)
+        {
+            NullGuard.NotNull(budgetAccountElementCollection, nameof(budgetAccountElementCollection))
+                .NotNull(budgetAccountDictionary, nameof(budgetAccountDictionary));
+
+            foreach (XmlElement budgetAccountElement in budgetAccountElementCollection.OfType<XmlElement>())
+            {
+                string accountNumber = GetAttributeValue(budgetAccountElement, "accountNumber")?.ToUpper();
+                if (string.IsNullOrWhiteSpace(accountNumber))
+                {
+                    continue;
+                }
+
+                string accountName = GetAttributeValue(budgetAccountElement, "accountName");
+                if (string.IsNullOrWhiteSpace(accountName))
+                {
+                    continue;
+                }
+
+                if (int.TryParse(GetAttributeValue(budgetAccountElement, "budgetAccountGroup"), out int budgetAccountGroupNumber) == false)
+                {
+                    continue;
+                }
+
+                if (budgetAccountDictionary.ContainsKey(accountNumber))
+                {
+                    IUpdateBudgetAccountCommand updateBudgetAccountCommand = new UpdateBudgetAccountCommand
+                    {
+                        AccountingNumber = accountingNumber,
+                        AccountNumber = accountNumber,
+                        AccountName = accountName,
+                        Description = GetAttributeValue(budgetAccountElement, "description") ?? budgetAccountDictionary[accountNumber].Description,
+                        Note = GetAttributeValue(budgetAccountElement, "note") ?? budgetAccountDictionary[accountNumber].Note,
+                        BudgetAccountGroupNumber = budgetAccountGroupNumber
+                    };
+                    await _commandBus.PublishAsync(updateBudgetAccountCommand);
+
+                    continue;
+                }
+
+                ICreateBudgetAccountCommand createBudgetAccountCommand = new CreateBudgetAccountCommand
+                {
+                    AccountingNumber = accountingNumber,
+                    AccountNumber = accountNumber,
+                    AccountName = accountName,
+                    Description = GetAttributeValue(budgetAccountElement, "description"),
+                    Note = GetAttributeValue(budgetAccountElement, "note"),
+                    BudgetAccountGroupNumber = budgetAccountGroupNumber
+                };
+                await _commandBus.PublishAsync(createBudgetAccountCommand);
+            }
+        }
+
+        private async Task HandleContactAccountElementCollectionAsync(int accountingNumber, XmlNodeList contactAccountElementCollection, IDictionary<string, IContactAccount> contactAccountDictionary)
+        {
+            NullGuard.NotNull(contactAccountElementCollection, nameof(contactAccountElementCollection))
+                .NotNull(contactAccountDictionary, nameof(contactAccountDictionary));
+
+            foreach (XmlElement contactAccountElement in contactAccountElementCollection.OfType<XmlElement>())
+            {
+                string accountNumber = GetAttributeValue(contactAccountElement, "primaryPhone")?.Replace(" ", string.Empty).ToUpper();
+                if (string.IsNullOrWhiteSpace(accountNumber))
+                {
+                    continue;
+                }
+
+                string accountName = GetAttributeValue(contactAccountElement, "accountName");
+                if (string.IsNullOrWhiteSpace(accountName))
+                {
+                    continue;
+                }
+
+                if (int.TryParse(GetAttributeValue(contactAccountElement, "paymentTermNumber"), out int paymentTermNumber) == false)
+                {
+                    continue;
+                }
+
+                string primaryPhone = GetAttributeValue(contactAccountElement, "primaryPhone");
+                if (string.IsNullOrWhiteSpace(primaryPhone) == false)
+                {
+                    primaryPhone = BuildPhoneNumber(primaryPhone);
+                }
+
+                string secondaryPhone = GetAttributeValue(contactAccountElement, "secondaryPhone");
+                if (string.IsNullOrWhiteSpace(secondaryPhone) == false)
+                {
+                    secondaryPhone = BuildPhoneNumber(secondaryPhone);
+                }
+
+                if (contactAccountDictionary.ContainsKey(accountNumber))
+                {
+                    IUpdateContactAccountCommand updateContactAccountCommand = new UpdateContactAccountCommand
+                    {
+                        AccountingNumber = accountingNumber,
+                        AccountNumber = accountNumber,
+                        AccountName = accountName,
+                        Description = GetAttributeValue(contactAccountElement, "description") ?? contactAccountDictionary[accountNumber].Description,
+                        Note = GetAttributeValue(contactAccountElement, "note") ?? contactAccountDictionary[accountNumber].Note,
+                        PrimaryPhone = primaryPhone ?? contactAccountDictionary[accountNumber].PrimaryPhone,
+                        SecondaryPhone = secondaryPhone ?? contactAccountDictionary[accountNumber].SecondaryPhone,
+                        MailAddress = BuildMailAddress(contactAccountElement) ?? contactAccountDictionary[accountNumber].MailAddress,
+                        PaymentTermNumber = paymentTermNumber
+                    };
+                    await _commandBus.PublishAsync(updateContactAccountCommand);
+
+                    continue;
+                }
+
+                ICreateContactAccountCommand createContactAccountCommand = new CreateContactAccountCommand
+                {
+                    AccountingNumber = accountingNumber,
+                    AccountNumber = accountNumber,
+                    AccountName = accountName,
+                    Description = GetAttributeValue(contactAccountElement, "description"),
+                    Note = GetAttributeValue(contactAccountElement, "note"),
+                    PrimaryPhone = primaryPhone,
+                    SecondaryPhone = secondaryPhone,
+                    MailAddress = BuildMailAddress(contactAccountElement),
+                    PaymentTermNumber = paymentTermNumber
+                };
+                await _commandBus.PublishAsync(createContactAccountCommand);
             }
         }
 
