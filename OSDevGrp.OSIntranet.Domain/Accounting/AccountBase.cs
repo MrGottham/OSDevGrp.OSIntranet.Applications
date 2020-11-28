@@ -17,15 +17,17 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Constructor
 
-        protected AccountBase(IAccounting accounting, string accountNumber, string accountName)
+        protected AccountBase(IAccounting accounting, string accountNumber, string accountName, IPostingLineCollection postingLineCollection)
         {
             NullGuard.NotNull(accounting, nameof(accounting))
                 .NotNullOrWhiteSpace(accountNumber, nameof(accountNumber))
-                .NotNullOrWhiteSpace(accountName, nameof(accountName));
+                .NotNullOrWhiteSpace(accountName, nameof(accountName))
+                .NotNull(postingLineCollection, nameof(postingLineCollection));
 
             Accounting = accounting;
             AccountNumber = accountNumber.Trim().ToUpper();
             AccountName = accountName.Trim();
+            PostingLineCollection = postingLineCollection;
         }
 
         #endregion
@@ -54,18 +56,20 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool Deletable { get; private set; }
 
+        public IPostingLineCollection PostingLineCollection { get; private set; }
+
         #endregion
 
         #region Methods
 
-        public Task<T> CalculateAsync(DateTime statusDate)
+        public async Task<T> CalculateAsync(DateTime statusDate)
         {
-            return Task.Run(() => 
-            {
-                StatusDate = statusDate.Date;
+            StatusDate = statusDate.Date;
 
-                return Calculate(StatusDate);
-            });
+            Task[] calculationTasks = GetCalculationTasks(StatusDate);
+            await Task.WhenAll(calculationTasks);
+
+            return GetCalculationResult();
         }
 
         public void AllowDeletion()
@@ -88,7 +92,14 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return obj != null && GetHashCode() == obj.GetHashCode();
         }
 
-        protected abstract T Calculate(DateTime statusDate);
+        protected abstract Task[] GetCalculationTasks(DateTime statusDate);
+
+        protected abstract T GetCalculationResult();
+
+        protected async Task CalculatePostingLineCollectionAsync(DateTime statusDate)
+        {
+            PostingLineCollection = await PostingLineCollection.CalculateAsync(statusDate);
+        }
 
         #endregion
     }

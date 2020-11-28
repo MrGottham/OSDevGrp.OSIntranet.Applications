@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
@@ -22,6 +24,52 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
         {
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertGetCalculationTasksWasCalledOnSut()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            Sut result = (Sut) await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            Assert.That(result.GetCalculationTasksWasCalled, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertGetCalculationTasksWasCalledWithSameStatusDate()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = (Sut) await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.GetCalculationTasksWasCalledWithStatusDate, Is.EqualTo(statusDate.Date));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertGetCalculationResultWasCalledOnSut()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            Sut result = (Sut) await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            Assert.That(result.GetCalculationResultWasCalled, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertAllCalculationTasksIsCompleted()
+        {
+            Task[] calculationTasks = CreateCalculationTasks();
+            IAccountBase<IAccountBase> sut = CreateSut(calculationTasks);
+
+            await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            Assert.That(calculationTasks.All(calculationTask => calculationTask.IsCompleted), Is.True);
         }
 
         [Test]
@@ -47,59 +95,64 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
             Assert.That(result.StatusDate, Is.EqualTo(statusDate.Date));
         }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertCalculateWasCalledOnSut()
+        private IAccountBase<IAccountBase> CreateSut(Task[] calculationTasks = null)
         {
-            IAccountBase<IAccountBase> sut = CreateSut();
-
-            Sut result = (Sut) await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
-
-            Assert.That(result.CalculateWasCalled, Is.True);
+            return new Sut(_fixture.BuildAccountingMock().Object, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.BuildPostingLineCollectionMock().Object, calculationTasks ?? CreateCalculationTasks());
         }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertCalculateWasCalledWithSameStatusDate()
+        private Task[] CreateCalculationTasks()
         {
-            IAccountBase<IAccountBase> sut = CreateSut();
-
-            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
-            Sut result = (Sut) await sut.CalculateAsync(statusDate);
-
-            Assert.That(result.CalculateCalledWithStatusDate, Is.EqualTo(statusDate.Date));
-        }
-
-        private IAccountBase<IAccountBase> CreateSut()
-        {
-            return new Sut(_fixture.BuildAccountingMock().Object, _fixture.Create<string>(), _fixture.Create<string>());
+            return new[]
+            {
+                Task.Run(() => { Task.Delay(_random.Next(10, 250)); }),
+                Task.Run(() => { Task.Delay(_random.Next(10, 250)); }),
+                Task.Run(() => { Task.Delay(_random.Next(10, 250)); })
+            };
         }
 
         private class Sut : Domain.Accounting.AccountBase<IAccountBase>
         {
+            #region Private variables
+
+            private readonly Task[] _calculationTasks;
+
+            #endregion
+
             #region Constructor
 
-            public Sut(IAccounting accounting, string accountNumber, string accountName)
-                : base(accounting, accountNumber, accountName)
+            public Sut(IAccounting accounting, string accountNumber, string accountName, IPostingLineCollection postingLineCollection, Task[] calculationTasks)
+                : base(accounting, accountNumber, accountName, postingLineCollection)
             {
+                NullGuard.NotNull(calculationTasks, nameof(calculationTasks));
+
+                _calculationTasks = calculationTasks;
             }
 
             #endregion
 
             #region Properties
 
-            public bool CalculateWasCalled { get; private set; }
+            public bool GetCalculationTasksWasCalled { get; private set; }
 
-            public DateTime? CalculateCalledWithStatusDate { get; private set; }
+            public DateTime? GetCalculationTasksWasCalledWithStatusDate { get; private set; }
+
+            public bool GetCalculationResultWasCalled { get; private set; }
 
             #endregion
 
             #region Methods
 
-            protected override IAccountBase Calculate(DateTime statusDate)
+            protected override Task[] GetCalculationTasks(DateTime statusDate)
             {
-                CalculateWasCalled = true;
-                CalculateCalledWithStatusDate = statusDate;
+                GetCalculationTasksWasCalled = true;
+                GetCalculationTasksWasCalledWithStatusDate = statusDate;
+                
+                return _calculationTasks;
+            }
+
+            protected override IAccountBase GetCalculationResult()
+            {
+                GetCalculationResultWasCalled = true;
 
                 return this;
             }

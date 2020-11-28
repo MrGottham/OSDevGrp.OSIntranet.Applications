@@ -10,14 +10,6 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
     public abstract class AccountCollectionBase<TAccount, TAccountCollection> : HashSet<TAccount>, IAccountCollectionBase<TAccount, TAccountCollection> where TAccount : IAccountBase<TAccount> where TAccountCollection : IAccountCollectionBase<TAccount>
     {
-        #region Constructor
-
-        protected AccountCollectionBase()
-        {
-        }
-
-        #endregion
-
         #region Properties
 
         public DateTime StatusDate { get; private set; }
@@ -44,7 +36,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             foreach(TAccount account in accountCollection)
             {
-                this.Add(account);
+                Add(account);
             }
         }
 
@@ -52,12 +44,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             StatusDate = statusDate.Date;
 
-            await Task.WhenAll(this.Select(account => account.CalculateAsync(StatusDate)).ToArray());
+            TAccount[] calculatedAccountCollection = await Task.WhenAll(this.Select(account => account.CalculateAsync(StatusDate)).ToArray());
 
-            return Calculate(StatusDate);
+            return Calculate(StatusDate, calculatedAccountCollection);
         }
 
-        protected abstract TAccountCollection Calculate(DateTime statusDate);
+        protected abstract TAccountCollection Calculate(DateTime statusDate, IEnumerable<TAccount> calculatedAccountCollection);
 
         #endregion
     }

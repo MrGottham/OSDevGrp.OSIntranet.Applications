@@ -1,6 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -15,14 +17,21 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
         public ContactAccount(IAccounting accounting, string accountNumber, string accountName, IPaymentTerm paymentTerm)
-            : base(accounting, accountNumber, accountName)
+            : this(accounting, accountNumber, accountName, paymentTerm, new ContactInfoCollection(), new PostingLineCollection())
         {
-            NullGuard.NotNull(paymentTerm, nameof(paymentTerm));
+        }
+
+        public ContactAccount(IAccounting accounting, string accountNumber, string accountName, IPaymentTerm paymentTerm, IContactInfoCollection contactInfoCollection, IPostingLineCollection postingLineCollection)
+            : base(accounting, accountNumber, accountName, postingLineCollection)
+        {
+            NullGuard.NotNull(paymentTerm, nameof(paymentTerm))
+                .NotNull(contactInfoCollection, nameof(contactInfoCollection));
 
             PaymentTerm = paymentTerm;
+            ContactInfoCollection = contactInfoCollection;
         }
 
         #endregion
@@ -58,13 +67,71 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             } 
         }
 
+        public ContactAccountType ContactAccountType
+        {
+            get
+            {
+                decimal balance = ValuesAtStatusDate.Balance;
+
+                switch (Accounting.BalanceBelowZero)
+                {
+                    case BalanceBelowZeroType.Debtors:
+                        if (balance < 0M)
+                        {
+                            return ContactAccountType.Debtor;
+                        }
+
+                        if (balance > 0M)
+                        {
+                            return ContactAccountType.Creditor;
+                        }
+
+                        break;
+
+                    case BalanceBelowZeroType.Creditors:
+                        if (balance < 0M)
+                        {
+                            return ContactAccountType.Creditor;
+                        }
+
+                        if (balance > 0M)
+                        {
+                            return ContactAccountType.Debtor;
+                        }
+
+                        break;
+                }
+
+                return ContactAccountType.None;
+            }
+        }
+
+        public IContactInfoValues ValuesAtStatusDate => ContactInfoCollection.ValuesAtStatusDate;
+
+        public IContactInfoValues ValuesAtEndOfLastMonthFromStatusDate => ContactInfoCollection.ValuesAtEndOfLastMonthFromStatusDate;
+
+        public IContactInfoValues ValuesAtEndOfLastYearFromStatusDate => ContactInfoCollection.ValuesAtEndOfLastYearFromStatusDate;
+
+        public IContactInfoCollection ContactInfoCollection { get; private set; }
+
         #endregion
 
         #region Methods
 
-        protected override IContactAccount Calculate(DateTime statusDate)
+        protected override Task[] GetCalculationTasks(DateTime statusDate)
         {
-            return this;
+            return new[]
+            {
+                CalculateContactInfoCollectionAsync(statusDate),
+                CalculatePostingLineCollectionAsync(statusDate)
+            };
+        }
+
+        protected override IContactAccount GetCalculationResult() => this;
+
+        private async Task CalculateContactInfoCollectionAsync(DateTime statusDate)
+        {
+            ContactInfoCollection = await ContactInfoCollection.CalculateAsync(statusDate);
         }
 
         #endregion

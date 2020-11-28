@@ -13,6 +13,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         string Description { get; set; }
 
         string Note { get; set; }
+
+        IPostingLineCollection PostingLineCollection { get; }
     }
 
     public interface IAccountBase<T> : IAccountBase, ICalculable<T> where T : IAccountBase

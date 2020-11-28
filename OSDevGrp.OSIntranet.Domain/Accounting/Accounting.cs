@@ -86,11 +86,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             Task<IContactAccountCollection> calculateContactAccountCollectionTask = ContactAccountCollection.CalculateAsync(StatusDate);
             await Task.WhenAll(calculateAccountCollectionTask, calculateBudgetAccountCollectionTask, calculateContactAccountCollectionTask);
 
-            AccountCollection = calculateAccountCollectionTask.Result;
-            BudgetAccountCollection = calculateBudgetAccountCollectionTask.Result;
-            ContactAccountCollection = calculateContactAccountCollectionTask.Result;
+            AccountCollection = calculateAccountCollectionTask.GetAwaiter().GetResult();
+            BudgetAccountCollection = calculateBudgetAccountCollectionTask.GetAwaiter().GetResult();
+            ContactAccountCollection = calculateContactAccountCollectionTask.GetAwaiter().GetResult();
 
-            return (IAccounting) this;
+            return this;
         }
 
         public void AllowDeletion()

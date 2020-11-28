@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
@@ -12,14 +13,21 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
         public BudgetAccount(IAccounting accounting, string accountNumber, string accountName, IBudgetAccountGroup budgetAccountGroup)
-            : base(accounting, accountNumber, accountName)
+            : this(accounting, accountNumber, accountName, budgetAccountGroup, new BudgetInfoCollection(), new PostingLineCollection())
         {
-            NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup));
+        }
+
+        public BudgetAccount(IAccounting accounting, string accountNumber, string accountName, IBudgetAccountGroup budgetAccountGroup, IBudgetInfoCollection budgetInfoCollection, IPostingLineCollection postingLineCollection)
+            : base(accounting, accountNumber, accountName, postingLineCollection)
+        {
+            NullGuard.NotNull(budgetAccountGroup, nameof(budgetAccountGroup))
+                .NotNull(budgetInfoCollection, nameof(budgetInfoCollection));
 
             BudgetAccountGroup = budgetAccountGroup;
+            BudgetInfoCollection = budgetInfoCollection;
         }
 
         #endregion
@@ -37,13 +45,34 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             } 
         }
 
+        public IBudgetInfoValues ValuesForMonthOfStatusDate => BudgetInfoCollection.ValuesForMonthOfStatusDate;
+
+        public IBudgetInfoValues ValuesForLastMonthOfStatusDate => BudgetInfoCollection.ValuesForLastMonthOfStatusDate;
+
+        public IBudgetInfoValues ValuesForYearToDateOfStatusDate => BudgetInfoCollection.ValuesForYearToDateOfStatusDate;
+
+        public IBudgetInfoValues ValuesForLastYearOfStatusDate => BudgetInfoCollection.ValuesForLastYearOfStatusDate;
+
+        public IBudgetInfoCollection BudgetInfoCollection { get; private set; }
+
         #endregion
 
         #region Methods
 
-        protected override IBudgetAccount Calculate(DateTime statusDate)
+        protected override Task[] GetCalculationTasks(DateTime statusDate)
         {
-            return this;
+            return new[]
+            {
+                CalculateBudgetInfoCollectionAsync(statusDate),
+                CalculatePostingLineCollectionAsync(statusDate)
+            };
+        }
+
+        protected override IBudgetAccount GetCalculationResult() => this;
+
+        private async Task CalculateBudgetInfoCollectionAsync(DateTime statusDate)
+        {
+            BudgetInfoCollection = await BudgetInfoCollection.CalculateAsync(statusDate);
         }
 
         #endregion

@@ -1,6 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -12,14 +14,21 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
         public Account(IAccounting accounting, string accountNumber, string accountName, IAccountGroup accountGroup)
-            : base(accounting, accountNumber, accountName)
+            : this(accounting, accountNumber, accountName, accountGroup, new CreditInfoCollection(), new PostingLineCollection())
         {
-            NullGuard.NotNull(accountGroup, nameof(accountGroup));
+        }
+
+        public Account(IAccounting accounting, string accountNumber, string accountName, IAccountGroup accountGroup, ICreditInfoCollection creditInfoCollection, IPostingLineCollection postingLineCollection)
+            : base(accounting, accountNumber, accountName, postingLineCollection)
+        {
+            NullGuard.NotNull(accountGroup, nameof(accountGroup))
+                .NotNull(creditInfoCollection, nameof(creditInfoCollection));
 
             AccountGroup = accountGroup;
+            CreditInfoCollection = creditInfoCollection;
         }
 
         #endregion
@@ -37,13 +46,34 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             } 
         }
 
+        public AccountGroupType AccountGroupType => AccountGroup.AccountGroupType;
+
+        public ICreditInfoValues ValuesAtStatusDate => CreditInfoCollection.ValuesAtStatusDate;
+
+        public ICreditInfoValues ValuesAtEndOfLastMonthFromStatusDate => CreditInfoCollection.ValuesAtEndOfLastMonthFromStatusDate;
+
+        public ICreditInfoValues ValuesAtEndOfLastYearFromStatusDate => CreditInfoCollection.ValuesAtEndOfLastYearFromStatusDate;
+
+        public ICreditInfoCollection CreditInfoCollection { get; private set; }
+
         #endregion
 
         #region Methods
 
-        protected override IAccount Calculate(DateTime statusDate)
+        protected override Task[] GetCalculationTasks(DateTime statusDate)
         {
-            return this;
+            return new[]
+            {
+                CalculateCreditInfoCollectionAsync(statusDate),
+                CalculatePostingLineCollectionAsync(statusDate)
+            };
+        }
+
+        protected override IAccount GetCalculationResult() => this;
+
+        private async Task CalculateCreditInfoCollectionAsync(DateTime statusDate)
+        {
+            CreditInfoCollection = await CreditInfoCollection.CalculateAsync(statusDate);
         }
 
         #endregion

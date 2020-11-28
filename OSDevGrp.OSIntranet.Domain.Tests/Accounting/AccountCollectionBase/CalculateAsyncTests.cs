@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
@@ -46,7 +47,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
             sut.Add(accountMockCollection.Select(accountMock => accountMock.Object).ToArray());
 
             DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
-            Sut result = await sut.CalculateAsync(statusDate);
+            await sut.CalculateAsync(statusDate);
 
             foreach (Mock<IAccount> accountMock in accountMockCollection)
             {
@@ -100,6 +101,30 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
             Assert.That(result.CalculateCalledWithStatusDate, Is.EqualTo(statusDate.Date));
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertCalculateWasCalledWithCalculatedAccountCollection()
+        {
+            IAccountCollectionBase<IAccount, Sut> sut = CreateSut();
+
+            IEnumerable<IAccount> calculatedAccountCollection = new List<IAccount>
+            {
+                _fixture.BuildAccountMock().Object,
+                _fixture.BuildAccountMock().Object,
+                _fixture.BuildAccountMock().Object,
+                _fixture.BuildAccountMock().Object,
+                _fixture.BuildAccountMock().Object,
+                _fixture.BuildAccountMock().Object,
+                _fixture.BuildAccountMock().Object
+            };
+            sut.Add(calculatedAccountCollection.Select(calculatedAccount => _fixture.BuildAccountMock(calculatedAccount: calculatedAccount).Object).ToArray());
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.CalculateCalledWithCalculatedAccountCollection.All(calculatedAccount => calculatedAccountCollection.Contains(calculatedAccount)), Is.True);
+        }
+
         private IAccountCollectionBase<IAccount, Sut> CreateSut()
         {
             return new Sut();
@@ -113,14 +138,19 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             public DateTime? CalculateCalledWithStatusDate { get; private set; }
 
+            public IEnumerable<IAccount> CalculateCalledWithCalculatedAccountCollection { get; private set; }
+
             #endregion
 
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate)
+            protected override Sut Calculate(DateTime statusDate, IEnumerable<IAccount> calculatedAccountCollection)
             {
+                NullGuard.NotNull(calculatedAccountCollection, nameof(calculatedAccountCollection));
+
                 CalculateWasCalled = true;
                 CalculateCalledWithStatusDate = statusDate;
+                CalculateCalledWithCalculatedAccountCollection = calculatedAccountCollection;
 
                 return this;
             }

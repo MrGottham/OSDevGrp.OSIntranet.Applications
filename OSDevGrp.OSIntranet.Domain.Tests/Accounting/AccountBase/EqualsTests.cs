@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -101,15 +102,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
         private IAccountBase<IAccountBase> CreateSut(IAccounting accounting = null, string accountNumber = null)
         {
-            return new Sut(accounting ?? _fixture.BuildAccountingMock().Object, accountNumber ?? _fixture.Create<string>(), _fixture.Create<string>());
+            return new Sut(accounting ?? _fixture.BuildAccountingMock().Object, accountNumber ?? _fixture.Create<string>(), _fixture.Create<string>(), _fixture.BuildPostingLineCollectionMock().Object);
         }
 
         private class Sut : Domain.Accounting.AccountBase<IAccountBase>
         {
             #region Constructor
 
-            public Sut(IAccounting accounting, string accountNumber, string accountName)
-                : base(accounting, accountNumber, accountName)
+            public Sut(IAccounting accounting, string accountNumber, string accountName, IPostingLineCollection postingLineCollection)
+                : base(accounting, accountNumber, accountName, postingLineCollection)
             {
             }
 
@@ -117,10 +118,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
             #region Methods
 
-            protected override IAccountBase Calculate(DateTime statusDate)
-            {
-                return this;
-            }
+            protected override Task[] GetCalculationTasks(DateTime statusDate) => throw new NotSupportedException();
+
+            protected override IAccountBase GetCalculationResult() => throw new NotSupportedException();
 
             #endregion
         }

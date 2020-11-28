@@ -134,10 +134,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
         {
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate)
-            {
-                return this;
-            }
+            protected override Sut Calculate(DateTime statusDate, IEnumerable<IAccount> calculatedAccountCollection) => throw new NotSupportedException();
 
             #endregion
         }
