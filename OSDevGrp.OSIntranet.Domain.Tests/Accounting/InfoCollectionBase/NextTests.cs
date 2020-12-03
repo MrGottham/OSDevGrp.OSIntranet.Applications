@@ -86,6 +86,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
             protected override Sut Calculate(DateTime statusDate, ICreditInfo[] calculatedInfoCollection) => throw new NotSupportedException();
 
+            protected override Sut AlreadyCalculated() => throw new NotSupportedException();
+
             #endregion
         }
     }

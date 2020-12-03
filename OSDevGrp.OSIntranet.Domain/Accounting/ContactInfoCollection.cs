@@ -43,6 +43,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return this;
         }
 
+        protected override IContactInfoCollection AlreadyCalculated() => this;
+
         private IContactInfoValues ToContactInfoValues(IContactInfo contactInfo)
         {
             return contactInfo == null ? new ContactInfoValues(0M) : new ContactInfoValues(contactInfo.Balance);

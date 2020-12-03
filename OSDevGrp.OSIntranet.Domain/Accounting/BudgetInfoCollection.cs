@@ -48,6 +48,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return this;
         }
 
+        protected override IBudgetInfoCollection AlreadyCalculated() => this;
+
         private IBudgetInfoValues ToBudgetInfoValues(IBudgetInfo budgetInfo)
         {
             return budgetInfo == null ? new BudgetInfoValues(0M, 0M) : new BudgetInfoValues(budgetInfo.Budget, budgetInfo.Posted);

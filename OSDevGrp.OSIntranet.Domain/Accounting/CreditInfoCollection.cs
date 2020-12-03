@@ -43,6 +43,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return this;
         }
 
+        protected override ICreditInfoCollection AlreadyCalculated() => this;
+
         private ICreditInfoValues ToCreditInfoValues(ICreditInfo creditInfo)
         {
             return creditInfo == null ? new CreditInfoValues(0M, 0M) : new CreditInfoValues(creditInfo.Credit, creditInfo.Balance);

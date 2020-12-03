@@ -57,29 +57,6 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_ReturnsSameInfoCollectionBase()
-        {
-            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
-
-            IInfoCollection<ICreditInfo, Sut> result = await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
-
-            Assert.That(result, Is.SameAs(sut));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_ReturnsSameInfoCollectionBaseWhereStatusDateEqualDateFromCall()
-        {
-            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
-
-            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
-            IInfoCollection<ICreditInfo, Sut> result = await sut.CalculateAsync(statusDate);
-
-            Assert.That(result.StatusDate, Is.EqualTo(statusDate.Date));
-        }
-
-        [Test]
-        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalled_AssertCalculateWasCalledOnSut()
         {
             IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
@@ -125,6 +102,76 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
             Assert.That(result.CalculateCalledWithCalculatedInfoCollection.All(calculatedInfo => calculatedInfoCollection.Contains(calculatedInfo)), Is.True);
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertAlreadyCalculatedWasNotCalledOnSut()
+        {
+            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
+
+            Sut result = await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            Assert.That(result.AlreadyCalculatedWasCalled, Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_ReturnsSameInfoCollectionBase()
+        {
+            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
+
+            IInfoCollection<ICreditInfo, Sut> result = await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            Assert.That(result, Is.SameAs(sut));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_ReturnsSameInfoCollectionBaseWhereStatusDateEqualDateFromCall()
+        {
+            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IInfoCollection<ICreditInfo, Sut> result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.StatusDate, Is.EqualTo(statusDate.Date));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateWasCalledOnlyOnceOnSut()
+        {
+            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = await ((IInfoCollection<ICreditInfo, Sut>) await ((IInfoCollection<ICreditInfo, Sut>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result.CalculateWasCalledTimes, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertAlreadyCalculatedWasCalledTwiceOnSut()
+        {
+            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = await ((IInfoCollection<ICreditInfo, Sut>) await ((IInfoCollection<ICreditInfo, Sut>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result.AlreadyCalculatedWasCalledTimes, Is.EqualTo(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_ReturnsSameInfoCollectionBase()
+        {
+            IInfoCollection<ICreditInfo, Sut> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IInfoCollection<ICreditInfo, Sut> result = await ((IInfoCollection<ICreditInfo, Sut>) await ((IInfoCollection<ICreditInfo, Sut>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result, Is.SameAs(sut));
+        }
+
         private IInfoCollection<ICreditInfo, Sut> CreateSut()
         {
             return new Sut();
@@ -134,11 +181,17 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
         {
             #region Properties
 
-            public bool CalculateWasCalled { get; private set; }
+            public bool CalculateWasCalled => CalculateWasCalledTimes > 0;
+
+            public int CalculateWasCalledTimes { get; private set; }
 
             public DateTime? CalculateCalledWithStatusDate { get; private set; }
 
             public IEnumerable<ICreditInfo> CalculateCalledWithCalculatedInfoCollection { get; private set; }
+
+            public bool AlreadyCalculatedWasCalled => AlreadyCalculatedWasCalledTimes > 0;
+
+            public int AlreadyCalculatedWasCalledTimes { get; private set; }
 
             #endregion
 
@@ -148,9 +201,16 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
             {
                 NullGuard.NotNull(calculatedInfoCollection, nameof(calculatedInfoCollection));
 
-                CalculateWasCalled = true;
+                CalculateWasCalledTimes++;
                 CalculateCalledWithStatusDate = statusDate;
                 CalculateCalledWithCalculatedInfoCollection = calculatedInfoCollection;
+
+                return this;
+            }
+
+            protected override Sut AlreadyCalculated()
+            {
+                AlreadyCalculatedWasCalledTimes++;
 
                 return this;
             }

@@ -42,6 +42,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<IPostingLineCollection> CalculateAsync(DateTime statusDate)
         {
+            if (statusDate.Date == StatusDate)
+            {
+                return this;
+            }
+
             StatusDate = statusDate.Date;
 
             await Task.WhenAll(this.Select(postingLine=> postingLine.CalculateAsync(StatusDate)).ToArray());

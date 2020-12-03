@@ -136,6 +136,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             protected override Sut Calculate(DateTime statusDate, IEnumerable<IAccount> calculatedAccountCollection) => throw new NotSupportedException();
 
+            protected override Sut AlreadyCalculated() => throw new NotSupportedException();
+
             #endregion
         }
     }

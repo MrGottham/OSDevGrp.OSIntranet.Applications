@@ -95,6 +95,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return this;
         }
 
+        protected override IBudgetInfo AlreadyCalculated() => this;
+
         #endregion
     }
 }

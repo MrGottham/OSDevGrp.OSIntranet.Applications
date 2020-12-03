@@ -140,6 +140,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoBase
 
             protected override IInfo Calculate(DateTime statusDate) => this;
 
+            protected override IInfo AlreadyCalculated() => throw new NotSupportedException();
+
             #endregion
         }
     }

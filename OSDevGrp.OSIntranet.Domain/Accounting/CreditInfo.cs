@@ -66,6 +66,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return this;
         }
 
+        protected override ICreditInfo AlreadyCalculated() => this;
+
         #endregion
     }
 }

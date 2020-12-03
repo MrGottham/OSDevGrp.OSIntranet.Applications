@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.Accounting
@@ -32,7 +31,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.Accounting
         public async Task CalculateAsync_WhenCalled_AssertCalculateAsyncWasCalledOnAccountCollection()
         {
             Mock<IAccountCollection> accountCollectionMock = _fixture.BuildAccountCollectionMock();
-            ICalculable<IAccounting> sut = CreateSut(accountCollection: accountCollectionMock.Object);
+            ICalculable<IAccounting> sut = CreateSut(accountCollectionMock.Object);
 
             DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
             await sut.CalculateAsync(statusDate);
@@ -128,28 +127,60 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.Accounting
             Assert.That(result.ContactAccountCollection, Is.EqualTo(calculatedContactAccountCollection));
         }
 
-        private ICalculable<IAccounting> CreateSut(IAccountCollection accountCollection = null, IBudgetAccountCollection budgetAccountCollection = null, IContactAccountCollection contactAccountCollection = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasCalledOnlyOnceOnAccountCollection()
         {
-            return new Sut(_fixture.Create<int>(), _fixture.Create<string>(), _fixture.BuildLetterHeadMock().Object, accountCollection ?? _fixture.BuildAccountCollectionMock().Object, budgetAccountCollection ?? _fixture.BuildBudgetAccountCollectionMock().Object, contactAccountCollection ?? _fixture.BuildContactAccountCollectionMock().Object);
+            Mock<IAccountCollection> accountCollectionMock = _fixture.BuildAccountCollectionMock();
+            ICalculable<IAccounting> sut = CreateSut(accountCollectionMock.Object);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            accountCollectionMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
         }
 
-        private class Sut : Domain.Accounting.Accounting
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasCalledOnlyOnceOnBudgetAccountCollection()
         {
-            #region Constructor
+            Mock<IBudgetAccountCollection> budgetAccountCollectionMock = _fixture.BuildBudgetAccountCollectionMock();
+            ICalculable<IAccounting> sut = CreateSut(budgetAccountCollection: budgetAccountCollectionMock.Object);
 
-            public Sut(int number, string name, ILetterHead letterHead, IAccountCollection accountCollection, IBudgetAccountCollection budgetAccountCollection, IContactAccountCollection contactAccountCollection)
-                : base(number, name, letterHead)
-            {
-                NullGuard.NotNull(accountCollection, nameof(accountCollection))
-                    .NotNull(budgetAccountCollection, nameof(budgetAccountCollection))
-                    .NotNull(contactAccountCollection, nameof(contactAccountCollection));
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
 
-                AccountCollection = accountCollection;
-                BudgetAccountCollection = budgetAccountCollection;
-                ContactAccountCollection = contactAccountCollection;
-            }
+            budgetAccountCollectionMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
+        }
 
-            #endregion
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasCalledOnlyOnceOnContactAccountCollection()
+        {
+            Mock<IContactAccountCollection> contactAccountCollectionMock = _fixture.BuildContactAccountCollectionMock();
+            ICalculable<IAccounting> sut = CreateSut(contactAccountCollection: contactAccountCollectionMock.Object);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            contactAccountCollectionMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_ReturnsSameCalculable()
+        {
+            ICalculable<IAccounting> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IAccounting result = await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result, Is.SameAs(sut));
+        }
+
+        private ICalculable<IAccounting> CreateSut(IAccountCollection accountCollection = null, IBudgetAccountCollection budgetAccountCollection = null, IContactAccountCollection contactAccountCollection = null)
+        {
+            return new Domain.Accounting.Accounting(_fixture.Create<int>(), _fixture.Create<string>(), _fixture.BuildLetterHeadMock().Object, _fixture.Create<BalanceBelowZeroType>(), _fixture.Create<int>(), accountCollection ?? _fixture.BuildAccountCollectionMock().Object, budgetAccountCollection ?? _fixture.BuildBudgetAccountCollectionMock().Object, contactAccountCollection ?? _fixture.BuildContactAccountCollectionMock().Object);
         }
    }
 }

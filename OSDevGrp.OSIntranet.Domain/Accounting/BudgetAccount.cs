@@ -70,6 +70,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected override IBudgetAccount GetCalculationResult() => this;
 
+        protected override IBudgetAccount AlreadyCalculated() => this;
+
         private async Task CalculateBudgetInfoCollectionAsync(DateTime statusDate)
         {
             BudgetInfoCollection = await BudgetInfoCollection.CalculateAsync(statusDate);

@@ -68,6 +68,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             return Task.Run(() =>
             {
+                if (statusDate.Date == StatusDate)
+                {
+                    return AlreadyCalculated();
+                }
+
                 StatusDate = statusDate.Date;
 
                 return Calculate(StatusDate);
@@ -105,6 +110,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         }
 
         protected abstract T Calculate(DateTime statusDate);
+
+        protected abstract T AlreadyCalculated();
 
         protected DateTime ResolveCalculationToDate(DateTime statusDate)
         {

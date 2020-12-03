@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
     public interface IAccountCollection : IAccountCollectionBase<IAccount, IAccountCollection>
@@ -7,5 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         IAccountCollectionValues ValuesAtEndOfLastMonthFromStatusDate { get; }
 
         IAccountCollectionValues ValuesAtEndOfLastYearFromStatusDate { get; }
+
+        Task<IReadOnlyDictionary<IAccountGroup, IAccountCollection>> GroupByAccountGroupAsync();
     }
 }

@@ -280,7 +280,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfo
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
                 _fixture.BuildPostingLineMock(today.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) today.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, Math.Max((int) today.Subtract(fromDate).TotalDays, 1))).Date),
                 _fixture.BuildPostingLineMock(fromDate.Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;

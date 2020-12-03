@@ -66,6 +66,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<TInfoCollection> CalculateAsync(DateTime statusDate)
         {
+            if (statusDate.Date == StatusDate)
+            {
+                return AlreadyCalculated();
+            }
+
             StatusDate = statusDate.Date;
 
             TInfo[] calculatedInfoCollection = await Task.WhenAll(this.Select(info => info.CalculateAsync(StatusDate)).ToArray());
@@ -74,6 +79,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         }
 
         protected abstract TInfoCollection Calculate(DateTime statusDate, TInfo[] calculatedInfoCollection);
+
+        protected abstract TInfoCollection AlreadyCalculated();
 
         #endregion
     }

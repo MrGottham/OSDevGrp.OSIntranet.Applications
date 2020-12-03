@@ -62,6 +62,17 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
         [Test]
         [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertAlreadyCalculatedWasNotCalledOnSut()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            Sut result = (Sut)await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            Assert.That(result.AlreadyCalculatedWasCalled, Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalled_AssertAllCalculationTasksIsCompleted()
         {
             Task[] calculationTasks = CreateCalculationTasks();
@@ -93,6 +104,54 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
             IAccountBase result = await sut.CalculateAsync(statusDate);
 
             Assert.That(result.StatusDate, Is.EqualTo(statusDate.Date));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertGetCalculationTasksWasCalledOnlyOnceOnSut()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = (Sut) await ((IAccountBase<IAccountBase>) await ((IAccountBase<IAccountBase>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result.GetCalculationTasksWasCalledTimes, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertGetCalculationResultWasCalledOnlyOnceOnSut()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = (Sut) await ((IAccountBase<IAccountBase>) await ((IAccountBase<IAccountBase>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result.GetCalculationResultWasCalledTimes, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertAlreadyCalculatedWasCalledTwiceOnSut()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            Sut result = (Sut) await ((IAccountBase<IAccountBase>) await ((IAccountBase<IAccountBase>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result.AlreadyCalculatedWasCalledTimes, Is.EqualTo(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_ReturnsSameAccountBase()
+        {
+            IAccountBase<IAccountBase> sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IAccountBase result = await ((IAccountBase<IAccountBase>) await ((IAccountBase<IAccountBase>) await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result, Is.SameAs(sut));
         }
 
         private IAccountBase<IAccountBase> CreateSut(Task[] calculationTasks = null)
@@ -132,11 +191,19 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
             #region Properties
 
-            public bool GetCalculationTasksWasCalled { get; private set; }
+            public bool GetCalculationTasksWasCalled => GetCalculationTasksWasCalledTimes > 0;
+
+            public int GetCalculationTasksWasCalledTimes { get; private set; }
 
             public DateTime? GetCalculationTasksWasCalledWithStatusDate { get; private set; }
 
-            public bool GetCalculationResultWasCalled { get; private set; }
+            public bool GetCalculationResultWasCalled => GetCalculationResultWasCalledTimes > 0;
+
+            public int GetCalculationResultWasCalledTimes { get; private set; }
+
+            public bool AlreadyCalculatedWasCalled => AlreadyCalculatedWasCalledTimes > 0;
+
+            public int AlreadyCalculatedWasCalledTimes { get; private set; }
 
             #endregion
 
@@ -144,15 +211,22 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
             protected override Task[] GetCalculationTasks(DateTime statusDate)
             {
-                GetCalculationTasksWasCalled = true;
+                GetCalculationTasksWasCalledTimes++;
                 GetCalculationTasksWasCalledWithStatusDate = statusDate;
-                
+
                 return _calculationTasks;
             }
 
             protected override IAccountBase GetCalculationResult()
             {
-                GetCalculationResultWasCalled = true;
+                GetCalculationResultWasCalledTimes++;
+
+                return this;
+            }
+
+            protected override IAccountBase AlreadyCalculated()
+            {
+                AlreadyCalculatedWasCalledTimes++;
 
                 return this;
             }

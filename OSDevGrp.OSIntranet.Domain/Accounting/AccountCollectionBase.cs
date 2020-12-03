@@ -42,6 +42,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<TAccountCollection> CalculateAsync(DateTime statusDate)
         {
+            if (statusDate.Date == StatusDate)
+            {
+                return AlreadyCalculated();
+            }
+
             StatusDate = statusDate.Date;
 
             TAccount[] calculatedAccountCollection = await Task.WhenAll(this.Select(account => account.CalculateAsync(StatusDate)).ToArray());
@@ -50,6 +55,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         }
 
         protected abstract TAccountCollection Calculate(DateTime statusDate, IEnumerable<TAccount> calculatedAccountCollection);
+
+        protected abstract TAccountCollection AlreadyCalculated();
 
         #endregion
     }

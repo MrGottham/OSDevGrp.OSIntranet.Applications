@@ -71,6 +71,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected override IAccount GetCalculationResult() => this;
 
+        protected override IAccount AlreadyCalculated() => this;
+
         private async Task CalculateCreditInfoCollectionAsync(DateTime statusDate)
         {
             CreditInfoCollection = await CreditInfoCollection.CalculateAsync(statusDate);

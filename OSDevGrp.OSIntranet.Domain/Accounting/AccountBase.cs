@@ -64,6 +64,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<T> CalculateAsync(DateTime statusDate)
         {
+            if (statusDate.Date == StatusDate)
+            {
+                return AlreadyCalculated();
+            }
+
             StatusDate = statusDate.Date;
 
             Task[] calculationTasks = GetCalculationTasks(StatusDate);
@@ -95,6 +100,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         protected abstract Task[] GetCalculationTasks(DateTime statusDate);
 
         protected abstract T GetCalculationResult();
+
+        protected abstract T AlreadyCalculated();
 
         protected async Task CalculatePostingLineCollectionAsync(DateTime statusDate)
         {

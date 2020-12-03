@@ -45,6 +45,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             return Task.Run<IPostingLine>(() =>
             {
+                if (statusDate.Date == StatusDate)
+                {
+                    return this;
+                }
+
                 StatusDate = statusDate.Date;
 
                 return this;

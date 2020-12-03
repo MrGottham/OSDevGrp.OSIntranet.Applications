@@ -40,6 +40,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return this;
         }
 
+        protected override IContactInfo AlreadyCalculated() => this;
+
         #endregion
     }
 }

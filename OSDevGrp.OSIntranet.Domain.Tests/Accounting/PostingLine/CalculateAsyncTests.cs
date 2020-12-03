@@ -46,6 +46,18 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             Assert.That(result.StatusDate, Is.EqualTo(statusDate.Date));
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_ReturnsSamePostingLine()
+        {
+            IPostingLine sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result, Is.SameAs(sut));
+        }
+
         private IPostingLine CreateSut(Guid? identifier = null)
         {
             int year = _random.Next(InfoBase<ICreditInfo>.MinYear, InfoBase<ICreditInfo>.MaxYear);

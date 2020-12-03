@@ -77,6 +77,45 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
             Assert.That(result.StatusDate, Is.EqualTo(statusDate.Date));
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasCalledOnlyOnceOnEachPostingLine()
+        {
+            IPostingLineCollection sut = CreateSut();
+
+            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
+            {
+                _fixture.BuildPostingLineMock(),
+                _fixture.BuildPostingLineMock(),
+                _fixture.BuildPostingLineMock(),
+                _fixture.BuildPostingLineMock(),
+                _fixture.BuildPostingLineMock(),
+                _fixture.BuildPostingLineMock(),
+                _fixture.BuildPostingLineMock()
+            };
+            sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
+            {
+                postingLineMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_ReturnsSamePostingLineCollection()
+        {
+            IPostingLineCollection sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLineCollection result = await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            Assert.That(result, Is.SameAs(sut));
+        }
+
         private IPostingLineCollection CreateSut()
         {
             return new Domain.Accounting.PostingLineCollection();

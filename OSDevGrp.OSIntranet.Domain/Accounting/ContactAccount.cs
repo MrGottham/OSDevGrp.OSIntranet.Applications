@@ -129,6 +129,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected override IContactAccount GetCalculationResult() => this;
 
+        protected override IContactAccount AlreadyCalculated() => this;
+
         private async Task CalculateContactInfoCollectionAsync(DateTime statusDate)
         {
             ContactInfoCollection = await ContactInfoCollection.CalculateAsync(statusDate);

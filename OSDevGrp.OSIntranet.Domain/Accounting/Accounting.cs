@@ -24,18 +24,26 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         }
 
         public Accounting(int number, string name, ILetterHead letterHead, BalanceBelowZeroType balanceBelowZero, int backDating)
+            : this(number, name, letterHead, balanceBelowZero, backDating, new AccountCollection(), new BudgetAccountCollection(), new ContactAccountCollection())
+        {
+        }
+
+        public Accounting(int number, string name, ILetterHead letterHead, BalanceBelowZeroType balanceBelowZero, int backDating, IAccountCollection accountCollection, IBudgetAccountCollection budgetAccountCollection, IContactAccountCollection contactAccountCollection)
         {
             NullGuard.NotNullOrWhiteSpace(name, nameof(name))
-                .NotNull(letterHead, nameof(letterHead));
+                .NotNull(letterHead, nameof(letterHead))
+                .NotNull(accountCollection, nameof(accountCollection))
+                .NotNull(budgetAccountCollection, nameof(budgetAccountCollection))
+                .NotNull(contactAccountCollection, nameof(contactAccountCollection));
 
             Number = number;
             Name = name.Trim();
             LetterHead = letterHead;
             BalanceBelowZero = balanceBelowZero;
             BackDating = backDating;
-            AccountCollection = new AccountCollection();
-            BudgetAccountCollection = new BudgetAccountCollection();
-            ContactAccountCollection = new ContactAccountCollection();
+            AccountCollection = accountCollection;
+            BudgetAccountCollection = budgetAccountCollection;
+            ContactAccountCollection = contactAccountCollection;
         }
 
         #endregion
@@ -67,11 +75,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool DefaultForPrincipal { get; private set; }
 
-        public IAccountCollection AccountCollection { get; protected set; }
+        public IAccountCollection AccountCollection { get; private set; }
 
-        public IBudgetAccountCollection BudgetAccountCollection { get; protected set; }
+        public IBudgetAccountCollection BudgetAccountCollection { get; private set; }
 
-        public IContactAccountCollection ContactAccountCollection { get; protected set; }
+        public IContactAccountCollection ContactAccountCollection { get; private set; }
 
         #endregion
 
@@ -79,16 +87,20 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<IAccounting> CalculateAsync(DateTime statusDate)
         {
+            if (statusDate.Date == StatusDate)
+            {
+                return this;
+            }
+
             StatusDate = statusDate.Date;
 
-            Task<IAccountCollection> calculateAccountCollectionTask = AccountCollection.CalculateAsync(StatusDate);
-            Task<IBudgetAccountCollection> calculateBudgetAccountCollectionTask = BudgetAccountCollection.CalculateAsync(StatusDate);
-            Task<IContactAccountCollection> calculateContactAccountCollectionTask = ContactAccountCollection.CalculateAsync(StatusDate);
-            await Task.WhenAll(calculateAccountCollectionTask, calculateBudgetAccountCollectionTask, calculateContactAccountCollectionTask);
-
-            AccountCollection = calculateAccountCollectionTask.GetAwaiter().GetResult();
-            BudgetAccountCollection = calculateBudgetAccountCollectionTask.GetAwaiter().GetResult();
-            ContactAccountCollection = calculateContactAccountCollectionTask.GetAwaiter().GetResult();
+            Task[] calculateTasks =
+            {
+                GetAccountCollectionCalculationTask(StatusDate),
+                GetBudgetAccountCollectionCalculationTask(StatusDate),
+                GetContactAccountCollectionCalculationTask(StatusDate)
+            };
+            await Task.WhenAll(calculateTasks);
 
             return this;
         }
@@ -106,6 +118,21 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         public void ApplyDefaultForPrincipal(int? defaultAccountingNumber)
         {
             DefaultForPrincipal = defaultAccountingNumber.HasValue && defaultAccountingNumber.Value == Number;
+        }
+
+        private async Task GetAccountCollectionCalculationTask(DateTime statusDate)
+        {
+            AccountCollection = await AccountCollection.CalculateAsync(statusDate);
+        }
+
+        private async Task GetBudgetAccountCollectionCalculationTask(DateTime statusDate)
+        {
+            BudgetAccountCollection = await BudgetAccountCollection.CalculateAsync(statusDate);
+        }
+
+        private async Task GetContactAccountCollectionCalculationTask(DateTime statusDate)
+        {
+            ContactAccountCollection = await ContactAccountCollection.CalculateAsync(statusDate);
         }
 
         #endregion

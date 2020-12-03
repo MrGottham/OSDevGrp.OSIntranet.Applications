@@ -69,6 +69,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
             protected override IAccountBase GetCalculationResult() => throw new NotSupportedException();
 
+            protected override IAccountBase AlreadyCalculated() => throw new NotSupportedException();
+
             #endregion
         }
     }
