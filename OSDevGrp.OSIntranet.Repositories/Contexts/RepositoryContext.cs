@@ -78,6 +78,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<BasicAccountModel> BasicAccounts { get; set; }
 
+        public DbSet<CreditInfoModel> CreditInfos { get; set; }
+
+        public DbSet<BudgetInfoModel> BudgetInfos { get; set; }
+
+        public DbSet<YearMonthModel> YearMonths { get; set; }
+
         public DbSet<AccountGroupModel> AccountGroups { get; set; }
 
         public DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
@@ -263,6 +269,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateBudgetAccountModel();
             modelBuilder.CreateContactAccountModel();
             modelBuilder.CreateBasicAccountModel();
+            modelBuilder.CreateCreditInfoModel();
+            modelBuilder.CreateBudgetInfoModel();
+            modelBuilder.CreateYearMonthModel();
             modelBuilder.CreateAccountGroupModel();
             modelBuilder.CreateBudgetAccountGroupModel();
             modelBuilder.CreatePaymentTermModel();

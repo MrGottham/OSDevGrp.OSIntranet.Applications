@@ -24,12 +24,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<ContactAccountModel> Entities => DbContext.ContactAccounts;
 
-        protected override IQueryable<ContactAccountModel> Reader => Entities
-            .Include(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
-            .Include(accountModel => accountModel.BasicAccount)
-            .Include(accountModel => accountModel.PaymentTerm);
+        protected override IQueryable<ContactAccountModel> Reader => CreateReader(IncludePostingLines);
 
-        protected override IQueryable<ContactAccountModel> DeleteReader => Reader; // TODO: Include posting lines.
+        protected override IQueryable<ContactAccountModel> UpdateReader => CreateReader(false);
+
+        protected override IQueryable<ContactAccountModel> DeleteReader => CreateReader(true);
 
         #endregion
 
@@ -42,20 +41,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             contactAccountModel = await base.OnCreateAsync(contactAccount, contactAccountModel);
             contactAccountModel.PaymentTerm = await DbContext.PaymentTerms.SingleAsync(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contactAccount.PaymentTerm.Number);
-
-            return contactAccountModel;
-        }
-
-        protected override async Task<ContactAccountModel> OnReadAsync(ContactAccountModel contactAccountModel)
-        {
-            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
-
-            contactAccountModel = await base.OnReadAsync(contactAccountModel);
-
-            if (IncludePostingLines)
-            {
-                // TODO: Include all posting lines for the given status date.
-            }
 
             return contactAccountModel;
         }
@@ -78,11 +63,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
 
-            contactAccountModel = await base.OnDeleteAsync(contactAccountModel);
-
             // TODO: Delete all posting lines.
 
-            return contactAccountModel;
+            return await base.OnDeleteAsync(contactAccountModel);
         }
 
         protected override Task<bool> CanDeleteAsync(ContactAccountModel contactAccountModel)
@@ -92,6 +75,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             // TODO: Validate the existence of posting lines.
 
             return Task.FromResult(false);
+        }
+
+        private IQueryable<ContactAccountModel> CreateReader(bool includePostingLines)
+        {
+            IQueryable<ContactAccountModel> reader = Entities
+                .Include(contactAccountModel => contactAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                .Include(contactAccountModel => contactAccountModel.BasicAccount)
+                .Include(contactAccountModel => contactAccountModel.PaymentTerm);
+
+            if (includePostingLines)
+            {
+                // TODO: Include posting lines.
+            }
+
+            return reader;
         }
 
         #endregion

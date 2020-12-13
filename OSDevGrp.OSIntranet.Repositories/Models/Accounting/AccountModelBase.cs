@@ -1,6 +1,7 @@
 using System;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
@@ -16,6 +17,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual int BasicAccountIdentifier { get; set; }
 
         public virtual BasicAccountModel BasicAccount { get; set; }
+
+        public virtual DateTime StatusDate { get; set; }
+
+        public virtual DateTime StatusDateForInfos => StatusDate.GetStatusDateForInfos();
 
         public virtual bool Deletable { get; set; }
 
@@ -39,7 +44,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 modifiedByIdentifier = BasicAccount.ModifiedByIdentifier;
             }
 
+            AuditModelBase lastModifiedInfoModel = GetLastModifiedInfoModel();
+            if (lastModifiedInfoModel != null && modifiedUtcDateTime < lastModifiedInfoModel.ModifiedUtcDateTime)
+            {
+                modifiedUtcDateTime = lastModifiedInfoModel.ModifiedUtcDateTime;
+                modifiedByIdentifier = lastModifiedInfoModel.ModifiedByIdentifier;
+            }
+
             auditable.AddAuditInformation(createdUtcDateTime, createdByIdentifier, modifiedUtcDateTime, modifiedByIdentifier);
         }
+
+        protected abstract AuditModelBase GetLastModifiedInfoModel();
     }
 }

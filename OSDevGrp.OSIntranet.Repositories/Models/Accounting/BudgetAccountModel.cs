@@ -1,9 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
+using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -14,6 +18,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual int BudgetAccountGroupIdentifier { get; set; }
 
         public virtual BudgetAccountGroupModel BudgetAccountGroup { get; set; }
+
+        public virtual List<BudgetInfoModel> BudgetInfos { get; set; }
+
+        protected override AuditModelBase GetLastModifiedInfoModel()
+        {
+            return BudgetInfos?.AsParallel()
+                .OrderByDescending(budgetInfoModel => budgetInfoModel.ModifiedUtcDateTime)
+                .FirstOrDefault();
+        }
     }
 
     internal static class BudgetAccountModelExtensions
@@ -23,18 +36,54 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(budgetAccountModel.Accounting);
-            IBudgetAccountGroup budgetAccountGroup = accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountModel.BudgetAccountGroup);
-
-            IBudgetAccount budgetAccount = new BudgetAccount(accounting, budgetAccountModel.AccountNumber, budgetAccountModel.BasicAccount.AccountName, budgetAccountGroup)
+            IBudgetAccount budgetAccount;
+            lock (accountingModelConverter.Cache.SyncRoot)
             {
-                Description = budgetAccountModel.BasicAccount.Description,
-                Note = budgetAccountModel.BasicAccount.Note
-            };
-            budgetAccountModel.CopyAuditInformationTo(budgetAccount);
-            budgetAccount.SetDeletable(budgetAccountModel.Deletable);
+                budgetAccount = accountingModelConverter.Cache.FromMemory<IBudgetAccount>($"{budgetAccountModel.AccountNumber}@{budgetAccountModel.AccountingIdentifier}");
+                if (budgetAccount != null)
+                {
+                    return budgetAccount;
+                }
 
-            return budgetAccount;
+                IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(budgetAccountModel.Accounting);
+                IBudgetAccountGroup budgetAccountGroup = accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountModel.BudgetAccountGroup);
+
+                budgetAccount = new BudgetAccount(accounting, budgetAccountModel.AccountNumber, budgetAccountModel.BasicAccount.AccountName, budgetAccountGroup)
+                {
+                    Description = budgetAccountModel.BasicAccount.Description,
+                    Note = budgetAccountModel.BasicAccount.Note
+                };
+                budgetAccountModel.CopyAuditInformationTo(budgetAccount);
+                budgetAccount.SetDeletable(budgetAccountModel.Deletable);
+
+                accountingModelConverter.Cache.Remember(budgetAccount, m => $"{m.AccountNumber}@{m.Accounting.Number}");
+            }
+
+            try
+            {
+                if (budgetAccountModel.BudgetInfos != null)
+                {
+                    budgetAccount.BudgetInfoCollection.Populate(budgetAccount,
+                        budgetAccountModel.BudgetInfos
+                            .Where(budgetInfoModel => budgetInfoModel.BudgetAccount?.Accounting != null &&
+                                                      budgetInfoModel.BudgetAccount.BasicAccount != null &&
+                                                      budgetInfoModel.BudgetAccount.BudgetAccountGroup != null &&
+                                                      budgetInfoModel.YearMonth != null &&
+                                                      (budgetInfoModel.YearMonth.Year < budgetAccountModel.StatusDateForInfos.Year ||
+                                                       budgetInfoModel.YearMonth.Year == budgetAccountModel.StatusDateForInfos.Year &&
+                                                       budgetInfoModel.YearMonth.Month <= budgetAccountModel.StatusDateForInfos.Month))
+                            .Select(accountingModelConverter.Convert<BudgetInfoModel, IBudgetInfo>)
+                            .ToArray(),
+                        budgetAccountModel.StatusDate,
+                        budgetAccountModel.StatusDateForInfos);
+                }
+
+                return budgetAccount;
+            }
+            finally
+            {
+                accountingModelConverter.Cache.Forget<IBudgetAccount>($"{budgetAccountModel.AccountNumber}@{budgetAccountModel.AccountingIdentifier}");
+            }
         }
 
         internal static void CreateBudgetAccountModel(this ModelBuilder modelBuilder)
@@ -53,6 +102,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.Ignore(e => e.StatusDate);
                 entity.Ignore(e => e.Deletable);
                 entity.HasIndex(e => new {e.AccountingIdentifier, e.AccountNumber}).IsUnique();
                 entity.HasIndex(e => e.BasicAccountIdentifier).IsUnique();

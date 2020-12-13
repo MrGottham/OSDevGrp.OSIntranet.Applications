@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -14,6 +15,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         #region Private variables
 
         private readonly bool _includeBudgetInformation;
+        private readonly BudgetInfoModelHandler _budgetInfoModelHandler;
 
         #endregion
 
@@ -23,6 +25,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             : base(dbContext, modelConverter, statusDate, includePostingLines)
         {
             _includeBudgetInformation = includeBudgetInformation;
+            _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter);
         }
 
         #endregion
@@ -31,18 +34,20 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<BudgetAccountModel> Entities => DbContext.BudgetAccounts;
 
-        protected override IQueryable<BudgetAccountModel> Reader => Entities
-            .Include(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
-            .Include(accountModel => accountModel.BasicAccount)
-            .Include(accountModel => accountModel.BudgetAccountGroup);
+        protected override IQueryable<BudgetAccountModel> Reader => CreateReader(_includeBudgetInformation, IncludePostingLines);
 
-        protected override IQueryable<BudgetAccountModel> UpdateReader => Reader; // TODO: Include budget information.
+        protected override IQueryable<BudgetAccountModel> UpdateReader => CreateReader(true, false);
 
-        protected override IQueryable<BudgetAccountModel> DeleteReader => Reader; // TODO: Include budget information and posting lines.
+        protected override IQueryable<BudgetAccountModel> DeleteReader => CreateReader(true, true);
 
         #endregion
 
         #region Methods
+
+        protected override void OnDispose()
+        {
+            _budgetInfoModelHandler.Dispose();
+        }
 
         protected override async Task<BudgetAccountModel> OnCreateAsync(IBudgetAccount budgetAccount, BudgetAccountModel budgetAccountModel)
         {
@@ -52,7 +57,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             budgetAccountModel = await base.OnCreateAsync(budgetAccount, budgetAccountModel);
             budgetAccountModel.BudgetAccountGroup = await DbContext.BudgetAccountGroups.SingleAsync(budgetAccountGroupModel => budgetAccountGroupModel.BudgetAccountGroupIdentifier == budgetAccount.BudgetAccountGroup.Number);
 
-            // TODO: Create budget information.
+            budgetAccount.BudgetInfoCollection.EnsurePopulation(budgetAccount);
+
+            await _budgetInfoModelHandler.CreateOrUpdateAsync(budgetAccount.BudgetInfoCollection, budgetAccountModel);
 
             return budgetAccountModel;
         }
@@ -61,19 +68,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            budgetAccountModel = await base.OnReadAsync(budgetAccountModel);
-
-            if (_includeBudgetInformation)
+            if (budgetAccountModel.BudgetInfos == null)
             {
-                // TODO: Read all budget information for the given status date.
+                return await base.OnReadAsync(budgetAccountModel);
             }
 
-            if (IncludePostingLines)
-            {
-                // TODO: Include all posting lines for the given status date.
-            }
+            budgetAccountModel.BudgetInfos = (await _budgetInfoModelHandler.ReadAsync(budgetAccountModel.BudgetInfos)).ToList();
 
-            return budgetAccountModel;
+            return await base.OnReadAsync(budgetAccountModel);
         }
 
         protected override async Task OnUpdateAsync(IBudgetAccount budgetAccount, BudgetAccountModel budgetAccountModel)
@@ -86,29 +88,56 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             budgetAccountModel.BudgetAccountGroupIdentifier = budgetAccount.BudgetAccountGroup.Number;
             budgetAccountModel.BudgetAccountGroup = await DbContext.BudgetAccountGroups.SingleAsync(budgetAccountGroupModel => budgetAccountGroupModel.BudgetAccountGroupIdentifier == budgetAccount.BudgetAccountGroup.Number);
 
-            // TODO: Create budget information.
+            budgetAccount.BudgetInfoCollection.EnsurePopulation(budgetAccount);
+
+            await _budgetInfoModelHandler.CreateOrUpdateAsync(budgetAccount.BudgetInfoCollection, budgetAccountModel);
+        }
+
+        protected override async Task<bool> CanDeleteAsync(BudgetAccountModel budgetAccountModel)
+        {
+            NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
+
+            // TODO: Validate the existence of posting lines.
+
+            if (budgetAccountModel.BudgetInfos == null)
+            {
+                return false;
+            }
+
+            return await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos);
         }
 
         protected override async Task<BudgetAccountModel> OnDeleteAsync(BudgetAccountModel budgetAccountModel)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            budgetAccountModel = await base.OnDeleteAsync(budgetAccountModel);
-
-            // TODO: Delete all budget information.
             // TODO: Delete all posting lines.
+            await _budgetInfoModelHandler.DeleteAsync(budgetAccountModel.BudgetInfos);
 
-            return budgetAccountModel;
+            return await base.OnDeleteAsync(budgetAccountModel);
         }
 
-        protected override Task<bool> CanDeleteAsync(BudgetAccountModel budgetAccountModel)
+        private IQueryable<BudgetAccountModel> CreateReader(bool includeBudgetInformation, bool includePostingLines)
         {
-            NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
+            IQueryable<BudgetAccountModel> reader = Entities
+                .Include(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                .Include(budgetAccountModel => budgetAccountModel.BasicAccount)
+                .Include(budgetAccountModel => budgetAccountModel.BudgetAccountGroup);
 
-            // TODO: Validate the existence of budget information.
-            // TODO: Validate the existence of posting lines.
+            if (includeBudgetInformation)
+            {
+                reader = reader.Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
+                    .Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
+                    .Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
+            }
 
-            return Task.FromResult(false);
+            if (includePostingLines)
+            {
+                // TODO: Include posting lines.
+            }
+
+            return reader;
         }
 
         #endregion

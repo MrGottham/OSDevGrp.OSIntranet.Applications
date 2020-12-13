@@ -66,7 +66,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             {
                 if (accountingModel.Accounts != null)
                 {
-                    accounting.AccountCollection.Add(accountingModel.Accounts.AsParallel()
+                    accounting.AccountCollection.Add(accountingModel.Accounts
                         .Where(accountModel => accountModel.Accounting != null && accountModel.BasicAccount != null && accountModel.AccountGroup != null)
                         .Select(accountingModelConverter.Convert<AccountModel, IAccount>)
                         .ToArray());
@@ -74,7 +74,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
                 if (accountingModel.BudgetAccounts != null)
                 {
-                    accounting.BudgetAccountCollection.Add(accountingModel.BudgetAccounts.AsParallel()
+                    accounting.BudgetAccountCollection.Add(accountingModel.BudgetAccounts
                         .Where(budgetAccountModel => budgetAccountModel.Accounting != null && budgetAccountModel.BasicAccount != null && budgetAccountModel.BudgetAccountGroup != null)
                         .Select(accountingModelConverter.Convert<BudgetAccountModel, IBudgetAccount>)
                         .ToArray());
@@ -82,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
                 if (accountingModel.ContactAccounts != null)
                 {
-                    accounting.ContactAccountCollection.Add(accountingModel.ContactAccounts.AsParallel()
+                    accounting.ContactAccountCollection.Add(accountingModel.ContactAccounts
                         .Where(contactAccountModel => contactAccountModel.Accounting != null && contactAccountModel.BasicAccount != null && contactAccountModel.PaymentTerm != null)
                         .Select(accountingModelConverter.Convert<ContactAccountModel, IContactAccount>)
                         .ToArray());

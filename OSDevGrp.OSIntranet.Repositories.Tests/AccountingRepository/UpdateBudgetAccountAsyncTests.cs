@@ -45,10 +45,46 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
             IBudgetAccountGroup[] budgetAccountGroupCollection = (await sut.GetBudgetAccountGroupsAsync()).ToArray();
 
-            IBudgetAccount budgetAccount = await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), WithExistingAccountNumberForBudgetAccount(), DateTime.Today);
+            DateTime today = DateTime.Today;
+
+            IBudgetAccount budgetAccount = await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), WithExistingAccountNumberForBudgetAccount(), today);
             budgetAccount.Description = _fixture.Create<string>();
             budgetAccount.Note = _fixture.Create<string>();
             budgetAccount.BudgetAccountGroup = budgetAccountGroupCollection[_random.Next(0, budgetAccountGroupCollection.Length - 1)];
+
+            decimal income = _random.Next(50, 70) * 1000;
+            decimal expenses = _random.Next(25, 35) * 1000;
+
+            IBudgetInfo budgetInfo = budgetAccount.BudgetInfoCollection.Single(m => m.Year == today.AddMonths(-3).Year && m.Month == today.AddMonths(-3).Month);
+            budgetInfo.Income = income;
+            budgetInfo.Expenses = expenses;
+
+            budgetInfo = budgetAccount.BudgetInfoCollection.Next(budgetInfo);
+            budgetInfo.Income = income;
+            budgetInfo.Expenses = expenses;
+
+            budgetInfo = budgetAccount.BudgetInfoCollection.Next(budgetInfo);
+            budgetInfo.Income = income;
+            budgetInfo.Expenses = expenses;
+
+            income += _random.Next(5, 10) * 1000;
+            expenses += _random.Next(5, 10) * 1000;
+
+            budgetInfo = budgetAccount.BudgetInfoCollection.Next(budgetInfo);
+            budgetInfo.Income = income;
+            budgetInfo.Expenses = expenses;
+
+            budgetInfo = budgetAccount.BudgetInfoCollection.Next(budgetInfo);
+            budgetInfo.Income = income;
+            budgetInfo.Expenses = expenses;
+
+            budgetInfo = budgetAccount.BudgetInfoCollection.Next(budgetInfo);
+            budgetInfo.Income = income;
+            budgetInfo.Expenses = expenses;
+
+            budgetInfo = budgetAccount.BudgetInfoCollection.Next(budgetInfo);
+            budgetInfo.Income = 0M;
+            budgetInfo.Expenses = 0M;
 
             IBudgetAccount result = await sut.UpdateBudgetAccountAsync(budgetAccount);
 

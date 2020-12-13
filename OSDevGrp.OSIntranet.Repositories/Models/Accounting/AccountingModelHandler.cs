@@ -44,13 +44,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override Func<IAccounting, int> PrimaryKey => accounting => accounting.Number;
 
-        protected override IQueryable<AccountingModel> Reader => Entities
-            .Include(accountingModel => accountingModel.LetterHead);
+        protected override IQueryable<AccountingModel> Reader => CreateReader(_includeAccounts, _includePostingLines);
 
-        protected override IQueryable<AccountingModel> DeleteReader => Reader
-            .Include(accountingModel => accountingModel.Accounts)
-            .Include(accountingModel => accountingModel.BudgetAccounts)
-            .Include(accountingModel => accountingModel.ContactAccounts); // TODO: Include posting lines.
+        protected override IQueryable<AccountingModel> UpdateReader => CreateReader(false, false);
+
+        protected override IQueryable<AccountingModel> DeleteReader => CreateReader(true, true);
 
         #endregion
 
@@ -91,19 +89,27 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            accountingModel.Deletable = await CanDeleteAsync(accountingModel);
-
-            if (_includeAccounts)
+            if (accountingModel.Accounts != null)
             {
-                accountingModel.Accounts = (await _accountModelHandler.ReadAsync(accountingModel)).ToList();
-                accountingModel.BudgetAccounts = (await _budgetAccountModelHandler.ReadAsync(accountingModel)).ToList();
-                accountingModel.ContactAccounts = (await _contactAccountModelHandler.ReadAsync(accountingModel)).ToList();
+                accountingModel.Accounts = (await _accountModelHandler.ReadAsync(accountingModel.Accounts)).ToList();
+            }
+
+            if (accountingModel.BudgetAccounts != null)
+            {
+                accountingModel.BudgetAccounts = (await _budgetAccountModelHandler.ReadAsync(accountingModel.BudgetAccounts)).ToList();
+            }
+
+            if (accountingModel.ContactAccounts != null)
+            {
+                accountingModel.ContactAccounts = (await _contactAccountModelHandler.ReadAsync(accountingModel.ContactAccounts)).ToList();
             }
 
             if (_includePostingLines)
             {
                 // TODO: Include all posting lines for the given status date.
             }
+
+            accountingModel.Deletable = await CanDeleteAsync(accountingModel);
 
             return accountingModel;
         }
@@ -124,9 +130,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            bool usedOnAccount = await DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier) != null;
-            bool usedOnBudgetAccount = await DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier) != null;
-            bool usedOnContactAccount = await DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier) != null;
+            bool usedOnAccount = await CanDeleteAsync(accountingModel.Accounts, DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnBudgetAccount = await CanDeleteAsync(accountingModel.BudgetAccounts, DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnContactAccount = await CanDeleteAsync(accountingModel.ContactAccounts, DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
 
             return usedOnAccount == false && usedOnBudgetAccount == false && usedOnContactAccount == false;
         }
@@ -135,13 +141,60 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
+            // TODO: Delete all posting lines.
+
             await _accountModelHandler.DeleteAsync(accountingModel.Accounts);
             await _budgetAccountModelHandler.DeleteAsync(accountingModel.BudgetAccounts);
             await _contactAccountModelHandler.DeleteAsync(accountingModel.ContactAccounts);
 
-            // TODO: Delete all posting lines.
-
             return accountingModel;
+        }
+
+        private IQueryable<AccountingModel> CreateReader(bool includeAccounts, bool includePostingLines)
+        {
+            IQueryable<AccountingModel> reader = Entities.Include(accountingModel => accountingModel.LetterHead);
+
+            if (includeAccounts)
+            {
+                reader = reader.Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.BasicAccount)
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.AccountGroup)
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.BasicAccount)
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.AccountGroup)
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
+
+                reader = reader.Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
+
+                reader = reader.Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.BasicAccount)
+                    .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.PaymentTerm);
+            }
+
+            if (includePostingLines)
+            {
+                // TODO: Include posting lines.
+            }
+
+            return reader;
+        }
+
+        private static async Task<bool> CanDeleteAsync<TAccountModel>(IList<TAccountModel> accountModelCollection, Task<TAccountModel> accountModelGetter) where TAccountModel : AccountModelBase
+        {
+            NullGuard.NotNull(accountModelGetter, nameof(accountModelGetter));
+
+            if (accountModelCollection != null)
+            {
+                return accountModelCollection.Count > 0;
+            }
+
+            return await accountModelGetter != null;
         }
 
         #endregion

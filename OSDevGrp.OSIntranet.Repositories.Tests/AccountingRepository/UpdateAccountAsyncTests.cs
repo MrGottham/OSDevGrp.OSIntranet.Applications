@@ -45,10 +45,37 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
             IAccountGroup[] accountGroupCollection = (await sut.GetAccountGroupsAsync()).ToArray();
 
-            IAccount account = await sut.GetAccountAsync(WithExistingAccountingNumber(), WithExistingAccountNumberForAccount(), DateTime.Today);
+            DateTime today = DateTime.Today;
+
+            IAccount account = await sut.GetAccountAsync(WithExistingAccountingNumber(), WithExistingAccountNumberForAccount(), today);
             account.Description = _fixture.Create<string>();
             account.Note = _fixture.Create<string>();
             account.AccountGroup = accountGroupCollection[_random.Next(0, accountGroupCollection.Length - 1)];
+
+            decimal credit = _random.Next(50, 70) * 1000;
+            
+            ICreditInfo creditInfo = account.CreditInfoCollection.Single(m => m.Year == today.AddMonths(-3).Year && m.Month == today.AddMonths(-3).Month);
+            creditInfo.Credit = credit;
+
+            creditInfo = account.CreditInfoCollection.Next(creditInfo);
+            creditInfo.Credit = credit;
+
+            creditInfo = account.CreditInfoCollection.Next(creditInfo);
+            creditInfo.Credit = credit;
+
+            credit +=  _random.Next(5, 10) * 1000;
+
+            creditInfo = account.CreditInfoCollection.Next(creditInfo);
+            creditInfo.Credit = credit;
+
+            creditInfo = account.CreditInfoCollection.Next(creditInfo);
+            creditInfo.Credit = credit;
+
+            creditInfo = account.CreditInfoCollection.Next(creditInfo);
+            creditInfo.Credit = credit;
+
+            creditInfo = account.CreditInfoCollection.Next(creditInfo);
+            creditInfo.Credit = 0M;
 
             IAccount result = await sut.UpdateAccountAsync(account);
 

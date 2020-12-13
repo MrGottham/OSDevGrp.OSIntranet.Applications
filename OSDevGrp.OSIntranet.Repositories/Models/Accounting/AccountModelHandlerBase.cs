@@ -17,20 +17,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
     internal abstract class AccountModelHandlerBase<TAccount, TAccountModel> : ModelHandlerBase<TAccount, RepositoryContext, TAccountModel, Tuple<int, string>> where TAccount : class, IAccountBase where TAccountModel : AccountModelBase, new() 
     {
+        #region Private variables
+
+        private readonly DateTime _statusDate;
+
+        #endregion
+
         #region Constructor
 
         protected AccountModelHandlerBase(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includePostingLines) 
             : base(dbContext, modelConverter)
         {
-            StatusDate = statusDate;
+            _statusDate = statusDate.Date;
+
             IncludePostingLines = includePostingLines;
         }
 
         #endregion
 
         #region Properties
-
-        protected DateTime StatusDate { get; }
 
         protected bool IncludePostingLines { get; }
 
@@ -54,36 +59,35 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return ReadAsync(new Tuple<int, string>(accountingNumber, accountNumber));
         }
 
-        internal async Task<IEnumerable<TAccountModel>> ReadAsync(AccountingModel accountingModel)
-        {
-            NullGuard.NotNull(accountingModel, nameof(accountingModel));
-
-            TAccountModel[] accountModelCollection = await Task.FromResult(Reader.Where(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier).ToArray());
-
-            return (await Task.WhenAll(accountModelCollection.Select(OnReadAsync)))
-                .OrderBy(accountModel => accountModel.AccountNumber)
-                .ToArray();
-        }
-
-        internal async Task DeleteAsync(IEnumerable<TAccountModel> accountModelCollection)
+        internal async Task<IEnumerable<TAccountModel>> ReadAsync(IEnumerable<TAccountModel> accountModelCollection)
         {
             NullGuard.NotNull(accountModelCollection, nameof(accountModelCollection));
 
-            foreach (TAccountModel accountModel in accountModelCollection)
+            return await Task.WhenAll(accountModelCollection.Select(OnReadAsync));
+        }
+
+        internal async Task DeleteAsync(IList<TAccountModel> accountModelCollection)
+        {
+            NullGuard.NotNull(accountModelCollection, nameof(accountModelCollection));
+
+            TAccountModel accountModelToDelete = accountModelCollection.FirstOrDefault();
+            while (accountModelToDelete != null)
             {
-                if (await CanDeleteAsync(accountModel) == false)
+                if (await CanDeleteAsync(accountModelToDelete) == false)
                 {
                     throw new IntranetExceptionBuilder(ErrorCode.UnableToDeleteOneOrMoreObjects, nameof(TAccountModel))
                         .WithMethodBase(MethodBase.GetCurrentMethod())
                         .Build();
                 }
 
-                if (await DeleteAsync(new Tuple<int, string>(accountModel.AccountingIdentifier, accountModel.AccountNumber)) != null)
+                if (await DeleteAsync(new Tuple<int, string>(accountModelToDelete.AccountingIdentifier, accountModelToDelete.AccountNumber)) != null)
                 {
                     throw new IntranetExceptionBuilder(ErrorCode.UnableToDeleteOneOrMoreObjects, nameof(TAccountModel))
                         .WithMethodBase(MethodBase.GetCurrentMethod())
                         .Build();
                 }
+
+                accountModelToDelete = accountModelCollection.FirstOrDefault();
             }
         }
 
@@ -113,7 +117,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
+            accountModel.StatusDate = _statusDate;
             accountModel.Deletable = await CanDeleteAsync(accountModel);
+
+            // TODO: Call OnReadAsync on each posting line.
 
             return accountModel;
         }

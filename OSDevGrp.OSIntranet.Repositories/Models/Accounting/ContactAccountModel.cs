@@ -4,6 +4,8 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
+using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -20,6 +22,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual int PaymentTermIdentifier { get; set; }
 
         public virtual PaymentTermModel PaymentTerm { get; set; }
+
+        protected override AuditModelBase GetLastModifiedInfoModel() => null;
     }
 
     internal static class ContactAccountModelExtensions
@@ -29,21 +33,42 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(contactAccountModel.Accounting);
-            IPaymentTerm paymentTerm = accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(contactAccountModel.PaymentTerm);
-
-            IContactAccount contactAccount = new ContactAccount(accounting, contactAccountModel.AccountNumber, contactAccountModel.BasicAccount.AccountName, paymentTerm)
+            IContactAccount contactAccount;
+            lock (accountingModelConverter.Cache.SyncRoot)
             {
-                Description = contactAccountModel.BasicAccount.Description,
-                Note = contactAccountModel.BasicAccount.Note,
-                MailAddress = contactAccountModel.MailAddress,
-                PrimaryPhone = contactAccountModel.PrimaryPhone,
-                SecondaryPhone = contactAccountModel.SecondaryPhone
-            };
-            contactAccountModel.CopyAuditInformationTo(contactAccount);
-            contactAccount.SetDeletable(contactAccountModel.Deletable);
+                contactAccount = accountingModelConverter.Cache.FromMemory<IContactAccount>($"{contactAccountModel.AccountNumber}@{contactAccountModel.AccountingIdentifier}");
+                if (contactAccount != null)
+                {
+                    return contactAccount;
+                }
 
-            return contactAccount;
+                IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(contactAccountModel.Accounting);
+                IPaymentTerm paymentTerm = accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(contactAccountModel.PaymentTerm);
+
+                contactAccount = new ContactAccount(accounting, contactAccountModel.AccountNumber, contactAccountModel.BasicAccount.AccountName, paymentTerm)
+                {
+                    Description = contactAccountModel.BasicAccount.Description,
+                    Note = contactAccountModel.BasicAccount.Note,
+                    MailAddress = contactAccountModel.MailAddress,
+                    PrimaryPhone = contactAccountModel.PrimaryPhone,
+                    SecondaryPhone = contactAccountModel.SecondaryPhone
+                };
+                contactAccountModel.CopyAuditInformationTo(contactAccount);
+                contactAccount.SetDeletable(contactAccountModel.Deletable);
+
+                accountingModelConverter.Cache.Remember(contactAccount, m => $"{m.AccountNumber}@{m.Accounting.Number}");
+            }
+
+            try
+            {
+                contactAccount.ContactInfoCollection.Populate(contactAccount, contactAccountModel.StatusDate, contactAccountModel.StatusDateForInfos);
+
+                return contactAccount;
+            }
+            finally
+            {
+                accountingModelConverter.Cache.Forget<IContactAccount>($"{contactAccountModel.AccountNumber}@{contactAccountModel.AccountingIdentifier}");
+            }
         }
 
         internal static void CreateContactAccountModel(this ModelBuilder modelBuilder)
@@ -65,6 +90,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.Ignore(e => e.StatusDate);
                 entity.Ignore(e => e.Deletable);
                 entity.HasIndex(e => new {e.AccountingIdentifier, e.AccountNumber}).IsUnique();
                 entity.HasIndex(e => e.BasicAccountIdentifier).IsUnique();

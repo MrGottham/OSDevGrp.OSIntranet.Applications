@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -14,6 +15,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         #region Private variables
 
         private readonly bool _includeCreditInformation;
+        private readonly CreditInfoModelHandler _creditInfoModelHandler;
 
         #endregion
 
@@ -23,6 +25,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             : base(dbContext, modelConverter, statusDate, includePostingLines)
         {
             _includeCreditInformation = includeCreditInformation;
+            _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter);
         }
 
         #endregion
@@ -31,18 +34,20 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<AccountModel> Entities => DbContext.Accounts;
 
-        protected override IQueryable<AccountModel> Reader => Entities
-            .Include(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
-            .Include(accountModel => accountModel.BasicAccount)
-            .Include(accountModel => accountModel.AccountGroup);
+        protected override IQueryable<AccountModel> Reader => CreateReader(_includeCreditInformation, IncludePostingLines);
 
-        protected override IQueryable<AccountModel> UpdateReader => Reader; // TODO: Include credit information.
+        protected override IQueryable<AccountModel> UpdateReader => CreateReader(true, false);
 
-        protected override IQueryable<AccountModel> DeleteReader => Reader; // TODO: Include credit information and posting lines.
+        protected override IQueryable<AccountModel> DeleteReader => CreateReader(true, true);
 
         #endregion
 
         #region Methods
+
+        protected override void OnDispose()
+        {
+            _creditInfoModelHandler.Dispose();
+        }
 
         protected override async Task<AccountModel> OnCreateAsync(IAccount account, AccountModel accountModel)
         {
@@ -52,7 +57,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountModel = await base.OnCreateAsync(account, accountModel);
             accountModel.AccountGroup = await DbContext.AccountGroups.SingleAsync(accountGroupModel => accountGroupModel.AccountGroupIdentifier == account.AccountGroup.Number);
 
-            // TODO: Create credit information.
+            account.CreditInfoCollection.EnsurePopulation(account);
+
+            await _creditInfoModelHandler.CreateOrUpdateAsync(account.CreditInfoCollection, accountModel);
 
             return accountModel;
         }
@@ -61,19 +68,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
-            accountModel = await base.OnReadAsync(accountModel);
-
-            if (_includeCreditInformation)
+            if (accountModel.CreditInfos == null)
             {
-                // TODO: Read all credit information for the given status date.
+                return await base.OnReadAsync(accountModel);
             }
 
-            if (IncludePostingLines)
-            {
-                // TODO: Include all posting lines for the given status date.
-            }
+            accountModel.CreditInfos = (await _creditInfoModelHandler.ReadAsync(accountModel.CreditInfos)).ToList();
 
-            return accountModel;
+            return await base.OnReadAsync(accountModel);
         }
 
         protected override async Task OnUpdateAsync(IAccount account, AccountModel accountModel)
@@ -86,29 +88,56 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountModel.AccountGroupIdentifier = account.AccountGroup.Number;
             accountModel.AccountGroup = await DbContext.AccountGroups.SingleAsync(accountGroupModel => accountGroupModel.AccountGroupIdentifier == account.AccountGroup.Number);
 
-            // TODO: Create credit information.
+            account.CreditInfoCollection.EnsurePopulation(account);
+
+            await _creditInfoModelHandler.CreateOrUpdateAsync(account.CreditInfoCollection, accountModel);
+        }
+
+        protected override async Task<bool> CanDeleteAsync(AccountModel accountModel)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel));
+
+            // TODO: Validate the existence of posting lines.
+
+            if (accountModel.CreditInfos == null)
+            {
+                return false;
+            }
+
+            return await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos);
         }
 
         protected override async Task<AccountModel> OnDeleteAsync(AccountModel accountModel)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
-            accountModel = await base.OnDeleteAsync(accountModel);
-
-            // TODO: Delete all credit information.
             // TODO: Delete all posting lines.
+            await _creditInfoModelHandler.DeleteAsync(accountModel.CreditInfos);
 
-            return accountModel;
+            return await base.OnDeleteAsync(accountModel);
         }
 
-        protected override Task<bool> CanDeleteAsync(AccountModel accountModel)
+        private IQueryable<AccountModel> CreateReader(bool includeCreditInformation, bool includePostingLines)
         {
-            NullGuard.NotNull(accountModel, nameof(accountModel));
+            IQueryable<AccountModel> reader = Entities
+                .Include(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                .Include(accountModel => accountModel.BasicAccount)
+                .Include(accountModel => accountModel.AccountGroup);
 
-            // TODO: Validate the existence of credit information.
-            // TODO: Validate the existence of posting lines.
+            if (includeCreditInformation)
+            {
+                reader = reader.Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                    .Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.BasicAccount)
+                    .Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.AccountGroup)
+                    .Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
+            }
 
-            return Task.FromResult(false);
+            if (includePostingLines)
+            {
+                // TODO: Include posting lines.
+            }
+
+            return reader;
         }
 
         #endregion
