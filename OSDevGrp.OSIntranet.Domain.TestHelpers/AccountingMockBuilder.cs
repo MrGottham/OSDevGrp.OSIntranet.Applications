@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -122,11 +123,13 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 accountCollection = accounts;
             }
 
+            IList<IAccount> accountList = accountCollection.ToList();
+
             groupByAccountGroupDictionary ??= new Dictionary<IAccountGroup, IAccountCollection>
             {
-                {fixture.BuildAccountGroupMock().Object, fixture.BuildAccountCollectionMock(accounting, groupByAccountGroupDictionary: new Dictionary<IAccountGroup, IAccountCollection>()).Object}, 
-                {fixture.BuildAccountGroupMock().Object, fixture.BuildAccountCollectionMock(accounting, groupByAccountGroupDictionary: new Dictionary<IAccountGroup, IAccountCollection>()).Object},
-                {fixture.BuildAccountGroupMock().Object, fixture.BuildAccountCollectionMock(accounting, groupByAccountGroupDictionary: new Dictionary<IAccountGroup, IAccountCollection>()).Object}
+                {fixture.BuildAccountGroupMock().Object, fixture.BuildAccountCollectionMock(accounting, accountList, groupByAccountGroupDictionary: new Dictionary<IAccountGroup, IAccountCollection>()).Object}, 
+                {fixture.BuildAccountGroupMock().Object, fixture.BuildAccountCollectionMock(accounting, accountList, groupByAccountGroupDictionary: new Dictionary<IAccountGroup, IAccountCollection>()).Object},
+                {fixture.BuildAccountGroupMock().Object, fixture.BuildAccountCollectionMock(accounting, accountList, groupByAccountGroupDictionary: new Dictionary<IAccountGroup, IAccountCollection>()).Object}
             };
 
             Mock<IAccountCollection> accountCollectionMock = new Mock<IAccountCollection>();
@@ -139,7 +142,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             accountCollectionMock.Setup(m => m.StatusDate)
                 .Returns(fixture.Create<DateTime>().Date);
             accountCollectionMock.Setup(m => m.GetEnumerator())
-                .Returns(accountCollection.GetEnumerator());
+                .Returns(accountList.GetEnumerator());
             accountCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(calculatedAccountCollection ?? accountCollectionMock.Object));
             accountCollectionMock.Setup(m => m.GroupByAccountGroupAsync())
@@ -229,11 +232,13 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 budgetAccountCollection = budgetAccounts;
             }
 
+            IList<IBudgetAccount> budgetAccountList = budgetAccountCollection.ToList();
+
             groupByBudgetAccountGroupDictionary ??= new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>
             {
-                {fixture.BuildBudgetAccountGroupMock().Object, fixture.BuildBudgetAccountCollectionMock(accounting, groupByBudgetAccountGroupDictionary: new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>()).Object},
-                {fixture.BuildBudgetAccountGroupMock().Object, fixture.BuildBudgetAccountCollectionMock(accounting, groupByBudgetAccountGroupDictionary: new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>()).Object},
-                {fixture.BuildBudgetAccountGroupMock().Object, fixture.BuildBudgetAccountCollectionMock(accounting, groupByBudgetAccountGroupDictionary: new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>()).Object}
+                {fixture.BuildBudgetAccountGroupMock().Object, fixture.BuildBudgetAccountCollectionMock(accounting, budgetAccountList, groupByBudgetAccountGroupDictionary: new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>()).Object},
+                {fixture.BuildBudgetAccountGroupMock().Object, fixture.BuildBudgetAccountCollectionMock(accounting, budgetAccountList, groupByBudgetAccountGroupDictionary: new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>()).Object},
+                {fixture.BuildBudgetAccountGroupMock().Object, fixture.BuildBudgetAccountCollectionMock(accounting, budgetAccountList, groupByBudgetAccountGroupDictionary: new Dictionary<IBudgetAccountGroup, IBudgetAccountCollection>()).Object}
             };
 
             Mock<IBudgetAccountCollection> budgetAccountCollectionMock = new Mock<IBudgetAccountCollection>();
@@ -248,7 +253,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             budgetAccountCollectionMock.Setup(m => m.StatusDate)
                 .Returns(fixture.Create<DateTime>().Date);
             budgetAccountCollectionMock.Setup(m => m.GetEnumerator())
-                .Returns(budgetAccountCollection.GetEnumerator());
+                .Returns(budgetAccountList.GetEnumerator());
             budgetAccountCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(calculatedBudgetAccountCollection ?? budgetAccountCollectionMock.Object));
             budgetAccountCollectionMock.Setup(m => m.GroupByBudgetAccountGroupAsync())
@@ -607,8 +612,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactInfoMock.Setup(m => m.FromDate)
                 .Returns(new DateTime(infoDate.Year, infoDate.Month, 1).Date);
             contactInfoMock.Setup(m => m.ToDate)
-                .Returns(new DateTime(infoDate.Year, infoDate.Month,
-                    DateTime.DaysInMonth(infoDate.Year, infoDate.Month)).Date);
+                .Returns(new DateTime(infoDate.Year, infoDate.Month, DateTime.DaysInMonth(infoDate.Year, infoDate.Month)).Date);
             contactInfoMock.Setup(m => m.IsMonthOfStatusDate)
                 .Returns(isMonthOfStatusDate);
             contactInfoMock.Setup(m => m.IsLastMonthOfStatusDate)

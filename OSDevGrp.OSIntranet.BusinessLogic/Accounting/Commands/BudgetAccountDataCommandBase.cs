@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper.Internal;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
@@ -21,6 +25,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 
         public int BudgetAccountGroupNumber { get; set; }
 
+        public IEnumerable<IBudgetInfoCommand> BudgetInfoCollection { get; set; } = Array.Empty<IBudgetInfoCommand>();
+
         #endregion
 
         #region Methods
@@ -30,10 +36,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(accountingRepository, nameof(accountingRepository))
                 .NotNull(commonRepository, nameof(commonRepository));
+            
+            BudgetInfoCollection?.ForAll(budgetInfo => budgetInfo.Validate(validator));
 
             return base.Validate(validator, accountingRepository, commonRepository)
                 .ValidateAccountGroupIdentifier(BudgetAccountGroupNumber, GetType(), nameof(BudgetAccountGroupNumber))
-                .Object.ShouldBeKnownValue(BudgetAccountGroupNumber, budgetAccountGroupNumber => Task.Run(async () => await GetBudgetAccountGroupAsync(accountingRepository) != null), GetType(), nameof(BudgetAccountGroupNumber));
+                .Object.ShouldBeKnownValue(BudgetAccountGroupNumber, budgetAccountGroupNumber => Task.Run(async () => await GetBudgetAccountGroupAsync(accountingRepository) != null), GetType(), nameof(BudgetAccountGroupNumber))
+                .Object.ShouldNotBeNull(BudgetInfoCollection, GetType(), nameof(BudgetInfoCollection));
         }
 
         public override IBudgetAccount ToDomain(IAccountingRepository accountingRepository)
@@ -43,11 +52,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             IAccounting accounting = GetAccountingAsync(accountingRepository).GetAwaiter().GetResult();
             IBudgetAccountGroup budgetAccountGroup = GetBudgetAccountGroupAsync(accountingRepository).GetAwaiter().GetResult();
 
-            return new BudgetAccount(accounting, AccountNumber, AccountName, budgetAccountGroup)
+            IBudgetAccount budgetAccount = new BudgetAccount(accounting, AccountNumber, AccountName, budgetAccountGroup)
             {
                 Description = Description,
                 Note = Note
             };
+
+            IBudgetInfo[] budgetInfoCollection = (BudgetInfoCollection ?? Array.Empty<IBudgetInfoCommand>())
+                .AsParallel()
+                .Select(budgetInfo => budgetInfo.ToDomain(budgetAccount))
+                .ToArray();
+            budgetAccount.BudgetInfoCollection.Add(budgetInfoCollection);
+
+            return budgetAccount;
         }
 
         protected Task<IBudgetAccountGroup> GetBudgetAccountGroupAsync(IAccountingRepository accountingRepository)

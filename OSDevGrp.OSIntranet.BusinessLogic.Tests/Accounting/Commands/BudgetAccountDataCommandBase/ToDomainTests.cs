@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -18,6 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
 
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -25,7 +28,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
         public void SetUp()
         {
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
+
             _fixture = new Fixture();
+            _fixture.Customize<IBudgetInfoCommand>(builder => builder.FromFactory(() => CreateBudgetInfoCommand()));
+
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -75,6 +82,26 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
             IBudgetAccount budgetAccount = sut.ToDomain(_accountingRepositoryMock.Object);
 
             Assert.That(budgetAccount, Is.TypeOf<BudgetAccount>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenCalled_AssertToDomainWasCalledOnEachBudgetInfoCommandInBudgetInfoCollection()
+        {
+            Mock<IBudgetInfoCommand>[] budgetInfoCommandMockCollection =
+            {
+                CreateBudgetInfoCommandMock(),
+                CreateBudgetInfoCommandMock(),
+                CreateBudgetInfoCommandMock()
+            };
+            IBudgetAccountDataCommand sut = CreateSut(budgetInfoCommandCollection: budgetInfoCommandMockCollection.Select(budgetInfoCommandMock => budgetInfoCommandMock.Object).ToArray());
+
+            sut.ToDomain(_accountingRepositoryMock.Object);
+
+            foreach (Mock<IBudgetInfoCommand> budgetInfoCommandMock in budgetInfoCommandMockCollection)
+            {
+                budgetInfoCommandMock.Verify(m => m.ToDomain(It.IsNotNull<IBudgetAccount>()), Times.Once);
+            }
         }
 
         [Test]
@@ -171,7 +198,48 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
             Assert.That(budgetAccount.BudgetAccountGroup, Is.EqualTo(budgetAccountGroup));
         }
 
-        private IBudgetAccountDataCommand CreateSut(int? accountingNumber = null, IAccounting accounting = null, string accountNumber = null, string accountName = null, bool hasDescription = true, string description = null, bool hasNote = true, string note = null, int? budgetAccountGroupNumber = null, IBudgetAccountGroup budgetAccountGroup = null)
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenCalled_ReturnsBudgetAccountWhereBudgetInfoCollectionIsNotNull()
+        {
+            IBudgetAccountDataCommand sut = CreateSut();
+
+            IBudgetAccount budgetAccount = sut.ToDomain(_accountingRepositoryMock.Object);
+
+            Assert.That(budgetAccount.BudgetInfoCollection, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenCalled_ReturnsBudgetAccountWhereBudgetInfoCollectionIsNotEmpty()
+        {
+            IBudgetAccountDataCommand sut = CreateSut(budgetInfoCommandCollection: _fixture.CreateMany<IBudgetInfoCommand>(_random.Next(5, 10)).ToArray());
+
+            IBudgetAccount budgetAccount = sut.ToDomain(_accountingRepositoryMock.Object);
+
+            Assert.That(budgetAccount.BudgetInfoCollection, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenCalled_ReturnsBudgetAccountWhereBudgetInfoCollectionContainsAllBudgetInfoFromBudgetInfoCollectionOnBudgetAccountDataCommand()
+        {
+            IBudgetInfo[] budgetInfoCollection =
+            {
+                _fixture.BuildBudgetInfoMock().Object,
+                _fixture.BuildBudgetInfoMock().Object,
+                _fixture.BuildBudgetInfoMock().Object,
+                _fixture.BuildBudgetInfoMock().Object,
+                _fixture.BuildBudgetInfoMock().Object
+            };
+            IBudgetAccountDataCommand sut = CreateSut(budgetInfoCommandCollection: budgetInfoCollection.Select(CreateBudgetInfoCommand).ToArray());
+
+            IBudgetAccount budgetAccount = sut.ToDomain(_accountingRepositoryMock.Object);
+
+            Assert.That(budgetInfoCollection.All(budgetInfo => budgetAccount.BudgetInfoCollection.Contains(budgetInfo)), Is.True);
+        }
+
+        private IBudgetAccountDataCommand CreateSut(int? accountingNumber = null, IAccounting accounting = null, string accountNumber = null, string accountName = null, bool hasDescription = true, string description = null, bool hasNote = true, string note = null, int? budgetAccountGroupNumber = null, IBudgetAccountGroup budgetAccountGroup = null, IEnumerable<IBudgetInfoCommand> budgetInfoCommandCollection = null)
         {
             _accountingRepositoryMock.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(accounting ?? _fixture.BuildAccountingMock().Object));
@@ -185,7 +253,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.BudgetAcco
                 .With(m => m.Description, hasDescription ? description ?? _fixture.Create<string>() : null)
                 .With(m => m.Note, hasNote ? note ?? _fixture.Create<string>() : null)
                 .With(m => m.BudgetAccountGroupNumber, budgetAccountGroupNumber ?? _fixture.Create<int>())
+                .With(m => m.BudgetInfoCollection, budgetInfoCommandCollection ?? _fixture.CreateMany<IBudgetInfoCommand>(_random.Next(5, 10)).ToArray())
                 .Create();
+        }
+
+        private IBudgetInfoCommand CreateBudgetInfoCommand(IBudgetInfo budgetInfo = null)
+        {
+            return CreateBudgetInfoCommandMock(budgetInfo).Object;
+        }
+
+        private Mock<IBudgetInfoCommand> CreateBudgetInfoCommandMock(IBudgetInfo budgetInfo = null)
+        {
+            Mock<IBudgetInfoCommand> budgetInfoCommandMock = new Mock<IBudgetInfoCommand>();
+            budgetInfoCommandMock.Setup(m => m.ToDomain(It.IsAny<IBudgetAccount>()))
+                .Returns(budgetInfo ?? _fixture.BuildBudgetInfoMock().Object);
+            return budgetInfoCommandMock;
         }
 
         private class Sut : BusinessLogic.Accounting.Commands.BudgetAccountDataCommandBase

@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Moq;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
@@ -150,6 +151,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<INameCommand>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<IEnumerable<ICreditInfoCommand>>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<IEnumerable<IBudgetInfoCommand>>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
         }
 

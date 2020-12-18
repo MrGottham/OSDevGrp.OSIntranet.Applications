@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.CreateBudg
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<ICommonRepository> _commonRepositoryMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -28,7 +30,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.CreateBudg
             _validatorMockContext = new ValidatorMockContext();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _commonRepositoryMock = new Mock<ICommonRepository>();
+
             _fixture = new Fixture();
+            _fixture.Customize<IBudgetInfoCommand>(builder => builder.FromFactory(() => new Mock<IBudgetInfoCommand>().Object));
+
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -97,6 +103,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.CreateBudg
         {
             return _fixture.Build<BusinessLogic.Accounting.Commands.CreateBudgetAccountCommand>()
                 .With(m => m.AccountNumber, accountNumber ?? _fixture.Create<string>().ToUpper())
+                .With(m => m.BudgetInfoCollection, _fixture.CreateMany<IBudgetInfoCommand>(_random.Next(5, 10)).ToArray())
                 .Create();
         }
     }

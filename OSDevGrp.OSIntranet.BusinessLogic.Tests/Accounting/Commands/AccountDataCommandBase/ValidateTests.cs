@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -19,6 +21,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<ICommonRepository> _commonRepositoryMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -28,7 +31,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             _validatorMockContext = new ValidatorMockContext();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _commonRepositoryMock = new Mock<ICommonRepository>();
+
             _fixture = new Fixture();
+            _fixture.Customize<ICreditInfoCommand>(builder => builder.FromFactory(CreateCreditInfoCommand));
+
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -62,6 +69,26 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, null));
 
             Assert.That(result.ParamName, Is.EqualTo("commonRepository"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertValidateWasCalledOnEachCreditInfoCommandInCreditInfoCollection()
+        {
+            Mock<ICreditInfoCommand>[] creditInfoCommandMockCollection =
+            {
+                CreateCreditInfoCommandMock(),
+                CreateCreditInfoCommandMock(),
+                CreateCreditInfoCommandMock()
+            };
+            IAccountDataCommand sut = CreateSut(creditInfoCommandCollection: creditInfoCommandMockCollection.Select(creditInfoCommandMock => creditInfoCommandMock.Object).ToArray());
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+
+            foreach (Mock<ICreditInfoCommand> creditInfoCommandMock in creditInfoCommandMockCollection)
+            {
+                creditInfoCommandMock.Verify(m => m.Validate(It.Is<IValidator>(value => value == _validatorMockContext.ValidatorMock.Object)), Times.Once());
+            }
         }
 
         [Test]
@@ -102,6 +129,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithCreditInfoCollection()
+        {
+            ICreditInfoCommand[] creditInfoCommandCollection = _fixture.CreateMany<ICreditInfoCommand>(_random.Next(5, 10)).ToArray();
+            IAccountDataCommand sut = CreateSut(creditInfoCommandCollection: creditInfoCommandCollection);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+
+            _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
+                    It.Is<IEnumerable<ICreditInfoCommand>>(value => value == creditInfoCommandCollection),
+                    It.Is<Type>(type => type == sut.GetType()),
+                    It.Is<string>(field => string.CompareOrdinal(field, "CreditInfoCollection") == 0)),
+                Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_ReturnsValidator()
         {
             IAccountDataCommand sut = CreateSut();
@@ -111,11 +154,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             Assert.That(result, Is.SameAs(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IAccountDataCommand CreateSut(int? accountGroupNumber = null)
+        private IAccountDataCommand CreateSut(int? accountGroupNumber = null, IEnumerable<ICreditInfoCommand> creditInfoCommandCollection = null)
         {
             return _fixture.Build<Sut>()
                 .With(m => m.AccountGroupNumber, accountGroupNumber ?? _fixture.Create<int>())
+                .With(m => m.CreditInfoCollection, creditInfoCommandCollection ?? _fixture.CreateMany<ICreditInfoCommand>(_random.Next(5, 10)).ToArray())
                 .Create();
+        }
+
+        private ICreditInfoCommand CreateCreditInfoCommand()
+        {
+            return CreateCreditInfoCommandMock().Object;
+        }
+
+        private Mock<ICreditInfoCommand> CreateCreditInfoCommandMock()
+        {
+            return new Mock<ICreditInfoCommand>();
         }
 
         private class Sut : BusinessLogic.Accounting.Commands.AccountDataCommandBase
