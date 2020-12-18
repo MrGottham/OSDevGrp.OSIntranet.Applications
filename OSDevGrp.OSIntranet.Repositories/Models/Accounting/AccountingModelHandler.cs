@@ -156,23 +156,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             if (includeAccounts)
             {
-                reader = reader.Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                reader = reader.Include(accountingModel => accountingModel.Accounts)
                     .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.BasicAccount)
                     .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.AccountGroup)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.BasicAccount)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.AccountGroup)
                     .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
 
-                reader = reader.Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                reader = reader.Include(accountingModel => accountingModel.BudgetAccounts)
                     .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
                     .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
                     .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
 
-                reader = reader.Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
+                reader = reader.Include(accountingModel => accountingModel.ContactAccounts)
                     .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.BasicAccount)
                     .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.PaymentTerm);
             }

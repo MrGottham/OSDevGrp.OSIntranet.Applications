@@ -126,10 +126,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             if (includeCreditInformation)
             {
-                reader = reader.Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
-                    .Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.BasicAccount)
-                    .Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.AccountGroup)
-                    .Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
+                reader = reader.Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
             }
 
             if (includePostingLines)
