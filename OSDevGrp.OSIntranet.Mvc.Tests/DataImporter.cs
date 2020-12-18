@@ -263,7 +263,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
         [Test]
         [Category("DataImport")]
-        [TestCase("Accountings.xml")]
+        [TestCase("Accountings.xml")] 
         [Ignore("Test which imports data and should only be run once")]
         public async Task Import_Accountings_FromFile(string fileName)
         {
@@ -275,6 +275,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             {
                 return;
             }
+            
+            DateTime infoFromDate = DateTime.Today;
 
             IDictionary<int, IAccounting> accountingDictionary = (await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery())).ToDictionary(accounting => accounting.Number, accounting => accounting);
 
@@ -290,8 +292,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 IDictionary<string, IBudgetAccount> budgetAccountDictionary = (await _queryBus.QueryAsync<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection>(new GetBudgetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
                 IDictionary<string, IContactAccount> contactAccountDictionary = (await _queryBus.QueryAsync<IGetContactAccountCollectionQuery, IContactAccountCollection>(new GetContactAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
 
-                await HandleAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("Account"), accountDictionary);
-                await HandleBudgetAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("BudgetAccount"), budgetAccountDictionary);
+                await HandleAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("Account"), accountDictionary, infoFromDate);
+                await HandleBudgetAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("BudgetAccount"), budgetAccountDictionary, infoFromDate);
                 await HandleContactAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("ContactAccount"), contactAccountDictionary);
             }
         }
@@ -460,7 +462,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             return await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
         }
 
-        private async Task HandleAccountElementCollectionAsync(int accountingNumber, XmlNodeList accountElementCollection, IDictionary<string, IAccount> accountDictionary)
+        private async Task HandleAccountElementCollectionAsync(int accountingNumber, XmlNodeList accountElementCollection, IDictionary<string, IAccount> accountDictionary, DateTime infoFromDate)
         {
             NullGuard.NotNull(accountElementCollection, nameof(accountElementCollection))
                 .NotNull(accountDictionary, nameof(accountDictionary));
@@ -484,6 +486,42 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     continue;
                 }
 
+                IList<ICreditInfoCommand> creditInfoCommandCollection = new List<ICreditInfoCommand>();
+                XmlNodeList creditInfoNodeList = accountElement.SelectNodes("CreditInfo");
+                if (creditInfoNodeList != null)
+                {
+                    foreach (XmlElement creditInfoElement in creditInfoNodeList.OfType<XmlElement>())
+                    {
+                        if (short.TryParse(GetAttributeValue(creditInfoElement, "year"), out short year) == false)
+                        {
+                            continue;
+                        }
+
+                        if (short.TryParse(GetAttributeValue(creditInfoElement, "month"), out short month) == false)
+                        {
+                            continue;
+                        }
+
+                        if (year < (short) infoFromDate.Year || year == (short) infoFromDate.Year && month < (short) infoFromDate.Month)
+                        {
+                            continue;
+                        }
+
+                        if (decimal.TryParse(GetAttributeValue(creditInfoElement, "credit"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal credit) == false)
+                        {
+                            continue;
+                        }
+
+                        ICreditInfoCommand creditInfoCommand = new CreditInfoCommand
+                        {
+                            Year = year,
+                            Month = month,
+                            Credit = credit
+                        };
+                        creditInfoCommandCollection.Add(creditInfoCommand);
+                    }
+                }
+
                 if (accountDictionary.ContainsKey(accountNumber))
                 {
                     IUpdateAccountCommand updateAccountCommand = new UpdateAccountCommand
@@ -493,7 +531,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                         AccountName = accountName,
                         Description = GetAttributeValue(accountElement, "description") ?? accountDictionary[accountNumber].Description,
                         Note = GetAttributeValue(accountElement, "note") ?? accountDictionary[accountNumber].Note,
-                        AccountGroupNumber = accountGroupNumber
+                        AccountGroupNumber = accountGroupNumber,
+                        CreditInfoCollection = creditInfoCommandCollection
                     };
                     await _commandBus.PublishAsync(updateAccountCommand);
 
@@ -507,13 +546,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     AccountName = accountName,
                     Description = GetAttributeValue(accountElement, "description"),
                     Note = GetAttributeValue(accountElement, "note"),
-                    AccountGroupNumber = accountGroupNumber
+                    AccountGroupNumber = accountGroupNumber,
+                    CreditInfoCollection = creditInfoCommandCollection
                 };
                 await _commandBus.PublishAsync(createAccountCommand);
             }
         }
 
-        private async Task HandleBudgetAccountElementCollectionAsync(int accountingNumber, XmlNodeList budgetAccountElementCollection, IDictionary<string, IBudgetAccount> budgetAccountDictionary)
+        private async Task HandleBudgetAccountElementCollectionAsync(int accountingNumber, XmlNodeList budgetAccountElementCollection, IDictionary<string, IBudgetAccount> budgetAccountDictionary, DateTime infoFromDate)
         {
             NullGuard.NotNull(budgetAccountElementCollection, nameof(budgetAccountElementCollection))
                 .NotNull(budgetAccountDictionary, nameof(budgetAccountDictionary));
@@ -537,6 +577,48 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     continue;
                 }
 
+                IList<IBudgetInfoCommand> budgetInfoCommandCollection = new List<IBudgetInfoCommand>();
+                XmlNodeList budgetInfoNodeList = budgetAccountElement.SelectNodes("BudgetInfo");
+                if (budgetInfoNodeList != null)
+                {
+                    foreach (XmlElement budgetInfoElement in budgetInfoNodeList.OfType<XmlElement>())
+                    {
+                        if (short.TryParse(GetAttributeValue(budgetInfoElement, "year"), out short year) == false)
+                        {
+                            continue;
+                        }
+
+                        if (short.TryParse(GetAttributeValue(budgetInfoElement, "month"), out short month) == false)
+                        {
+                            continue;
+                        }
+
+                        if (year < (short) infoFromDate.Year || year == (short) infoFromDate.Year && month < (short) infoFromDate.Month)
+                        {
+                            continue;
+                        }
+
+                        if (decimal.TryParse(GetAttributeValue(budgetInfoElement, "income"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal income) == false)
+                        {
+                            continue;
+                        }
+
+                        if (decimal.TryParse(GetAttributeValue(budgetInfoElement, "expenses"), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal expenses) == false)
+                        {
+                            continue;
+                        }
+
+                        IBudgetInfoCommand budgetInfoCommand = new BudgetInfoCommand
+                        {
+                            Year = year,
+                            Month = month,
+                            Income = income,
+                            Expenses = expenses
+                        };
+                        budgetInfoCommandCollection.Add(budgetInfoCommand);
+                    }
+                }
+
                 if (budgetAccountDictionary.ContainsKey(accountNumber))
                 {
                     IUpdateBudgetAccountCommand updateBudgetAccountCommand = new UpdateBudgetAccountCommand
@@ -546,7 +628,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                         AccountName = accountName,
                         Description = GetAttributeValue(budgetAccountElement, "description") ?? budgetAccountDictionary[accountNumber].Description,
                         Note = GetAttributeValue(budgetAccountElement, "note") ?? budgetAccountDictionary[accountNumber].Note,
-                        BudgetAccountGroupNumber = budgetAccountGroupNumber
+                        BudgetAccountGroupNumber = budgetAccountGroupNumber,
+                        BudgetInfoCollection = budgetInfoCommandCollection
                     };
                     await _commandBus.PublishAsync(updateBudgetAccountCommand);
 
@@ -560,7 +643,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     AccountName = accountName,
                     Description = GetAttributeValue(budgetAccountElement, "description"),
                     Note = GetAttributeValue(budgetAccountElement, "note"),
-                    BudgetAccountGroupNumber = budgetAccountGroupNumber
+                    BudgetAccountGroupNumber = budgetAccountGroupNumber,
+                    BudgetInfoCollection = budgetInfoCommandCollection
                 };
                 await _commandBus.PublishAsync(createBudgetAccountCommand);
             }
