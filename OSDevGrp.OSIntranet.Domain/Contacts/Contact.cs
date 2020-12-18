@@ -168,8 +168,13 @@ namespace OSDevGrp.OSIntranet.Domain.Contacts
                 return false;
             }
 
-            DateTime birthdayThisYear = new DateTime(DateTime.Today.Year, Birthday.Value.Month, Birthday.Value.Day, 0, 0, 0, DateTimeKind.Local);
-            int daysToBirthdayThisYear = birthdayThisYear.Subtract(DateTime.Today).Days;
+            DateTime nextBirthday = Birthday.Value.AddYears(DateTime.Today.Year - Birthday.Value.Year);
+            if (nextBirthday.Date < DateTime.Today)
+            {
+                nextBirthday = nextBirthday.AddYears(1);
+            }
+
+            int daysToBirthdayThisYear = nextBirthday.Subtract(DateTime.Today).Days;
 
             return daysToBirthdayThisYear >= 0 && daysToBirthdayThisYear <= days;
         }

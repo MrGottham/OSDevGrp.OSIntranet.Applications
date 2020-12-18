@@ -104,11 +104,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Contacts.Contact
 
         [Test]
         [Category("UnitTest")]
-        /*
         [TestCase(0, false)]
         [TestCase(7, false)]
         [TestCase(14, false)]
-        */
         [TestCase(21, true)]
         public void HasBirthdayWithinDays_WhenCalledOnContactWithBirthdayThreeWeekAfterTodayThisYear_ReturnsExpectedResult(int withinDays, bool expectedResult)
         {
