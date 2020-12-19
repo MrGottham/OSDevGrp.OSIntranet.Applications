@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
@@ -51,6 +52,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [HttpGet]
         [HttpGet("accountings")]
+        [ProducesResponseType(typeof(IEnumerable<AccountingModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<AccountingModel>>> AccountingsAsync()
         {
             try
@@ -75,6 +79,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}")]
+        [ProducesResponseType(typeof(AccountingModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<AccountingModel>> AccountingAsync(int accountingNumber, DateTime? statusDate = null)
         {
             try
@@ -101,6 +108,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("accountgroups")]
+        [ProducesResponseType(typeof(IEnumerable<AccountGroupModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<AccountGroupModel>>> AccountGroupsAsync()
         {
             try
@@ -125,6 +135,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("budgetaccountgroups")]
+        [ProducesResponseType(typeof(IEnumerable<BudgetAccountGroupModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<BudgetAccountGroupModel>>> BudgetAccountGroupsAsync()
         {
             try
@@ -149,6 +162,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("paymentterms")]
+        [ProducesResponseType(typeof(IEnumerable<PaymentTermModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<PaymentTermModel>>> PaymentTermsAsync()
         {
             try

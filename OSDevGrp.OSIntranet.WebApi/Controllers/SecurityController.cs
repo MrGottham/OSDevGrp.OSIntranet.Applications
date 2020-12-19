@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
@@ -56,6 +57,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [AllowAnonymous]
         [HttpPost("/api/authorize")]
         [HttpPost("/api/authenticate")]
+        [ProducesResponseType(typeof(AccessTokenModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<AccessTokenModel>> AuthenticateAsync()
         {
             try
@@ -93,6 +97,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpGet]
         [AllowAnonymous]
         [Route("/.well-known/acme-challenge/{challengeToken}")]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult AcmeChallenge(string challengeToken)
         {
             NullGuard.NotNullOrWhiteSpace(challengeToken, nameof(challengeToken));

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -44,6 +45,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         #region Methods
 
         [HttpGet("letterheads")]
+        [ProducesResponseType(typeof(IEnumerable<LetterHeadModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<LetterHeadModel>>> LetterHeadsAsync()
         {
             try
