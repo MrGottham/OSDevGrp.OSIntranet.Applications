@@ -1,26 +1,18 @@
-﻿using System;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
-using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.WebApi.Helpers.Security;
-using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
-    [Authorize(Policy = "SecurityAdmin")]
     [ApiVersion("1.0")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]
@@ -28,25 +20,23 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
     {
         #region Private variables
 
-        private readonly ICommandBus _commandBus;
-        private readonly ISecurityContextReader _securityContextReader;
+        private readonly IClaimResolver _claimResolver;
+        private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly IAcmeChallengeResolver _acmeChallengeResolver;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
-        private readonly IConverter _coreModelConverter = new CoreModelConverter();
-        private readonly Regex _basicAuthenticationRegex = new Regex("^([a-f0-9]{32}):([a-f0-9]{32})$", RegexOptions.Compiled);
 
         #endregion
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, ISecurityContextReader securityContextReader, IAcmeChallengeResolver acmeChallengeResolver)
+        public SecurityController(IClaimResolver claimResolver, IDataProtectionProvider dataProtectionProvider, IAcmeChallengeResolver acmeChallengeResolver)
         {
-            NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(securityContextReader, nameof(securityContextReader))
+            NullGuard.NotNull(claimResolver, nameof(claimResolver))
+                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider))
                 .NotNull(acmeChallengeResolver, nameof(acmeChallengeResolver));
 
-            _commandBus = commandBus;
-            _securityContextReader = securityContextReader;
+            _claimResolver = claimResolver;
+            _dataProtectionProvider = dataProtectionProvider;
             _acmeChallengeResolver = acmeChallengeResolver;
         }
 
@@ -54,62 +44,58 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Methods
 
-        [AllowAnonymous]
-        [HttpPost("/api/authorize")]
-        [HttpPost("/api/authenticate")]
-        [ProducesResponseType(typeof(AccessTokenModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<AccessTokenModel>> AuthenticateAsync()
+        [Authorize(Policy = "AcquireToken")]
+        [HttpPost("/api/oauth/token")]
+        public ActionResult<AccessTokenModel> AcquireToken([FromForm(Name = "grant_type")]string grantType)
         {
-            try
+            if (string.IsNullOrWhiteSpace(grantType))
             {
-                AuthenticationHeaderValue authenticationHeader = _securityContextReader.GetBasicAuthenticationHeader(Request);
-                if (authenticationHeader == null)
-                {
-                    return BadRequest("An Authorization Header is missing in the submitted request.");
-                }
-
-                string credentials = Encoding.UTF8.GetString(Convert.FromBase64String(authenticationHeader.Parameter));
-                if (_basicAuthenticationRegex.IsMatch(credentials) == false)
-                {
-                    return Unauthorized();
-                }
-
-                MatchCollection matchCollection = _basicAuthenticationRegex.Matches(credentials);
-                string clientId = matchCollection[0].Groups[1].Value;
-                string clientSecret = matchCollection[0].Groups[2].Value;
-                IAuthenticateClientSecretCommand authenticateClientSecretCommand = new AuthenticateClientSecretCommand(clientId, clientSecret);
-                IClientSecretIdentity clientSecretIdentity = await _commandBus.PublishAsync<IAuthenticateClientSecretCommand, IClientSecretIdentity>(authenticateClientSecretCommand);
-                if (clientSecretIdentity == null)
-                {
-                    return Unauthorized();
-                }
-
-                return Ok(_securityModelConverter.Convert<IToken, AccessTokenModel>(clientSecretIdentity.Token));
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, nameof(grantType))
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(nameof(grantType))
+                    .Build();
             }
-            catch (IntranetExceptionBase ex)
+
+            IToken token = _claimResolver.GetToken<IToken>(UnprotectBase64Token);
+
+            if (string.CompareOrdinal(grantType, "client_credentials") != 0 || token == null)
             {
-                return BadRequest(_coreModelConverter.Convert<IntranetExceptionBase, ErrorModel>(ex));
+                throw new IntranetExceptionBuilder(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser).Build();
             }
+
+            return Ok(_securityModelConverter.Convert<IToken, AccessTokenModel>(token));
         }
 
         [HttpGet]
         [AllowAnonymous]
         [Route("/.well-known/acme-challenge/{challengeToken}")]
         [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult AcmeChallenge(string challengeToken)
         {
-            NullGuard.NotNullOrWhiteSpace(challengeToken, nameof(challengeToken));
+            if (string.IsNullOrWhiteSpace(challengeToken))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, nameof(challengeToken))
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(nameof(challengeToken))
+                    .Build();
+            }
 
             string constructedKeyAuthorization = _acmeChallengeResolver.GetConstructedKeyAuthorization(challengeToken);
             if (string.IsNullOrWhiteSpace(constructedKeyAuthorization))
             {
-                return BadRequest();
+                throw new IntranetExceptionBuilder(ErrorCode.CannotRetrieveAcmeChallengeForToken).Build();
             }
 
             return File(Encoding.UTF8.GetBytes(constructedKeyAuthorization), "application/octet-stream");
+        }
+
+        private string UnprotectBase64Token(string protectedBase64Token)
+        {
+            NullGuard.NotNullOrWhiteSpace(protectedBase64Token, nameof(protectedBase64Token));
+
+            IDataProtector dataProtector = _dataProtectionProvider.CreateProtector("TokenProtection");
+
+            return dataProtector.Unprotect(protectedBase64Token);
         }
 
         #endregion

@@ -1,6 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Security.Principal;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
@@ -13,6 +15,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public const string ExternalUserIdentifierClaimType = "urn:osdevgrp:osintranet:claims:externaluseridentifier";
         public const string FriendlyNameClaimType = "urn:osdevgrp:osintranet:claims:friendlyname";
         public const string ClientIdClaimType = "urn:osdevgrp:osintranet:claims:clientid";
+        public const string TokenClaimType = "urn:osdevgrp:osintranet:claims:token";
         public const string SecurityAdminClaimType = "urn:osdevgrp:osintranet:claims:securityadmin";
         public const string AccountingClaimType = "urn:osdevgrp:osintranet:claims:accounting";
         public const string CommonDataClaimType = "urn:osdevgrp:osintranet:claims:commondata";
@@ -22,6 +25,20 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         #endregion
 
         #region Methods
+
+        public static Claim CreateNameIdentifierClaim(string nameIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(nameIdentifier, nameIdentifier);
+
+            return CreateClaim(ClaimTypes.NameIdentifier, nameIdentifier);
+        }
+
+        public static Claim CreateNameClaim(string name)
+        {
+            NullGuard.NotNullOrWhiteSpace(name, nameof(name));
+
+            return CreateClaim(ClaimTypes.Name, name);
+        }
 
         public static Claim CreateExternalUserIdentifierClaim(string externalUserIdentifier)
         {
@@ -42,6 +59,14 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNullOrWhiteSpace(clientId, clientId);
 
             return CreateClaim(ClientIdClaimType, clientId);
+        }
+
+        public static Claim CreateTokenClaim(IToken token, Func<string, string> protect)
+        {
+            NullGuard.NotNull(token, nameof(token))
+                .NotNull(protect, nameof(protect));
+
+            return CreateClaim(TokenClaimType, protect(token.ToBase64()));
         }
 
         public static Claim CreateSecurityAdminClaim()

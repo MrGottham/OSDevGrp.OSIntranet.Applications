@@ -1,8 +1,10 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Security.Principal;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
@@ -25,7 +27,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         }
 
         #endregion
-        
+
         #region Methods
 
         public string GetCountryCode()
@@ -52,6 +54,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             }
 
             return accountingNumber;
+        }
+
+        public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
+        {
+            NullGuard.NotNull(unprotect, nameof(unprotect));
+
+            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
+
+            Claim tokenClaim = currentPrincipal.GetClaim(ClaimHelper.TokenClaimType);
+            if (tokenClaim == null || string.IsNullOrWhiteSpace(tokenClaim.Value))
+            {
+                return null;
+            }
+
+            return Token.Create<TToken>(unprotect(tokenClaim.Value));
         }
 
         #endregion

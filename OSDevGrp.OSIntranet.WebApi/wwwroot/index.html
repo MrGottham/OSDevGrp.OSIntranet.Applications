@@ -51,7 +51,21 @@
                 ],
                 plugins: [
                     SwaggerUIBundle.plugins.DownloadUrl
-                ]
+                ],
+                layout: "BaseLayout",
+                responseInterceptor: function (response) {
+                    if (response.obj === undefined || response.obj === null) {
+                        return response;
+                    }
+                    if (response.obj.tokenType === undefined || response.obj.tokenType === null || response.obj.tokenType !== "Bearer") {
+                        return response;
+                    }
+                    if (response.obj.accessToken === undefined || response.obj.accessToken === null) {
+                        return response;
+                    }
+                    ui.preauthorizeApiKey(response.obj.tokenType, response.obj.accessToken);
+                    return response;
+                }
             });
 
             window.ui = ui;

@@ -107,6 +107,15 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ObjectAlreadyExists = 1034,
 
         [ErrorCode("Unable to delete one or more objects of the type '{0}'.", typeof(IntranetRepositoryException))]
-        UnableToDeleteOneOrMoreObjects = 1035
+        UnableToDeleteOneOrMoreObjects = 1035,
+
+        [ErrorCode("An internal error has occurred: {0}", typeof(IntranetSystemException))]
+        InternalError = 1036,
+
+        [ErrorCode("Cannot retrieve the ACME challenge for token.", typeof(IntranetBusinessException))]
+        CannotRetrieveAcmeChallengeForToken = 1037,
+
+        [ErrorCode("Cannot retrieve a JWT token for the authenticated user.", typeof(IntranetBusinessException))]
+        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1038
     }
 }

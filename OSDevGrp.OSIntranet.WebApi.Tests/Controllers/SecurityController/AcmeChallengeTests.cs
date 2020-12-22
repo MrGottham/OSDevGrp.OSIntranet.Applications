@@ -1,12 +1,13 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using AutoFixture;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
-using OSDevGrp.OSIntranet.WebApi.Helpers.Security;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
@@ -16,8 +17,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
     {
         #region Private variables
 
-        private Mock<ICommandBus> _commandBusMock;
-        private Mock<ISecurityContextReader> _securityContextReaderMock;
+        private Mock<IClaimResolver> _claimResolverMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
 
@@ -26,43 +27,136 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [SetUp]
         public void SetUp()
         {
-            _commandBusMock = new Mock<ICommandBus>();
-            _securityContextReaderMock = new Mock<ISecurityContextReader>();
-            _fixture = new Fixture();
+            _claimResolverMock = new Mock<IClaimResolver>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
+            _fixture = new Fixture();
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsArgumentNullException()
+        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AcmeChallenge(null));
-
-            Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsArgumentNullException()
+        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AcmeChallenge(string.Empty));
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
 
-            Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsArgumentNullException()
+        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AcmeChallenge(" "));
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
 
-            Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
+
+            Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationException()
+        {
+            Controller sut = CreateSut();
+
+            Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
+
+            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
+
+            Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
+
+            Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationException()
+        {
+            Controller sut = CreateSut();
+
+            Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
+
+            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
+
+            Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
+        {
+            Controller sut = CreateSut();
+
+            IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
+
+            Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
         }
 
         [Test]
@@ -79,13 +173,33 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsBadRequestResult()
+        public void AcmeChallenge_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ThrowsIntranetBusinessException()
         {
             Controller sut = CreateSut(false);
 
+            Assert.Throws<IntranetBusinessException>(() => sut.AcmeChallenge(_fixture.Create<string>()));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToCannotRetrieveAcmeChallengeForToken()
+        {
+            Controller sut = CreateSut(false);
+
+            IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.AcmeChallenge(_fixture.Create<string>()));
+
+            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.CannotRetrieveAcmeChallengeForToken));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
             IActionResult result = sut.AcmeChallenge(_fixture.Create<string>());
 
-            Assert.That(result, Is.TypeOf<BadRequestResult>());
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -149,7 +263,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _acmeChallengeResolverMock.Setup(m => m.GetConstructedKeyAuthorization(It.IsAny<string>()))
                 .Returns(hasConstructedKeyAuthorization ? constructedKeyAuthorization ?? _fixture.Create<string>() : null);
 
-            return new Controller(_commandBusMock.Object, _securityContextReaderMock.Object, _acmeChallengeResolverMock.Object);
+            return new Controller(_claimResolverMock.Object, _dataProtectionProviderMock.Object, _acmeChallengeResolverMock.Object);
         }
     }
 }

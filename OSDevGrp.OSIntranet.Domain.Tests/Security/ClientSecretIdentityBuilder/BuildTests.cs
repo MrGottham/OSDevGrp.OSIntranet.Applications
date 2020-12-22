@@ -115,7 +115,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
 
             IClientSecretIdentity result = sut.Build();
 
-            Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(2));
+            Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(4));
         }
 
         [Test]
@@ -127,7 +127,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
             IEnumerable<Claim> claimCollection = Fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
             IClientSecretIdentity result = sut.AddClaims(claimCollection).Build();
 
-            Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(2 + claimCollection.Count()));
+            Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(4 + claimCollection.Count()));
             foreach (Claim claim in claimCollection)
             {
                 Assert.That(result.ToClaimsIdentity().Claims.SingleOrDefault(m => string.Compare(m.Type, claim.Type, StringComparison.Ordinal) == 0), Is.Not.Null);

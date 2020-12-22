@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -18,8 +20,9 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using OSDevGrp.OSIntranet.WebApi.Filters;
+using OSDevGrp.OSIntranet.WebApi.Handlers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
-using OSDevGrp.OSIntranet.WebApi.Helpers.Security;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
@@ -56,7 +59,16 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Secure = CookieSecurePolicy.SameAsRequest;
             });
 
-            services.AddControllers().AddJsonOptions(opt => 
+            services.AddDataProtection()
+                .SetApplicationName("OSDevGrp.OSIntranet.WebApi")
+                .UseEphemeralDataProtectionProvider()
+                .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
+
+            services.AddControllers(opt => 
+            {
+                opt.Filters.Add<ErrorHandlerFilter>();
+            })
+            .AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 opt.JsonSerializerOptions.IgnoreNullValues = true;
@@ -64,10 +76,10 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddApiVersioning(opt => opt.ApiVersionReader = new HeaderApiVersionReader());
 
-            services.AddAuthentication(opt =>
+            services.AddAuthentication(opt => 
             {
-                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultAuthenticateScheme = GetJwtBearerAuthenticationScheme();
+                opt.DefaultChallengeScheme = GetJwtBearerAuthenticationScheme();
             })
             .AddJwtBearer(opt =>
             {
@@ -80,22 +92,29 @@ namespace OSDevGrp.OSIntranet.WebApi
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-            });
+            })
+            .AddClientSecret(GetOAuthAuthenticationScheme());
+
             services.AddAuthorization(opt =>
             {
+                opt.AddPolicy("AcquireToken", policy =>
+                {
+                    policy.AddAuthenticationSchemes(GetOAuthAuthenticationScheme());
+                    policy.RequireClaim(ClaimHelper.TokenClaimType);
+                });
                 opt.AddPolicy("SecurityAdmin", policy =>
                 {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.SecurityAdminClaimType);
                 });
                 opt.AddPolicy("Accounting", policy =>
                 {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
                 opt.AddPolicy("CommonData", policy =>
                 {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
                 });
             });
@@ -109,18 +128,21 @@ namespace OSDevGrp.OSIntranet.WebApi
                     Description = WebApiDescription
                 });
 
-                OpenApiSecurityScheme basicOpenApiSecurityScheme = CreateBasicOpenApiSecurityScheme();
-                OpenApiSecurityScheme bearerOpenApiSecurityScheme = CreateBearerOpenApiSecurityScheme();
-                
-                options.AddSecurityDefinition(basicOpenApiSecurityScheme.Reference.Id, basicOpenApiSecurityScheme);
-                options.AddSecurityDefinition(bearerOpenApiSecurityScheme.Reference.Id, bearerOpenApiSecurityScheme);
+                options.OperationFilter<OperationAuthorizeFilterDescriptor>();
+                options.OperationFilter<OperationResponseFilterDescriptor>();
+                options.SchemaFilter<EnumToStringSchemeFilterDescriptor>();
+                options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>();
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {basicOpenApiSecurityScheme, Array.Empty<string>()},
-                    {bearerOpenApiSecurityScheme, Array.Empty<string>()},
-                });
+                OpenApiSecurityScheme oAuthSecurityScheme = CreateOAuthSecurityScheme(new Uri("/api/oauth/token", UriKind.Relative));
+                OpenApiSecurityScheme bearerSecurityScheme = CreateBearerSecurityScheme();
+
+                options.AddSecurityDefinition(oAuthSecurityScheme.Reference.Id, oAuthSecurityScheme);
+                options.AddSecurityDefinition(bearerSecurityScheme.Reference.Id, bearerSecurityScheme);
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuthSecurityScheme, Array.Empty<string>()}});
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{bearerSecurityScheme, Array.Empty<string>()}});
             });
+            services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddHealthChecks();
 
@@ -133,7 +155,6 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
-            services.AddTransient<ISecurityContextReader, SecurityContextReader>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -168,7 +189,37 @@ namespace OSDevGrp.OSIntranet.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseSwagger();
+            app.UseSwagger(options =>
+            {
+                options.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
+                {
+                    if (httpRequest.Headers == null)
+                    {
+                        return;
+                    }
+
+                    const string forwardedProtoHeader = "X-Forwarded-Proto";
+                    const string forwardedHostHeader = "X-Forwarded-Host";
+
+                    if (httpRequest.Headers.ContainsKey(forwardedProtoHeader) == false || string.IsNullOrWhiteSpace(httpRequest.Headers[forwardedProtoHeader]))
+                    {
+                        return;
+                    }
+
+                    if (httpRequest.Headers.ContainsKey(forwardedHostHeader) == false || string.IsNullOrWhiteSpace(httpRequest.Headers[forwardedHostHeader]))
+                    {
+                        return;
+                    }
+
+                    swaggerDoc.Servers = new List<OpenApiServer>
+                    {
+                        new OpenApiServer
+                        {
+                            Url = $"{httpRequest.Headers[forwardedProtoHeader]}://{httpRequest.Headers[forwardedHostHeader]}"
+                        }
+                    };
+                });
+            });
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", WebApiName);
@@ -181,39 +232,59 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
         }
 
-        private OpenApiSecurityScheme CreateBasicOpenApiSecurityScheme()
+        private OpenApiSecurityScheme CreateOAuthSecurityScheme(Uri tokenUri)
+        {
+            NullGuard.NotNull(tokenUri, nameof(tokenUri));
+
+            return new OpenApiSecurityScheme
+            {
+                Name = "OAuth Authorization",
+                Description = $"OAuth Authorization 2.0 with the client credentials grant flow.{Environment.NewLine}{Environment.NewLine}Example: '{GetOAuthAuthenticationScheme()} YzQwMGUxY2UtNzQyOC00NjBmLTg5ZTYtOGFmMTZkMWFiN2Ni'.",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.OAuth2,
+                Scheme = GetOAuthAuthenticationScheme(),
+                Reference = new OpenApiReference
+                {
+                    Id = GetOAuthAuthenticationScheme(),
+                    Type = ReferenceType.SecurityScheme
+                },
+                Flows = new OpenApiOAuthFlows
+                {
+                    ClientCredentials = new OpenApiOAuthFlow
+                    {
+                        TokenUrl = tokenUri,
+                        Scopes = new Dictionary<string, string>(0)
+                    }
+                }
+            };
+        }
+
+        private string GetOAuthAuthenticationScheme()
+        {
+            return "Basic";
+        }
+
+        private OpenApiSecurityScheme CreateBearerSecurityScheme()
         {
             return new OpenApiSecurityScheme
             {
-                Name = "Basic Authorization",
-                Description = $"Basic Authorization header using the Basic scheme.{Environment.NewLine}{Environment.NewLine}Example: 'Basic NGIyNGRiZGQtZGQ4NS00MTM3LWJjNzgtMzQ4YjBmMjhlMWFl'",
+                Name = "JWT Authorization header",
+                Description = $"JWT Authorization header using the Bearer scheme.{Environment.NewLine}{Environment.NewLine}Example: '{GetJwtBearerAuthenticationScheme()} NGI4YTg0MWEtMzNiZi00MTYyLTk5MGMtY2M5OTFjOWU2MmRi'.",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = "Basic",
+                Scheme = GetJwtBearerAuthenticationScheme(),
+                BearerFormat = "JWT",
                 Reference = new OpenApiReference
                 {
-                    Id = "Basic",
+                    Id = GetJwtBearerAuthenticationScheme(),
                     Type = ReferenceType.SecurityScheme
                 }
             };
         }
 
-        private OpenApiSecurityScheme CreateBearerOpenApiSecurityScheme()
+        private string GetJwtBearerAuthenticationScheme()
         {
-            return new OpenApiSecurityScheme
-            {
-                Name = "JWT Authorization header",
-                Description = $"JWT Authorization header using the Bearer scheme.{Environment.NewLine}{Environment.NewLine}Example: '{JwtBearerDefaults.AuthenticationScheme} NGI4YTg0MWEtMzNiZi00MTYyLTk5MGMtY2M5OTFjOWU2MmRi'",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = JwtBearerDefaults.AuthenticationScheme,
-                BearerFormat = "JWT",
-                Reference = new OpenApiReference
-                {
-                    Id = JwtBearerDefaults.AuthenticationScheme,
-                    Type = ReferenceType.SecurityScheme
-                }
-            };
+            return JwtBearerDefaults.AuthenticationScheme;
         }
 
         private static bool RunningInDocker()

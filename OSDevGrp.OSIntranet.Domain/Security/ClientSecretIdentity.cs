@@ -22,6 +22,8 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             Identifier = identifier;
             ClientSecret = clientSecret;
 
+            base.AddClaim(ClaimHelper.CreateNameClaim(friendlyName));
+            base.AddClaim(ClaimHelper.CreateNameIdentifierClaim(clientId));
             base.AddClaim(ClaimHelper.CreateFriendlyNameClaim(friendlyName));
             base.AddClaim(ClaimHelper.CreateClientIdClaim(clientId));
         }

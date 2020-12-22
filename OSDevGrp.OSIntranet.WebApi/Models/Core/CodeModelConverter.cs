@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
@@ -6,6 +8,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
 {
     internal class CoreModelConverter : ConverterBase
     {
+        #region Private variales
+
+        private static readonly IDictionary<Type, string> ErrorTypeDictionary = new Dictionary<Type, string>
+        {
+            {typeof(IntranetRepositoryException), "RepositoryError"},
+            {typeof(IntranetSystemException), "SystemError"},
+            {typeof(IntranetCommandBusException), "CommandBusError"},
+            {typeof(IntranetQueryBusException), "QueryBusError"},
+            {typeof(IntranetBusinessException), "BusinessError"},
+            {typeof(IntranetValidationException), "ValidationError"}
+        };
+
+        #endregion
+
         #region Methods
 
         protected override void Initialize(IMapperConfigurationExpression mapperConfiguration)
@@ -13,7 +29,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<IntranetRepositoryException, ErrorModel>()
-                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => "RepositoryError"))
+                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => src.GetType()))
                 .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Method, opt =>
                 {
@@ -24,35 +40,35 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
                 .ForMember(dest => dest.ValidatingField, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IntranetSystemException, ErrorModel>()
-                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => "SystemError"))
+                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => src.GetType()))
                 .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Method, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingType, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingField, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IntranetCommandBusException, ErrorModel>()
-                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => "CommandBusError"))
+                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => src.GetType()))
                 .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Method, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingType, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingField, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IntranetQueryBusException, ErrorModel>()
-                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => "QueryBusError"))
+                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => src.GetType()))
                 .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Method, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingType, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingField, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IntranetBusinessException, ErrorModel>()
-                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => "BusinessError"))
+                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => src.GetType()))
                 .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Method, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingType, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingField, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IntranetValidationException, ErrorModel>()
-                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => "ValidationError"))
+                .ForMember(dest => dest.ErrorType, opt => opt.MapFrom(src => src.GetType()))
                 .ForMember(dest => dest.ErrorMessage, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.Method, opt => opt.Ignore())
                 .ForMember(dest => dest.ValidatingType, opt =>
@@ -64,6 +80,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
                 {
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.ValidatingField) == false);
                 });
+
+            mapperConfiguration.CreateMap<Type, string>()
+                .ConvertUsing(src => ErrorTypeDictionary[src]);
         }
 
         #endregion

@@ -33,7 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         {
             IClaimResolver sut = CreateSut();
 
-            sut.GetCountryCode();
+            sut.GetAccountingNumber();
 
             _principalResolverMock.Verify(m => m.GetCurrentPrincipal(), Times.Once);
         }
@@ -45,14 +45,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
             IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
             IClaimResolver sut = CreateSut(principal);
 
-            string result = sut.GetCountryCode();
+            int? result = sut.GetAccountingNumber();
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaim_ReturnsAccoutingNumber()
+        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaim_ReturnsAccountingNumber()
         {
             int accountingNumber = _fixture.Create<int>();
             IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim(accountingNumber)});

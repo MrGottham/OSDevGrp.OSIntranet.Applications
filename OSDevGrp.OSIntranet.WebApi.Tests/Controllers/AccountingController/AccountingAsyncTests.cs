@@ -6,13 +6,10 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
-using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
-using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
@@ -92,66 +89,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             Assert.That(accountingModel.Name, Is.EqualTo(accountingMock.Name));
         }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task AccountingAsync_WhenCalledAndIntranetExceptionOccurs_ReturnsBadRequestObjectResult()
+        private Controller CreateSut(IAccounting accounting = null)
         {
-            IntranetRepositoryException intranetRepositoryException = new IntranetRepositoryException(_fixture.Create<ErrorCode>(), _fixture.Create<string>());
-            Controller sut = CreateSut(exception: intranetRepositoryException);
-
-            ActionResult<AccountingModel> result = await sut.AccountingAsync(_fixture.Create<int>());
-
-            Assert.That(result.Result, Is.TypeOf<BadRequestObjectResult>());
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AccountingAsync_WhenCalledAndIntranetExceptionOccurs_AssertBadRequestObjectResultContainsErrorModel()
-        {
-            IntranetRepositoryException intranetRepositoryException = new IntranetRepositoryException(_fixture.Create<ErrorCode>(), _fixture.Create<string>());
-            Controller sut = CreateSut(exception: intranetRepositoryException);
-
-            BadRequestObjectResult result = (BadRequestObjectResult) (await sut.AccountingAsync(_fixture.Create<int>())).Result;
-
-            Assert.That(result.Value, Is.TypeOf<ErrorModel>());
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AccountingAsync_WhenCalledAndAggregateExceptionOccurs_ReturnsBadRequestObjectResult()
-        {
-            AggregateException aggregateException = new AggregateException(new IntranetRepositoryException(_fixture.Create<ErrorCode>(), _fixture.Create<string>()));
-            Controller sut = CreateSut(exception: aggregateException);
-
-            ActionResult<AccountingModel> result = await sut.AccountingAsync(_fixture.Create<int>());
-
-            Assert.That(result.Result, Is.TypeOf<BadRequestObjectResult>());
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AccountingAsync_WhenCalledAndAggregateExceptionOccurs_AssertBadRequestObjectResultContainsErrorModel()
-        {
-            AggregateException aggregateException = new AggregateException(new IntranetRepositoryException(_fixture.Create<ErrorCode>(), _fixture.Create<string>()));
-            Controller sut = CreateSut(exception: aggregateException);
-
-            BadRequestObjectResult result = (BadRequestObjectResult) (await sut.AccountingAsync(_fixture.Create<int>())).Result;
-
-            Assert.That(result.Value, Is.TypeOf<ErrorModel>());
-        }
-
-        private Controller CreateSut(IAccounting accounting = null, Exception exception = null)
-        {
-            if (exception == null)
-            {
-                _queryBusMock.Setup(m => m.QueryAsync<IGetAccountingQuery, IAccounting>(It.IsAny<IGetAccountingQuery>()))
-                    .Returns(Task.Run(() => accounting ?? _fixture.BuildAccountingMock().Object));
-            }
-            else
-            {
-                _queryBusMock.Setup(m => m.QueryAsync<IGetAccountingQuery, IAccounting>(It.IsAny<IGetAccountingQuery>()))
-                    .Throws(exception);
-            }
+            _queryBusMock.Setup(m => m.QueryAsync<IGetAccountingQuery, IAccounting>(It.IsAny<IGetAccountingQuery>()))
+                .Returns(Task.FromResult(accounting ?? _fixture.BuildAccountingMock().Object));
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object);
         }
