@@ -29,11 +29,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override Func<IBudgetInfo, Tuple<int, string, short, short>> PrimaryKey => budgetInfo => new Tuple<int, string, short, short>(budgetInfo.BudgetAccount.Accounting.Number, budgetInfo.BudgetAccount.AccountNumber, budgetInfo.Year, budgetInfo.Month);
 
-        protected override IQueryable<BudgetInfoModel> Reader => Entities
+        protected override IQueryable<BudgetInfoModel> Reader => MinimalReader
             .Include(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
             .Include(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
-            .Include(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
-            .Include(budgetInfoModel => budgetInfoModel.YearMonth);
+            .Include(budgetInfoModel => budgetInfoModel.BudgetAccount).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup);
+
+        private IQueryable<BudgetInfoModel> MinimalReader => Entities.Include(budgetInfoModel => budgetInfoModel.YearMonth);
 
         #endregion
 
@@ -106,6 +107,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(budgetInfoModel, nameof(budgetInfoModel));
 
             return DeleteAsync(new Tuple<int, string, short, short>(budgetInfoModel.BudgetAccount.Accounting.AccountingIdentifier, budgetInfoModel.BudgetAccount.AccountNumber, budgetInfoModel.YearMonth.Year, budgetInfoModel.YearMonth.Month));
+        }
+
+        internal Task<IEnumerable<BudgetInfoModel>> ForAsync(AccountingModel accountingModel)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            return Task.FromResult<IEnumerable<BudgetInfoModel>>(MinimalReader.Include(budgetInfoModel => budgetInfoModel.BudgetAccount)
+                .Where(budgetInfoModel => budgetInfoModel.BudgetAccount.AccountingIdentifier == accountingModel.AccountingIdentifier)
+                .ToArray());
         }
 
         protected override Expression<Func<BudgetInfoModel, bool>> EntitySelector(Tuple<int, string, short, short> primaryKey) => budgetInfoModel => budgetInfoModel.BudgetAccount.Accounting.AccountingIdentifier == primaryKey.Item1 && budgetInfoModel.BudgetAccount.AccountNumber == primaryKey.Item2 && budgetInfoModel.YearMonth.Year == primaryKey.Item3 && budgetInfoModel.YearMonth.Month == primaryKey.Item4;

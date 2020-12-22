@@ -29,11 +29,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override Func<ICreditInfo, Tuple<int, string, short, short>> PrimaryKey => creditInfo => new Tuple<int, string, short, short>(creditInfo.Account.Accounting.Number, creditInfo.Account.AccountNumber, creditInfo.Year, creditInfo.Month);
 
-        protected override IQueryable<CreditInfoModel> Reader => Entities
+        protected override IQueryable<CreditInfoModel> Reader => MinimalReader
             .Include(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
             .Include(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.BasicAccount)
-            .Include(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.AccountGroup)
-            .Include(creditInfoModel => creditInfoModel.YearMonth);
+            .Include(creditInfoModel => creditInfoModel.Account).ThenInclude(accountModel => accountModel.AccountGroup);
+
+        private IQueryable<CreditInfoModel> MinimalReader => Entities.Include(creditInfoModel => creditInfoModel.YearMonth);
 
         #endregion
 
@@ -106,6 +107,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             NullGuard.NotNull(creditInfoModel, nameof(creditInfoModel));
 
             return DeleteAsync(new Tuple<int, string, short, short>(creditInfoModel.Account.Accounting.AccountingIdentifier, creditInfoModel.Account.AccountNumber, creditInfoModel.YearMonth.Year, creditInfoModel.YearMonth.Month));
+        }
+
+        internal Task<IEnumerable<CreditInfoModel>> ForAsync(AccountingModel accountingModel)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            return Task.FromResult<IEnumerable<CreditInfoModel>>(MinimalReader.Include(creditInfoModel => creditInfoModel.Account)
+                .Where(creditInfoModel => creditInfoModel.Account.AccountingIdentifier == accountingModel.AccountingIdentifier)
+                .ToArray());
         }
 
         protected override Expression<Func<CreditInfoModel, bool>> EntitySelector(Tuple<int, string, short, short> primaryKey) => creditInfoModel => creditInfoModel.Account.Accounting.AccountingIdentifier == primaryKey.Item1 && creditInfoModel.Account.AccountNumber == primaryKey.Item2 && creditInfoModel.YearMonth.Year == primaryKey.Item3 && creditInfoModel.YearMonth.Month == primaryKey.Item4;

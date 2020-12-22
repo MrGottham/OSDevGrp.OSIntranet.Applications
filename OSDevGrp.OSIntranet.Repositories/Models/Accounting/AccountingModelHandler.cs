@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -19,7 +20,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         private readonly bool _includeAccounts;
         private readonly bool _includePostingLines;
         private readonly AccountModelHandler _accountModelHandler;
+        private readonly CreditInfoModelHandler _creditInfoModelHandler;
         private readonly BudgetAccountModelHandler _budgetAccountModelHandler;
+        private readonly BudgetInfoModelHandler _budgetInfoModelHandler;
         private readonly ContactAccountModelHandler _contactAccountModelHandler;
 
         #endregion
@@ -32,7 +35,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             _includeAccounts = includeAccounts;
             _includePostingLines = includePostingLines;
             _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, statusDate, true, includePostingLines);
+            _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter);
             _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, statusDate, true, includePostingLines);
+            _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter);
             _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, statusDate, includePostingLines);
         }
 
@@ -71,7 +76,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         protected override void OnDispose()
         {
             _accountModelHandler.Dispose();
+            _creditInfoModelHandler.Dispose();
             _budgetAccountModelHandler.Dispose();
+            _budgetInfoModelHandler.Dispose();
             _contactAccountModelHandler.Dispose();
         }
 
@@ -91,11 +98,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             if (accountingModel.Accounts != null)
             {
+                CreditInfoModel[] creditInfoModelCollection = (await _creditInfoModelHandler.ForAsync(accountingModel)).ToArray();
+                accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(creditInfoModelCollection));
+
                 accountingModel.Accounts = (await _accountModelHandler.ReadAsync(accountingModel.Accounts)).ToList();
             }
 
             if (accountingModel.BudgetAccounts != null)
             {
+                BudgetInfoModel[] budgetInfoModelCollection = (await _budgetInfoModelHandler.ForAsync(accountingModel)).ToArray();
+                accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(budgetInfoModelCollection));
+
                 accountingModel.BudgetAccounts = (await _budgetAccountModelHandler.ReadAsync(accountingModel.BudgetAccounts)).ToList();
             }
 
@@ -141,6 +154,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
+            CreditInfoModel[] creditInfoModelCollection = (await _creditInfoModelHandler.ForAsync(accountingModel)).ToArray();
+            accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(creditInfoModelCollection));
+
+            BudgetInfoModel[] budgetInfoModelCollection = (await _budgetInfoModelHandler.ForAsync(accountingModel)).ToArray();
+            accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(budgetInfoModelCollection));
+
             // TODO: Delete all posting lines.
 
             await _accountModelHandler.DeleteAsync(accountingModel.Accounts);
@@ -158,13 +177,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             {
                 reader = reader.Include(accountingModel => accountingModel.Accounts)
                     .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.BasicAccount)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.AccountGroup)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
+                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.AccountGroup);
 
                 reader = reader.Include(accountingModel => accountingModel.BudgetAccounts)
                     .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
+                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup);
 
                 reader = reader.Include(accountingModel => accountingModel.ContactAccounts)
                     .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.BasicAccount)

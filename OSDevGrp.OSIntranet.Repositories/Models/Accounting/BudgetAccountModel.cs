@@ -86,6 +86,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             }
         }
 
+        internal static void ExtractBudgetInfos(this BudgetAccountModel budgetAccountModel, BudgetInfoModel[] budgetInfoModelCollection)
+        {
+            NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
+                .NotNull(budgetInfoModelCollection, nameof(budgetInfoModelCollection));
+
+            budgetAccountModel.BudgetInfos = budgetInfoModelCollection.Where(budgetInfoModel => budgetInfoModel.BudgetAccountIdentifier == budgetAccountModel.BudgetAccountIdentifier).ToList();
+        }
+
         internal static void CreateBudgetAccountModel(this ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));

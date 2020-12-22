@@ -86,6 +86,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             }
         }
 
+        internal static void ExtractCreditInfos(this AccountModel accountModel, CreditInfoModel[] creditInfoModelCollection)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel))
+                .NotNull(creditInfoModelCollection, nameof(creditInfoModelCollection));
+
+            accountModel.CreditInfos = creditInfoModelCollection.Where(creditInfoModel => creditInfoModel.AccountIdentifier == accountModel.AccountIdentifier).ToList();
+        }
+
         internal static void CreateAccountModel(this ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
