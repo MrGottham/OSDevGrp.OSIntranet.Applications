@@ -24,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         private readonly BudgetAccountModelHandler _budgetAccountModelHandler;
         private readonly BudgetInfoModelHandler _budgetInfoModelHandler;
         private readonly ContactAccountModelHandler _contactAccountModelHandler;
+        private IReadOnlyCollection<CreditInfoModel> _creditInfoModelCollection;
+        private IReadOnlyCollection<BudgetInfoModel> _budgetInfoModelCollection;
 
         #endregion
 
@@ -92,22 +94,31 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountingModel;
         }
 
+        protected override async Task PrepareReadAsync(int primaryKey, object prepareReadStatus = null)
+        {
+            if (_includeAccounts == false)
+            {
+                return;
+            }
+
+            _creditInfoModelCollection = await _creditInfoModelHandler.ForAsync(primaryKey);
+            _budgetInfoModelCollection = await _budgetInfoModelHandler.ForAsync(primaryKey);
+        }
+
         protected override async Task<AccountingModel> OnReadAsync(AccountingModel accountingModel)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
             if (accountingModel.Accounts != null)
             {
-                CreditInfoModel[] creditInfoModelCollection = (await _creditInfoModelHandler.ForAsync(accountingModel)).ToArray();
-                accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(creditInfoModelCollection));
+                accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(_creditInfoModelCollection));
 
                 accountingModel.Accounts = (await _accountModelHandler.ReadAsync(accountingModel.Accounts)).ToList();
             }
 
             if (accountingModel.BudgetAccounts != null)
             {
-                BudgetInfoModel[] budgetInfoModelCollection = (await _budgetInfoModelHandler.ForAsync(accountingModel)).ToArray();
-                accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(budgetInfoModelCollection));
+                accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(_budgetInfoModelCollection));
 
                 accountingModel.BudgetAccounts = (await _budgetAccountModelHandler.ReadAsync(accountingModel.BudgetAccounts)).ToList();
             }
@@ -154,11 +165,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            CreditInfoModel[] creditInfoModelCollection = (await _creditInfoModelHandler.ForAsync(accountingModel)).ToArray();
-            accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(creditInfoModelCollection));
-
-            BudgetInfoModel[] budgetInfoModelCollection = (await _budgetInfoModelHandler.ForAsync(accountingModel)).ToArray();
-            accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(budgetInfoModelCollection));
+            await PrepareReadAsync(accountingModel.AccountingIdentifier);
+            accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(_creditInfoModelCollection));
+            accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(_budgetInfoModelCollection));
 
             // TODO: Delete all posting lines.
 

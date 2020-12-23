@@ -86,7 +86,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             }
         }
 
-        internal static void ExtractBudgetInfos(this BudgetAccountModel budgetAccountModel, BudgetInfoModel[] budgetInfoModelCollection)
+        internal static void ExtractBudgetInfos(this BudgetAccountModel budgetAccountModel, IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
                 .NotNull(budgetInfoModelCollection, nameof(budgetInfoModelCollection));

@@ -10,7 +10,19 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Core
 {
-    internal abstract class ModelHandlerBase<TDomainModel, TDbContext, TEntityModel, TPrimaryKey> : IDisposable where TDomainModel : class where TDbContext : DbContext where TEntityModel : class, new()
+    internal abstract class ModelHandlerBase<TDomainModel, TDbContext, TEntityModel, TPrimaryKey> : ModelHandlerBase<TDomainModel, TDbContext, TEntityModel, TPrimaryKey, object> where TDomainModel : class where TDbContext : DbContext where TEntityModel : class, new()
+    {
+        #region Constructor
+
+        protected ModelHandlerBase(TDbContext dbContext, IConverter modelConverter) 
+            : base(dbContext, modelConverter)
+        {
+        }
+
+        #endregion
+    }
+
+    internal abstract class ModelHandlerBase<TDomainModel, TDbContext, TEntityModel, TPrimaryKey, TPrepareReadState> : IDisposable where TDomainModel : class where TDbContext : DbContext where TEntityModel : class, new() where TPrepareReadState : class
     {
         #region Constructor
 
@@ -64,9 +76,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return await OnReloadAsync(domainModel, entityEntry.Entity);
         }
 
-        internal async Task<TDomainModel> ReadAsync(TPrimaryKey primaryKey)
+        internal async Task<TDomainModel> ReadAsync(TPrimaryKey primaryKey, TPrepareReadState prepareReadState = null)
         {
             NullGuard.NotNull(primaryKey, nameof(primaryKey));
+
+            await PrepareReadAsync(primaryKey, prepareReadState);
 
             TEntityModel entityModel = await Reader.SingleOrDefaultAsync(EntitySelector(primaryKey));
             if (entityModel == null)
@@ -77,9 +91,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return ModelConverter.Convert<TEntityModel, TDomainModel>(await OnReadAsync(entityModel));
         }
 
-        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Func<TEntityModel, bool> filterPredicate = null)
+        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Func<TEntityModel, bool> filterPredicate = null, TPrepareReadState prepareReadState = null)
         {
-            TEntityModel[] entityModelCollection = await Task.FromResult((filterPredicate != null ? Reader.Where(filterPredicate) : Reader).ToArray());
+            await PrepareReadAsync(prepareReadState);
+
+            IEnumerable<TEntityModel> entityModelReader = Reader;
+            if (filterPredicate != null)
+            {
+                entityModelReader = entityModelReader.Where(filterPredicate);
+            }
+
+            TEntityModel[] entityModelCollection = await Task.FromResult(entityModelReader.ToArray());
 
             Task<TEntityModel>[] readEntityModelTaskCollection = entityModelCollection.Select(OnReadAsync).ToArray();
             TEntityModel[] riddenEntityModelCollection = await Task.WhenAll(readEntityModelTaskCollection);
@@ -146,6 +168,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
                 .NotNull(entityModel, nameof(entityModel));
 
             return Task.FromResult(entityModel);
+        }
+
+        protected virtual Task PrepareReadAsync(TPrepareReadState prepareReadState = null)
+        {
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task PrepareReadAsync(TPrimaryKey primaryKey, TPrepareReadState prepareReadState = null)
+        {
+            NullGuard.NotNull(primaryKey, nameof(primaryKey));
+
+            return Task.CompletedTask;
         }
 
         protected virtual Task<TEntityModel> OnReadAsync(TEntityModel entityModel)

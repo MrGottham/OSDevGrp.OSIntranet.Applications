@@ -109,12 +109,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return DeleteAsync(new Tuple<int, string, short, short>(creditInfoModel.Account.Accounting.AccountingIdentifier, creditInfoModel.Account.AccountNumber, creditInfoModel.YearMonth.Year, creditInfoModel.YearMonth.Month));
         }
 
-        internal Task<IEnumerable<CreditInfoModel>> ForAsync(AccountingModel accountingModel)
+        internal Task<IReadOnlyCollection<CreditInfoModel>> ForAsync(int accountingIdentifier)
         {
-            NullGuard.NotNull(accountingModel, nameof(accountingModel));
-
-            return Task.FromResult<IEnumerable<CreditInfoModel>>(MinimalReader.Include(creditInfoModel => creditInfoModel.Account)
-                .Where(creditInfoModel => creditInfoModel.Account.AccountingIdentifier == accountingModel.AccountingIdentifier)
+            return Task.FromResult<IReadOnlyCollection<CreditInfoModel>>(MinimalReader.Include(creditInfoModel => creditInfoModel.Account)
+                .Where(creditInfoModel => creditInfoModel.Account.AccountingIdentifier == accountingIdentifier)
                 .ToArray());
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         private readonly bool _includeCreditInformation;
         private readonly CreditInfoModelHandler _creditInfoModelHandler;
+        private IReadOnlyCollection<CreditInfoModel> _creditInfoModelCollection;
 
         #endregion
 
@@ -64,9 +66,28 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountModel;
         }
 
+        protected override async Task PrepareReadAsync(Tuple<int, DateTime> prepareReadState = null)
+        {
+            NullGuard.NotNull(prepareReadState, nameof(prepareReadState));
+
+            await base.PrepareReadAsync(prepareReadState);
+
+            if (_includeCreditInformation == false)
+            {
+                return;
+            }
+
+            _creditInfoModelCollection = await _creditInfoModelHandler.ForAsync(prepareReadState?.Item1 ?? int.MinValue);
+        }
+
         protected override async Task<AccountModel> OnReadAsync(AccountModel accountModel)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
+
+            if (accountModel.CreditInfos == null && _creditInfoModelCollection != null)
+            {
+                accountModel.ExtractCreditInfos(_creditInfoModelCollection);
+            }
 
             if (accountModel.CreditInfos == null)
             {
@@ -124,7 +145,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 .Include(accountModel => accountModel.BasicAccount)
                 .Include(accountModel => accountModel.AccountGroup);
 
-            if (includeCreditInformation)
+            if (includeCreditInformation && _creditInfoModelCollection == null)
             {
                 reader = reader.Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
             }

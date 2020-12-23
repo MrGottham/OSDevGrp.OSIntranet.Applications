@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         private readonly bool _includeBudgetInformation;
         private readonly BudgetInfoModelHandler _budgetInfoModelHandler;
+        private IReadOnlyCollection<BudgetInfoModel> _budgetInfoModelCollection;
 
         #endregion
 
@@ -64,9 +66,28 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return budgetAccountModel;
         }
 
+        protected override async Task PrepareReadAsync(Tuple<int, DateTime> prepareReadState = null)
+        {
+            NullGuard.NotNull(prepareReadState, nameof(prepareReadState));
+
+            await base.PrepareReadAsync(prepareReadState);
+
+            if (_includeBudgetInformation == false)
+            {
+                return;
+            }
+
+            _budgetInfoModelCollection = await _budgetInfoModelHandler.ForAsync(prepareReadState?.Item1 ?? int.MinValue);
+        }
+
         protected override async Task<BudgetAccountModel> OnReadAsync(BudgetAccountModel budgetAccountModel)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
+
+            if (budgetAccountModel.BudgetInfos == null && _budgetInfoModelCollection != null)
+            {
+                budgetAccountModel.ExtractBudgetInfos(_budgetInfoModelCollection);
+            }
 
             if (budgetAccountModel.BudgetInfos == null)
             {
@@ -124,7 +145,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 .Include(budgetAccountModel => budgetAccountModel.BasicAccount)
                 .Include(budgetAccountModel => budgetAccountModel.BudgetAccountGroup);
 
-            if (includeBudgetInformation)
+            if (includeBudgetInformation && _budgetInfoModelCollection == null)
             {
                 reader = reader.Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
             }

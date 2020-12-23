@@ -86,7 +86,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             }
         }
 
-        internal static void ExtractCreditInfos(this AccountModel accountModel, CreditInfoModel[] creditInfoModelCollection)
+        internal static void ExtractCreditInfos(this AccountModel accountModel, IReadOnlyCollection<CreditInfoModel> creditInfoModelCollection)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel))
                 .NotNull(creditInfoModelCollection, nameof(creditInfoModelCollection));

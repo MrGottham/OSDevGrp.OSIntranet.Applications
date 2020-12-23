@@ -105,7 +105,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     using AccountModelHandler accountModelHandler = new AccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
 
                     IAccountCollection accountCollection = new AccountCollection();
-                    accountCollection.Add(await accountModelHandler.ReadAsync(accountModel => accountModel.AccountingIdentifier == accountingNumber));
+                    accountCollection.Add(await accountModelHandler.ReadAsync(accountModel => accountModel.AccountingIdentifier == accountingNumber, new Tuple<int, DateTime>(accountingNumber, statusDate)));
 
                     return accountCollection;
                 },
@@ -179,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true, true);
 
                     IBudgetAccountCollection budgetAccountCollection = new BudgetAccountCollection();
-                    budgetAccountCollection.Add(await budgetAccountModelHandler.ReadAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingNumber));
+                    budgetAccountCollection.Add(await budgetAccountModelHandler.ReadAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingNumber, new Tuple<int, DateTime>(accountingNumber, statusDate)));
 
                     return budgetAccountCollection;
                 },
@@ -253,7 +253,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(CreateRepositoryContext(), _accountingModelConverter, statusDate, true);
 
                     IContactAccountCollection contactAccountCollection = new ContactAccountCollection();
-                    contactAccountCollection.Add(await contactAccountModelHandler.ReadAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingNumber));
+                    contactAccountCollection.Add(await contactAccountModelHandler.ReadAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingNumber, new Tuple<int, DateTime>(accountingNumber, statusDate)));
 
                     return contactAccountCollection;
                 },

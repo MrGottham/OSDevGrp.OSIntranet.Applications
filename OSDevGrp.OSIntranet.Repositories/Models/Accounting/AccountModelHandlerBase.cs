@@ -15,7 +15,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal abstract class AccountModelHandlerBase<TAccount, TAccountModel> : ModelHandlerBase<TAccount, RepositoryContext, TAccountModel, Tuple<int, string>> where TAccount : class, IAccountBase where TAccountModel : AccountModelBase, new() 
+    internal abstract class AccountModelHandlerBase<TAccount, TAccountModel> : ModelHandlerBase<TAccount, RepositoryContext, TAccountModel, Tuple<int, string>, Tuple<int, DateTime>> where TAccount : class, IAccountBase where TAccountModel : AccountModelBase, new() 
     {
         #region Private variables
 
@@ -111,6 +111,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountModel.BasicAccount = basicAccountEntityEntry.Entity;
 
             return accountModel;
+        }
+
+        protected override Task PrepareReadAsync(Tuple<int, DateTime> prepareReadState = null)
+        {
+            NullGuard.NotNull(prepareReadState, nameof(prepareReadState));
+
+            // TODO: Handle posting lines.
+
+            return Task.CompletedTask;
         }
 
         protected override async Task<TAccountModel> OnReadAsync(TAccountModel accountModel)
