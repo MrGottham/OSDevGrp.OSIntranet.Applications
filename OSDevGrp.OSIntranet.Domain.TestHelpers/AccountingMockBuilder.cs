@@ -399,6 +399,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<decimal>());
             creditInfoMock.Setup(m => m.Balance)
                 .Returns(fixture.Create<decimal>());
+            creditInfoMock.Setup(m => m.Available)
+                .Returns(fixture.Create<decimal>());
             creditInfoMock.Setup(m => m.StatusDate)
                 .Returns(fixture.Create<DateTime>().Date);
             creditInfoMock.Setup(m => m.Deletable)
@@ -428,6 +430,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             creditInfoValuesMock.Setup(m => m.Credit)
                 .Returns(fixture.Create<decimal>());
             creditInfoValuesMock.Setup(m => m.Balance)
+                .Returns(fixture.Create<decimal>());
+            creditInfoValuesMock.Setup(m => m.Available)
                 .Returns(fixture.Create<decimal>());
             return creditInfoValuesMock;
         }

@@ -24,6 +24,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 return;
             }
 
+            schema.Type = "string";
             schema.Format = "string";
             schema.Enum = GetEnumValues(context.Type)
                 .Select(enumValue => (IOpenApiAny) new OpenApiString(enumValue))

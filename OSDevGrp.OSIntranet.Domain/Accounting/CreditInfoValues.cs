@@ -20,6 +20,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public decimal Balance { get; }
 
+        public decimal Available => Credit + Balance;
+
         #endregion
     }
 }

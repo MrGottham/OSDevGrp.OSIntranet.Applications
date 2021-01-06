@@ -60,7 +60,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}")]
-        public async Task<ActionResult<AccountingModel>> AccountingAsync(int accountingNumber, DateTime? statusDate = null)
+        public async Task<ActionResult<AccountingModel>> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetAccountingQuery query = new GetAccountingQuery
             {

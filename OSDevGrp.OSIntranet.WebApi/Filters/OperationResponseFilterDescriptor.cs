@@ -13,6 +13,25 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
     internal class OperationResponseFilterDescriptor : IOperationFilter
     {
+        #region Private variables
+
+        private readonly static Type[] EmptyResponseTypeCollection = new[] 
+        {
+            typeof(void),
+            typeof(IActionResult),
+            typeof(ActionResult),
+            typeof(EmptyResult),
+            typeof(OkResult),
+            typeof(Task)
+        };
+        private readonly static Type[] GenericResponseTypeCollection = new[]
+        {
+            typeof(ActionResult<>),
+            typeof(Task<>)
+        };
+
+        #endregion
+
         #region Methods
 
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
@@ -59,12 +78,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
 
         private static Type GetResponseType(Type type)
         {
-            if (type == null || type == typeof(void) || type == typeof(IActionResult) || type == typeof(ActionResult) || type == typeof(EmptyResult) || type == typeof(Task))
+            if (type == null || EmptyResponseTypeCollection.Contains(type))
             {
                 return null;
             }
 
-            if (type.IsGenericType && type == typeof(Task<>))
+            if (type.IsGenericType == false)
+            {
+                return type;
+            }
+
+            Type genericTypeDefinition = type.GetGenericTypeDefinition();
+            if (genericTypeDefinition != null && GenericResponseTypeCollection.Contains(genericTypeDefinition))
             {
                 return GetResponseType(type.GetGenericArguments().Single());
             }

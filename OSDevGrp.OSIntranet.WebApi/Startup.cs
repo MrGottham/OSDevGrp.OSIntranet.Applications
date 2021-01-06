@@ -22,6 +22,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.WebApi.Filters;
 using OSDevGrp.OSIntranet.WebApi.Handlers;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Converters;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -71,6 +72,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             .AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                opt.JsonSerializerOptions.Converters.Add(new DecimalFormatJsonConverter());
                 opt.JsonSerializerOptions.IgnoreNullValues = true;
             });
 
@@ -191,6 +193,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             app.UseSwagger(options =>
             {
+                options.RouteTemplate = "/api/swagger/{documentName}/swagger.json";
                 options.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
                 {
                     if (httpRequest.Headers == null)
@@ -222,13 +225,13 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", WebApiName);
+                options.SwaggerEndpoint($"/api/swagger/{WebApiVersion}/swagger.json", WebApiName);
             });
 
             app.UseEndpoints(endpoints => 
             {
                 endpoints.MapDefaultControllerRoute();
-                endpoints.MapHealthChecks("/health");
+                endpoints.MapHealthChecks("/api/health");
             });
         }
 
@@ -272,7 +275,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 Description = $"JWT Authorization header using the Bearer scheme.{Environment.NewLine}{Environment.NewLine}Example: '{GetJwtBearerAuthenticationScheme()} NGI4YTg0MWEtMzNiZi00MTYyLTk5MGMtY2M5OTFjOWU2MmRi'.",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = GetJwtBearerAuthenticationScheme(),
+                Scheme = GetJwtBearerAuthenticationScheme().ToLower(),
                 BearerFormat = "JWT",
                 Reference = new OpenApiReference
                 {

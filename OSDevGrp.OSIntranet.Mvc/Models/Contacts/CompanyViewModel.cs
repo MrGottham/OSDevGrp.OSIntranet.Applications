@@ -13,10 +13,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         public AddressViewModel Address { get; set; }
 
         [Display(Name = "Primær telefonnummer", ShortName = "Primær telefonnr.", Description = "Primær telefonnummer til firmaet")]
+        [StringLength(32, MinimumLength = 0, ErrorMessage = "Længden på det primære telefonnummer til firmaet skal være mellem {2} og {1} tegn.")]
         [RegularExpression(ValidationRegexPatterns.PhoneNumberRegexPattern, ErrorMessage = "Det primære telefonummer til firmaet følger ikke det lovlige mønster: {1}")]
         public string PrimaryPhone { get; set; }
 
         [Display(Name = "Sekundær telefonnummer", ShortName = "Sekundær telefonnr.", Description = "Sekundær telefonnummer til firmaet")]
+        [StringLength(32, MinimumLength = 0, ErrorMessage = "Længden på det sekundære telefonnummer til firmaet skal være mellem {2} og {1} tegn.")]
         [RegularExpression(ValidationRegexPatterns.PhoneNumberRegexPattern, ErrorMessage = "Det sekundære telefonummer til firmaet følger ikke det lovlige mønster: {1}")]
         public string SecondaryPhone { get; set; }
 

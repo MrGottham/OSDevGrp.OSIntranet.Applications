@@ -276,8 +276,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public void AcquireToken_WhenAuthenticationValuesWasResolved_ReturnsOkObjectResultWithAccessTokenModelWhereExpiresIsEqualToExpiresFromToken()
         {
-            DateTime expires = DateTime.Today.AddMinutes(5);
-            IToken token = _fixture.BuildTokenMock(expires: expires).Object;
+            DateTimeOffset expires = DateTime.Today.AddMinutes(5);
+            IToken token = _fixture.BuildTokenMock(expires: expires.DateTime).Object;
             Controller sut = CreateSut(token: token);
 
             AccessTokenModel result = (AccessTokenModel) ((OkObjectResult) sut.AcquireToken(GetLegalGrantType()).Result).Value;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.Core;
@@ -31,14 +32,67 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<IAccounting, AccountingViewModel>()
                 .ForMember(dest => dest.AccountingNumber, opt => opt.MapFrom(src => src.Number))
                 .ForMember(dest => dest.LetterHead, opt => opt.MapFrom(src => _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(src.LetterHead)))
+                .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.AccountCollection))
+                .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
+                .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection))
                 .ForMember(dest => dest.LetterHeads, opt => opt.MapFrom(src => new List<LetterHeadViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<AccountingViewModel, CreateAccountingCommand>()
-                .ForMember(m => m.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
+                .ForMember(dest => dest.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
 
             mapperConfiguration.CreateMap<AccountingViewModel, UpdateAccountingCommand>()
-                .ForMember(m => m.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
+                .ForMember(dest => dest.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
+
+            mapperConfiguration.CreateMap<IAccount, AccountIdentificationViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IAccount, AccountCoreDataViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IAccount, AccountViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IAccountCollection, AccountCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(account => account.AccountNumber).ToArray()));
+
+            mapperConfiguration.CreateMap<IAccountCollection, AccountDictionaryViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.GroupByAccountGroupAsync().GetAwaiter().GetResult()))
+                .ForMember(dest => dest.Keys, opt => opt.Ignore())
+                .ForMember(dest => dest.Values, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<ICreditInfoValues, CreditInfoValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IAccountCollectionValues, AccountCollectionValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IBudgetAccount, AccountIdentificationViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IBudgetAccount, AccountCoreDataViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(budgetAccount => budgetAccount.AccountNumber).ToArray()));
+
+            mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountDictionaryViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.GroupByBudgetAccountGroupAsync().GetAwaiter().GetResult()))
+                .ForMember(dest => dest.Keys, opt => opt.Ignore())
+                .ForMember(dest => dest.Values, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<IContactAccount, AccountIdentificationViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContactAccount, AccountCoreDataViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContactAccount, ContactAccountViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContactAccountCollection, ContactAccountCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(contactAccount => contactAccount.AccountName).ToArray()));
 
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -66,7 +120,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<PaymentTermViewModel, CreatePaymentTermCommand>();
             mapperConfiguration.CreateMap<PaymentTermViewModel, UpdatePaymentTermCommand>();
             mapperConfiguration.CreateMap<PaymentTermViewModel, DeletePaymentTermCommand>();
-
         }
 
         #endregion

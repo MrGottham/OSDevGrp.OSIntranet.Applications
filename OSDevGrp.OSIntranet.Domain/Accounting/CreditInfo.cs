@@ -51,6 +51,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public decimal Balance { get; private set; }
 
+        public decimal Available => Credit + Balance;
+
         #endregion
 
         #region Methods

@@ -12,6 +12,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
         public string AccessToken { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public DateTime Expires { get; set; }
+        public DateTimeOffset Expires { get; set; }
     }
 }

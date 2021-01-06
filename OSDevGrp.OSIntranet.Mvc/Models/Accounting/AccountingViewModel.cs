@@ -26,7 +26,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         public bool Deletable { get; set; }
 
-        public List<LetterHeadViewModel> LetterHeads { get; set; }
+        public AccountDictionaryViewModel Accounts { get; set; }
+
+        public BudgetAccountDictionaryViewModel BudgetAccounts { get; set; }
+
+        public ContactAccountCollectionViewModel ContactAccounts { get; set; }
+
+        public IReadOnlyCollection<LetterHeadViewModel> LetterHeads { get; set; }
     }
 
     public static class AccountingViewModelExtensions

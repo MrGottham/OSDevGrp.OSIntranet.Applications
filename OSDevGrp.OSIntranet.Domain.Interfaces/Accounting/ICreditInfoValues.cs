@@ -5,5 +5,7 @@
         decimal Credit { get; }
 
         decimal Balance { get; }
+
+        decimal Available { get; }
     }
 }

@@ -16,6 +16,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
         public int BackDating { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public DateTime StatusDate { get; set; }
+        public DateTimeOffset StatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public AccountCollectionModel Accounts { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BudgetAccountCollectionModel BudgetAccounts { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public ContactAccountCollectionModel ContactAccounts { get; set; }
     }
 }
