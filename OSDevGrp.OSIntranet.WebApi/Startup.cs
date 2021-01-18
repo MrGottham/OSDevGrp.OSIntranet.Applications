@@ -49,7 +49,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.Configure<ForwardedHeadersOptions>(opt => 
             {
-                opt.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                opt.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
                 opt.KnownNetworks.Clear();
                 opt.KnownProxies.Clear();
             });
