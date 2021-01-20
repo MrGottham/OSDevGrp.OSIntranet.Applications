@@ -74,6 +74,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public decimal Posted { get; private set; }
 
+        public decimal Available => CalculateAvailable(Budget, Posted);
+
         #endregion
 
         #region Methods
@@ -96,6 +98,16 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         }
 
         protected override IBudgetInfo AlreadyCalculated() => this;
+
+        internal static decimal CalculateAvailable(decimal budget, decimal posted)
+        {
+            if (budget < 0M || posted < 0M)
+            {
+                return Math.Abs(budget) - Math.Abs(posted);
+            }
+
+            return 0M;
+        }
 
         #endregion
     }

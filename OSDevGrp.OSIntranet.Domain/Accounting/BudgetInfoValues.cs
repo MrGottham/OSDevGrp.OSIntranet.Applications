@@ -20,6 +20,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public decimal Posted { get; }
 
+        public decimal Available => BudgetInfo.CalculateAvailable(Budget, Posted);
+
         #endregion
     }
 }

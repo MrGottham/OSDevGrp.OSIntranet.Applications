@@ -50,6 +50,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(budgetAccount => budgetAccount.AccountNumber).ToArray()));
 
+            mapperConfiguration.CreateMap<IBudgetInfoValues, BudgetInfoValuesModel>();
+
             mapperConfiguration.CreateMap<IContactAccount, AccountIdentificationModel>();
 
             mapperConfiguration.CreateMap<IContactAccount, AccountCoreDataModel>();

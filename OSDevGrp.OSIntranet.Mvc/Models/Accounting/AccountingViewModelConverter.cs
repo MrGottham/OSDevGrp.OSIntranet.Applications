@@ -82,6 +82,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
+            mapperConfiguration.CreateMap<IBudgetInfoValues, BudgetInfoValuesViewModel>();
+
             mapperConfiguration.CreateMap<IContactAccount, AccountIdentificationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 

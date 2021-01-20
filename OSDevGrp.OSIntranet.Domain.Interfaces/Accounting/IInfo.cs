@@ -17,7 +17,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 
         bool IsLastMonthOfStatusDate { get; }
 
-        bool IsYearOfStatusDate { get; }
+        bool IsYearToDateOfStatusDate { get; }
 
         bool IsLastYearOfStatusDate { get; }
     }

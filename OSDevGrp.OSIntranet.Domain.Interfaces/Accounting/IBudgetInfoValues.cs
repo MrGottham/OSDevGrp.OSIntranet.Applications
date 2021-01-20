@@ -5,5 +5,7 @@
         decimal Budget { get; }
 
         decimal Posted { get; }
+
+        decimal Available { get; }
     }
 }

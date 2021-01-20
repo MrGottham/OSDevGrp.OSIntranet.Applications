@@ -6,5 +6,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         [JsonProperty(Required = Required.Always)]
         public BudgetAccountGroupModel BudgetAccountGroup { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BudgetInfoValuesModel ValuesForMonthOfStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BudgetInfoValuesModel ValuesForLastMonthOfStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BudgetInfoValuesModel ValuesForYearToDateOfStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BudgetInfoValuesModel ValuesForLastYearOfStatusDate { get; set; }
     }
 }

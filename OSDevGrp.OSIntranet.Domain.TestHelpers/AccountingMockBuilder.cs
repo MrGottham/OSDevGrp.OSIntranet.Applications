@@ -369,7 +369,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return contactAccountCollectionValuesMock;
         }
 
-        public static Mock<ICreditInfo> BuildCreditInfoMock(this Fixture fixture, DateTime? infoOffset = null, bool isMonthOfStatusDate = false, bool isLastMonthOfStatusDate = false, bool isYearOfStatusDate = false, bool isLastYearOfStatusDate = false, IAccount account = null, ICreditInfo calculatedCreditInfo = null)
+        public static Mock<ICreditInfo> BuildCreditInfoMock(this Fixture fixture, DateTime? infoOffset = null, bool isMonthOfStatusDate = false, bool isLastMonthOfStatusDate = false, bool isYearToDateOfStatusDate = false, bool isLastYearOfStatusDate = false, IAccount account = null, ICreditInfo calculatedCreditInfo = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -389,8 +389,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(isMonthOfStatusDate);
             creditInfoMock.Setup(m => m.IsLastMonthOfStatusDate)
                 .Returns(isLastMonthOfStatusDate);
-            creditInfoMock.Setup(m => m.IsYearOfStatusDate)
-                .Returns(isYearOfStatusDate);
+            creditInfoMock.Setup(m => m.IsYearToDateOfStatusDate)
+                .Returns(isYearToDateOfStatusDate);
             creditInfoMock.Setup(m => m.IsLastYearOfStatusDate)
                 .Returns(isLastYearOfStatusDate);
             creditInfoMock.Setup(m => m.Account)
@@ -450,10 +450,10 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                     fixture.BuildCreditInfoMock(infoDate.AddMonths(3), account: account).Object,
                     fixture.BuildCreditInfoMock(infoDate.AddMonths(2), account: account).Object,
                     fixture.BuildCreditInfoMock(infoDate.AddMonths(1), account: account).Object,
-                    fixture.BuildCreditInfoMock(infoDate, true, isYearOfStatusDate: true, account: account).Object,
-                    fixture.BuildCreditInfoMock(infoDate.AddMonths(-1), isLastMonthOfStatusDate: true, isYearOfStatusDate: true, account: account).Object,
-                    fixture.BuildCreditInfoMock(infoDate.AddMonths(-2), isYearOfStatusDate: true, account: account).Object,
-                    fixture.BuildCreditInfoMock(infoDate.AddMonths(-3), isYearOfStatusDate: true, account: account).Object,
+                    fixture.BuildCreditInfoMock(infoDate, true, isYearToDateOfStatusDate: true, account: account).Object,
+                    fixture.BuildCreditInfoMock(infoDate.AddMonths(-1), isLastMonthOfStatusDate: true, isYearToDateOfStatusDate: true, account: account).Object,
+                    fixture.BuildCreditInfoMock(infoDate.AddMonths(-2), isYearToDateOfStatusDate: true, account: account).Object,
+                    fixture.BuildCreditInfoMock(infoDate.AddMonths(-3), isYearToDateOfStatusDate: true, account: account).Object,
                     fixture.BuildCreditInfoMock(infoDate.AddMonths(-4), isLastYearOfStatusDate: true, account: account).Object,
                     fixture.BuildCreditInfoMock(infoDate.AddMonths(-5), isLastYearOfStatusDate: true, account: account).Object,
                     fixture.BuildCreditInfoMock(infoDate.AddMonths(-6), isLastYearOfStatusDate: true, account: account).Object
@@ -484,7 +484,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return creditInfoCollectionMock;
         }
 
-        public static Mock<IBudgetInfo> BuildBudgetInfoMock(this Fixture fixture, DateTime? infoOffset = null, bool isMonthOfStatusDate = false, bool isLastMonthOfStatusDate = false, bool isYearOfStatusDate = false, bool isLastYearOfStatusDate = false, IBudgetAccount budgetAccount = null, IBudgetInfo calculatedBudgetInfo = null)
+        public static Mock<IBudgetInfo> BuildBudgetInfoMock(this Fixture fixture, DateTime? infoOffset = null, bool isMonthOfStatusDate = false, bool isLastMonthOfStatusDate = false, bool isYearToDateOfStatusDate = false, bool isLastYearOfStatusDate = false, IBudgetAccount budgetAccount = null, IBudgetInfo calculatedBudgetInfo = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -504,8 +504,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(isMonthOfStatusDate);
             budgetInfoMock.Setup(m => m.IsLastMonthOfStatusDate)
                 .Returns(isLastMonthOfStatusDate);
-            budgetInfoMock.Setup(m => m.IsYearOfStatusDate)
-                .Returns(isYearOfStatusDate);
+            budgetInfoMock.Setup(m => m.IsYearToDateOfStatusDate)
+                .Returns(isYearToDateOfStatusDate);
             budgetInfoMock.Setup(m => m.IsLastYearOfStatusDate)
                 .Returns(isLastYearOfStatusDate);
             budgetInfoMock.Setup(m => m.BudgetAccount)
@@ -517,6 +517,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             budgetInfoMock.Setup(m => m.Budget)
                 .Returns(fixture.Create<decimal>());
             budgetInfoMock.Setup(m => m.Posted)
+                .Returns(fixture.Create<decimal>());
+            budgetInfoMock.Setup(m => m.Available)
                 .Returns(fixture.Create<decimal>());
             budgetInfoMock.Setup(m => m.StatusDate)
                 .Returns(fixture.Create<DateTime>().Date);
@@ -548,6 +550,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<decimal>());
             budgetInfoValuesMock.Setup(m => m.Posted)
                 .Returns(fixture.Create<decimal>());
+            budgetInfoValuesMock.Setup(m => m.Available)
+                .Returns(fixture.Create<decimal>());
             return budgetInfoValuesMock;
         }
 
@@ -565,10 +569,10 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                     fixture.BuildBudgetInfoMock(infoDate.AddMonths(3), budgetAccount: budgetAccount).Object,
                     fixture.BuildBudgetInfoMock(infoDate.AddMonths(2), budgetAccount: budgetAccount).Object,
                     fixture.BuildBudgetInfoMock(infoDate.AddMonths(1), budgetAccount: budgetAccount).Object,
-                    fixture.BuildBudgetInfoMock(infoDate, true, isYearOfStatusDate: true, budgetAccount: budgetAccount).Object,
-                    fixture.BuildBudgetInfoMock(infoDate.AddMonths(-1), isLastMonthOfStatusDate: true, isYearOfStatusDate: true, budgetAccount: budgetAccount).Object,
-                    fixture.BuildBudgetInfoMock(infoDate.AddMonths(-2), isYearOfStatusDate: true, budgetAccount: budgetAccount).Object,
-                    fixture.BuildBudgetInfoMock(infoDate.AddMonths(-3), isYearOfStatusDate: true, budgetAccount: budgetAccount).Object,
+                    fixture.BuildBudgetInfoMock(infoDate, true, isYearToDateOfStatusDate: true, budgetAccount: budgetAccount).Object,
+                    fixture.BuildBudgetInfoMock(infoDate.AddMonths(-1), isLastMonthOfStatusDate: true, isYearToDateOfStatusDate: true, budgetAccount: budgetAccount).Object,
+                    fixture.BuildBudgetInfoMock(infoDate.AddMonths(-2), isYearToDateOfStatusDate: true, budgetAccount: budgetAccount).Object,
+                    fixture.BuildBudgetInfoMock(infoDate.AddMonths(-3), isYearToDateOfStatusDate: true, budgetAccount: budgetAccount).Object,
                     fixture.BuildBudgetInfoMock(infoDate.AddMonths(-4), isLastYearOfStatusDate: true, budgetAccount: budgetAccount).Object,
                     fixture.BuildBudgetInfoMock(infoDate.AddMonths(-5), isLastYearOfStatusDate: true, budgetAccount: budgetAccount).Object,
                     fixture.BuildBudgetInfoMock(infoDate.AddMonths(-6), isLastYearOfStatusDate: true, budgetAccount: budgetAccount).Object
@@ -601,7 +605,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return budgetInfoCollectionMock;
         }
 
-        public static Mock<IContactInfo> BuildContactInfoMock(this Fixture fixture, DateTime? infoOffset = null, bool isMonthOfStatusDate = false, bool isLastMonthOfStatusDate = false, bool isYearOfStatusDate = false, bool isLastYearOfStatusDate = false, IContactAccount contactAccount = null, IContactInfo calculatedContactInfo = null)
+        public static Mock<IContactInfo> BuildContactInfoMock(this Fixture fixture, DateTime? infoOffset = null, bool isMonthOfStatusDate = false, bool isLastMonthOfStatusDate = false, bool isYearToDateOfStatusDate = false, bool isLastYearOfStatusDate = false, IContactAccount contactAccount = null, IContactInfo calculatedContactInfo = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -621,8 +625,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(isMonthOfStatusDate);
             contactInfoMock.Setup(m => m.IsLastMonthOfStatusDate)
                 .Returns(isLastMonthOfStatusDate);
-            contactInfoMock.Setup(m => m.IsYearOfStatusDate)
-                .Returns(isYearOfStatusDate);
+            contactInfoMock.Setup(m => m.IsYearToDateOfStatusDate)
+                .Returns(isYearToDateOfStatusDate);
             contactInfoMock.Setup(m => m.IsLastYearOfStatusDate)
                 .Returns(isLastYearOfStatusDate);
             contactInfoMock.Setup(m => m.ContactAccount)
@@ -674,10 +678,10 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                     fixture.BuildContactInfoMock(infoDate.AddMonths(3), contactAccount: contactAccount).Object,
                     fixture.BuildContactInfoMock(infoDate.AddMonths(2), contactAccount: contactAccount).Object,
                     fixture.BuildContactInfoMock(infoDate.AddMonths(1), contactAccount: contactAccount).Object,
-                    fixture.BuildContactInfoMock(infoDate, true, isYearOfStatusDate: true, contactAccount: contactAccount).Object,
-                    fixture.BuildContactInfoMock(infoDate.AddMonths(-1), isLastMonthOfStatusDate: true, isYearOfStatusDate: true, contactAccount: contactAccount).Object,
-                    fixture.BuildContactInfoMock(infoDate.AddMonths(-2), isYearOfStatusDate: true, contactAccount: contactAccount).Object,
-                    fixture.BuildContactInfoMock(infoDate.AddMonths(-3), isYearOfStatusDate: true, contactAccount: contactAccount).Object,
+                    fixture.BuildContactInfoMock(infoDate, true, isYearToDateOfStatusDate: true, contactAccount: contactAccount).Object,
+                    fixture.BuildContactInfoMock(infoDate.AddMonths(-1), isLastMonthOfStatusDate: true, isYearToDateOfStatusDate: true, contactAccount: contactAccount).Object,
+                    fixture.BuildContactInfoMock(infoDate.AddMonths(-2), isYearToDateOfStatusDate: true, contactAccount: contactAccount).Object,
+                    fixture.BuildContactInfoMock(infoDate.AddMonths(-3), isYearToDateOfStatusDate: true, contactAccount: contactAccount).Object,
                     fixture.BuildContactInfoMock(infoDate.AddMonths(-4), isLastYearOfStatusDate: true, contactAccount: contactAccount).Object,
                     fixture.BuildContactInfoMock(infoDate.AddMonths(-5), isLastYearOfStatusDate: true, contactAccount: contactAccount).Object,
                     fixture.BuildContactInfoMock(infoDate.AddMonths(-6), isLastYearOfStatusDate: true, contactAccount: contactAccount).Object

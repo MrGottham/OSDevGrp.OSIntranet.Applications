@@ -33,7 +33,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 .SingleOrDefault(budgetInfo => budgetInfo.IsLastMonthOfStatusDate);
             IBudgetInfo[] budgetInfoCollectionForYearToDateOfStatusDate = calculatedBudgetInfoCollection
                 .AsParallel()
-                .Where(budgetInfo => budgetInfo.IsYearOfStatusDate)
+                .Where(budgetInfo => budgetInfo.IsYearToDateOfStatusDate)
                 .ToArray();
             IBudgetInfo[] budgetInfoCollectionForLastYearOfStatusDate = calculatedBudgetInfoCollection
                 .AsParallel()

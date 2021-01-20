@@ -54,7 +54,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool IsLastMonthOfStatusDate => FirstDateOfMonth(StatusDate).AddDays(-1).Year == Year && FirstDateOfMonth(StatusDate).AddDays(-1).Month == Month;
 
-        public bool IsYearOfStatusDate => StatusDate.Year == Year;
+        public bool IsYearToDateOfStatusDate => StatusDate.Year == Year && StatusDate.Month >= Month;
 
         public bool IsLastYearOfStatusDate => FirstDateOfMonth(StatusDate).AddYears(-1).Year == Year;
 

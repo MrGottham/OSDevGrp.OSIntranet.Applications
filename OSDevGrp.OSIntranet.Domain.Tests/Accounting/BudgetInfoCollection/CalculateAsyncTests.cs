@@ -75,15 +75,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfoCollection
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertIsYearOfStatusDateWasCalledOnEachBudgetInfoInBudgetInfoCollection()
+        public async Task CalculateAsync_WhenCalled_AssertIsYearToDateOfStatusDateWasCalledOnEachBudgetInfoInBudgetInfoCollection()
         {
             IBudgetInfoCollection sut = CreateSut();
 
             DateTime budgetInfoOffset = DateTime.Today.AddDays(_random.Next(1, _random.Next(1, 365)) * -1);
             IEnumerable<Mock<IBudgetInfo>> budgetInfoMockCollection = new List<Mock<IBudgetInfo>>
             {
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearOfStatusDate: true),
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearOfStatusDate: true),
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearToDateOfStatusDate: true),
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearToDateOfStatusDate: true),
                 _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-2))
             };
             sut.Add(budgetInfoMockCollection.Select(budgetInfoMock => budgetInfoMock.Object).ToArray());
@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfoCollection
 
             foreach (Mock<IBudgetInfo> budgetInfoMock in budgetInfoMockCollection)
             {
-                budgetInfoMock.Verify(m => m.IsYearOfStatusDate, Times.Once);
+                budgetInfoMock.Verify(m => m.IsYearToDateOfStatusDate, Times.Once);
             }
         }
 
@@ -445,8 +445,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfoCollection
             DateTime budgetInfoOffset = DateTime.Today.AddDays(_random.Next(1, _random.Next(1, 365)) * -1);
             IEnumerable<IBudgetInfo> budgetInfoCollection = new List<IBudgetInfo>
             {
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearOfStatusDate: true).Object,
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearOfStatusDate: true).Object,
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearToDateOfStatusDate: true).Object,
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearToDateOfStatusDate: true).Object,
                 _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-2)).Object
             };
             sut.Add(budgetInfoCollection);
@@ -465,15 +465,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfoCollection
             DateTime budgetInfoOffset = DateTime.Today.AddDays(_random.Next(1, _random.Next(1, 365)) * -1);
             IEnumerable<IBudgetInfo> budgetInfoCollection = new List<IBudgetInfo>
             {
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearOfStatusDate: true).Object,
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearOfStatusDate: true).Object,
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearToDateOfStatusDate: true).Object,
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearToDateOfStatusDate: true).Object,
                 _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-2)).Object
             };
             sut.Add(budgetInfoCollection);
 
             IBudgetInfoCollection result = await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
 
-            Assert.That(result.ValuesForYearToDateOfStatusDate.Budget, Is.EqualTo(budgetInfoCollection.Where(budgetInfo => budgetInfo.IsYearOfStatusDate).Sum(budgetInfo => budgetInfo.Budget)));
+            Assert.That(result.ValuesForYearToDateOfStatusDate.Budget, Is.EqualTo(budgetInfoCollection.Where(budgetInfo => budgetInfo.IsYearToDateOfStatusDate).Sum(budgetInfo => budgetInfo.Budget)));
         }
 
         [Test]
@@ -485,15 +485,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfoCollection
             DateTime budgetInfoOffset = DateTime.Today.AddDays(_random.Next(1, _random.Next(1, 365)) * -1);
             IEnumerable<IBudgetInfo> budgetInfoCollection = new List<IBudgetInfo>
             {
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearOfStatusDate: true).Object,
-                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearOfStatusDate: true).Object,
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset, isYearToDateOfStatusDate: true).Object,
+                _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-1), isYearToDateOfStatusDate: true).Object,
                 _fixture.BuildBudgetInfoMock(budgetInfoOffset.AddMonths(-2)).Object
             };
             sut.Add(budgetInfoCollection);
 
             IBudgetInfoCollection result = await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
 
-            Assert.That(result.ValuesForYearToDateOfStatusDate.Posted, Is.EqualTo(budgetInfoCollection.Where(budgetInfo => budgetInfo.IsYearOfStatusDate).Sum(budgetInfo => budgetInfo.Posted)));
+            Assert.That(result.ValuesForYearToDateOfStatusDate.Posted, Is.EqualTo(budgetInfoCollection.Where(budgetInfo => budgetInfo.IsYearToDateOfStatusDate).Sum(budgetInfo => budgetInfo.Posted)));
         }
 
         [Test]
