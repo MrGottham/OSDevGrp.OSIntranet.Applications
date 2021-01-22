@@ -96,6 +96,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<IContactAccountCollection, ContactAccountCollectionViewModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(contactAccount => contactAccount.AccountName).ToArray()));
 
+            mapperConfiguration.CreateMap<IContactInfoValues, ContactInfoValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IContactAccountCollectionValues, ContactAccountCollectionValuesViewModel>();
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 

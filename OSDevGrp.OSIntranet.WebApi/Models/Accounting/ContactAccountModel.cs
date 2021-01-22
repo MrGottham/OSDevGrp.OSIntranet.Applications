@@ -15,5 +15,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 
         [JsonProperty(Required = Required.Always)]
         public PaymentTermModel PaymentTerm { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public ContactInfoValuesModel ValuesAtStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public ContactInfoValuesModel ValuesAtEndOfLastMonthFromStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public ContactInfoValuesModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
     }
 }

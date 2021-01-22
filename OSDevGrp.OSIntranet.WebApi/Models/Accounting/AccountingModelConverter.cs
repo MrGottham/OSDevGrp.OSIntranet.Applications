@@ -61,6 +61,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<IContactAccountCollection, ContactAccountCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(contactAccount => contactAccount.AccountName).ToArray()));
 
+            mapperConfiguration.CreateMap<IContactInfoValues, ContactInfoValuesModel>();
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupModel>();
 
             mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupModel>();

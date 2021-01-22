@@ -22,5 +22,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Betalingsbetingelse", ShortName = "Betalingsbetingelse", Description = "Betalingsbetingelse")]
         [Required(ErrorMessage = "Der skal vælges en betalingsbetingelse.")]
         public PaymentTermViewModel PaymentTerm { get; set; }
+
+        [Display(Name = "Saldooplysninger pr. dags dato", ShortName = "Saldoopl. pr. dags dato", Description = "Saldooplysninger pr. dags dato")]
+        public ContactInfoValuesViewModel ValuesAtStatusDate { get; set; }
+
+        [Display(Name = "Saldooplysninger ved sidste måneds afslutning", ShortName = "Saldoopl. ved sidste måneds afslutning", Description = "Saldooplysninger ved sidste måneds afslutning")]
+        public ContactInfoValuesViewModel ValuesAtEndOfLastMonthFromStatusDate { get; set; }
+
+        [Display(Name = "Saldooplysninger ved sidste års afslutning", ShortName = "Saldoopl. ved sidste års afslutning", Description = "Saldooplysninger ved sidste års afslutning")]
+        public ContactInfoValuesViewModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
     }
 }
