@@ -1,8 +1,8 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
-    public class CreditInfoValuesModel : BalanceInfoValuesModel
+    public class CreditInfoModel : BalanceInfoModel
     {
         [JsonProperty(Required = Required.Always)]
         public decimal Credit { get; set; }

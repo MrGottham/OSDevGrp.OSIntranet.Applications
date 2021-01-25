@@ -17,8 +17,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
 
             if (creditInfos.Length == 0)
             {
-                creditInfoCollection.Add(new CreditInfo(account, (short) fromDate.Year, (short) fromDate.Month, 0M));
-                creditInfoCollection.Add(new CreditInfo(account, (short) statusDateForCreditInfos.Year, (short) statusDateForCreditInfos.Month, 0M));
+                creditInfoCollection.Add(BuildCreditInfo(account, (short) fromDate.Year, (short) fromDate.Month));
+                creditInfoCollection.Add(BuildCreditInfo(account, (short) statusDateForCreditInfos.Year, (short) statusDateForCreditInfos.Month));
 
                 creditInfoCollection.EnsurePopulation(account);
 
@@ -26,8 +26,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
             }
 
             ICreditInfo creditInfoForFromDate = creditInfos.FindInfoForFromDate(fromDate,
-                (year, month, creditInfoBeforeFromDate) => new CreditInfo(account, year, month, creditInfoBeforeFromDate.Credit),
-                (year, month) => new CreditInfo(account, year, month, 0M));
+                (year, month, creditInfoBeforeFromDate) => BuildCreditInfo(account, year, month, creditInfoBeforeFromDate),
+                (year, month) => BuildCreditInfo(account, year, month));
             creditInfoCollection.Add(creditInfoForFromDate);
             
             creditInfoCollection.Add(creditInfos.Between(creditInfoForFromDate.ToDate.AddDays(1), statusDateForCreditInfos));
@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
                 return;
             }
 
-            creditInfoCollection.Add(new CreditInfo(account, (short) statusDateForCreditInfos.Year, (short) statusDateForCreditInfos.Month, lastCreditInfo.Credit));
+            creditInfoCollection.Add(BuildCreditInfo(account, (short) statusDateForCreditInfos.Year, (short) statusDateForCreditInfos.Month, lastCreditInfo));
 
             creditInfoCollection.EnsurePopulation(account);
         }
@@ -55,6 +55,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
                 DateTime nextCreditInfoFromDate = creditInfo.ToDate.AddDays(1);
                 return new CreditInfo(account, (short) nextCreditInfoFromDate.Year, (short) nextCreditInfoFromDate.Month, creditInfo.Credit);
             });
+        }
+
+        private static ICreditInfo BuildCreditInfo(IAccount account, short year, short month)
+        {
+            NullGuard.NotNull(account, nameof(account));
+
+            ICreditInfo creditInfo = new CreditInfo(account, year, month, 0M);
+            creditInfo.AddAuditInformation(account.CreatedDateTime.ToUniversalTime(), account.CreatedByIdentifier, account.ModifiedDateTime.ToUniversalTime(), account.ModifiedByIdentifier);
+            return creditInfo;
+        }
+
+        private static ICreditInfo BuildCreditInfo(IAccount account, short year, short month, ICreditInfo copyFromCreditInfo)
+        {
+            NullGuard.NotNull(account, nameof(account))
+                .NotNull(copyFromCreditInfo, nameof(copyFromCreditInfo));
+
+            ICreditInfo creditInfo = new CreditInfo(account, year, month, copyFromCreditInfo.Credit);
+            creditInfo.AddAuditInformation(copyFromCreditInfo.CreatedDateTime.ToUniversalTime(), copyFromCreditInfo.CreatedByIdentifier, copyFromCreditInfo.ModifiedDateTime.ToUniversalTime(), copyFromCreditInfo.ModifiedByIdentifier);
+            return creditInfo;
         }
     }
 }

@@ -19,5 +19,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         [Display(Name = "Budgetoplysninger ved sidste års afslutning", ShortName = "Budgetopl. ved sidste års afslutning", Description = "Budgetoplysninger ved sidste års afslutning")]
         public BudgetInfoValuesViewModel ValuesForLastYearOfStatusDate { get; set; }
+
+        public BudgetInfoDictionaryViewModel BudgetInfos { get; set; }
     }
 }

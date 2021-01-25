@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
@@ -51,6 +52,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IAccount, AccountViewModel>()
+                .ForMember(dest => dest.CreditInfos, opt => opt.MapFrom(src => src.CreditInfoCollection))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IAccountCollection, AccountCollectionViewModel>()
@@ -61,9 +63,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
+            mapperConfiguration.CreateMap<ICreditInfo, CreditInfoViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
             mapperConfiguration.CreateMap<ICreditInfoValues, CreditInfoValuesViewModel>();
 
             mapperConfiguration.CreateMap<IAccountCollectionValues, AccountCollectionValuesViewModel>();
+
+            mapperConfiguration.CreateMap<ICreditInfoCollection, CreditInfoCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(creditInfo => creditInfo.Year * 100 + creditInfo.Month).ToArray()));
+
+            mapperConfiguration.CreateMap<ICreditInfoCollection, CreditInfoDictionaryViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<ICreditInfoCollection, ICreditInfo, CreditInfoDictionaryViewModel, CreditInfoCollectionViewModel, CreditInfoViewModel>(), src => src))
+                .ForMember(dest => dest.Keys, opt => opt.Ignore())
+                .ForMember(dest => dest.Values, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IBudgetAccount, AccountIdentificationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -72,6 +85,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountViewModel>()
+                .ForMember(dest => dest.BudgetInfos, opt => opt.MapFrom(src => src.BudgetInfoCollection))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountCollectionViewModel>()
@@ -82,7 +96,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
+            mapperConfiguration.CreateMap<IBudgetInfo, BudgetInfoViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
             mapperConfiguration.CreateMap<IBudgetInfoValues, BudgetInfoValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IBudgetInfoCollection, BudgetInfoCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(budgetInfo => budgetInfo.Year * 100 + budgetInfo.Month).ToArray()));
+
+            mapperConfiguration.CreateMap<IBudgetInfoCollection, BudgetInfoDictionaryViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IBudgetInfoCollection, IBudgetInfo, BudgetInfoDictionaryViewModel, BudgetInfoCollectionViewModel, BudgetInfoViewModel>(), src => src))
+                .ForMember(dest => dest.Keys, opt => opt.Ignore())
+                .ForMember(dest => dest.Values, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IContactAccount, AccountIdentificationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -91,14 +116,26 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountViewModel>()
+                .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContactAccountCollection, ContactAccountCollectionViewModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(contactAccount => contactAccount.AccountName).ToArray()));
 
-            mapperConfiguration.CreateMap<IContactInfoValues, ContactInfoValuesViewModel>();
+            mapperConfiguration.CreateMap<IContactInfo, BalanceInfoViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContactInfoValues, BalanceInfoValuesViewModel>();
 
             mapperConfiguration.CreateMap<IContactAccountCollectionValues, ContactAccountCollectionValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IContactInfoCollection, BalanceInfoCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(contactInfo => contactInfo.Year * 100 + contactInfo.Month).ToArray()));
+
+            mapperConfiguration.CreateMap<IContactInfoCollection, BalanceInfoDictionaryViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IContactInfoCollection, IContactInfo, BalanceInfoDictionaryViewModel, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(), src => src))
+                .ForMember(dest => dest.Keys, opt => opt.Ignore())
+                .ForMember(dest => dest.Values, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -126,6 +163,36 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<PaymentTermViewModel, CreatePaymentTermCommand>();
             mapperConfiguration.CreateMap<PaymentTermViewModel, UpdatePaymentTermCommand>();
             mapperConfiguration.CreateMap<PaymentTermViewModel, DeletePaymentTermCommand>();
+        }
+
+        private class InfoCollectionToDictionaryValueConverter<TInfoCollection, TInfo, TInfoDictionaryViewModel, TInfoCollectionViewModel, TInfoViewModel> : IValueConverter<TInfoCollection, TInfoDictionaryViewModel> where TInfoCollection : IInfoCollection<TInfo> where TInfo : IInfo<TInfo> where TInfoDictionaryViewModel : InfoDictionaryViewModelBase<TInfoCollectionViewModel, TInfoViewModel>, new() where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase
+        {
+            #region Methods
+
+            public TInfoDictionaryViewModel Convert(TInfoCollection sourceMember, ResolutionContext context)
+            {
+                NullGuard.NotNull(sourceMember, nameof(sourceMember))
+                    .NotNull(context, nameof(context));
+
+                IDictionary<short, TInfoCollectionViewModel> dictionary = sourceMember.GroupBy(info => info.Year)
+                    .OrderByDescending(group => group.Key)
+                    .ToDictionary(group => group.Key, group =>
+                    {
+                        return new TInfoCollectionViewModel
+                        {
+                            Items = group.Select(info => context.Mapper.Map<TInfo, TInfoViewModel>(info))
+                                .OrderByDescending(infoViewModel => infoViewModel.Month)
+                                .ToArray()
+                        };
+                    });
+
+                return new TInfoDictionaryViewModel
+                {
+                    Items = new ReadOnlyDictionary<short, TInfoCollectionViewModel>(dictionary)
+                };
+            }
+
+            #endregion
         }
 
         #endregion

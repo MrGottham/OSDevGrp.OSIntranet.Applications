@@ -18,5 +18,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 
         [JsonProperty(Required = Required.Always)]
         public BudgetInfoValuesModel ValuesForLastYearOfStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BudgetInfoCollectionModel BudgetInfos { get; set; }
     }
 }

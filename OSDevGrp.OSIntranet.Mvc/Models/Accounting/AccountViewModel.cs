@@ -16,5 +16,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         [Display(Name = "Kreditoplysninger ved sidste års afslutning", ShortName = "Kreditopl. ved sidste års afslutning", Description = "Kreditoplysninger ved sidste års afslutning")]
         public CreditInfoValuesViewModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
+
+        public CreditInfoDictionaryViewModel CreditInfos { get; set; }
     }
 }

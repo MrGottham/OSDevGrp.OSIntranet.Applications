@@ -17,12 +17,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
         public PaymentTermModel PaymentTerm { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public ContactInfoValuesModel ValuesAtStatusDate { get; set; }
+        public BalanceInfoValuesModel ValuesAtStatusDate { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public ContactInfoValuesModel ValuesAtEndOfLastMonthFromStatusDate { get; set; }
+        public BalanceInfoValuesModel ValuesAtEndOfLastMonthFromStatusDate { get; set; }
 
         [JsonProperty(Required = Required.Always)]
-        public ContactInfoValuesModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
+        public BalanceInfoValuesModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public BalanceInfoCollectionModel BalanceInfos { get; set; }
     }
 }

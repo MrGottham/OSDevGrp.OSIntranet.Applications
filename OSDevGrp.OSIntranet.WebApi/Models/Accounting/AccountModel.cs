@@ -15,5 +15,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 
         [JsonProperty(Required = Required.Always)]
         public CreditInfoValuesModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public CreditInfoCollectionModel CreditInfos { get; set; }
     }
 }

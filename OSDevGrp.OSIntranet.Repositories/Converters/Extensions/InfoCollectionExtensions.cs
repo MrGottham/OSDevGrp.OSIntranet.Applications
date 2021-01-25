@@ -23,7 +23,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
                 TInfo nextInfo = infoCollection.Next(info);
                 if (nextInfo == null)
                 {
-                    infoCollection.Add(nextInfoBuilder(info));
+                    TInfo infoToAdd = nextInfoBuilder(info);
+                    if (string.IsNullOrWhiteSpace(info.CreatedByIdentifier) == false && string.IsNullOrWhiteSpace(info.ModifiedByIdentifier) == false)
+                    {
+                        infoToAdd.AddAuditInformation(info.CreatedDateTime.ToUniversalTime(), info.CreatedByIdentifier, info.ModifiedDateTime.ToUniversalTime(), info.ModifiedByIdentifier);
+                    }
+                    infoCollection.Add(infoToAdd);
                 }
 
                 info = infoCollection.Next(info);

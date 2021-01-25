@@ -17,8 +17,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
 
             if (budgetInfos.Length == 0)
             {
-                budgetInfoCollection.Add(new BudgetInfo(budgetAccount, (short) fromDate.Year, (short) fromDate.Month, 0M, 0M));
-                budgetInfoCollection.Add(new BudgetInfo(budgetAccount, (short) statusDateForBudgetInfos.Year, (short) statusDateForBudgetInfos.Month, 0M, 0M));
+                budgetInfoCollection.Add(BuildBudgetInfo(budgetAccount, (short) fromDate.Year, (short) fromDate.Month));
+                budgetInfoCollection.Add(BuildBudgetInfo(budgetAccount, (short) statusDateForBudgetInfos.Year, (short) statusDateForBudgetInfos.Month));
 
                 budgetInfoCollection.EnsurePopulation(budgetAccount);
 
@@ -26,8 +26,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
             }
 
             IBudgetInfo budgetInfoForFromDate = budgetInfos.FindInfoForFromDate(fromDate,
-                (year, month, budgetInfoBeforeFromDate) => new BudgetInfo(budgetAccount, year, month, budgetInfoBeforeFromDate.Income, budgetInfoBeforeFromDate.Expenses),
-                (year, month) => new BudgetInfo(budgetAccount, year, month, 0M, 0M));
+                (year, month, budgetInfoBeforeFromDate) => BuildBudgetInfo(budgetAccount, year, month, budgetInfoBeforeFromDate),
+                (year, month) => BuildBudgetInfo(budgetAccount, year, month));
             budgetInfoCollection.Add(budgetInfoForFromDate);
 
             budgetInfoCollection.Add(budgetInfos.Between(budgetInfoForFromDate.ToDate.AddDays(1), statusDateForBudgetInfos));
@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
                 return;
             }
 
-            budgetInfoCollection.Add(new BudgetInfo(budgetAccount, (short) statusDateForBudgetInfos.Year, (short) statusDateForBudgetInfos.Month, lastBudgetInfo.Income, lastBudgetInfo.Expenses));
+            budgetInfoCollection.Add(BuildBudgetInfo(budgetAccount, (short) statusDateForBudgetInfos.Year, (short) statusDateForBudgetInfos.Month, lastBudgetInfo));
 
             budgetInfoCollection.EnsurePopulation(budgetAccount);
         }
@@ -55,6 +55,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
                 DateTime nextBudgetInfoFromDate = budgetInfo.ToDate.AddDays(1);
                 return new BudgetInfo(budgetAccount, (short) nextBudgetInfoFromDate.Year, (short) nextBudgetInfoFromDate.Month, budgetInfo.Income, budgetInfo.Expenses);
             });
+        }
+
+        private static IBudgetInfo BuildBudgetInfo(IBudgetAccount budgetAccount, short year, short month)
+        {
+            NullGuard.NotNull(budgetAccount, nameof(budgetAccount));
+
+            IBudgetInfo budgetInfo = new BudgetInfo(budgetAccount, year, month, 0M, 0M);
+            budgetInfo.AddAuditInformation(budgetAccount.CreatedDateTime.ToUniversalTime(), budgetAccount.CreatedByIdentifier, budgetAccount.ModifiedDateTime.ToUniversalTime(), budgetAccount.ModifiedByIdentifier);
+            return budgetInfo;
+        }
+
+        private static IBudgetInfo BuildBudgetInfo(IBudgetAccount budgetAccount, short year, short month, IBudgetInfo copyFromBudgetInfo)
+        {
+            NullGuard.NotNull(budgetAccount, nameof(budgetAccount))
+                .NotNull(copyFromBudgetInfo, nameof(copyFromBudgetInfo));
+
+            IBudgetInfo budgetInfo = new BudgetInfo(budgetAccount, year, month, copyFromBudgetInfo.Income, copyFromBudgetInfo.Expenses);
+            budgetInfo.AddAuditInformation(copyFromBudgetInfo.CreatedDateTime.ToUniversalTime(), copyFromBudgetInfo.CreatedByIdentifier, copyFromBudgetInfo.ModifiedDateTime.ToUniversalTime(), copyFromBudgetInfo.ModifiedByIdentifier);
+            return budgetInfo;
         }
     }
 }
