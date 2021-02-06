@@ -53,7 +53,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return accountingMock;
         }
 
-        public static Mock<IAccount> BuildAccountMock(this Fixture fixture, IAccounting accounting = null, IAccountGroup accountGroup = null, AccountGroupType? accountGroupType = null, ICreditInfoCollection creditInfoCollection = null, ICreditInfoValues valuesAtStatusDate = null, ICreditInfoValues valuesAtEndOfLastMonthFromStatusDate = null, ICreditInfoValues valuesAtEndOfLastYearFromStatusDate = null, IPostingLineCollection postingLineCollection = null, IAccount calculatedAccount = null)
+        public static Mock<IAccount> BuildAccountMock(this Fixture fixture, IAccounting accounting = null, string accountNumber = null, IAccountGroup accountGroup = null, AccountGroupType? accountGroupType = null, ICreditInfoCollection creditInfoCollection = null, ICreditInfoValues valuesAtStatusDate = null, ICreditInfoValues valuesAtEndOfLastMonthFromStatusDate = null, ICreditInfoValues valuesAtEndOfLastYearFromStatusDate = null, IPostingLineCollection postingLineCollection = null, IAccount calculatedAccount = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             accountMock.Setup(m => m.Accounting)
                 .Returns(accounting ?? fixture.BuildAccountingMock().Object);
             accountMock.Setup(m => m.AccountNumber)
-                .Returns(fixture.Create<string>().ToUpper());
+                .Returns(accountNumber ?? fixture.Create<string>().ToUpper());
             accountMock.Setup(m => m.AccountName)
                 .Returns(fixture.Create<string>());
             accountMock.Setup(m => m.Description)
@@ -162,7 +162,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return accountCollectionValuesMock;
         }
 
-        public static Mock<IBudgetAccount> BuildBudgetAccountMock(this Fixture fixture, IAccounting accounting = null, IBudgetAccountGroup budgetAccountGroup = null, IBudgetInfoValues valuesForMonthOfStatusDate = null, IBudgetInfoValues valuesForLastMonthOfStatusDate = null, IBudgetInfoValues valuesForYearToDateOfStatusDate = null, IBudgetInfoValues valuesForLastYearOfStatusDate = null, IBudgetInfoCollection budgetInfoCollection = null, IPostingLineCollection postingLineCollection = null, IBudgetAccount calculatedBudgetAccount = null)
+        public static Mock<IBudgetAccount> BuildBudgetAccountMock(this Fixture fixture, IAccounting accounting = null, string accountNumber = null, IBudgetAccountGroup budgetAccountGroup = null, IBudgetInfoValues valuesForMonthOfStatusDate = null, IBudgetInfoValues valuesForLastMonthOfStatusDate = null, IBudgetInfoValues valuesForYearToDateOfStatusDate = null, IBudgetInfoValues valuesForLastYearOfStatusDate = null, IBudgetInfoCollection budgetInfoCollection = null, IPostingLineCollection postingLineCollection = null, IBudgetAccount calculatedBudgetAccount = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -170,7 +170,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             budgetAccountMock.Setup(m => m.Accounting)
                 .Returns(accounting ?? fixture.BuildAccountingMock().Object);
             budgetAccountMock.Setup(m => m.AccountNumber)
-                .Returns(fixture.Create<string>().ToUpper());
+                .Returns(accountNumber ?? fixture.Create<string>().ToUpper());
             budgetAccountMock.Setup(m => m.AccountName)
                 .Returns(fixture.Create<string>());
             budgetAccountMock.Setup(m => m.Description)
@@ -261,7 +261,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return budgetAccountCollectionMock;
         }
 
-        public static Mock<IContactAccount> BuildContactAccountMock(this Fixture fixture, IAccounting accounting = null, ContactAccountType? contactAccountType = null, IContactInfoValues valuesAtStatusDate = null, IContactInfoValues valuesAtEndOfLastMonthFromStatusDate = null, IContactInfoCollection contactInfoCollection = null, IContactInfoValues valuesAtEndOfLastYearFromStatusDate = null, IPostingLineCollection postingLineCollection = null, IContactAccount calculatedContactAccount = null)
+        public static Mock<IContactAccount> BuildContactAccountMock(this Fixture fixture, IAccounting accounting = null, string accountNumber = null, ContactAccountType? contactAccountType = null, IContactInfoValues valuesAtStatusDate = null, IContactInfoValues valuesAtEndOfLastMonthFromStatusDate = null, IContactInfoCollection contactInfoCollection = null, IContactInfoValues valuesAtEndOfLastYearFromStatusDate = null, IPostingLineCollection postingLineCollection = null, IContactAccount calculatedContactAccount = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -269,7 +269,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             contactAccountMock.Setup(m => m.Accounting)
                 .Returns(accounting ?? fixture.BuildAccountingMock().Object);
             contactAccountMock.Setup(m => m.AccountNumber)
-                .Returns(fixture.Create<string>().ToUpper());
+                .Returns(accountNumber ?? fixture.Create<string>().ToUpper());
             contactAccountMock.Setup(m => m.AccountName)
                 .Returns(fixture.Create<string>());
             contactAccountMock.Setup(m => m.Description)
