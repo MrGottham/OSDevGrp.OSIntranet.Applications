@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
@@ -34,7 +36,47 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
 
             mapperConfiguration.CreateMap<IAccounting, AccountingPresentationViewModel>()
                 .ForMember(dest => dest.AccountingNumber, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.ValuesAtStatusDateForAccounts, opt =>
+                {
+                    opt.Condition(src => src.AccountCollection?.ValuesAtStatusDate != null);
+                    opt.MapFrom(src => src.AccountCollection.ValuesAtStatusDate);
+                })
+                .ForMember(dest => dest.ValuesForMonthOfStatusDateForBudgetAccounts, opt =>
+                {
+                    opt.Condition(src => src.BudgetAccountCollection?.ValuesForMonthOfStatusDate != null);
+                    opt.MapFrom(src => src.BudgetAccountCollection.ValuesForMonthOfStatusDate);
+                })
+                .ForMember(dest => dest.ValuesAtStatusDateForContactAccounts, opt =>
+                {
+                    opt.Condition(src => src.ContactAccountCollection?.ValuesAtStatusDate != null);
+                    opt.MapFrom(src => src.ContactAccountCollection.ValuesAtStatusDate);
+                })
+                .ForMember(dest => dest.Debtors, opt =>
+                {
+                    opt.Condition(src => src.ContactAccountCollection != null);
+                    opt.MapFrom(src => src.ContactAccountCollection.FindDebtorsAsync().GetAwaiter().GetResult().OrderByDescending(contactAccount => Math.Abs(contactAccount.ValuesAtStatusDate.Balance)).ThenBy(contactAccount => contactAccount.AccountName).Take(5));
+                })
+                .ForMember(dest => dest.Creditors, opt =>
+                {
+                    opt.Condition(src => src.ContactAccountCollection != null);
+                    opt.MapFrom(src => src.ContactAccountCollection.FindCreditorsAsync().GetAwaiter().GetResult().OrderByDescending(contactAccount => Math.Abs(contactAccount.ValuesAtStatusDate.Balance)).ThenBy(contactAccount => contactAccount.AccountName).Take(5));
+                })
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IAccounting, AccountingIdentificationViewModel>()
+                .ForMember(dest => dest.AccountingNumber, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IContactAccount, ContactAccountPresentationViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IAccountCollectionValues, AccountCollectionValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IBudgetInfoValues, BudgetInfoValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IContactInfoValues, BalanceInfoValuesViewModel>();
+
+            mapperConfiguration.CreateMap<IContactAccountCollectionValues, ContactAccountCollectionValuesViewModel>();
         }
 
         #endregion

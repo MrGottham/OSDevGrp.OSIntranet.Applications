@@ -5,9 +5,6 @@ WORKDIR /app
 COPY --from=applicationbuilder /src/OSDevGrp.OSIntranet.Mvc/out .
 COPY OSDevGrp.OSIntranet.Mvc.supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-ENV TZ=Europe/Copenhagen
-ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV ASPNETCORE_URLS http://*:80
 ENV connectionStrings__OSIntranet=[TBD]
 ENV Security__Microsoft__ClientId=[TBD] Security__Microsoft__ClientSecret=[TBD] Security__Microsoft__Tenant=[TBD]
 ENV Security__Google__ClientId=[TBD] Security__Google__ClientSecret=[TBD]

@@ -79,3 +79,8 @@ body {
     min-height: 450px;
     max-height: 450px;
 }
+
+.table-sm-nopadding th,
+.table-sm-nopadding td {
+    padding: 0;
+}

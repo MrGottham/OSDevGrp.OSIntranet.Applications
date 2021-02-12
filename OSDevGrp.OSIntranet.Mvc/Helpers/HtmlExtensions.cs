@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 {
     public static class HtmlExtensions
     {
+        private static readonly IFormatProvider CurrencyCulture = new CultureInfo("da-DK");
+
         public static HtmlString EnumDisplayNameFor(this Enum enumValue)
         {
             Type enumValueType = enumValue.GetType();
@@ -56,6 +59,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
             return new HtmlString(value.Replace(Environment.NewLine, "<br>"));
         }
 
+        public static HtmlString AsCurrency(this decimal value)
+        {
+            return new HtmlString(value.ToString("C", CurrencyCulture));
+        }
+
         public static Task<IHtmlContent> PartialAsync(this IHtmlHelper htmlHelper, string partialViewName, object model, string htmlFieldPrefix)
         {
             NullGuard.NotNull(htmlHelper, nameof(htmlHelper))
@@ -65,6 +73,22 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
             ViewDataDictionary viewData = new ViewDataDictionary(htmlHelper.ViewData);
             viewData.TemplateInfo.HtmlFieldPrefix = htmlFieldPrefix;
+
+            return htmlHelper.PartialAsync(partialViewName, model, viewData);
+        }
+
+        public static Task<IHtmlContent> PartialAsync(this IHtmlHelper htmlHelper, string partialViewName, object model, IEnumerable<KeyValuePair<string, object>> extraViewData)
+        {
+            NullGuard.NotNull(htmlHelper, nameof(htmlHelper))
+                .NotNullOrWhiteSpace(partialViewName, nameof(partialViewName))
+                .NotNull(model, nameof(model))
+                .NotNull(extraViewData, nameof(extraViewData));
+
+            ViewDataDictionary viewData = new ViewDataDictionary(htmlHelper.ViewData);
+            foreach (KeyValuePair<string, object> item in extraViewData)
+            {
+                viewData.Add(item.Key, item.Value);
+            }
 
             return htmlHelper.PartialAsync(partialViewName, model, viewData);
         }

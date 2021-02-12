@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Budget", ShortName = "Budget", Description = "Budgetbeløb")]
         public decimal Budget => Income - Expenses;
 
-        [Display(Name = "Bogført", ShortName = "Bogført", Description = "Bogført")]
+        [Display(Name = "Resultat", ShortName = "Resultat", Description = "Resultat")]
         public decimal Posted => Items.AsParallel().Sum(budgetInfoViewModel => budgetInfoViewModel.Posted);
 
         [Display(Name = "Disponibel", ShortName = "Disponibel", Description = "Disponibelt beløb i forhold til budgetbeløb")]

@@ -69,6 +69,107 @@ else
                         </div>
                     </div>
                 </div>
+                <div class="card">
+                    <div class="card-header">
+                        <a class="card-link" data-toggle="collapse" href="#collapseActualStatus">
+                            <h5>Aktuel status</h5>
+                        </a>
+                    </div>
+                    <div id="collapseActualStatus" class="collapse show" data-parent="#accountingAccordion">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 d-xl-none">
+                                    @if (Model.BudgetAccounts?.ValuesForMonthOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForMonthOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat denne måned:") })
+                                    }
+                                    @if (Model.BudgetAccounts?.ValuesForLastMonthOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForLastMonthOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat sidste måned:") })
+                                    }
+                                    @if (Model.BudgetAccounts?.ValuesForYearToDateOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForYearToDateOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat år til dato:") })
+                                    }
+                                    @if (Model.BudgetAccounts?.ValuesForLastYearOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForLastYearOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat sidste år:") })
+                                    }
+                                    @if (Model.Accounts?.ValuesAtStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.Accounts.ValuesAtStatusDate, new[] { new KeyValuePair<string, object>("Header", "Balance pr. dags dato:") })
+                                    }
+                                    @if (Model.Accounts?.ValuesAtEndOfLastMonthFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.Accounts.ValuesAtEndOfLastMonthFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Balance ved sidste måneds afslutning:") })
+                                    }
+                                    @if (Model.Accounts?.ValuesAtEndOfLastYearFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.Accounts.ValuesAtEndOfLastYearFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Balance ved sidste års afslutning:") })
+                                    }
+                                    @if (Model.ContactAccounts?.ValuesAtStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ContactAccounts.ValuesAtStatusDate, new[] { new KeyValuePair<string, object>("Header", "Saldi pr. dags dato:") })
+                                    }
+                                    @if (Model.ContactAccounts?.ValuesAtEndOfLastMonthFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ContactAccounts.ValuesAtEndOfLastMonthFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Saldi ved sidste måneds afslutning:") })
+                                    }
+                                    @if (Model.ContactAccounts?.ValuesAtEndOfLastYearFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ContactAccounts.ValuesAtEndOfLastYearFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Saldi ved sidste års afslutning:") })
+                                    }
+                                </div>
+                                <div class="col-xl-4 d-none d-xl-block">
+                                    @if (Model.BudgetAccounts?.ValuesForMonthOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForMonthOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat denne måned:") })
+                                    }
+                                    @if (Model.BudgetAccounts?.ValuesForLastMonthOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForLastMonthOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat sidste måned:") })
+                                    }
+                                    @if (Model.BudgetAccounts?.ValuesForYearToDateOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForYearToDateOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat år til dato:") })
+                                    }
+                                    @if (Model.BudgetAccounts?.ValuesForLastYearOfStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.BudgetAccounts.ValuesForLastYearOfStatusDate, new[] { new KeyValuePair<string, object>("Header", "Resultat sidste år:") })
+                                    }
+                                </div>
+                                <div class="col-xl-4 d-none d-xl-block">
+                                    @if (Model.Accounts?.ValuesAtStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.Accounts.ValuesAtStatusDate, new[] { new KeyValuePair<string, object>("Header", "Balance pr. dags dato:") })
+                                    }
+                                    @if (Model.Accounts?.ValuesAtEndOfLastMonthFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.Accounts.ValuesAtEndOfLastMonthFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Balance ved sidste måneds afslutning:") })
+                                    }
+                                    @if (Model.Accounts?.ValuesAtEndOfLastYearFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.Accounts.ValuesAtEndOfLastYearFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Balance ved sidste års afslutning:") })
+                                    }
+                                </div>
+                                <div class="col-xl-4 d-none d-xl-block">
+                                    @if (Model.ContactAccounts?.ValuesAtStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ContactAccounts.ValuesAtStatusDate, new[] { new KeyValuePair<string, object>("Header", "Saldi pr. dags dato:") })
+                                    }
+                                    @if (Model.ContactAccounts?.ValuesAtEndOfLastMonthFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ContactAccounts.ValuesAtEndOfLastMonthFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Saldi ved sidste måneds afslutning:") })
+                                    }
+                                    @if (Model.ContactAccounts?.ValuesAtEndOfLastYearFromStatusDate != null)
+                                    {
+                                        @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ContactAccounts.ValuesAtEndOfLastYearFromStatusDate, new[] { new KeyValuePair<string, object>("Header", "Saldi ved sidste års afslutning:") })
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

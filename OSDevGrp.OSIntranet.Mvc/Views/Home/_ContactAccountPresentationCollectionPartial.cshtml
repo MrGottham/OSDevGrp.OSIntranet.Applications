@@ -1,0 +1,17 @@
+@model IReadOnlyCollection<ContactAccountPresentationViewModel>
+<dl class="mb-0">
+    <dt>@Html.Raw(ViewData["Header"])</dt>
+    <dd class="mb-0">
+        <table class="table table-borderless table-sm-nopadding">
+            <tbody>
+            @foreach (ContactAccountPresentationViewModel contactAccountPresentationViewModel in Model)
+            {
+                <tr>
+                    <td>@contactAccountPresentationViewModel.AccountName.ToHtmlString()</td>
+                    <td class="text-right">@contactAccountPresentationViewModel.ValuesAtStatusDate.Balance.AsCurrency()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </dd>
+</dl>

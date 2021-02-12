@@ -3,26 +3,60 @@
 <p class="small">@Html.DisplayFor(m => m.StatusDate)</p>
 <hr/>
 <div class="row">
-    <div class="col-lg-4 col-xl-4 d-none d-lg-block d-xl-block">
+    <div class="col-xl-4 d-none d-xl-block">
         <p>Accounting Content Area 1</p>
         <hr/>
     </div>
-    <div class="col-lg-4 col-xl-4 d-none d-lg-block d-xl-block">
-        <p>Accounting Content Area 2</p>
+    <div class="col-xl-4 d-none d-xl-block">
+        @if (Model.ValuesForMonthOfStatusDateForBudgetAccounts != null)
+        {
+            @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.ValuesForMonthOfStatusDateForBudgetAccounts, new[] { new KeyValuePair<string, object>("Header", "Resultat denne måned:") })
+        }
+        @if (Model.ValuesAtStatusDateForAccounts != null)
+        {
+            @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.ValuesAtStatusDateForAccounts, new[] { new KeyValuePair<string, object>("Header", "Balance pr. dags dato:") })
+        }
         <hr />
     </div>
-    <div class="col-lg-4 col-xl-4 d-none d-lg-block d-xl-block">
-        <p>Accounting Content Area 3</p>
+    <div class="col-xl-4 d-none d-xl-block">
+        @if (Model.ValuesAtStatusDateForContactAccounts != null)
+        {
+            @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ValuesAtStatusDateForContactAccounts, new[] { new KeyValuePair<string, object>("Header", "Saldi pr. dags dato:") })
+        }
+        @if (Model.Debtors != null && Model.Debtors.Count > 0)
+        {
+            @await Html.PartialAsync("_ContactAccountPresentationCollectionPartial", Model.Debtors, new[] { new KeyValuePair<string, object>("Header", "Debitorer:") })
+        }
+        @if (Model.Creditors != null && Model.Creditors.Count > 0)
+        {
+            @await Html.PartialAsync("_ContactAccountPresentationCollectionPartial", Model.Creditors, new[] { new KeyValuePair<string, object>("Header", "Kreditorer:") })
+        }
         <hr />
     </div>
-    <div class="col-12 col-sm-12 col-md-12 d-block d-lg-none d-xl-none">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 d-block d-xl-none">
         <p>Accounting Content Area 1</p>
     </div>
-    <div class="col-12 col-sm-12 col-md-12 d-block d-lg-none d-xl-none">
-        <p>Accounting Content Area 2</p>
-    </div>
-    <div class="col-12 col-sm-12 col-md-12 d-block d-lg-none d-xl-none">
-        <p>Accounting Content Area 3</p>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 d-block d-xl-none">
+        @if (Model.ValuesForMonthOfStatusDateForBudgetAccounts != null)
+        {
+            @await Html.PartialAsync("_BudgetAccountCollectionValuesPartial", Model.ValuesForMonthOfStatusDateForBudgetAccounts, new[] { new KeyValuePair<string, object>("Header", "Resultat denne måned:") })
+        }
+        @if (Model.ValuesAtStatusDateForAccounts != null)
+        {
+            @await Html.PartialAsync("_AccountCollectionValuesPartial", Model.ValuesAtStatusDateForAccounts, new[] { new KeyValuePair<string, object>("Header", "Balance pr. dags dato:") })
+        }
+        @if (Model.ValuesAtStatusDateForContactAccounts != null)
+        {
+            @await Html.PartialAsync("_ContactAccountCollectionValuesPartial", Model.ValuesAtStatusDateForContactAccounts, new[] { new KeyValuePair<string, object>("Header", "Saldi pr. dags dato:") })
+        }
+        @if (Model.Debtors != null && Model.Debtors.Count > 0)
+        {
+            @await Html.PartialAsync("_ContactAccountPresentationCollectionPartial", Model.Debtors, new[] { new KeyValuePair<string, object>("Header", "Debitorer:") })
+        }
+        @if (Model.Creditors != null && Model.Creditors.Count > 0)
+        {
+            @await Html.PartialAsync("_ContactAccountPresentationCollectionPartial", Model.Creditors, new[] { new KeyValuePair<string, object>("Header", "Kreditorer:") })
+        }
         <hr />
     </div>
 </div>
