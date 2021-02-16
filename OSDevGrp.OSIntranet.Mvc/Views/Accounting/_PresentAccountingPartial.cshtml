@@ -170,6 +170,120 @@ else
                         </div>
                     </div>
                 </div>
+                @if (Model.BudgetAccounts != null && Model.BudgetAccounts.Count > 0)
+                {
+                    <div class="card d-none d-md-block d-lg-block d-xl-block">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseResult">
+                                <h5>Resultat</h5>
+                            </a>
+                        </div>
+                        <div id="collapseResult" class="collapse" data-parent="#accountingAccordion">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th class="d-none d-lg-block d-xl-block text-right">Budget</th>
+                                                <th class="text-right">Resultat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (KeyValuePair<BudgetAccountGroupViewModel, BudgetAccountCollectionViewModel> item in Model.BudgetAccounts)
+                                            {
+                                                <tr>
+                                                    <td>@item.Key.Name.ToHtmlString()</td>
+                                                    <td class="d-none d-lg-block d-xl-block text-right">@item.Value.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+                                                    <td class="text-right">@item.Value.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
+                                                </tr>
+                                            }
+                                            <tr>
+                                                <td class="font-weight-bold">Resultat i alt</td>
+                                                <td class="d-none d-lg-block d-xl-block font-weight-bold text-right">@Model.BudgetAccounts.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+                                                <td class="font-weight-bold text-right">@Model.BudgetAccounts.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.Accounts != null && Model.Accounts.Count > 0)
+                {
+                    <div class="card d-none d-md-block d-lg-block d-xl-block">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseBalance">
+                                <h5>Balance</h5>
+                            </a>
+                        </div>
+                        <div id="collapseBalance" class="collapse" data-parent="#accountingAccordion">
+                            <div class="card-body">
+                                @if (Model.Accounts.Any(item => item.Key.AccountGroupType == AccountGroupType.Assets))
+                                {
+                                    <dl class="mb-0">
+                                        <dd class="mb-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th class="text-right">Aktiver</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (KeyValuePair<AccountGroupViewModel, AccountCollectionViewModel> item in Model.Accounts.Where(item => item.Key.AccountGroupType == AccountGroupType.Assets))
+                                                        {
+                                                            <tr>
+                                                                <td>@item.Key.Name.ToHtmlString()</td>
+                                                                <td class="text-right">@item.Value.ValuesAtStatusDate.Assets.AsCurrency()</td>
+                                                            </tr>
+                                                        }
+                                                        <tr>
+                                                            <td class="font-weight-bold">Aktiver i alt</td>
+                                                            <td class="font-weight-bold text-right">@Model.Accounts.ValuesAtStatusDate.Assets.AsCurrency()</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </dd>
+                                    </dl>
+                                }
+                                @if (Model.Accounts.Any(item => item.Key.AccountGroupType == AccountGroupType.Liabilities))
+                                {
+                                    <dl class="mb-0">
+                                        <dd class="mb-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th class="text-right">Passiver</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (KeyValuePair<AccountGroupViewModel, AccountCollectionViewModel> item in Model.Accounts.Where(item => item.Key.AccountGroupType == AccountGroupType.Liabilities))
+                                                        {
+                                                            <tr>
+                                                                <td>@item.Key.Name.ToHtmlString()</td>
+                                                                <td class="text-right">@item.Value.ValuesAtStatusDate.Liabilities.AsCurrency()</td>
+                                                            </tr>
+                                                        }
+                                                        <tr>
+                                                            <td class="font-weight-bold">Passiver i alt</td>
+                                                            <td class="font-weight-bold text-right">@Model.Accounts.ValuesAtStatusDate.Liabilities.AsCurrency()</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </dd>
+                                    </dl>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
