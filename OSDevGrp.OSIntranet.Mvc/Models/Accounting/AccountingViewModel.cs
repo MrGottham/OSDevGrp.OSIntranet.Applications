@@ -66,5 +66,29 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return '{' + $"accountingNumber: '{accountingViewModel.AccountingNumber}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
+
+        public static string GetStartCreatingAccountUrl(this AccountingViewModel accountingViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingAccount", "Accounting", new {accountingNumber = accountingViewModel.AccountingNumber});
+        }
+
+        public static string GetStartCreatingBudgetAccountUrl(this AccountingViewModel accountingViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingBudgetAccount", "Accounting", new {accountingNumber = accountingViewModel.AccountingNumber});
+        }
+
+        public static string GetStartCreatingContactAccountUrl(this AccountingViewModel accountingViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingViewModel, nameof(accountingViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingContactAccount", "Accounting", new {accountingNumber = accountingViewModel.AccountingNumber});
+        }
     }
 }

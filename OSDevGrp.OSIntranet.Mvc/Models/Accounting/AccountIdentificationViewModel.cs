@@ -1,4 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
@@ -19,5 +23,64 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Required(ErrorMessage = "Kontonavnet skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(256, MinimumLength = 1, ErrorMessage = "Længden på kontonavnet skal være mellem {2} og {1} tegn.")]
         public string AccountName { get; set; }
+    }
+
+    public static class AccountIdentificationViewModelExtensions
+    {
+        public static string GetStartUpdatingAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartUpdatingAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
+        }
+
+        public static string GetStartUpdatingBudgetAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartUpdatingBudgetAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
+        }
+
+        public static string GetStartUpdatingContactAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartUpdatingContactAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
+        }
+
+        public static string GetDeleteAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteAccount", "Accounting");
+        }
+
+        public static string GetDeleteBudgetAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteBudgetAccount", "Accounting");
+        }
+
+        public static string GetDeleteContactAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteContactAccount", "Accounting");
+        }
+
+        public static string GetDeletionData(this AccountIdentificationViewModel accountIdentificationViewModel, IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"accountingNumber: '{accountIdentificationViewModel.Accounting.AccountingNumber}', accountNumber: '{accountIdentificationViewModel.AccountNumber}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+        }
     }
 }

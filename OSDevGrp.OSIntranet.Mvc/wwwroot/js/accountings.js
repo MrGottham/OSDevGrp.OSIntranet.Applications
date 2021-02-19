@@ -115,6 +115,14 @@
             $().startLoadingAccountings(encodeURI(url));
         },
 
+        newAccount: function(createAccountUrl) {
+            $().startAccountPresentation(createAccountUrl);
+        },
+
+        editAccount: function(editAccountUrl) {
+            $().startAccountPresentation(editAccountUrl);
+        },
+
         startLoadingAccountings: function(url) {
             $.each($("#accountingCollection"), function() {
                 $().startAccountingCollectionObserver(this);
@@ -212,6 +220,36 @@
             $.each(loadAccountingElementArray, function() {
                 $().replaceWithPartialViewFromUrl(this);
             });
+        },
+
+        startAccountPresentation: function(accountPresentationUrl) {
+            var presentAccountElement = $().getPresentAccountingElement();
+            if (presentAccountElement === null) {
+                return;
+            }
+
+            $(presentAccountElement).data("url", encodeURI(accountPresentationUrl));
+
+            $.each($(presentAccountElement).parent(), function() {
+                $().startAccountPresentationObserver(this);
+            });
+
+            $().replaceWithPartialViewFromUrl(presentAccountElement);
+        },
+
+        startAccountPresentationObserver: function(element) {
+            var accountPresentationObserver = new MutationObserver($().accountPresentationCallback);
+            accountPresentationObserver.observe(element, { childList: true });
+        },
+
+        accountPresentationCallback: function(mutationsList, observer) {
+            if (mutationsList.length === 0) {
+                return;
+            }
+
+            observer.disconnect();
+
+            alert("OS Debug: accountPresentationCallback");
         }
     });
 

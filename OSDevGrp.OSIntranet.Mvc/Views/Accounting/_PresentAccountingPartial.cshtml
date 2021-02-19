@@ -284,6 +284,151 @@ else
                         </div>
                     </div>
                 }
+                @if (Model.Accounts != null)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseAccounts">
+                                <h5>Konti</h5>
+                            </a>
+                        </div>
+                        <div id="collapseAccounts" class="collapse" data-parent="#accountingAccordion">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                        <tr>
+                                            <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
+                                            <th>Kontonavn</th>
+                                            <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (KeyValuePair<AccountGroupViewModel, AccountCollectionViewModel> item in Model.Accounts)
+                                        {
+                                            <tr>
+                                                <td class="d-none d-lg-block d-xl-block"></td>
+                                                <td class="font-weight-bold">@item.Key.Name.ToHtmlString()</td>
+                                                <td></td>
+                                            </tr>
+                                            @foreach (AccountViewModel accountViewModel in item.Value)
+                                            {
+                                                <tr>
+                                                    <td class="d-none d-lg-block d-xl-block">@accountViewModel.AccountNumber.ToHtmlString()</td>
+                                                    <td>@accountViewModel.AccountName.ToHtmlString()</td>
+                                                    <td>
+                                                        <span class="fa-stack">
+                                                            <a href="#" onclick="javascript:$().editAccount('@accountViewModel.GetStartUpdatingAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+                                                            @if (accountViewModel.Deletable)
+                                                            {
+                                                                <a href="#" onclick="javascript:$().askForDeletion('Slet konto', '@accountViewModel.GetDeleteAccountUrl(Url)', @accountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+                                                            }
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.BudgetAccounts != null)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseBudgetAccounts">
+                                <h5>Budgetkonti</h5>
+                            </a>
+                        </div>
+                        <div id="collapseBudgetAccounts" class="collapse" data-parent="#accountingAccordion">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
+                                                <th>Kontonavn</th>
+                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (KeyValuePair<BudgetAccountGroupViewModel, BudgetAccountCollectionViewModel> item in Model.BudgetAccounts)
+                                        {
+                                            <tr>
+                                                <td class="d-none d-lg-block d-xl-block"></td>
+                                                <td class="font-weight-bold">@item.Key.Name.ToHtmlString()</td>
+                                                <td></td>
+                                            </tr>
+                                            @foreach (BudgetAccountViewModel budgetAccountViewModel in item.Value)
+                                            {
+                                                <tr>
+                                                    <td class="d-none d-lg-block d-xl-block">@budgetAccountViewModel.AccountNumber.ToHtmlString()</td>
+                                                    <td>@budgetAccountViewModel.AccountName.ToHtmlString()</td>
+                                                    <td>
+                                                        <span class="fa-stack">
+                                                            <a href="#" onclick="javascript:$().editAccount('@budgetAccountViewModel.GetStartUpdatingBudgetAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+                                                            @if (budgetAccountViewModel.Deletable)
+                                                            {
+                                                                <a href="#" onclick="javascript:$().askForDeletion('Slet budgetkonto', '@budgetAccountViewModel.GetDeleteBudgetAccountUrl(Url)', @budgetAccountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+                                                            }
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.ContactAccounts != null)
+                {
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="card-link" data-toggle="collapse" href="#collapseContactAccounts">
+                                <h5>Kontaktkonti:</h5>
+                            </a>
+                        </div>
+                        <div id="collapseContactAccounts" class="collapse" data-parent="#accountingAccordion">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                        <tr>
+                                            <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
+                                            <th>Kontonavn</th>
+                                            <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (ContactAccountViewModel contactAccountViewModel in Model.ContactAccounts)
+                                        {
+                                            <tr>
+                                                <td class="d-none d-lg-block d-xl-block">@contactAccountViewModel.AccountNumber.ToHtmlString()</td>
+                                                <td>@contactAccountViewModel.AccountName.ToHtmlString()</td>
+                                                <td>
+                                                    <span class="fa-stack">
+                                                        <a href="#" onclick="javascript:$().editAccount('@contactAccountViewModel.GetStartUpdatingContactAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+                                                        @if (contactAccountViewModel.Deletable)
+                                                        {
+                                                            <a href="#" onclick="javascript:$().askForDeletion('Slet kontaktkonto', '@contactAccountViewModel.GetDeleteContactAccountUrl(Url)', @contactAccountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+                                                        }
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

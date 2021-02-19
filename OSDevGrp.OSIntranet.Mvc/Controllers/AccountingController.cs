@@ -203,6 +203,63 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        public IActionResult StartCreatingAccount(int accountingNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartCreatingBudgetAccount(int accountingNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartCreatingContactAccount(int accountingNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartUpdatingAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartUpdatingBudgetAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartUpdatingContactAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> DeleteAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> DeleteBudgetAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> DeleteContactAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> AccountGroups()
         {
             IEnumerable<IAccountGroup> accountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccountGroup>>(new EmptyQuery());
