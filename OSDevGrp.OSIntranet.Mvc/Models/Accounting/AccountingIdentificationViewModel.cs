@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
@@ -21,6 +22,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
     public static class AccountingIdentificationViewModelExtensions
     {
+        public static string GetAction(this AccountingIdentificationViewModel accountingIdentificationViewModel)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel));
+
+            return accountingIdentificationViewModel.EditMode == EditMode.Create ? "CreateAccounting" : "UpdateAccounting";
+        }
+
+        public static string GetActionText(this AccountingIdentificationViewModel accountingIdentificationViewModel)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel));
+
+            return accountingIdentificationViewModel.EditMode == EditMode.Create ? "Opret" : "Opdatér";
+        }
+
         public static string GetStartLoadingAccountingUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
         {
             NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
@@ -35,6 +50,70 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .NotNull(urlHelper, nameof(urlHelper));
 
             return urlHelper.AbsoluteAction("LoadAccounting", "Accounting", new {accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetStartCreatingAccountUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingAccount", "Accounting", new {accountingNumber = accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetCreateAccountUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("CreateAccount", "Accounting", new {accountingNumber = accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetStartCreatingBudgetAccountUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingBudgetAccount", "Accounting", new {accountingNumber = accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetCreateBudgetAccountUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("CreateBudgetAccount", "Accounting", new {accountingNumber = accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetStartCreatingContactAccountUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("StartCreatingContactAccount", "Accounting", new {accountingNumber = accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetCreateContactAccountUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("CreateContactAccount", "Accounting", new {accountingNumber = accountingIdentificationViewModel.AccountingNumber});
+        }
+
+        public static string GetDeletionUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("DeleteAccounting", "Accounting");
+        }
+
+        public static string GetDeletionData(this AccountingIdentificationViewModel accountingIdentificationViewModel, IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
+
+            return '{' + $"accountingNumber: '{accountingIdentificationViewModel.AccountingNumber}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
         }
     }
 }

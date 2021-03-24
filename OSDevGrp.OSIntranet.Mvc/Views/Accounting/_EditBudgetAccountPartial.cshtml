@@ -1,0 +1,10 @@
+@model BudgetAccountViewModel;
+<div>
+    <form id="editAccountForm" asp-area="" asp-controller="Accounting" asp-action="@Model.GetAction()">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
+            </div>
+        </div>
+    </form>
+</div>

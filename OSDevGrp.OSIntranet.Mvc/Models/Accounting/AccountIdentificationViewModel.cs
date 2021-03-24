@@ -27,12 +27,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
     public static class AccountIdentificationViewModelExtensions
     {
+        public static string GetActionText(this AccountIdentificationViewModel accountIdentificationViewModel)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel));
+
+            return accountIdentificationViewModel.EditMode == EditMode.Create ? "Opret" : "Opdatér";
+        }
+
         public static string GetStartUpdatingAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
         {
             NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
             return urlHelper.AbsoluteAction("StartUpdatingAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
+        }
+
+        public static string GetUpdateAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("UpdateAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
         }
 
         public static string GetStartUpdatingBudgetAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
@@ -43,12 +58,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             return urlHelper.AbsoluteAction("StartUpdatingBudgetAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
         }
 
+        public static string GetUpdateBudgetAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("UpdateBudgetAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
+        }
+
         public static string GetStartUpdatingContactAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
         {
             NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
             return urlHelper.AbsoluteAction("StartUpdatingContactAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
+        }
+
+        public static string GetUpdateContactAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(accountIdentificationViewModel, nameof(accountIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("UpdateContactAccount", "Accounting", new {accountingNumber = accountIdentificationViewModel.Accounting.AccountingNumber, accountNumber = accountIdentificationViewModel.AccountNumber});
         }
 
         public static string GetDeleteAccountUrl(this AccountIdentificationViewModel accountIdentificationViewModel, IUrlHelper urlHelper)

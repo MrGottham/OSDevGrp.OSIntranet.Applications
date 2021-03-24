@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -18,5 +21,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public CreditInfoValuesViewModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
 
         public CreditInfoDictionaryViewModel CreditInfos { get; set; }
+
+        public IReadOnlyCollection<AccountGroupViewModel> AccountGroups { get; set; }
+    }
+
+    public static class AccountViewModelExtensions
+    {
+        public static string GetAction(this AccountViewModel accountViewModel)
+        {
+            NullGuard.NotNull(accountViewModel, nameof(accountViewModel));
+
+            return accountViewModel.EditMode == EditMode.Create ? "CreateAccount" : "UpdateAccount";
+        }
     }
 }

@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -33,5 +36,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public BalanceInfoValuesViewModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
 
         public BalanceInfoDictionaryViewModel BalanceInfos { get; set; }
+
+        public IReadOnlyCollection<PaymentTermViewModel> PaymentTerms { get; set; }
+    }
+
+    public static class ContactAccountViewModelExtensions
+    {
+        public static string GetAction(this ContactAccountViewModel contactAccountViewModel)
+        {
+            NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel));
+
+            return contactAccountViewModel.EditMode == EditMode.Create ? "CreateContactAccount" : "UpdateContactAccount";
+        }
     }
 }

@@ -53,6 +53,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<IAccount, AccountViewModel>()
                 .ForMember(dest => dest.CreditInfos, opt => opt.MapFrom(src => src.CreditInfoCollection))
+                .ForMember(dest => dest.AccountGroups, opt => opt.MapFrom(src => new List<AccountGroupViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IAccountCollection, AccountCollectionViewModel>()
@@ -86,6 +87,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountViewModel>()
                 .ForMember(dest => dest.BudgetInfos, opt => opt.MapFrom(src => src.BudgetInfoCollection))
+                .ForMember(dest => dest.BudgetAccountGroups, opt => opt.MapFrom(src => new List<BudgetAccountGroupViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountCollectionViewModel>()
@@ -117,6 +119,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountViewModel>()
                 .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection))
+                .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContactAccountCollection, ContactAccountCollectionViewModel>()

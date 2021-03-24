@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -21,5 +24,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public BudgetInfoValuesViewModel ValuesForLastYearOfStatusDate { get; set; }
 
         public BudgetInfoDictionaryViewModel BudgetInfos { get; set; }
+
+        public IReadOnlyCollection<BudgetAccountGroupViewModel> BudgetAccountGroups { get; set; }
+    }
+
+    public static class BudgetAccountViewModelExtensions
+    {
+        public static string GetAction(this BudgetAccountViewModel budgetAccountViewModel)
+        {
+            NullGuard.NotNull(budgetAccountViewModel, nameof(budgetAccountViewModel));
+
+            return budgetAccountViewModel.EditMode == EditMode.Create ? "CreateBudgetAccount" : "UpdateBudgetAccount";
+        }
     }
 }

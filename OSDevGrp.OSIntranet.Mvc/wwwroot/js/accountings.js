@@ -247,9 +247,18 @@
                 return;
             }
 
-            observer.disconnect();
+            var loadAccountElementArray = $(mutationsList[0].target).find("[data-url]");
+            if (loadAccountElementArray.length === 0) {
+                observer.disconnect();
 
-            alert("OS Debug: accountPresentationCallback");
+                $().enableFormValidation("#editAccountForm");
+
+                return;
+            }
+
+            $.each(loadAccountElementArray, function () {
+                $().replaceWithPartialViewFromUrl(this);
+            });
         }
     });
 

@@ -14,7 +14,7 @@
                 {
                     <div class="fa-stack">
                         <a href="#" onclick="javascript:$().editAccounting();"><i class="fas fa-pen"></i></a>
-                        <a href="#" onclick="javascript:$().askForDeletion('Slet regnskab', '@Model.GetDeletionLink(Url)', @Model.GetDeletionData(Html), null, true);"><i class="fas fa-trash"></i></a>
+                        <a href="#" onclick="javascript:$().askForDeletion('Slet regnskab', '@Model.GetDeletionUrl(Url)', @Model.GetDeletionData(Html), null, true);"><i class="fas fa-trash"></i></a>
                     </div>
                 }
                 else if (Model.EditMode == EditMode.None)
@@ -391,7 +391,7 @@ else
                     <div class="card">
                         <div class="card-header">
                             <a class="card-link" data-toggle="collapse" href="#collapseContactAccounts">
-                                <h5>Kontaktkonti:</h5>
+                                <h5>Kontaktkonti</h5>
                             </a>
                         </div>
                         <div id="collapseContactAccounts" class="collapse" data-parent="#accountingAccordion">

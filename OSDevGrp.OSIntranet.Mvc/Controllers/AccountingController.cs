@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -55,23 +57,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public IActionResult Accountings(int? accountingNumber = null)
         {
-            AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel
-            {
-                DefaultAccountingNumber = accountingNumber ?? _claimResolver.GetAccountingNumber()
-            };
-
-            return View("Accountings", accountingOptionsViewModel);
+            return View("Accountings", CreateAccountingOptionsViewModel(accountingNumber ?? _claimResolver.GetAccountingNumber()));
         }
 
         [HttpGet]
         public IActionResult StartLoadingAccountings(int? accountingNumber = null)
         {
-            AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel
-            {
-                DefaultAccountingNumber = accountingNumber
-            };
-
-            return PartialView("_LoadingAccountingsPartial", accountingOptionsViewModel);
+            return PartialView("_LoadingAccountingsPartial", CreateAccountingOptionsViewModel(accountingNumber));
         }
 
         [HttpGet]
@@ -95,25 +87,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public IActionResult StartLoadingAccounting(int accountingNumber)
         {
-            AccountingIdentificationViewModel accountingIdentificationViewModel = new AccountingIdentificationViewModel
-            {
-                AccountingNumber = accountingNumber
-            };
-
-            return PartialView("_LoadingAccountingPartial", accountingIdentificationViewModel);
+            return PartialView("_LoadingAccountingPartial", CreateAccountingIdentificationViewModel(accountingNumber));
         }
 
         [HttpGet]
         public async Task<IActionResult> LoadAccounting(int accountingNumber)
         {
-            IGetAccountingQuery getAccountingQuery = new GetAccountingQuery
-            {
-                AccountingNumber = accountingNumber,
-                StatusDate = DateTime.Today
-            };
-
             Task<IEnumerable<LetterHeadViewModel>> getLetterHeadViewModelCollectionTask = GetLetterHeadViewModels();
-            Task<IAccounting> getAccountingTask = _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(getAccountingQuery);
+            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
             await Task.WhenAll(
                 getLetterHeadViewModelCollectionTask,
                 getAccountingTask);
@@ -133,9 +114,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public IActionResult StartCreatingAccounting()
         {
-            AccountingOptionsViewModel accountingOptionsViewModel = new AccountingOptionsViewModel();
-
-            return PartialView("_CreatingAccountingPartial", accountingOptionsViewModel);
+            return PartialView("_CreatingAccountingPartial", CreateAccountingOptionsViewModel());
         }
 
         [HttpGet]
@@ -205,17 +184,34 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public IActionResult StartCreatingAccount(int accountingNumber)
         {
-            throw new NotImplementedException();
+            return PartialView("_CreatingAccountPartial", CreateAccountingIdentificationViewModel(accountingNumber));
         }
 
         [HttpGet]
-        public IActionResult StartCreatingBudgetAccount(int accountingNumber)
+        public async Task<IActionResult> CreateAccount(int accountingNumber)
         {
-            throw new NotImplementedException();
+            Task<IEnumerable<AccountGroupViewModel>> getAccountGroupViewModelCollectionTask = GetAccountGroupViewModels();
+            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
+            await Task.WhenAll(
+                getAccountGroupViewModelCollectionTask,
+                getAccountingTask);
+
+            IAccounting accounting = getAccountingTask.Result;
+            if (accounting == null)
+            {
+                return BadRequest();
+            }
+
+            AccountViewModel accountViewModel = CreateAccountViewModelForCreation<AccountViewModel>(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting));
+            accountViewModel.CreditInfos = CreateInfoDictionaryViewModelForCreation<CreditInfoDictionaryViewModel, CreditInfoCollectionViewModel, CreditInfoViewModel>(DateTime.Today);
+            accountViewModel.AccountGroups = getAccountGroupViewModelCollectionTask.Result.ToArray();
+
+            return PartialView("_EditAccountPartial", accountViewModel);
         }
 
-        [HttpGet]
-        public IActionResult StartCreatingContactAccount(int accountingNumber)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
         {
             throw new NotImplementedException();
         }
@@ -223,17 +219,38 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public IActionResult StartUpdatingAccount(int accountingNumber, string accountNumber)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return PartialView("_UpdatingAccountPartial", CreateAccountIdentificationViewModel(accountingNumber, accountNumber));
         }
 
         [HttpGet]
-        public IActionResult StartUpdatingBudgetAccount(int accountingNumber, string accountNumber)
+        public async Task<IActionResult> UpdateAccount(int accountingNumber, string accountNumber)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            Task<IEnumerable<AccountGroupViewModel>> getAccountGroupViewModelCollectionTask = GetAccountGroupViewModels();
+            Task<IAccount> getAccountTask = GetAccount<GetAccountQuery, IAccount>(accountingNumber, accountNumber);
+            await Task.WhenAll(
+                getAccountGroupViewModelCollectionTask,
+                getAccountTask);
+
+            IAccount account = getAccountTask.Result;
+            if (account == null)
+            {
+                return BadRequest();
+            }
+
+            AccountViewModel accountViewModel = _accountingViewModelConverter.Convert<IAccount, AccountViewModel>(account);
+            accountViewModel.EditMode = EditMode.Edit;
+            accountViewModel.AccountGroups = getAccountGroupViewModelCollectionTask.Result.ToArray();
+
+            return PartialView("_EditAccountPartial", accountViewModel);
         }
 
-        [HttpGet]
-        public IActionResult StartUpdatingContactAccount(int accountingNumber, string accountNumber)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> UpdateAccount(AccountViewModel accountViewModel)
         {
             throw new NotImplementedException();
         }
@@ -245,9 +262,157 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             throw new NotImplementedException();
         }
 
+        [HttpGet]
+        public IActionResult StartCreatingBudgetAccount(int accountingNumber)
+        {
+            return PartialView("_CreatingBudgetAccountPartial", CreateAccountingIdentificationViewModel(accountingNumber));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateBudgetAccount(int accountingNumber)
+        {
+            Task<IEnumerable<BudgetAccountGroupViewModel>> getBudgetAccountGroupViewModelCollectionTask = GetBudgetAccountGroupViewModels();
+            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
+            await Task.WhenAll(
+                getBudgetAccountGroupViewModelCollectionTask,
+                getAccountingTask);
+
+            IAccounting accounting = getAccountingTask.Result;
+            if (accounting == null)
+            {
+                return BadRequest();
+            }
+
+            BudgetAccountViewModel budgetAccountViewModel = CreateAccountViewModelForCreation<BudgetAccountViewModel>(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting));
+            budgetAccountViewModel.BudgetInfos= CreateInfoDictionaryViewModelForCreation<BudgetInfoDictionaryViewModel, BudgetInfoCollectionViewModel, BudgetInfoViewModel>(DateTime.Today);
+            budgetAccountViewModel.BudgetAccountGroups = getBudgetAccountGroupViewModelCollectionTask.Result.ToArray();
+
+            return PartialView("_EditBudgetAccountPartial", budgetAccountViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartUpdatingBudgetAccount(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return PartialView("_UpdatingBudgetAccountPartial", CreateAccountIdentificationViewModel(accountingNumber, accountNumber));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateBudgetAccount(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            Task<IEnumerable<BudgetAccountGroupViewModel>> getBudgetAccountGroupViewModelCollectionTask = GetBudgetAccountGroupViewModels();
+            Task<IBudgetAccount> getBudgetAccountTask = GetAccount<GetBudgetAccountQuery, IBudgetAccount>(accountingNumber, accountNumber);
+            await Task.WhenAll(
+                getBudgetAccountGroupViewModelCollectionTask,
+                getBudgetAccountTask);
+
+            IBudgetAccount budgetAccount = getBudgetAccountTask.Result;
+            if (budgetAccount == null)
+            {
+                return BadRequest();
+            }
+
+            BudgetAccountViewModel budgetAccountViewModel = _accountingViewModelConverter.Convert<IBudgetAccount, BudgetAccountViewModel>(budgetAccount);
+            budgetAccountViewModel.EditMode = EditMode.Edit;
+            budgetAccountViewModel.BudgetAccountGroups = getBudgetAccountGroupViewModelCollectionTask.Result.ToArray();
+
+            return PartialView("_EditBudgetAccountPartial", budgetAccountViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> UpdateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> DeleteBudgetAccount(int accountingNumber, string accountNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartCreatingContactAccount(int accountingNumber)
+        {
+            return PartialView("_CreatingContactAccountPartial", CreateAccountingIdentificationViewModel(accountingNumber));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateContactAccount(int accountingNumber)
+        {
+            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
+            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
+            await Task.WhenAll(
+                getPaymentTermViewModelCollectionTask,
+                getAccountingTask);
+
+            IAccounting accounting = getAccountingTask.Result;
+            if (accounting == null)
+            {
+                return BadRequest();
+            }
+
+            ContactAccountViewModel contactAccountViewModel = CreateAccountViewModelForCreation<ContactAccountViewModel>(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting));
+            contactAccountViewModel.BalanceInfos = CreateInfoDictionaryViewModelForCreation<BalanceInfoDictionaryViewModel, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(DateTime.Today);
+            contactAccountViewModel.PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToArray();
+
+            return PartialView("_EditContactAccountPartial", contactAccountViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateContactAccount(ContactAccountViewModel contactAccountViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public IActionResult StartUpdatingContactAccount(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return PartialView("_UpdatingContactAccountPartial", CreateAccountIdentificationViewModel(accountingNumber, accountNumber));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateContactAccount(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
+            Task<IContactAccount> getContactAccountTask = GetAccount<GetContactAccountQuery, IContactAccount>(accountingNumber, accountNumber);
+            await Task.WhenAll(
+                getPaymentTermViewModelCollectionTask,
+                getContactAccountTask);
+
+            IContactAccount contactAccount = getContactAccountTask.Result;
+            if (contactAccount == null)
+            {
+                return BadRequest();
+            }
+
+            ContactAccountViewModel contactAccountViewModel = _accountingViewModelConverter.Convert<IContactAccount, ContactAccountViewModel>(contactAccount);
+            contactAccountViewModel.EditMode = EditMode.Edit;
+            contactAccountViewModel.PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToArray();
+
+            return PartialView("_EditContactAccountPartial", contactAccountViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> UpdateContactAccount(ContactAccountViewModel contactAccountViewModel)
         {
             throw new NotImplementedException();
         }
@@ -262,14 +427,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> AccountGroups()
         {
-            IEnumerable<IAccountGroup> accountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccountGroup>>(new EmptyQuery());
-
-            IEnumerable<AccountGroupViewModel> accountGroupViewModels = accountGroups.AsParallel()
-                .Select(accountGroup => _accountingViewModelConverter.Convert<IAccountGroup, AccountGroupViewModel>(accountGroup))
-                .OrderBy(accountGroupViewModel => accountGroupViewModel.Number)
-                .ToList();
-
-            return View("AccountGroups", accountGroupViewModels);
+            return View("AccountGroups", await GetAccountGroupViewModels());
         }
 
         [HttpGet]
@@ -348,14 +506,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> BudgetAccountGroups()
         {
-            IEnumerable<IBudgetAccountGroup> budgetAccountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IBudgetAccountGroup>>(new EmptyQuery());
-
-            IEnumerable<BudgetAccountGroupViewModel> budgetAccountGroupViewModels = budgetAccountGroups.AsParallel()
-                .Select(budgetAccountGroup => _accountingViewModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupViewModel>(budgetAccountGroup))
-                .OrderBy(budgetAccountGroupViewModel => budgetAccountGroupViewModel.Number)
-                .ToList();
-
-            return View("BudgetAccountGroups", budgetAccountGroupViewModels);
+            return View("BudgetAccountGroups", await GetBudgetAccountGroupViewModels());
         }
 
         [HttpGet]
@@ -434,14 +585,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> PaymentTerms()
         {
-            IEnumerable<IPaymentTerm> paymentTerms =  await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
-
-            IEnumerable<PaymentTermViewModel> paymentTermViewModels = paymentTerms.AsParallel()
-                .Select(paymentTerm => _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm))
-                .OrderBy(paymentTermViewModel => paymentTermViewModel.Number)
-                .ToList();
-
-            return View("PaymentTerms", paymentTermViewModels);
+            return View("PaymentTerms", await GetPaymentTermViewModels());
         }
 
         [HttpGet]
@@ -517,6 +661,60 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("PaymentTerms", "Accounting");
         }
 
+        private Task<IAccounting> GetAccounting(int accountingNumber)
+        {
+            IGetAccountingQuery query = new GetAccountingQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = DateTime.Today
+            };
+
+            return _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(query);
+        }
+
+        private Task<TAccount> GetAccount<TGetAccountQuery, TAccount>(int accountingNumber, string accountNumber) where TGetAccountQuery : class, IAccountIdentificationQuery, new() where TAccount : IAccountBase
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            TGetAccountQuery query = new TGetAccountQuery
+            {
+                AccountingNumber = accountingNumber,
+                AccountNumber = accountNumber
+            };
+
+            return _queryBus.QueryAsync<TGetAccountQuery, TAccount>(query);
+        }
+
+        private async Task<IEnumerable<AccountGroupViewModel>> GetAccountGroupViewModels()
+        {
+            IEnumerable<IAccountGroup> accountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccountGroup>>(new EmptyQuery());
+
+            return accountGroups.AsParallel()
+                .Select(accountGroup => _accountingViewModelConverter.Convert<IAccountGroup, AccountGroupViewModel>(accountGroup))
+                .OrderBy(accountGroupViewModel => accountGroupViewModel.Number)
+                .ToList();
+        }
+
+        private async Task<IEnumerable<BudgetAccountGroupViewModel>> GetBudgetAccountGroupViewModels()
+        {
+            IEnumerable<IBudgetAccountGroup> budgetAccountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IBudgetAccountGroup>>(new EmptyQuery());
+
+            return budgetAccountGroups.AsParallel()
+                .Select(budgetAccountGroup => _accountingViewModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupViewModel>(budgetAccountGroup))
+                .OrderBy(budgetAccountGroupViewModel => budgetAccountGroupViewModel.Number)
+                .ToList();
+        }
+
+        private async Task<IEnumerable<PaymentTermViewModel>> GetPaymentTermViewModels()
+        {
+            IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
+
+            return paymentTerms.AsParallel()
+                .Select(paymentTerm => _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm))
+                .OrderBy(paymentTermViewModel => paymentTermViewModel.Number)
+                .ToList();
+        }
+
         private async Task<IEnumerable<LetterHeadViewModel>> GetLetterHeadViewModels()
         {
             IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
@@ -525,6 +723,72 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 .Select(letterHead => _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(letterHead))
                 .OrderBy(letterHeadViewModel => letterHeadViewModel.Number)
                 .ToList();
+        }
+
+        private static AccountingOptionsViewModel CreateAccountingOptionsViewModel(int? accountingNumber = null)
+        {
+            return new AccountingOptionsViewModel
+            {
+                DefaultAccountingNumber = accountingNumber
+            };
+        }
+
+        private static AccountingIdentificationViewModel CreateAccountingIdentificationViewModel(int accountingNumber)
+        {
+            return new AccountingIdentificationViewModel
+            {
+                AccountingNumber = accountingNumber
+            };
+        }
+
+        private static AccountIdentificationViewModel CreateAccountIdentificationViewModel(int accountingNumber, string accountNumber)
+        {
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            return new AccountIdentificationViewModel
+            {
+                Accounting = CreateAccountingIdentificationViewModel(accountingNumber),
+                AccountNumber = accountNumber
+            };
+        }
+
+        private static TAccountCoreDataViewModel CreateAccountViewModelForCreation<TAccountCoreDataViewModel>(AccountingIdentificationViewModel accountingIdentificationViewModel) where TAccountCoreDataViewModel : AccountCoreDataViewModel, new()
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel));
+
+            return new TAccountCoreDataViewModel
+            {
+                EditMode = EditMode.Create,
+                Accounting = accountingIdentificationViewModel
+            };
+        }
+
+        private static TInfoDictionaryViewModelBase CreateInfoDictionaryViewModelForCreation<TInfoDictionaryViewModelBase, TInfoCollectionViewModel, TInfoViewModel>(DateTime creationDate) where TInfoDictionaryViewModelBase : InfoDictionaryViewModelBase<TInfoCollectionViewModel, TInfoViewModel>, new() where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase, new()
+        {
+            IDictionary<short, TInfoCollectionViewModel> dictionary = new Dictionary<short, TInfoCollectionViewModel>
+            {
+                {(short) creationDate.Year, CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(creationDate)},
+                {(short) (creationDate.Year + 1), CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(new DateTime(creationDate.Year + 1, 1, 1))}
+            };
+
+            return new TInfoDictionaryViewModelBase
+            {
+                Items = new ConcurrentDictionary<short, TInfoCollectionViewModel>(dictionary)
+            };
+        }
+
+        private static TInfoCollectionViewModel CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(DateTime creationDate) where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase, new()
+        {
+            IList<TInfoViewModel> collection = new List<TInfoViewModel>();
+            for (short month = (short) creationDate.Month; month <= 12; month++)
+            {
+                collection.Add(new TInfoViewModel {Year = (short) creationDate.Year, Month = month, EditMode = EditMode.Create});
+            }
+
+            return new TInfoCollectionViewModel
+            {
+                Items = new ReadOnlyCollection<TInfoViewModel>(collection)
+            };
         }
 
         #endregion
