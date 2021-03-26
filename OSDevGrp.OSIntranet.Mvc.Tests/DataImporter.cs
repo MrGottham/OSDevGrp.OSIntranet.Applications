@@ -67,8 +67,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         private ICommandBus _commandBus;
         private IQueryBus _queryBus;
 
-        private static readonly Regex PersonNameRegex = new Regex(@"^([A-ZÆØÅÜÈ][A-ZÆØÅÜÈa-zæøåüé\-]+\s)?([A-ZÆØÅÜÈ][A-ZÆØÅÜÈa-zæøåüé.\s]+\s)?([A-ZÆØÅÜÈ][A-ZÆØÅÜÈa-zæøåüé\-]+)$", RegexOptions.Compiled);
-        private static readonly Regex DanishPostalCodeAndCityRegex = new Regex(@"^([0-9]{4})\s+([A-ZÆØÅ][A-ZÆØÅa-zæøå\s]*)$", RegexOptions.Compiled);
+        private static readonly Regex PersonNameRegex = new Regex(@"^([A-Zï¿½ï¿½ï¿½ï¿½ï¿½][A-Zï¿½ï¿½ï¿½ï¿½ï¿½a-zï¿½ï¿½ï¿½ï¿½ï¿½\-]+\s)?([A-Zï¿½ï¿½ï¿½ï¿½ï¿½][A-Zï¿½ï¿½ï¿½ï¿½ï¿½a-zï¿½ï¿½ï¿½ï¿½ï¿½.\s]+\s)?([A-Zï¿½ï¿½ï¿½ï¿½ï¿½][A-Zï¿½ï¿½ï¿½ï¿½ï¿½a-zï¿½ï¿½ï¿½ï¿½ï¿½\-]+)$", RegexOptions.Compiled);
+        private static readonly Regex DanishPostalCodeAndCityRegex = new Regex(@"^([0-9]{4})\s+([A-Zï¿½ï¿½ï¿½][A-Zï¿½ï¿½ï¿½a-zï¿½ï¿½ï¿½\s]*)$", RegexOptions.Compiled);
         private static readonly Regex DanishPhoneNumberRegex = new Regex(@"^(\+45)?[\s]*([0-9]{2})[\s]*([0-9]{2})[\s]*([0-9]{2})[\s]*([0-9]{2})$", RegexOptions.Compiled);
         private static readonly Regex UnitedStatesPostalCodeAndCityRegex = new Regex(@"^([A-Z][a-z]+),\s+([A-Z]+)\s+([0-9]{5})$", RegexOptions.Compiled);
         private static readonly Regex GermanyPostalCodeAndCityRegex = new Regex(@"^D-([0-9]{5})\s+([A-Z][a-z]+)$", RegexOptions.Compiled);
@@ -156,7 +156,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         [Ignore("Test which imports data and should only be run once")]
         public async Task Import_LetterHeads_FromFile(string fileName)
         {
-            await ImportFromFile(fileName, Encoding.UTF7, async (lineNumber, line) =>
+            await ImportFromFile(fileName, Encoding.UTF8, async (lineNumber, line) =>
             {
                 if (lineNumber <= 1)
                 {
