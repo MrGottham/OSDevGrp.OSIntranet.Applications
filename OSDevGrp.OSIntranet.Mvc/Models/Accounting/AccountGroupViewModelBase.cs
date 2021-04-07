@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
@@ -37,5 +40,30 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         }
 
         #endregion
+    }
+
+    public static class AccountGroupViewModelBaseExtensions
+    {
+        public static bool IsKnownAccountGroup<TAccountGroupViewModel>(this TAccountGroupViewModel accountGroupViewModel, IEnumerable<TAccountGroupViewModel> knownAccountGroupViewModels) where TAccountGroupViewModel : AccountGroupViewModelBase
+        {
+            NullGuard.NotNull(accountGroupViewModel, nameof(accountGroupViewModel))
+                .NotNull(knownAccountGroupViewModels, nameof(knownAccountGroupViewModels));
+
+            return knownAccountGroupViewModels.Any(knownAccountGroupViewModel => knownAccountGroupViewModel.Number == accountGroupViewModel.Number);
+        }
+
+        public static SelectListItem SelectListItemFor<TAccountGroupViewModel>(this TAccountGroupViewModel accountGroupViewModel, bool selected) where TAccountGroupViewModel : AccountGroupViewModelBase
+        {
+            NullGuard.NotNull(accountGroupViewModel, nameof(accountGroupViewModel));
+
+            return new SelectListItem(accountGroupViewModel.Name, Convert.ToString(accountGroupViewModel.Number), selected);
+        }
+
+        public static IEnumerable<SelectListItem> SelectListFor<TAccountGroupViewModel>(this IEnumerable<TAccountGroupViewModel> accountGroupViewModels, int? selectedValue) where TAccountGroupViewModel : AccountGroupViewModelBase
+        {
+            NullGuard.NotNull(accountGroupViewModels, nameof(accountGroupViewModels));
+
+            return accountGroupViewModels.Select(accountGroupViewModel => accountGroupViewModel.SelectListItemFor(selectedValue.HasValue && selectedValue.Value == accountGroupViewModel.Number)).ToArray();
+        }
     }
 }

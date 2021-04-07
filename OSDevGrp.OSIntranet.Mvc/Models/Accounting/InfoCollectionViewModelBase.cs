@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
     public abstract class InfoCollectionViewModelBase<TInfoViewModel> : IReadOnlyCollection<TInfoViewModel> where TInfoViewModel : InfoViewModelBase
     {
-        public IReadOnlyCollection<TInfoViewModel> Items { get; set; } = Array.Empty<TInfoViewModel>();
+        public IList<TInfoViewModel> Items { get; set; } = new List<TInfoViewModel>();
 
         public int Count => Items.Count;
 

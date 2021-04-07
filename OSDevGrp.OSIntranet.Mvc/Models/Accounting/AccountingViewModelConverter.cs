@@ -1,5 +1,5 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
@@ -75,7 +75,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(creditInfo => creditInfo.Year * 100 + creditInfo.Month).ToArray()));
 
             mapperConfiguration.CreateMap<ICreditInfoCollection, CreditInfoDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<ICreditInfoCollection, ICreditInfo, CreditInfoDictionaryViewModel, CreditInfoCollectionViewModel, CreditInfoViewModel>(), src => src))
+                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<ICreditInfoCollection, ICreditInfo, CreditInfoCollectionViewModel, CreditInfoViewModel>(), src => src))
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
@@ -107,7 +107,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(budgetInfo => budgetInfo.Year * 100 + budgetInfo.Month).ToArray()));
 
             mapperConfiguration.CreateMap<IBudgetInfoCollection, BudgetInfoDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IBudgetInfoCollection, IBudgetInfo, BudgetInfoDictionaryViewModel, BudgetInfoCollectionViewModel, BudgetInfoViewModel>(), src => src))
+                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IBudgetInfoCollection, IBudgetInfo, BudgetInfoCollectionViewModel, BudgetInfoViewModel>(), src => src))
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
@@ -136,7 +136,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(contactInfo => contactInfo.Year * 100 + contactInfo.Month).ToArray()));
 
             mapperConfiguration.CreateMap<IContactInfoCollection, BalanceInfoDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IContactInfoCollection, IContactInfo, BalanceInfoDictionaryViewModel, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(), src => src))
+                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IContactInfoCollection, IContactInfo, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(), src => src))
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
@@ -168,11 +168,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<PaymentTermViewModel, DeletePaymentTermCommand>();
         }
 
-        private class InfoCollectionToDictionaryValueConverter<TInfoCollection, TInfo, TInfoDictionaryViewModel, TInfoCollectionViewModel, TInfoViewModel> : IValueConverter<TInfoCollection, TInfoDictionaryViewModel> where TInfoCollection : IInfoCollection<TInfo> where TInfo : IInfo<TInfo> where TInfoDictionaryViewModel : InfoDictionaryViewModelBase<TInfoCollectionViewModel, TInfoViewModel>, new() where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase
+        private class InfoCollectionToDictionaryValueConverter<TInfoCollection, TInfo, TInfoCollectionViewModel, TInfoViewModel> : IValueConverter<TInfoCollection, IDictionary<short, TInfoCollectionViewModel>> where TInfoCollection : IInfoCollection<TInfo> where TInfo : IInfo<TInfo> where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase
         {
             #region Methods
 
-            public TInfoDictionaryViewModel Convert(TInfoCollection sourceMember, ResolutionContext context)
+            public IDictionary<short, TInfoCollectionViewModel> Convert(TInfoCollection sourceMember, ResolutionContext context)
             {
                 NullGuard.NotNull(sourceMember, nameof(sourceMember))
                     .NotNull(context, nameof(context));
@@ -189,10 +189,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                         };
                     });
 
-                return new TInfoDictionaryViewModel
-                {
-                    Items = new ReadOnlyDictionary<short, TInfoCollectionViewModel>(dictionary)
-                };
+                return new ConcurrentDictionary<short, TInfoCollectionViewModel>(dictionary);
             }
 
             #endregion

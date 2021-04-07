@@ -318,13 +318,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             BudgetAccountViewModel budgetAccountViewModel = (BudgetAccountViewModel) result.Model;
 
             short nextYear = (short) (DateTime.Today.Year + 1);
+            short currentMonth = (short) DateTime.Today.Month;
+
+            if (currentMonth == 1)
+            {
+                Assert.That(budgetAccountViewModel.BudgetInfos.ContainsKey(nextYear), Is.False);
+
+                return;
+            }
 
             Assert.That(budgetAccountViewModel.BudgetInfos.ContainsKey(nextYear), Is.True);
 
             BudgetInfoCollectionViewModel budgetInfoCollectionViewModel = budgetAccountViewModel.BudgetInfos[nextYear];
             Assert.That(budgetInfoCollectionViewModel, Is.Not.Null);
-            Assert.That(budgetInfoCollectionViewModel.Count, Is.EqualTo(12));
-            for (short month = 1; month <= 12; month++)
+            Assert.That(budgetInfoCollectionViewModel.Count, Is.EqualTo(currentMonth - 1));
+            for (short month = 1; month < currentMonth; month++)
             {
                 BudgetInfoViewModel budgetInfoViewModel = budgetInfoCollectionViewModel.Single(m => m.Year == nextYear && m.Month == month);
                 Assert.That(budgetInfoViewModel.EditMode, Is.EqualTo(EditMode.Create));

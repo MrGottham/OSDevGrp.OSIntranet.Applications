@@ -1,0 +1,23 @@
+@model AccountIdentificationViewModel;
+<input type="hidden" asp-for="Accounting.AccountingNumber" />
+<input type="hidden" asp-for="Accounting.Name" />
+@if (Model.EditMode == EditMode.Create)
+{
+    <div class="form-group">
+        <label asp-for="AccountNumber"></label>
+        <input asp-for="AccountNumber" class="form-control" onkeyup="$().applyUpperCase('#@Html.IdFor(m => m.AccountNumber)');" />
+        <span asp-validation-for="AccountNumber" class="text-danger"></span>
+    </div>
+}
+else
+{
+    <div class="form-group">
+        <label asp-for="AccountNumber"></label>
+        <input asp-for="AccountNumber" class="form-control" readonly />
+    </div>
+}
+<div class="form-group">
+    <label asp-for="AccountName"></label>
+    <input asp-for="AccountName" class="form-control" />
+    <span asp-validation-for="AccountName" class="text-danger"></span>
+</div>

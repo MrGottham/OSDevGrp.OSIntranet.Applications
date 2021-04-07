@@ -767,9 +767,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             IDictionary<short, TInfoCollectionViewModel> dictionary = new Dictionary<short, TInfoCollectionViewModel>
             {
-                {(short) creationDate.Year, CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(creationDate)},
-                {(short) (creationDate.Year + 1), CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(new DateTime(creationDate.Year + 1, 1, 1))}
+                {(short) creationDate.Year, CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(creationDate, 12 - creationDate.Month + 1)}
             };
+
+            if (creationDate.Month > 1)
+            {
+                dictionary.Add((short) (creationDate.Year + 1), CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(new DateTime(creationDate.Year + 1, 1, 1), creationDate.Month - 1));
+            }
 
             return new TInfoDictionaryViewModelBase
             {
@@ -777,10 +781,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             };
         }
 
-        private static TInfoCollectionViewModel CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(DateTime creationDate) where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase, new()
+        private static TInfoCollectionViewModel CreateInfoCollectionViewModelForCreation<TInfoCollectionViewModel, TInfoViewModel>(DateTime creationDate, int numberOfMonths) where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase, new()
         {
             IList<TInfoViewModel> collection = new List<TInfoViewModel>();
-            for (short month = (short) creationDate.Month; month <= 12; month++)
+            for (short month = (short) creationDate.Month; month < creationDate.Month + numberOfMonths; month++)
             {
                 collection.Add(new TInfoViewModel {Year = (short) creationDate.Year, Month = month, EditMode = EditMode.Create});
             }

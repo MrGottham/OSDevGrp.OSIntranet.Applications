@@ -301,13 +301,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             ContactAccountViewModel contactAccountViewModel = (ContactAccountViewModel) result.Model;
 
             short nextYear = (short) (DateTime.Today.Year + 1);
+            short currentMonth = (short) DateTime.Today.Month;
+
+            if (currentMonth == 1)
+            {
+                Assert.That(contactAccountViewModel.BalanceInfos.ContainsKey(nextYear), Is.False);
+
+                return;
+            }
 
             Assert.That(contactAccountViewModel.BalanceInfos.ContainsKey(nextYear), Is.True);
 
             BalanceInfoCollectionViewModel balanceInfoCollectionViewModel = contactAccountViewModel.BalanceInfos[nextYear];
             Assert.That(balanceInfoCollectionViewModel, Is.Not.Null);
-            Assert.That(balanceInfoCollectionViewModel.Count, Is.EqualTo(12));
-            for (short month = 1; month <= 12; month++)
+            Assert.That(balanceInfoCollectionViewModel.Count, Is.EqualTo(currentMonth - 1));
+            for (short month = 1; month < currentMonth; month++)
             {
                 BalanceInfoViewModel balanceInfoViewModel = balanceInfoCollectionViewModel.Single(m => m.Year == nextYear && m.Month == month);
                 Assert.That(balanceInfoViewModel.EditMode, Is.EqualTo(EditMode.Create));

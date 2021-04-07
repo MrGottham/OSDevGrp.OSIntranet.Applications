@@ -137,6 +137,15 @@
 
         applyValue: function(elementId, value) {
             $(elementId).val(value);
+        },
+
+        applyUpperCase: function(elementId) {
+            $(elementId).each(function() {
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+                this.value = this.value.toUpperCase();
+                this.setSelectionRange(start, end);
+            });
         }
     });
 

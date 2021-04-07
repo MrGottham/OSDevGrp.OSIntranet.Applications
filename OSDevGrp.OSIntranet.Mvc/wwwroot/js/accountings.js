@@ -256,7 +256,7 @@
                 return;
             }
 
-            $.each(loadAccountElementArray, function () {
+            $.each(loadAccountElementArray, function() {
                 $().replaceWithPartialViewFromUrl(this);
             });
         }

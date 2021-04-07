@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
@@ -15,6 +16,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Range(1, 12, ErrorMessage = "Måneden skal være mellem {1} og {2}.")]
         public short Month { get; set; }
 
+        [DataType(DataType.Text)]
+        [DisplayFormat(DataFormatString = "{0:MMMM}")]
+        public DateTime MonthAsText => new(Year, Month, 1);
+
+        public bool IsCurrentMonth => Year == Today.Year && Month == Today.Month;
+
+        public bool Editable => Year > Today.Year || Year == Today.Year && Month >= Today.Month;
+
         public bool Deletable { get; set; }
+
+        private DateTime Today => DateTime.Today;
     }
 }

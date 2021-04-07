@@ -1,12 +1,12 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
     public abstract class InfoDictionaryViewModelBase<TInfoCollectionModel, TInfoModel> : IReadOnlyDictionary<short, TInfoCollectionModel> where TInfoCollectionModel : InfoCollectionViewModelBase<TInfoModel> where TInfoModel : InfoViewModelBase
     {
-        public IReadOnlyDictionary<short, TInfoCollectionModel> Items { get; set; } = new ReadOnlyDictionary<short, TInfoCollectionModel>(new Dictionary<short, TInfoCollectionModel>());
+        public IDictionary<short, TInfoCollectionModel> Items { get; set; } = new ConcurrentDictionary<short, TInfoCollectionModel>();
 
         public int Count => Items.Count;
 

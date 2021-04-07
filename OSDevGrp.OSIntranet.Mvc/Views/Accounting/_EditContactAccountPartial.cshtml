@@ -1,10 +1,113 @@
 @model ContactAccountViewModel;
-<div>
-    <form id="editAccountForm" asp-area="" asp-controller="Accounting" asp-action="@Model.GetAction()">
-        <div class="row">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
+<div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        <form id="editAccountForm" asp-area="" asp-controller="Accounting" asp-action="@Model.GetAction()">
+            <input type="hidden" asp-for="EditMode" />
+            @if (Model.PaymentTerm != null && Model.PaymentTerm.IsKnownPaymentTerm(Model.PaymentTerms) && string.IsNullOrWhiteSpace(Model.PaymentTerm.Name) == false)
+            {
+                <input type="hidden" asp-for="PaymentTerm.Name" />
+            }
+            else
+            {
+                <input type="hidden" id="@Html.IdFor(m => m.PaymentTerm.Name)" name="@Html.NameFor(m => m.PaymentTerm.Name)" value="@Model.PaymentTerms.FirstOrDefault()?.Name" />
+            }
+            @if (Model.EditMode == EditMode.Edit && Model.ValuesAtStatusDate != null)
+            {
+                <input type="hidden" asp-for="ValuesAtStatusDate.Balance" />
+            }
+            @if (Model.EditMode == EditMode.Edit && Model.ValuesAtEndOfLastMonthFromStatusDate != null)
+            {
+                <input type="hidden" asp-for="ValuesAtEndOfLastMonthFromStatusDate.Balance" />
+            }
+            @if (Model.EditMode == EditMode.Edit && Model.ValuesAtEndOfLastYearFromStatusDate != null)
+            {
+                <input type="hidden" asp-for="ValuesAtEndOfLastYearFromStatusDate.Balance" />
+            }
+            <h3>@Model.Accounting.Name.ToHtmlString()</h3>
+            @await Html.PartialAsync("_EditAccountIdentificationPartial", Model)
+            <div class="form-group">
+                <label asp-for="MailAddress"></label>
+                <input asp-for="MailAddress" class="form-control" />
+                <span asp-validation-for="MailAddress" class="text-danger"></span>
             </div>
-        </div>
-    </form>
+            <div class="form-group">
+                <label asp-for="PrimaryPhone"></label>
+                <input asp-for="PrimaryPhone" class="form-control" />
+                <span asp-validation-for="PrimaryPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SecondaryPhone"></label>
+                <input asp-for="SecondaryPhone" class="form-control" />
+                <span asp-validation-for="SecondaryPhone" class="text-danger"></span>
+            </div>
+            @await Html.PartialAsync("_EditAccountCoreDataPartial", Model)
+            <div class="form-group">
+                <label asp-for="PaymentTerm"></label>
+                <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm?.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.PaymentTerm.Name)', $(this).find('option:selected').text());"></select>
+                <span asp-validation-for="PaymentTerm" class="text-danger"></span>
+            </div>
+            @if (Model.EditMode == EditMode.Edit && (Model.ValuesAtStatusDate != null || Model.ValuesAtEndOfLastMonthFromStatusDate != null || Model.ValuesAtEndOfLastYearFromStatusDate != null))
+            {
+                <div class="table-responsive d-none d-lg-block d-xl-block">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th class="text-right">Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ValuesAtStatusDate != null)
+                            {
+                                <tr>
+                                    <td>@Html.LabelFor(m => m.ValuesAtStatusDate)</td>
+                                    <td class="text-right">@Model.ValuesAtStatusDate.Balance.AsCurrency()</td>
+                                </tr>
+                            }
+                            @if (Model.ValuesAtEndOfLastMonthFromStatusDate != null)
+                            {
+                                <tr>
+                                    <td>@Html.LabelFor(m => m.ValuesAtEndOfLastMonthFromStatusDate)</td>
+                                    <td class="text-right">@Model.ValuesAtEndOfLastMonthFromStatusDate.Balance.AsCurrency()</td>
+                                </tr>
+                            }
+                            @if (Model.ValuesAtEndOfLastYearFromStatusDate != null)
+                            {
+                                <tr>
+                                    <td>@Html.LabelFor(m => m.ValuesAtEndOfLastYearFromStatusDate)</td>
+                                    <td class="text-right">@Model.ValuesAtEndOfLastYearFromStatusDate.Balance.AsCurrency()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            @if (Model.BalanceInfos != null)
+            {
+                @foreach (KeyValuePair<short, BalanceInfoCollectionViewModel> item in Model.BalanceInfos.Where(m => m.Value.Any(n => n.Editable == false || n.IsCurrentMonth)).OrderBy(m => m.Key))
+                {
+                    <div class="form-group">
+                        <label class="font-weight-bold">@Html.Raw(item.Key)</label>
+                    </div>
+                    <hr />
+                    @foreach (BalanceInfoViewModel balanceInfoViewModel in item.Value.Where(m => m.Editable == false || m.IsCurrentMonth).OrderBy(m => m.Year).ThenBy(m => m.Month))
+                    {
+                        <div class="form-group">
+                            <label class="underline">@Html.DisplayFor(m => balanceInfoViewModel.MonthAsText)</label>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => balanceInfoViewModel.Balance)
+                            <input type="text" value="@balanceInfoViewModel.Balance.AsCurrency()" class="form-control" readonly />
+                        </div>
+                        <hr />
+                    }
+                }
+            }
+            @if (Model.EditMode == EditMode.Edit)
+            {
+                @await Html.PartialAsync("_AuditablePartial", Model)
+            }
+            @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
+        </form>
+    </div>
 </div>

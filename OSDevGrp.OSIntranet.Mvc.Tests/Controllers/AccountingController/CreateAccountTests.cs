@@ -303,13 +303,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             AccountViewModel accountViewModel = (AccountViewModel) result.Model;
 
             short nextYear = (short) (DateTime.Today.Year + 1);
+            short currentMonth = (short) DateTime.Today.Month;
+
+            if (currentMonth == 1)
+            {
+                Assert.That(accountViewModel.CreditInfos.ContainsKey(nextYear), Is.False);
+
+                return;
+            }
 
             Assert.That(accountViewModel.CreditInfos.ContainsKey(nextYear), Is.True);
 
             CreditInfoCollectionViewModel creditInfoCollectionViewModel = accountViewModel.CreditInfos[nextYear];
             Assert.That(creditInfoCollectionViewModel, Is.Not.Null);
-            Assert.That(creditInfoCollectionViewModel.Count, Is.EqualTo(12));
-            for (short month = 1; month <= 12; month++)
+            Assert.That(creditInfoCollectionViewModel.Count, Is.EqualTo(currentMonth - 1));
+            for (short month = 1; month < currentMonth; month++)
             {
                 CreditInfoViewModel creditInfoViewModel = creditInfoCollectionViewModel.Single(m => m.Year == nextYear && m.Month == month);
                 Assert.That(creditInfoViewModel.EditMode, Is.EqualTo(EditMode.Create));
