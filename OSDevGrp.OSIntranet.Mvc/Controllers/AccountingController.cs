@@ -14,6 +14,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -211,9 +212,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
+        public async Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(accountViewModel, nameof(accountViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+            }
+
+            ICreateAccountCommand command = _accountingViewModelConverter.Convert<AccountViewModel, CreateAccountCommand>(accountViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber = accountViewModel.Accounting.AccountingNumber});
         }
 
         [HttpGet]
@@ -292,9 +304,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> CreateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
+        public async Task<IActionResult> CreateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(budgetAccountViewModel, nameof(budgetAccountViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+            }
+
+            ICreateBudgetAccountCommand command = _accountingViewModelConverter.Convert<BudgetAccountViewModel, CreateBudgetAccountCommand>(budgetAccountViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber = budgetAccountViewModel.Accounting.AccountingNumber});
         }
 
         [HttpGet]
@@ -373,9 +396,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> CreateContactAccount(ContactAccountViewModel contactAccountViewModel)
+        public async Task<IActionResult> CreateContactAccount(ContactAccountViewModel contactAccountViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+            }
+
+            ICreateContactAccountCommand command = _accountingViewModelConverter.Convert<ContactAccountViewModel, CreateContactAccountCommand>(contactAccountViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber = contactAccountViewModel.Accounting.AccountingNumber});
         }
 
         [HttpGet]
