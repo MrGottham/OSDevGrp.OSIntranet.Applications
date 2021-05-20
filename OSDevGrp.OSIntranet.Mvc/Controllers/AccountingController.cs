@@ -262,9 +262,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> UpdateAccount(AccountViewModel accountViewModel)
+        public async Task<IActionResult> UpdateAccount(AccountViewModel accountViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(accountViewModel, nameof(accountViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+            }
+
+            IUpdateAccountCommand command = _accountingViewModelConverter.Convert<AccountViewModel, UpdateAccountCommand>(accountViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = accountViewModel.Accounting.AccountingNumber });
         }
 
         [HttpPost]
@@ -354,9 +365,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> UpdateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
+        public async Task<IActionResult> UpdateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(budgetAccountViewModel, nameof(budgetAccountViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+            }
+
+            IUpdateBudgetAccountCommand command = _accountingViewModelConverter.Convert<BudgetAccountViewModel, UpdateBudgetAccountCommand>(budgetAccountViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = budgetAccountViewModel.Accounting.AccountingNumber });
         }
 
         [HttpPost]
@@ -446,9 +468,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> UpdateContactAccount(ContactAccountViewModel contactAccountViewModel)
+        public async Task<IActionResult> UpdateContactAccount(ContactAccountViewModel contactAccountViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+            }
+
+            IUpdateContactAccountCommand command = _accountingViewModelConverter.Convert<ContactAccountViewModel, UpdateContactAccountCommand>(contactAccountViewModel);
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = contactAccountViewModel.Accounting.AccountingNumber });
         }
 
         [HttpPost]
