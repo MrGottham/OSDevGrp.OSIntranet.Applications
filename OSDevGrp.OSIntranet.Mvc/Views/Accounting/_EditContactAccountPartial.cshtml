@@ -86,21 +86,36 @@
             {
                 @foreach (KeyValuePair<short, BalanceInfoCollectionViewModel> item in Model.BalanceInfos.Where(m => m.Value.Any(n => n.Editable == false || n.IsCurrentMonth)).OrderBy(m => m.Key))
                 {
-                    <div class="form-group">
-                        <label class="font-weight-bold">@Html.Raw(item.Key)</label>
-                    </div>
-                    <hr />
-                    @foreach (BalanceInfoViewModel balanceInfoViewModel in item.Value.Where(m => m.Editable == false || m.IsCurrentMonth).OrderBy(m => m.Year).ThenBy(m => m.Month))
+                    <p class="font-weight-bold">@Html.LabelFor(m => m.BalanceInfos)&nbsp;@Html.Raw(item.Key)</p>
+                    @for (int i = 0; i < item.Value.Count; i += 3)
                     {
-                        <div class="form-group">
-                            <label class="underline">@Html.DisplayFor(m => balanceInfoViewModel.MonthAsText)</label>
+                        <div class="card-deck mb-4">
+                            @for (int j = i; j < Math.Min(i + 3, item.Value.Count); j++)
+                            {
+                                int elementNo = j;
+                                <div class="card">
+                                    <div class="card-header">@Html.DisplayFor(m => m.BalanceInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
+                                    <div class="card-body">
+                                        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Year" />
+                                        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Month" />
+                                        @if (Model.BalanceInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BalanceInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
+                                        {
+                                            <div class="form-group">
+                                                <label asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance"></label>
+                                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
+                                                <input type="text" value="@Model.BalanceInfos.Items[item.Key].Items[elementNo].Balance.AsCurrency()" class="form-control" readonly />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(m => balanceInfoViewModel.Balance)
-                            <input type="text" value="@balanceInfoViewModel.Balance.AsCurrency()" class="form-control" readonly />
-                        </div>
-                        <hr />
                     }
+                    <hr />
                 }
             }
             @if (Model.EditMode == EditMode.Edit)

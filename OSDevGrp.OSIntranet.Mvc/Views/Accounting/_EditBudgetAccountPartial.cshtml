@@ -100,52 +100,53 @@
             {
                 @foreach (KeyValuePair<short, BudgetInfoCollectionViewModel> item in Model.BudgetInfos.OrderBy(m => m.Key))
                 {
-                    int elementNo = 0;
-                    <div class="form-group">
-                        <label class="font-weight-bold">@Html.Raw(item.Key)</label>
-                    </div>
-                    <hr />
-                    @foreach (BudgetInfoViewModel budgetInfoViewModel in item.Value.OrderBy(m => m.Year).ThenBy(m => m.Month))
+                    <p class="font-weight-bold">@Html.LabelFor(m => m.BudgetInfos)&nbsp;@Html.Raw(item.Key)</p>
+                    @for (int i = 0; i < item.Value.Count; i += 3)
                     {
-                        int index = elementNo;
-                        @if (budgetInfoViewModel.Editable)
-                        {
-                            <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[index].Year" />
-                            <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[index].Month" />
-                        }
-                        <div class="form-group">
-                            <label class="underline">@Html.DisplayFor(m => budgetInfoViewModel.MonthAsText)</label>
+                        <div class="card-deck mb-4">
+                            @for (int j = i; j < Math.Min(i + 3, item.Value.Count); j++)
+                            {
+                                int elementNo = j;
+                                <div class="card">
+                                    <div class="card-header">@Html.DisplayFor(m => m.BudgetInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
+                                    <div class="card-body">
+                                        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Year" />
+                                        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Month" />
+                                        @if (Model.BudgetInfos.Items[item.Key].Items[elementNo].Editable == false)
+                                        {
+                                            <div class="form-group">
+                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Budget"></label>
+                                                <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Budget" />
+                                                <input type="text" value="@Model.BudgetInfos.Items[item.Key].Items[elementNo].Budget.AsCurrency()" class="form-control" readonly />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="form-group">
+                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income"></label>
+                                                <input asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="form-control" />
+                                                <span asp-validation-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses"></label>
+                                                <input asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="form-control" />
+                                                <span asp-validation-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="text-danger"></span>
+                                            </div>
+                                        }
+                                        @if (Model.BudgetInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BudgetInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
+                                        {
+                                            <div class="form-group">
+                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Posted"></label>
+                                                <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Posted" />
+                                                <input type="text" value="@Model.BudgetInfos.Items[item.Key].Items[elementNo].Posted.AsCurrency()" class="form-control" readonly />
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
-                        @if (budgetInfoViewModel.Editable == false)
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(m => budgetInfoViewModel.Budget)
-                                <input type="text" value="@budgetInfoViewModel.Budget.AsCurrency()" class="form-control" readonly />
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(m => budgetInfoViewModel.Income)
-                                <input asp-for="BudgetInfos.Items[item.Key].Items[index].Income" class="form-control" />
-                                <span asp-validation-for="BudgetInfos.Items[item.Key].Items[index].Income" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(m => budgetInfoViewModel.Expenses)
-                                <input asp-for="BudgetInfos.Items[item.Key].Items[index].Expenses" class="form-control" />
-                                <span asp-validation-for="BudgetInfos.Items[item.Key].Items[index].Expenses" class="text-danger"></span>
-                            </div>
-                        }
-                        @if (budgetInfoViewModel.Editable == false || budgetInfoViewModel.IsCurrentMonth)
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(m => budgetInfoViewModel.Posted)
-                                <input type="text" value="@budgetInfoViewModel.Posted.AsCurrency()" class="form-control" readonly />
-                            </div>
-                        }
-                        <hr />
-                        elementNo += budgetInfoViewModel.Editable ? 1 : 0;
                     }
+                    <hr />
                 }
             }
             @if (Model.EditMode == EditMode.Edit)

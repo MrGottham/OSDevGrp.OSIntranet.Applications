@@ -20,6 +20,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Kreditoplysninger ved sidste års afslutning", ShortName = "Kreditopl. ved sidste års afslutning", Description = "Kreditoplysninger ved sidste års afslutning")]
         public CreditInfoValuesViewModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
 
+        [Display(Name = "Kreditoplysninger", ShortName = "Kreditopl.", Description = "Kreditoplysninger")]
         public CreditInfoDictionaryViewModel CreditInfos { get; set; }
 
         public IReadOnlyCollection<AccountGroupViewModel> AccountGroups { get; set; }

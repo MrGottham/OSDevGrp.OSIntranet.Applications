@@ -35,6 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Saldooplysninger ved sidste års afslutning", ShortName = "Saldoopl. ved sidste års afslutning", Description = "Saldooplysninger ved sidste års afslutning")]
         public BalanceInfoValuesViewModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
 
+        [Display(Name = "Saldooplysninger", ShortName = "Saldoopl.", Description = "Saldooplysninger")]
         public BalanceInfoDictionaryViewModel BalanceInfos { get; set; }
 
         public IReadOnlyCollection<PaymentTermViewModel> PaymentTerms { get; set; }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
@@ -216,11 +217,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNull(accountViewModel, nameof(accountViewModel));
 
-            if (ModelState.IsValid == false)
-            {
-                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
-                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
-            }
+            HandleModelValidationForAccountViewModel(ModelState, accountViewModel);
 
             ICreateAccountCommand command = _accountingViewModelConverter.Convert<AccountViewModel, CreateAccountCommand>(accountViewModel);
             await _commandBus.PublishAsync(command);
@@ -266,23 +263,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNull(accountViewModel, nameof(accountViewModel));
 
-            if (ModelState.IsValid == false)
-            {
-                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
-                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
-            }
+            HandleModelValidationForAccountViewModel(ModelState, accountViewModel);
 
             IUpdateAccountCommand command = _accountingViewModelConverter.Convert<AccountViewModel, UpdateAccountCommand>(accountViewModel);
             await _commandBus.PublishAsync(command);
 
-            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = accountViewModel.Accounting.AccountingNumber });
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber = accountViewModel.Accounting.AccountingNumber});
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteAccount(int accountingNumber, string accountNumber)
+        public async Task<IActionResult> DeleteAccount(int accountingNumber, string accountNumber)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            IDeleteAccountCommand command = new DeleteAccountCommand
+            {
+                AccountingNumber = accountingNumber,
+                AccountNumber = accountNumber
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber});
         }
 
         [HttpGet]
@@ -319,11 +321,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNull(budgetAccountViewModel, nameof(budgetAccountViewModel));
 
-            if (ModelState.IsValid == false)
-            {
-                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
-                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
-            }
+            HandleModelValidationForAccountViewModel(ModelState, budgetAccountViewModel);
 
             ICreateBudgetAccountCommand command = _accountingViewModelConverter.Convert<BudgetAccountViewModel, CreateBudgetAccountCommand>(budgetAccountViewModel);
             await _commandBus.PublishAsync(command);
@@ -369,23 +367,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNull(budgetAccountViewModel, nameof(budgetAccountViewModel));
 
-            if (ModelState.IsValid == false)
-            {
-                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
-                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
-            }
+            HandleModelValidationForAccountViewModel(ModelState, budgetAccountViewModel);
 
             IUpdateBudgetAccountCommand command = _accountingViewModelConverter.Convert<BudgetAccountViewModel, UpdateBudgetAccountCommand>(budgetAccountViewModel);
             await _commandBus.PublishAsync(command);
 
-            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = budgetAccountViewModel.Accounting.AccountingNumber });
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber = budgetAccountViewModel.Accounting.AccountingNumber});
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteBudgetAccount(int accountingNumber, string accountNumber)
+        public async Task<IActionResult> DeleteBudgetAccount(int accountingNumber, string accountNumber)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            IDeleteBudgetAccountCommand command = new DeleteBudgetAccountCommand
+            {
+                AccountingNumber = accountingNumber,
+                AccountNumber = accountNumber
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber});
         }
 
         [HttpGet]
@@ -422,11 +425,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel));
 
-            if (ModelState.IsValid == false)
-            {
-                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
-                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
-            }
+            HandleModelValidationForAccountViewModel(ModelState, contactAccountViewModel);
 
             ICreateContactAccountCommand command = _accountingViewModelConverter.Convert<ContactAccountViewModel, CreateContactAccountCommand>(contactAccountViewModel);
             await _commandBus.PublishAsync(command);
@@ -472,23 +471,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel));
 
-            if (ModelState.IsValid == false)
-            {
-                string errorMessages = string.Join(Environment.NewLine, ModelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
-                throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
-            }
+            HandleModelValidationForAccountViewModel(ModelState, contactAccountViewModel);
 
             IUpdateContactAccountCommand command = _accountingViewModelConverter.Convert<ContactAccountViewModel, UpdateContactAccountCommand>(contactAccountViewModel);
             await _commandBus.PublishAsync(command);
 
-            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = contactAccountViewModel.Accounting.AccountingNumber });
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber = contactAccountViewModel.Accounting.AccountingNumber});
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteContactAccount(int accountingNumber, string accountNumber)
+        public async Task<IActionResult> DeleteContactAccount(int accountingNumber, string accountNumber)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
+
+            IDeleteContactAccountCommand command = new DeleteContactAccountCommand
+            {
+                AccountingNumber = accountingNumber,
+                AccountNumber = accountNumber
+            };
+            await _commandBus.PublishAsync(command);
+
+            return RedirectToAction("Accountings", "Accounting", new {accountingNumber});
         }
 
         [HttpGet]
@@ -792,6 +796,29 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 .ToList();
         }
 
+        private void HandleModelValidationForAccountViewModel<TAccountViewModel>(ModelStateDictionary modelState, TAccountViewModel accountViewModel) where TAccountViewModel : AccountIdentificationViewModel
+        {
+            NullGuard.NotNull(modelState, nameof(modelState))
+                .NotNull(accountViewModel, nameof(accountViewModel));
+
+            if (modelState.ValidationState == ModelValidationState.Unvalidated)
+            {
+                modelState.Clear();
+                if (TryValidateModel(accountViewModel))
+                {
+                    return;
+                }
+            }
+
+            if (modelState.IsValid)
+            {
+                return;
+            }
+
+            string errorMessages = string.Join(Environment.NewLine, modelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
+            throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+        }
+
         private static AccountingOptionsViewModel CreateAccountingOptionsViewModel(int? accountingNumber = null)
         {
             return new AccountingOptionsViewModel
@@ -858,7 +885,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             return new TInfoCollectionViewModel
             {
-                Items = new ReadOnlyCollection<TInfoViewModel>(collection)
+                Items = new ReadOnlyCollection<TInfoViewModel>(collection.OrderBy(infoViewModel => infoViewModel.Month).ToList())
             };
         }
 

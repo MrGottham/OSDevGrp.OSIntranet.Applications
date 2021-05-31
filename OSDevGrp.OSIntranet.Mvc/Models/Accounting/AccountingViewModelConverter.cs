@@ -236,13 +236,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                     .NotNull(context, nameof(context));
 
                 IDictionary<short, TInfoCollectionViewModel> dictionary = sourceMember.GroupBy(info => info.Year)
-                    .OrderByDescending(group => group.Key)
+                    .OrderBy(group => group.Key)
                     .ToDictionary(group => group.Key, group =>
                     {
                         return new TInfoCollectionViewModel
                         {
                             Items = group.Select(info => context.Mapper.Map<TInfo, TInfoViewModel>(info))
-                                .OrderByDescending(infoViewModel => infoViewModel.Month)
+                                .OrderBy(infoViewModel => infoViewModel.Month)
                                 .ToArray()
                         };
                     });

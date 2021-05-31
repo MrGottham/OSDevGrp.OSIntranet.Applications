@@ -88,44 +88,45 @@
             {
                 @foreach (KeyValuePair<short, CreditInfoCollectionViewModel> item in Model.CreditInfos.OrderBy(m => m.Key))
                 {
-                    int elementNo = 0;
-                    <div class="form-group">
-                        <label class="font-weight-bold">@Html.Raw(item.Key)</label>
-                    </div>
-                    <hr />
-                    @foreach (CreditInfoViewModel creditInfoViewModel in item.Value.OrderBy(m => m.Year).ThenBy(m => m.Month))
+                    <p class="font-weight-bold">@Html.LabelFor(m => m.CreditInfos)&nbsp;@Html.Raw(item.Key)</p>
+                    @for (int i = 0; i < item.Value.Count; i += 3)
                     {
-                        int index = elementNo;
-                        @if (creditInfoViewModel.Editable)
-                        {
-                            <input type="hidden" asp-for="CreditInfos.Items[item.Key].Items[index].Year" />
-                            <input type="hidden" asp-for="CreditInfos.Items[item.Key].Items[index].Month" />
-                        }
-                        <div class="form-group">
-                            <label class="underline">@Html.DisplayFor(m => creditInfoViewModel.MonthAsText)</label>
-                        </div>
-                        @if (creditInfoViewModel.Editable == false || creditInfoViewModel.IsCurrentMonth)
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(m => creditInfoViewModel.Balance)
-                                <input type="text" value="@creditInfoViewModel.Balance.AsCurrency()" class="form-control" readonly />
-                            </div>
-                        }
-                        <div class="form-group">
-                            @Html.LabelFor(m => creditInfoViewModel.Credit)
-                            @if (creditInfoViewModel.Editable == false)
+                        <div class="card-deck mb-4">
+                            @for (int j = i; j < Math.Min(i + 3, item.Value.Count); j++)
                             {
-                                <input type="text" value="@creditInfoViewModel.Credit.AsCurrency()" class="form-control" readonly />
-                            }
-                            else
-                            {
-                                <input asp-for="CreditInfos.Items[item.Key].Items[index].Credit" class="form-control" />
-                                <span asp-validation-for="CreditInfos.Items[item.Key].Items[index].Credit" class="text-danger"></span>
+                                int elementNo = j;
+                                <div class="card">
+                                    <div class="card-header">@Html.DisplayFor(m => m.CreditInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
+                                    <div class="card-body">
+                                        <input type="hidden" asp-for="CreditInfos.Items[item.Key].Items[elementNo].Year" />
+                                        <input type="hidden" asp-for="CreditInfos.Items[item.Key].Items[elementNo].Month" />
+                                        @if (Model.CreditInfos.Items[item.Key].Items[elementNo].Editable == false || Model.CreditInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
+                                        {
+                                            <div class="form-group">
+                                                <label asp-for="CreditInfos.Items[item.Key].Items[elementNo].Balance"></label>
+                                                <input type="hidden" asp-for="CreditInfos.Items[item.Key].Items[elementNo].Balance" />
+                                                <input type="text" value="@Model.CreditInfos.Items[item.Key].Items[elementNo].Balance.AsCurrency()" class="form-control" readonly />
+                                            </div>
+                                        }
+                                        <div class="form-group">
+                                            <label asp-for="CreditInfos.Items[item.Key].Items[elementNo].Credit"></label>
+                                            @if (Model.CreditInfos.Items[item.Key].Items[elementNo].Editable == false)
+                                            {
+                                                <input type="hidden" asp-for="CreditInfos.Items[item.Key].Items[elementNo].Credit" />
+                                                <input type="text" value="@Model.CreditInfos.Items[item.Key].Items[elementNo].Credit.AsCurrency()" class="form-control" readonly />
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="CreditInfos.Items[item.Key].Items[elementNo].Credit" class="form-control" />
+                                                <span asp-validation-for="CreditInfos.Items[item.Key].Items[elementNo].Credit" class="text-danger"></span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
                             }
                         </div>
-                        <hr />
-                        elementNo += creditInfoViewModel.Editable ? 1 : 0;
                     }
+                    <hr />
                 }
             }
             @if (Model.EditMode == EditMode.Edit)
