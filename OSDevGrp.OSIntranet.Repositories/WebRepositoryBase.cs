@@ -133,14 +133,24 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                 default:
                     Uri requestUri = httpRequestMessage.RequestUri;
-                    string request = await httpRequestMessage.Content.ReadAsStringAsync();
-                    string response = await httpResponseMessage.Content.ReadAsStringAsync();
+                    string request = await ReadContentAsString(httpRequestMessage.Content);
+                    string response = await ReadContentAsString(httpResponseMessage.Content);
                     Logger.LogError($"{methodBase}: {Convert.ToString(httpResponseMessage.StatusCode)}, Url={requestUri}, Request={request}, Response={response}");
 
                     return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, httpResponseMessage.ReasonPhrase)
                         .WithMethodBase(methodBase)
                         .Build();
             }
+        }
+
+        private static async Task<string> ReadContentAsString(HttpContent httpContent)
+        {
+            if (httpContent == null)
+            {
+                return "{null}";
+            }
+
+            return await httpContent.ReadAsStringAsync();
         }
 
         #endregion
