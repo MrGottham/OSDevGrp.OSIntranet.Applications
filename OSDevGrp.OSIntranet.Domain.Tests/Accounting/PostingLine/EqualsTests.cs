@@ -3,6 +3,7 @@ using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 {
@@ -74,7 +75,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             int month = _random.Next(InfoBase<ICreditInfo>.MinMonth, InfoBase<ICreditInfo>.MaxMonth);
             int day = _random.Next(1, DateTime.DaysInMonth(year, month));
 
-            return new Domain.Accounting.PostingLine(identifier ?? Guid.NewGuid(), new DateTime(year, month, day));
+            return new Domain.Accounting.PostingLine(identifier ?? Guid.NewGuid(), new DateTime(year, month, day), _fixture.Create<string>(), _fixture.BuildAccountMock().Object, _fixture.Create<string>(), null, Math.Abs(_fixture.Create<decimal>()), Math.Abs(_fixture.Create<decimal>()), null, Math.Abs(_fixture.Create<int>()));
         }
     }
 }

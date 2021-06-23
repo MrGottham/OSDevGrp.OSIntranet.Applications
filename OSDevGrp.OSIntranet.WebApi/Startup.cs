@@ -18,6 +18,7 @@ using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.WebApi.Filters;
@@ -151,6 +152,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddResolvers();
+            services.AddDomainLogic();
             services.AddRepositories();
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -118,6 +119,23 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         public void ApplyDefaultForPrincipal(int? defaultAccountingNumber)
         {
             DefaultForPrincipal = defaultAccountingNumber.HasValue && defaultAccountingNumber.Value == Number;
+        }
+
+        public async Task<IPostingLineCollection> GetPostingLinesAsync(DateTime statusDate)
+        {
+            IAccountCollection calculatedAccountCollection = await AccountCollection.CalculateAsync(statusDate);
+
+            IPostingLine[] postingLineArray = calculatedAccountCollection.SelectMany(m => m.PostingLineCollection)
+                .AsParallel()
+                .Where(postingLine => postingLine.PostingDate.Date <= statusDate.Date)
+                .OrderByDescending(postingLine => postingLine.PostingDate.Date)
+                .ThenByDescending(postingLine => postingLine.SortOrder)
+                .ToArray();
+
+            IPostingLineCollection postingLineCollection = new PostingLineCollection();
+            postingLineCollection.Add(postingLineArray);
+
+            return await postingLineCollection.CalculateAsync(statusDate);
         }
 
         private async Task GetAccountCollectionCalculationTask(DateTime statusDate)

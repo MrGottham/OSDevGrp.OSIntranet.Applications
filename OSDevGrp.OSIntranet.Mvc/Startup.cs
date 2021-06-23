@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
@@ -129,6 +130,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddResolvers();
+            services.AddDomainLogic();
             services.AddRepositories();
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();

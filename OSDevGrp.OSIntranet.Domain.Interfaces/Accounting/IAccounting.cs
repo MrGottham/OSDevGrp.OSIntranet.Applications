@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
@@ -25,5 +27,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         IContactAccountCollection ContactAccountCollection { get; }
 
         void ApplyDefaultForPrincipal(int? defaultAccountingNumber);
+
+        Task<IPostingLineCollection> GetPostingLinesAsync(DateTime statusDate);
     }
 }
