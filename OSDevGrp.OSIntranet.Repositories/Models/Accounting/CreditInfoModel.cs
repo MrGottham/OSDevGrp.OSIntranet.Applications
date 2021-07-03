@@ -20,12 +20,29 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
     internal static class CreditInfoModelExtensions
     {
+        internal static bool Convertible(this CreditInfoModel creditInfoModel)
+        {
+            NullGuard.NotNull(creditInfoModel, nameof(creditInfoModel));
+
+            return creditInfoModel.YearMonth != null &&
+                   creditInfoModel.Account != null &&
+                   creditInfoModel.Account.Convertible();
+        }
+
         internal static ICreditInfo ToDomain(this CreditInfoModel creditInfoModel, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(creditInfoModel, nameof(creditInfoModel))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
             IAccount account = accountingModelConverter.Convert<AccountModel, IAccount>(creditInfoModel.Account);
+
+            return creditInfoModel.ToDomain(account);
+        }
+
+        internal static ICreditInfo ToDomain(this CreditInfoModel creditInfoModel, IAccount account)
+        {
+            NullGuard.NotNull(creditInfoModel, nameof(creditInfoModel))
+                .NotNull(account, nameof(account));
 
             ICreditInfo creditInfo = new CreditInfo(account, creditInfoModel.YearMonth.Year, creditInfoModel.YearMonth.Month, creditInfoModel.Credit);
             creditInfoModel.CopyAuditInformationTo(creditInfo);

@@ -66,6 +66,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountGroupModel, nameof(accountGroupModel));
 
+            if (accountGroupModel.Accounts != null)
+            {
+                return accountGroupModel.Accounts.Any() == false;
+            }
+
             return await DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountGroupIdentifier == accountGroupModel.AccountGroupIdentifier) == null;
         }
 

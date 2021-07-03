@@ -55,6 +55,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
         Task<IContactAccount> DeleteContactAccountAsync(int accountingNumber, string accountNumber);
 
+        Task<IPostingLineCollection> GetPostingLinesAsync(int accountingNumber, DateTime statusDate, int numberOfPostingLines);
+
+        Task<IPostingJournalResult> ApplyPostingJournalAsync(IPostingJournal postingJournal, IPostingWarningCalculator postingWarningCalculator);
+
         Task<IEnumerable<IAccountGroup>> GetAccountGroupsAsync();
 
         Task<IAccountGroup> GetAccountGroupAsync(int number);

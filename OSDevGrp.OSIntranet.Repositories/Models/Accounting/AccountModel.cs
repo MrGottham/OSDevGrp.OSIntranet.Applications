@@ -31,59 +31,88 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
     internal static class AccountModelExtensions
     {
-        internal static IAccount ToDomain(this AccountModel accountModel, IConverter accountingModelConverter)
+        internal static bool Convertible(this AccountModel accountModel)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel));
+
+            return accountModel.Accounting != null &&
+                   accountModel.Accounting.Convertible() &&
+                   accountModel.BasicAccount != null &&
+                   accountModel.AccountGroup != null;
+        }
+
+        internal static IAccount ToDomain(this AccountModel accountModel, IConverter accountingModelConverter, object syncRoot)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel))
+                .NotNull(accountingModelConverter, nameof(accountingModelConverter))
+                .NotNull(syncRoot, nameof(syncRoot));
+
+            lock (syncRoot)
+            {
+                IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(accountModel.Accounting);
+
+                return accountModel.ToDomain(accounting, accountingModelConverter);
+            }
+        }
+
+        internal static IAccount ToDomain(this AccountModel accountModel, IAccounting accounting, IConverter accountingModelConverter)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel))
+                .NotNull(accounting, nameof(accounting))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccount account;
-            lock (accountingModelConverter.Cache.SyncRoot)
+            IAccount account = accountModel.ResolveFromDomain(accounting.AccountCollection);
+            if (account != null)
             {
-                account = accountingModelConverter.Cache.FromMemory<IAccount>($"{accountModel.AccountNumber}@{accountModel.AccountingIdentifier}");
-                if (account != null)
-                {
-                    return account;
-                }
-
-                IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(accountModel.Accounting);
-                IAccountGroup accountGroup = accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountModel.AccountGroup);
-
-                account = new Account(accounting, accountModel.AccountNumber, accountModel.BasicAccount.AccountName, accountGroup)
-                {
-                    Description = accountModel.BasicAccount.Description,
-                    Note = accountModel.BasicAccount.Note
-                };
-                accountModel.CopyAuditInformationTo(account);
-                account.SetDeletable(accountModel.Deletable);
-
-                accountingModelConverter.Cache.Remember(account, m => $"{m.AccountNumber}@{m.Accounting.Number}");
-            }
-
-            try
-            {
-                if (accountModel.CreditInfos != null)
-                {
-                    account.CreditInfoCollection.Populate(account,
-                        accountModel.CreditInfos
-                            .Where(creditInfoModel => creditInfoModel.Account?.Accounting != null &&
-                                                      creditInfoModel.Account.BasicAccount != null &&
-                                                      creditInfoModel.Account.AccountGroup != null &&
-                                                      creditInfoModel.YearMonth != null &&
-                                                      (creditInfoModel.YearMonth.Year < accountModel.StatusDateForInfos.Year ||
-                                                       creditInfoModel.YearMonth.Year == accountModel.StatusDateForInfos.Year &&
-                                                       creditInfoModel.YearMonth.Month <= accountModel.StatusDateForInfos.Month))
-                            .Select(accountingModelConverter.Convert<CreditInfoModel, ICreditInfo>)
-                            .ToArray(),
-                        accountModel.StatusDate,
-                        accountModel.StatusDateForInfos);
-                }
-
                 return account;
             }
-            finally
+
+            IAccountGroup accountGroup = accountingModelConverter.Convert<AccountGroupModel, IAccountGroup>(accountModel.AccountGroup);
+
+            account = new Account(accounting, accountModel.AccountNumber, accountModel.BasicAccount.AccountName, accountGroup)
             {
-                accountingModelConverter.Cache.Forget<IAccount>($"{accountModel.AccountNumber}@{accountModel.AccountingIdentifier}");
+                Description = accountModel.BasicAccount.Description,
+                Note = accountModel.BasicAccount.Note
+            };
+            accountModel.CopyAuditInformationTo(account);
+            account.SetDeletable(accountModel.Deletable);
+
+            accounting.AccountCollection.Add(account);
+
+            if (accountModel.CreditInfos != null)
+            {
+                account.CreditInfoCollection.Populate(account,
+                    accountModel.CreditInfos
+                        .Where(creditInfoModel => creditInfoModel.Convertible() &&
+                                                  (creditInfoModel.YearMonth.Year < accountModel.StatusDateForInfos.Year ||
+                                                   creditInfoModel.YearMonth.Year == accountModel.StatusDateForInfos.Year &&
+                                                   creditInfoModel.YearMonth.Month <= accountModel.StatusDateForInfos.Month))
+                        .Select(creditInfoModel => creditInfoModel.ToDomain(account))
+                        .ToArray(),
+                    accountModel.StatusDate,
+                    accountModel.StatusDateForInfos);
             }
+
+            if (accountModel.PostingLines != null)
+            {
+                account.PostingLineCollection.Add(accountModel.PostingLines
+                    .Where(postingLineModel => postingLineModel.Convertible() && 
+                                               postingLineModel.PostingDate >= accountModel.GetFromDateForPostingLines() &&
+                                               postingLineModel.PostingDate < accountModel.GetToDateForPostingLines(1))
+                    .Select(postingLineModel => postingLineModel.ToDomain(accounting, account, accountingModelConverter))
+                    .Where(postingLine => account.PostingLineCollection.Contains(postingLine) == false)
+                    .ToArray());
+            }
+
+            return account;
+        }
+
+        internal static IAccount ResolveFromDomain(this AccountModel accountModel, IAccountCollection accountCollection)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel))
+                .NotNull(accountCollection, nameof(accountCollection));
+
+            return accountCollection.SingleOrDefault(account => account.Accounting.Number == accountModel.AccountingIdentifier && account.AccountNumber == accountModel.AccountNumber);
         }
 
         internal static void ExtractCreditInfos(this AccountModel accountModel, IReadOnlyCollection<CreditInfoModel> creditInfoModelCollection)
@@ -92,6 +121,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 .NotNull(creditInfoModelCollection, nameof(creditInfoModelCollection));
 
             accountModel.CreditInfos = creditInfoModelCollection.Where(creditInfoModel => creditInfoModel.AccountIdentifier == accountModel.AccountIdentifier).ToList();
+        }
+
+        internal static void ExtractPostingLines(this AccountModel accountModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel))
+                .NotNull(postingLineModelCollection, nameof(postingLineModelCollection));
+
+            accountModel.PostingLines = postingLineModelCollection
+                .Where(postingLineModel => postingLineModel.AccountIdentifier == accountModel.AccountIdentifier &&
+                                           postingLineModel.PostingDate >= accountModel.GetFromDateForPostingLines() &&
+                                           postingLineModel.PostingDate < accountModel.GetToDateForPostingLines(1))
+                .ToList();
         }
 
         internal static void CreateAccountModel(this ModelBuilder modelBuilder)

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Contacts;
 using OSDevGrp.OSIntranet.Domain.Core;
@@ -18,6 +19,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
         public virtual string PhonePrefix { get; set; }
 
         public virtual bool Deletable { get; set; }
+
+        public virtual List<PostalCodeModel> PostalCodes { get; set; }
     }
 
     internal static class CountryModelExtensions

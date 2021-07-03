@@ -7,40 +7,53 @@ using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class AccountingModelHandler : ModelHandlerBase<IAccounting, RepositoryContext, AccountingModel, int>
+    internal class AccountingModelHandler : ModelHandlerBase<IAccounting, RepositoryContext, AccountingModel, int, AccountingIdentificationState>
     {
         #region Private variables
 
+        private readonly DateTime _statusDate;
         private readonly bool _includeAccounts;
         private readonly bool _includePostingLines;
         private readonly AccountModelHandler _accountModelHandler;
-        private readonly CreditInfoModelHandler _creditInfoModelHandler;
         private readonly BudgetAccountModelHandler _budgetAccountModelHandler;
-        private readonly BudgetInfoModelHandler _budgetInfoModelHandler;
         private readonly ContactAccountModelHandler _contactAccountModelHandler;
-        private IReadOnlyCollection<CreditInfoModel> _creditInfoModelCollection;
-        private IReadOnlyCollection<BudgetInfoModel> _budgetInfoModelCollection;
+        private readonly PostingLineModelHandler _postingLineModelHandler;
+        private IReadOnlyCollection<AccountModel> _accountModelCollection;
+        private IReadOnlyCollection<BudgetAccountModel> _budgetAccountModelCollection;
+        private IReadOnlyCollection<ContactAccountModel> _contactAccountModelCollection;
+        private IReadOnlyCollection<PostingLineModel> _postingLineModelCollection;
 
         #endregion
 
         #region Constructor
 
-        public AccountingModelHandler(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includeAccounts, bool includePostingLines) 
+        public AccountingModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeAccounts, bool includePostingLines) 
             : base(dbContext, modelConverter)
         {
+            NullGuard.NotNull(eventPublisher, nameof(eventPublisher));
+
+            _statusDate = statusDate.Date;
             _includeAccounts = includeAccounts;
             _includePostingLines = includePostingLines;
-            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, statusDate, true, includePostingLines);
-            _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter);
-            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, statusDate, true, includePostingLines);
-            _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter);
-            _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, statusDate, includePostingLines);
+
+            if (_includeAccounts)
+            {
+                _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, true, false);
+                _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, true, false);
+                _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, false);
+            }
+
+            if (_includePostingLines)
+            {
+                _postingLineModelHandler = new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false);
+            }
         }
 
         #endregion
@@ -51,11 +64,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override Func<IAccounting, int> PrimaryKey => accounting => accounting.Number;
 
-        protected override IQueryable<AccountingModel> Reader => CreateReader(_includeAccounts, _includePostingLines);
+        protected override IQueryable<AccountingModel> Reader => CreateReader(_includeAccounts);
 
-        protected override IQueryable<AccountingModel> UpdateReader => CreateReader(false, false);
+        protected override IQueryable<AccountingModel> UpdateReader => CreateReader(false);
 
-        protected override IQueryable<AccountingModel> DeleteReader => CreateReader(true, true);
+        protected override IQueryable<AccountingModel> DeleteReader => CreateReader(true);
 
         #endregion
 
@@ -63,7 +76,20 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         internal async Task<bool> ExistsAsync(int number)
         {
-            return await ReadAsync(number) != null;
+            return await ReadAsync(number, new AccountingIdentificationState(number)) != null;
+        }
+
+        internal async Task<AccountingModel> ForAsync(int number)
+        {
+            await PrepareReadAsync(new AccountingIdentificationState(number));
+
+            AccountingModel accountingModel = CreateReader(false).SingleOrDefault(m => m.AccountingIdentifier == number);
+            if (accountingModel == null)
+            {
+                return null;
+            }
+
+            return await OnReadAsync(accountingModel);
         }
 
         protected override Expression<Func<AccountingModel, bool>> EntitySelector(int primaryKey) => accountingModel => accountingModel.AccountingIdentifier == primaryKey;
@@ -77,11 +103,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override void OnDispose()
         {
-            _accountModelHandler.Dispose();
-            _creditInfoModelHandler.Dispose();
-            _budgetAccountModelHandler.Dispose();
-            _budgetInfoModelHandler.Dispose();
-            _contactAccountModelHandler.Dispose();
+            _accountModelHandler?.Dispose();
+            _budgetAccountModelHandler?.Dispose();
+            _contactAccountModelHandler?.Dispose();
+            _postingLineModelHandler?.Dispose();
         }
 
         protected override async Task<AccountingModel> OnCreateAsync(IAccounting accounting, AccountingModel accountingModel)
@@ -94,45 +119,40 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountingModel;
         }
 
-        protected override async Task PrepareReadAsync(int primaryKey, object prepareReadStatus = null)
+        protected override async Task PrepareReadAsync(AccountingIdentificationState accountingIdentificationState)
         {
-            if (_includeAccounts == false)
+            NullGuard.NotNull(accountingIdentificationState, nameof(accountingIdentificationState));
+
+            if (_includeAccounts)
+            {
+                _accountModelCollection ??= await _accountModelHandler.ForAsync(accountingIdentificationState.AccountingIdentifier);
+                _budgetAccountModelCollection ??= await _budgetAccountModelHandler.ForAsync(accountingIdentificationState.AccountingIdentifier);
+                _contactAccountModelCollection ??= await _contactAccountModelHandler.ForAsync(accountingIdentificationState.AccountingIdentifier);
+            }
+
+            if (_includePostingLines == false)
             {
                 return;
             }
 
-            _creditInfoModelCollection = await _creditInfoModelHandler.ForAsync(primaryKey);
-            _budgetInfoModelCollection = await _budgetInfoModelHandler.ForAsync(primaryKey);
+            _postingLineModelCollection ??= await _postingLineModelHandler.ForAsync(accountingIdentificationState.AccountingIdentifier);
+        }
+
+        protected override Task PrepareReadAsync(int primaryKey, AccountingIdentificationState accountingIdentificationState)
+        {
+            NullGuard.NotNull(accountingIdentificationState, nameof(accountingIdentificationState));
+
+            return PrepareReadAsync(new AccountingIdentificationState(primaryKey));
         }
 
         protected override async Task<AccountingModel> OnReadAsync(AccountingModel accountingModel)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            if (accountingModel.Accounts != null)
-            {
-                accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(_creditInfoModelCollection));
-
-                accountingModel.Accounts = (await _accountModelHandler.ReadAsync(accountingModel.Accounts)).ToList();
-            }
-
-            if (accountingModel.BudgetAccounts != null)
-            {
-                accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(_budgetInfoModelCollection));
-
-                accountingModel.BudgetAccounts = (await _budgetAccountModelHandler.ReadAsync(accountingModel.BudgetAccounts)).ToList();
-            }
-
-            if (accountingModel.ContactAccounts != null)
-            {
-                accountingModel.ContactAccounts = (await _contactAccountModelHandler.ReadAsync(accountingModel.ContactAccounts)).ToList();
-            }
-
-            if (_includePostingLines)
-            {
-                // TODO: Include all posting lines for the given status date.
-            }
-
+            accountingModel.Accounts = await OnReadAsync(accountingModel, _accountModelCollection, _accountModelHandler);
+            accountingModel.BudgetAccounts = await OnReadAsync(accountingModel, _budgetAccountModelCollection, _budgetAccountModelHandler);
+            accountingModel.ContactAccounts = await OnReadAsync(accountingModel, _contactAccountModelCollection, _contactAccountModelHandler);
+            accountingModel.PostingLines = await OnReadAsync(accountingModel, _postingLineModelCollection, _postingLineModelHandler);
             accountingModel.Deletable = await CanDeleteAsync(accountingModel);
 
             return accountingModel;
@@ -154,23 +174,19 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            bool usedOnAccount = await CanDeleteAsync(accountingModel.Accounts, DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnBudgetAccount = await CanDeleteAsync(accountingModel.BudgetAccounts, DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnContactAccount = await CanDeleteAsync(accountingModel.ContactAccounts, DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnAccounts = await InUseAsync(accountingModel.Accounts, DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnBudgetAccounts = await InUseAsync(accountingModel.BudgetAccounts, DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnContactAccounts = await InUseAsync(accountingModel.ContactAccounts, DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnPostingLines = await InUseAsync(accountingModel.PostingLines, DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
 
-            return usedOnAccount == false && usedOnBudgetAccount == false && usedOnContactAccount == false;
+            return usedOnAccounts == false && usedOnBudgetAccounts == false && usedOnContactAccounts == false && usedOnPostingLines == false;
         }
 
         protected override async Task<AccountingModel> OnDeleteAsync(AccountingModel accountingModel)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            await PrepareReadAsync(accountingModel.AccountingIdentifier);
-            accountingModel.Accounts.ForAll(accountModel => accountModel.ExtractCreditInfos(_creditInfoModelCollection));
-            accountingModel.BudgetAccounts.ForAll(budgetAccountModel => budgetAccountModel.ExtractBudgetInfos(_budgetInfoModelCollection));
-
-            // TODO: Delete all posting lines.
-
+            await _postingLineModelHandler.DeleteAsync(accountingModel.PostingLines);
             await _accountModelHandler.DeleteAsync(accountingModel.Accounts);
             await _budgetAccountModelHandler.DeleteAsync(accountingModel.BudgetAccounts);
             await _contactAccountModelHandler.DeleteAsync(accountingModel.ContactAccounts);
@@ -178,43 +194,143 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountingModel;
         }
 
-        private IQueryable<AccountingModel> CreateReader(bool includeAccounts, bool includePostingLines)
+        private IQueryable<AccountingModel> CreateReader(bool includeAccounts)
         {
             IQueryable<AccountingModel> reader = Entities.Include(accountingModel => accountingModel.LetterHead);
 
-            if (includeAccounts)
+            if (includeAccounts == false || _accountModelCollection != null && _budgetAccountModelCollection != null && _contactAccountModelCollection != null)
             {
-                reader = reader.Include(accountingModel => accountingModel.Accounts)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.BasicAccount)
-                    .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.AccountGroup);
-
-                reader = reader.Include(accountingModel => accountingModel.BudgetAccounts)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
-                    .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup);
-
-                reader = reader.Include(accountingModel => accountingModel.ContactAccounts)
-                    .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.BasicAccount)
-                    .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.PaymentTerm);
+                return reader;
             }
 
-            if (includePostingLines)
-            {
-                // TODO: Include posting lines.
-            }
-
-            return reader;
+            return reader.Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.BasicAccount)
+                .Include(accountingModel => accountingModel.Accounts).ThenInclude(accountModel => accountModel.AccountGroup)
+                .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BasicAccount)
+                .Include(accountingModel => accountingModel.BudgetAccounts).ThenInclude(budgetAccountModel => budgetAccountModel.BudgetAccountGroup)
+                .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.BasicAccount)
+                .Include(accountingModel => accountingModel.ContactAccounts).ThenInclude(contactAccounts => contactAccounts.PaymentTerm);
         }
 
-        private static async Task<bool> CanDeleteAsync<TAccountModel>(IList<TAccountModel> accountModelCollection, Task<TAccountModel> accountModelGetter) where TAccountModel : AccountModelBase
+        private static async Task<List<AccountModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<AccountModel> accountModelCollection, AccountModelHandler accountModelHandler)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            if (accountModelCollection == null || accountModelHandler == null)
+            {
+                return accountingModel.Accounts;
+            }
+
+            if (accountingModel.Accounts == null)
+            {
+                accountingModel.ExtractAccounts(accountModelCollection);
+            }
+
+            return (await accountModelHandler.ReadAsync(accountingModel.Accounts)).ToList();
+        }
+
+        private static async Task<List<BudgetAccountModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<BudgetAccountModel> budgetAccountModelCollection, BudgetAccountModelHandler budgetAccountModelHandler)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            if (budgetAccountModelCollection == null || budgetAccountModelHandler == null)
+            {
+                return accountingModel.BudgetAccounts;
+            }
+
+            if (accountingModel.BudgetAccounts == null)
+            {
+                accountingModel.ExtractBudgetAccounts(budgetAccountModelCollection);
+            }
+
+            return (await budgetAccountModelHandler.ReadAsync(accountingModel.BudgetAccounts)).ToList();
+        }
+
+        private static async Task<List<ContactAccountModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<ContactAccountModel> contactAccountModelCollection, ContactAccountModelHandler contactAccountModelHandler)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            if (contactAccountModelCollection == null || contactAccountModelHandler == null)
+            {
+                return accountingModel.ContactAccounts;
+            }
+
+            if (accountingModel.ContactAccounts == null)
+            {
+                accountingModel.ExtractContactAccounts(contactAccountModelCollection);
+            }
+
+            return (await contactAccountModelHandler.ReadAsync(accountingModel.ContactAccounts)).ToList();
+        }
+
+        private static async Task<List<PostingLineModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection, PostingLineModelHandler postingLineModelHandler)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            if (postingLineModelCollection == null || postingLineModelHandler == null)
+            {
+                return accountingModel.PostingLines;
+            }
+
+            accountingModel.Accounts?.ForAll(async accountModel =>
+            {
+                if (accountModel.PostingLines == null)
+                {
+                    accountModel.ExtractPostingLines(postingLineModelCollection);
+                }
+
+                accountModel.PostingLines = (await postingLineModelHandler.ReadAsync(accountModel.PostingLines)).ToList();
+            });
+
+            accountingModel.BudgetAccounts?.ForAll(async budgetAccountModel =>
+            {
+                if (budgetAccountModel.PostingLines == null)
+                {
+                    budgetAccountModel.ExtractPostingLines(postingLineModelCollection);
+                }
+
+                budgetAccountModel.PostingLines = (await postingLineModelHandler.ReadAsync(budgetAccountModel.PostingLines)).ToList();
+            });
+
+            accountingModel.ContactAccounts?.ForAll(async contactAccountModel =>
+            {
+                if (contactAccountModel.PostingLines == null)
+                {
+                    contactAccountModel.ExtractPostingLines(postingLineModelCollection);
+                }
+
+                contactAccountModel.PostingLines = (await postingLineModelHandler.ReadAsync(contactAccountModel.PostingLines)).ToList();
+            });
+
+            if (accountingModel.PostingLines == null)
+            {
+                accountingModel.ExtractPostingLines(postingLineModelCollection);
+            }
+
+            return (await postingLineModelHandler.ReadAsync(accountingModel.PostingLines)).ToList();
+        }
+
+        private static async Task<bool> InUseAsync<TAccountModel>(IEnumerable<TAccountModel> accountModelCollection, Task<TAccountModel> accountModelGetter) where TAccountModel : AccountModelBase
         {
             NullGuard.NotNull(accountModelGetter, nameof(accountModelGetter));
 
             if (accountModelCollection != null)
             {
-                return accountModelCollection.Count > 0;
+                return accountModelCollection.Any();
             }
 
             return await accountModelGetter != null;
+        }
+
+        private static async Task<bool> InUseAsync(IEnumerable<PostingLineModel> postingLineModelCollection, Task<PostingLineModel> postingLineModelGetter)
+        {
+            NullGuard.NotNull(postingLineModelGetter, nameof(postingLineModelGetter));
+
+            if (postingLineModelCollection != null)
+            {
+                return postingLineModelCollection.Any();
+            }
+
+            return await postingLineModelGetter != null;
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
 
@@ -65,6 +66,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<ClaimModel, Claim>()
                 .ConvertUsing(claimModel => claimModel.ToDomain());
+        }
+
+        internal static IConverter Create()
+        {
+            return new SecurityModelConverter();
         }
 
         #endregion

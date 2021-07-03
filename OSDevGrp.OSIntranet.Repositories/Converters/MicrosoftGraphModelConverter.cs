@@ -2,6 +2,7 @@
 using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph;
@@ -140,6 +141,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IEnumerable<EmailAddressModel>, string>()
                 .ConvertUsing(emailAddressModelCollection => emailAddressModelCollection.ToDomain(this));
+        }
+
+        internal static IConverter Create()
+        {
+            return new MicrosoftGraphModelConverter();
         }
 
         #endregion

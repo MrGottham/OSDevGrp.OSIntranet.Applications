@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
@@ -23,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual DateTime StatusDateForInfos => StatusDate.GetStatusDateForInfos();
 
         public virtual bool Deletable { get; set; }
+
+        public virtual List<PostingLineModel> PostingLines { get; set; }
 
         internal void CopyAuditInformationTo(IAuditable auditable)
         {
@@ -53,6 +56,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             auditable.AddAuditInformation(createdUtcDateTime, createdByIdentifier, modifiedUtcDateTime, modifiedByIdentifier);
         }
+
+        internal virtual DateTime GetFromDateForPostingLines() => DateTime.MinValue.Date;
+
+        internal virtual DateTime GetToDateForPostingLines(int daysToAdd = 0) => StatusDate.AddDays(daysToAdd).Date;
 
         protected abstract AuditModelBase GetLastModifiedInfoModel();
     }

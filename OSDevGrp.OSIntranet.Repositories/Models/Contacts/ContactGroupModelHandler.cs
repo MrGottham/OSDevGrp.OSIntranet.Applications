@@ -65,6 +65,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
         {
             NullGuard.NotNull(contactGroupModel, nameof(contactGroupModel));
 
+            if (contactGroupModel.ContactSupplements != null)
+            {
+                return contactGroupModel.ContactSupplements.Any() == false;
+            }
+
             return await DbContext.ContactSupplements.FirstOrDefaultAsync(contactSupplementModel => contactSupplementModel.ContactGroupIdentifier == contactGroupModel.ContactGroupIdentifier) == null;
         }
 

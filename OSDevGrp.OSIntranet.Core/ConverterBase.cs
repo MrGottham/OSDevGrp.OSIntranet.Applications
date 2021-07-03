@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -9,7 +10,6 @@ namespace OSDevGrp.OSIntranet.Core
     {
         #region Private variables
 
-        private IConverterCache _converterCache;
         private static readonly IDictionary<Type, MapperConfiguration> MapperConfigurations = new Dictionary<Type, MapperConfiguration>();
         private static readonly object SyncRoot = new object();
 
@@ -34,16 +34,7 @@ namespace OSDevGrp.OSIntranet.Core
 
         #region Properties
 
-        public IConverterCache Cache
-        {
-            get
-            {
-                lock (SyncRoot)
-                {
-                    return _converterCache ??= new ConverterCache();
-                }
-            }
-        }
+        protected virtual IDictionary<string, object> StateDictionary => new ConcurrentDictionary<string, object>();
 
         #endregion
 
@@ -55,7 +46,13 @@ namespace OSDevGrp.OSIntranet.Core
 
             try
             {
-                return Mapper.Map<TSource, TTarget>(source);
+                return Mapper.Map<TSource, TTarget>(source, opt =>
+                {
+                    foreach (KeyValuePair<string, object> state in StateDictionary)
+                    {
+                        opt.Items[state.Key] = state.Value;
+                    }
+                });
             }
             catch (AutoMapperMappingException ex)
             {

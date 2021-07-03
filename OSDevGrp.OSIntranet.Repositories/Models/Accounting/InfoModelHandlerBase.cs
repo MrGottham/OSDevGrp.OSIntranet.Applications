@@ -14,7 +14,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal abstract class InfoModelHandlerBase<TInfo, TInfoModel> : ModelHandlerBase<TInfo, RepositoryContext, TInfoModel, Tuple<int, string, short, short>> where TInfo : class, IInfo where TInfoModel : InfoModelBase, new()
+    internal abstract class InfoModelHandlerBase<TInfo, TInfoModel> : ModelHandlerBase<TInfo, RepositoryContext, TInfoModel, Tuple<int, string, short, short>, AccountingIdentificationState> where TInfo : class, IInfo where TInfoModel : InfoModelBase, new()
     {
         #region Constructor
 
@@ -79,7 +79,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             {
                 infoModel.YearMonthIdentifier = yearMonthModel.YearMonthIdentifier;
                 infoModel.YearMonth = yearMonthModel;
-                
+
                 return infoModel;
             }
 
