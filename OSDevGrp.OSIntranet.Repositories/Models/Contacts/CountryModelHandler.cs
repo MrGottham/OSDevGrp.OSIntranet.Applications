@@ -67,6 +67,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
         {
             NullGuard.NotNull(countryModel, nameof(countryModel));
 
+            if (countryModel.PostalCodes != null)
+            {
+                return countryModel.PostalCodes.Any() == false;
+            }
+
             return await DbContext.PostalCodes.FirstOrDefaultAsync(postalCodeModel => postalCodeModel.CountryCode == countryModel.Code) == null;
         }
 

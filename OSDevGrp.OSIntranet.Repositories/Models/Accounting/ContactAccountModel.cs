@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -28,47 +30,92 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
     internal static class ContactAccountModelExtensions
     {
-        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, IConverter accountingModelConverter)
+        internal static bool Convertible(this ContactAccountModel contactAccountModel)
+        {
+            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
+
+            return contactAccountModel.Accounting != null &&
+                   contactAccountModel.Accounting.Convertible() &&
+                   contactAccountModel.BasicAccount != null &&
+                   contactAccountModel.PaymentTerm != null;
+        }
+
+        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, IConverter accountingModelConverter, object syncRoot)
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
+                .NotNull(accountingModelConverter, nameof(accountingModelConverter))
+                .NotNull(syncRoot, nameof(syncRoot));
+
+            lock (syncRoot)
+            {
+                IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(contactAccountModel.Accounting);
+
+                return contactAccountModel.ToDomain(accounting, accountingModelConverter);
+            }
+        }
+
+        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, IAccounting accounting, IConverter accountingModelConverter)
+        {
+            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
+                .NotNull(accounting, nameof(accounting))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IContactAccount contactAccount;
-            lock (accountingModelConverter.Cache.SyncRoot)
+            IContactAccount contactAccount = contactAccountModel.ResolveFromDomain(accounting.ContactAccountCollection);
+            if (contactAccount != null)
             {
-                contactAccount = accountingModelConverter.Cache.FromMemory<IContactAccount>($"{contactAccountModel.AccountNumber}@{contactAccountModel.AccountingIdentifier}");
-                if (contactAccount != null)
-                {
-                    return contactAccount;
-                }
-
-                IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(contactAccountModel.Accounting);
-                IPaymentTerm paymentTerm = accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(contactAccountModel.PaymentTerm);
-
-                contactAccount = new ContactAccount(accounting, contactAccountModel.AccountNumber, contactAccountModel.BasicAccount.AccountName, paymentTerm)
-                {
-                    Description = contactAccountModel.BasicAccount.Description,
-                    Note = contactAccountModel.BasicAccount.Note,
-                    MailAddress = contactAccountModel.MailAddress,
-                    PrimaryPhone = contactAccountModel.PrimaryPhone,
-                    SecondaryPhone = contactAccountModel.SecondaryPhone
-                };
-                contactAccountModel.CopyAuditInformationTo(contactAccount);
-                contactAccount.SetDeletable(contactAccountModel.Deletable);
-
-                accountingModelConverter.Cache.Remember(contactAccount, m => $"{m.AccountNumber}@{m.Accounting.Number}");
-            }
-
-            try
-            {
-                contactAccount.ContactInfoCollection.Populate(contactAccount, contactAccountModel.StatusDate, contactAccountModel.StatusDateForInfos);
-
                 return contactAccount;
             }
-            finally
+
+            IPaymentTerm paymentTerm = accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(contactAccountModel.PaymentTerm);
+
+            contactAccount = new ContactAccount(accounting, contactAccountModel.AccountNumber, contactAccountModel.BasicAccount.AccountName, paymentTerm)
             {
-                accountingModelConverter.Cache.Forget<IContactAccount>($"{contactAccountModel.AccountNumber}@{contactAccountModel.AccountingIdentifier}");
+                Description = contactAccountModel.BasicAccount.Description,
+                Note = contactAccountModel.BasicAccount.Note,
+                MailAddress = contactAccountModel.MailAddress,
+                PrimaryPhone = contactAccountModel.PrimaryPhone,
+                SecondaryPhone = contactAccountModel.SecondaryPhone
+            };
+            contactAccountModel.CopyAuditInformationTo(contactAccount);
+            contactAccount.SetDeletable(contactAccountModel.Deletable);
+
+            accounting.ContactAccountCollection.Add(contactAccount);
+
+            contactAccount.ContactInfoCollection.Populate(contactAccount, contactAccountModel.StatusDate, contactAccountModel.StatusDateForInfos);
+
+            if (contactAccountModel.PostingLines != null)
+            {
+                contactAccount.PostingLineCollection.Add(contactAccountModel.PostingLines
+                    .Where(postingLineModel => postingLineModel.Convertible() && 
+                                               postingLineModel.PostingDate >= contactAccountModel.GetFromDateForPostingLines() &&
+                                               postingLineModel.PostingDate < contactAccountModel.GetToDateForPostingLines(1))
+                    .Select(postingLineModel => postingLineModel.ToDomain(accounting, contactAccount, accountingModelConverter))
+                    .Where(postingLine => contactAccount.PostingLineCollection.Contains(postingLine) == false)
+                    .ToArray());
             }
+
+            return contactAccount;
+        }
+
+        internal static IContactAccount ResolveFromDomain(this ContactAccountModel contactAccountModel, IContactAccountCollection contactAccountCollection)
+        {
+            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
+                .NotNull(contactAccountCollection, nameof(contactAccountCollection));
+
+            return contactAccountCollection.SingleOrDefault(contactAccount => contactAccount.Accounting.Number == contactAccountModel.AccountingIdentifier && contactAccount.AccountNumber == contactAccountModel.AccountNumber);
+        }
+
+        internal static void ExtractPostingLines(this ContactAccountModel contactAccountModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection)
+        {
+            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
+                .NotNull(postingLineModelCollection, nameof(postingLineModelCollection));
+
+            contactAccountModel.PostingLines = postingLineModelCollection
+                .Where(postingLineModel => postingLineModel.ContactAccountIdentifier != null &&
+                                           postingLineModel.ContactAccountIdentifier.Value == contactAccountModel.ContactAccountIdentifier &&
+                                           postingLineModel.PostingDate >= contactAccountModel.GetFromDateForPostingLines() &&
+                                           postingLineModel.PostingDate < contactAccountModel.GetToDateForPostingLines(1))
+                .ToList();
         }
 
         internal static void CreateContactAccountModel(this ModelBuilder modelBuilder)

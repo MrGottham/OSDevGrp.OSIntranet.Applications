@@ -41,6 +41,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Queries;
@@ -82,7 +83,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             IConfiguration configuration = CreateConfiguration();
             IPrincipalResolver principalResolver = CreatePrincipalResolver();
             ILoggerFactory loggerFactory = CreateLoggerFactory();
-            
+            IEventPublisher eventPublisher = CreateEventPublisher();
+
             _validator = CreateValidator();
 
             IClaimResolver claimResolver = new ClaimResolver(principalResolver);
@@ -93,7 +95,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
             _microsoftGraphRepository = new MicrosoftGraphRepository(configuration, principalResolver, loggerFactory);
             _contactRepository = new ContactRepository(configuration, principalResolver, loggerFactory);
-            _accountingRepository = new AccountingRepository(configuration, principalResolver, loggerFactory);
+            _accountingRepository = new AccountingRepository(configuration, principalResolver, loggerFactory, eventPublisher);
 
             ICommandHandler<IRefreshTokenForMicrosoftGraphCommand, IRefreshableToken> refreshTokenForMicrosoftGraphCommandHandler = new RefreshTokenForMicrosoftGraphCommandHandler(_microsoftGraphRepository);
             ICommandHandler<ICreateLetterHeadCommand> createLetterHeadCommandHandler = new CreateLetterHeadCommandHandler(_validator, commonRepository);
@@ -1179,6 +1181,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         private IValidator CreateValidator()
         {
             return new Validator(new IntegerValidator(), new DecimalValidator(), new StringValidator(), new DateTimeValidator(), new ObjectValidator());
+        }
+
+        private IEventPublisher CreateEventPublisher()
+        {
+            return new EventPublisher();
         }
 
         private async Task ImportFromFile(string fileName, Encoding encoding, Func<int, string, Task> lineHandler)

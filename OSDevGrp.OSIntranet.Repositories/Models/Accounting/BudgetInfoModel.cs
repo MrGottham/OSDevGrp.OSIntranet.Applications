@@ -22,12 +22,29 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
     internal static class BudgetInfoModelExtensions
     {
+        internal static bool Convertible(this BudgetInfoModel budgetInfoModel)
+        {
+            NullGuard.NotNull(budgetInfoModel, nameof(budgetInfoModel));
+
+            return budgetInfoModel.YearMonth != null &&
+                   budgetInfoModel.BudgetAccount != null &&
+                   budgetInfoModel.BudgetAccount.Convertible();
+        }
+
         internal static IBudgetInfo ToDomain(this BudgetInfoModel budgetInfoModel, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(budgetInfoModel, nameof(budgetInfoModel))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
             IBudgetAccount budgetAccount = accountingModelConverter.Convert<BudgetAccountModel, IBudgetAccount>(budgetInfoModel.BudgetAccount);
+
+            return budgetInfoModel.ToDomain(budgetAccount);
+        }
+
+        internal static IBudgetInfo ToDomain(this BudgetInfoModel budgetInfoModel, IBudgetAccount budgetAccount)
+        {
+            NullGuard.NotNull(budgetInfoModel, nameof(budgetInfoModel))
+                .NotNull(budgetAccount, nameof(budgetAccount));
 
             IBudgetInfo budgetInfo = new BudgetInfo(budgetAccount, budgetInfoModel.YearMonth.Year, budgetInfoModel.YearMonth.Month, budgetInfoModel.Income, budgetInfoModel.Expenses);
             budgetInfoModel.CopyAuditInformationTo(budgetInfo);

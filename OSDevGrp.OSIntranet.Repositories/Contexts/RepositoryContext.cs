@@ -84,6 +84,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<YearMonthModel> YearMonths { get; set; }
 
+        public DbSet<PostingLineModel> PostingLines { get; set; }
+
         public DbSet<AccountGroupModel> AccountGroups { get; set; }
 
         public DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
@@ -272,6 +274,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateCreditInfoModel();
             modelBuilder.CreateBudgetInfoModel();
             modelBuilder.CreateYearMonthModel();
+            modelBuilder.CreatePostingLineModel();
             modelBuilder.CreateAccountGroupModel();
             modelBuilder.CreateBudgetAccountGroupModel();
             modelBuilder.CreatePaymentTermModel();

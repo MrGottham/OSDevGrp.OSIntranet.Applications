@@ -13,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
     {
         #region Private variables
 
-        private readonly IConverter _accountingConverter = new AccountingModelConverter();
+        private readonly IConverter _accountingConverter = AccountingModelConverter.Create();
 
         #endregion
 
@@ -63,6 +63,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ConvertUsing(countryModel => countryModel.ToDomain());
 
             mapperConfiguration.CreateMap<ICountry, CountryModel>()
+                .ForMember(dest => dest.PostalCodes, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
@@ -74,6 +75,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+        }
+
+        internal static IConverter Create()
+        {
+            return new ContactModelConverter();
         }
 
         #endregion

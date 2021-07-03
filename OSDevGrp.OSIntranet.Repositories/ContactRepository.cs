@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
@@ -16,13 +15,6 @@ namespace OSDevGrp.OSIntranet.Repositories
 {
     public class ContactRepository : RepositoryBase, IContactRepository
     {
-        #region Private variables
-
-        private readonly IConverter _contactModelConverter = new ContactModelConverter();
-        private readonly IConverter _accountingModelConverter = new AccountingModelConverter();
-
-        #endregion
-
         #region Constructor
 
         public ContactRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
@@ -40,7 +32,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), _contactModelConverter, _accountingModelConverter);
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), ContactModelConverter.Create(), AccountingModelConverter.Create());
                     return await contactSupplementModelHandler.ApplyContactSupplementAsync(contact);
                 },
                 MethodBase.GetCurrentMethod());
@@ -52,7 +44,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), _contactModelConverter, _accountingModelConverter);
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), ContactModelConverter.Create(), AccountingModelConverter.Create());
                     return await contactSupplementModelHandler.ApplyContactSupplementAsync(contacts);
                 },
                 MethodBase.GetCurrentMethod());
@@ -64,7 +56,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), _contactModelConverter, _accountingModelConverter);
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), ContactModelConverter.Create(), AccountingModelConverter.Create());
                     return await contactSupplementModelHandler.CreateOrUpdateContactSupplementAsync(contact, existingExternalIdentifier);
                 },
                 MethodBase.GetCurrentMethod());
@@ -76,7 +68,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), _contactModelConverter, _accountingModelConverter);
+                    using ContactSupplementModelHandler contactSupplementModelHandler = new ContactSupplementModelHandler(CreateRepositoryContext(), ContactModelConverter.Create(), AccountingModelConverter.Create());
                     return await contactSupplementModelHandler.DeleteAsync(contact);
                 },
                 MethodBase.GetCurrentMethod());
@@ -86,7 +78,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await contactGroupModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -96,7 +88,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await contactGroupModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -108,7 +100,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await contactGroupModelHandler.CreateAsync(contactGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -120,7 +112,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await contactGroupModelHandler.UpdateAsync(contactGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -130,7 +122,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using ContactGroupModelHandler contactGroupModelHandler = new ContactGroupModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await contactGroupModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -140,7 +132,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await countryModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -152,7 +144,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await countryModelHandler.ReadAsync(code);
                 },
                 MethodBase.GetCurrentMethod());
@@ -164,7 +156,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await countryModelHandler.CreateAsync(country);
                 },
                 MethodBase.GetCurrentMethod());
@@ -176,7 +168,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await countryModelHandler.UpdateAsync(country);
                 },
                 MethodBase.GetCurrentMethod());
@@ -188,7 +180,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using CountryModelHandler countryModelHandler = new CountryModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await countryModelHandler.DeleteAsync(code);
                 },
                 MethodBase.GetCurrentMethod());
@@ -200,7 +192,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await postalCodeModelHandler.ReadAsync(postalCodeModel => postalCodeModel.CountryCode == countryCode);
                 },
                 MethodBase.GetCurrentMethod());
@@ -213,7 +205,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await postalCodeModelHandler.ReadAsync(new Tuple<string, string>(countryCode, postalCode));
                 },
                 MethodBase.GetCurrentMethod());
@@ -225,7 +217,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await postalCodeModelHandler.CreateAsync(postalCode);
                 },
                 MethodBase.GetCurrentMethod());
@@ -237,7 +229,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await postalCodeModelHandler.UpdateAsync(postalCode);
                 },
                 MethodBase.GetCurrentMethod());
@@ -250,7 +242,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), _contactModelConverter);
+                    using PostalCodeModelHandler postalCodeModelHandler = new PostalCodeModelHandler(CreateRepositoryContext(), ContactModelConverter.Create());
                     return await postalCodeModelHandler.DeleteAsync(new Tuple<string, string>(countryCode, postalCode));
                 },
                 MethodBase.GetCurrentMethod());

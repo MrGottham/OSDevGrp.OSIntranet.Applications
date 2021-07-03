@@ -1,5 +1,6 @@
 using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
@@ -21,6 +22,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.Accountings, opt => opt.Ignore());
+        }
+
+        internal static IConverter Create()
+        {
+            return new CommonModelConverter();
         }
 
         #endregion

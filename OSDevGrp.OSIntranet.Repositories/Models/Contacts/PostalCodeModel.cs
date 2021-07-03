@@ -55,7 +55,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Ignore(e => e.Deletable);
-                entity.HasOne(e => e.Country);
+                entity.HasOne(e => e.Country)
+                    .WithMany(e => e.PostalCodes)
+                    .HasForeignKey(e => e.CountryCode)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

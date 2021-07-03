@@ -101,7 +101,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             return Task.FromResult(clientSecretIdentityModel);
         }
 
-        protected override Task<IClientSecretIdentity> OnReloadAsync(IClientSecretIdentity clientSecretIdentity, ClientSecretIdentityModel clientSecretIdentityModel)
+        protected override Task<IClientSecretIdentity> OnReloadAsync(IClientSecretIdentity clientSecretIdentity, ClientSecretIdentityModel clientSecretIdentityModel, object prepareReadState)
         {
             NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity))
                 .NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel));

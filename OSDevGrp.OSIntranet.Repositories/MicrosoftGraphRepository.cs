@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -33,7 +34,6 @@ namespace OSDevGrp.OSIntranet.Repositories
         #region Private variables
         
         private IRefreshableToken _currentToken;
-        private readonly ConverterBase _microsoftGraphModelConverter = new MicrosoftGraphModelConverter();
 
         #endregion
 
@@ -93,9 +93,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(redirectUri, nameof(redirectUri))
                 .NotNullOrWhiteSpace(code, nameof(code));
 
+            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+
             TokenModel tokenModel = await AcquireTokenAsync<TokenModel>(redirectUri, Scope, code);
 
-            Token = _microsoftGraphModelConverter.Convert<TokenModel, IRefreshableToken>(tokenModel);
+            Token = microsoftGraphModelConverter.Convert<TokenModel, IRefreshableToken>(tokenModel);
 
             return Token;
         }
@@ -105,9 +107,11 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(redirectUri, nameof(redirectUri))
                 .NotNull(refreshableToken, nameof(refreshableToken));
 
+            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+
             TokenModel tokenModel = await RefreshTokenAsync<TokenModel>(redirectUri, Scope, refreshableToken);
 
-            Token = _microsoftGraphModelConverter.Convert<TokenModel, IRefreshableToken>(tokenModel);
+            Token = microsoftGraphModelConverter.Convert<TokenModel, IRefreshableToken>(tokenModel);
 
             return Token;
         }
@@ -116,17 +120,19 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken));
 
+            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+
             Token = refreshableToken;
 
             List<IContact> contacts = new List<IContact>();
 
             ContactCollectionModel contactCollectionModel = await GetAsync<ContactCollectionModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts"), null, CreateSerializerSettings());
-            contacts.AddRange(_microsoftGraphModelConverter.Convert<ContactCollectionModel, IEnumerable<IContact>>(contactCollectionModel));
+            contacts.AddRange(microsoftGraphModelConverter.Convert<ContactCollectionModel, IEnumerable<IContact>>(contactCollectionModel));
 
             while (string.IsNullOrWhiteSpace(contactCollectionModel.NextLink) == false)
             {
                 contactCollectionModel = await GetAsync<ContactCollectionModel>(new Uri(contactCollectionModel.NextLink), null, CreateSerializerSettings());
-                contacts.AddRange(_microsoftGraphModelConverter.Convert<ContactCollectionModel, IEnumerable<IContact>>(contactCollectionModel));
+                contacts.AddRange(microsoftGraphModelConverter.Convert<ContactCollectionModel, IEnumerable<IContact>>(contactCollectionModel));
             }
 
             return contacts.OrderBy(m => m.Name.DisplayName).ToList();
@@ -137,6 +143,8 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNullOrWhiteSpace(identifier, nameof(identifier));
 
+            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+
             Token = refreshableToken;
 
             ContactModel contactModel = await GetContactModelAsync(identifier, CreateSerializerSettings());
@@ -145,7 +153,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 return null;
             }
 
-            return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(contactModel);
+            return microsoftGraphModelConverter.Convert<ContactModel, IContact>(contactModel);
         }
 
         public async Task<IContact> CreateContactAsync(IRefreshableToken refreshableToken, IContact contact)
@@ -153,21 +161,25 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNull(contact, nameof(contact));
 
+            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+
             Token = refreshableToken;
 
-            ContactModel contactModel = _microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
+            ContactModel contactModel = microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
 
             DataContractJsonSerializerSettings serializerSettings = CreateSerializerSettings();
 
             ContactModel createdContactModel = await PostAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(contactModel, CreateSerializerSettings("yyyy-MM-dd")), serializerSettings);
 
-            return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(createdContactModel);
+            return microsoftGraphModelConverter.Convert<ContactModel, IContact>(createdContactModel);
         }
 
         public async Task<IContact> UpdateContactAsync(IRefreshableToken refreshableToken, IContact contact)
         {
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNull(contact, nameof(contact));
+
+            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
 
             Token = refreshableToken;
 
@@ -179,11 +191,11 @@ namespace OSDevGrp.OSIntranet.Repositories
                 return null;
             }
 
-            ContactModel targetContactModel = _microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
+            ContactModel targetContactModel = microsoftGraphModelConverter.Convert<IContact, ContactModel>(contact);
 
             ContactModel updatedContactModel = await PatchAsync<ContactModel>(new Uri($"{MicrosoftGraphUrl}/me/contacts/{targetContactModel.Identifier}"), httpRequestMessage => httpRequestMessage.Content = ModelToStringContent(targetContactModel.ToChangedOnlyModel(sourceContactModel), CreateSerializerSettings("yyyy-MM-dd")), serializerSettings);
 
-            return _microsoftGraphModelConverter.Convert<ContactModel, IContact>(updatedContactModel);
+            return microsoftGraphModelConverter.Convert<ContactModel, IContact>(updatedContactModel);
         }
 
         public async Task DeleteContactAsync(IRefreshableToken refreshableToken, string identifier)
@@ -287,17 +299,15 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(model, nameof(model))
                 .NotNull(serializerSettings, nameof(serializerSettings));
 
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                DataContractJsonSerializer serializer = new DataContractJsonSerializer(model.GetType(), serializerSettings);
-                serializer.WriteObject(memoryStream, model);
+            using MemoryStream memoryStream = new MemoryStream();
 
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                using (StreamReader reader = new StreamReader(memoryStream))
-                {
-                    return new StringContent(reader.ReadToEnd(), Encoding.UTF8, "application/json");
-                }
-            }
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(model.GetType(), serializerSettings);
+            serializer.WriteObject(memoryStream, model);
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            using StreamReader reader = new StreamReader(memoryStream);
+            return new StringContent(reader.ReadToEnd(), Encoding.UTF8, "application/json");
         }
 
         #endregion

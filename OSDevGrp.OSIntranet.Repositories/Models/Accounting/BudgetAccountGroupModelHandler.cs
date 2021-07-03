@@ -65,6 +65,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(budgetAccountGroupModel, nameof(budgetAccountGroupModel));
 
+            if (budgetAccountGroupModel.BudgetAccounts != null)
+            {
+                return budgetAccountGroupModel.BudgetAccounts.Any() == false;
+            }
+
             return await DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.BudgetAccountGroupIdentifier == budgetAccountGroupModel.BudgetAccountGroupIdentifier) == null;
         }
 

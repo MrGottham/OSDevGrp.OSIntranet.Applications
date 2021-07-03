@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -34,21 +33,30 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual List<BudgetAccountModel> BudgetAccounts { get; set; }
 
         public virtual List<ContactAccountModel> ContactAccounts { get; set; }
+
+        public virtual List<PostingLineModel> PostingLines { get; set; }
     }
 
     internal static class AccountingModelExtensions
     {
-        internal static IAccounting ToDomain(this AccountingModel accountingModel, IConverter accountingModelConverter, IConverter commonModelConverter)
+        internal static bool Convertible(this AccountingModel accountingModel)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel));
+
+            return accountingModel.LetterHead != null;
+        }
+
+        internal static IAccounting ToDomain(this AccountingModel accountingModel, IDictionary<int, IAccounting> accountingDictionary, IConverter accountingModelConverter, IConverter commonModelConverter, object syncRoot)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel))
+                .NotNull(accountingDictionary, nameof(accountingDictionary))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter))
-                .NotNull(commonModelConverter, nameof(commonModelConverter));
+                .NotNull(commonModelConverter, nameof(commonModelConverter))
+                .NotNull(syncRoot, nameof(syncRoot));
 
-            IAccounting accounting;
-            lock (accountingModelConverter.Cache.SyncRoot)
+            lock (syncRoot)
             {
-                accounting = accountingModelConverter.Cache.FromMemory<IAccounting>(Convert.ToString(accountingModel.AccountingIdentifier));
-                if (accounting != null)
+                if (accountingDictionary.TryGetValue(accountingModel.AccountingIdentifier, out IAccounting accounting))
                 {
                     return accounting;
                 }
@@ -59,41 +67,69 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 accounting.AddAuditInformation(accountingModel.CreatedUtcDateTime, accountingModel.CreatedByIdentifier, accountingModel.ModifiedUtcDateTime, accountingModel.ModifiedByIdentifier);
                 accounting.SetDeletable(accountingModel.Deletable);
 
-                accountingModelConverter.Cache.Remember(accounting, m => Convert.ToString(m.Number));
-            }
+                accountingDictionary.Add(accounting.Number, accounting);
 
-            try
-            {
                 if (accountingModel.Accounts != null)
                 {
                     accounting.AccountCollection.Add(accountingModel.Accounts
-                        .Where(accountModel => accountModel.Accounting != null && accountModel.BasicAccount != null && accountModel.AccountGroup != null)
-                        .Select(accountingModelConverter.Convert<AccountModel, IAccount>)
+                        .Where(accountModel => accountModel.Convertible())
+                        .Select(accountModel => accountModel.ToDomain(accounting, accountingModelConverter))
+                        .Where(account => accounting.AccountCollection.Contains(account) == false)
                         .ToArray());
                 }
 
                 if (accountingModel.BudgetAccounts != null)
                 {
                     accounting.BudgetAccountCollection.Add(accountingModel.BudgetAccounts
-                        .Where(budgetAccountModel => budgetAccountModel.Accounting != null && budgetAccountModel.BasicAccount != null && budgetAccountModel.BudgetAccountGroup != null)
-                        .Select(accountingModelConverter.Convert<BudgetAccountModel, IBudgetAccount>)
+                        .Where(budgetAccountModel => budgetAccountModel.Convertible())
+                        .Select(budgetAccountModel => budgetAccountModel.ToDomain(accounting, accountingModelConverter))
+                        .Where(budgetAccount => accounting.BudgetAccountCollection.Contains(budgetAccount) == false)
                         .ToArray());
                 }
 
                 if (accountingModel.ContactAccounts != null)
                 {
                     accounting.ContactAccountCollection.Add(accountingModel.ContactAccounts
-                        .Where(contactAccountModel => contactAccountModel.Accounting != null && contactAccountModel.BasicAccount != null && contactAccountModel.PaymentTerm != null)
-                        .Select(accountingModelConverter.Convert<ContactAccountModel, IContactAccount>)
+                        .Where(contactAccountModel => contactAccountModel.Convertible())
+                        .Select(contactAccountModel => contactAccountModel.ToDomain(accounting, accountingModelConverter))
+                        .Where(contactAccount => accounting.ContactAccountCollection.Contains(contactAccount) == false)
                         .ToArray());
                 }
 
                 return accounting;
             }
-            finally
-            {
-                accountingModelConverter.Cache.Forget<IAccounting>(Convert.ToString(accountingModel.AccountingIdentifier));
-            }
+        }
+
+        internal static void ExtractAccounts(this AccountingModel accountingModel, IReadOnlyCollection<AccountModel> accountModelCollection)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel))
+                .NotNull(accountModelCollection, nameof(accountModelCollection));
+
+            accountingModel.Accounts = accountModelCollection.Where(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier).ToList();
+        }
+
+        internal static void ExtractBudgetAccounts(this AccountingModel accountingModel, IReadOnlyCollection<BudgetAccountModel> budgetAccountModelCollection)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel))
+                .NotNull(budgetAccountModelCollection, nameof(budgetAccountModelCollection));
+
+            accountingModel.BudgetAccounts = budgetAccountModelCollection.Where(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier).ToList();
+        }
+
+        internal static void ExtractContactAccounts(this AccountingModel accountingModel, IReadOnlyCollection<ContactAccountModel> contactAccountModelCollection)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel))
+                .NotNull(contactAccountModelCollection, nameof(contactAccountModelCollection));
+
+            accountingModel.ContactAccounts = contactAccountModelCollection.Where(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier).ToList();
+        }
+
+        internal static void ExtractPostingLines(this AccountingModel accountingModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection)
+        {
+            NullGuard.NotNull(accountingModel, nameof(accountingModel))
+                .NotNull(postingLineModelCollection, nameof(postingLineModelCollection));
+
+            accountingModel.PostingLines = postingLineModelCollection.Where(postingLineModel => postingLineModel.AccountingIdentifier == accountingModel.AccountingIdentifier).ToList();
         }
 
         internal static void CreateAccountingModel(this ModelBuilder modelBuilder)
