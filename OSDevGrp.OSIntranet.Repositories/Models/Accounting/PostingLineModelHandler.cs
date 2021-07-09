@@ -316,10 +316,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountModel == null
                 ? Task.FromResult(postingLineModel.Accounting)
                 : Task.FromResult(postingLineModel.Accounting ?? accountModel);
-        }
+            }
 
         private static async Task<AccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<AccountModel> accountModelCollection)
-        {
+            {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel));
 
             if (accountModelCollection == null || postingLineModel.Account != null)
@@ -328,10 +328,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             }
 
             return await OnReadAsync(accountModelCollection.Single(m => m.AccountIdentifier == postingLineModel.AccountIdentifier), statusDate);
-        }
+            }
 
         private static async Task<BudgetAccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<BudgetAccountModel> budgetAccountModelCollection)
-        {
+            {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel));
 
             if (budgetAccountModelCollection == null || postingLineModel.BudgetAccount != null)
@@ -365,7 +365,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         }
 
         private static Task<TAccountModel> OnReadAsync<TAccountModel>(TAccountModel accountModel, DateTime statusDate) where TAccountModel : AccountModelBase
-        {
+            {
             if (accountModel == null)
             {
                 return Task.FromResult<TAccountModel>(null);
