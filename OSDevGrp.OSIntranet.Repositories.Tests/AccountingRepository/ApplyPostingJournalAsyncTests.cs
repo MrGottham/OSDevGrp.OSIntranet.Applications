@@ -17,7 +17,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
         #region Private variables
 
         private Fixture _fixture;
-        private Random _random;
 
         #endregion
 
@@ -25,7 +24,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
         public void SetUp()
         {
             _fixture = new Fixture();
-            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -56,7 +54,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         [Test]
         [Category("IntegrationTest")]
-//        [Ignore("Test which applies a posting journal and should only be run once")]
+        [Ignore("Test which applies a posting journal and should only be run once")]
         public async Task ApplyPostingJournalAsync_WhenCalled_ReturnsNonEmptyPostingJournalResult()
         {
             IAccountingRepository sut = CreateSut();
@@ -86,27 +84,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
                 new PostingLine(Guid.NewGuid(), DateTime.Today, null, primaryAccount, "Testing apply posting journal", primaryBudgetAccount, 25000M, 0M, null, 0),
                 new PostingLine(Guid.NewGuid(), DateTime.Today, null, primaryAccount, "Testing apply posting journal", primaryBudgetAccount, 0M, 25000M, null, 0)
             };
-
-            while (postingLineCollection.Count() < 250)
-            {
-                IAccount account = accounting.AccountCollection.ElementAt(_random.Next(0, accounting.AccountCollection.Count() - 1));
-                
-                IBudgetAccount budgetAccount = null;
-                if (_random.Next(100) > 10)
-                {
-                    budgetAccount = accounting.BudgetAccountCollection.ElementAt(_random.Next(0, accounting.BudgetAccountCollection.Count() - 1));
-                }
-
-                IContactAccount contactAccount = null;
-                if (_random.Next(100) > 90)
-                {
-                    contactAccount = accounting.ContactAccountCollection.ElementAt(_random.Next(0, accounting.ContactAccountCollection.Count() - 1));
-                }
-
-                decimal value = Math.Abs(_fixture.Create<decimal>()) * (_random.Next(100) > 50 ? -1 : 1);
-
-                postingLineCollection.Add(new PostingLine(Guid.NewGuid(), DateTime.Today, _random.Next(100) > 10 ? _fixture.Create<string>().Substring(0, 10) : null, account, _fixture.Create<string>(), budgetAccount, value > 0 ? value : 0M, value < 0 ? Math.Abs(value) : 0M, contactAccount, 0));
-            }
 
             return new PostingJournal(postingLineCollection);
         }

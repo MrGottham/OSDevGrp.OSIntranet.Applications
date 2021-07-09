@@ -13,7 +13,7 @@ using OSDevGrp.OSIntranet.Repositories.Events;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class BudgetAccountModelHandler : AccountModelHandlerBase<IBudgetAccount, BudgetAccountModel>
+    internal class BudgetAccountModelHandler : AccountModelHandlerBase<IBudgetAccount, BudgetAccountModel>, IEventHandler<BudgetInfoModelCollectionLoadedEvent>
     {
         #region Private variables
 
@@ -32,7 +32,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             if (_includeBudgetInformation)
             {
-                _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter, eventPublisher, statusDate);
+                _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter, EventPublisher, StatusDate);
             }
         }
 
@@ -51,6 +51,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         #endregion
 
         #region Methods
+
+        public Task HandleAsync(BudgetInfoModelCollectionLoadedEvent budgetInfoModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(budgetInfoModelCollectionLoadedEvent, nameof(budgetInfoModelCollectionLoadedEvent));
+
+            if (budgetInfoModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (SyncRoot)
+            {
+                if (_budgetInfoModelCollection != null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (budgetInfoModelCollectionLoadedEvent.StatusDate != StatusDate || _includeBudgetInformation == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _budgetInfoModelCollection = budgetInfoModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
 
         protected override void OnDispose()
         {

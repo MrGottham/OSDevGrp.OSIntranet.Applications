@@ -10,14 +10,16 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Events;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class AccountingModelHandler : ModelHandlerBase<IAccounting, RepositoryContext, AccountingModel, int, AccountingIdentificationState>
+    internal class AccountingModelHandler : ModelHandlerBase<IAccounting, RepositoryContext, AccountingModel, int, AccountingIdentificationState>, IEventHandler<AccountModelCollectionLoadedEvent>, IEventHandler<BudgetAccountModelCollectionLoadedEvent>, IEventHandler<ContactAccountModelCollectionLoadedEvent>, IEventHandler<PostingLineModelCollectionLoadedEvent>
     {
         #region Private variables
 
+        private readonly IEventPublisher _eventPublisher;
         private readonly DateTime _statusDate;
         private readonly bool _includeAccounts;
         private readonly bool _includePostingLines;
@@ -25,6 +27,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         private readonly BudgetAccountModelHandler _budgetAccountModelHandler;
         private readonly ContactAccountModelHandler _contactAccountModelHandler;
         private readonly PostingLineModelHandler _postingLineModelHandler;
+        private readonly object _syncRoot = new object();
         private IReadOnlyCollection<AccountModel> _accountModelCollection;
         private IReadOnlyCollection<BudgetAccountModel> _budgetAccountModelCollection;
         private IReadOnlyCollection<ContactAccountModel> _contactAccountModelCollection;
@@ -39,21 +42,24 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(eventPublisher, nameof(eventPublisher));
 
+            _eventPublisher = eventPublisher;
             _statusDate = statusDate.Date;
             _includeAccounts = includeAccounts;
             _includePostingLines = includePostingLines;
 
             if (_includeAccounts)
             {
-                _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, true, false);
-                _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, true, false);
-                _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, false);
+                _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, _eventPublisher, _statusDate, true, false);
+                _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, _eventPublisher, _statusDate, true, false);
+                _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, _eventPublisher, _statusDate, false);
             }
 
             if (_includePostingLines)
             {
-                _postingLineModelHandler = new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false);
+                _postingLineModelHandler = new PostingLineModelHandler(dbContext, modelConverter, _eventPublisher, DateTime.MinValue, _statusDate, false, false);
             }
+
+            _eventPublisher.AddSubscriber(this);
         }
 
         #endregion
@@ -73,6 +79,114 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         #endregion
 
         #region Methods
+
+        public Task HandleAsync(AccountModelCollectionLoadedEvent accountModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(accountModelCollectionLoadedEvent, nameof(accountModelCollectionLoadedEvent));
+
+            if (accountModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (_syncRoot)
+            {
+                if (_accountModelCollection != null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (accountModelCollectionLoadedEvent.StatusDate != _statusDate || _includeAccounts == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _accountModelCollection = accountModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task HandleAsync(BudgetAccountModelCollectionLoadedEvent budgetAccountModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(budgetAccountModelCollectionLoadedEvent, nameof(budgetAccountModelCollectionLoadedEvent));
+
+            if (budgetAccountModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (_syncRoot)
+            {
+                if (_budgetAccountModelCollection != null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (budgetAccountModelCollectionLoadedEvent.StatusDate != _statusDate || _includeAccounts == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _budgetAccountModelCollection = budgetAccountModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task HandleAsync(ContactAccountModelCollectionLoadedEvent contactAccountModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(contactAccountModelCollectionLoadedEvent, nameof(contactAccountModelCollectionLoadedEvent));
+
+            if (contactAccountModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (_syncRoot)
+            {
+                if (_contactAccountModelCollection != null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (contactAccountModelCollectionLoadedEvent.StatusDate != _statusDate || _includeAccounts == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _contactAccountModelCollection = contactAccountModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task HandleAsync(PostingLineModelCollectionLoadedEvent postingLineModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(postingLineModelCollectionLoadedEvent, nameof(postingLineModelCollectionLoadedEvent));
+
+            if (postingLineModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (_syncRoot)
+            {
+                if (_postingLineModelCollection != null && postingLineModelCollectionLoadedEvent.ContainsMorePostingLines(_postingLineModelCollection) == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (postingLineModelCollectionLoadedEvent.ToDate != _statusDate || _includePostingLines == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _postingLineModelCollection = postingLineModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
 
         internal async Task<bool> ExistsAsync(int number)
         {
@@ -103,6 +217,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override void OnDispose()
         {
+            lock (_syncRoot)
+            {
+                _eventPublisher.RemoveSubscriber(this);
+            }
+
             _accountModelHandler?.Dispose();
             _budgetAccountModelHandler?.Dispose();
             _contactAccountModelHandler?.Dispose();
