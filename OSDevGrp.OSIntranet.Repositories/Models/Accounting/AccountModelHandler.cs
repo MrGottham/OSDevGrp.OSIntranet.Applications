@@ -13,7 +13,7 @@ using OSDevGrp.OSIntranet.Repositories.Events;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class AccountModelHandler : AccountModelHandlerBase<IAccount, AccountModel>
+    internal class AccountModelHandler : AccountModelHandlerBase<IAccount, AccountModel>, IEventHandler<CreditInfoModelCollectionLoadedEvent>
     {
         #region Private variables
 
@@ -32,7 +32,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             if (_includeCreditInformation)
             {
-                _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter, eventPublisher, statusDate);
+                _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter, EventPublisher, StatusDate);
             }
         }
 
@@ -51,6 +51,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         #endregion
 
         #region Methods
+
+        public Task HandleAsync(CreditInfoModelCollectionLoadedEvent creditInfoModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(creditInfoModelCollectionLoadedEvent, nameof(creditInfoModelCollectionLoadedEvent));
+
+            if (creditInfoModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (SyncRoot)
+            {
+                if (_creditInfoModelCollection != null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (creditInfoModelCollectionLoadedEvent.StatusDate != StatusDate || _includeCreditInformation == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _creditInfoModelCollection = creditInfoModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
 
         protected override void OnDispose()
         {

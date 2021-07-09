@@ -35,7 +35,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             _eventPublisher = eventPublisher;
             _statusDate = statusDate.Date;
-            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, false, false);
+            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, _eventPublisher, _statusDate, false, false);
 
             _eventPublisher.AddSubscriber(this);
         }

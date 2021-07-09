@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
@@ -54,6 +55,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 modifiedByIdentifier = lastModifiedInfoModel.ModifiedByIdentifier;
             }
 
+            AuditModelBase lastModifiedPostingLineModel = GetLastModifiedPostingLineModel();
+            if (lastModifiedPostingLineModel != null && modifiedUtcDateTime < lastModifiedPostingLineModel.ModifiedUtcDateTime)
+            {
+                modifiedUtcDateTime = lastModifiedPostingLineModel.ModifiedUtcDateTime;
+                modifiedByIdentifier = lastModifiedPostingLineModel.ModifiedByIdentifier;
+            }
+
             auditable.AddAuditInformation(createdUtcDateTime, createdByIdentifier, modifiedUtcDateTime, modifiedByIdentifier);
         }
 
@@ -62,5 +70,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         internal virtual DateTime GetToDateForPostingLines(int daysToAdd = 0) => StatusDate.AddDays(daysToAdd).Date;
 
         protected abstract AuditModelBase GetLastModifiedInfoModel();
+
+        protected AuditModelBase GetLastModifiedPostingLineModel()
+        {
+            return PostingLines?.AsParallel()
+                .OrderByDescending(postingLineModel => postingLineModel.ModifiedUtcDateTime)
+                .FirstOrDefault();
+        }
     }
 }

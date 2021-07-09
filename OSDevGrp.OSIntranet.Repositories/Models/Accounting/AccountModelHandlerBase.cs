@@ -12,11 +12,12 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Events;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal abstract class AccountModelHandlerBase<TAccount, TAccountModel> : ModelHandlerBase<TAccount, RepositoryContext, TAccountModel, Tuple<int, string>, AccountingIdentificationState> where TAccount : class, IAccountBase where TAccountModel : AccountModelBase, new() 
+    internal abstract class AccountModelHandlerBase<TAccount, TAccountModel> : ModelHandlerBase<TAccount, RepositoryContext, TAccountModel, Tuple<int, string>, AccountingIdentificationState>, IEventHandler<PostingLineModelCollectionLoadedEvent> where TAccount : class, IAccountBase where TAccountModel : AccountModelBase, new() 
     {
         #region Private variables
 
@@ -37,9 +38,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             EventPublisher = eventPublisher;
             StatusDate = statusDate.Date;
-            AccountingModelHandler = new AccountingModelHandler(dbContext, modelConverter, eventPublisher, statusDate, false, false);
+            AccountingModelHandler = new AccountingModelHandler(dbContext, modelConverter, EventPublisher, StatusDate, false, false);
             PostingLineModelHandler = postingLineModelHandler;
             SyncRoot = new object();
+
+            EventPublisher.AddSubscriber(this);
         }
 
         #endregion
@@ -61,6 +64,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         #endregion
 
         #region Methods
+
+        public Task HandleAsync(PostingLineModelCollectionLoadedEvent postingLineModelCollectionLoadedEvent)
+        {
+            NullGuard.NotNull(postingLineModelCollectionLoadedEvent, nameof(postingLineModelCollectionLoadedEvent));
+
+            if (postingLineModelCollectionLoadedEvent.FromSameDbContext(DbContext) == false)
+            {
+                return Task.CompletedTask;
+            }
+
+            lock (SyncRoot)
+            {
+                if (_postingLineModelCollection != null && postingLineModelCollectionLoadedEvent.ContainsMorePostingLines(_postingLineModelCollection) == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (postingLineModelCollectionLoadedEvent.ToDate != StatusDate || _includePostingLines == false)
+                {
+                    return Task.CompletedTask;
+                }
+
+                _postingLineModelCollection = postingLineModelCollectionLoadedEvent.ModelCollection;
+
+                return Task.CompletedTask;
+            }
+        }
 
         internal async Task<bool> ExistsAsync(int accountingNumber, string accountNumber)
         {
@@ -130,6 +160,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override void OnDispose()
         {
+            lock (SyncRoot)
+            {
+                EventPublisher.RemoveSubscriber(this);
+            }
+
             AccountingModelHandler.Dispose();
             PostingLineModelHandler?.Dispose();
         }

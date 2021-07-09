@@ -35,7 +35,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
             _eventPublisher = eventPublisher;
             _statusDate = statusDate.Date;
-            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, eventPublisher, statusDate, false, false);
+            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, _eventPublisher, _statusDate, false, false);
 
             _eventPublisher.AddSubscriber(this);
         }
