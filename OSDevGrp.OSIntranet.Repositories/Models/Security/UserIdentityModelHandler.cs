@@ -99,7 +99,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             return Task.FromResult(userIdentityModel);
         }
 
-        protected override Task<IUserIdentity> OnReloadAsync(IUserIdentity userIdentity, UserIdentityModel userIdentityModel)
+        protected override Task<IUserIdentity> OnReloadAsync(IUserIdentity userIdentity, UserIdentityModel userIdentityModel, object prepareReadState)
         {
             NullGuard.NotNull(userIdentity, nameof(userIdentity))
                 .NotNull(userIdentityModel, nameof(userIdentityModel));

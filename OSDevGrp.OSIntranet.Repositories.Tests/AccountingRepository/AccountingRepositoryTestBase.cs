@@ -14,13 +14,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
         private static string _existingAccountNumberForBudgetAccount;
         private static string _existingAccountNumberForContactAccount;
         private static Random _random;
-        private static readonly object SyncRoot = new object();
 
         #endregion
 
         protected IAccountingRepository CreateSut()
         {
-            return new Repositories.AccountingRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
+            return new Repositories.AccountingRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory(), CreateEventPublisher());
         }
 
         protected int WithExistingAccountingNumber()

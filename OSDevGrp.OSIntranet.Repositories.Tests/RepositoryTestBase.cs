@@ -4,12 +4,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests
 {
     public abstract class RepositoryTestBase
     {
+        #region Private and protected variables
+
+        private static IEventPublisher _eventPublisher;
+        protected static readonly object SyncRoot = new();
+
+        #endregion
+
         #region Methods
 
         protected IConfiguration CreateTestConfiguration()
@@ -30,6 +39,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests
         protected ILoggerFactory CreateLoggerFactory()
         {
             return NullLoggerFactory.Instance;
+        }
+
+        protected IEventPublisher CreateEventPublisher()
+        {
+            lock (SyncRoot)
+            {
+                return _eventPublisher ??= new EventPublisher();
+            }
         }
 
         private ClaimsPrincipal CreateClaimsPrincipal()

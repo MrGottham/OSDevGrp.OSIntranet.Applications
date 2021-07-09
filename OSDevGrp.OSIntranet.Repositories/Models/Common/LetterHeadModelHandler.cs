@@ -73,6 +73,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Common
         {
             NullGuard.NotNull(letterHeadModel, nameof(letterHeadModel));
 
+            if (letterHeadModel.Accountings != null)
+            {
+                return letterHeadModel.Accountings.Any() == false;
+            }
+
             return await DbContext.Accountings.FirstOrDefaultAsync(accountingModel => accountingModel.LetterHeadIdentifier == letterHeadModel.LetterHeadIdentifier) == null;
         }
 

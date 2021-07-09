@@ -53,7 +53,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             Identifier = identifier;
             Accounting = account.Accounting;
-            PostingDate = postingDate;
+            PostingDate = postingDate.Date;
             Reference = string.IsNullOrWhiteSpace(reference) ? null : reference.Trim();
             Account = account;
             AccountValuesAtPostingDate = new CreditInfoValues(0M, 0M);

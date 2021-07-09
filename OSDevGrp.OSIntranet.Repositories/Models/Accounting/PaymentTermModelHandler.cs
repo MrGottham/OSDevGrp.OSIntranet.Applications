@@ -65,6 +65,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(paymentTermModel, nameof(paymentTermModel));
 
+            if (paymentTermModel.ContactAccounts != null && paymentTermModel.ContactAccounts.Any())
+            {
+                return false;
+            }
+
+            if (paymentTermModel.ContactSupplements != null && paymentTermModel.ContactSupplements.Any())
+            {
+                return false;
+            }
+
             bool usedOnContactAccount = await DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.PaymentTermIdentifier == paymentTermModel.PaymentTermIdentifier) != null;
             bool usedOnContactSupplement = await DbContext.ContactSupplements.FirstOrDefaultAsync(contactSupplementModel => contactSupplementModel.PaymentTermIdentifier == paymentTermModel.PaymentTermIdentifier) != null;
 

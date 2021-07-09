@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Events;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -13,8 +16,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
     {
         #region Constructor
 
-        public ContactAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includePostingLines) 
-            : base(dbContext, modelConverter, statusDate, includePostingLines)
+        public ContactAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includePostingLines) 
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false) : null)
         {
         }
 
@@ -24,9 +27,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<ContactAccountModel> Entities => DbContext.ContactAccounts;
 
-        protected override IQueryable<ContactAccountModel> Reader => CreateReader(IncludePostingLines);
+        protected override IQueryable<ContactAccountModel> Reader => CreateReader(false);
 
-        protected override IQueryable<ContactAccountModel> UpdateReader => CreateReader(false);
+        protected override IQueryable<ContactAccountModel> UpdateReader => CreateReader(true);
 
         protected override IQueryable<ContactAccountModel> DeleteReader => CreateReader(true);
 
@@ -59,37 +62,51 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             contactAccountModel.SecondaryPhone = contactAccount.SecondaryPhone;
         }
 
-        protected override async Task<ContactAccountModel> OnDeleteAsync(ContactAccountModel contactAccountModel)
-        {
-            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
-
-            // TODO: Delete all posting lines.
-
-            return await base.OnDeleteAsync(contactAccountModel);
-        }
-
         protected override Task<bool> CanDeleteAsync(ContactAccountModel contactAccountModel)
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
 
-            // TODO: Validate the existence of posting lines.
-
-            return Task.FromResult(false);
+            return Task.FromResult(contactAccountModel.PostingLines != null && contactAccountModel.PostingLines.Any() == false);
         }
 
-        private IQueryable<ContactAccountModel> CreateReader(bool includePostingLines)
+        protected override async Task<ContactAccountModel> OnDeleteAsync(ContactAccountModel contactAccountModel)
+        {
+            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
+
+            await PostingLineModelHandler.DeleteAsync(contactAccountModel.PostingLines);
+
+            return await base.OnDeleteAsync(contactAccountModel);
+        }
+
+        protected override Task PublishModelCollectionLoadedEvent(IReadOnlyCollection<ContactAccountModel> contactAccountModelCollection)
+        {
+            NullGuard.NotNull(contactAccountModelCollection, nameof(contactAccountModelCollection));
+
+            lock (SyncRoot)
+            {
+                EventPublisher.PublishAsync(new ContactAccountModelCollectionLoadedEvent(DbContext, contactAccountModelCollection, StatusDate))
+                    .GetAwaiter()
+                    .GetResult();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override void ExtractPostingLines(ContactAccountModel contactAccountModel, IReadOnlyCollection<PostingLineModel> postingLineCollection)
+        {
+            NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
+                .NotNull(postingLineCollection, nameof(postingLineCollection));
+
+            contactAccountModel.ExtractPostingLines(postingLineCollection);
+        }
+
+        private IQueryable<ContactAccountModel> CreateReader(bool includeAccounting)
         {
             IQueryable<ContactAccountModel> reader = Entities
-                .Include(contactAccountModel => contactAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
                 .Include(contactAccountModel => contactAccountModel.BasicAccount)
                 .Include(contactAccountModel => contactAccountModel.PaymentTerm);
 
-            if (includePostingLines)
-            {
-                // TODO: Include posting lines.
-            }
-
-            return reader;
+            return includeAccounting == false ? reader : reader.Include(contactAccountModel => contactAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead);
         }
 
         #endregion

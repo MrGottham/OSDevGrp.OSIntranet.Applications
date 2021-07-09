@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -64,23 +65,56 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             OnDispose();
         }
 
-        internal async Task<TDomainModel> CreateAsync(TDomainModel domainModel)
+        internal async Task<TDomainModel> CreateAsync(TDomainModel domainModel, TPrepareReadState prepareReadState = null)
         {
             NullGuard.NotNull(domainModel, nameof(domainModel));
 
-            TEntityModel entityModel = ModelConverter.Convert<TDomainModel, TEntityModel>(domainModel);
-            EntityEntry<TEntityModel> entityEntry = await Entities.AddAsync(await OnCreateAsync(domainModel, entityModel));
+            return (await CreateAsync(new[] {domainModel}, prepareReadState)).SingleOrDefault();
+        }
+
+        internal async Task<IEnumerable<TDomainModel>> CreateAsync(IEnumerable<TDomainModel> domainModelCollection, TPrepareReadState prepareReadState = null)
+        {
+            NullGuard.NotNull(domainModelCollection, nameof(domainModelCollection));
+
+            IDictionary<TDomainModel, EntityEntry<TEntityModel>> createdDomainModelEntityEntryDictionary = new ConcurrentDictionary<TDomainModel, EntityEntry<TEntityModel>>();
+            foreach (TDomainModel domainModel in domainModelCollection)
+            {
+                TEntityModel entityModel = ModelConverter.Convert<TDomainModel, TEntityModel>(domainModel);
+                EntityEntry<TEntityModel> entityEntry = await Entities.AddAsync(await OnCreateAsync(domainModel, entityModel));
+
+                createdDomainModelEntityEntryDictionary.Add(domainModel, entityEntry);
+            }
 
             await DbContext.SaveChangesAsync();
 
-            return await OnReloadAsync(domainModel, entityEntry.Entity);
+            if (createdDomainModelEntityEntryDictionary.Count > 0 && prepareReadState != null)
+            {
+                await PrepareReadAsync(prepareReadState);
+            }
+
+            IList<TDomainModel> createdDomainModelCollection = new List<TDomainModel>();
+            foreach (KeyValuePair<TDomainModel, EntityEntry<TEntityModel>> item in createdDomainModelEntityEntryDictionary)
+            {
+                TDomainModel riddenDomainModel = await OnReloadAsync(item.Key, item.Value.Entity, prepareReadState);
+                if (riddenDomainModel == null)
+                {
+                    continue;
+                }
+
+                createdDomainModelCollection.Add(riddenDomainModel);
+            }
+
+            return createdDomainModelCollection;
         }
 
         internal async Task<TDomainModel> ReadAsync(TPrimaryKey primaryKey, TPrepareReadState prepareReadState = null)
         {
             NullGuard.NotNull(primaryKey, nameof(primaryKey));
 
-            await PrepareReadAsync(primaryKey, prepareReadState);
+            if (prepareReadState != null)
+            {
+                await PrepareReadAsync(primaryKey, prepareReadState);
+            }
 
             TEntityModel entityModel = await Reader.SingleOrDefaultAsync(EntitySelector(primaryKey));
             if (entityModel == null)
@@ -91,11 +125,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return ModelConverter.Convert<TEntityModel, TDomainModel>(await OnReadAsync(entityModel));
         }
 
-        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Func<TEntityModel, bool> filterPredicate = null, TPrepareReadState prepareReadState = null)
+        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Expression<Func<TEntityModel, bool>> filterPredicate = null, TPrepareReadState prepareReadState = null)
         {
-            await PrepareReadAsync(prepareReadState);
+            if (prepareReadState != null)
+            {
+                await PrepareReadAsync(prepareReadState);
+            }
 
-            IEnumerable<TEntityModel> entityModelReader = Reader;
+            IQueryable<TEntityModel> entityModelReader = Reader;
             if (filterPredicate != null)
             {
                 entityModelReader = entityModelReader.Where(filterPredicate);
@@ -113,45 +150,102 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return (await SortAsync(domainModelCollection)).ToList();
         }
 
-        internal async Task<TDomainModel> UpdateAsync(TDomainModel domainModel)
+        internal async Task<TDomainModel> UpdateAsync(TDomainModel domainModel, TPrepareReadState prepareReadState = null)
         {
             NullGuard.NotNull(domainModel, nameof(domainModel));
 
-            TPrimaryKey primaryKey = PrimaryKey(domainModel);
+            return (await UpdateAsync(new[] {domainModel}, prepareReadState)).SingleOrDefault();
+        }
 
-            TEntityModel entityModel = await UpdateReader.SingleOrDefaultAsync(EntitySelector(primaryKey));
-            if (entityModel == null)
+        internal async Task<IEnumerable<TDomainModel>> UpdateAsync(IEnumerable<TDomainModel> domainModelCollection, TPrepareReadState prepareReadState = null)
+        {
+            NullGuard.NotNull(domainModelCollection, nameof(domainModelCollection));
+
+            IDictionary<TPrimaryKey, TEntityModel> updatedPrimaryKeyEntityModelDictionary = new ConcurrentDictionary<TPrimaryKey, TEntityModel>();
+            foreach (TDomainModel domainModel in domainModelCollection)
             {
-                return null;
-            }
+                TPrimaryKey primaryKey = PrimaryKey(domainModel);
 
-            await OnUpdateAsync(domainModel, entityModel);
+                TEntityModel entityModel = await UpdateReader.SingleOrDefaultAsync(EntitySelector(primaryKey));
+                if (entityModel == null)
+                {
+                    continue;
+                }
+
+                await OnUpdateAsync(domainModel, entityModel);
+
+                updatedPrimaryKeyEntityModelDictionary.Add(primaryKey, entityModel);
+            }
 
             await DbContext.SaveChangesAsync();
 
-            return await OnReloadAsync(primaryKey, entityModel);
+            if (updatedPrimaryKeyEntityModelDictionary.Count > 0 && prepareReadState != null)
+            {
+                await PrepareReadAsync(prepareReadState);
+            }
+
+            IList<TDomainModel> updatedDomainModelCollection = new List<TDomainModel>();
+            foreach (KeyValuePair<TPrimaryKey, TEntityModel> item in updatedPrimaryKeyEntityModelDictionary)
+            {
+                TDomainModel riddenDomainModel = await OnReloadAsync(item.Key, item.Value, prepareReadState);
+                if (riddenDomainModel == null)
+                {
+                    continue;
+                }
+
+                updatedDomainModelCollection.Add(riddenDomainModel);
+            }
+
+            return updatedDomainModelCollection;
         }
 
-        internal async Task<TDomainModel> DeleteAsync(TPrimaryKey primaryKey)
+        internal async Task<TDomainModel> DeleteAsync(TPrimaryKey primaryKey, TPrepareReadState prepareReadState = null)
         {
             NullGuard.NotNull(primaryKey, nameof(primaryKey));
 
-            TEntityModel entityModel = await DeleteReader.SingleOrDefaultAsync(EntitySelector(primaryKey));
-            if (entityModel == null)
+            return (await DeleteAsync(new[] {primaryKey}, prepareReadState)).SingleOrDefault();
+        }
+
+        internal async Task<IEnumerable<TDomainModel>> DeleteAsync(IEnumerable<TPrimaryKey> primaryKeyCollection, TPrepareReadState prepareReadState = null)
+        {
+            NullGuard.NotNull(primaryKeyCollection, nameof(primaryKeyCollection));
+
+            if (prepareReadState != null)
             {
-                return null;
+                await PrepareReadAsync(prepareReadState);
             }
 
-            if (await CanDeleteAsync(entityModel) == false)
+            IList<TDomainModel> nonDeletedDomainModelCollection = new List<TDomainModel>();
+            foreach (TPrimaryKey primaryKey in primaryKeyCollection)
             {
-                return await OnReloadAsync(primaryKey, entityModel);
-            }
+                if (prepareReadState != null)
+                {
+                    await PrepareReadAsync(primaryKey, prepareReadState);
+                }
 
-            Entities.Remove(await OnDeleteAsync(entityModel));
+                TEntityModel entityModel = await DeleteReader.SingleOrDefaultAsync(EntitySelector(primaryKey));
+                if (entityModel == null)
+                {
+                    continue;
+                }
+
+                TEntityModel riddenEntityModel = await OnReadAsync(entityModel);
+                if (riddenEntityModel == null)
+                {
+                    continue;
+                }
+
+                if (await CanDeleteAsync(riddenEntityModel) == false)
+                {
+                    nonDeletedDomainModelCollection.Add(await OnReloadAsync(primaryKey, riddenEntityModel, prepareReadState));
+                }
+
+                Entities.Remove(await OnDeleteAsync(riddenEntityModel));
+            }
 
             await DbContext.SaveChangesAsync();
 
-            return null;
+            return nonDeletedDomainModelCollection;
         }
 
         protected abstract Expression<Func<TEntityModel, bool>> EntitySelector(TPrimaryKey primaryKey);
@@ -170,14 +264,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return Task.FromResult(entityModel);
         }
 
-        protected virtual Task PrepareReadAsync(TPrepareReadState prepareReadState = null)
+        protected virtual Task PrepareReadAsync(TPrepareReadState prepareReadState)
         {
+            NullGuard.NotNull(prepareReadState, nameof(prepareReadState));
+
             return Task.CompletedTask;
         }
 
-        protected virtual Task PrepareReadAsync(TPrimaryKey primaryKey, TPrepareReadState prepareReadState = null)
+        protected virtual Task PrepareReadAsync(TPrimaryKey primaryKey, TPrepareReadState prepareReadState)
         {
-            NullGuard.NotNull(primaryKey, nameof(primaryKey));
+            NullGuard.NotNull(primaryKey, nameof(primaryKey))
+                .NotNull(prepareReadState, nameof(prepareReadState));
 
             return Task.CompletedTask;
         }
@@ -205,20 +302,20 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return Task.FromResult(entityModel);
         }
 
-        protected virtual Task<TDomainModel> OnReloadAsync(TDomainModel domainModel, TEntityModel entityModel)
+        protected virtual Task<TDomainModel> OnReloadAsync(TDomainModel domainModel, TEntityModel entityModel, TPrepareReadState prepareReadState)
         {
             NullGuard.NotNull(domainModel, nameof(domainModel))
                 .NotNull(entityModel, nameof(entityModel));
 
-            return OnReloadAsync(PrimaryKey(domainModel), entityModel);
+            return OnReloadAsync(PrimaryKey(domainModel), entityModel, prepareReadState);
         }
 
-        protected virtual Task<TDomainModel> OnReloadAsync(TPrimaryKey primaryKey, TEntityModel entityModel)
+        protected virtual Task<TDomainModel> OnReloadAsync(TPrimaryKey primaryKey, TEntityModel entityModel, TPrepareReadState prepareReadState)
         {
             NullGuard.NotNull(primaryKey, nameof(primaryKey))
                 .NotNull(entityModel, nameof(entityModel));
 
-            return ReadAsync(primaryKey);
+            return ReadAsync(primaryKey, prepareReadState);
         }
 
         #endregion

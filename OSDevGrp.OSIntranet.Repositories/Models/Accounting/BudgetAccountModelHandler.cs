@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
+using OSDevGrp.OSIntranet.Repositories.Events;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -23,11 +25,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         #region Constructor
 
-        public BudgetAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includeBudgetInformation, bool includePostingLines) 
-            : base(dbContext, modelConverter, statusDate, includePostingLines)
+        public BudgetAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeBudgetInformation, bool includePostingLines)
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, new DateTime(statusDate.AddYears(-1).Year, 1, 1), statusDate, false, false) : null)
         {
             _includeBudgetInformation = includeBudgetInformation;
-            _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter);
+
+            if (_includeBudgetInformation)
+            {
+                _budgetInfoModelHandler = new BudgetInfoModelHandler(dbContext, modelConverter, eventPublisher, statusDate);
+            }
         }
 
         #endregion
@@ -36,9 +42,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<BudgetAccountModel> Entities => DbContext.BudgetAccounts;
 
-        protected override IQueryable<BudgetAccountModel> Reader => CreateReader(_includeBudgetInformation, IncludePostingLines);
+        protected override IQueryable<BudgetAccountModel> Reader => CreateReader(false, _includeBudgetInformation);
 
-        protected override IQueryable<BudgetAccountModel> UpdateReader => CreateReader(true, false);
+        protected override IQueryable<BudgetAccountModel> UpdateReader => CreateReader(true, true);
 
         protected override IQueryable<BudgetAccountModel> DeleteReader => CreateReader(true, true);
 
@@ -48,7 +54,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override void OnDispose()
         {
-            _budgetInfoModelHandler.Dispose();
+            base.OnDispose();
+
+            _budgetInfoModelHandler?.Dispose();
         }
 
         protected override async Task<BudgetAccountModel> OnCreateAsync(IBudgetAccount budgetAccount, BudgetAccountModel budgetAccountModel)
@@ -66,35 +74,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return budgetAccountModel;
         }
 
-        protected override async Task PrepareReadAsync(Tuple<int, DateTime> prepareReadState = null)
+        protected override async Task PrepareReadAsync(AccountingIdentificationState accountingIdentificationState)
         {
-            NullGuard.NotNull(prepareReadState, nameof(prepareReadState));
+            NullGuard.NotNull(accountingIdentificationState, nameof(accountingIdentificationState));
 
-            await base.PrepareReadAsync(prepareReadState);
+            await base.PrepareReadAsync(accountingIdentificationState);
 
             if (_includeBudgetInformation == false)
             {
                 return;
             }
 
-            _budgetInfoModelCollection = await _budgetInfoModelHandler.ForAsync(prepareReadState?.Item1 ?? int.MinValue);
+            _budgetInfoModelCollection ??= await _budgetInfoModelHandler.ForAsync(accountingIdentificationState.AccountingIdentifier);
         }
 
         protected override async Task<BudgetAccountModel> OnReadAsync(BudgetAccountModel budgetAccountModel)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            if (budgetAccountModel.BudgetInfos == null && _budgetInfoModelCollection != null)
-            {
-                budgetAccountModel.ExtractBudgetInfos(_budgetInfoModelCollection);
-            }
-
-            if (budgetAccountModel.BudgetInfos == null)
-            {
-                return await base.OnReadAsync(budgetAccountModel);
-            }
-
-            budgetAccountModel.BudgetInfos = (await _budgetInfoModelHandler.ReadAsync(budgetAccountModel.BudgetInfos)).ToList();
+            budgetAccountModel.BudgetInfos = await OnReadAsync(budgetAccountModel, _budgetInfoModelCollection, _budgetInfoModelHandler);
 
             return await base.OnReadAsync(budgetAccountModel);
         }
@@ -118,44 +116,80 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            // TODO: Validate the existence of posting lines.
-
-            if (budgetAccountModel.BudgetInfos == null)
+            if (budgetAccountModel.BudgetInfos == null || budgetAccountModel.PostingLines == null)
             {
                 return false;
             }
 
-            return await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos);
+            return budgetAccountModel.PostingLines.Any() == false || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos);
         }
 
         protected override async Task<BudgetAccountModel> OnDeleteAsync(BudgetAccountModel budgetAccountModel)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            // TODO: Delete all posting lines.
+            await PostingLineModelHandler.DeleteAsync(budgetAccountModel.PostingLines);
             await _budgetInfoModelHandler.DeleteAsync(budgetAccountModel.BudgetInfos);
 
             return await base.OnDeleteAsync(budgetAccountModel);
         }
 
-        private IQueryable<BudgetAccountModel> CreateReader(bool includeBudgetInformation, bool includePostingLines)
+        protected override Task PublishModelCollectionLoadedEvent(IReadOnlyCollection<BudgetAccountModel> budgetAccountModelCollection)
+        {
+            NullGuard.NotNull(budgetAccountModelCollection, nameof(budgetAccountModelCollection));
+
+            lock (SyncRoot)
+            {
+                EventPublisher.PublishAsync(new BudgetAccountModelCollectionLoadedEvent(DbContext, budgetAccountModelCollection, StatusDate, _includeBudgetInformation))
+                    .GetAwaiter()
+                    .GetResult();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override void ExtractPostingLines(BudgetAccountModel budgetAccountModel, IReadOnlyCollection<PostingLineModel> postingLineCollection)
+        {
+            NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
+                .NotNull(postingLineCollection, nameof(postingLineCollection));
+
+            budgetAccountModel.ExtractPostingLines(postingLineCollection);
+        }
+
+        private IQueryable<BudgetAccountModel> CreateReader(bool includeAccounting, bool includeBudgetInformation)
         {
             IQueryable<BudgetAccountModel> reader = Entities
-                .Include(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
                 .Include(budgetAccountModel => budgetAccountModel.BasicAccount)
                 .Include(budgetAccountModel => budgetAccountModel.BudgetAccountGroup);
 
-            if (includeBudgetInformation && _budgetInfoModelCollection == null)
+            if (includeAccounting)
             {
-                reader = reader.Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
+                reader = reader.Include(budgetAccountModel => budgetAccountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead);
             }
 
-            if (includePostingLines)
+            if (includeBudgetInformation == false || _budgetInfoModelCollection != null)
             {
-                // TODO: Include posting lines.
+                return reader;
             }
 
-            return reader;
+            return reader.Include(budgetAccountModel => budgetAccountModel.BudgetInfos).ThenInclude(budgetInfoModel => budgetInfoModel.YearMonth);
+        }
+
+        private static async Task<List<BudgetInfoModel>> OnReadAsync(BudgetAccountModel budgetAccountModel, IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection, BudgetInfoModelHandler budgetInfoModelHandler)
+        {
+            NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
+
+            if (budgetInfoModelCollection == null || budgetInfoModelHandler == null)
+            {
+                return budgetAccountModel.BudgetInfos;
+            }
+
+            if (budgetAccountModel.BudgetInfos == null)
+            {
+                budgetAccountModel.ExtractBudgetInfos(budgetInfoModelCollection);
+            }
+
+            return (await budgetInfoModelHandler.ReadAsync(budgetAccountModel.BudgetInfos)).ToList();
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Resolvers;
@@ -39,6 +40,13 @@ namespace OSDevGrp.OSIntranet.Core
                 .NotNull(assembly, nameof(assembly));
 
             return serviceCollection.AddHandlers(assembly, typeof(IQueryHandler).GetTypeInfo());
+        }
+
+        public static IServiceCollection AddEventPublisher(this IServiceCollection serviceCollection)
+        {
+            NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
+
+            return serviceCollection.AddSingleton<IEventPublisher, EventPublisher>();
         }
 
         public static IServiceCollection AddResolvers(this IServiceCollection serviceCollection)

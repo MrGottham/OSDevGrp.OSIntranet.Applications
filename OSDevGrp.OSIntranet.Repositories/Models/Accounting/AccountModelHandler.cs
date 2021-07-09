@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters.Extensions;
+using OSDevGrp.OSIntranet.Repositories.Events;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
@@ -23,11 +25,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         #region Constructor
 
-        public AccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, DateTime statusDate, bool includeCreditInformation, bool includePostingLines) 
-            : base(dbContext, modelConverter, statusDate, includePostingLines)
+        public AccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeCreditInformation, bool includePostingLines) 
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false) : null)
         {
             _includeCreditInformation = includeCreditInformation;
-            _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter);
+
+            if (_includeCreditInformation)
+            {
+                _creditInfoModelHandler = new CreditInfoModelHandler(dbContext, modelConverter, eventPublisher, statusDate);
+            }
         }
 
         #endregion
@@ -36,9 +42,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<AccountModel> Entities => DbContext.Accounts;
 
-        protected override IQueryable<AccountModel> Reader => CreateReader(_includeCreditInformation, IncludePostingLines);
+        protected override IQueryable<AccountModel> Reader => CreateReader(false, _includeCreditInformation);
 
-        protected override IQueryable<AccountModel> UpdateReader => CreateReader(true, false);
+        protected override IQueryable<AccountModel> UpdateReader => CreateReader(true, true);
 
         protected override IQueryable<AccountModel> DeleteReader => CreateReader(true, true);
 
@@ -48,7 +54,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override void OnDispose()
         {
-            _creditInfoModelHandler.Dispose();
+            base.OnDispose();
+
+            _creditInfoModelHandler?.Dispose();
         }
 
         protected override async Task<AccountModel> OnCreateAsync(IAccount account, AccountModel accountModel)
@@ -66,35 +74,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountModel;
         }
 
-        protected override async Task PrepareReadAsync(Tuple<int, DateTime> prepareReadState = null)
+        protected override async Task PrepareReadAsync(AccountingIdentificationState accountingIdentificationState)
         {
-            NullGuard.NotNull(prepareReadState, nameof(prepareReadState));
+            NullGuard.NotNull(accountingIdentificationState, nameof(accountingIdentificationState));
 
-            await base.PrepareReadAsync(prepareReadState);
+            await base.PrepareReadAsync(accountingIdentificationState);
 
             if (_includeCreditInformation == false)
             {
                 return;
             }
 
-            _creditInfoModelCollection = await _creditInfoModelHandler.ForAsync(prepareReadState?.Item1 ?? int.MinValue);
+            _creditInfoModelCollection ??= await _creditInfoModelHandler.ForAsync(accountingIdentificationState.AccountingIdentifier);
         }
 
         protected override async Task<AccountModel> OnReadAsync(AccountModel accountModel)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
-            if (accountModel.CreditInfos == null && _creditInfoModelCollection != null)
-            {
-                accountModel.ExtractCreditInfos(_creditInfoModelCollection);
-            }
-
-            if (accountModel.CreditInfos == null)
-            {
-                return await base.OnReadAsync(accountModel);
-            }
-
-            accountModel.CreditInfos = (await _creditInfoModelHandler.ReadAsync(accountModel.CreditInfos)).ToList();
+            accountModel.CreditInfos = await OnReadAsync(accountModel, _creditInfoModelCollection, _creditInfoModelHandler);
 
             return await base.OnReadAsync(accountModel);
         }
@@ -118,44 +116,80 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
-            // TODO: Validate the existence of posting lines.
-
-            if (accountModel.CreditInfos == null)
+            if (accountModel.CreditInfos == null || accountModel.PostingLines == null)
             {
                 return false;
             }
 
-            return await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos);
+            return accountModel.PostingLines.Any() == false || await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos);
         }
 
         protected override async Task<AccountModel> OnDeleteAsync(AccountModel accountModel)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
-            // TODO: Delete all posting lines.
+            await PostingLineModelHandler.DeleteAsync(accountModel.PostingLines);
             await _creditInfoModelHandler.DeleteAsync(accountModel.CreditInfos);
 
             return await base.OnDeleteAsync(accountModel);
         }
 
-        private IQueryable<AccountModel> CreateReader(bool includeCreditInformation, bool includePostingLines)
+        protected override Task PublishModelCollectionLoadedEvent(IReadOnlyCollection<AccountModel> accountModelCollection)
+        {
+            NullGuard.NotNull(accountModelCollection, nameof(accountModelCollection));
+
+            lock (SyncRoot)
+            {
+                EventPublisher.PublishAsync(new AccountModelCollectionLoadedEvent(DbContext, accountModelCollection, StatusDate, _includeCreditInformation))
+                    .GetAwaiter()
+                    .GetResult();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override void ExtractPostingLines(AccountModel accountModel, IReadOnlyCollection<PostingLineModel> postingLineCollection)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel))
+                .NotNull(postingLineCollection, nameof(postingLineCollection));
+
+            accountModel.ExtractPostingLines(postingLineCollection);
+        }
+
+        private IQueryable<AccountModel> CreateReader(bool includeAccounting, bool includeCreditInformation)
         {
             IQueryable<AccountModel> reader = Entities
-                .Include(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead)
                 .Include(accountModel => accountModel.BasicAccount)
                 .Include(accountModel => accountModel.AccountGroup);
 
-            if (includeCreditInformation && _creditInfoModelCollection == null)
+            if (includeAccounting)
             {
-                reader = reader.Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
+                reader = reader.Include(accountModel => accountModel.Accounting).ThenInclude(accountingModel => accountingModel.LetterHead);
             }
 
-            if (includePostingLines)
+            if (includeCreditInformation == false || _creditInfoModelCollection != null)
             {
-                // TODO: Include posting lines.
+                return reader;
             }
 
-            return reader;
+            return reader.Include(accountModel => accountModel.CreditInfos).ThenInclude(creditInfoModel => creditInfoModel.YearMonth);
+        }
+
+        private static async Task<List<CreditInfoModel>> OnReadAsync(AccountModel accountModel, IReadOnlyCollection<CreditInfoModel> creditInfoModelCollection, CreditInfoModelHandler creditInfoModelHandler)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel));
+
+            if (creditInfoModelCollection == null || creditInfoModelHandler == null)
+            {
+                return accountModel.CreditInfos;
+            }
+
+            if (accountModel.CreditInfos == null)
+            {
+                accountModel.ExtractCreditInfos(creditInfoModelCollection);
+            }
+
+            return (await creditInfoModelHandler.ReadAsync(accountModel.CreditInfos)).ToList();
         }
 
         #endregion
