@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
@@ -7,5 +8,11 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         void Add(IPostingLine postingLine);
 
         void Add(IEnumerable<IPostingLine> postingLineCollection);
+
+        IPostingLineCollection Between(DateTime fromDate, DateTime toDate);
+
+        IPostingLineCollection Ordered();
+
+        IPostingLineCollection Top(int numberOfPostingLines);
     }
 }

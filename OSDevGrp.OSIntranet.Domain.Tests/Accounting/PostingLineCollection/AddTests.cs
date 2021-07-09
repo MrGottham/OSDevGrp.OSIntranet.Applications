@@ -35,7 +35,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Add((IPostingLine) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("postingLine"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -61,7 +63,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.Add(postingLine));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(postingLine.GetType().Name), Is.True);
+            // ReSharper restore PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectAlreadyExists));
             Assert.That(result.InnerException, Is.Null);
         }
@@ -74,7 +78,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Add((IEnumerable<IPostingLine>) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("postingLineCollection"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -120,7 +126,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.Add(postingLineCollection));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(existingPostingLine.GetType().Name), Is.True);
+            // ReSharper restore PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectAlreadyExists));
             Assert.That(result.InnerException, Is.Null);
         }

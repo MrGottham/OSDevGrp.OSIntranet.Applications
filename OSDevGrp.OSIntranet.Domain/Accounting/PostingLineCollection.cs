@@ -40,6 +40,36 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             }
         }
 
+        public IPostingLineCollection Between(DateTime fromDate, DateTime toDate)
+        {
+            IPostingLineCollection postingLineCollection = new PostingLineCollection
+            {
+                this.AsParallel().Where(postingLine => postingLine.PostingDate.Date >= fromDate.Date && postingLine.PostingDate.Date <= toDate)
+            };
+
+            return postingLineCollection;
+        }
+
+        public IPostingLineCollection Ordered()
+        {
+            IPostingLineCollection postingLineCollection = new PostingLineCollection
+            {
+                this.AsParallel().OrderByDescending(postingLine => postingLine.PostingDate.Date).ThenByDescending(postingLine => postingLine.SortOrder)
+            };
+
+            return postingLineCollection;
+        }
+
+        public IPostingLineCollection Top(int numberOfPostingLines)
+        {
+            IPostingLineCollection postingLineCollection = new PostingLineCollection
+            {
+                Ordered().Take(numberOfPostingLines)
+            };
+
+            return postingLineCollection;
+        }
+
         public async Task<IPostingLineCollection> CalculateAsync(DateTime statusDate)
         {
             if (statusDate.Date == StatusDate)

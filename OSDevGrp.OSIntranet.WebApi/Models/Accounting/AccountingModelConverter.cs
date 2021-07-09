@@ -81,6 +81,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<IContactInfoCollection, BalanceInfoCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(contactInfo => contactInfo.Year * 100 + contactInfo.Month).ToArray()));
 
+            mapperConfiguration.CreateMap<IPostingLine, PostingLineModel>()
+                .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit == 0M ? src.Debit : (decimal?)null))
+                .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit == 0M ? src.Credit : (decimal?)null));
+
+            mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupModel>();
 
             mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupModel>();

@@ -346,6 +346,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
+        public async Task CreateBudgetAccount_WhenCalledWithAccountingNumberForExistingAccounting_ReturnsPartialViewResultWhereModelIsBudgetAccountViewModelWithPostingLinesEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateBudgetAccount(_fixture.Create<int>());
+
+            BudgetAccountViewModel budgetAccountViewModel = (BudgetAccountViewModel) result.Model;
+
+            Assert.That(budgetAccountViewModel.PostingLines, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CreateBudgetAccount_WhenCalledWithAccountingNumberForExistingAccounting_ReturnsPartialViewResultWhereModelIsBudgetAccountViewModelWithBudgetAccountGroupsNotEqualToNull()
         {
             Controller sut = CreateSut();

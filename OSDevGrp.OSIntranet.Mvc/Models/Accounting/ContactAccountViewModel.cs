@@ -38,6 +38,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Saldooplysninger", ShortName = "Saldoopl.", Description = "Saldooplysninger")]
         public BalanceInfoDictionaryViewModel BalanceInfos { get; set; }
 
+        [Display(Name = "Senest bogført", ShortName = "Bogføringslinjer", Description = "Seneste oprettede bogføringslinjer")]
+        public PostingLineCollectionViewModel PostingLines { get; set; }
+
         public IReadOnlyCollection<PaymentTermViewModel> PaymentTerms { get; set; }
     }
 

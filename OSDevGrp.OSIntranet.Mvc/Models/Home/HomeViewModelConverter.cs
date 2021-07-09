@@ -54,13 +54,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
                 .ForMember(dest => dest.Debtors, opt =>
                 {
                     opt.Condition(src => src.ContactAccountCollection != null);
-                    opt.MapFrom(src => src.ContactAccountCollection.FindDebtorsAsync().GetAwaiter().GetResult().OrderByDescending(contactAccount => Math.Abs(contactAccount.ValuesAtStatusDate.Balance)).ThenBy(contactAccount => contactAccount.AccountName).Take(5));
+                    opt.MapFrom(src => src.ContactAccountCollection.FindDebtorsAsync().GetAwaiter().GetResult().OrderByDescending(contactAccount => Math.Abs(contactAccount.ValuesAtStatusDate.Balance)).ThenBy(contactAccount => contactAccount.AccountName).Take(5).ToArray());
                 })
                 .ForMember(dest => dest.Creditors, opt =>
                 {
                     opt.Condition(src => src.ContactAccountCollection != null);
-                    opt.MapFrom(src => src.ContactAccountCollection.FindCreditorsAsync().GetAwaiter().GetResult().OrderByDescending(contactAccount => Math.Abs(contactAccount.ValuesAtStatusDate.Balance)).ThenBy(contactAccount => contactAccount.AccountName).Take(5));
+                    opt.MapFrom(src => src.ContactAccountCollection.FindCreditorsAsync().GetAwaiter().GetResult().OrderByDescending(contactAccount => Math.Abs(contactAccount.ValuesAtStatusDate.Balance)).ThenBy(contactAccount => contactAccount.AccountName).Take(5).ToArray());
                 })
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.GetPostingLinesAsync(src.StatusDate).GetAwaiter().GetResult().Between(DateTime.MinValue, src.StatusDate).Top(5).ToArray()))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IAccounting, AccountingIdentificationViewModel>()
@@ -68,6 +69,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountPresentationViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IPostingLine, PostingLinePresentationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IAccountCollectionValues, AccountCollectionValuesViewModel>();

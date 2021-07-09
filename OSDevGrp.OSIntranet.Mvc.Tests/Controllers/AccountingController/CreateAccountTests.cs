@@ -329,6 +329,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
+        public async Task CreateAccount_WhenCalledWithAccountingNumberForExistingAccounting_ReturnsPartialViewResultWhereModelIsAccountViewModelWithPostingLinesEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.CreateAccount(_fixture.Create<int>());
+
+            AccountViewModel accountViewModel = (AccountViewModel) result.Model;
+
+            Assert.That(accountViewModel.PostingLines, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CreateAccount_WhenCalledWithAccountingNumberForExistingAccounting_ReturnsPartialViewResultWhereModelIsAccountViewModelWithAccountGroupsNotEqualToNull()
         {
             Controller sut = CreateSut();

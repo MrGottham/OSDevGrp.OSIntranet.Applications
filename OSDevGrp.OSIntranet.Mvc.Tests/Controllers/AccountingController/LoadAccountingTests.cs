@@ -115,6 +115,58 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
+        public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWithAccountsNotEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadAccounting(_fixture.Create<int>());
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
+
+            Assert.That(accountingViewModel.Accounts, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWithBudgetAccountsNotEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadAccounting(_fixture.Create<int>());
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
+
+            Assert.That(accountingViewModel.BudgetAccounts, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWithContactAccountsNotEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadAccounting(_fixture.Create<int>());
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
+
+            Assert.That(accountingViewModel.ContactAccounts, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWithPostingLinesNotEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.LoadAccounting(_fixture.Create<int>());
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
+
+            Assert.That(accountingViewModel.PostingLines, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWhereEditModeIsEqualToNone()
         {
             Controller sut = CreateSut();

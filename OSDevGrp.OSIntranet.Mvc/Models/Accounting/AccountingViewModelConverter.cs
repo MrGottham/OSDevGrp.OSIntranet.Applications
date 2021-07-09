@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.AccountCollection))
                 .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
                 .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection))
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.GetPostingLinesAsync(src.StatusDate).GetAwaiter().GetResult().Between(DateTime.MinValue, src.StatusDate).Top(25)))
                 .ForMember(dest => dest.LetterHeads, opt => opt.MapFrom(src => new List<LetterHeadViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -54,6 +56,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<IAccount, AccountViewModel>()
                 .ForMember(dest => dest.CreditInfos, opt => opt.MapFrom(src => src.CreditInfoCollection))
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection.Between(DateTime.MinValue, src.StatusDate).Top(25)))
                 .ForMember(dest => dest.AccountGroups, opt => opt.MapFrom(src => new List<AccountGroupViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -111,6 +114,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountViewModel>()
                 .ForMember(dest => dest.BudgetInfos, opt => opt.MapFrom(src => src.BudgetInfoCollection))
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection.Between(src.StatusDate.Year > DateTime.MinValue.Year ? new DateTime(src.StatusDate.Year - 1, 1, 1) : DateTime.MinValue, src.StatusDate).Top(25)))
                 .ForMember(dest => dest.BudgetAccountGroups, opt => opt.MapFrom(src => new List<BudgetAccountGroupViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -166,6 +170,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountViewModel>()
                 .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection))
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection.Between(DateTime.MinValue, src.StatusDate).Top(25)))
                 .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -197,6 +202,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IContactInfoCollection, IContactInfo, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(), src => src))
                 .ForMember(dest => dest.Keys, opt => opt.Ignore())
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<IPostingLine, PostingLineViewModel>()
+                .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit == 0M ? src.Debit : (decimal?) null))
+                .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit == 0M ? src.Credit : (decimal?) null))
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
 
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
