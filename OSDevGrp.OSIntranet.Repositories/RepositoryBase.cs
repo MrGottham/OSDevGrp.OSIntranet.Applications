@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -96,7 +97,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 return true;
             });
 
-            return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, handledException.Message)
+            return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, BuildErrorMessage(handledException))
                 .WithInnerException(handledException)
                 .WithMethodBase(methodBase)
                 .Build();
@@ -107,10 +108,31 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(exception, nameof(exception))
                 .NotNull(methodBase, nameof(methodBase));
 
-            return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, exception.Message)
+            return new IntranetExceptionBuilder(ErrorCode.RepositoryError, methodBase.Name, BuildErrorMessage(exception))
                 .WithInnerException(exception)
                 .WithMethodBase(methodBase)
                 .Build();
+        }
+
+        private static string BuildErrorMessage(Exception exception)
+        {
+            NullGuard.NotNull(exception, nameof(exception));
+
+            StringBuilder errorMessageBuilder = new StringBuilder(exception.Message);
+            if (exception.InnerException == null)
+            {
+                return errorMessageBuilder.ToString();
+            }
+
+            Exception innerException = exception.InnerException;
+            while (innerException.InnerException != null)
+            {
+                innerException = innerException.InnerException;
+            }
+
+            errorMessageBuilder.Append($" (Original reason: {innerException.Message})");
+
+            return errorMessageBuilder.ToString();
         }
 
         #endregion
