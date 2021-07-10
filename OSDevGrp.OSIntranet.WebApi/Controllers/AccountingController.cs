@@ -245,6 +245,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             return Ok(contactAccountModel);
         }
 
+        [HttpGet("{accountingNumber}/postinglines")]
+        public async Task<ActionResult<PostingLineCollectionModel>> PostingLinesAsync(int accountingNumber, DateTimeOffset? statusDate = null, int? numberOfPostingLines = null)
+        {
+            IGetPostingLineCollectionQuery query = new GetPostingLineCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today,
+                NumberOfPostingLines = numberOfPostingLines ?? 25
+            };
+            IPostingLineCollection postingLineCollection = await _queryBus.QueryAsync<IGetPostingLineCollectionQuery, IPostingLineCollection>(query);
+
+            PostingLineCollectionModel postingLineCollectionModel = _accountingModelConverter.Convert<IPostingLineCollection, PostingLineCollectionModel>(postingLineCollection);
+
+            return new OkObjectResult(postingLineCollectionModel);
+        }
+
         [HttpGet("accountgroups")]
         public async Task<ActionResult<IEnumerable<AccountGroupModel>>> AccountGroupsAsync()
         {
