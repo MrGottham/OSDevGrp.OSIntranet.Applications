@@ -6,11 +6,11 @@
             <tbody>
             <tr>
                 <td>@Html.LabelFor(m => m.Debtors)</td>
-                <td class="text-right">@Model.Debtors.AsCurrency()</td>
+                <td class="text-right text-nowrap">@Model.Debtors.AsCurrency()</td>
             </tr>
             <tr>
                 <td>@Html.LabelFor(m => m.Creditors)</td>
-                <td class="text-right">@Model.Creditors.AsCurrency()</td>
+                <td class="text-right text-nowrap">@Model.Creditors.AsCurrency()</td>
             </tr>
             </tbody>
         </table>

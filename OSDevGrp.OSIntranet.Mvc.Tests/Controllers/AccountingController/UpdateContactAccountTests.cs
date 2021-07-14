@@ -361,6 +361,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
+        public async Task UpdateContactAccount_WhenCalledWithAccountingNumberAndAccountNumberForExistingContactAccount_ReturnsPartialViewResultWhereModelIsContactAccountViewModelWithPostingLinesNotEqualToNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult) await sut.UpdateContactAccount(_fixture.Create<int>(), _fixture.Create<string>());
+
+            ContactAccountViewModel contactAccountViewModel = (ContactAccountViewModel) result.Model;
+
+            Assert.That(contactAccountViewModel.PostingLines, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task UpdateContactAccount_WhenCalledWithAccountingNumberAndAccountNumberForExistingContactAccount_ReturnsPartialViewResultWhereModelIsContactAccountViewModelWithPaymentTermsNotEqualToNull()
         {
             Controller sut = CreateSut();

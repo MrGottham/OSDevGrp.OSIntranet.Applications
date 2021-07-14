@@ -1,0 +1,17 @@
+@model PostingLinePresentationViewModel[]
+<dl class="mb-0">
+    <dt>Senest bogført</dt>
+    <dd class="mb-0">
+        <table class="table table-borderless table-sm-nopadding">
+            <tbody>
+                @for (int i = 0; i < Model.Length; i++)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(m => m[i].PostingDate)&nbsp;@Model[i].Details.ToHtmlString()</td>
+                        <td class="text-right text-nowrap">@Model[i].PostingValue.AsCurrency()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </dd>
+</dl>

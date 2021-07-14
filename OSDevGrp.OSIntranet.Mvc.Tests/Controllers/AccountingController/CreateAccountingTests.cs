@@ -131,6 +131,58 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
+        public async Task CreateAccounting_WhenCalled_ReturnsPartialViewResultWhereModelIsAccountingViewModelWhereAccountIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.CreateAccounting();
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
+
+            Assert.That(accountingViewModel.Accounts, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateAccounting_WhenCalled_ReturnsPartialViewResultWhereModelIsAccountingViewModelWhereBudgetAccountsIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.CreateAccounting();
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
+
+            Assert.That(accountingViewModel.BudgetAccounts, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateAccounting_WhenCalled_ReturnsPartialViewResultWhereModelIsAccountingViewModelWhereContactAccountsIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.CreateAccounting();
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
+
+            Assert.That(accountingViewModel.ContactAccounts, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CreateAccounting_WhenCalled_ReturnsPartialViewResultWhereModelIsAccountingViewModelWherePostingLinesIsNull()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.CreateAccounting();
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
+
+            Assert.That(accountingViewModel.PostingLines, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CreateAccounting_WhenCalled_ReturnsPartialViewResultWhereModelIsAccountingViewModelWhereEditModeIsEqualToCreate()
         {
             Controller sut = CreateSut();

@@ -26,6 +26,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Budgetoplysninger", ShortName = "Budgetopl.", Description = "Budgetoplysninger")]
         public BudgetInfoDictionaryViewModel BudgetInfos { get; set; }
 
+        [Display(Name = "Senest bogført", ShortName = "Bogføringslinjer", Description = "Seneste oprettede bogføringslinjer")]
+        public PostingLineCollectionViewModel PostingLines { get; set; }
+
         public IReadOnlyCollection<BudgetAccountGroupViewModel> BudgetAccountGroups { get; set; }
     }
 

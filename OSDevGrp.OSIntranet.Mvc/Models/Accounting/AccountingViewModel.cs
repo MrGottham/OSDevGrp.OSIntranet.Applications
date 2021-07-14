@@ -27,6 +27,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         public ContactAccountCollectionViewModel ContactAccounts { get; set; }
 
+        public PostingLineCollectionViewModel PostingLines { get; set; }
+
         public IReadOnlyCollection<LetterHeadViewModel> LetterHeads { get; set; }
     }
 }

@@ -813,6 +813,12 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(fixture.Create<DateTime>().Date);
             postingLineCollectionMock.Setup(m => m.GetEnumerator())
                 .Returns(postingLineCollection.GetEnumerator());
+            postingLineCollectionMock.Setup(m => m.Between(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                .Returns(postingLineCollectionMock.Object);
+            postingLineCollectionMock.Setup(m => m.Ordered())
+                .Returns(postingLineCollectionMock.Object);
+            postingLineCollectionMock.Setup(m => m.Top(It.IsAny<int>()))
+                .Returns(postingLineCollectionMock.Object);
             postingLineCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(calculatedPostingLineCollection ?? postingLineCollectionMock.Object));
             return postingLineCollectionMock;

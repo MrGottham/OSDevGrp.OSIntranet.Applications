@@ -23,6 +23,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Kreditoplysninger", ShortName = "Kreditopl.", Description = "Kreditoplysninger")]
         public CreditInfoDictionaryViewModel CreditInfos { get; set; }
 
+        [Display(Name = "Senest bogført", ShortName = "Bogføringslinjer", Description = "Seneste oprettede bogføringslinjer")]
+        public PostingLineCollectionViewModel PostingLines { get; set; }
+
         public IReadOnlyCollection<AccountGroupViewModel> AccountGroups { get; set; }
     }
 

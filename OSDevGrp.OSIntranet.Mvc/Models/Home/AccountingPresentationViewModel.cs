@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 
@@ -17,8 +17,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
 
         public ContactAccountCollectionValuesViewModel ValuesAtStatusDateForContactAccounts { get; set; }
 
-        public ReadOnlyCollection<ContactAccountPresentationViewModel> Debtors { get; set; }
+        public IReadOnlyCollection<ContactAccountPresentationViewModel> Debtors { get; set; }
 
-        public ReadOnlyCollection<ContactAccountPresentationViewModel> Creditors { get; set; }
+        public IReadOnlyCollection<ContactAccountPresentationViewModel> Creditors { get; set; }
+
+        public IReadOnlyCollection<PostingLinePresentationViewModel> PostingLines { get; set; }
     }
 }
