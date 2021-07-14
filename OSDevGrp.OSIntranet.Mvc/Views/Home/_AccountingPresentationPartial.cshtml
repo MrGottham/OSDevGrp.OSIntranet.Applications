@@ -4,7 +4,10 @@
 <hr/>
 <div class="row">
     <div class="col-xl-4 d-none d-xl-block">
-        <p>Accounting Content Area 1</p>
+        @if (Model.PostingLines != null)
+        {
+            @await Html.PartialAsync("_PostingLinePresentationCollectionPartial", Model.PostingLines.ToArray())
+        }
         <hr/>
     </div>
     <div class="col-xl-4 d-none d-xl-block">
@@ -34,7 +37,10 @@
         <hr />
     </div>
     <div class="col-12 col-sm-12 col-md-12 col-lg-12 d-block d-xl-none">
-        <p>Accounting Content Area 1</p>
+        @if (Model.PostingLines != null)
+        {
+            @await Html.PartialAsync("_PostingLinePresentationCollectionPartial", Model.PostingLines.ToArray())
+        }
     </div>
     <div class="col-12 col-sm-12 col-md-12 col-lg-12 d-block d-xl-none">
         @if (Model.ValuesForMonthOfStatusDateForBudgetAccounts != null)

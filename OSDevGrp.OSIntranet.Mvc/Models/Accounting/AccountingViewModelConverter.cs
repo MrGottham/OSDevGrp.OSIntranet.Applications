@@ -204,8 +204,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Values, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IPostingLine, PostingLineViewModel>()
-                .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit == 0M ? src.Debit : (decimal?) null))
-                .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit == 0M ? src.Credit : (decimal?) null))
+                .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit != 0M ? src.Debit : (decimal?) null))
+                .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit != 0M ? src.Credit : (decimal?) null))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionViewModel>()
