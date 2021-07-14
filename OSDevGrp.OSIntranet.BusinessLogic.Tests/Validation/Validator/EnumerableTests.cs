@@ -5,7 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.Validator
 {
     [TestFixture]
-    public class DateTimeTests
+    public class EnumerableTests
     {
         #region Private variables
 
@@ -31,13 +31,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.Validator
 
         [Test]
         [Category("UnitTest")]
-        public void DateTime_WhenCalled_AssertDateTimeValidatorFromConstructor()
+        public void Enumerable_WhenCalled_AssertEnumerableValidatorFromConstructor()
         {
             IValidator sut = CreateSut();
 
-            IDateTimeValidator dateTimeValidator = sut.DateTime;
+            IEnumerableValidator enumerableValidator = sut.Enumerable;
 
-            Assert.That(dateTimeValidator, Is.EqualTo(_dateTimeValidatorMock.Object));
+            Assert.That(enumerableValidator, Is.EqualTo(_enumerableValidatorMock.Object));
         }
 
         private IValidator CreateSut()
