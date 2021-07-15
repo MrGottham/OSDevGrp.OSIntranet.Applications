@@ -6,7 +6,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
     public class PostingLineViewModel : AuditableViewModelBase
     {
-        public Guid? Identifier { get; set; }
+        [Required(ErrorMessage = "Identifikation af bogføringslinjen skal angives.")]
+        public Guid Identifier { get; set; }
 
         [DataType(DataType.Text)]
         [Display(Name = "Dato", ShortName = "Dato", Description = "Posteringsdato")]
@@ -15,7 +16,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public DateTime PostingDate { get; set; }
 
         [Display(Name = "Bilag", ShortName = "Bilag", Description = "Bilag")]
-        [StringLength(16, MinimumLength = 0, ErrorMessage = "Længden på bilaget skal være mellem {2} og {1} tegn.")]
+        [StringLength(16, MinimumLength = 1, ErrorMessage = "Længden på bilaget skal være mellem {2} og {1} tegn.")]
         public string Reference { get; set; }
 
         [Display(Name = "Konto", ShortName = "Konto", Description = "Konto")]
@@ -59,6 +60,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Saldooplysninger ved posteringsdato", ShortName = "Saldoopl. ved posteringsdato", Description = "Saldooplysninger ved posteringsdato")]
         public BalanceInfoValuesViewModel ContactAccountValuesAtPostingDate { get; set; }
 
-        public int? SortOrder { get; set; }
+        [Range(typeof(int), "0", "9999999", ErrorMessage = "Sorteringsrækkefølgen må ikke være mindre end {1}.")]
+        public int SortOrder { get; set; }
     }
 }
