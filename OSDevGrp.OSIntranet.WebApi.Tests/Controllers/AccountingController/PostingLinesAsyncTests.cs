@@ -158,7 +158,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             PostingLineCollectionModel postingLineCollectionModel = (PostingLineCollectionModel) result.Value;
             Assert.That(postingLineCollectionModel, Is.Not.Null);
             Assert.That(postingLineCollectionModel.Count, Is.EqualTo(postingLines.Count));
-            Assert.That(postingLineCollectionModel.All(postingLineModel => postingLines.SingleOrDefault(postingLine => postingLineModel.Identifier != null && postingLineModel.Identifier.Value == postingLine.Identifier) != null), Is.True);
+            Assert.That(postingLineCollectionModel.All(postingLineModel => postingLines.SingleOrDefault(postingLine => postingLineModel.Identifier == postingLine.Identifier) != null), Is.True);
         }
 
         private Controller CreateSut(IPostingLineCollection postingLineCollection = null)

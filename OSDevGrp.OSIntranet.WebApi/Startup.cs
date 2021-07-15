@@ -69,6 +69,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddControllers(opt => 
             {
                 opt.Filters.Add<ErrorHandlerFilter>();
+                opt.Filters.Add<SchemaValidationFilter>();
             })
             .AddJsonOptions(opt =>
             {
@@ -199,11 +200,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.RouteTemplate = "/api/swagger/{documentName}/swagger.json";
                 options.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
                 {
-                    if (httpRequest.Headers == null)
-                    {
-                        return;
-                    }
-
                     const string forwardedProtoHeader = "X-Forwarded-Proto";
                     const string forwardedHostHeader = "X-Forwarded-Host";
 

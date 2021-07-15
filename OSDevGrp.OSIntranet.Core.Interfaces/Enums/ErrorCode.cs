@@ -119,6 +119,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1038,
 
         [ErrorCode("The value for the submitted field '{0}' should contain some items.", typeof(IntranetValidationException))]
-        ValueShouldContainSomeItems = 1039
+        ValueShouldContainSomeItems = 1039,
+
+        [ErrorCode("The submitted message is invalid: {0}", typeof(IntranetSystemException))]
+        SubmittedMessageInvalid = 1040
     }
 }
