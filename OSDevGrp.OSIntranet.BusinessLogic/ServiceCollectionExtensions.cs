@@ -22,7 +22,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddSingleton<IDecimalValidator, DecimalValidator>()
                 .AddSingleton<IStringValidator, StringValidator>()
                 .AddSingleton<IDateTimeValidator, DateTimeValidator>()
-                .AddSingleton<IObjectValidator, ObjectValidator>();
+                .AddSingleton<IObjectValidator, ObjectValidator>()
+                .AddSingleton<IEnumerableValidator, EnumerableValidator>();
         }
 
         public static IServiceCollection AddBusinessLogicHelpers(this IServiceCollection serviceCollection)
