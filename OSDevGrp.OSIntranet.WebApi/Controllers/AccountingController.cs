@@ -261,6 +261,26 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             return new OkObjectResult(postingLineCollectionModel);
         }
 
+        [HttpPost("postinglines")]
+        public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync([FromBody] ApplyPostingJournalModel applyPostingJournal)
+        {
+            // TODO: Null check
+            // TODO: IsValid check
+            // TODO: Execute private function which call business logic and handle result
+
+            throw new NotImplementedException();
+        }
+
+        [HttpPost("{accountingNumber}/postinglines")]
+        public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(int accountingNumber, [FromBody] ApplyPostingLineCollectionModel applyPostingLineCollection)
+        {
+            // TODO: Null check
+            // TODO: IsValid check
+            // TODO: Execute private function which call business logic and handle result
+
+            throw new NotImplementedException();
+        }
+
         [HttpGet("accountgroups")]
         public async Task<ActionResult<IEnumerable<AccountGroupModel>>> AccountGroupsAsync()
         {

@@ -121,7 +121,7 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         [ErrorCode("The value for the submitted field '{0}' should contain some items.", typeof(IntranetValidationException))]
         ValueShouldContainSomeItems = 1039,
 
-        [ErrorCode("The submitted message is invalid: {0}", typeof(IntranetSystemException))]
+        [ErrorCode("The submitted message is invalid: {0}", typeof(IntranetValidationException))]
         SubmittedMessageInvalid = 1040
     }
 }

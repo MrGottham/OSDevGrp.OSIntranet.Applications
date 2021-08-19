@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -29,6 +32,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
                 .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.AccountCollection))
                 .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
                 .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection));
+
+            mapperConfiguration.CreateMap<IAccountBase, AccountIdentificationModel>();
 
             mapperConfiguration.CreateMap<IAccount, AccountIdentificationModel>();
 
@@ -88,6 +93,37 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
 
+            mapperConfiguration.CreateMap<IPostingWarning, PostingWarningModel>();
+
+            mapperConfiguration.CreateMap<IPostingWarningCollection, PostingWarningCollectionModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
+
+            mapperConfiguration.CreateMap<IPostingJournalResult, ApplyPostingJournalResultModel>()
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection))
+                .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection));
+
+            mapperConfiguration.CreateMap<ApplyPostingLineModel, ApplyPostingLineCommand>()
+                .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
+                .ForMember(dest => dest.Reference, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.Reference) == false);
+                    opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Reference) ? null : src.Reference);
+                })
+                .ForMember(dest => dest.BudgetAccountNumber, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.BudgetAccountNumber) == false);
+                    opt.MapFrom(src => string.IsNullOrWhiteSpace(src.BudgetAccountNumber) ? null : src.BudgetAccountNumber);
+                })
+                .ForMember(dest => dest.ContactAccountNumber, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.ContactAccountNumber) == false);
+                    opt.MapFrom(src => string.IsNullOrWhiteSpace(src.ContactAccountNumber) ? null : src.ContactAccountNumber);
+                })
+                .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder ?? 0));
+
+            mapperConfiguration.CreateMap<ApplyPostingJournalModel, ApplyPostingJournalCommand>()
+                .ForMember(dest => dest.PostingLineCollection, opt => opt.ConvertUsing(new ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter(), src => src.ApplyPostingLines));
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupModel>();
 
             mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupModel>();
@@ -97,6 +133,27 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.BalanceBelowZeroType, BalanceBelowZeroType>();
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
+
+            mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.PostingWarningReason, PostingWarningReason>();
+        }
+
+        private class ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter : IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>>
+        {
+            #region Methods
+
+            public IEnumerable<IApplyPostingLineCommand> Convert(ApplyPostingLineCollectionModel applyPostingLineCollectionModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(applyPostingLineCollectionModel, nameof(applyPostingLineCollectionModel))
+                    .NotNull(context, nameof(context));
+
+                return applyPostingLineCollectionModel
+                    .OrderBy(applyPostingLineModel => applyPostingLineModel.PostingDate.Date)
+                    .ThenBy(applyPostingLineModel => applyPostingLineModel.SortOrder ?? 0)
+                    .Select(applyPostingLineModel => context.Mapper.Map<ApplyPostingLineModel, ApplyPostingLineCommand>(applyPostingLineModel))
+                    .ToArray();
+            }
+
+            #endregion
         }
 
         #endregion

@@ -12,8 +12,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
 
         public string Details { get; set; }
 
-        [DataType(DataType.Text)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:0.00}")]
         public decimal PostingValue { get; set; }
     }
 }

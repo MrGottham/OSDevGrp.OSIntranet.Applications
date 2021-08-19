@@ -824,7 +824,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return postingLineCollectionMock;
         }
 
-        public static Mock<IPostingWarning> BuildPostingWarningMock(this Fixture fixture)
+        public static Mock<IPostingWarning> BuildPostingWarningMock(this Fixture fixture, IPostingLine postingLine = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -836,7 +836,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             postingWarningMock.Setup(m => m.Amount)
                 .Returns(fixture.Create<decimal>());
             postingWarningMock.Setup(m => m.PostingLine)
-                .Returns(fixture.BuildPostingLineMock().Object);
+                .Returns(postingLine ?? fixture.BuildPostingLineMock().Object);
             return postingWarningMock;
         }
 
@@ -863,6 +863,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             Mock<IPostingWarningCollection> postingWarningCollectionMock = new Mock<IPostingWarningCollection>();
             postingWarningCollectionMock.Setup(m => m.GetEnumerator())
                 .Returns(postingWarningCollection.GetEnumerator());
+            postingWarningCollectionMock.Setup(m => m.Ordered())
+                .Returns(postingWarningCollectionMock.Object);
             return postingWarningCollectionMock;
         }
 

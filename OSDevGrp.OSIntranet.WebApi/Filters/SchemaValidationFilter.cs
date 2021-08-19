@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
@@ -11,6 +12,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
         public void OnActionExecuting(ActionExecutingContext context)
         {
             NullGuard.NotNull(context, nameof(context));
+
+            SchemaValidator.Validate(context.ModelState);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -23,8 +26,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 return;
             }
 
-            SchemaValidator schemaValidator = new SchemaValidator();
-            schemaValidator.Validate(objectResult.Value);
+            SchemaValidator.Validate(objectResult.Value);
         }
 
         #endregion

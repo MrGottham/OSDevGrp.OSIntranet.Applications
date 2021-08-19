@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Text.Json;
 using OSDevGrp.OSIntranet.Core;
@@ -16,6 +17,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Helpers.Converters
             string valueAsString = value.ToString("N2", FormatProvider);
 
             writer.WriteNumberValue(decimal.Parse(valueAsString, NumberStyles.Any, FormatProvider));
+        }
+
+        public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            NullGuard.NotNull(typeToConvert, nameof(typeToConvert))
+                .NotNull(options, nameof(options));
+
+            return reader.GetDecimal();
         }
 
         #endregion

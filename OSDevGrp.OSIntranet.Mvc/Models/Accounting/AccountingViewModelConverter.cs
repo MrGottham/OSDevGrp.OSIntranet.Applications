@@ -48,6 +48,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<AccountingViewModel, UpdateAccountingCommand>()
                 .ForMember(dest => dest.LetterHeadNumber, opt => opt.MapFrom(src => src.LetterHead.Number));
 
+            mapperConfiguration.CreateMap<IAccountBase, AccountIdentificationViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
             mapperConfiguration.CreateMap<IAccount, AccountIdentificationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -66,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.CreditInfoCollection, opt =>
                 {
                     opt.Condition(src => src.CreditInfos != null);
-                    opt.ConvertUsing(new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter(), "CreditInfos");
+                    opt.ConvertUsing(new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter(), src => src.CreditInfos);
                 });
 
             mapperConfiguration.CreateMap<AccountViewModel, UpdateAccountCommand>()
@@ -75,7 +78,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.CreditInfoCollection, opt =>
                 {
                     opt.Condition(src => src.CreditInfos != null);
-                    opt.ConvertUsing(new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter(), "CreditInfos");
+                    opt.ConvertUsing(new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter(), src => src.CreditInfos);
                 });
 
             mapperConfiguration.CreateMap<AccountViewModel, DeleteAccountCommand>()
@@ -124,7 +127,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.BudgetInfoCollection, opt =>
                 {
                     opt.Condition(src => src.BudgetInfos != null);
-                    opt.ConvertUsing(new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter(), "BudgetInfos");
+                    opt.ConvertUsing(new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter(), src => src.BudgetInfos);
                 });
 
             mapperConfiguration.CreateMap<BudgetAccountViewModel, UpdateBudgetAccountCommand>()
@@ -133,7 +136,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.BudgetInfoCollection, opt =>
                 {
                     opt.Condition(src => src.BudgetInfos != null);
-                    opt.ConvertUsing(new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter(), "BudgetInfos");
+                    opt.ConvertUsing(new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter(), src => src.BudgetInfos);
                 });
 
             mapperConfiguration.CreateMap<BudgetAccountViewModel, DeleteBudgetAccountCommand>()
@@ -211,6 +214,37 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionViewModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
 
+            mapperConfiguration.CreateMap<IPostingWarning, PostingWarningViewModel>();
+
+            mapperConfiguration.CreateMap<IPostingWarningCollection, PostingWarningCollectionViewModel>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
+
+            mapperConfiguration.CreateMap<IPostingJournalResult, ApplyPostingJournalResultViewModel>()
+                .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection))
+                .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection));
+
+            mapperConfiguration.CreateMap<ApplyPostingLineViewModel, ApplyPostingLineCommand>()
+                .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
+                .ForMember(dest => dest.Reference, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.Reference) == false);
+                    opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Reference) ? null : src.Reference);
+                })
+                .ForMember(dest => dest.BudgetAccountNumber, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.BudgetAccountNumber) == false);
+                    opt.MapFrom(src => string.IsNullOrWhiteSpace(src.BudgetAccountNumber) ? null : src.BudgetAccountNumber);
+                })
+                .ForMember(dest => dest.ContactAccountNumber, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.ContactAccountNumber) == false);
+                    opt.MapFrom(src => string.IsNullOrWhiteSpace(src.ContactAccountNumber) ? null : src.ContactAccountNumber);
+                })
+                .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder ?? 0));
+
+            mapperConfiguration.CreateMap<ApplyPostingJournalViewModel, ApplyPostingJournalCommand>()
+                .ForMember(dest => dest.PostingLineCollection, opt => opt.ConvertUsing(new ApplyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter(), src => src.ApplyPostingLines));
+
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -230,6 +264,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
             mapperConfiguration.CreateMap<AccountGroupType, Domain.Interfaces.Accounting.Enums.AccountGroupType>();
+
+            mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.PostingWarningReason, PostingWarningReason>();
 
             mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -313,6 +349,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             }
 
             protected abstract TInfoCommand Convert(TInfoViewModel infoViewModel, ResolutionContext context);
+
+            #endregion
+        }
+
+        private class ApplyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter : IValueConverter<ApplyPostingLineCollectionViewModel, IEnumerable<IApplyPostingLineCommand>>
+        {
+            #region Methods
+
+            public IEnumerable<IApplyPostingLineCommand> Convert(ApplyPostingLineCollectionViewModel applyPostingLineCollectionViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(applyPostingLineCollectionViewModel, nameof(applyPostingLineCollectionViewModel))
+                    .NotNull(context, nameof(context));
+
+                return applyPostingLineCollectionViewModel
+                    .OrderBy(applyPostingLineViewModel => applyPostingLineViewModel.PostingDate.Date)
+                    .ThenBy(applyPostingLineViewModel => applyPostingLineViewModel.SortOrder ?? 0)
+                    .Select(applyPostingLineViewModel => context.Mapper.Map<ApplyPostingLineViewModel, ApplyPostingLineCommand>(applyPostingLineViewModel))
+                    .ToArray();
+            }
 
             #endregion
         }
