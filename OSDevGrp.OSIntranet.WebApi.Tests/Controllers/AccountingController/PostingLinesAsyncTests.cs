@@ -147,7 +147,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public async Task PostingLinesAsync_WhenCalled_ReturnsOkObjectResultWhereValueIsPostingLineCollectionModelContainingAllDebtorAccounts()
+        public async Task PostingLinesAsync_WhenCalled_ReturnsOkObjectResultWhereValueIsPostingLineCollectionModelContainingPostingLines()
         {
             IList<IPostingLine> postingLines = _fixture.CreateMany<IPostingLine>(_random.Next(5, 10)).ToList();
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;

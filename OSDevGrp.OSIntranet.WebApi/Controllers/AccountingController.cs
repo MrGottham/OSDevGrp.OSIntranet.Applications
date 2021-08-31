@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -13,6 +15,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
@@ -264,21 +267,43 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpPost("postinglines")]
         public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync([FromBody] ApplyPostingJournalModel applyPostingJournal)
         {
-            // TODO: Null check
-            // TODO: IsValid check
-            // TODO: Execute private function which call business logic and handle result
+            if (applyPostingJournal == null)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, nameof(applyPostingJournal))
+                    .WithValidatingType(typeof(ApplyPostingJournalModel))
+                    .WithValidatingField(nameof(applyPostingJournal))
+                    .Build();
+            }
 
-            throw new NotImplementedException();
+            SchemaValidator.Validate(ModelState);
+
+            IApplyPostingJournalCommand applyPostingJournalCommand = _accountingModelConverter.Convert<ApplyPostingJournalModel, ApplyPostingJournalCommand>(applyPostingJournal);
+
+            return ApplyPostingJournalAsync(applyPostingJournalCommand);
         }
 
         [HttpPost("{accountingNumber}/postinglines")]
         public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(int accountingNumber, [FromBody] ApplyPostingLineCollectionModel applyPostingLineCollection)
         {
-            // TODO: Null check
-            // TODO: IsValid check
-            // TODO: Execute private function which call business logic and handle result
+            if (applyPostingLineCollection == null)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, nameof(applyPostingLineCollection))
+                    .WithValidatingType(typeof(ApplyPostingLineCollectionModel))
+                    .WithValidatingField(nameof(applyPostingLineCollection))
+                    .Build();
+            }
 
-            throw new NotImplementedException();
+            SchemaValidator.Validate(ModelState);
+
+            ApplyPostingJournalModel applyPostingJournal = new ApplyPostingJournalModel
+            {
+                AccountingNumber = accountingNumber,
+                ApplyPostingLines = applyPostingLineCollection
+            };
+
+            IApplyPostingJournalCommand applyPostingJournalCommand = _accountingModelConverter.Convert<ApplyPostingJournalModel, ApplyPostingJournalCommand>(applyPostingJournal);
+
+            return ApplyPostingJournalAsync(applyPostingJournalCommand);
         }
 
         [HttpGet("accountgroups")]
@@ -318,6 +343,28 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 .ToList();
 
             return new OkObjectResult(paymentTermModels);
+        }
+
+        private async Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(IApplyPostingJournalCommand applyPostingJournalCommand)
+        {
+            NullGuard.NotNull(applyPostingJournalCommand, nameof(applyPostingJournalCommand));
+
+            IPostingJournalResult postingJournalResult = await _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
+
+            ApplyPostingJournalResultModel applyPostingJournalResultModel = postingJournalResult == null
+                ? BuildEmptyApplyPostingJournalResultModel()
+                : _accountingModelConverter.Convert<IPostingJournalResult, ApplyPostingJournalResultModel>(postingJournalResult);
+
+            return Ok(applyPostingJournalResultModel);
+        }
+
+        private static ApplyPostingJournalResultModel BuildEmptyApplyPostingJournalResultModel()
+        {
+            return new ApplyPostingJournalResultModel
+            {
+                PostingLines = new PostingLineCollectionModel(),
+                PostingWarnings = new PostingWarningCollectionModel()
+            };
         }
 
         #endregion
