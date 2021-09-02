@@ -1,6 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.Queries;
@@ -8,7 +7,6 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    [Serializable]
     public class Token : IToken
     {
         #region Constructors
@@ -41,12 +39,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public byte[] ToByteArray()
         {
-            using MemoryStream memoryStream = new MemoryStream();
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            binaryFormatter.Serialize(memoryStream, this);
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            return memoryStream.ToArray();
+            return JsonSerializer.SerializeToUtf8Bytes(this, GetType(), GetJsonSerializerOptions());
         }
 
         public string ToBase64()
@@ -68,9 +61,17 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
             NullGuard.NotNull(byteArray, nameof(byteArray));
 
-            using MemoryStream memoryStream = new MemoryStream(byteArray);
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            return (TToken) binaryFormatter.Deserialize(memoryStream);
+            if (typeof(TToken) == typeof(IRefreshableToken))
+            {
+                return JsonSerializer.Deserialize<RefreshableToken>(byteArray, GetJsonSerializerOptions()) as TToken;
+            }
+
+            if (typeof(TToken) == typeof(IToken))
+            {
+                return JsonSerializer.Deserialize<Token>(byteArray, GetJsonSerializerOptions()) as TToken;
+            }
+
+            return JsonSerializer.Deserialize<TToken>(byteArray, GetJsonSerializerOptions());
         }
 
         public static TToken Create<TToken>(string base64String) where TToken : class, IToken
@@ -92,6 +93,14 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNull(tokenBasedCommand, nameof(tokenBasedCommand));
 
             return new Token(tokenBasedCommand.TokenType, tokenBasedCommand.AccessToken, tokenBasedCommand.Expires);
+        }
+
+        private static JsonSerializerOptions GetJsonSerializerOptions()
+        {
+            return new JsonSerializerOptions
+            {
+                WriteIndented = false
+            };
         }
 
         #endregion
