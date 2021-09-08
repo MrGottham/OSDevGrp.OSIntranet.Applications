@@ -1,8 +1,10 @@
+﻿using System;
+using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
-namespace OSDevGrp.OSIntranet.Domain.Tests.Common.LetterHead
+namespace OSDevGrp.OSIntranet.Domain.Tests.Common.KeyValueEntry
 {
     [TestFixture]
     public class DisallowDeletionTests
@@ -10,6 +12,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Common.LetterHead
         #region Private variables
 
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -17,6 +20,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Common.LetterHead
         public void SetUp()
         {
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -32,7 +36,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Common.LetterHead
 
         private IDeletable CreateSut()
         {
-            return new Domain.Common.LetterHead(_fixture.Create<int>(), _fixture.Create<string>(), _fixture.Create<string>());
+            return new Domain.Common.KeyValueEntry(_fixture.Create<string>(), _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray());
         }
     }
 }

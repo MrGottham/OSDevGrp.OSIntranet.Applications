@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Text.Json;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.Queries;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
@@ -39,7 +39,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public byte[] ToByteArray()
         {
-            return JsonSerializer.SerializeToUtf8Bytes(this, GetType(), GetJsonSerializerOptions());
+            return DomainHelper.ToByteArray(this);
         }
 
         public string ToBase64()
@@ -63,15 +63,15 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
             if (typeof(TToken) == typeof(IRefreshableToken))
             {
-                return JsonSerializer.Deserialize<RefreshableToken>(byteArray, GetJsonSerializerOptions()) as TToken;
+                return DomainHelper.FromByteArray<RefreshableToken>(byteArray) as TToken;
             }
 
             if (typeof(TToken) == typeof(IToken))
             {
-                return JsonSerializer.Deserialize<Token>(byteArray, GetJsonSerializerOptions()) as TToken;
+                return DomainHelper.FromByteArray<Token>(byteArray) as TToken;
             }
 
-            return JsonSerializer.Deserialize<TToken>(byteArray, GetJsonSerializerOptions());
+            return DomainHelper.FromByteArray<TToken>(byteArray);
         }
 
         public static TToken Create<TToken>(string base64String) where TToken : class, IToken
@@ -93,14 +93,6 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNull(tokenBasedCommand, nameof(tokenBasedCommand));
 
             return new Token(tokenBasedCommand.TokenType, tokenBasedCommand.AccessToken, tokenBasedCommand.Expires);
-        }
-
-        private static JsonSerializerOptions GetJsonSerializerOptions()
-        {
-            return new JsonSerializerOptions
-            {
-                WriteIndented = false
-            };
         }
 
         #endregion
