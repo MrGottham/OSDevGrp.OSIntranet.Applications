@@ -1,22 +1,22 @@
-using System;
+﻿using System;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 {
     [TestFixture]
-    public class CreateLetterHeadAsyncTests : CommonRepositoryTestBase
+    public class PushKeyValueEntryAsyncTests : CommonRepositoryTestBase
     {
         [Test]
         [Category("UnitTest")]
-        public void CreateLetterHeadAsync_WhenLetterHeadIsNull_ThrowsArgumentNullException()
+        public void PushKeyValueEntryAsync_WhenKeyIsNull_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateLetterHeadAsync(null));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PushKeyValueEntryAsync(null));
 
             // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("letterHead"));
+            Assert.That(result.ParamName, Is.EqualTo("keyValueEntry"));
             // ReSharper restore PossibleNullReferenceException
         }
     }
