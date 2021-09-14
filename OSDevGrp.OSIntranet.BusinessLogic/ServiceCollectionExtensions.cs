@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Common.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
@@ -34,7 +36,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IClaimResolver, ClaimResolver>()
                 .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()
-                .AddTransient<IAccountingHelper, AccountingHelper>();
+                .AddTransient<IAccountingHelper, AccountingHelper>()
+                .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
+                .AddTransient<IKeyGenerator, KeyGenerator>();
         }
     }
 }

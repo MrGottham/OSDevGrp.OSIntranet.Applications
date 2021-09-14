@@ -122,6 +122,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ValueShouldContainSomeItems = 1039,
 
         [ErrorCode("The submitted message is invalid: {0}", typeof(IntranetValidationException))]
-        SubmittedMessageInvalid = 1040
+        SubmittedMessageInvalid = 1040,
+
+        [ErrorCode("Unable to resolve the identifier for the current user.", typeof(IntranetSystemException))]
+        UnableToResolveUserIdentifier = 1041
     }
 }

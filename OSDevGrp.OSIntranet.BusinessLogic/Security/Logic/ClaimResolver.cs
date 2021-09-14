@@ -32,43 +32,65 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         public string GetCountryCode()
         {
-            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
-
-            Claim countryCodeClaim = currentPrincipal.GetClaim(ClaimHelper.CountryCodeClaimType);
-            if (countryCodeClaim == null || string.IsNullOrWhiteSpace(countryCodeClaim.Value))
-            {
-                return null;
-            }
-
-            return countryCodeClaim.Value;
+            return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.CountryCodeClaimType));
         }
 
         public int? GetAccountingNumber()
         {
-            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
+            return GetClaimIntegerValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.AccountingClaimType));
+        }
 
-            Claim accountingClaim = currentPrincipal.GetClaim(ClaimHelper.AccountingClaimType);
-            if (accountingClaim == null || int.TryParse(accountingClaim.Value, out int accountingNumber) == false)
-            {
-                return null;
-            }
+        public string GetNameIdentifier()
+        {
+            return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimTypes.NameIdentifier));
+        }
 
-            return accountingNumber;
+        public string GetMailAddress()
+        {
+            return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimTypes.Email));
         }
 
         public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
         {
             NullGuard.NotNull(unprotect, nameof(unprotect));
 
-            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
-
-            Claim tokenClaim = currentPrincipal.GetClaim(ClaimHelper.TokenClaimType);
-            if (tokenClaim == null || string.IsNullOrWhiteSpace(tokenClaim.Value))
+            string tokenValue = GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.TokenClaimType));
+            if (string.IsNullOrWhiteSpace(tokenValue))
             {
                 return null;
             }
 
-            return Token.Create<TToken>(unprotect(tokenClaim.Value));
+            return Token.Create<TToken>(unprotect(tokenValue));
+        }
+
+        private string GetClaimStingValue(Func<IPrincipal, Claim> claimGetter)
+        {
+            NullGuard.NotNull(claimGetter, nameof(claimGetter));
+
+            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
+
+            Claim claim = claimGetter(currentPrincipal);
+            if (claim == null || string.IsNullOrWhiteSpace(claim.Value))
+            {
+                return null;
+            }
+
+            return claim.Value;
+        }
+
+        private int? GetClaimIntegerValue(Func<IPrincipal, Claim> claimGetter)
+        {
+            NullGuard.NotNull(claimGetter, nameof(claimGetter));
+
+            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
+
+            Claim claim = claimGetter(currentPrincipal);
+            if (claim == null || int.TryParse(claim.Value, out int value) == false)
+            {
+                return null;
+            }
+
+            return value;
         }
 
         #endregion

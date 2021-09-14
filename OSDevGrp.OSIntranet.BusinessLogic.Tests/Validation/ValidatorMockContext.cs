@@ -157,6 +157,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<INameCommand>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<IEnumerable<string>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<ICreditInfoCommand>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<IBudgetInfoCommand>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<IApplyPostingLineCommand>>(validatorMock, objectValidatorMock);
@@ -202,6 +203,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             NullGuard.NotNull(validatorMock, nameof(validatorMock));
 
             Mock<IEnumerableValidator> enumerableValidatorMock = new Mock<IEnumerableValidator>();
+            SetupGenericEnumerableValidatorMock<string>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<IApplyPostingLineCommand>(validatorMock, enumerableValidatorMock);
             return enumerableValidatorMock;
         }
