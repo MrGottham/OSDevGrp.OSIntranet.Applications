@@ -153,6 +153,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<decimal?>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<BalanceBelowZeroType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
@@ -187,6 +188,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPaymentTerm>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IKeyValueEntry>(validatorMock, objectValidatorMock);
         }
 
         private static void SetupShouldBeDeletable<TValue, TDeletable>(Mock<IValidator> validatorMock, Mock<IObjectValidator> objectValidatorMock) where TDeletable : IDeletable
