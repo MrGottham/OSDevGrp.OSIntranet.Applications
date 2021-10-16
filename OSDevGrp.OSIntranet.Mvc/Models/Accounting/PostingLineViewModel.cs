@@ -24,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         public decimal? Credit { get; set; }
 
+        public decimal PostingValue => Debit ?? 0M - Credit ?? 0M;
+
         public AccountIdentificationViewModel ContactAccount { get; set; }
 
         public int SortOrder { get; set; }

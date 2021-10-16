@@ -1,0 +1,164 @@
+@model ApplyPostingJournalViewModel
+<dl id="postingJournal" class="mb-4">
+    @if (ViewData.ContainsKey("Header") && string.IsNullOrWhiteSpace((string)ViewData["Header"]) == false)
+    {
+        <dt id="postingJournalHeader" class="mb-3">@Html.Raw(ViewData["Header"])</dt>
+    }
+    <dd class="mb-0">
+        <form asp-controller="Accounting" asp-action="ApplyPostingJournal" method="post">
+            @Html.HiddenFor(m => m.AccountingNumber)
+            @if (Model.ApplyPostingLines != null)
+            {
+                for (int i = 0; i < Model.ApplyPostingLines.Count; i++)
+                {
+                    int itemNo = i;
+                    if (Model.ApplyPostingLines[itemNo].Identifier.HasValue)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Identifier)
+                    }
+                    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].PostingDate)
+                    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].Reference) == false)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Reference)
+                    }
+                    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].AccountNumber)
+                    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Details)
+                    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].BudgetAccountNumber) == false)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].BudgetAccountNumber)
+                    }
+                    if (Model.ApplyPostingLines[itemNo].Debit.HasValue)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Debit)
+                    }
+                    if (Model.ApplyPostingLines[itemNo].Credit.HasValue)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Credit)
+                    }
+                    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].ContactAccountNumber) == false)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].ContactAccountNumber)
+                    }
+                    if (Model.ApplyPostingLines[itemNo].SortOrder.HasValue)
+                    {
+                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].SortOrder)
+                    }
+                }
+            }
+            <div class="d-block d-lg-none d-xl-none">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th class="text-nowrap">Dato</th>
+                            <th>Tekst</th>
+                            <th class="text-right text-nowrap">Beløb</th>
+                            <th class="text-nowrap">
+                                @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false)
+                                {
+                                    <a href="#" onclick="javascript:$().startAddingToPostingJournal(@Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])');"><i class="fas fa-plus"></i></a>
+                                }
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if (Model.ApplyPostingLines is { Count: > 0 })
+                        {
+                            for (int i = 0; i < Model.ApplyPostingLines.Count; i++)
+                            {
+                                int itemNo = i;
+                                <tr>
+                                    <td class="text-nowrap">@Html.DisplayFor(m => m.ApplyPostingLines[itemNo].PostingDateAsLocalDateTime)</td>
+                                    <td>@Model.ApplyPostingLines[itemNo].Details.ToHtmlString()</td>
+                                    <td>@Model.ApplyPostingLines[itemNo].PostingValue.AsCurrency()</td>
+                                    <td class="text-nowrap">
+                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && Model.ApplyPostingLines[itemNo].Identifier.HasValue)
+                                        {
+                                            <a href="#" onclick="javascript:$().removeFromPostingJournal(@Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])', '@Model.ApplyPostingLines[itemNo].Identifier.Value.ToString("D")', '#postingJournalHeader');"><i class="fas fa-trash"></i></a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="d-none d-lg-block d-xl-block">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th class="text-nowrap">Dato</th>
+                            <th class="text-right text-nowrap">Bilag</th>
+                            <th class="text-right text-nowrap">Konto</th>
+                            <th>Tekst</th>
+                            <th class="text-right text-nowrap">Budgetkonto</th>
+                            <th class="text-right text-nowrap">Debit</th>
+                            <th class="text-right text-nowrap">Kredit</th>
+                            <th class="text-nowrap">
+                                @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false)
+                                {
+                                    <a href="#" onclick="javascript:$().startAddingToPostingJournal(@Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])');"><i class="fas fa-plus"></i></a>
+                                }
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if (Model.ApplyPostingLines is { Count: > 0 })
+                        {
+                            for (int i = 0; i < Model.ApplyPostingLines.Count; i++)
+                            {
+                                int itemNo = i;
+                                <tr>
+                                    <td class="text-nowrap">@Html.DisplayFor(m => m.ApplyPostingLines[itemNo].PostingDateAsLocalDateTime)</td>
+                                    <td class="text-right text-nowrap">@Model.ApplyPostingLines[itemNo].Reference.ToHtmlString()</td>
+                                    <td class="text-right text-nowrap">@Model.ApplyPostingLines[itemNo].AccountNumber.ToHtmlString()</td>
+                                    <td>@Model.ApplyPostingLines[itemNo].Details.ToHtmlString()</td>
+                                    @if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].BudgetAccountNumber) == false)
+                                    {
+                                        <td class="text-right text-nowrap">@Model.ApplyPostingLines[itemNo].BudgetAccountNumber.ToHtmlString()</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-right text-nowrap"></td>
+                                    }
+                                    @if (Model.ApplyPostingLines[itemNo].Debit != null)
+                                    {
+                                        <td class="text-right text-nowrap">@Model.ApplyPostingLines[itemNo].Debit.Value.AsCurrency()</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-right text-nowrap"></td>
+                                    }
+                                    @if (Model.ApplyPostingLines[itemNo].Credit != null)
+                                    {
+                                        <td class="text-right text-nowrap">@Model.ApplyPostingLines[itemNo].Credit.Value.AsCurrency()</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-right text-nowrap"></td>
+                                    }
+                                    <td class="text-nowrap">
+                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && Model.ApplyPostingLines[itemNo].Identifier.HasValue)
+                                        {
+                                            <a href="#" onclick="javascript:$().removeFromPostingJournal(@Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])', '@Model.ApplyPostingLines[itemNo].Identifier.Value.ToString("D")', '#postingJournalHeader');"><i class="fas fa-trash"></i></a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @if (Model.ApplyPostingLines is { Count: > 0 })
+            {
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Bogfør</button>
+                </div>
+            }
+        </form>
+        @await Html.PartialAsync("_AddPostingLineToPostingJournalPartial", Model.CreatePostingLineToAdd())
+    </dd>
+</dl>

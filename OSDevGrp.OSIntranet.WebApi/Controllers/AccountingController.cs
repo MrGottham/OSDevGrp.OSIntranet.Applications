@@ -69,7 +69,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetAccountingQuery query = new GetAccountingQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IAccounting accounting = await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(query);
 
@@ -84,7 +84,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetAccountCollectionQuery query = new GetAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IAccountCollection accountCollection = await _queryBus.QueryAsync<IGetAccountCollectionQuery, IAccountCollection>(query);
 
@@ -108,7 +108,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 AccountingNumber = accountingNumber,
                 AccountNumber = accountNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IAccount account = await _queryBus.QueryAsync<IGetAccountQuery, IAccount>(query);
             if (account == null)
@@ -130,7 +130,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetBudgetAccountCollectionQuery query = new GetBudgetAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IBudgetAccountCollection budgetAccountCollection = await _queryBus.QueryAsync<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection>(query);
 
@@ -154,7 +154,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 AccountingNumber = accountingNumber,
                 AccountNumber = accountNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IBudgetAccount budgetAccount = await _queryBus.QueryAsync<IGetBudgetAccountQuery, IBudgetAccount>(query);
             if (budgetAccount == null)
@@ -176,7 +176,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetContactAccountCollectionQuery query = new GetContactAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccountCollection contactAccountCollection = await _queryBus.QueryAsync<IGetContactAccountCollectionQuery, IContactAccountCollection>(query);
 
@@ -191,7 +191,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetDebtorAccountCollectionQuery query = new GetDebtorAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccountCollection debtorAccountCollection = await _queryBus.QueryAsync<IGetDebtorAccountCollectionQuery, IContactAccountCollection>(query);
 
@@ -206,7 +206,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetCreditorAccountCollectionQuery query = new GetCreditorAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccountCollection creditorAccountCollection = await _queryBus.QueryAsync<IGetCreditorAccountCollectionQuery, IContactAccountCollection>(query);
 
@@ -232,7 +232,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 AccountingNumber = accountingNumber,
                 AccountNumber = accountNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccount contactAccount = await _queryBus.QueryAsync<IGetContactAccountQuery, IContactAccount>(query);
             if (contactAccount == null)
@@ -254,7 +254,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetPostingLineCollectionQuery query = new GetPostingLineCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today,
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today,
                 NumberOfPostingLines = numberOfPostingLines ?? 25
             };
             IPostingLineCollection postingLineCollection = await _queryBus.QueryAsync<IGetPostingLineCollectionQuery, IPostingLineCollection>(query);

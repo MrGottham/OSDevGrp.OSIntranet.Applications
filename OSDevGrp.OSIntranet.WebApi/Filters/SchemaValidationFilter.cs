@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
+using OSDevGrp.OSIntranet.Core.Validators;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {

@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Text.Json;
-using OSDevGrp.OSIntranet.Core;
 
-namespace OSDevGrp.OSIntranet.WebApi.Helpers.Converters
+namespace OSDevGrp.OSIntranet.Core.Converters
 {
-    internal sealed class DecimalFormatJsonConverter : CustomJsonConverterBase<decimal>
+    public sealed class DecimalFormatJsonConverter : CustomJsonConverterBase<decimal>
     {
         #region Methods
 

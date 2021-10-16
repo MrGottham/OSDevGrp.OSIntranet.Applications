@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -61,7 +63,14 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.AddAntiforgery();
 
-            services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)));
+            services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)))
+                .AddJsonOptions(opt =>
+                {
+                    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    opt.JsonSerializerOptions.Converters.Add(new DecimalFormatJsonConverter());
+                    opt.JsonSerializerOptions.Converters.Add(new NullableDecimalFormatJsonConverter());
+                    opt.JsonSerializerOptions.IgnoreNullValues = true;
+                });
             services.AddRazorPages();
 
             services.AddAuthentication(opt => 

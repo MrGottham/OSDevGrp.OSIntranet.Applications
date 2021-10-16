@@ -103,7 +103,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
                 .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection));
 
             mapperConfiguration.CreateMap<ApplyPostingLineModel, ApplyPostingLineCommand>()
-                .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
+                .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.LocalDateTime.Date))
                 .ForMember(dest => dest.Reference, opt =>
                 {
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.Reference) == false);
@@ -147,7 +147,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
                     .NotNull(context, nameof(context));
 
                 return applyPostingLineCollectionModel
-                    .OrderBy(applyPostingLineModel => applyPostingLineModel.PostingDate.Date)
+                    .OrderBy(applyPostingLineModel => applyPostingLineModel.PostingDate.LocalDateTime.Date)
                     .ThenBy(applyPostingLineModel => applyPostingLineModel.SortOrder ?? 0)
                     .Select(applyPostingLineModel => context.Mapper.Map<ApplyPostingLineModel, ApplyPostingLineCommand>(applyPostingLineModel))
                     .ToArray();

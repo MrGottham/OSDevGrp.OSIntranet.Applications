@@ -1,0 +1,125 @@
+@model ApplyPostingLineViewModel
+<div id="addPostingLineToPostingJournalModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addPostingLineToPostingJournalModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="addPostingLineToPostingJournalModalLabel" class="modal-title">Tilføj postering</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addPostingLineToPostingJournalForm" data-accounting-number="" data-posting-journal-key="">
+                    @if (Model.Identifier.HasValue)
+                    {
+                        @Html.HiddenFor(m => m.Identifier)
+                    }
+                    @if (Model.SortOrder.HasValue)
+                    {
+                        @Html.HiddenFor(m => m.SortOrder)
+                    }
+                    <div class="form-group">
+                        <label asp-for="PostingDate"></label>
+                        <div class="input-group date">
+                            <input asp-for="PostingDate" class="form-control" onchange="javascript:$().onPostingDataChange('#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.AccountNumber)', '#accountName', '#accountCredit', '#accountAvailable', '@Model.GetResolveAccountUrl(Url)', '#@Html.IdFor(m => m.BudgetAccountNumber)', '#budgetAccountName', '#budgetAccountPosted', '#budgetAccountAvailable', '@Model.GetResolveBudgetAccountUrl(Url)', '#@Html.IdFor(m => m.ContactAccountNumber)', '#contactAccountName', '#contactAccountBalance', '@Model.GetResolveContactAccountUrl(Url)');" /><span class="input-group-addon"><i class="fas fa-2x fa-calendar"></i></span>
+                        </div>
+                        <span asp-validation-for="PostingDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Reference"></label>
+                        <input asp-for="Reference" class="form-control" />
+                        <span asp-validation-for="Reference" class="text-danger"></span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                            <label asp-for="AccountNumber"></label>
+                            <input asp-for="AccountNumber" class="form-control" onkeyup="javascript:$().applyUpperCase('#@Html.IdFor(m => m.AccountNumber)');" oninput="javascript:$().onAccountNumberChange('#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.AccountNumber)', '#accountName', '#accountCredit', '#accountAvailable', '@Model.GetResolveAccountUrl(Url)');" />
+                            <span asp-validation-for="AccountNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-8 col-xl-8">
+                            <label>Kontonavn</label>
+                            <input id="accountName" type="text" class="form-control" readonly="" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                        </div>
+                        <div class="form-group col-3 col-sm-3 col-md-3 col-lg-4 col-xl-4">
+                            <label>Kredit</label>
+                            <input id="accountCredit" type="text" class="form-control" readonly="" />
+                        </div>
+                        <div class="form-group col-3 col-sm-3 col-md-3 col-lg-4 col-xl-4">
+                            <label>Disponibel</label>
+                            <input id="accountAvailable" type="text" class="form-control" readonly="" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Details"></label>
+                        <input asp-for="Details" class="form-control" />
+                        <span asp-validation-for="Details" class="text-danger"></span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                            <label asp-for="BudgetAccountNumber"></label>
+                            <input asp-for="BudgetAccountNumber" class="form-control" onkeyup="javascript:$().applyUpperCase('#@Html.IdFor(m => m.BudgetAccountNumber)');" oninput="javascript:$().onBudgetAccountNumberChange('#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.BudgetAccountNumber)', '#budgetAccountName', '#budgetAccountPosted', '#budgetAccountAvailable', '@Model.GetResolveBudgetAccountUrl(Url)');" />
+                            <span asp-validation-for="BudgetAccountNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-8 col-xl-8">
+                            <label>Budgetkontonavn</label>
+                            <input id="budgetAccountName" type="text" class="form-control" readonly="" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                        </div>
+                        <div class="form-group col-3 col-sm-3 col-md-3 col-lg-4 col-xl-4">
+                            <label>Bogført</label>
+                            <input id="budgetAccountPosted" type="text" class="form-control" readonly="" />
+                        </div>
+                        <div class="form-group col-3 col-sm-3 col-md-3 col-lg-4 col-xl-4">
+                            <label>Disponibel</label>
+                            <input id="budgetAccountAvailable" type="text" class="form-control" readonly="" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                            <label asp-for="Debit"></label>
+                            <input asp-for="Debit" class="form-control" />
+                            <span asp-validation-for="Debit" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                            <label asp-for="Credit"></label>
+                            <input asp-for="Credit" class="form-control" />
+                            <span asp-validation-for="Credit" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                            <label asp-for="ContactAccountNumber"></label>
+                            <input asp-for="ContactAccountNumber" class="form-control" onkeyup="javascript:$().applyUpperCase('#@Html.IdFor(m => m.ContactAccountNumber)');" oninput="javascript:$().onContactAccountNumberChange('#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.ContactAccountNumber)', '#contactAccountName', '#contactAccountBalance', '@Model.GetResolveContactAccountUrl(Url)');" />
+                            <span asp-validation-for="ContactAccountNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-8 col-xl-8">
+                            <label>Kontaktkontonavn</label>
+                            <input id="contactAccountName" type="text" class="form-control" readonly="" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6 col-sm-6 col-md-6 col-lg-4 col-xl-4">
+                        </div>
+                        <div class="form-group col-3 col-sm-3 col-md-3 col-lg-4 col-xl-4">
+                            <label>Saldo</label>
+                            <input id="contactAccountBalance" type="text" class="form-control" readonly="" />
+                        </div>
+                        <div class="form-group col-3 col-sm-3 col-md-3 col-lg-4 col-xl-4">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Luk</button>
+                <button id="addToPostingJournalButton" type="button" class="btn btn-primary" onclick="javascript:$().addToPostingJournal('#postingJournalHeader', '#@Html.IdFor(m => m.Identifier)', '#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.Reference)', '#@Html.IdFor(m => m.AccountNumber)', '#@Html.IdFor(m => m.Details)', '#@Html.IdFor(m => m.BudgetAccountNumber)', '#@Html.IdFor(m => m.Debit)', '#@Html.IdFor(m => m.Credit)', '#@Html.IdFor(m => m.ContactAccountNumber)', '#@Html.IdFor(m => m.SortOrder)', '@Model.GetAddPostingLineToPostingJournalUrl(Url)', @Model.GetAddPostingLineToPostingJournalData(Html));">Tilføj</button>
+            </div>
+        </div>
+    </div>
+</div>

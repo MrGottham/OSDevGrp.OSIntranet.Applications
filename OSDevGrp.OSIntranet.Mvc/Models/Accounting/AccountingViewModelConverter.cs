@@ -39,6 +39,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
                 .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection))
                 .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.GetPostingLinesAsync(src.StatusDate).GetAwaiter().GetResult().Between(DateTime.MinValue, src.StatusDate).Top(25)))
+                .ForMember(dest => dest.PostingJournalKey, opt => opt.Ignore())
+                .ForMember(dest => dest.PostingJournal, opt => opt.Ignore())
+                .ForMember(dest => dest.PostingJournalResultKey, opt => opt.Ignore())
+                .ForMember(dest => dest.PostingJournalResult, opt => opt.Ignore())
                 .ForMember(dest => dest.LetterHeads, opt => opt.MapFrom(src => new List<LetterHeadViewModel>(0)))
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
@@ -224,7 +228,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection));
 
             mapperConfiguration.CreateMap<ApplyPostingLineViewModel, ApplyPostingLineCommand>()
-                .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
+                .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.LocalDateTime.Date))
                 .ForMember(dest => dest.Reference, opt =>
                 {
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.Reference) == false);
@@ -363,7 +367,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                     .NotNull(context, nameof(context));
 
                 return applyPostingLineCollectionViewModel
-                    .OrderBy(applyPostingLineViewModel => applyPostingLineViewModel.PostingDate.Date)
+                    .OrderBy(applyPostingLineViewModel => applyPostingLineViewModel.PostingDate.LocalDateTime.Date)
                     .ThenBy(applyPostingLineViewModel => applyPostingLineViewModel.SortOrder ?? 0)
                     .Select(applyPostingLineViewModel => context.Mapper.Map<ApplyPostingLineViewModel, ApplyPostingLineCommand>(applyPostingLineViewModel))
                     .ToArray();
