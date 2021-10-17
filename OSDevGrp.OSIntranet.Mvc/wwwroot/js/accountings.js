@@ -377,8 +377,24 @@
                 });
         },
 
-        removeFromPostingJournal: function(accountingNumber, postingJournalKey, postingLineIdentifier, postingJournalHeaderElementId) {
-            alert("OS Debug: removeFromPostingJournal, accountingNumber=" + accountingNumber + ", postingJournalKey=" + postingJournalKey + ", postingLineIdentifier=" + postingLineIdentifier + ", postingJournalHeaderElementId=" + postingJournalHeaderElementId);
+        removeFromPostingJournal: function(linkElement, accountingNumber, postingJournalKey, postingJournalHeaderElementId, removePostingLineFromPostingJournalUrl, removePostingLineFromPostingJournalData) {
+            var disablePostingJournalButtons = function(disable) {
+                $("#postingJournal").find("a").each(function() {
+                    if (disable) {
+                        $(this).attr("data-disabled", "true")
+                        return;
+                    }
+                });
+            };
+
+            if ($(linkElement).data("disabled"))
+            {
+                return;
+            }
+
+            disablePostingJournalButtons(true);
+
+            alert("OS Debug: removeFromPostingJournal, accountingNumber=" + accountingNumber + ", postingJournalKey=" + postingJournalKey + ", postingJournalHeaderElementId=" + postingJournalHeaderElementId + ", removePostingLineFromPostingJournalUrl=" + removePostingLineFromPostingJournalUrl + ", removePostingLineFromPostingJournalData=" + removePostingLineFromPostingJournalData);
         },
 
         onPostingDataChange: function(postingDateElementId, accountNumberElementId, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl, budgetAccountNumberElementId, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl, contactAccountNumberElementId, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl) {

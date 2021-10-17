@@ -114,5 +114,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return addPostingLineToPostingJournalDataBuilder.ToString();
         }
+
+        public static string GetRemovePostingLineFromPostingJournalUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            if (applyPostingLineViewModel.Identifier.HasValue == false)
+            {
+                return null;
+            }
+
+            return urlHelper.AbsoluteAction("RemovePostingLineFromPostingJournal", "Accounting", new { accountingNumber = "{accountingNumber}", postingLineIdentifier = applyPostingLineViewModel.Identifier.Value });
+        }
+
+        public static string GetRemovePostingLineFromPostingJournalData(this ApplyPostingLineViewModel applyPostingLineViewModel, IHtmlHelper htmlHelper)
+        {
+            NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
+                .NotNull(htmlHelper, nameof(htmlHelper));
+
+            StringBuilder removePostingLineFromPostingJournalDataBuilder = new StringBuilder();
+            removePostingLineFromPostingJournalDataBuilder.Append("{");
+            removePostingLineFromPostingJournalDataBuilder.Append("postingJournalKey: null, ");
+            removePostingLineFromPostingJournalDataBuilder.Append("postingJournalHeader: null, ");
+            removePostingLineFromPostingJournalDataBuilder.Append(htmlHelper.AntiForgeryTokenToJsonString());
+            removePostingLineFromPostingJournalDataBuilder.Append("}");
+
+            return removePostingLineFromPostingJournalDataBuilder.ToString();
+        }
     }
 }

@@ -848,6 +848,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return GetPartialViewForPostingJournal(await SavePostingJournal(postingJournalKey, applyPostingJournalViewModel), postingJournalKey, postingJournalHeader);
         }
 
+        [HttpDelete("api/accountings/{accountingNumber}/postingjournals/{postingLineIdentifier}")]
+        [ValidateAntiForgeryToken]
+        public  Task<IActionResult> RemovePostingLineFromPostingJournal(int accountingNumber, string postingJournalKey, Guid postingLineIdentifier, string postingJournalHeader = null)
+        {
+            throw new NotImplementedException();
+        }
+
         private Task<IAccounting> GetAccounting(int accountingNumber)
         {
             IGetAccountingQuery query = new GetAccountingQuery
