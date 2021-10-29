@@ -44,6 +44,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 
         [Test]
         [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithExternalDataDashboardEndpointAddress_ReturnsEndpointAddress()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut["ExternalData:Dashboard:EndpointAddress"];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
         public void Configuration_WhenCalledWithTestDataAccountingExistingAccountingNumber_ReturnsExistingAccountingNumber()
         {
             IConfiguration sut = CreateSut();

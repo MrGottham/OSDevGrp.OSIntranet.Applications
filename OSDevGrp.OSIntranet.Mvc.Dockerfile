@@ -11,6 +11,7 @@ ENV Security__Google__ClientId=[TBD] Security__Google__ClientSecret=[TBD]
 ENV Security__TrustedDomainCollection=[TBD]
 ENV Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
 ENV Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
+ENV ExternalData__Dashboard__EndpointAddress=[TBD]
 
 EXPOSE 80 2222
 

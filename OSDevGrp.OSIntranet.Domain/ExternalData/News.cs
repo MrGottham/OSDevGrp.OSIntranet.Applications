@@ -6,12 +6,7 @@ namespace OSDevGrp.OSIntranet.Domain.ExternalData
 {
     public class News : INews
     {
-        #region Constructors
-
-        public News(string identifier, DateTimeOffset timestamp, string header, string details, string provider, string author, Uri sourceUrl, Uri imageUrl)
-            : this(identifier, timestamp.LocalDateTime, header, details, provider, author, sourceUrl, imageUrl)
-        {
-        }
+        #region Constructor
 
         public News(string identifer, DateTime timestamp, string header, string details, string provider, string author, Uri sourceUrl, Uri imageUrl)
         {
