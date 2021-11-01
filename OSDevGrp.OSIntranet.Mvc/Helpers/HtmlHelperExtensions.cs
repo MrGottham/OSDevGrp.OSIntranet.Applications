@@ -7,8 +7,23 @@ using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers
 {
-    internal static class HtmlHelperExtensions
+    public static class HtmlHelperExtensions
     {
+        #region Private constants
+
+        private const string AntiForgeryTokenName = "__RequestVerificationToken";
+
+        #endregion
+
+        #region Private variables
+
+        private static readonly Regex AntiForgeryTokenNameRegex = new(@$"name=""({AntiForgeryTokenName})""", RegexOptions.Compiled);
+        private static readonly Regex AntiForgeryTokenValueRegex = new(@"value=""([A-Za-z0-9+=/\-\\_]+)""", RegexOptions.Compiled);
+
+        #endregion
+
+        #region Methods
+
         internal static string AntiForgeryTokenToJsonString(this IHtmlHelper htmlHelper)
         {
             NullGuard.NotNull(htmlHelper, nameof(htmlHelper));
@@ -19,21 +34,22 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
                 return null;
             }
 
-            using (StringWriter writer = new StringWriter())
+            using StringWriter writer = new StringWriter();
+            htmlContent.WriteTo(writer, HtmlEncoder.Default);
+
+            string htmlContentAsString = writer.GetStringBuilder().ToString();
+
+            Match antiForgeryTokenNameMatch = AntiForgeryTokenNameRegex.Match(htmlContentAsString);
+            Match antiForgeryTokenValueMatch = AntiForgeryTokenValueRegex.Match(htmlContentAsString);
+
+            if (string.IsNullOrWhiteSpace(htmlContentAsString) || antiForgeryTokenNameMatch.Success == false || antiForgeryTokenValueMatch.Success == false)
             {
-                htmlContent.WriteTo(writer, HtmlEncoder.Default);
-
-                Regex nameRegex = new Regex(@"name=""([A-Za-z_]+)""", RegexOptions.Compiled);
-                Regex valueRegex = new Regex(@"value=""([A-Za-z0-9+=/\-\\_]+)""", RegexOptions.Compiled);
-
-                string htmlContentAsString = writer.GetStringBuilder().ToString();
-                if (string.IsNullOrWhiteSpace(htmlContentAsString) || nameRegex.IsMatch(htmlContentAsString) == false || valueRegex.IsMatch(htmlContentAsString) == false)
-                {
-                    return null;
-                }
-
-                return $"{nameRegex.Match(htmlContentAsString).Groups[1].Value}: '{valueRegex.Match(htmlContentAsString).Groups[1].Value}'";
+                return null;
             }
+
+            return $"{antiForgeryTokenNameMatch.Groups[1].Value}: '{antiForgeryTokenValueMatch.Groups[1].Value}'";
         }
+
+        #endregion
     }
 }

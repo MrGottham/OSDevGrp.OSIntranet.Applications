@@ -17,8 +17,7 @@
         },
 
         getUrlForDefaultAccountingNumber: function() {
-            var urlForDefaultAccountingNumber =
-                $("#accountingOperations").find("#DefaultAccountingNumber").parent().data("url");
+            var urlForDefaultAccountingNumber = $("#accountingOperations").find("#DefaultAccountingNumber").parent().data("url");
             if (urlForDefaultAccountingNumber === undefined ||
                 urlForDefaultAccountingNumber === null ||
                 urlForDefaultAccountingNumber.length === 0) {
@@ -35,12 +34,11 @@
             }
 
             var activeAccountingNumber = null;
-            $.each(accountingNumberElementArray,
-                function() {
-                    if ($(this).hasClass("active") && activeAccountingNumber === null) {
-                        activeAccountingNumber = parseInt($(this).data("accounting-number"));
-                    }
-                });
+            $.each(accountingNumberElementArray, function() {
+                if ($(this).hasClass("active") && activeAccountingNumber === null) {
+                    activeAccountingNumber = parseInt($(this).data("accounting-number"));
+                }
+            });
 
             return activeAccountingNumber;
         },
@@ -62,10 +60,9 @@
 
             $(presentAccountingElement).data("url", encodeURI(createAccountingUrl));
 
-            $.each($(presentAccountingElement).parent(),
-                function() {
-                    $().startPresentingAccountingObserver(this);
-                });
+            $.each($(presentAccountingElement).parent(), function() {
+                $().startPresentingAccountingObserver(this);
+            });
 
             $().replaceWithPartialViewFromUrl(presentAccountingElement);
         },
@@ -78,10 +75,9 @@
 
             $(presentAccountingElement).data("url", encodeURI(accountingUrl));
 
-            $.each($(presentAccountingElement).parent(),
-                function() {
-                    $().startPresentingAccountingObserver(this);
-                });
+            $.each($(presentAccountingElement).parent(), function() {
+                $().startPresentingAccountingObserver(this);
+            });
 
             $().replaceWithPartialViewFromUrl(presentAccountingElement);
         },
@@ -137,16 +133,14 @@
         },
 
         startLoadingAccountings: function(url) {
-            $.each($("#accountingCollection"),
-                function() {
-                    $().startAccountingCollectionObserver(this);
-
-                    $.each($(this).children("#loadedAccountingCollection"),
-                        function() {
-                            $(this).data("url", url);
-                            $().replaceWithPartialViewFromUrl(this);
-                        });
+            $.each($("#accountingCollection"), function() {
+                $().startAccountingCollectionObserver(this);
+                
+                $.each($(this).children("#loadedAccountingCollection"), function() {
+                    $(this).data("url", url);
+                    $().replaceWithPartialViewFromUrl(this);
                 });
+            });
         },
 
         startAccountingCollectionObserver: function(element) {
@@ -169,26 +163,22 @@
 
             var rightContentIsHidden = $().isRightContentHidden();
 
-            $.each(loadedAccountingCollectionElementArray,
-                function() {
-                    $.each($(this).find("a"),
-                        function() {
-                            if (rightContentIsHidden === true && $(this).hasClass("active")) {
-                                $(this).removeClass("active");
-                            }
-
-                            $(this).on("click",
-                                function(e) {
-                                    e.preventDefault();
-                                    $(this).tab("show");
-                                });
-
-                            $(this).on("shown.bs.tab",
-                                function(e) {
-                                    $().getAccounting($(e.target).data("url"));
-                                });
-                        });
+            $.each(loadedAccountingCollectionElementArray, function() {
+                $.each($(this).find("a"), function() {
+                    if (rightContentIsHidden === true && $(this).hasClass("active")) {
+                        $(this).removeClass("active");
+                    }
+                    
+                    $(this).on("click", function(e) {
+                        e.preventDefault();
+                        $(this).tab("show");
+                    });
+                    
+                    $(this).on("shown.bs.tab", function(e) {
+                        $().getAccounting($(e.target).data("url"));
+                    });
                 });
+            });
         },
 
         isRightContentHidden: function() {
@@ -204,16 +194,15 @@
             var presentAccountingElement = null;
 
             var elementNo = 0;
-            $.each($(element).children("div"),
-                function() {
-                    if (elementNo !== 0) {
-                        $(this).remove();
-                        return;
-                    }
-
-                    presentAccountingElement = $(this);
-                    elementNo++;
-                });
+            $.each($(element).children("div"), function() {
+                if (elementNo !== 0) {
+                    $(this).remove();
+                    return;
+                }
+                
+                presentAccountingElement = $(this);
+                elementNo++;
+            });
 
             return presentAccountingElement;
         },
@@ -245,10 +234,9 @@
                 return;
             }
 
-            $.each(loadAccountingElementArray,
-                function() {
-                    $().replaceWithPartialViewFromUrl(this);
-                });
+            $.each(loadAccountingElementArray, function() {
+                $().replaceWithPartialViewFromUrl(this);
+            });
         },
 
         startAccountPresentation: function(accountPresentationUrl) {
@@ -259,10 +247,9 @@
 
             $(presentAccountElement).data("url", encodeURI(accountPresentationUrl));
 
-            $.each($(presentAccountElement).parent(),
-                function() {
-                    $().startAccountPresentationObserver(this);
-                });
+            $.each($(presentAccountElement).parent(), function() {
+                $().startAccountPresentationObserver(this);
+            });
 
             $().replaceWithPartialViewFromUrl(presentAccountElement);
         },
@@ -286,18 +273,16 @@
                 return;
             }
 
-            $.each(loadAccountElementArray,
-                function() {
-                    $().replaceWithPartialViewFromUrl(this);
-                });
+            $.each(loadAccountElementArray, function() {
+                $().replaceWithPartialViewFromUrl(this);
+            });
         },
 
         startAddingToPostingJournal: function(accountingNumber, postingJournalKey) {
-            $("#addPostingLineToPostingJournalModal").on("shown.bs.modal",
-                function() {
-                    $("#addPostingLineToPostingJournalForm").attr("data-accounting-number", accountingNumber);
-                    $("#addPostingLineToPostingJournalForm").attr("data-posting-journal-key", postingJournalKey);
-                });
+            $("#addPostingLineToPostingJournalModal").on("shown.bs.modal", function() {
+                $("#addPostingLineToPostingJournalForm").attr("data-accounting-number", accountingNumber);
+                $("#addPostingLineToPostingJournalForm").attr("data-posting-journal-key", postingJournalKey);
+            });
 
             $("#addPostingLineToPostingJournalModal").modal("show");
         },
@@ -381,9 +366,18 @@
             var disablePostingJournalButtons = function(disable) {
                 $("#postingJournal").find("a").each(function() {
                     if (disable) {
-                        $(this).attr("data-disabled", "true")
+                        $(this).attr("data-disabled", "true");
                         return;
                     }
+                });
+
+                $("#postingJournal").find("button").each(function() {
+                    if (disable) {
+                        $(this).attr("disabled");
+                        return;
+                    }
+
+                    $(this).removeAttr("disabled");
                 });
             };
 
@@ -394,7 +388,27 @@
 
             disablePostingJournalButtons(true);
 
-            alert("OS Debug: removeFromPostingJournal, accountingNumber=" + accountingNumber + ", postingJournalKey=" + postingJournalKey + ", postingJournalHeaderElementId=" + postingJournalHeaderElementId + ", removePostingLineFromPostingJournalUrl=" + removePostingLineFromPostingJournalUrl + ", removePostingLineFromPostingJournalData=" + removePostingLineFromPostingJournalData);
+            removePostingLineFromPostingJournalUrl = encodeURI(decodeURI(removePostingLineFromPostingJournalUrl)
+                .replace("{accountingNumber}", accountingNumber));
+
+            removePostingLineFromPostingJournalData.postingJournalKey = postingJournalKey;
+            removePostingLineFromPostingJournalData.postingJournalHeader = $().resolveElementText(postingJournalHeaderElementId);
+
+            $.post(removePostingLineFromPostingJournalUrl, removePostingLineFromPostingJournalData, null, "html")
+                .done(function(html) {
+                    disablePostingJournalButtons(false);
+
+                    $("#postingJournal").replaceWith(html);
+                })
+                .fail(function(jqXhr, textStatus, errorThrown) {
+                    disablePostingJournalButtons(false);
+
+                    if (errorThrown === undefined || errorThrown === null || errorThrown.length === 0) {
+                        return;
+                    }
+
+                    alert(errorThrown);
+                });
         },
 
         onPostingDataChange: function(postingDateElementId, accountNumberElementId, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl, budgetAccountNumberElementId, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl, contactAccountNumberElementId, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl) {

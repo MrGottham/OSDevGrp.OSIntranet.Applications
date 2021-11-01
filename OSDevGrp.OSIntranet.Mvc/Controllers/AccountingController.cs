@@ -848,11 +848,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return GetPartialViewForPostingJournal(await SavePostingJournal(postingJournalKey, applyPostingJournalViewModel), postingJournalKey, postingJournalHeader);
         }
 
-        [HttpDelete("api/accountings/{accountingNumber}/postingjournals/{postingLineIdentifier}")]
+        [HttpPost("api/accountings/{accountingNumber}/postingjournals/{postingLineIdentifier}")]
         [ValidateAntiForgeryToken]
-        public  Task<IActionResult> RemovePostingLineFromPostingJournal(int accountingNumber, string postingJournalKey, Guid postingLineIdentifier, string postingJournalHeader = null)
+        public async Task<IActionResult> RemovePostingLineFromPostingJournal(int accountingNumber, string postingJournalKey, Guid postingLineIdentifier, string postingJournalHeader = null)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(postingJournalKey))
+            {
+                return BadRequest();
+            }
+
+            ApplyPostingJournalViewModel applyPostingJournalViewModel = await GetPostingJournal(accountingNumber, postingJournalKey);
+            applyPostingJournalViewModel.ApplyPostingLines.RemoveAll(m => m.Identifier == postingLineIdentifier);
+
+            if (applyPostingJournalViewModel.ApplyPostingLines.Any())
+            {
+                applyPostingJournalViewModel = await SavePostingJournal(postingJournalKey, applyPostingJournalViewModel);
+            }
+            else
+            {
+                await DeletePostingJournal(postingJournalKey);
+            }
+
+            return GetPartialViewForPostingJournal(applyPostingJournalViewModel, postingJournalKey, postingJournalHeader);
         }
 
         private Task<IAccounting> GetAccounting(int accountingNumber)
@@ -981,6 +998,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             await _commandBus.PublishAsync(command);
 
             return applyPostingJournalViewModel;
+        }
+
+        private async Task DeletePostingJournal(string key)
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key));
+
+            IPullKeyValueEntryQuery query = new PullKeyValueEntryQuery
+            {
+                Key = key
+            };
+            IKeyValueEntry keyValueEntry = await _queryBus.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(query);
+            if (keyValueEntry == null)
+            {
+                return;
+            }
+
+            IDeleteKeyValueEntryCommand deleteKeyValueEntryCommand = new DeleteKeyValueEntryCommand
+            {
+                Key = key
+            };
+            await _commandBus.PublishAsync(deleteKeyValueEntryCommand);
         }
 
         private Task<string> GetPostingJournalResultKey(int accountingNumber)

@@ -27,7 +27,7 @@
                 if (replaceElementArray.length === 0) {
                     return;
                 }
-
+                
                 $.each(replaceElementArray, function() {
                     $().replaceWithPartialViewFromUrl($(this));
                 });
@@ -41,7 +41,7 @@
                 if (replaceElementArray.length === 0) {
                     return;
                 }
-
+                
                 $(this).on("shown.bs.collapse", function() {
                     $.each(replaceElementArray, function() {
                         $().replaceWithPartialViewFromUrl($(this));
@@ -98,7 +98,7 @@
                     $(this).addClass("d-block").removeClass("d-none").show();
                     return;
                 }
-
+                
                 if ($(this).hasClass("d-block")) {
                     $(this).addClass("d-none").removeClass("d-block").hide();
                 }
