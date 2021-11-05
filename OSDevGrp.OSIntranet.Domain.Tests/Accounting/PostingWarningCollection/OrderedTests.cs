@@ -62,13 +62,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingWarningCollection
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100))
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100))
             };
             sut.Add(postingLineMockCollection.Select(postingLineMock => _fixture.BuildPostingWarningMock(postingLine: postingLineMock.Object).Object));
 
@@ -88,13 +88,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingWarningCollection
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100))
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1), sortOrder: _random.Next(100))
             };
             sut.Add(postingLineMockCollection.Select(postingLineMock => _fixture.BuildPostingWarningMock(postingLine: postingLineMock.Object).Object));
 

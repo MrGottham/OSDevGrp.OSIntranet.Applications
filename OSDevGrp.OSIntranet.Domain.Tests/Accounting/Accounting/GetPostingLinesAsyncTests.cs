@@ -129,15 +129,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.Accounting
         public async Task GetPostingLinesAsync_WhenCalledOnAccountWithNonEmptyAccountCollection_ReturnsPostingLineCollectionWithPostingLinesUpToStatusDate()
         {
             DateTime statusDate = DateTime.Today.AddDays(_random.Next(1, 7) * -1);
-            IPostingLine postingLine1BeforeStatusDate = _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 7) * -1)).Object;
-            IPostingLine postingLine2BeforeStatusDate = _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 7) * -1)).Object;
-            IPostingLine postingLine3BeforeStatusDate = _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 7) * -1)).Object;
-            IPostingLine postingLine1OnStatusDate = _fixture.BuildPostingLineMock(statusDate).Object;
-            IPostingLine postingLine2OnStatusDate = _fixture.BuildPostingLineMock(statusDate).Object;
-            IPostingLine postingLine3OnStatusDate = _fixture.BuildPostingLineMock(statusDate).Object;
-            IPostingLine postingLine1AfterStatusDate = _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 7))).Object;
-            IPostingLine postingLine2AfterStatusDate = _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 7))).Object;
-            IPostingLine postingLine3AfterStatusDate = _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 7))).Object;
+            IPostingLine postingLine1BeforeStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 7) * -1)).Object;
+            IPostingLine postingLine2BeforeStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 7) * -1)).Object;
+            IPostingLine postingLine3BeforeStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 7) * -1)).Object;
+            IPostingLine postingLine1OnStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate).Object;
+            IPostingLine postingLine2OnStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate).Object;
+            IPostingLine postingLine3OnStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate).Object;
+            IPostingLine postingLine1AfterStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 7))).Object;
+            IPostingLine postingLine2AfterStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 7))).Object;
+            IPostingLine postingLine3AfterStatusDate = _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 7))).Object;
             IAccount[] accountCollection =
             {
                 _fixture.BuildAccountMock(postingLineCollection: _fixture.BuildPostingLineCollectionMock(postingLineCollection: new[] {postingLine1BeforeStatusDate, postingLine1OnStatusDate, postingLine1AfterStatusDate}).Object).Object,

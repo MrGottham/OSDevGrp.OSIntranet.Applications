@@ -720,7 +720,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return contactInfoCollectionMock;
         }
 
-        public static Mock<IPostingLine> BuildPostingLineMock(this Fixture fixture, DateTime? postingDate = null, IAccount account = null, ICreditInfoValues accountValuesAtPostingDate = null, IBudgetAccount budgetAccount = null, IBudgetInfoValues budgetAccountValuesAtPostingDate = null, IContactAccount contactAccount = null, IContactInfoValues contactAccountValuesAtPostingDate = null, int? sortOrder = null, IPostingLine calculatedPostingLine = null)
+        public static Mock<IPostingLine> BuildPostingLineMock(this Fixture fixture, Guid? identifier = null, DateTime? postingDate = null, IAccount account = null, ICreditInfoValues accountValuesAtPostingDate = null, IBudgetAccount budgetAccount = null, IBudgetInfoValues budgetAccountValuesAtPostingDate = null, IContactAccount contactAccount = null, IContactInfoValues contactAccountValuesAtPostingDate = null, int? sortOrder = null, IPostingLine calculatedPostingLine = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -740,7 +740,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 
             Mock<IPostingLine> postingLineMock = new Mock<IPostingLine>();
             postingLineMock.Setup(m => m.Identifier)
-                .Returns(Guid.NewGuid());
+                .Returns(identifier ?? Guid.NewGuid());
             postingLineMock.Setup(m => m.Accounting)
                 .Returns(accounting);
             postingLineMock.Setup(m => m.PostingDate)

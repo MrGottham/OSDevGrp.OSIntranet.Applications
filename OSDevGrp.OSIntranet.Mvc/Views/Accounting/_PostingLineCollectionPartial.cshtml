@@ -16,12 +16,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Items.Count; i++)
+                        @for (int i = 0; i < Model.Count; i++)
                         {
                             <tr>
-                                <td class="text-nowrap">@Html.DisplayFor(m => m.Items[i].PostingDate)</td>
-                                <td>@Model.Items[i].Details.ToHtmlString(25)</td>
-                                <td class="text-right text-nowrap">@Model.Items[i].PostingValue.AsCurrency()</td>
+                                <td class="text-nowrap">@Html.DisplayFor(m => m[i].PostingDate)</td>
+                                <td>@Model[i].Details.ToHtmlString(25)</td>
+                                <td class="text-right text-nowrap">@Model[i].PostingValue.AsCurrency()</td>
                             </tr>
                         }
                     </tbody>
@@ -43,32 +43,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Items.Count; i++)
+                        @for (int i = 0; i < Model.Count; i++)
                         {
                             <tr>
-                                <td class="text-nowrap">@Html.DisplayFor(m => m.Items[i].PostingDate)</td>
-                                <td class="text-right text-nowrap">@Model.Items[i].Reference.ToHtmlString()</td>
-                                <td class="text-right text-nowrap">@Model.Items[i].Account.AccountNumber.ToHtmlString()</td>
-                                <td>@Model.Items[i].Details.ToHtmlString()</td>
-                                @if (Model.Items[i].BudgetAccount != null)
+                                <td class="text-nowrap">@Html.DisplayFor(m => m[i].PostingDate)</td>
+                                <td class="text-right text-nowrap">@Model[i].Reference.ToHtmlString()</td>
+                                <td class="text-right text-nowrap">@Model[i].Account.AccountNumber.ToHtmlString()</td>
+                                <td>@Model[i].Details.ToHtmlString()</td>
+                                @if (Model[i].BudgetAccount != null)
                                 {
-                                    <td class="text-right text-nowrap">@Model.Items[i].BudgetAccount.AccountNumber.ToHtmlString()</td>
+                                    <td class="text-right text-nowrap">@Model[i].BudgetAccount.AccountNumber.ToHtmlString()</td>
                                 }
                                 else
                                 {
                                     <td class="text-right text-nowrap"></td>
                                 }
-                                @if (Model.Items[i].Debit != null)
+                                @if (Model[i].Debit != null)
                                 {
-                                    <td class="text-right text-nowrap">@Model.Items[i].Debit.Value.AsCurrency()</td>
+                                    <td class="text-right text-nowrap">@Model[i].Debit.Value.AsCurrency()</td>
                                 }
                                 else
                                 {
                                     <td class="text-right text-nowrap"></td>
                                 }
-                                @if (Model.Items[i].Credit != null)
+                                @if (Model[i].Credit != null)
                                 {
-                                    <td class="text-right text-nowrap">@Model.Items[i].Credit.Value.AsCurrency()</td>
+                                    <td class="text-right text-nowrap">@Model[i].Credit.Value.AsCurrency()</td>
                                 }
                                 else
                                 {

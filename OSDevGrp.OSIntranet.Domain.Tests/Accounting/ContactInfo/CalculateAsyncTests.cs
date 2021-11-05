@@ -78,9 +78,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, (int) statusDate.Subtract(toDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, (int) statusDate.Subtract(toDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(toDate.AddDays(1).Date)
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, (int) statusDate.Subtract(toDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, (int) statusDate.Subtract(toDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -107,9 +107,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(toDate.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.Date)
+                _fixture.BuildPostingLineMock(postingDate: toDate.Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -135,9 +135,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime fromDate = new DateTime(year, month, 1).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date)
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -164,9 +164,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, (int) toDate.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, (int) toDate.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(1).Date)
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) toDate.Subtract(statusDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) toDate.Subtract(statusDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -193,9 +193,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime fromDate = new DateTime(year, month, 1).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(statusDate.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.Date)
+                _fixture.BuildPostingLineMock(postingDate: statusDate.Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -222,9 +222,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime fromDate = new DateTime(year, month, 1).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date)
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -250,9 +250,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, (int) today.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, (int) today.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(1).Date)
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) today.Subtract(statusDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) today.Subtract(statusDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -279,9 +279,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime fromDate = new DateTime(year, month, 1).Date;
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(today.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, Math.Max((int) today.Subtract(fromDate).TotalDays, 1))).Date),
-                _fixture.BuildPostingLineMock(fromDate.Date)
+                _fixture.BuildPostingLineMock(postingDate: today.Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, Math.Max((int) today.Subtract(fromDate).TotalDays, 1))).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -307,9 +307,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(statusDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(_random.Next(1, 365) * -1).Date)
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(-1).Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 365) * -1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -336,13 +336,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month));
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(toDate.Date),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(7)),
-                _fixture.BuildPostingLineMock(statusDate.AddDays(1).Date)
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.Date),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(7)),
+                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -366,13 +366,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime fromDate = new DateTime(year, month, 1);
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(statusDate.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.Date)
+                _fixture.BuildPostingLineMock(postingDate: statusDate.Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -396,13 +396,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime fromDate = new DateTime(year, month, 1);
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date)
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
             IContactAccount contactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -427,15 +427,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.ContactInfo
             DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month));
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(toDate.AddDays(1).Date),
-                _fixture.BuildPostingLineMock(toDate.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(fromDate.Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 365) * -1).Date)
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(1).Date),
+                _fixture.BuildPostingLineMock(postingDate: toDate.Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
             };
 
             foreach (DateTime statusDate in postingLineMockCollection.Select(postingLineMock => postingLineMock.Object.PostingDate).OrderByDescending(value => value.Date))

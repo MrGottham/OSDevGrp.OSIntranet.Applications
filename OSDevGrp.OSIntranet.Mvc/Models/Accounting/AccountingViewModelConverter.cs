@@ -216,12 +216,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
+                .ConvertUsing(new PostingLineCollectionToPostingLineCollectionViewModelTypeConverter());
 
-            mapperConfiguration.CreateMap<IPostingWarning, PostingWarningViewModel>();
+            mapperConfiguration.CreateMap<IPostingWarning, PostingWarningViewModel>()
+                .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => Guid.NewGuid()));
 
             mapperConfiguration.CreateMap<IPostingWarningCollection, PostingWarningCollectionViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Ordered().ToArray()));
+                .ConvertUsing(new PostingWarningCollectionToPostingWarningCollectionViewModelTypeConverter());
 
             mapperConfiguration.CreateMap<IPostingJournalResult, ApplyPostingJournalResultViewModel>()
                 .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection))
@@ -353,6 +354,44 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             }
 
             protected abstract TInfoCommand Convert(TInfoViewModel infoViewModel, ResolutionContext context);
+
+            #endregion
+        }
+
+        private class PostingLineCollectionToPostingLineCollectionViewModelTypeConverter : ITypeConverter<IPostingLineCollection, PostingLineCollectionViewModel>
+        {
+            #region Methods
+
+            public PostingLineCollectionViewModel Convert(IPostingLineCollection postingLineCollection, PostingLineCollectionViewModel postingLineCollectionViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(postingLineCollection, nameof(postingLineCollection))
+                    .NotNull(context, nameof(context));
+
+                postingLineCollectionViewModel ??= new PostingLineCollectionViewModel();
+
+                postingLineCollectionViewModel.AddRange(postingLineCollection.Ordered().Select(postingLine => context.Mapper.Map<IPostingLine, PostingLineViewModel>(postingLine)).ToArray());
+
+                return postingLineCollectionViewModel;
+            }
+
+            #endregion
+        }
+
+        private class PostingWarningCollectionToPostingWarningCollectionViewModelTypeConverter : ITypeConverter<IPostingWarningCollection, PostingWarningCollectionViewModel>
+        {
+            #region Methods
+
+            public PostingWarningCollectionViewModel Convert(IPostingWarningCollection postingWarningCollection, PostingWarningCollectionViewModel postingWarningCollectionViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(postingWarningCollection, nameof(postingWarningCollection))
+                    .NotNull(context, nameof(context));
+
+                postingWarningCollectionViewModel ??= new PostingWarningCollectionViewModel();
+
+                postingWarningCollectionViewModel.AddRange(postingWarningCollection.Ordered().Select(postingWarning => context.Mapper.Map<IPostingWarning, PostingWarningViewModel>(postingWarning)).ToArray());
+
+                return postingWarningCollectionViewModel;
+            }
 
             #endregion
         }

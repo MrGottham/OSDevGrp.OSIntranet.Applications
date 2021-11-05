@@ -1,16 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
-    public class PostingLineCollectionViewModel : IReadOnlyCollection<PostingLineViewModel>
+    public class PostingLineCollectionViewModel : List<PostingLineViewModel>
     {
-        public IList<PostingLineViewModel> Items { get; set; } = new List<PostingLineViewModel>();
-
-        public int Count => Items.Count;
-
-        IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();
-
-        IEnumerator<PostingLineViewModel> IEnumerable<PostingLineViewModel>.GetEnumerator() => Items.GetEnumerator();
     }
 }

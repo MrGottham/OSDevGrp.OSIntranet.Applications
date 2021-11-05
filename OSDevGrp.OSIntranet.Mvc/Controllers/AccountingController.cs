@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -521,9 +522,42 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> ApplyPostingJournal(ApplyPostingJournalViewModel applyPostingJournalViewModel)
+        public async Task<IActionResult> ApplyPostingJournal(ApplyPostingJournalViewModel applyPostingJournalViewModel)
         {
-            throw new NotImplementedException();
+            NullGuard.NotNull(applyPostingJournalViewModel, nameof(applyPostingJournalViewModel));
+
+            if (ModelState.IsValid == false)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.SubmittedMessageInvalid, BuildValidationErrorMessage(ModelState))
+                    .WithValidatingType(applyPostingJournalViewModel.GetType())
+                    .WithValidatingField(nameof(applyPostingJournalViewModel))
+                    .Build();
+            }
+
+            Task<string> getPostingJournalKeyTask = GetPostingJournalKey(applyPostingJournalViewModel.AccountingNumber);
+            Task<string> getPostingJournalResultKeyTask = GetPostingJournalResultKey(applyPostingJournalViewModel.AccountingNumber);
+            await Task.WhenAll(
+                getPostingJournalKeyTask,
+                getPostingJournalResultKeyTask);
+
+            string postingJournalKey = getPostingJournalKeyTask.GetAwaiter().GetResult();
+            string postingJournalResultKey = getPostingJournalResultKeyTask.GetAwaiter().GetResult();
+            IApplyPostingJournalCommand applyPostingJournalCommand = _accountingViewModelConverter.Convert<ApplyPostingJournalViewModel, ApplyPostingJournalCommand>(applyPostingJournalViewModel);
+
+            Task<ApplyPostingJournalViewModel> getPostingJournalTask = GetPostingJournal(applyPostingJournalViewModel.AccountingNumber, postingJournalKey);
+            Task<ApplyPostingJournalResultViewModel> getPostingJournalResultTask = GetPostingJournalResult(postingJournalResultKey);
+            Task<IPostingJournalResult> applyPostingJournalTask = _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
+            await Task.WhenAll(
+                getPostingJournalTask,
+                getPostingJournalResultTask,
+                applyPostingJournalTask);
+
+            ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel = _accountingViewModelConverter.Convert<IPostingJournalResult, ApplyPostingJournalResultViewModel>(applyPostingJournalTask.GetAwaiter().GetResult());
+            await Task.WhenAll(
+                HandlePostingJournalResult(applyPostingJournalResultViewModel, postingJournalKey, getPostingJournalTask.GetAwaiter().GetResult()),
+                HandlePostingJournalResult(applyPostingJournalResultViewModel, postingJournalResultKey, getPostingJournalResultTask.GetAwaiter().GetResult()));
+
+            return RedirectToAction("Accountings", "Accounting", new { accountingNumber = applyPostingJournalViewModel.AccountingNumber });
         }
 
         [HttpGet]
@@ -866,7 +900,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
             else
             {
-                await DeletePostingJournal(postingJournalKey);
+                await DeleteFromKeyValueEntry(postingJournalKey);
             }
 
             return GetPartialViewForPostingJournal(applyPostingJournalViewModel, postingJournalKey, postingJournalHeader);
@@ -977,7 +1011,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             };
         }
 
-        private async Task<ApplyPostingJournalViewModel> SavePostingJournal(string key, ApplyPostingJournalViewModel applyPostingJournalViewModel)
+        private Task<ApplyPostingJournalViewModel> SavePostingJournal(string key, ApplyPostingJournalViewModel applyPostingJournalViewModel)
         {
             NullGuard.NotNullOrWhiteSpace(key, nameof(key))
                 .NotNull(applyPostingJournalViewModel, nameof(applyPostingJournalViewModel));
@@ -990,35 +1024,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             applyPostingJournalViewModel.ApplyPostingLines = new ApplyPostingLineCollectionViewModel();
             applyPostingJournalViewModel.ApplyPostingLines.AddRange(orderedPostingLines);
 
-            IPushKeyValueEntryCommand command = new PushKeyValueEntryCommand
-            {
-                Key = key,
-                Value = applyPostingJournalViewModel
-            };
-            await _commandBus.PublishAsync(command);
-
-            return applyPostingJournalViewModel;
-        }
-
-        private async Task DeletePostingJournal(string key)
-        {
-            NullGuard.NotNullOrWhiteSpace(key, nameof(key));
-
-            IPullKeyValueEntryQuery query = new PullKeyValueEntryQuery
-            {
-                Key = key
-            };
-            IKeyValueEntry keyValueEntry = await _queryBus.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(query);
-            if (keyValueEntry == null)
-            {
-                return;
-            }
-
-            IDeleteKeyValueEntryCommand deleteKeyValueEntryCommand = new DeleteKeyValueEntryCommand
-            {
-                Key = key
-            };
-            await _commandBus.PublishAsync(deleteKeyValueEntryCommand);
+            return SaveKeyValueEntry(key, applyPostingJournalViewModel);
         }
 
         private Task<string> GetPostingJournalResultKey(int accountingNumber)
@@ -1047,6 +1053,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             };
         }
 
+        private Task<ApplyPostingJournalResultViewModel> SavePostingJournalResult(string key, ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel)
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key))
+                .NotNull(applyPostingJournalResultViewModel, nameof(applyPostingJournalResultViewModel));
+
+            PostingWarningViewModel[] orderedPostingWarningCollection = applyPostingJournalResultViewModel.PostingWarnings
+                .OrderByDescending(postingWarning => postingWarning.PostingLine.PostingDate.Date)
+                .ThenByDescending(postingWarning => postingWarning.PostingLine.SortOrder)
+                .ThenBy(postingWarning => (int)postingWarning.Reason)
+                .ToArray();
+
+            applyPostingJournalResultViewModel.PostingLines = new PostingLineCollectionViewModel();
+            applyPostingJournalResultViewModel.PostingWarnings = new PostingWarningCollectionViewModel();
+            applyPostingJournalResultViewModel.PostingWarnings.AddRange(orderedPostingWarningCollection);
+
+            return SaveKeyValueEntry(key, applyPostingJournalResultViewModel);
+        }
+
         private async Task<T> GetObjectFromKeyValueEntry<T>(string key) where T : class
         {
             NullGuard.NotNullOrWhiteSpace(key, nameof(key));
@@ -1058,6 +1082,42 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IKeyValueEntry keyValueEntry = await _queryBus.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(query);
 
             return keyValueEntry?.ToObject<T>();
+        }
+
+        private async Task<T> SaveKeyValueEntry<T>(string key, T value) where T : class
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key))
+                .NotNull(value, nameof(value));
+
+            IPushKeyValueEntryCommand command = new PushKeyValueEntryCommand
+            {
+                Key = key,
+                Value = value
+            };
+            await _commandBus.PublishAsync(command);
+
+            return value;
+        }
+
+        private async Task DeleteFromKeyValueEntry(string key)
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key));
+
+            IPullKeyValueEntryQuery query = new PullKeyValueEntryQuery
+            {
+                Key = key
+            };
+            IKeyValueEntry keyValueEntry = await _queryBus.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(query);
+            if (keyValueEntry == null)
+            {
+                return;
+            }
+
+            IDeleteKeyValueEntryCommand deleteKeyValueEntryCommand = new DeleteKeyValueEntryCommand
+            {
+                Key = key
+            };
+            await _commandBus.PublishAsync(deleteKeyValueEntryCommand);
         }
 
         private void HandleModelValidationForAccountViewModel<TAccountViewModel>(ModelStateDictionary modelState, TAccountViewModel accountViewModel) where TAccountViewModel : AccountIdentificationViewModel
@@ -1081,6 +1141,49 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             string errorMessages = string.Join(Environment.NewLine, modelState.Values.SelectMany(modelStateEntry => modelStateEntry.Errors).Select(modelError => modelError.ErrorMessage));
             throw new IntranetExceptionBuilder(ErrorCode.InternalError, errorMessages).Build();
+        }
+
+        private async Task HandlePostingJournalResult(ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel, string postingJournalKey, ApplyPostingJournalViewModel applyPostingJournalViewModelFromKeyValueEntry)
+        {
+            NullGuard.NotNull(applyPostingJournalResultViewModel, nameof(applyPostingJournalResultViewModel))
+                .NotNullOrWhiteSpace(postingJournalKey, nameof(postingJournalKey))
+                .NotNull(applyPostingJournalViewModelFromKeyValueEntry, nameof(applyPostingJournalViewModelFromKeyValueEntry));
+
+            Guid[] appliedPostingLineIdentifierCollection = applyPostingJournalResultViewModel.PostingLines
+                .Select(appliedPostingLineViewModel => appliedPostingLineViewModel.Identifier)
+                .ToArray();
+
+            applyPostingJournalViewModelFromKeyValueEntry.ApplyPostingLines.RemoveAll(applyPostingLineViewModel => appliedPostingLineIdentifierCollection.Any(postingLineIdentifier => applyPostingLineViewModel.Identifier == postingLineIdentifier));
+
+            if (applyPostingJournalViewModelFromKeyValueEntry.ApplyPostingLines.Any())
+            {
+                await SavePostingJournal(postingJournalKey, applyPostingJournalViewModelFromKeyValueEntry);
+                return;
+            }
+
+            await DeleteFromKeyValueEntry(postingJournalKey);
+        }
+
+        private async Task HandlePostingJournalResult(ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel, string postingJournalResultKey, ApplyPostingJournalResultViewModel applyPostingJournalResultViewModelFromKeyValueEntry)
+        {
+            NullGuard.NotNull(applyPostingJournalResultViewModel, nameof(applyPostingJournalResultViewModel))
+                .NotNullOrWhiteSpace(postingJournalResultKey, nameof(postingJournalResultKey))
+                .NotNull(applyPostingJournalResultViewModelFromKeyValueEntry, nameof(applyPostingJournalResultViewModelFromKeyValueEntry));
+
+            PostingWarningViewModel[] postingWarningCollection = applyPostingJournalResultViewModelFromKeyValueEntry.PostingWarnings
+                .Concat(applyPostingJournalResultViewModel.PostingWarnings)
+                .ToArray();
+
+            applyPostingJournalResultViewModelFromKeyValueEntry.PostingWarnings = new PostingWarningCollectionViewModel();
+            applyPostingJournalResultViewModelFromKeyValueEntry.PostingWarnings.AddRange(postingWarningCollection);
+
+            if (applyPostingJournalResultViewModelFromKeyValueEntry.PostingWarnings.Any())
+            {
+                await SavePostingJournalResult(postingJournalResultKey, applyPostingJournalResultViewModelFromKeyValueEntry);
+                return;
+            }
+
+            await DeleteFromKeyValueEntry(postingJournalResultKey);
         }
 
         private static AccountingOptionsViewModel CreateAccountingOptionsViewModel(int? accountingNumber = null)
@@ -1151,6 +1254,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             {
                 Items = new ReadOnlyCollection<TInfoViewModel>(collection.OrderBy(infoViewModel => infoViewModel.Month).ToList())
             };
+        }
+
+        private static string BuildValidationErrorMessage(ModelStateDictionary modelStateDictionary)
+        {
+            NullGuard.NotNull(modelStateDictionary, nameof(modelStateDictionary));
+
+            StringBuilder validationErrorBuilder = new StringBuilder();
+
+            ValidationProblemDetails validationProblemDetails = new ValidationProblemDetails(modelStateDictionary);
+            foreach (KeyValuePair<string, string[]> validationError in validationProblemDetails.Errors.Where(error => string.IsNullOrWhiteSpace(error.Key) == false && error.Value.Length > 0))
+            {
+                foreach (string validationErrorMessage in validationError.Value.Where(value => string.IsNullOrWhiteSpace(value) == false))
+                {
+                    validationErrorBuilder.AppendLine($"{validationError.Key}: {validationErrorMessage}");
+                }
+            }
+
+            return validationErrorBuilder.ToString();
         }
 
         #endregion
