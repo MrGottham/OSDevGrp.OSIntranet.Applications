@@ -79,6 +79,42 @@ namespace OSDevGrp.OSIntranet.Repositories
                 MethodBase.GetCurrentMethod());
         }
 
+        public Task<IKeyValueEntry> PullKeyValueEntryAsync(string key)
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key));
+
+            return ExecuteAsync(async () =>
+                {
+                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    return await keyValueEntryModelHandler.PullAsync(key);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IKeyValueEntry> PushKeyValueEntryAsync(IKeyValueEntry keyValueEntry)
+        {
+            NullGuard.NotNull(keyValueEntry, nameof(keyValueEntry));
+
+            return ExecuteAsync(async () =>
+                {
+                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    return await keyValueEntryModelHandler.PushAsync(keyValueEntry);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IKeyValueEntry> DeleteKeyValueEntryAsync(string key)
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key));
+
+            return ExecuteAsync(async () =>
+                {
+                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    return await keyValueEntryModelHandler.DeleteAsync(key);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
         #endregion
     }
 }

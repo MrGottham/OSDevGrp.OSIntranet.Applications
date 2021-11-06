@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
@@ -23,6 +24,16 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             {
                 Add(postingWarning);
             }
+        }
+
+        public IPostingWarningCollection Ordered()
+        {
+            IPostingWarningCollection postingWarningCollection = new PostingWarningCollection
+            {
+                this.AsParallel().OrderByDescending(postingWarning => postingWarning.PostingLine.PostingDate.Date).ThenByDescending(postingWarning => postingWarning.PostingLine.SortOrder).ThenBy(postingWarning => (int) postingWarning.Reason)
+            };
+
+            return postingWarningCollection;
         }
 
         #endregion

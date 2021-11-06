@@ -81,8 +81,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
             IPostingLineCollection postingLineCollection = new PostingLineCollection
             {
-                new PostingLine(Guid.NewGuid(), DateTime.Today, null, primaryAccount, "Testing apply posting journal", primaryBudgetAccount, 25000M, 0M, null, 0),
-                new PostingLine(Guid.NewGuid(), DateTime.Today, null, primaryAccount, "Testing apply posting journal", primaryBudgetAccount, 0M, 25000M, null, 0)
+                new PostingLine(Guid.NewGuid(), DateTime.Today, null, primaryAccount, "Testing apply posting journal", primaryBudgetAccount, 25000M, 0M, null, 1),
+                new PostingLine(Guid.NewGuid(), DateTime.Today, null, primaryAccount, "Testing apply posting journal", primaryBudgetAccount, 0M, 25000M, null, 2)
             };
 
             return new PostingJournal(postingLineCollection);

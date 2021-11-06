@@ -29,6 +29,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         public PostingLineCollectionViewModel PostingLines { get; set; }
 
+        public string PostingJournalKey { get; set; }
+
+        public ApplyPostingJournalViewModel PostingJournal { get; set; }
+
+        public string PostingJournalResultKey { get; set; }
+
+        public ApplyPostingJournalResultViewModel PostingJournalResult { get; set; }
+
         public IReadOnlyCollection<LetterHeadViewModel> LetterHeads { get; set; }
     }
 }

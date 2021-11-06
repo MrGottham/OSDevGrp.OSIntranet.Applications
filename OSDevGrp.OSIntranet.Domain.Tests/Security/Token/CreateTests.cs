@@ -31,7 +31,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>((byte[]) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("byteArray"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -57,7 +59,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>((string) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("base64String"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -66,7 +70,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>(string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("base64String"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -75,7 +81,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create<Sut>(" "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("base64String"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -101,7 +109,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create((ITokenBasedQuery) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("tokenBasedQuery"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -160,7 +170,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Sut.Create((ITokenBasedCommand) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("tokenBasedCommand"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]

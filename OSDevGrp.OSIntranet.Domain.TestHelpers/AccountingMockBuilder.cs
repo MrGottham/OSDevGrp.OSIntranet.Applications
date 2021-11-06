@@ -13,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class AccountingMockBuilder
     {
-        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture, int? accountingNumber = null, BalanceBelowZeroType? balanceBelowZero = null, IAccountCollection accountCollection = null, IBudgetAccountCollection budgetAccountCollection = null, IContactAccountCollection contactAccountCollection = null, bool hasCalculatedAccounting = true, IAccounting calculatedAccounting = null, bool isEmpty = false)
+        public static Mock<IAccounting> BuildAccountingMock(this Fixture fixture, int? accountingNumber = null, BalanceBelowZeroType? balanceBelowZero = null, int? backDating = null, IAccountCollection accountCollection = null, IBudgetAccountCollection budgetAccountCollection = null, IContactAccountCollection contactAccountCollection = null, bool hasCalculatedAccounting = true, IAccounting calculatedAccounting = null, bool isEmpty = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -27,7 +27,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             accountingMock.Setup(m => m.BalanceBelowZero)
                 .Returns(balanceBelowZero ?? fixture.Create<BalanceBelowZeroType>());
             accountingMock.Setup(m => m.BackDating)
-                .Returns(fixture.Create<int>());
+                .Returns(backDating ?? fixture.Create<int>());
             accountingMock.Setup(m => m.StatusDate)
                 .Returns(fixture.Create<DateTime>().Date);
             accountingMock.Setup(m => m.Deletable)
@@ -720,7 +720,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return contactInfoCollectionMock;
         }
 
-        public static Mock<IPostingLine> BuildPostingLineMock(this Fixture fixture, DateTime? postingDate = null, IAccount account = null, ICreditInfoValues accountValuesAtPostingDate = null, IBudgetAccount budgetAccount = null, IBudgetInfoValues budgetAccountValuesAtPostingDate = null, IContactAccount contactAccount = null, IContactInfoValues contactAccountValuesAtPostingDate = null, int? sortOrder = null, IPostingLine calculatedPostingLine = null)
+        public static Mock<IPostingLine> BuildPostingLineMock(this Fixture fixture, Guid? identifier = null, DateTime? postingDate = null, IAccount account = null, ICreditInfoValues accountValuesAtPostingDate = null, IBudgetAccount budgetAccount = null, IBudgetInfoValues budgetAccountValuesAtPostingDate = null, IContactAccount contactAccount = null, IContactInfoValues contactAccountValuesAtPostingDate = null, int? sortOrder = null, IPostingLine calculatedPostingLine = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -740,7 +740,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 
             Mock<IPostingLine> postingLineMock = new Mock<IPostingLine>();
             postingLineMock.Setup(m => m.Identifier)
-                .Returns(Guid.NewGuid());
+                .Returns(identifier ?? Guid.NewGuid());
             postingLineMock.Setup(m => m.Accounting)
                 .Returns(accounting);
             postingLineMock.Setup(m => m.PostingDate)
@@ -824,7 +824,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return postingLineCollectionMock;
         }
 
-        public static Mock<IPostingWarning> BuildPostingWarningMock(this Fixture fixture)
+        public static Mock<IPostingWarning> BuildPostingWarningMock(this Fixture fixture, IPostingLine postingLine = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -836,7 +836,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             postingWarningMock.Setup(m => m.Amount)
                 .Returns(fixture.Create<decimal>());
             postingWarningMock.Setup(m => m.PostingLine)
-                .Returns(fixture.BuildPostingLineMock().Object);
+                .Returns(postingLine ?? fixture.BuildPostingLineMock().Object);
             return postingWarningMock;
         }
 
@@ -863,6 +863,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             Mock<IPostingWarningCollection> postingWarningCollectionMock = new Mock<IPostingWarningCollection>();
             postingWarningCollectionMock.Setup(m => m.GetEnumerator())
                 .Returns(postingWarningCollection.GetEnumerator());
+            postingWarningCollectionMock.Setup(m => m.Ordered())
+                .Returns(postingWarningCollectionMock.Object);
             return postingWarningCollectionMock;
         }
 

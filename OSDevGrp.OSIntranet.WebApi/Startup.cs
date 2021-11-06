@@ -17,13 +17,13 @@ using Microsoft.OpenApi.Models;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.WebApi.Filters;
 using OSDevGrp.OSIntranet.WebApi.Handlers;
-using OSDevGrp.OSIntranet.WebApi.Helpers.Converters;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -69,11 +69,13 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddControllers(opt => 
             {
                 opt.Filters.Add<ErrorHandlerFilter>();
+                opt.Filters.Add<SchemaValidationFilter>();
             })
             .AddJsonOptions(opt =>
             {
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 opt.JsonSerializerOptions.Converters.Add(new DecimalFormatJsonConverter());
+                opt.JsonSerializerOptions.Converters.Add(new NullableDecimalFormatJsonConverter());
                 opt.JsonSerializerOptions.IgnoreNullValues = true;
             });
 
@@ -199,11 +201,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.RouteTemplate = "/api/swagger/{documentName}/swagger.json";
                 options.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
                 {
-                    if (httpRequest.Headers == null)
-                    {
-                        return;
-                    }
-
                     const string forwardedProtoHeader = "X-Forwarded-Proto";
                     const string forwardedHostHeader = "X-Forwarded-Host";
 

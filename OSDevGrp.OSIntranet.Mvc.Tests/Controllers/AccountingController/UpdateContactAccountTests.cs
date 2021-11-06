@@ -94,7 +94,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             string accountNumber = _fixture.Create<string>();
             await sut.UpdateContactAccount(accountingNumber, accountNumber);
 
-            _queryBusMock.Verify(m => m.QueryAsync<IGetContactAccountQuery, IContactAccount>(It.Is<IGetContactAccountQuery>(query => query != null && query.AccountingNumber == accountingNumber && string.CompareOrdinal(query.AccountNumber, accountNumber.ToUpper()) == 0)), Times.Once);
+            _queryBusMock.Verify(m => m.QueryAsync<IGetContactAccountQuery, IContactAccount>(It.Is<IGetContactAccountQuery>(query => query != null && query.AccountingNumber == accountingNumber && string.CompareOrdinal(query.AccountNumber, accountNumber.ToUpper()) == 0 && query.StatusDate == DateTime.Today)), Times.Once);
         }
 
         [Test]

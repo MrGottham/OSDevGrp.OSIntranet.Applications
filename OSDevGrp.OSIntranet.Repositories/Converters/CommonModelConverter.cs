@@ -22,6 +22,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.Accountings, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<KeyValueEntryModel, IKeyValueEntry>()
+                .ConvertUsing(keyValueEntryModel => keyValueEntryModel.ToDomain());
+
+            mapperConfiguration.CreateMap<IKeyValueEntry, KeyValueEntryModel>()
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.ToBase64()))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
         }
 
         internal static IConverter Create()

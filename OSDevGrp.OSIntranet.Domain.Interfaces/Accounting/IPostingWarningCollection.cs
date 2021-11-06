@@ -7,5 +7,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         void Add(IPostingWarning postingWarning);
 
         void Add(IEnumerable<IPostingWarning> postingWarningCollection);
+
+        IPostingWarningCollection Ordered();
     }
 }

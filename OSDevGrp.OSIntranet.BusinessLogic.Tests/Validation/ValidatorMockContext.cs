@@ -29,6 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             StringValidatorMock = BuildStringValidatorMock(ValidatorMock);
             DateTimeValidatorMock = BuildDateTimeValidatorMock(ValidatorMock);
             ObjectValidatorMock = BuildObjectValidatorMock(ValidatorMock);
+            EnumerableValidatorMock = BuildEnumerableValidatorMock(ValidatorMock);
 
             ValidatorMock.Setup(m => m.Integer)
                 .Returns(IntegerValidatorMock.Object);
@@ -40,6 +41,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
                 .Returns(DateTimeValidatorMock.Object);
             ValidatorMock.Setup(m => m.Object)
                 .Returns(ObjectValidatorMock.Object);
+            ValidatorMock.Setup(m => m.Enumerable)
+                .Returns(EnumerableValidatorMock.Object);
         }
 
         #endregion
@@ -57,6 +60,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
         internal Mock<IDateTimeValidator> DateTimeValidatorMock;
 
         internal Mock<IObjectValidator> ObjectValidatorMock;
+
+        internal Mock<IEnumerableValidator> EnumerableValidatorMock;
 
         #endregion
 
@@ -147,12 +152,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<decimal?>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<BalanceBelowZeroType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<INameCommand>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<IEnumerable<string>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<ICreditInfoCommand>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<IBudgetInfoCommand>>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<IEnumerable<IApplyPostingLineCommand>>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
         }
 
@@ -179,6 +188,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPaymentTerm>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IKeyValueEntry>(validatorMock, objectValidatorMock);
         }
 
         private static void SetupShouldBeDeletable<TValue, TDeletable>(Mock<IValidator> validatorMock, Mock<IObjectValidator> objectValidatorMock) where TDeletable : IDeletable
@@ -187,6 +197,25 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
                 .NotNull(objectValidatorMock, nameof(objectValidatorMock));
 
             objectValidatorMock.Setup(m => m.ShouldBeDeletable(It.IsAny<TValue>(), It.IsAny<Func<TValue, Task<TDeletable>>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(validatorMock.Object);
+        }
+
+        private static Mock<IEnumerableValidator> BuildEnumerableValidatorMock(Mock<IValidator> validatorMock)
+        {
+            NullGuard.NotNull(validatorMock, nameof(validatorMock));
+
+            Mock<IEnumerableValidator> enumerableValidatorMock = new Mock<IEnumerableValidator>();
+            SetupGenericEnumerableValidatorMock<string>(validatorMock, enumerableValidatorMock);
+            SetupGenericEnumerableValidatorMock<IApplyPostingLineCommand>(validatorMock, enumerableValidatorMock);
+            return enumerableValidatorMock;
+        }
+
+        private static void SetupGenericEnumerableValidatorMock<T>(Mock<IValidator> validatorMock, Mock<IEnumerableValidator> enumerableValidatorMock)
+        {
+            NullGuard.NotNull(validatorMock, nameof(validatorMock))
+                .NotNull(enumerableValidatorMock, nameof(enumerableValidatorMock));
+
+            enumerableValidatorMock.Setup(m => m.ShouldContainItems(It.IsAny<IEnumerable<T>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(validatorMock.Object);
         }
 

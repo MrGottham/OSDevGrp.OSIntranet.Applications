@@ -37,7 +37,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.GetToken<IToken>(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("unprotect"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]

@@ -2,7 +2,7 @@ using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
-namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.LetterHead
+namespace OSDevGrp.OSIntranet.Domain.Tests.Common.LetterHead
 {
     [TestFixture]
     public class DisallowDeletionTests

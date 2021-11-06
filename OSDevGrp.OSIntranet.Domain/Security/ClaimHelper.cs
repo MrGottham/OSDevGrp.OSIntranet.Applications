@@ -40,6 +40,13 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return CreateClaim(ClaimTypes.Name, name);
         }
 
+        public static Claim CreateEmailClaim(string email)
+        {
+            NullGuard.NotNullOrWhiteSpace(email, email);
+
+            return CreateClaim(ClaimTypes.Email, email);
+        }
+
         public static Claim CreateExternalUserIdentifierClaim(string externalUserIdentifier)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));

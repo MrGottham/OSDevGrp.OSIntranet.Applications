@@ -1180,7 +1180,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
         private IValidator CreateValidator()
         {
-            return new Validator(new IntegerValidator(), new DecimalValidator(), new StringValidator(), new DateTimeValidator(), new ObjectValidator());
+            return new Validator(new IntegerValidator(), new DecimalValidator(), new StringValidator(), new DateTimeValidator(), new ObjectValidator(), new EnumerableValidator());
         }
 
         private IEventPublisher CreateEventPublisher()
