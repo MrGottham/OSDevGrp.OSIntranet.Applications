@@ -51,12 +51,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
 
         public static HtmlString ToHtmlString(this string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            return string.IsNullOrWhiteSpace(value)
+                ? new HtmlString(string.Empty)
+                : new HtmlString(value.Replace(Environment.NewLine, "<br>"));
+        }
+
+        public static HtmlString ToHtmlString(this string value, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value.Length <= maxLength)
             {
-                return new HtmlString(string.Empty);
+                return ToHtmlString(value);
             }
 
-            return new HtmlString(value.Replace(Environment.NewLine, "<br>"));
+            return ToHtmlString($"{value.Substring(0, maxLength).Trim()}...");
         }
 
         public static HtmlString AsCurrency(this decimal value)

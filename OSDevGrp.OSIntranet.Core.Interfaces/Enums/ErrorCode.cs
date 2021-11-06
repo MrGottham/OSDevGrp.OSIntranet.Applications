@@ -116,6 +116,15 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         CannotRetrieveAcmeChallengeForToken = 1037,
 
         [ErrorCode("Cannot retrieve a JWT token for the authenticated user.", typeof(IntranetBusinessException))]
-        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1038
+        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1038,
+
+        [ErrorCode("The value for the submitted field '{0}' should contain some items.", typeof(IntranetValidationException))]
+        ValueShouldContainSomeItems = 1039,
+
+        [ErrorCode("The submitted message is invalid: {0}", typeof(IntranetValidationException))]
+        SubmittedMessageInvalid = 1040,
+
+        [ErrorCode("Unable to resolve the identifier for the current user.", typeof(IntranetSystemException))]
+        UnableToResolveUserIdentifier = 1041
     }
 }

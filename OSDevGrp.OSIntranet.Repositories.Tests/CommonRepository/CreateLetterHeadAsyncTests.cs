@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
@@ -16,7 +15,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateLetterHeadAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("letterHead"));
+            // ReSharper restore PossibleNullReferenceException
         }
     }
 }

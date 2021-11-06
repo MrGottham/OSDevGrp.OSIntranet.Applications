@@ -11,5 +11,7 @@
         IDateTimeValidator DateTime { get; }
 
         IObjectValidator Object { get; }
+
+        IEnumerableValidator Enumerable { get; }
     }
 }

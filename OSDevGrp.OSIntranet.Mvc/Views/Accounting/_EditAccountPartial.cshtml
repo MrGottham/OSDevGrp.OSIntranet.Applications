@@ -131,7 +131,7 @@
             }
             @if (Model.EditMode == EditMode.Edit && Model.PostingLines != null)
             {
-                <div class="d-none d-md-block d-lg-block d-xl-block">
+                <div>
                     <p class="font-weight-bold">@Html.LabelFor(m => m.PostingLines)</p>
                     @await Html.PartialAsync("_PostingLineCollectionPartial", Model.PostingLines)
                     <hr />

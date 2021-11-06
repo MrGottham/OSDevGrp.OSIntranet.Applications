@@ -267,9 +267,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate.AddDays(14), sortOrder: 103).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(7), sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate, sortOrder: 101).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(14), sortOrder: 103).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(7), sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate, sortOrder: 101).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IAccount calculatedAccount = _fixture.BuildAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -289,9 +289,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate, sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(-7), sortOrder: 101).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(-14), sortOrder: 100).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate, sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(-7), sortOrder: 101).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(-14), sortOrder: 100).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IAccount calculatedAccount = _fixture.BuildAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -397,9 +397,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate.AddDays(14), sortOrder: 103).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(7), sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate, sortOrder: 101).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(14), sortOrder: 103).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(7), sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate, sortOrder: 101).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IBudgetAccount calculatedBudgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -421,9 +421,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate, sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(Math.Min(postingDate.Day - 1, 7) * -1), sortOrder: 101).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(Math.Min(postingDate.Day - 1, 14) * -1), sortOrder: 100).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate, sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(Math.Min(postingDate.Day - 1, 7) * -1), sortOrder: 101).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(Math.Min(postingDate.Day - 1, 14) * -1), sortOrder: 100).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IBudgetAccount calculatedBudgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -445,9 +445,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate.AddDays(postingDate.Day * -1), sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays((postingDate.Day + 7) * -1), sortOrder: 101).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays((postingDate.Day + 14) * -1), sortOrder: 100).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(postingDate.Day * -1), sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays((postingDate.Day + 7) * -1), sortOrder: 101).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays((postingDate.Day + 14) * -1), sortOrder: 100).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IBudgetAccount calculatedBudgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -541,9 +541,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate.AddDays(14), sortOrder: 103).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(7), sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate, sortOrder: 101).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(14), sortOrder: 103).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(7), sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate, sortOrder: 101).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IContactAccount calculatedContactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;
@@ -565,9 +565,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(0, 7) * -1);
             IPostingLine[] postingLines =
             {
-                _fixture.BuildPostingLineMock(postingDate, sortOrder: 102).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(-7), sortOrder: 101).Object,
-                _fixture.BuildPostingLineMock(postingDate.AddDays(-14), sortOrder: 100).Object
+                _fixture.BuildPostingLineMock(postingDate: postingDate, sortOrder: 102).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(-7), sortOrder: 101).Object,
+                _fixture.BuildPostingLineMock(postingDate: postingDate.AddDays(-14), sortOrder: 100).Object
             };
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLines).Object;
             IContactAccount calculatedContactAccount = _fixture.BuildContactAccountMock(postingLineCollection: postingLineCollection).Object;

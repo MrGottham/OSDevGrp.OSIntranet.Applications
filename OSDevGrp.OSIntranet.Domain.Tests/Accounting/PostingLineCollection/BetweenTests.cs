@@ -36,13 +36,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
-                _fixture.BuildPostingLineMock(DateTime.Today.AddDays(_random.Next(0, 30) * -1))
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1)),
+                _fixture.BuildPostingLineMock(postingDate: DateTime.Today.AddDays(_random.Next(0, 30) * -1))
             };
             sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object));
 
@@ -89,13 +89,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
             DateTime fromDate = DateTime.Today.AddDays(_random.Next(1, 7) * -1);
             IEnumerable<IPostingLine> postingLines = new List<IPostingLine>
             {
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
-                _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object,
+                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object
             };
             sut.Add(postingLines);
 
@@ -113,13 +113,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
             DateTime toDate = DateTime.Today.AddDays(_random.Next(7, 14) * -1);
             IEnumerable<IPostingLine> postingLines = new List<IPostingLine>
             {
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
-                _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object,
+                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object
             };
             sut.Add(postingLines);
 
@@ -136,15 +136,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
             DateTime fromDate = DateTime.Today.AddDays(_random.Next(14, 21) * -1);
             DateTime toDate = fromDate.AddDays(7);
-            IPostingLine postingLineBeforeFromDate1 = _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object;
-            IPostingLine postingLineBeforeFromDate2 = _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object;
-            IPostingLine postingLineBeforeFromDate3 = _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, 30) * -1)).Object;
-            IPostingLine postingLineBeforeOnFromDate = _fixture.BuildPostingLineMock(fromDate).Object;
-            IPostingLine postingLineBetweenFromDateAndToDate = _fixture.BuildPostingLineMock(fromDate.AddDays(_random.Next(1, toDate.Subtract(fromDate).Days))).Object;
-            IPostingLine postingLineBeforeOnToDate = _fixture.BuildPostingLineMock(toDate).Object;
-            IPostingLine postingLineAfterToDate1 = _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object;
-            IPostingLine postingLineAfterToDate2 = _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object;
-            IPostingLine postingLineAfterToDate3 = _fixture.BuildPostingLineMock(toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object;
+            IPostingLine postingLineBeforeFromDate1 = _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object;
+            IPostingLine postingLineBeforeFromDate2 = _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object;
+            IPostingLine postingLineBeforeFromDate3 = _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 30) * -1)).Object;
+            IPostingLine postingLineBeforeOnFromDate = _fixture.BuildPostingLineMock(postingDate: fromDate).Object;
+            IPostingLine postingLineBetweenFromDateAndToDate = _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, toDate.Subtract(fromDate).Days))).Object;
+            IPostingLine postingLineBeforeOnToDate = _fixture.BuildPostingLineMock(postingDate: toDate).Object;
+            IPostingLine postingLineAfterToDate1 = _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object;
+            IPostingLine postingLineAfterToDate2 = _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object;
+            IPostingLine postingLineAfterToDate3 = _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, DateTime.Today.Subtract(toDate).Days))).Object;
 
             IEnumerable<IPostingLine> postingLines = new List<IPostingLine>
             {

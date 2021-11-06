@@ -6,7 +6,6 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    [Serializable]
     public class RefreshableToken : Token, IRefreshableToken
     {
         #region Constructor

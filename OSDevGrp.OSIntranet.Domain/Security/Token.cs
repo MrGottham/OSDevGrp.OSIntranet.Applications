@@ -1,14 +1,12 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.Queries;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    [Serializable]
     public class Token : IToken
     {
         #region Constructors
@@ -41,12 +39,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public byte[] ToByteArray()
         {
-            using MemoryStream memoryStream = new MemoryStream();
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            binaryFormatter.Serialize(memoryStream, this);
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            return memoryStream.ToArray();
+            return DomainHelper.ToByteArray(this);
         }
 
         public string ToBase64()
@@ -68,9 +61,17 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
             NullGuard.NotNull(byteArray, nameof(byteArray));
 
-            using MemoryStream memoryStream = new MemoryStream(byteArray);
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            return (TToken) binaryFormatter.Deserialize(memoryStream);
+            if (typeof(TToken) == typeof(IRefreshableToken))
+            {
+                return DomainHelper.FromByteArray<RefreshableToken>(byteArray) as TToken;
+            }
+
+            if (typeof(TToken) == typeof(IToken))
+            {
+                return DomainHelper.FromByteArray<Token>(byteArray) as TToken;
+            }
+
+            return DomainHelper.FromByteArray<TToken>(byteArray);
         }
 
         public static TToken Create<TToken>(string base64String) where TToken : class, IToken

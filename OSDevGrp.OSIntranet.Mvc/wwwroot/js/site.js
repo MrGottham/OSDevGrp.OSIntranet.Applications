@@ -15,7 +15,7 @@
                         }
                     })
                     .fail(function(jqXhr, textStatus, errorThrown) {
-                        alert(errorThrown);
+                        alert($().getErrorMessage(jqXhr, textStatus, errorThrown));
                     });
             }
         },
@@ -61,8 +61,28 @@
                     $(replaceElement).replaceWith(data);
                 })
                 .fail(function(jqXhr, textStatus, errorThrown) {
-                    $(replaceElement).replaceWith("<div class=\"alert alert-danger\" role=\"alert\">" + errorThrown + "</div>");
+                    $(replaceElement).replaceWith("<div class=\"alert alert-danger\" role=\"alert\">" + $().getErrorMessage(jqXhr, textStatus, errorThrown) + "</div>");
                 });
+        },
+
+        getErrorMessage: function(jqXhr, textStatus, errorThrown) {
+            if (jqXhr === undefined || jqXhr === null) {
+                return errorThrown;
+            }
+
+            if ($().isBadRequest(jqXhr) === false) {
+                return errorThrown;
+            }
+
+            if (jqXhr.responseText === undefined || jqXhr.responseText === null || jqXhr.responseText.length === 0) {
+                return errorThrown;
+            }
+
+            return errorThrown + ": " + jqXhr.responseText;
+        },
+
+        isBadRequest: function(jqXhr) {
+            return jqXhr !== undefined && jqXhr !== null && jqXhr.status !== undefined && jqXhr.status !== null && jqXhr.status === 400;
         },
 
         setReadOnly: function(elementId, readOnly) {
@@ -87,6 +107,33 @@
             });
         },
 
+        disableChildLinkElements: function(elementId, disable) {
+            var elementArray = $(document).find(elementId);
+            if (elementArray.length === 0) {
+                return;
+            }
+
+            $.each(elementArray, function() {
+                $(this).find("a").each(function() {
+                    if (disable) {
+                        $(this).attr("data-disabled", "true");
+                        return;
+                    }
+
+                    $(this).removeAttr("data-disabled");
+                });
+
+                $(this).find("button").each(function() {
+                    if (disable) {
+                        $(this).attr("disabled");
+                        return;
+                    }
+
+                    $(this).removeAttr("disabled");
+                });
+            });
+        },
+
         toggleDisplay: function(elementId) {
             var elementArray = $(document).find(elementId);
             if (elementArray.length === 0) {
@@ -98,7 +145,7 @@
                     $(this).addClass("d-block").removeClass("d-none").show();
                     return;
                 }
-
+                
                 if ($(this).hasClass("d-block")) {
                     $(this).addClass("d-none").removeClass("d-block").hide();
                 }
@@ -133,6 +180,19 @@
                 $(this).removeData("unobtrusiveValidation");
                 $.validator.unobtrusive.parse($(this));
             });
+        },
+
+        getValidator: function(form) {
+            var validator = $(form).validate();
+            if (validator === undefined || validator === null) {
+                return null;
+            }
+
+            $(form).find("[data-val]").each(function() {
+                validator.element(this);
+            });
+
+            return validator;
         },
 
         applyValue: function(elementId, value) {

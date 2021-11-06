@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -13,6 +15,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
@@ -66,7 +69,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetAccountingQuery query = new GetAccountingQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IAccounting accounting = await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(query);
 
@@ -81,7 +84,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetAccountCollectionQuery query = new GetAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IAccountCollection accountCollection = await _queryBus.QueryAsync<IGetAccountCollectionQuery, IAccountCollection>(query);
 
@@ -105,7 +108,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 AccountingNumber = accountingNumber,
                 AccountNumber = accountNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IAccount account = await _queryBus.QueryAsync<IGetAccountQuery, IAccount>(query);
             if (account == null)
@@ -127,7 +130,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetBudgetAccountCollectionQuery query = new GetBudgetAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IBudgetAccountCollection budgetAccountCollection = await _queryBus.QueryAsync<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection>(query);
 
@@ -151,7 +154,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 AccountingNumber = accountingNumber,
                 AccountNumber = accountNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IBudgetAccount budgetAccount = await _queryBus.QueryAsync<IGetBudgetAccountQuery, IBudgetAccount>(query);
             if (budgetAccount == null)
@@ -173,7 +176,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetContactAccountCollectionQuery query = new GetContactAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccountCollection contactAccountCollection = await _queryBus.QueryAsync<IGetContactAccountCollectionQuery, IContactAccountCollection>(query);
 
@@ -188,7 +191,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetDebtorAccountCollectionQuery query = new GetDebtorAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccountCollection debtorAccountCollection = await _queryBus.QueryAsync<IGetDebtorAccountCollectionQuery, IContactAccountCollection>(query);
 
@@ -203,7 +206,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetCreditorAccountCollectionQuery query = new GetCreditorAccountCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccountCollection creditorAccountCollection = await _queryBus.QueryAsync<IGetCreditorAccountCollectionQuery, IContactAccountCollection>(query);
 
@@ -229,7 +232,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             {
                 AccountingNumber = accountingNumber,
                 AccountNumber = accountNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today
             };
             IContactAccount contactAccount = await _queryBus.QueryAsync<IGetContactAccountQuery, IContactAccount>(query);
             if (contactAccount == null)
@@ -251,7 +254,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IGetPostingLineCollectionQuery query = new GetPostingLineCollectionQuery
             {
                 AccountingNumber = accountingNumber,
-                StatusDate = statusDate?.Date ?? DateTime.Today,
+                StatusDate = statusDate?.LocalDateTime.Date ?? DateTime.Today,
                 NumberOfPostingLines = numberOfPostingLines ?? 25
             };
             IPostingLineCollection postingLineCollection = await _queryBus.QueryAsync<IGetPostingLineCollectionQuery, IPostingLineCollection>(query);
@@ -259,6 +262,48 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             PostingLineCollectionModel postingLineCollectionModel = _accountingModelConverter.Convert<IPostingLineCollection, PostingLineCollectionModel>(postingLineCollection);
 
             return new OkObjectResult(postingLineCollectionModel);
+        }
+
+        [HttpPost("postinglines")]
+        public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync([FromBody] ApplyPostingJournalModel applyPostingJournal)
+        {
+            if (applyPostingJournal == null)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, nameof(applyPostingJournal))
+                    .WithValidatingType(typeof(ApplyPostingJournalModel))
+                    .WithValidatingField(nameof(applyPostingJournal))
+                    .Build();
+            }
+
+            SchemaValidator.Validate(ModelState);
+
+            IApplyPostingJournalCommand applyPostingJournalCommand = _accountingModelConverter.Convert<ApplyPostingJournalModel, ApplyPostingJournalCommand>(applyPostingJournal);
+
+            return ApplyPostingJournalAsync(applyPostingJournalCommand);
+        }
+
+        [HttpPost("{accountingNumber}/postinglines")]
+        public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(int accountingNumber, [FromBody] ApplyPostingLineCollectionModel applyPostingLineCollection)
+        {
+            if (applyPostingLineCollection == null)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, nameof(applyPostingLineCollection))
+                    .WithValidatingType(typeof(ApplyPostingLineCollectionModel))
+                    .WithValidatingField(nameof(applyPostingLineCollection))
+                    .Build();
+            }
+
+            SchemaValidator.Validate(ModelState);
+
+            ApplyPostingJournalModel applyPostingJournal = new ApplyPostingJournalModel
+            {
+                AccountingNumber = accountingNumber,
+                ApplyPostingLines = applyPostingLineCollection
+            };
+
+            IApplyPostingJournalCommand applyPostingJournalCommand = _accountingModelConverter.Convert<ApplyPostingJournalModel, ApplyPostingJournalCommand>(applyPostingJournal);
+
+            return ApplyPostingJournalAsync(applyPostingJournalCommand);
         }
 
         [HttpGet("accountgroups")]
@@ -298,6 +343,28 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 .ToList();
 
             return new OkObjectResult(paymentTermModels);
+        }
+
+        private async Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(IApplyPostingJournalCommand applyPostingJournalCommand)
+        {
+            NullGuard.NotNull(applyPostingJournalCommand, nameof(applyPostingJournalCommand));
+
+            IPostingJournalResult postingJournalResult = await _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
+
+            ApplyPostingJournalResultModel applyPostingJournalResultModel = postingJournalResult == null
+                ? BuildEmptyApplyPostingJournalResultModel()
+                : _accountingModelConverter.Convert<IPostingJournalResult, ApplyPostingJournalResultModel>(postingJournalResult);
+
+            return Ok(applyPostingJournalResultModel);
+        }
+
+        private static ApplyPostingJournalResultModel BuildEmptyApplyPostingJournalResultModel()
+        {
+            return new ApplyPostingJournalResultModel
+            {
+                PostingLines = new PostingLineCollectionModel(),
+                PostingWarnings = new PostingWarningCollectionModel()
+            };
         }
 
         #endregion

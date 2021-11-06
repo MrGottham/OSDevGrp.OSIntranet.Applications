@@ -15,5 +15,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
         Task<ILetterHead> UpdateLetterHeadAsync(ILetterHead letterHead);
 
         Task<ILetterHead> DeleteLetterHeadAsync(int number);
+
+        Task<IKeyValueEntry> PullKeyValueEntryAsync(string key);
+
+        Task<IKeyValueEntry> PushKeyValueEntryAsync(IKeyValueEntry keyValueEntry);
+
+        Task<IKeyValueEntry> DeleteKeyValueEntryAsync(string key);
     }
 }

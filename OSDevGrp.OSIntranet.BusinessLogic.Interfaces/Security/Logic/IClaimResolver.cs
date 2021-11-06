@@ -9,6 +9,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         int? GetAccountingNumber();
 
+        string GetNameIdentifier();
+
+        string GetMailAddress();
+
         TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken;
     }
 }

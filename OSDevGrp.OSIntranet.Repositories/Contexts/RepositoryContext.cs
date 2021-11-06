@@ -50,6 +50,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         public DbSet<LetterHeadModel> LetterHeads { get; set; }
 
+        public DbSet<KeyValueEntryModel> KeyValueEntries { get; set; }
+
         #endregion
 
         #region DbSets for Contact data
@@ -249,6 +251,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
             modelBuilder.CreateLetterHeadModel();
+            modelBuilder.CreateKeyValueEntryModel();
         }
 
         private void CreateModelsForContactData(ModelBuilder modelBuilder)

@@ -1,12 +1,11 @@
-using System;
+﻿using System;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using OSDevGrp.OSIntranet.Core;
 
-namespace OSDevGrp.OSIntranet.WebApi.Helpers.Converters
+namespace OSDevGrp.OSIntranet.Core.Converters
 {
-    internal abstract class CustomJsonConverterBase<T> : JsonConverter<T>
+    public abstract class CustomJsonConverterBase<T> : JsonConverter<T>
     {
         #region Properties
 
