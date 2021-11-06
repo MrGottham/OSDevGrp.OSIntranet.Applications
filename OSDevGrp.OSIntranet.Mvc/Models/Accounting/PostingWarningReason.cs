@@ -10,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Display(Name = "Budgetkonto har endnu ikke nået det budgetterede beløb")]
         ExpectedIncomeHasNotBeenReachedYet = 1,
 
-        [Display(Name = "Budgetkonto er overskredet det budgetterede beløb")]
+        [Display(Name = "Budgetkonto har overskredet det budgetterede beløb")]
         ExpectedExpensesHaveAlreadyBeenReached = 2
     }
 }

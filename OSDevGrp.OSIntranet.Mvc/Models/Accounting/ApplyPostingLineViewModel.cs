@@ -67,46 +67,47 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
     public static class ApplyPostingLineViewModelExtensions
     {
-        public static string GetResolveAccountUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper)
+        public static string GetResolveAccountUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper, int accountingNumber)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
-            return urlHelper.AbsoluteAction("ResolveAccount", "Accounting", new { accountingNumber = "{accountingNumber}", accountNumber = "{accountNumber}", statusDate = "{statusDate}" });
+            return urlHelper.AbsoluteAction("ResolveAccount", "Accounting", new { accountingNumber, accountNumber = "{accountNumber}", statusDate = "{statusDate}" });
         }
 
-        public static string GetResolveBudgetAccountUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper)
+        public static string GetResolveBudgetAccountUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper, int accountingNumber)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
-            return urlHelper.AbsoluteAction("ResolveBudgetAccount", "Accounting", new { accountingNumber = "{accountingNumber}", accountNumber = "{accountNumber}", statusDate = "{statusDate}" });
+            return urlHelper.AbsoluteAction("ResolveBudgetAccount", "Accounting", new { accountingNumber, accountNumber = "{accountNumber}", statusDate = "{statusDate}" });
         }
 
-        public static string GetResolveContactAccountUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper)
+        public static string GetResolveContactAccountUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper, int accountingNumber)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
-            return urlHelper.AbsoluteAction("ResolveContactAccount", "Accounting", new { accountingNumber = "{accountingNumber}", accountNumber = "{accountNumber}", statusDate = "{statusDate}" });
+            return urlHelper.AbsoluteAction("ResolveContactAccount", "Accounting", new { accountingNumber, accountNumber = "{accountNumber}", statusDate = "{statusDate}" });
         }
 
-        public static string GetAddPostingLineToPostingJournalUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper)
+        public static string GetAddPostingLineToPostingJournalUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper, int accountingNumber)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
 
-            return urlHelper.AbsoluteAction("AddPostingLineToPostingJournal", "Accounting", new { accountingNumber = "{accountingNumber}" });
+            return urlHelper.AbsoluteAction("AddPostingLineToPostingJournal", "Accounting", new { accountingNumber });
         }
 
-        public static string GetAddPostingLineToPostingJournalData(this ApplyPostingLineViewModel applyPostingLineViewModel, IHtmlHelper htmlHelper)
+        public static string GetAddPostingLineToPostingJournalData(this ApplyPostingLineViewModel applyPostingLineViewModel, IHtmlHelper htmlHelper, string postingJournalKey)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
-                .NotNull(htmlHelper, nameof(htmlHelper));
+                .NotNull(htmlHelper, nameof(htmlHelper))
+                .NotNullOrWhiteSpace(postingJournalKey, nameof(postingJournalKey));
 
             StringBuilder addPostingLineToPostingJournalDataBuilder = new StringBuilder();
             addPostingLineToPostingJournalDataBuilder.Append("{");
-            addPostingLineToPostingJournalDataBuilder.Append("postingJournalKey: null, ");
+            addPostingLineToPostingJournalDataBuilder.Append($"postingJournalKey: '{postingJournalKey}', ");
             addPostingLineToPostingJournalDataBuilder.Append("postingLine: null, ");
             addPostingLineToPostingJournalDataBuilder.Append("postingJournalHeader: null, ");
             addPostingLineToPostingJournalDataBuilder.Append(htmlHelper.AntiForgeryTokenToJsonString());
@@ -115,7 +116,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             return addPostingLineToPostingJournalDataBuilder.ToString();
         }
 
-        public static string GetRemovePostingLineFromPostingJournalUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper)
+        public static string GetRemovePostingLineFromPostingJournalUrl(this ApplyPostingLineViewModel applyPostingLineViewModel, IUrlHelper urlHelper, int accountingNumber)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
                 .NotNull(urlHelper, nameof(urlHelper));
@@ -125,17 +126,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 return null;
             }
 
-            return urlHelper.AbsoluteAction("RemovePostingLineFromPostingJournal", "Accounting", new { accountingNumber = "{accountingNumber}", postingLineIdentifier = applyPostingLineViewModel.Identifier.Value });
+            return urlHelper.AbsoluteAction("RemovePostingLineFromPostingJournal", "Accounting", new { accountingNumber, postingLineIdentifier = applyPostingLineViewModel.Identifier.Value });
         }
 
-        public static string GetRemovePostingLineFromPostingJournalData(this ApplyPostingLineViewModel applyPostingLineViewModel, IHtmlHelper htmlHelper)
+        public static string GetRemovePostingLineFromPostingJournalData(this ApplyPostingLineViewModel applyPostingLineViewModel, IHtmlHelper htmlHelper, string postingJournalKey)
         {
             NullGuard.NotNull(applyPostingLineViewModel, nameof(applyPostingLineViewModel))
-                .NotNull(htmlHelper, nameof(htmlHelper));
+                .NotNull(htmlHelper, nameof(htmlHelper))
+                .NotNullOrWhiteSpace(postingJournalKey, nameof(postingJournalKey));
 
             StringBuilder removePostingLineFromPostingJournalDataBuilder = new StringBuilder();
             removePostingLineFromPostingJournalDataBuilder.Append("{");
-            removePostingLineFromPostingJournalDataBuilder.Append("postingJournalKey: null, ");
+            removePostingLineFromPostingJournalDataBuilder.Append($"postingJournalKey: '{postingJournalKey}', ");
             removePostingLineFromPostingJournalDataBuilder.Append("postingJournalHeader: null, ");
             removePostingLineFromPostingJournalDataBuilder.Append(htmlHelper.AntiForgeryTokenToJsonString());
             removePostingLineFromPostingJournalDataBuilder.Append("}");

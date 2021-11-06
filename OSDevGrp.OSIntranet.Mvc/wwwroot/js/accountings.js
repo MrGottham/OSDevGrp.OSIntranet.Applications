@@ -221,12 +221,7 @@
             if (loadAccountingElementArray.length === 0) {
                 observer.disconnect();
 
-                $(".input-group.date").datepicker({
-                    format: "dd-mm-yyyy",
-                    clearBtn: false,
-                    todayBtn: true,
-                    language: "da"
-                });
+                $().enableDataPickers();
 
                 $().enableFormValidation("#editAccountingForm");
                 $().enableFormValidation("#addPostingLineToPostingJournalForm");
@@ -278,12 +273,7 @@
             });
         },
 
-        startAddingToPostingJournal: function(accountingNumber, postingJournalKey) {
-            $("#addPostingLineToPostingJournalModal").on("shown.bs.modal", function() {
-                $("#addPostingLineToPostingJournalForm").attr("data-accounting-number", accountingNumber);
-                $("#addPostingLineToPostingJournalForm").attr("data-posting-journal-key", postingJournalKey);
-            });
-
+        startAddingToPostingJournal: function() {
             $("#addPostingLineToPostingJournalModal").modal("show");
         },
 
@@ -310,9 +300,8 @@
 
             disablePostingJournalElements(true);
 
-            var validator = $("#addPostingLineToPostingJournalForm").validate();
-
-            if (validator.checkForm() === false) {
+            var validator = $().getValidator($("#addPostingLineToPostingJournalForm"));
+            if (validator.numberOfInvalids() > 0) {
                 validator.showErrors();
 
                 disablePostingJournalElements(false);
@@ -320,13 +309,6 @@
                 return;
             }
 
-            var accountingNumber = $("#addPostingLineToPostingJournalForm").data("accounting-number");
-            var postingJournalKey = $("#addPostingLineToPostingJournalForm").data("posting-journal-key");
-
-            addPostingLineToPostingJournalUrl = encodeURI(decodeURI(addPostingLineToPostingJournalUrl)
-                .replace("{accountingNumber}", accountingNumber));
-
-            addPostingLineToPostingJournalData.postingJournalKey = postingJournalKey;
             addPostingLineToPostingJournalData.postingLine = JSON.stringify({
                 Identifier: $().resolveElementValue(identifierElementId),
                 PostingDate: $().resolvePostingDateAsISOString(postingDateElementId),
@@ -346,7 +328,7 @@
                     disablePostingJournalElements(false);
 
                     $("#addPostingLineToPostingJournalModal").on("hidden.bs.modal", function() {
-                        $("#postingJournal").replaceWith(html);
+                        $().replacePostingJournal($("#postingJournal"), html);
                     });
 
                     $("#addPostingLineToPostingJournalModal").modal("hide");
@@ -354,60 +336,51 @@
                 .fail(function(jqXhr, textStatus, errorThrown) {
                     disablePostingJournalElements(false);
 
-                    if (errorThrown === undefined || errorThrown === null || errorThrown.length === 0) {
-                        return;
-                    }
-
-                    alert(errorThrown);
+                    alert($().getErrorMessage(jqXhr, textStatus, errorThrown));
                 });
         },
 
-        removeFromPostingJournal: function(linkElement, accountingNumber, postingJournalKey, postingJournalHeaderElementId, removePostingLineFromPostingJournalUrl, removePostingLineFromPostingJournalData) {
-            var disablePostingJournalButtons = function(disable) {
-                $("#postingJournal").find("a").each(function() {
-                    if (disable) {
-                        $(this).attr("data-disabled", "true");
-                        return;
-                    }
-                });
-
-                $("#postingJournal").find("button").each(function() {
-                    if (disable) {
-                        $(this).attr("disabled");
-                        return;
-                    }
-
-                    $(this).removeAttr("disabled");
-                });
-            };
-
+        removeFromPostingJournal: function(linkElement, postingJournalHeaderElementId, removePostingLineFromPostingJournalUrl, removePostingLineFromPostingJournalData) {
             if ($(linkElement).data("disabled"))
             {
                 return;
             }
 
-            disablePostingJournalButtons(true);
+            $().disableChildLinkElements("#postingJournal", true);
 
-            removePostingLineFromPostingJournalUrl = encodeURI(decodeURI(removePostingLineFromPostingJournalUrl)
-                .replace("{accountingNumber}", accountingNumber));
-
-            removePostingLineFromPostingJournalData.postingJournalKey = postingJournalKey;
             removePostingLineFromPostingJournalData.postingJournalHeader = $().resolveElementText(postingJournalHeaderElementId);
 
             $.post(removePostingLineFromPostingJournalUrl, removePostingLineFromPostingJournalData, null, "html")
                 .done(function(html) {
-                    disablePostingJournalButtons(false);
+                    $().disableChildLinkElements("#postingJournal", false);
 
-                    $("#postingJournal").replaceWith(html);
+                    $().replacePostingJournal($("#postingJournal"), html);
                 })
                 .fail(function(jqXhr, textStatus, errorThrown) {
-                    disablePostingJournalButtons(false);
+                    $().disableChildLinkElements("#postingJournal", false);
 
-                    if (errorThrown === undefined || errorThrown === null || errorThrown.length === 0) {
-                        return;
-                    }
+                    alert($().getErrorMessage(jqXhr, textStatus, errorThrown));
+                });
+        },
 
-                    alert(errorThrown);
+
+        removeFromPostingJournalResult: function(linkElement, removePostingWarningFromPostingJournalResultUrl, removePostingWarningFromPostingJournalResultData) {
+            if ($(linkElement).data("disabled")) {
+                return;
+            }
+
+            $().disableChildLinkElements("#postingWarnings", true);
+
+            $.post(removePostingWarningFromPostingJournalResultUrl, removePostingWarningFromPostingJournalResultData, null, "html")
+                .done(function(html) {
+                    $().disableChildLinkElements("#postingWarnings", false);
+
+                    $("#postingWarnings").replaceWith(html);
+                })
+                .fail(function(jqXhr, textStatus, errorThrown) {
+                    $().disableChildLinkElements("#postingWarnings", false);
+
+                    alert($().getErrorMessage(jqXhr, textStatus, errorThrown));
                 });
         },
 
@@ -417,15 +390,14 @@
             }
 
             onPostingDateChangeTimer = setTimeout(function() {
-                    var accountingNumber = $("#addPostingLineToPostingJournalForm").data("accounting-number");
                     var postingDate = $().resolvePostingDateAsISOString(postingDateElementId);
                     var accountNumber = $().resolveAccountNumber(accountNumberElementId);
                     var budgetAccountNumber = $().resolveAccountNumber(budgetAccountNumberElementId);
                     var contactAccountNumber = $().resolveAccountNumber(contactAccountNumberElementId);
 
-                    $().resolveAccount(accountingNumber, postingDate, accountNumber, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl);
-                    $().resolveBudgetAccount(accountingNumber, postingDate, budgetAccountNumber, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl);
-                    $().resolveContactAccount(accountingNumber, postingDate, contactAccountNumber, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl);
+                    $().resolveAccount(postingDate, accountNumber, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl);
+                    $().resolveBudgetAccount(postingDate, budgetAccountNumber, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl);
+                    $().resolveContactAccount(postingDate, contactAccountNumber, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl);
                 },
                 500);
         },
@@ -436,23 +408,18 @@
             }
 
             onAccountNumberChangeTimer = setTimeout(function() {
-                    var accountingNumber = $("#addPostingLineToPostingJournalForm").data("accounting-number");
                     var postingDate = $().resolvePostingDateAsISOString(postingDateElementId);
                     var accountNumber = $().resolveAccountNumber(accountNumberElementId);
 
-                    $().resolveAccount(accountingNumber, postingDate, accountNumber, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl);
+                    $().resolveAccount(postingDate, accountNumber, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl);
                 },
                 500);
         },
 
-        resolveAccount: function(accountingNumber, postingDate, accountNumber, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl) {
+        resolveAccount: function(postingDate, accountNumber, accountNameElementId, accountCreditElementId, accountAvailableElementId, resolveAccountUrl) {
             $(accountNameElementId).val("");
             $(accountCreditElementId).val("");
             $(accountAvailableElementId).val("");
-
-            if (accountingNumber === undefined || accountingNumber === null) {
-                return;
-            }
 
             if (postingDate === undefined || postingDate === null || postingDate.length === 0) {
                 return;
@@ -463,7 +430,6 @@
             }
 
             resolveAccountUrl = encodeURI(decodeURI(resolveAccountUrl)
-                .replace("{accountingNumber}", accountingNumber)
                 .replace("{accountNumber}", accountNumber)
                 .replace("{statusDate}", postingDate));
 
@@ -481,23 +447,18 @@
             }
 
             onBudgetAccountNumberChangeTimer = setTimeout(function() {
-                    var accountingNumber = $("#addPostingLineToPostingJournalForm").data("accounting-number");
                     var postingDate = $().resolvePostingDateAsISOString(postingDateElementId);
                     var budgetAccountNumber = $().resolveAccountNumber(budgetAccountNumberElementId);
 
-                    $().resolveBudgetAccount(accountingNumber, postingDate, budgetAccountNumber, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl);
+                    $().resolveBudgetAccount(postingDate, budgetAccountNumber, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl);
                 },
                 500);
         },
 
-        resolveBudgetAccount: function(accountingNumber, postingDate, budgetAccountNumber, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl) {
+        resolveBudgetAccount: function(postingDate, budgetAccountNumber, budgetAccountNameElementId, budgetAccountPostedElementId, budgetAccountAvailableElementId, resolveBudgetAccountUrl) {
             $(budgetAccountNameElementId).val("");
             $(budgetAccountPostedElementId).val("");
             $(budgetAccountAvailableElementId).val("");
-
-            if (accountingNumber === undefined || accountingNumber === null) {
-                return;
-            }
 
             if (postingDate === undefined || postingDate === null || postingDate.length === 0) {
                 return;
@@ -508,7 +469,6 @@
             }
 
             resolveBudgetAccountUrl = encodeURI(decodeURI(resolveBudgetAccountUrl)
-                .replace("{accountingNumber}", accountingNumber)
                 .replace("{accountNumber}", budgetAccountNumber)
                 .replace("{statusDate}", postingDate));
 
@@ -526,22 +486,17 @@
             }
 
             onContactAccountNumberChangeTimer = setTimeout(function() {
-                    var accountingNumber = $("#addPostingLineToPostingJournalForm").data("accounting-number");
                     var postingDate = $().resolvePostingDateAsISOString(postingDateElementId);
                     var contactAccountNumber = $().resolveAccountNumber(contactAccountNumberElementId);
 
-                    $().resolveContactAccount(accountingNumber, postingDate, contactAccountNumber, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl);
+                    $().resolveContactAccount(postingDate, contactAccountNumber, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl);
                 },
                 500);
         },
 
-        resolveContactAccount: function(accountingNumber, postingDate, contactAccountNumber, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl) {
+        resolveContactAccount: function(postingDate, contactAccountNumber, contactAccountNameElementId, contactAccountBalanceElementId, resolveContactAccountUrl) {
             $(contactAccountNameElementId).val("");
             $(contactAccountBalanceElementId).val("");
-
-            if (accountingNumber === undefined || accountingNumber === null) {
-                return;
-            }
 
             if (postingDate === undefined || postingDate === null || postingDate.length === 0) {
                 return;
@@ -552,7 +507,6 @@
             }
 
             resolveContactAccountUrl = encodeURI(decodeURI(resolveContactAccountUrl)
-                .replace("{accountingNumber}", accountingNumber)
                 .replace("{accountNumber}", contactAccountNumber)
                 .replace("{statusDate}", postingDate));
 
@@ -639,6 +593,23 @@
 
         currencyFormat: function(value) {
             return "kr. " + (value.toFixed(2).replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
+        },
+
+        replacePostingJournal: function(postingElement, html) {
+            $(postingElement).replaceWith(html);
+
+            $().enableDataPickers();
+
+            $().enableFormValidation("#addPostingLineToPostingJournalForm");
+        },
+
+        enableDataPickers: function() {
+            $(".input-group.date").datepicker({
+                format: "dd-mm-yyyy",
+                clearBtn: false,
+                todayBtn: true,
+                language: "da"
+            });
         }
     });
 

@@ -13,12 +13,7 @@
                             <th class="text-nowrap">Dato</th>
                             <th>Tekst</th>
                             <th class="text-right text-nowrap">Beløb</th>
-                            <th class="text-nowrap">
-                                @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false)
-                                {
-                                    <a href="#" onclick="javascript:$().startAddingToPostingJournal(@Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])');"><i class="fas fa-plus"></i></a>
-                                }
-                            </th>
+                            <th class="text-nowrap"><a href="#" onclick="javascript:$().startAddingToPostingJournal();"><i class="fas fa-plus"></i></a></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,9 +27,9 @@
                                     <td>@Model.ApplyPostingLines[itemNo].Details.ToHtmlString()</td>
                                     <td>@Model.ApplyPostingLines[itemNo].PostingValue.AsCurrency()</td>
                                     <td class="text-nowrap">
-                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url)) == false)
+                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)) == false)
                                         {
-                                            <a href="#" onclick="javascript:$().removeFromPostingJournal(this, @Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])', '#postingJournalHeader', '@Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url)', @Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalData(Html));"><i class="fas fa-trash"></i></a>
+                                            <a href="#" onclick="javascript:$().removeFromPostingJournal(this, '#postingJournalHeader', '@Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)', @Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalData(Html, (string)ViewData["PostingJournalKey"]));"><i class="fas fa-trash"></i></a>
                                         }
                                     </td>
                                 </tr>
@@ -56,12 +51,7 @@
                             <th class="text-right text-nowrap">Budgetkonto</th>
                             <th class="text-right text-nowrap">Debit</th>
                             <th class="text-right text-nowrap">Kredit</th>
-                            <th class="text-nowrap">
-                                @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false)
-                                {
-                                    <a href="#" onclick="javascript:$().startAddingToPostingJournal(@Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])');"><i class="fas fa-plus"></i></a>
-                                }
-                            </th>
+                            <th class="text-nowrap"><a href="#" onclick="javascript:$().startAddingToPostingJournal();"><i class="fas fa-plus"></i></a></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -100,9 +90,9 @@
                                         <td class="text-right text-nowrap"></td>
                                     }
                                     <td class="text-nowrap">
-                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url)) == false)
+                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)) == false)
                                         {
-                                            <a href="#" onclick="javascript:$().removeFromPostingJournal(this, @Model.AccountingNumber, '@((string)ViewData["PostingJournalKey"])', '#postingJournalHeader', '@Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url)', @Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalData(Html));"><i class="fas fa-trash"></i></a>
+                                            <a href="#" onclick="javascript:$().removeFromPostingJournal(this, '#postingJournalHeader', '@Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)', @Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalData(Html, (string)ViewData["PostingJournalKey"]));"><i class="fas fa-trash"></i></a>
                                         }
                                     </td>
                                 </tr>
@@ -159,6 +149,6 @@
                 </div>
             }
         </form>
-        @await Html.PartialAsync("_AddPostingLineToPostingJournalPartial", Model.CreatePostingLineToAdd())
+        @await Html.PartialAsync("_AddPostingLineToPostingJournalPartial", Model.CreatePostingLineToAdd(), new[] {new KeyValuePair<string, object>("AccountingNumber", Model.AccountingNumber)})
     </dd>
 </dl>

@@ -1,0 +1,27 @@
+@model PostingWarningCollectionViewModel
+@if (Model.Any())
+{
+    <dl id="postingWarnings" class="mb-4">
+        <dt class="mb-3">Bogføringsadvarsler</dt>
+        <dd class="mb-0">
+            <div class="d-block d-lg-none d-xl-none">
+                @foreach (PostingWarningViewModel postingWarningViewModel in Model)
+                {
+                    @await Html.PartialAsync("_PostingWarningPartial", postingWarningViewModel, ViewData)
+                }
+            </div>
+            <div class="d-none d-lg-block d-xl-block">
+                @for (int i = 0; i < Model.Count; i += 2)
+                {
+                    <div class="card-deck">
+                        @await Html.PartialAsync("_PostingWarningPartial", Model[i], ViewData)
+                        @if (i + 1 < Model.Count)
+                        {
+                            @await Html.PartialAsync("_PostingWarningPartial", Model[i + 1], ViewData)
+                        }
+                    </div>
+                }
+            </div>
+        </dd>
+    </dl>
+}

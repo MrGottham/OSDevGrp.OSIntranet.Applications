@@ -906,6 +906,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return GetPartialViewForPostingJournal(applyPostingJournalViewModel, postingJournalKey, postingJournalHeader);
         }
 
+        [HttpPost("api/accountings/{accountingNumber}/postingwarnings/{postingWarningIdentifier}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemovePostingWarningFromPostingJournalResult(int accountingNumber, string postingJournalResultKey, Guid postingWarningIdentifier)
+        {
+            if (string.IsNullOrWhiteSpace(postingJournalResultKey))
+            {
+                return BadRequest();
+            }
+
+            ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel = await GetPostingJournalResult(postingJournalResultKey);
+            applyPostingJournalResultViewModel.PostingWarnings.RemoveAll(m => m.Identifier == postingWarningIdentifier);
+
+            if (applyPostingJournalResultViewModel.PostingWarnings.Any())
+            {
+                applyPostingJournalResultViewModel = await SavePostingJournalResult(postingJournalResultKey, applyPostingJournalResultViewModel);
+            }
+            else
+            {
+                await DeleteFromKeyValueEntry(postingJournalResultKey);
+            }
+
+            ViewData.Add("AccountingNumber", accountingNumber);
+            ViewData.Add("PostingJournalResultKey", postingJournalResultKey);
+
+            return PartialView("_PostingWarningCollectionPartial", applyPostingJournalResultViewModel.PostingWarnings);
+        }
+
         private Task<IAccounting> GetAccounting(int accountingNumber)
         {
             IGetAccountingQuery query = new GetAccountingQuery
