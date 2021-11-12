@@ -357,7 +357,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     foreach (IGrouping<int, IPostingLine> group in postingJournal.PostingLineCollection.GroupBy(postingLine => postingLine.Accounting.Number))
                     {
                         using PostingLineModelHandler postingLineModelHandler = new PostingLineModelHandler(CreateRepositoryContext(), AccountingModelConverter.Create(), _eventPublisher, DateTime.MinValue, DateTime.Today, true, true, applyingPostingLines: true);
-                        postingLineCollection.Add(await postingLineModelHandler.CreateAsync(group.OrderBy(m => m.PostingDate).ThenBy(m => m.SortOrder), new AccountingIdentificationState(group.Key)));
+                        postingLineCollection.Add(await postingLineModelHandler.CreateAsync(group.OrderBy(m => m.PostingDate).ThenBy(m => m.SortOrder), new AccountingIdentificationState(group.Key), true));
                     }
 
                     return (IPostingJournalResult) new PostingJournalResult(postingLineCollection, postingWarningCalculator);

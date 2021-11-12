@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -46,6 +48,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Core.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
@@ -90,6 +93,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             IClaimResolver claimResolver = new ClaimResolver(principalResolver);
             ICountryHelper countryHelper = new CountryHelper(claimResolver);
             IAccountingHelper accountingHelper = new AccountingHelper(claimResolver);
+            IPostingWarningCalculator postingWarningCalculator = new PostingWarningCalculator();
 
             ICommonRepository commonRepository = new CommonRepository(configuration, principalResolver, loggerFactory);
 
@@ -111,6 +115,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             ICommandHandler<IUpdateBudgetAccountCommand> updateBudgetAccountCommandHandler = new UpdateBudgetAccountCommandHandler(_validator, _accountingRepository, commonRepository);
             ICommandHandler<ICreateContactAccountCommand> createContactAccountCommandHandler = new CreateContactAccountCommandHandler(_validator, _accountingRepository, commonRepository);
             ICommandHandler<IUpdateContactAccountCommand> updateContactAccountCommandHandler = new UpdateContactAccountCommandHandler(_validator, _accountingRepository, commonRepository);
+            ICommandHandler<IApplyPostingJournalCommand, IPostingJournalResult> applyPostingJournalCommandHandler = new ApplyPostingJournalCommandHandler(_validator, _accountingRepository, commonRepository, postingWarningCalculator);
             ICommandHandler<ICreatePaymentTermCommand> createPaymentTermCommandHandler = new CreatePaymentTermCommandHandler(_validator, _accountingRepository);
             _commandBus = new CommandBus(new ICommandHandler[]
             {
@@ -128,6 +133,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 updateBudgetAccountCommandHandler,
                 createContactAccountCommandHandler,
                 updateContactAccountCommandHandler,
+                applyPostingJournalCommandHandler,
                 createPaymentTermCommandHandler
             });
 
@@ -265,7 +271,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
         [Test]
         [Category("DataImport")]
-        [TestCase("Accountings.xml")] 
+        [TestCase("Accountings.xml")]
         [Ignore("Test which imports data and should only be run once")]
         public async Task Import_Accountings_FromFile(string fileName)
         {
@@ -296,7 +302,40 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
                 await HandleAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("Account"), accountDictionary, infoFromDate);
                 await HandleBudgetAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("BudgetAccount"), budgetAccountDictionary, infoFromDate);
-                await HandleContactAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("ContactAccount"), contactAccountDictionary);
+                IReadOnlyDictionary<int, string> contactAccountConvertingMap = await HandleContactAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("ContactAccount"), contactAccountDictionary);
+
+                XmlNodeList postingLineElementCollection = accountingElement.SelectNodes("PostingLine");
+
+                DateTime? latestPostingDate = (await accounting.GetPostingLinesAsync(DateTime.Today))
+                    .Ordered()
+                    .FirstOrDefault()?
+                    .PostingDate.Date;
+
+                DateTime fromPostingDate;
+                if (latestPostingDate != null)
+                {
+                    fromPostingDate = latestPostingDate.Value.AddDays(1).Date;
+                }
+                else
+                {
+                    fromPostingDate = postingLineElementCollection?.OfType<XmlElement>()
+                                          .Select(GetPostingDate)
+                                          .OrderBy(postingDate => postingDate.Date)
+                                          .FirstOrDefault().Date ??
+                                      DateTime.MinValue;
+                }
+
+                DateTime toPostingDate = new DateTime(fromPostingDate.Year, 12, 31).Date;
+                if (toPostingDate.Year == fromPostingDate.Year)
+                {
+                    toPostingDate = toPostingDate.AddYears(1).Date;
+                }
+                if (toPostingDate.Date >= DateTime.Today)
+                {
+                    toPostingDate = toPostingDate.AddMonths(-1).Date;
+                }
+
+                await HandlePostingLineElementCollectionAsync(accounting.Number, postingLineElementCollection, contactAccountConvertingMap, fromPostingDate, toPostingDate);
             }
         }
 
@@ -652,11 +691,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             }
         }
 
-        private async Task HandleContactAccountElementCollectionAsync(int accountingNumber, XmlNodeList contactAccountElementCollection, IDictionary<string, IContactAccount> contactAccountDictionary)
+        private async Task<IReadOnlyDictionary<int, string>> HandleContactAccountElementCollectionAsync(int accountingNumber, XmlNodeList contactAccountElementCollection, IDictionary<string, IContactAccount> contactAccountDictionary)
         {
             NullGuard.NotNull(contactAccountElementCollection, nameof(contactAccountElementCollection))
                 .NotNull(contactAccountDictionary, nameof(contactAccountDictionary));
 
+            IDictionary<int, string> contactAccountConvertingMap = new ConcurrentDictionary<int, string>();
             foreach (XmlElement contactAccountElement in contactAccountElementCollection.OfType<XmlElement>())
             {
                 string accountNumber = GetAttributeValue(contactAccountElement, "primaryPhone")?.Replace(" ", string.Empty).ToUpper();
@@ -704,6 +744,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     };
                     await _commandBus.PublishAsync(updateContactAccountCommand);
 
+                    contactAccountConvertingMap.Add(int.Parse(GetAttributeValue(contactAccountElement, "accountNumber")), accountNumber);
+
                     continue;
                 }
 
@@ -720,6 +762,43 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     PaymentTermNumber = paymentTermNumber
                 };
                 await _commandBus.PublishAsync(createContactAccountCommand);
+
+                contactAccountConvertingMap.Add(int.Parse(GetAttributeValue(contactAccountElement, "accountNumber")), accountNumber);
+            }
+
+            return new ReadOnlyDictionary<int, string>(contactAccountConvertingMap);
+        }
+
+        private async Task HandlePostingLineElementCollectionAsync(int accountingNumber, XmlNodeList postingLineElementCollection, IReadOnlyDictionary<int, string> contactAccountConvertingMap, DateTime fromPostingDate, DateTime toPostingDate)
+        {
+            NullGuard.NotNull(postingLineElementCollection, nameof(postingLineElementCollection))
+                .NotNull(contactAccountConvertingMap, nameof(contactAccountConvertingMap));
+
+            IApplyPostingJournalCommand[] applyPostingJournalCommandCollection = postingLineElementCollection.OfType<XmlElement>()
+                .Where(postingLineElement =>
+                {
+                    DateTime postingDate = GetPostingDate(postingLineElement);
+                    return postingDate.Date >= fromPostingDate.Date && postingDate.Date <= toPostingDate.Date;
+                })
+                .Select(postingLineElement => BuildApplyPostingLineCommand(postingLineElement, contactAccountConvertingMap))
+                .GroupBy(applyPostingLineCommand => applyPostingLineCommand.PostingDate.Year * 100 + applyPostingLineCommand.PostingDate.Month)
+                .OrderBy(group => group.Key)
+                .Select(group =>
+                {
+                    IApplyPostingJournalCommand applyPostingJournalCommand = new ApplyPostingJournalCommand
+                    {
+                        AccountingNumber = accountingNumber,
+                        PostingLineCollection = group.OrderBy(m => m.PostingDate.Date)
+                            .ThenBy(m => m.SortOrder)
+                            .ToArray()
+                    };
+                    return applyPostingJournalCommand;
+                })
+                .ToArray();
+
+            foreach (IApplyPostingJournalCommand applyPostingJournalCommand in applyPostingJournalCommandCollection)
+            {
+                await _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
             }
         }
 
@@ -1151,6 +1230,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             throw new NotSupportedException($"The value does not match any known phone number format: {value}");
         }
 
+        private IApplyPostingLineCommand BuildApplyPostingLineCommand(XmlElement element, IReadOnlyDictionary<int, string> contactAccountConvertingMap)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNull(contactAccountConvertingMap, nameof(contactAccountConvertingMap));
+
+            return new ApplyPostingLineCommand
+            {
+                PostingDate = GetPostingDate(element),
+                Reference = GetAttributeValue(element, "reference"),
+                AccountNumber = GetAttributeValue(element, "accountNumber"),
+                Details = GetAttributeValue(element, "details"),
+                BudgetAccountNumber = GetAttributeValue(element, "budgetAccountNumber"),
+                Debit = GetDecimalFromAttributeValue(element, "debit"),
+                Credit = GetDecimalFromAttributeValue(element, "credit"),
+                ContactAccountNumber = GetContactAccountNumber(element, contactAccountConvertingMap),
+                SortOrder = int.Parse(GetAttributeValue(element, "sortOrder"), NumberStyles.Any, CultureInfo.InvariantCulture)
+            };
+        }
+
         private IConfiguration CreateConfiguration()
         {
             return new ConfigurationBuilder()
@@ -1223,6 +1321,42 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     return value;
                 })
                 .ToArray();
+        }
+
+        private DateTime GetPostingDate(XmlElement element)
+        {
+            NullGuard.NotNull(element, nameof(element));
+
+            return DateTime.ParseExact(GetAttributeValue(element, "postingDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
+        private string GetContactAccountNumber(XmlElement element, IReadOnlyDictionary<int, string> contactAccountConvertingMap)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNull(contactAccountConvertingMap, nameof(contactAccountConvertingMap));
+
+            string attributeValue = GetAttributeValue(element, "contactAccountNumber");
+            if (string.IsNullOrWhiteSpace(attributeValue))
+            {
+                return null;
+            }
+
+            int contactAccountNumber = int.Parse(attributeValue, NumberStyles.Any, CultureInfo.InvariantCulture);
+            return contactAccountConvertingMap.ContainsKey(contactAccountNumber) ? contactAccountConvertingMap[contactAccountNumber] : null;
+        }
+
+        private decimal? GetDecimalFromAttributeValue(XmlElement element, string attributeName)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNullOrWhiteSpace(attributeName, nameof(attributeName));
+
+            string attributeValue = GetAttributeValue(element, attributeName);
+            if (string.IsNullOrWhiteSpace(attributeValue))
+            {
+                return null;
+            }
+
+            return decimal.Parse(attributeValue, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
 
         private string GetAttributeValue(XmlElement element, string attributeName)
