@@ -271,7 +271,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountingModel.Accounts = await OnReadAsync(accountingModel, _accountModelCollection, _accountModelHandler);
             accountingModel.BudgetAccounts = await OnReadAsync(accountingModel, _budgetAccountModelCollection, _budgetAccountModelHandler);
             accountingModel.ContactAccounts = await OnReadAsync(accountingModel, _contactAccountModelCollection, _contactAccountModelHandler);
-            accountingModel.PostingLines = await OnReadAsync(accountingModel, _postingLineModelCollection, _postingLineModelHandler);
+            accountingModel.PostingLines = await OnReadAsync(accountingModel, _postingLineModelCollection, _accountModelHandler, _budgetAccountModelHandler, _contactAccountModelHandler, _postingLineModelHandler);
             accountingModel.Deletable = await CanDeleteAsync(accountingModel);
 
             return accountingModel;
@@ -381,7 +381,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return (await contactAccountModelHandler.ReadAsync(accountingModel.ContactAccounts)).ToList();
         }
 
-        private static async Task<List<PostingLineModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection, PostingLineModelHandler postingLineModelHandler)
+        private static async Task<List<PostingLineModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection, AccountModelHandler accountModelHandler, BudgetAccountModelHandler budgetAccountModelHandler, ContactAccountModelHandler contactAccountModelHandler, PostingLineModelHandler postingLineModelHandler)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
@@ -398,6 +398,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 }
 
                 accountModel.PostingLines = (await postingLineModelHandler.ReadAsync(accountModel.PostingLines)).ToList();
+                if (accountModel.PostingLines.Any() == false && accountModelHandler != null)
+                {
+                    accountModel.Deletable = await accountModelHandler.IsDeletableAsync(accountModel);
+                }
             });
 
             accountingModel.BudgetAccounts?.ForAll(async budgetAccountModel =>
@@ -408,6 +412,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 }
 
                 budgetAccountModel.PostingLines = (await postingLineModelHandler.ReadAsync(budgetAccountModel.PostingLines)).ToList();
+                if (budgetAccountModel.PostingLines.Any() == false && budgetAccountModelHandler != null)
+                {
+                    budgetAccountModel.Deletable = await budgetAccountModelHandler.IsDeletableAsync(budgetAccountModel);
+                }
             });
 
             accountingModel.ContactAccounts?.ForAll(async contactAccountModel =>
@@ -418,6 +426,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 }
 
                 contactAccountModel.PostingLines = (await postingLineModelHandler.ReadAsync(contactAccountModel.PostingLines)).ToList();
+                if (contactAccountModel.PostingLines.Any() == false && contactAccountModelHandler != null)
+                {
+                    contactAccountModel.Deletable = await contactAccountModelHandler.IsDeletableAsync(contactAccountModel);
+                }
             });
 
             if (accountingModel.PostingLines == null)

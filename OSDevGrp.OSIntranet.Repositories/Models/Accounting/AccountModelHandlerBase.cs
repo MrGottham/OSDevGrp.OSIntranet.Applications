@@ -124,6 +124,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountModelCollection;
         }
 
+        internal Task<bool> IsDeletableAsync(TAccountModel accountModel)
+        {
+            NullGuard.NotNull(accountModel, nameof(accountModel));
+
+            return CanDeleteAsync(accountModel);
+        }
+
         internal async Task DeleteAsync(IList<TAccountModel> accountModelCollection)
         {
             NullGuard.NotNull(accountModelCollection, nameof(accountModelCollection));
@@ -212,6 +219,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountModel.StatusDate = StatusDate;
 
             accountModel.PostingLines = await OnReadAsync(accountModel, _postingLineModelCollection, PostingLineModelHandler);
+
+            accountModel.Deletable = await CanDeleteAsync(accountModel);
 
             return accountModel;
         }

@@ -148,7 +148,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return false;
             }
 
-            return budgetAccountModel.PostingLines.Any() == false || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos);
+            if (budgetAccountModel.PostingLines.Any() || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos) == false)
+            {
+                return false;
+            }
+
+            return await DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.BudgetAccountIdentifier != null && postingLineModel.BudgetAccountIdentifier.Value == budgetAccountModel.BudgetAccountIdentifier) == null;
         }
 
         protected override async Task<BudgetAccountModel> OnDeleteAsync(BudgetAccountModel budgetAccountModel)

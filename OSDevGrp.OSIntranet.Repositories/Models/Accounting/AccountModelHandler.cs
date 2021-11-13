@@ -148,7 +148,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return false;
             }
 
-            return accountModel.PostingLines.Any() == false || await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos);
+            if (accountModel.PostingLines.Any() || await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos) == false)
+            {
+                return false;
+            }
+
+            return await DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountIdentifier == accountModel.AccountIdentifier) == null;
         }
 
         protected override async Task<AccountModel> OnDeleteAsync(AccountModel accountModel)
