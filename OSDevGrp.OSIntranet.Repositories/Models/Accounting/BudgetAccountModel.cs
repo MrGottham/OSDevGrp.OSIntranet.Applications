@@ -44,78 +44,86 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                    budgetAccountModel.BudgetAccountGroup != null;
         }
 
-        internal static IBudgetAccount ToDomain(this BudgetAccountModel budgetAccountModel, IConverter accountingModelConverter, object syncRoot)
+        internal static IBudgetAccount ToDomain(this BudgetAccountModel budgetAccountModel, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
-                .NotNull(accountingModelConverter, nameof(accountingModelConverter))
-                .NotNull(syncRoot, nameof(syncRoot));
+                .NotNull(mapperCache, nameof(mapperCache))
+                .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            lock (syncRoot)
+            lock (mapperCache.SyncRoot)
             {
                 IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(budgetAccountModel.Accounting);
 
-                return budgetAccountModel.ToDomain(accounting, accountingModelConverter);
+                return budgetAccountModel.ToDomain(accounting, mapperCache, accountingModelConverter);
             }
         }
 
-        internal static IBudgetAccount ToDomain(this BudgetAccountModel budgetAccountModel, IAccounting accounting, IConverter accountingModelConverter)
+        internal static IBudgetAccount ToDomain(this BudgetAccountModel budgetAccountModel, IAccounting accounting, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
                 .NotNull(accounting, nameof(accounting))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IBudgetAccount budgetAccount = budgetAccountModel.ResolveFromDomain(accounting.BudgetAccountCollection);
-            if (budgetAccount != null)
+            lock(mapperCache.SyncRoot)
             {
+                IBudgetAccount budgetAccount = budgetAccountModel.Resolve(mapperCache.BudgetAccountDictionary);
+                if (budgetAccount != null)
+                {
+                    return budgetAccount;
+                }
+
+                IBudgetAccountGroup budgetAccountGroup = accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountModel.BudgetAccountGroup);
+
+                budgetAccount = new BudgetAccount(accounting, budgetAccountModel.AccountNumber, budgetAccountModel.BasicAccount.AccountName, budgetAccountGroup)
+                {
+                    Description = budgetAccountModel.BasicAccount.Description,
+                    Note = budgetAccountModel.BasicAccount.Note
+                };
+                budgetAccountModel.CopyAuditInformationTo(budgetAccount);
+                budgetAccount.SetDeletable(budgetAccountModel.Deletable);
+
+                mapperCache.BudgetAccountDictionary.Add(budgetAccountModel.BudgetAccountIdentifier, budgetAccount);
+
+                accounting.BudgetAccountCollection.Add(budgetAccount);
+
+                if (budgetAccountModel.BudgetInfos != null)
+                {
+                    budgetAccount.BudgetInfoCollection.Populate(budgetAccount,
+                        budgetAccountModel.BudgetInfos
+                            .Where(budgetInfoModel => budgetInfoModel.Convertible() &&
+                                (budgetInfoModel.YearMonth.Year < budgetAccountModel.StatusDateForInfos.Year ||
+                                budgetInfoModel.YearMonth.Year == budgetAccountModel.StatusDateForInfos.Year &&
+                                budgetInfoModel.YearMonth.Month <= budgetAccountModel.StatusDateForInfos.Month))
+                            .Select(budgetInfoModel => budgetInfoModel.ToDomain(budgetAccount))
+                            .ToArray(),
+                        budgetAccountModel.StatusDate,
+                        budgetAccountModel.StatusDateForInfos);
+                }
+
+                if (budgetAccountModel.PostingLines != null)
+                {
+                    budgetAccount.PostingLineCollection.Add(budgetAccountModel.PostingLines
+                        .Where(postingLineModel => postingLineModel.Convertible() &&
+                            postingLineModel.PostingDate >= budgetAccountModel.GetFromDateForPostingLines() &&
+                            postingLineModel.PostingDate < budgetAccountModel.GetToDateForPostingLines(1))
+                        .Select(postingLineModel => postingLineModel.ToDomain(accounting, budgetAccount, mapperCache, accountingModelConverter))
+                        .Where(postingLine => budgetAccount.PostingLineCollection.Contains(postingLine) == false)
+                        .ToArray());
+                }
+
                 return budgetAccount;
             }
-
-            IBudgetAccountGroup budgetAccountGroup = accountingModelConverter.Convert<BudgetAccountGroupModel, IBudgetAccountGroup>(budgetAccountModel.BudgetAccountGroup);
-
-            budgetAccount = new BudgetAccount(accounting, budgetAccountModel.AccountNumber, budgetAccountModel.BasicAccount.AccountName, budgetAccountGroup)
-            {
-                Description = budgetAccountModel.BasicAccount.Description,
-                Note = budgetAccountModel.BasicAccount.Note
-            };
-            budgetAccountModel.CopyAuditInformationTo(budgetAccount);
-            budgetAccount.SetDeletable(budgetAccountModel.Deletable);
-
-            accounting.BudgetAccountCollection.Add(budgetAccount);
-
-            if (budgetAccountModel.BudgetInfos != null)
-            {
-                budgetAccount.BudgetInfoCollection.Populate(budgetAccount,
-                    budgetAccountModel.BudgetInfos
-                        .Where(budgetInfoModel => budgetInfoModel.Convertible() &&
-                                                  (budgetInfoModel.YearMonth.Year < budgetAccountModel.StatusDateForInfos.Year ||
-                                                   budgetInfoModel.YearMonth.Year == budgetAccountModel.StatusDateForInfos.Year &&
-                                                   budgetInfoModel.YearMonth.Month <= budgetAccountModel.StatusDateForInfos.Month))
-                        .Select(budgetInfoModel => budgetInfoModel.ToDomain(budgetAccount))
-                        .ToArray(),
-                    budgetAccountModel.StatusDate,
-                    budgetAccountModel.StatusDateForInfos);
-            }
-
-            if (budgetAccountModel.PostingLines != null)
-            {
-                budgetAccount.PostingLineCollection.Add(budgetAccountModel.PostingLines
-                    .Where(postingLineModel => postingLineModel.Convertible() &&
-                                               postingLineModel.PostingDate >= budgetAccountModel.GetFromDateForPostingLines() &&
-                                               postingLineModel.PostingDate < budgetAccountModel.GetToDateForPostingLines(1))
-                    .Select(postingLineModel => postingLineModel.ToDomain(accounting, budgetAccount, accountingModelConverter))
-                    .Where(postingLine => budgetAccount.PostingLineCollection.Contains(postingLine) == false)
-                    .ToArray());
-            }
-
-            return budgetAccount;
         }
 
-        internal static IBudgetAccount ResolveFromDomain(this BudgetAccountModel budgetAccountModel, IBudgetAccountCollection budgetAccountCollection)
+        internal static IBudgetAccount Resolve(this BudgetAccountModel budgetAccountModel, IDictionary<int, IBudgetAccount> budgetAccountDictionary)
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel))
-                .NotNull(budgetAccountCollection, nameof(budgetAccountCollection));
+                .NotNull(budgetAccountDictionary, nameof(budgetAccountDictionary));
 
-            return budgetAccountCollection.SingleOrDefault(budgetAccount => budgetAccount.Accounting.Number == budgetAccountModel.AccountingIdentifier && budgetAccount.AccountNumber == budgetAccountModel.AccountNumber);
+            return budgetAccountDictionary.TryGetValue(budgetAccountModel.BudgetAccountIdentifier, out IBudgetAccount budgetAccount)
+                ? budgetAccount
+                : null;
         }
 
         internal static void ExtractBudgetInfos(this BudgetAccountModel budgetAccountModel, IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection)

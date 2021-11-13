@@ -56,102 +56,112 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                    (postingLineModel.ContactAccount == null || postingLineModel.ContactAccount.Convertible());
         }
 
-        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IConverter accountingModelConverter, object syncRoot)
+        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel))
-                .NotNull(accountingModelConverter, nameof(accountingModelConverter))
-                .NotNull(syncRoot, nameof(syncRoot));
+                .NotNull(mapperCache, nameof(mapperCache))
+                .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            lock (syncRoot)
+            lock (mapperCache.SyncRoot)
             {
                 IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(postingLineModel.Accounting);
 
-                return postingLineModel.ToDomain(accounting, accountingModelConverter);
+                return postingLineModel.ToDomain(accounting, mapperCache, accountingModelConverter);
             }
         }
 
-        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IConverter accountingModelConverter)
+        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel))
                 .NotNull(accounting, nameof(accounting))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccount account = ResolveAccount(postingLineModel.Account, accounting, accountingModelConverter);
-            IBudgetAccount budgetAccount = ResolveBudgetAccount(postingLineModel.BudgetAccount, accounting, accountingModelConverter);
-            IContactAccount contactAccount = ResolveContactAccount(postingLineModel.ContactAccount, accounting, accountingModelConverter);
+            IAccount account = ResolveAccount(postingLineModel.Account, accounting, mapperCache, accountingModelConverter);
+            IBudgetAccount budgetAccount = ResolveBudgetAccount(postingLineModel.BudgetAccount, accounting, mapperCache, accountingModelConverter);
+            IContactAccount contactAccount = ResolveContactAccount(postingLineModel.ContactAccount, accounting, mapperCache, accountingModelConverter);
 
-            return postingLineModel.ToDomain(account, budgetAccount, contactAccount);
+            return postingLineModel.ToDomain(account, budgetAccount, contactAccount, mapperCache);
         }
 
-        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IAccount account, IConverter accountingModelConverter)
+        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IAccount account, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel))
                 .NotNull(accounting, nameof(accounting))
                 .NotNull(account, nameof(account))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IBudgetAccount budgetAccount = ResolveBudgetAccount(postingLineModel.BudgetAccount, accounting, accountingModelConverter);
-            IContactAccount contactAccount = ResolveContactAccount(postingLineModel.ContactAccount, accounting, accountingModelConverter);
+            IBudgetAccount budgetAccount = ResolveBudgetAccount(postingLineModel.BudgetAccount, accounting, mapperCache, accountingModelConverter);
+            IContactAccount contactAccount = ResolveContactAccount(postingLineModel.ContactAccount, accounting, mapperCache, accountingModelConverter);
 
-            return postingLineModel.ToDomain(account, budgetAccount, contactAccount);
+            return postingLineModel.ToDomain(account, budgetAccount, contactAccount, mapperCache);
         }
 
-        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IBudgetAccount budgetAccount, IConverter accountingModelConverter)
+        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IBudgetAccount budgetAccount, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel))
                 .NotNull(accounting, nameof(accounting))
                 .NotNull(budgetAccount, nameof(budgetAccount))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccount account = ResolveAccount(postingLineModel.Account, accounting, accountingModelConverter);
-            IContactAccount contactAccount = ResolveContactAccount(postingLineModel.ContactAccount, accounting, accountingModelConverter);
+            IAccount account = ResolveAccount(postingLineModel.Account, accounting, mapperCache, accountingModelConverter);
+            IContactAccount contactAccount = ResolveContactAccount(postingLineModel.ContactAccount, accounting, mapperCache, accountingModelConverter);
 
-            return postingLineModel.ToDomain(account, budgetAccount, contactAccount);
+            return postingLineModel.ToDomain(account, budgetAccount, contactAccount, mapperCache);
         }
 
-        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IContactAccount contactAccount, IConverter accountingModelConverter)
+        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccounting accounting, IContactAccount contactAccount, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel))
                 .NotNull(accounting, nameof(accounting))
                 .NotNull(contactAccount, nameof(contactAccount))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccount account = ResolveAccount(postingLineModel.Account, accounting, accountingModelConverter);
-            IBudgetAccount budgetAccount = ResolveBudgetAccount(postingLineModel.BudgetAccount, accounting, accountingModelConverter);
+            IAccount account = ResolveAccount(postingLineModel.Account, accounting, mapperCache, accountingModelConverter);
+            IBudgetAccount budgetAccount = ResolveBudgetAccount(postingLineModel.BudgetAccount, accounting, mapperCache, accountingModelConverter);
 
-            return postingLineModel.ToDomain(account, budgetAccount, contactAccount);
+            return postingLineModel.ToDomain(account, budgetAccount, contactAccount, mapperCache);
         }
 
-        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccount account, IBudgetAccount budgetAccount, IContactAccount contactAccount)
+        internal static IPostingLine ToDomain(this PostingLineModel postingLineModel, IAccount account, IBudgetAccount budgetAccount, IContactAccount contactAccount, MapperCache mapperCache)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel))
-                .NotNull(account, nameof(account));
+                .NotNull(account, nameof(account))
+                .NotNull(mapperCache, nameof(mapperCache));
 
-            IPostingLine postingLine = account.PostingLineCollection.SingleOrDefault(m => m.Identifier == Guid.Parse(postingLineModel.PostingLineIdentification));
-            if (postingLine != null)
+            Guid postingLineIdentification = Guid.Parse(postingLineModel.PostingLineIdentification);
+            lock (mapperCache.SyncRoot)
             {
+                if (mapperCache.PostingLineDictionary.TryGetValue(postingLineIdentification, out IPostingLine postingLine))
+                {
+                    return postingLine;
+                }
+
+                postingLine = new PostingLine(postingLineIdentification, postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier);
+                postingLine.AddAuditInformation(postingLineModel.CreatedUtcDateTime, postingLineModel.CreatedByIdentifier, postingLineModel.ModifiedUtcDateTime, postingLineModel.ModifiedByIdentifier);
+
+                mapperCache.PostingLineDictionary.Add(postingLineIdentification, postingLine);
+
+                if (account.PostingLineCollection.Contains(postingLine) == false)
+                {
+                    account.PostingLineCollection.Add(postingLine);
+                }
+
+                if (budgetAccount != null && budgetAccount.PostingLineCollection.Contains(postingLine) == false)
+                {
+                    budgetAccount.PostingLineCollection.Add(postingLine);
+                }
+
+                if (contactAccount != null && contactAccount.PostingLineCollection.Contains(postingLine) == false)
+                {
+                    contactAccount.PostingLineCollection.Add(postingLine);
+                }
+
                 return postingLine;
             }
-
-            postingLine = new PostingLine(Guid.Parse(postingLineModel.PostingLineIdentification), postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier);
-            postingLine.AddAuditInformation(postingLineModel.CreatedUtcDateTime, postingLineModel.CreatedByIdentifier, postingLineModel.ModifiedUtcDateTime, postingLineModel.ModifiedByIdentifier);
-
-            if (account.PostingLineCollection.Contains(postingLine) == false)
-            {
-                account.PostingLineCollection.Add(postingLine);
-            }
-
-            if (budgetAccount != null && budgetAccount.PostingLineCollection.Contains(postingLine) == false)
-            {
-                budgetAccount.PostingLineCollection.Add(postingLine);
-            }
-
-            if (contactAccount != null && contactAccount.PostingLineCollection.Contains(postingLine) == false)
-            {
-                contactAccount.PostingLineCollection.Add(postingLine);
-            }
-
-            return postingLine;
         }
 
         internal static void CreatePostingLineModel(this ModelBuilder modelBuilder)
@@ -204,13 +214,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             });
         }
 
-        private static IAccount ResolveAccount(AccountModel accountModel, IAccounting accounting, IConverter accountingModelConverter)
+        private static IAccount ResolveAccount(AccountModel accountModel, IAccounting accounting, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(accountModel, nameof(accountModel))
                 .NotNull(accounting, nameof(accounting))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IAccount account = accountModel.ResolveFromDomain(accounting.AccountCollection) ?? accountModel.ToDomain(accounting, accountingModelConverter);
+            IAccount account = accountModel.Resolve(mapperCache.AccountDictionary) ?? accountModel.ToDomain(accounting, mapperCache, accountingModelConverter);
             if (accounting.AccountCollection.Contains(account) == false)
             {
                 accounting.AccountCollection.Add(account);
@@ -219,9 +230,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return account;
         }
 
-        private static IBudgetAccount ResolveBudgetAccount(BudgetAccountModel budgetAccountModel, IAccounting accounting, IConverter accountingModelConverter)
+        private static IBudgetAccount ResolveBudgetAccount(BudgetAccountModel budgetAccountModel, IAccounting accounting, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(accounting, nameof(accounting))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
             if (budgetAccountModel == null)
@@ -229,7 +241,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return null;
             }
 
-            IBudgetAccount budgetAccount = budgetAccountModel.ResolveFromDomain(accounting.BudgetAccountCollection) ?? budgetAccountModel.ToDomain(accounting, accountingModelConverter);
+            IBudgetAccount budgetAccount = budgetAccountModel.Resolve(mapperCache.BudgetAccountDictionary) ?? budgetAccountModel.ToDomain(accounting, mapperCache, accountingModelConverter);
             if (accounting.BudgetAccountCollection.Contains(budgetAccount) == false)
             {
                 accounting.BudgetAccountCollection.Add(budgetAccount);
@@ -238,9 +250,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return budgetAccount;
         }
 
-        private static IContactAccount ResolveContactAccount(ContactAccountModel contactAccountModel, IAccounting accounting, IConverter accountingModelConverter)
+        private static IContactAccount ResolveContactAccount(ContactAccountModel contactAccountModel, IAccounting accounting, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(accounting, nameof(accounting))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
             if (contactAccountModel == null)
@@ -248,7 +261,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return null;
             }
 
-            IContactAccount contactAccount = contactAccountModel.ResolveFromDomain(accounting.ContactAccountCollection) ?? contactAccountModel.ToDomain(accounting, accountingModelConverter);
+            IContactAccount contactAccount = contactAccountModel.Resolve(mapperCache.ContactAccountDictionary) ?? contactAccountModel.ToDomain(accounting, mapperCache, accountingModelConverter);
             if (accounting.ContactAccountCollection.Contains(contactAccount) == false)
             {
                 accounting.ContactAccountCollection.Add(contactAccount);

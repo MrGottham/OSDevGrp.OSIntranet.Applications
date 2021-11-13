@@ -46,17 +46,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountingModel.LetterHead != null;
         }
 
-        internal static IAccounting ToDomain(this AccountingModel accountingModel, IDictionary<int, IAccounting> accountingDictionary, IConverter accountingModelConverter, IConverter commonModelConverter, object syncRoot)
+        internal static IAccounting ToDomain(this AccountingModel accountingModel, MapperCache mapperCache, IConverter accountingModelConverter, IConverter commonModelConverter)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel))
-                .NotNull(accountingDictionary, nameof(accountingDictionary))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter))
-                .NotNull(commonModelConverter, nameof(commonModelConverter))
-                .NotNull(syncRoot, nameof(syncRoot));
+                .NotNull(commonModelConverter, nameof(commonModelConverter));
 
-            lock (syncRoot)
+            lock (mapperCache.SyncRoot)
             {
-                if (accountingDictionary.TryGetValue(accountingModel.AccountingIdentifier, out IAccounting accounting))
+                if (mapperCache.AccountingDictionary.TryGetValue(accountingModel.AccountingIdentifier, out IAccounting accounting))
                 {
                     return accounting;
                 }
@@ -67,13 +66,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 accounting.AddAuditInformation(accountingModel.CreatedUtcDateTime, accountingModel.CreatedByIdentifier, accountingModel.ModifiedUtcDateTime, accountingModel.ModifiedByIdentifier);
                 accounting.SetDeletable(accountingModel.Deletable);
 
-                accountingDictionary.Add(accounting.Number, accounting);
+                mapperCache.AccountingDictionary.Add(accounting.Number, accounting);
 
                 if (accountingModel.Accounts != null)
                 {
                     accounting.AccountCollection.Add(accountingModel.Accounts
                         .Where(accountModel => accountModel.Convertible())
-                        .Select(accountModel => accountModel.ToDomain(accounting, accountingModelConverter))
+                        .Select(accountModel => accountModel.ToDomain(accounting, mapperCache, accountingModelConverter))
                         .Where(account => accounting.AccountCollection.Contains(account) == false)
                         .ToArray());
                 }
@@ -82,7 +81,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 {
                     accounting.BudgetAccountCollection.Add(accountingModel.BudgetAccounts
                         .Where(budgetAccountModel => budgetAccountModel.Convertible())
-                        .Select(budgetAccountModel => budgetAccountModel.ToDomain(accounting, accountingModelConverter))
+                        .Select(budgetAccountModel => budgetAccountModel.ToDomain(accounting, mapperCache, accountingModelConverter))
                         .Where(budgetAccount => accounting.BudgetAccountCollection.Contains(budgetAccount) == false)
                         .ToArray());
                 }
@@ -91,7 +90,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 {
                     accounting.ContactAccountCollection.Add(accountingModel.ContactAccounts
                         .Where(contactAccountModel => contactAccountModel.Convertible())
-                        .Select(contactAccountModel => contactAccountModel.ToDomain(accounting, accountingModelConverter))
+                        .Select(contactAccountModel => contactAccountModel.ToDomain(accounting, mapperCache, accountingModelConverter))
                         .Where(contactAccount => accounting.ContactAccountCollection.Contains(contactAccount) == false)
                         .ToArray());
                 }
