@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Core;
@@ -157,8 +156,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             Account = await Account.CalculateAsync(statusDate);
 
-            ICreditInfo creditInfo = FindInfo<ICreditInfo, ICreditInfoCollection>(Account.CreditInfoCollection, PostingDate);
-            decimal balance = CalculatePostingValue(Account.PostingLineCollection, DateTime.MinValue, PostingDate, SortOrder);
+            ICreditInfo creditInfo = Account.CreditInfoCollection.Find(PostingDate);
+            decimal balance = Account.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
 
             AccountValuesAtPostingDate = new CreditInfoValues(creditInfo?.Credit ?? 0M, balance);
         }
@@ -173,8 +172,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             BudgetAccount = await BudgetAccount.CalculateAsync(statusDate);
 
-            IBudgetInfo budgetInfo = FindInfo<IBudgetInfo, IBudgetInfoCollection>(BudgetAccount.BudgetInfoCollection, PostingDate);
-            decimal posted = CalculatePostingValue(BudgetAccount.PostingLineCollection, new DateTime(PostingDate.Year, PostingDate.Month, 1), PostingDate, SortOrder);
+            IBudgetInfo budgetInfo = BudgetAccount.BudgetInfoCollection.Find(PostingDate);
+            decimal posted = BudgetAccount.PostingLineCollection.CalculatePostingValue(new DateTime(PostingDate.Year, PostingDate.Month, 1), PostingDate, SortOrder);
 
             BudgetAccountValuesAtPostingDate = new BudgetInfoValues(budgetInfo?.Budget ?? 0M, posted);
         }
@@ -189,28 +188,9 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             ContactAccount = await ContactAccount.CalculateAsync(statusDate);
 
-            decimal balance = CalculatePostingValue(ContactAccount.PostingLineCollection, DateTime.MinValue, PostingDate, SortOrder);
+            decimal balance = ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
 
             ContactAccountValuesAtPostingDate = new ContactInfoValues(balance);
-        }
-
-        private static TInfo FindInfo<TInfo, TInfoCollection>(TInfoCollection infoCollection, DateTime postingDate) where TInfo : IInfo<TInfo> where TInfoCollection : IInfoCollection<TInfo, TInfoCollection>
-        {
-            NullGuard.NotNull(infoCollection, nameof(infoCollection));
-
-            return infoCollection.SingleOrDefault(info => info.Year == (short) postingDate.Year && info.Month == (short) postingDate.Month);
-        }
-
-        private static decimal CalculatePostingValue(IPostingLineCollection postingLineCollection, DateTime fromDate, DateTime toDate, int sortOrder)
-        {
-            NullGuard.NotNull(postingLineCollection, nameof(postingLineCollection));
-
-            return postingLineCollection
-                .AsParallel()
-                .Where(postingLine => postingLine.PostingDate.Date >= fromDate.Date &&
-                                      postingLine.PostingDate.Date <= toDate.Date &&
-                                      postingLine.SortOrder <= sortOrder)
-                .Sum(postingLine => postingLine.PostingValue);
         }
 
         #endregion

@@ -14,5 +14,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         IPostingLineCollection Ordered();
 
         IPostingLineCollection Top(int numberOfPostingLines);
+
+        decimal CalculatePostingValue(DateTime fromDate, DateTime toDate, int? sortOrder = null);
     }
 }

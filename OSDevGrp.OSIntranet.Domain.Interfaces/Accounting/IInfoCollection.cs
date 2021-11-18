@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
@@ -15,6 +16,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         TInfo Next(TInfo info);
 
         TInfo Last();
+
+        TInfo Find(DateTime matchingDate);
     }
 
     public interface IInfoCollection<TInfo, TInfoCollection> : IInfoCollection<TInfo>, ICalculable<TInfoCollection> where TInfo : IInfo<TInfo> where TInfoCollection : IInfoCollection<TInfo>

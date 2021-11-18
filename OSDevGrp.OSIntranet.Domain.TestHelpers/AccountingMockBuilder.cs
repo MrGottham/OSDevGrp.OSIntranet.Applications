@@ -444,7 +444,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return creditInfoValuesMock;
         }
 
-        public static Mock<ICreditInfoCollection> BuildCreditInfoCollectionMock(this Fixture fixture, DateTime? infoOffset = null, IAccount account = null, IEnumerable<ICreditInfo> creditInfoCollection = null, ICreditInfoCollection calculatedCreditInfoCollection = null, bool isEmpty = false)
+        public static Mock<ICreditInfoCollection> BuildCreditInfoCollectionMock(this Fixture fixture, DateTime? infoOffset = null, IAccount account = null, bool hasCreditInfoForFind = true, ICreditInfo creditInfoForFind = null, IEnumerable<ICreditInfo> creditInfoCollection = null, ICreditInfoCollection calculatedCreditInfoCollection = null, bool isEmpty = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -485,6 +485,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Throws(new NotSupportedException());
             creditInfoCollectionMock.Setup(m => m.Last())
                 .Throws(new NotSupportedException());
+            creditInfoCollectionMock.Setup(m => m.Find(It.IsAny<DateTime>()))
+                .Returns(hasCreditInfoForFind ? creditInfoForFind ?? fixture.BuildCreditInfoMock(account: account).Object : null);
             creditInfoCollectionMock.Setup(m => m.GetEnumerator())
                 .Returns(creditInfoCollection.GetEnumerator());
             creditInfoCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
@@ -563,7 +565,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return budgetInfoValuesMock;
         }
 
-        public static Mock<IBudgetInfoCollection> BuildBudgetInfoCollectionMock(this Fixture fixture, DateTime? infoOffset = null, IBudgetAccount budgetAccount = null, IEnumerable<IBudgetInfo> budgetInfoCollection = null, IBudgetInfoCollection calculatedBudgetInfoCollection = null, bool isEmpty = false)
+        public static Mock<IBudgetInfoCollection> BuildBudgetInfoCollectionMock(this Fixture fixture, DateTime? infoOffset = null, IBudgetAccount budgetAccount = null, bool hasBudgetInfoForFind = true, IBudgetInfo budgetInfoForFind = null, IEnumerable<IBudgetInfo> budgetInfoCollection = null, IBudgetInfoCollection calculatedBudgetInfoCollection = null, bool isEmpty = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -606,6 +608,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Throws(new NotSupportedException());
             budgetInfoCollectionMock.Setup(m => m.Last())
                 .Throws(new NotSupportedException());
+            budgetInfoCollectionMock.Setup(m => m.Find(It.IsAny<DateTime>()))
+                .Returns(hasBudgetInfoForFind ? budgetInfoForFind ?? fixture.BuildBudgetInfoMock(budgetAccount: budgetAccount).Object : null);
             budgetInfoCollectionMock.Setup(m => m.GetEnumerator())
                 .Returns(budgetInfoCollection.GetEnumerator());
             budgetInfoCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
@@ -672,7 +676,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return contactInfoValuesMock;
         }
 
-        public static Mock<IContactInfoCollection> BuildContactInfoCollectionMock(this Fixture fixture, DateTime? infoOffset = null, IContactAccount contactAccount = null, IContactInfoValues valuesAtStatusDate = null, IEnumerable<IContactInfo> contactInfoCollection = null, IContactInfoCollection calculatedContactInfoCollection = null, bool isEmpty = false)
+        public static Mock<IContactInfoCollection> BuildContactInfoCollectionMock(this Fixture fixture, DateTime? infoOffset = null, IContactAccount contactAccount = null, IContactInfoValues valuesAtStatusDate = null, bool hasContactInfoForFind = true, IContactInfo contactInfoForFind = null, IEnumerable<IContactInfo> contactInfoCollection = null, IContactInfoCollection calculatedContactInfoCollection = null, bool isEmpty = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -713,6 +717,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Throws(new NotSupportedException());
             contactInfoCollectionMock.Setup(m => m.Last())
                 .Throws(new NotSupportedException());
+            contactInfoCollectionMock.Setup(m => m.Find(It.IsAny<DateTime>()))
+                .Returns(hasContactInfoForFind ? contactInfoForFind ?? fixture.BuildContactInfoMock(contactAccount: contactAccount).Object : null);
             contactInfoCollectionMock.Setup(m => m.GetEnumerator())
                 .Returns(contactInfoCollection.GetEnumerator());
             contactInfoCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
@@ -788,7 +794,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return postingLineMock;
         }
 
-        public static Mock<IPostingLineCollection> BuildPostingLineCollectionMock(this Fixture fixture, IAccount account = null, IBudgetAccount budgetAccount = null, IContactAccount contactAccount = null, IEnumerable<IPostingLine> postingLineCollection = null, IPostingLineCollection calculatedPostingLineCollection = null, bool isEmpty = false)
+        public static Mock<IPostingLineCollection> BuildPostingLineCollectionMock(this Fixture fixture, IAccount account = null, IBudgetAccount budgetAccount = null, IContactAccount contactAccount = null, decimal? calculatedPostingValue = null, IEnumerable<IPostingLine> postingLineCollection = null, IPostingLineCollection calculatedPostingLineCollection = null, bool isEmpty = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -819,6 +825,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(postingLineCollectionMock.Object);
             postingLineCollectionMock.Setup(m => m.Top(It.IsAny<int>()))
                 .Returns(postingLineCollectionMock.Object);
+            postingLineCollectionMock.Setup(m => m.CalculatePostingValue(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<int?>()))
+                .Returns(calculatedPostingValue ?? fixture.Create<decimal>());
             postingLineCollectionMock.Setup(m => m.CalculateAsync(It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(calculatedPostingLineCollection ?? postingLineCollectionMock.Object));
             return postingLineCollectionMock;
