@@ -2,11 +2,11 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 {
-    public abstract class CommonRepositoryTestBase : RepositoryTestBase
+    public abstract class CommonRepositoryTestBase : DatabaseRepositoryTestBase
     {
         protected ICommonRepository CreateSut()
         {
-            return new Repositories.CommonRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
+            return new Repositories.CommonRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory());
         }
     }
 }

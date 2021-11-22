@@ -2,11 +2,11 @@
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
 {
-    public abstract class ContactRepositoryTestBase : RepositoryTestBase
+    public abstract class ContactRepositoryTestBase : DatabaseRepositoryTestBase
     {
         protected IContactRepository CreateSut()
         {
-            return new Repositories.ContactRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
+            return new Repositories.ContactRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory());
         }
     }
 }

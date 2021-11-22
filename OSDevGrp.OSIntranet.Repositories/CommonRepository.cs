@@ -4,20 +4,20 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class CommonRepository : RepositoryBase, ICommonRepository
+    public class CommonRepository : DatabaseRepositoryBase<RepositoryContext>, ICommonRepository
     {
         #region Constructor
 
-        public CommonRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
-            : base(configuration, principalResolver, loggerFactory)
+        public CommonRepository(RepositoryContext repositoryContext, IConfiguration configuration, ILoggerFactory loggerFactory)
+            : base(repositoryContext, configuration, loggerFactory)
         {
         }
 
@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(DbContext, CommonModelConverter.Create());
                     return await letterHeadModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -39,7 +39,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(DbContext, CommonModelConverter.Create());
                     return await letterHeadModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -51,7 +51,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(DbContext, CommonModelConverter.Create());
                     return await letterHeadModelHandler.CreateAsync(letterHead);
                 },
                 MethodBase.GetCurrentMethod());
@@ -63,7 +63,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(DbContext, CommonModelConverter.Create());
                     return await letterHeadModelHandler.UpdateAsync(letterHead);
                 },
                 MethodBase.GetCurrentMethod());
@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using LetterHeadModelHandler letterHeadModelHandler = new LetterHeadModelHandler(DbContext, CommonModelConverter.Create());
                     return await letterHeadModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -85,7 +85,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(DbContext, CommonModelConverter.Create());
                     return await keyValueEntryModelHandler.PullAsync(key);
                 },
                 MethodBase.GetCurrentMethod());
@@ -97,7 +97,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(DbContext, CommonModelConverter.Create());
                     return await keyValueEntryModelHandler.PushAsync(keyValueEntry);
                 },
                 MethodBase.GetCurrentMethod());
@@ -109,7 +109,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(CreateRepositoryContext(), CommonModelConverter.Create());
+                    using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(DbContext, CommonModelConverter.Create());
                     return await keyValueEntryModelHandler.DeleteAsync(key);
                 },
                 MethodBase.GetCurrentMethod());

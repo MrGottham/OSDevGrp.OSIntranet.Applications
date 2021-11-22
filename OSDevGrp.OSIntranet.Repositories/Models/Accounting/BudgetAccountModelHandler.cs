@@ -25,8 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         #region Constructor
 
-        public BudgetAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeBudgetInformation, bool includePostingLines)
-            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, new DateTime(statusDate.AddYears(-1).Year, 1, 1), statusDate, false, false) : null)
+        public BudgetAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeBudgetInformation, bool includePostingLines, bool fromPostingLineModelHandler = false)
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, new DateTime(statusDate.AddYears(-1).Year, 1, 1), statusDate, false, false) : null, fromPostingLineModelHandler)
         {
             _includeBudgetInformation = includeBudgetInformation;
 
@@ -143,12 +143,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            if (budgetAccountModel.BudgetInfos == null || budgetAccountModel.PostingLines == null)
+            if (budgetAccountModel.BudgetInfos == null || budgetAccountModel.PostingLines == null || FromPostingLineModelHandler)
             {
                 return false;
             }
 
-            if (budgetAccountModel.PostingLines.Any() || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos) == false)
+            if (budgetAccountModel.PostingLines.Any() || _budgetInfoModelHandler == null || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos) == false)
             {
                 return false;
             }

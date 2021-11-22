@@ -60,8 +60,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
 
         public void Dispose()
         {
-            DbContext.Dispose();
-
             OnDispose();
         }
 

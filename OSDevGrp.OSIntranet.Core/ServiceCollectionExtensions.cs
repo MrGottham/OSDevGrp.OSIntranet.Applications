@@ -46,7 +46,7 @@ namespace OSDevGrp.OSIntranet.Core
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
-            return serviceCollection.AddSingleton<IEventPublisher, EventPublisher>();
+            return serviceCollection.AddScoped<IEventPublisher, EventPublisher>();
         }
 
         public static IServiceCollection AddResolvers(this IServiceCollection serviceCollection)

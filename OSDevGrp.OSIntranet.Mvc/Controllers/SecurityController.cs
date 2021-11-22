@@ -92,17 +92,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateUserIdentity(int identifier)
         {
-            Task<IEnumerable<Claim>> systemClaimsTask = _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
-            Task<IUserIdentity> userIdentityTask = _queryBus.QueryAsync<IGetUserIdentityQuery, IUserIdentity>(new GetUserIdentityQuery {Identifier = identifier});
+            IEnumerable<Claim> systemClaims = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
 
-            IUserIdentity userIdentity = await userIdentityTask;
+            IUserIdentity userIdentity = await _queryBus.QueryAsync<IGetUserIdentityQuery, IUserIdentity>(new GetUserIdentityQuery {Identifier = identifier});
             if (userIdentity == null)
             {
                 return RedirectToAction("UserIdentities", "Security");
             }
 
             UserIdentityViewModel userIdentityViewModel = _securityViewModelConverter.Convert<IUserIdentity, UserIdentityViewModel>(userIdentity);
-            userIdentityViewModel.Claims = BuildClaimViewModelCollection(await systemClaimsTask, userIdentity.ToClaimsIdentity().Claims);
+            userIdentityViewModel.Claims = BuildClaimViewModelCollection(systemClaims, userIdentity.ToClaimsIdentity().Claims);
             userIdentityViewModel.EditMode = EditMode.Edit;
 
             return View("UpdateUserIdentity", userIdentityViewModel);
@@ -133,7 +132,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             {
                 Identifier = identifier
             };
-            await _commandBus.PublishAsync<IDeleteUserIdentityCommand>(command);
+            await _commandBus.PublishAsync(command);
 
             return RedirectToAction("UserIdentities", "Security");
         }
@@ -185,17 +184,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateClientSecretIdentity(int identifier)
         {
-            Task<IEnumerable<Claim>> systemClaimsTask = _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
-            Task<IClientSecretIdentity> clientSecretIdentityTask = _queryBus.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(new GetClientSecretIdentityQuery {Identifier = identifier});
+            IEnumerable<Claim> systemClaims = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<Claim>>(new EmptyQuery());
 
-            IClientSecretIdentity clientSecretIdentity = await clientSecretIdentityTask;
+            IClientSecretIdentity clientSecretIdentity = await _queryBus.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(new GetClientSecretIdentityQuery {Identifier = identifier});
             if (clientSecretIdentity == null)
             {
                 return RedirectToAction("ClientSecretIdentities", "Security");
             }
 
             ClientSecretIdentityViewModel clientSecretIdentityViewModel = _securityViewModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityViewModel>(clientSecretIdentity);
-            clientSecretIdentityViewModel.Claims = BuildClaimViewModelCollection(await systemClaimsTask, clientSecretIdentity.ToClaimsIdentity().Claims);
+            clientSecretIdentityViewModel.Claims = BuildClaimViewModelCollection(systemClaims, clientSecretIdentity.ToClaimsIdentity().Claims);
             clientSecretIdentityViewModel.EditMode = EditMode.Edit;
 
             return View("UpdateClientSecretIdentity", clientSecretIdentityViewModel);
@@ -226,7 +224,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             {
                 Identifier = identifier
             };
-            await _commandBus.PublishAsync<IDeleteClientSecretIdentityCommand>(command);
+            await _commandBus.PublishAsync(command);
 
             return RedirectToAction("ClientSecretIdentities", "Security");
         }

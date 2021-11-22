@@ -54,9 +54,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             _numberOfPostingLines = numberOfPostingLines;
             _applyingPostingLines = applyingPostingLines;
             _accountingModelHandler = new AccountingModelHandler(dbContext, ModelConverter, _eventPublisher, _toDate, false, false);
-            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeCreditInformation, false);
-            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeBudgetInformation, false);
-            _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, false);
+            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeCreditInformation, false, true);
+            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeBudgetInformation, false, true);
+            _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, false, true);
 
             _eventPublisher.AddSubscriber(this);
         }
