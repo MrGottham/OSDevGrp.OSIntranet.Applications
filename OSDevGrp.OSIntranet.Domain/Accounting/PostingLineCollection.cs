@@ -15,7 +15,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         private IDictionary<int, IPostingLineCollection> _yearMonthDictionary;
         private IDictionary<int, IPostingLineCollection> _yearDictionary;
-        private IDictionary<int, decimal> _postingValueDictionary;
+        private IDictionary<int, decimal> _postingValueForYearMonthDictionary;
+        private readonly IDictionary<string, decimal> _postingValueForDateIntervalDictionary = new ConcurrentDictionary<string, decimal>();
         private readonly object _syncRoot = new object();
 
         #endregion
@@ -48,7 +49,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             foreach (IPostingLine postingLine in postingLineCollection)
             {
-                this.Add(postingLine);
+                Add(postingLine);
             }
         }
 
@@ -84,40 +85,48 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 return 0M;
             }
 
-            IDictionary<int, decimal> postingValueDictionary = GetPostingValueDictionary();
+            decimal postingValue;
+            string dateIntervalKey = ToDateIntervalKey(fromDate, toDate);
+            if (sortOrder.HasValue == false)
+            {
+                if (_postingValueForDateIntervalDictionary.TryGetValue(dateIntervalKey, out postingValue))
+                {
+                    return postingValue;
+                }
+            }
+
+            IDictionary<int, decimal> postingValueForYearMonthDictionary = GetPostingValueForYearMonthDictionary();
 
             if (IsSameYearMonth(fromDate, toDate))
             {
                 if (IsFullMonth(fromDate, toDate) == false || sortOrder.HasValue)
                 {
-                    return Between(fromDate, toDate, sortOrder)
-                        .AsParallel()
-                        .Sum(postingLine => postingLine.PostingValue);
+                    return HandleCalculatedPostingValue(dateIntervalKey, Between(fromDate, toDate, sortOrder).AsParallel().Sum(postingLine => postingLine.PostingValue), sortOrder);
                 }
 
-                return ResolvePostingValue(postingValueDictionary, ToYearMonthKey(toDate));
+                return HandleCalculatedPostingValue(dateIntervalKey, ResolvePostingValue(postingValueForYearMonthDictionary, ToYearMonthKey(toDate)), null);
             }
 
-            decimal postingValue = IsFirstDayInMonth(fromDate)
-                ? ResolvePostingValue(postingValueDictionary, ToYearMonthKey(fromDate))
+            postingValue = IsFirstDayInMonth(fromDate)
+                ? ResolvePostingValue(postingValueForYearMonthDictionary, ToYearMonthKey(fromDate))
                 : Between(fromDate, ToLastDayInMonth(fromDate), null)
                     .AsParallel()
                     .Sum(postingLine => postingLine.PostingValue);
 
             int fromYearMonthKey = ToYearMonthKey(ToFirstDayInMonth(fromDate).AddMonths(1));
             int toYearMonthKey = ToYearMonthKey(ToFirstDayInMonth(toDate).AddMonths(-1));
-            postingValue += postingValueDictionary
+            postingValue += postingValueForYearMonthDictionary
                 .AsParallel()
                 .Where(item => item.Key >= fromYearMonthKey && item.Key <= toYearMonthKey)
                 .Sum(item => item.Value);
 
             postingValue += IsLastDayInMonth(toDate) && sortOrder.HasValue == false
-                ? ResolvePostingValue(postingValueDictionary, ToYearMonthKey(toDate))
+                ? ResolvePostingValue(postingValueForYearMonthDictionary, ToYearMonthKey(toDate))
                 : Between(ToFirstDayInMonth(toDate), toDate, sortOrder)
                     .AsParallel()
                     .Sum(postingLine => postingLine.PostingValue);
 
-            return postingValue;
+            return HandleCalculatedPostingValue(dateIntervalKey, postingValue, sortOrder);
         }
 
         public async Task<IPostingLineCollection> CalculateAsync(DateTime statusDate)
@@ -129,8 +138,9 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            await Task.WhenAll(this.GroupBy(postingLine => postingLine.PostingDate.Year)
-                .Select(group => CalculateAsync(group.Where(postingLine => postingLine.StatusDate != StatusDate), StatusDate))
+            await Task.WhenAll(this.AsParallel()
+                .GroupBy(postingLine => postingLine.PostingDate.Year)
+                .Select(group => CalculateAsync(group.ToArray(), StatusDate))
                 .ToArray());
 
             return this;
@@ -182,7 +192,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                     return _yearMonthDictionary;
                 }
 
-                return _yearMonthDictionary = new ConcurrentDictionary<int, IPostingLineCollection>(this
+                return _yearMonthDictionary = new ConcurrentDictionary<int, IPostingLineCollection>(this.AsParallel()
                     .GroupBy(postingLine => ToYearMonthKey(postingLine.PostingDate))
                     .ToDictionary(group => group.Key, group => (IPostingLineCollection)new PostingLineCollection { group }));
             }
@@ -198,23 +208,43 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 }
             }
 
-            return _yearDictionary = new ConcurrentDictionary<int, IPostingLineCollection>(this
+            return _yearDictionary = new ConcurrentDictionary<int, IPostingLineCollection>(this.AsParallel()
                 .GroupBy(postingLine => postingLine.PostingDate.Year)
                 .ToDictionary(group => group.Key, group => (IPostingLineCollection)new PostingLineCollection { group }));
         }
 
-        private IDictionary<int, decimal> GetPostingValueDictionary()
+        private IDictionary<int, decimal> GetPostingValueForYearMonthDictionary()
         {
             lock (_syncRoot)
             {
-                if (_postingValueDictionary != null)
+                if (_postingValueForYearMonthDictionary != null)
                 {
-                    return _postingValueDictionary;
+                    return _postingValueForYearMonthDictionary;
                 }
 
-                return _postingValueDictionary = new ConcurrentDictionary<int, decimal>(GetYearMonthDictionary()
+                return _postingValueForYearMonthDictionary = new ConcurrentDictionary<int, decimal>(GetYearMonthDictionary().AsParallel()
                     .ToDictionary(item => item.Key, item => item.Value.AsParallel().Sum(postingLine => postingLine.PostingValue)));
             }
+        }
+
+        private decimal HandleCalculatedPostingValue(string dateIntervalKey, decimal postingValue, int? sortOrder)
+        {
+            NullGuard.NotNullOrWhiteSpace(dateIntervalKey, nameof(dateIntervalKey));
+
+            if (sortOrder.HasValue)
+            {
+                return postingValue;
+            }
+
+            lock (_syncRoot)
+            {
+                if (_postingValueForDateIntervalDictionary.ContainsKey(dateIntervalKey) == false)
+                {
+                    _postingValueForDateIntervalDictionary.Add(dateIntervalKey, postingValue);
+                }
+            }
+
+            return postingValue;
         }
 
         private void ClearDictionaries()
@@ -223,21 +253,17 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             {
                 _yearMonthDictionary = null;
                 _yearDictionary = null;
-                _postingValueDictionary = null;
+                _postingValueForYearMonthDictionary = null;
+                _postingValueForDateIntervalDictionary.Clear();
             }
         }
 
-        private static async Task CalculateAsync(IEnumerable<IPostingLine> postingLineCollection, DateTime statusDate)
+        private static async Task CalculateAsync(IReadOnlyCollection<IPostingLine> postingLineCollection, DateTime statusDate)
         {
             NullGuard.NotNull(postingLineCollection, nameof(postingLineCollection));
 
             foreach (IPostingLine postingLine in postingLineCollection)
             {
-                if (postingLine.StatusDate == statusDate)
-                {
-                    continue;
-                }
-
                 await postingLine.CalculateAsync(statusDate);
             }
         }
@@ -272,6 +298,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return value.Year * 100 + value.Month;
         }
 
+        private static string ToDateIntervalKey(DateTime fromDate, DateTime toDate)
+        {
+            return $"{fromDate:yyyyMMdd}-{toDate:yyyyMMdd}";
+        }
+
         private static DateTime ToFirstDayInMonth(DateTime value)
         {
             return new DateTime(value.Year, value.Month, 1);
@@ -282,11 +313,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return value.AddDays(DateTime.DaysInMonth(value.Year, value.Month) - value.Day);
         }
 
-        private static decimal ResolvePostingValue(IDictionary<int, decimal> postingValueDictionary, int key)
+        private static decimal ResolvePostingValue(IDictionary<int, decimal> postingValueForYearMonthDictionary, int key)
         {
-            NullGuard.NotNull(postingValueDictionary, nameof(postingValueDictionary));
+            NullGuard.NotNull(postingValueForYearMonthDictionary, nameof(postingValueForYearMonthDictionary));
 
-            return postingValueDictionary.TryGetValue(key, out decimal postingValue)
+            return postingValueForYearMonthDictionary.TryGetValue(key, out decimal postingValue)
                 ? postingValue
                 : 0M;
         }

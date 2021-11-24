@@ -53,6 +53,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         public TInfo First()
         {
             return GetInfoDictionary()
+                .AsParallel()
                 .OrderBy(item => item.Key)
                 .Select(item => item.Value)
                 .FirstOrDefault();
@@ -75,6 +76,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         public TInfo Last()
         {
             return GetInfoDictionary()
+                .AsParallel()
                 .OrderByDescending(item => item.Key)
                 .Select(item => item.Value)
                 .FirstOrDefault();
@@ -96,12 +98,16 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            TInfo[] calculatedInfoCollection = await Task.WhenAll(this.Select(info => info.CalculateAsync(StatusDate)).ToArray());
+            List<TInfo> calculatedInfoCollection = new List<TInfo>();
+            foreach (TInfo info in this)
+            {
+                calculatedInfoCollection.Add(await info.CalculateAsync(StatusDate));
+            }
 
-            return Calculate(StatusDate, calculatedInfoCollection);
+            return Calculate(StatusDate, calculatedInfoCollection.AsReadOnly());
         }
 
-        protected abstract TInfoCollection Calculate(DateTime statusDate, TInfo[] calculatedInfoCollection);
+        protected abstract TInfoCollection Calculate(DateTime statusDate, IReadOnlyCollection<TInfo> calculatedInfoCollection);
 
         protected abstract TInfoCollection AlreadyCalculated();
 
@@ -114,7 +120,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                     return _infoDictionary;
                 }
 
-                return _infoDictionary = new ConcurrentDictionary<int, TInfo>(this
+                return _infoDictionary = new ConcurrentDictionary<int, TInfo>(this.AsParallel()
                     .GroupBy(ToYearMonthKey)
                     .ToDictionary(item => item.Key, item => item.Single()));
             }

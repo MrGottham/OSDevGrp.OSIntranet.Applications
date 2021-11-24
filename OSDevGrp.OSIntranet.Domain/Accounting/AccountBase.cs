@@ -71,8 +71,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            Task[] calculationTasks = GetCalculationTasks(StatusDate);
-            await Task.WhenAll(calculationTasks);
+            await Task.WhenAll(GetCalculationTasks(StatusDate));
 
             return GetCalculationResult();
         }

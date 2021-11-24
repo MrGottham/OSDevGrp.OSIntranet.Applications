@@ -27,11 +27,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         public virtual AccountModel Account { get; set; }
 
+        public virtual decimal PostingValueForAccount { get; set; }
+
         public virtual string Details { get; set; }
 
         public virtual int? BudgetAccountIdentifier { get; set; }
 
         public virtual BudgetAccountModel BudgetAccount { get; set; }
+
+        public virtual decimal? PostingValueForBudgetAccount { get; set; }
 
         public virtual decimal? Debit { get; set; }
 
@@ -40,6 +44,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual int? ContactAccountIdentifier { get; set; }
 
         public virtual ContactAccountModel ContactAccount { get; set; }
+
+        public virtual decimal? PostingValueForContactAccount { get; set; }
     }
 
     internal static class PostingLineModelExtensions
@@ -140,7 +146,23 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                     return postingLine;
                 }
 
-                postingLine = new PostingLine(postingLineIdentification, postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier);
+                ICreditInfo creditInfo = account.CreditInfoCollection.Find(postingLineModel.PostingDate);
+                ICreditInfoValues accountValuesAtPostingDate = new CreditInfoValues(creditInfo?.Credit ?? 0M, postingLineModel.PostingValueForAccount);
+
+                IBudgetInfoValues budgetAccountValuesAtPostingDate = null;
+                if (budgetAccount != null)
+                {
+                    IBudgetInfo budgetInfo = budgetAccount.BudgetInfoCollection.Find(postingLineModel.PostingDate);
+                    budgetAccountValuesAtPostingDate = new BudgetInfoValues(budgetInfo?.Budget ?? 0M, postingLineModel.PostingValueForBudgetAccount ?? 0M);
+                }
+
+                IContactInfoValues contactAccountValuesAtPostingDate = null;
+                if (contactAccount != null)
+                {
+                    contactAccountValuesAtPostingDate = new ContactInfoValues(postingLineModel.PostingValueForContactAccount ?? 0M);
+                }
+
+                postingLine = new PostingLine(postingLineIdentification, postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier, accountValuesAtPostingDate, budgetAccountValuesAtPostingDate, contactAccountValuesAtPostingDate);
                 postingLine.AddAuditInformation(postingLineModel.CreatedUtcDateTime, postingLineModel.CreatedByIdentifier, postingLineModel.ModifiedUtcDateTime, postingLineModel.ModifiedByIdentifier);
 
                 mapperCache.PostingLineDictionary.Add(postingLineIdentification, postingLine);
@@ -177,11 +199,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 entity.Property(e => e.PostingDate).IsRequired();
                 entity.Property(e => e.Reference).IsRequired(false).IsUnicode().HasMaxLength(16);
                 entity.Property(e => e.AccountIdentifier).IsRequired();
+                entity.Property(e => e.PostingValueForAccount).IsRequired();
                 entity.Property(e => e.Details).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.BudgetAccountIdentifier).IsRequired(false);
+                entity.Property(e => e.PostingValueForBudgetAccount).IsRequired(false);
                 entity.Property(e => e.Debit).IsRequired(false);
                 entity.Property(e => e.Credit).IsRequired(false);
                 entity.Property(e => e.ContactAccountIdentifier).IsRequired(false);
+                entity.Property(e => e.PostingValueForContactAccount).IsRequired(false);
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);

@@ -247,6 +247,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     .FirstOrDefault()?
                     .PostingDate.Date;
 
+                DateTime[] postingDateCollection = (postingLineElementCollection?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
+                    .Select(postingLineElement => GetPostingDate(postingLineElement).Date)
+                    .Distinct()
+                    .ToArray();
+
                 DateTime fromPostingDate;
                 if (latestPostingDate != null)
                 {
@@ -254,15 +259,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 }
                 else
                 {
-                    fromPostingDate = postingLineElementCollection?.OfType<XmlElement>()
-                                          .Select(GetPostingDate)
-                                          .OrderBy(postingDate => postingDate.Date)
-                                          .FirstOrDefault().Date ??
-                                      DateTime.MinValue;
+                    fromPostingDate = postingDateCollection.Any()
+                        ? postingDateCollection.OrderBy(postingDate => postingDate).First()
+                        : DateTime.MinValue;
                 }
 
                 DateTime toPostingDate = new DateTime(fromPostingDate.Year, 12, 31).Date;
-                if (toPostingDate.Year == fromPostingDate.Year)
+                while (toPostingDate <= DateTime.Today && postingDateCollection.Any(postingDate => postingDate >= fromPostingDate.Date && postingDate <= toPostingDate) == false)
                 {
                     toPostingDate = toPostingDate.AddYears(1).Date;
                 }

@@ -35,7 +35,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Add((ICreditInfo) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("info"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -61,9 +63,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.Add(creditInfo));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(creditInfo.GetType().Name), Is.True);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectAlreadyExists));
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -74,7 +78,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Add((IEnumerable<ICreditInfo>) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("infoCollection"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -120,9 +126,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.Add(existingInfo));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(existingInfo.GetType().Name), Is.True);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectAlreadyExists));
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IInfoCollection<ICreditInfo, Sut> CreateSut()
@@ -134,7 +142,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
         {
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate, ICreditInfo[] calculatedInfoCollection) => throw new NotSupportedException();
+            protected override Sut Calculate(DateTime statusDate, IReadOnlyCollection<ICreditInfo> calculatedInfoCollection) => throw new NotSupportedException();
 
             protected override Sut AlreadyCalculated() => throw new NotSupportedException();
 

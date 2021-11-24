@@ -8,9 +8,17 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
     public class PostingLine : AuditableBase, IPostingLine
     {
+        #region Private variables
+
+        private readonly bool _calculateAccountValuesAtPostingDate;
+        private readonly bool _calculateBudgetAccountValuesAtPostingDate;
+        private readonly bool _calculateContactAccountValuesAtPostingDate;
+
+        #endregion
+
         #region Constructor
 
-        public PostingLine(Guid identifier, DateTime postingDate, string reference, IAccount account, string details, IBudgetAccount budgetAccount, decimal debit, decimal credit, IContactAccount contactAccount, int sortOrder)
+        public PostingLine(Guid identifier, DateTime postingDate, string reference, IAccount account, string details, IBudgetAccount budgetAccount, decimal debit, decimal credit, IContactAccount contactAccount, int sortOrder, ICreditInfoValues accountValuesAtPostingDate = null, IBudgetInfoValues budgetAccountValuesAtPostingDate = null, IContactInfoValues contactAccountValuesAtPostingDate = null)
         {
             NullGuard.NotNull(account, nameof(account))
                 .NotNullOrWhiteSpace(details, nameof(details));
@@ -55,15 +63,19 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             PostingDate = postingDate.Date;
             Reference = string.IsNullOrWhiteSpace(reference) ? null : reference.Trim();
             Account = account;
-            AccountValuesAtPostingDate = new CreditInfoValues(0M, 0M);
+            AccountValuesAtPostingDate = accountValuesAtPostingDate ?? new CreditInfoValues(0M, 0M);
             Details = details.Trim();
             BudgetAccount = budgetAccount;
-            BudgetAccountValuesAtPostingDate = budgetAccount != null ? new BudgetInfoValues(0M, 0M) : null;
+            BudgetAccountValuesAtPostingDate = budgetAccount != null ? budgetAccountValuesAtPostingDate ?? new BudgetInfoValues(0M, 0M) : null;
             Debit = debit;
             Credit = credit;
             ContactAccount = contactAccount;
-            ContactAccountValuesAtPostingDate = contactAccount != null ? new ContactInfoValues(0M) : null;
+            ContactAccountValuesAtPostingDate = contactAccount != null ? contactAccountValuesAtPostingDate ?? new ContactInfoValues(0M) : null;
             SortOrder = sortOrder;
+
+            _calculateAccountValuesAtPostingDate = accountValuesAtPostingDate == null;
+            _calculateBudgetAccountValuesAtPostingDate = budgetAccountValuesAtPostingDate == null;
+            _calculateContactAccountValuesAtPostingDate = contactAccountValuesAtPostingDate == null;
         }
 
         #endregion
@@ -115,14 +127,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            Task[] calculationTasks =
-            {
+            await Task.WhenAll(
                 CalculateAccountingAsync(StatusDate),
                 CalculateAccountAsync(StatusDate),
                 CalculateBudgetAccountAsync(StatusDate),
-                CalculateContactAccountAsync(StatusDate)
-            };
-            await Task.WhenAll(calculationTasks);
+                CalculateContactAccountAsync(StatusDate));
 
             return this;
         }
@@ -156,6 +165,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             Account = await Account.CalculateAsync(statusDate);
 
+            if (_calculateAccountValuesAtPostingDate == false)
+            {
+                return;
+            }
+
             ICreditInfo creditInfo = Account.CreditInfoCollection.Find(PostingDate);
             decimal balance = Account.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
 
@@ -172,6 +186,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             BudgetAccount = await BudgetAccount.CalculateAsync(statusDate);
 
+            if (_calculateBudgetAccountValuesAtPostingDate == false)
+            {
+                return;
+            }
+
             IBudgetInfo budgetInfo = BudgetAccount.BudgetInfoCollection.Find(PostingDate);
             decimal posted = BudgetAccount.PostingLineCollection.CalculatePostingValue(new DateTime(PostingDate.Year, PostingDate.Month, 1), PostingDate, SortOrder);
 
@@ -187,6 +206,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             }
 
             ContactAccount = await ContactAccount.CalculateAsync(statusDate);
+
+            if (_calculateContactAccountValuesAtPostingDate == false)
+            {
+                return;
+            }
 
             decimal balance = ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
 

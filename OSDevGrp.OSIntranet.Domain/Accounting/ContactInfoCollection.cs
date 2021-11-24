@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -19,7 +20,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        protected override IContactInfoCollection Calculate(DateTime statusDate, IContactInfo[] calculatedContactInfoCollection)
+        protected override IContactInfoCollection Calculate(DateTime statusDate, IReadOnlyCollection<IContactInfo> calculatedContactInfoCollection)
         {
             NullGuard.NotNull(calculatedContactInfoCollection, nameof(calculatedContactInfoCollection));
 
@@ -45,7 +46,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected override IContactInfoCollection AlreadyCalculated() => this;
 
-        private IContactInfoValues ToContactInfoValues(IContactInfo contactInfo)
+        private static IContactInfoValues ToContactInfoValues(IContactInfo contactInfo)
         {
             return contactInfo == null ? new ContactInfoValues(0M) : new ContactInfoValues(contactInfo.Balance);
         }

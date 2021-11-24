@@ -69,8 +69,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override Func<IPostingLine, string> PrimaryKey => postingLine => postingLine.Identifier.ToString("D").ToUpper();
 
-        protected override IQueryable<PostingLineModel> Reader => CreateReader(_numberOfPostingLines);
-
         #endregion
 
         #region Methods
@@ -161,7 +159,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             DateTime startDate = _fromDate.Date;
             DateTime endDate = _toDate.AddDays(1).Date;
 
-            return ReadAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingNumber && postingLineModel.PostingDate >= startDate && postingLineModel.PostingDate < endDate, new AccountingIdentificationState(accountingNumber));
+            return ReadAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingNumber && postingLineModel.PostingDate >= startDate && postingLineModel.PostingDate < endDate, Top, new AccountingIdentificationState(accountingNumber));
         }
 
         internal async Task<IEnumerable<PostingLineModel>> ReadAsync(IEnumerable<PostingLineModel> postingLineModelCollection)
@@ -181,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             DateTime startDate = _fromDate.Date;
             DateTime endDate = _toDate.AddDays(1).Date;
 
-            IQueryable<PostingLineModel> query = CreateReader(null)
+            IQueryable<PostingLineModel> query = Reader
                 .Where(postingLineModel => postingLineModel.AccountingIdentifier == accountingNumber &&
                                            postingLineModel.PostingDate >= startDate &&
                                            postingLineModel.PostingDate < endDate);
@@ -289,24 +287,42 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return postingLineModel;
         }
 
-        protected override Task OnUpdateAsync(IPostingLine postingLine, PostingLineModel postingLineModel) => throw new NotSupportedException();
+        protected override Task OnUpdateAsync(IPostingLine postingLine, PostingLineModel postingLineModel)
+        {
+            NullGuard.NotNull(postingLine, nameof(postingLine))
+                .NotNull(postingLineModel, nameof(postingLineModel));
+
+            postingLineModel.PostingValueForAccount = postingLine.Account.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, postingLine.PostingDate, postingLine.SortOrder);
+
+            if (postingLine.BudgetAccount != null)
+            {
+                postingLineModel.PostingValueForBudgetAccount = postingLine.BudgetAccount.PostingLineCollection.CalculatePostingValue(new DateTime(postingLine.PostingDate.Year, postingLine.PostingDate.Month, 1), postingLine.PostingDate, postingLine.SortOrder);
+            }
+
+            if (postingLine.ContactAccount != null)
+            {
+                postingLineModel.PostingValueForContactAccount = postingLine.ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, postingLine.PostingDate, postingLine.SortOrder);
+            }
+
+            return Task.CompletedTask;
+        }
 
         protected override Task<bool> CanDeleteAsync(PostingLineModel postingLineModel) => throw new NotSupportedException();
 
         protected override Task<PostingLineModel> OnDeleteAsync(PostingLineModel postingLineModel) => throw new NotSupportedException();
 
-        private IQueryable<PostingLineModel> CreateReader(int? numberOfPostingLines)
+        private IQueryable<PostingLineModel> Top(IQueryable<PostingLineModel> query)
         {
-            IQueryable<PostingLineModel> reader = Entities;
+            NullGuard.NotNull(query, nameof(query));
 
-            if (numberOfPostingLines == null)
+            if (_numberOfPostingLines == null)
             {
-                return reader;
+                return query;
             }
 
-            return reader.OrderByDescending(postingLineModel => postingLineModel.PostingDate)
+            return query.OrderByDescending(postingLineModel => postingLineModel.PostingDate)
                 .ThenByDescending(postingLineModel => postingLineModel.PostingLineIdentifier)
-                .Take(numberOfPostingLines.Value);
+                .Take(_numberOfPostingLines.Value);
         }
 
         private static Task<AccountingModel> OnReadAsync(PostingLineModel postingLineModel, AccountingModel accountModel)

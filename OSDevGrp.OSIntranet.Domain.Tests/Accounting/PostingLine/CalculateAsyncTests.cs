@@ -55,7 +55,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertCreditInfoCollectionWasCalledOnCalculatedAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGiven_AssertCreditInfoCollectionWasCalledOnCalculatedAccount()
         {
             Mock<IAccount> calculatedAccountMock = _fixture.BuildAccountMock();
             IAccount account = _fixture.BuildAccountMock(calculatedAccount: calculatedAccountMock.Object).Object;
@@ -69,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertFindWasCalledOnCreditInfoCollectionFromCalculatedAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGiven_AssertFindWasCalledOnCreditInfoCollectionFromCalculatedAccount()
         {
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(-120, 120));
             Mock<ICreditInfoCollection> creditInfoCollectionMock = _fixture.BuildCreditInfoCollectionMock();
@@ -85,7 +85,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertPostingLineCollectionWasCalledOnCalculatedAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGiven_AssertPostingLineCollectionWasCalledOnCalculatedAccount()
         {
             Mock<IAccount> calculatedAccountMock = _fixture.BuildAccountMock();
             IAccount account = _fixture.BuildAccountMock(calculatedAccount: calculatedAccountMock.Object).Object;
@@ -99,7 +99,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromCalculatedAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGiven_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromCalculatedAccount()
         {
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(-120, 120));
             Mock<IPostingLineCollection> postingLineCollectionMock = _fixture.BuildPostingLineCollectionMock();
@@ -120,6 +120,36 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasGiven_AssertCreditInfoCollectionWasNotCalledOnCalculatedAccount()
+        {
+            Mock<IAccount> calculatedAccountMock = _fixture.BuildAccountMock();
+            IAccount account = _fixture.BuildAccountMock(calculatedAccount: calculatedAccountMock.Object).Object;
+            ICreditInfoValues accountValuesAtPostingDate = _fixture.BuildCreditInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, accountValuesAtPostingDate: accountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            calculatedAccountMock.Verify(m => m.CreditInfoCollection, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasGiven_AssertPostingLineCollectionWasNotCalledOnCalculatedAccount()
+        {
+            Mock<IAccount> calculatedAccountMock = _fixture.BuildAccountMock();
+            IAccount account = _fixture.BuildAccountMock(calculatedAccount: calculatedAccountMock.Object).Object;
+            ICreditInfoValues accountValuesAtPostingDate = _fixture.BuildCreditInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, accountValuesAtPostingDate: accountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            calculatedAccountMock.Verify(m => m.PostingLineCollection, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_AssertCalculateAsyncWasCalledOnBudgetAccount()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
@@ -135,7 +165,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_AssertBudgetInfoCollectionWasCalledOnCalculatedBudgetAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_AssertBudgetInfoCollectionWasCalledOnCalculatedBudgetAccount()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -151,7 +181,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_AssertFindWasCalledOnBudgetInfoCollectionFromCalculatedBudgetAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_AssertFindWasCalledOnBudgetInfoCollectionFromCalculatedBudgetAccount()
         {
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(-120, 120));
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
@@ -169,7 +199,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_AssertPostingLineCollectionWasCalledOnCalculatedBudgetAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_AssertPostingLineCollectionWasCalledOnCalculatedBudgetAccount()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -185,7 +215,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromCalculatedBudgetAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromCalculatedBudgetAccount()
         {
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(-120, 120));
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
@@ -208,6 +238,40 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasGiven_AssertBudgetInfoCollectionWasNotCalledOnCalculatedBudgetAccount()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            Mock<IBudgetAccount> calculatedBudgetAccountMock = _fixture.BuildBudgetAccountMock(accounting);
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(accounting, calculatedBudgetAccount: calculatedBudgetAccountMock.Object).Object;
+            IBudgetInfoValues budgetAccountValuesAtPostingDate = _fixture.BuildBudgetInfoMock().Object;
+            IPostingLine sut = CreateSut(account: account, budgetAccount: budgetAccount, budgetAccountValuesAtPostingDate: budgetAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            calculatedBudgetAccountMock.Verify(m => m.BudgetInfoCollection, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasGiven_AssertPostingLineCollectionWasNotCalledOnCalculatedBudgetAccount()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            Mock<IBudgetAccount> calculatedBudgetAccountMock = _fixture.BuildBudgetAccountMock(accounting);
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(accounting, calculatedBudgetAccount: calculatedBudgetAccountMock.Object).Object;
+            IBudgetInfoValues budgetAccountValuesAtPostingDate = _fixture.BuildBudgetInfoMock().Object;
+            IPostingLine sut = CreateSut(account: account, budgetAccount: budgetAccount, budgetAccountValuesAtPostingDate: budgetAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            calculatedBudgetAccountMock.Verify(m => m.PostingLineCollection, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccount_AssertCalculateAsyncWasCalledOnContactAccount()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
@@ -223,7 +287,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccount_AssertPostingLineCollectionWasCalledOnCalculatedContactAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasNotGiven_AssertPostingLineCollectionWasCalledOnCalculatedContactAccount()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -239,7 +303,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccount_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromCalculatedContactAccount()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasNotGiven_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromCalculatedContactAccount()
         {
             DateTime postingDate = DateTime.Today.AddDays(_random.Next(-120, 120));
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
@@ -258,6 +322,23 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
                     It.Is<DateTime>(value => value == postingDate),
                     It.Is<int?>(value => value == sortOrder)),
                 Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasGiven_AssertPostingLineCollectionWasNotCalledOnCalculatedContactAccount()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            Mock<IContactAccount> calculatedContactAccountMock = _fixture.BuildContactAccountMock(accounting);
+            IContactAccount contactAccount = _fixture.BuildContactAccountMock(accounting, calculatedContactAccount: calculatedContactAccountMock.Object).Object;
+            IContactInfoValues contactAccountValuesAtPostingDate = _fixture.BuildContactInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, contactAccount: contactAccount, contactAccountValuesAtPostingDate: contactAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            calculatedContactAccountMock.Verify(m => m.PostingLineCollection, Times.Never);
         }
 
         [Test]
@@ -302,7 +383,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_ReturnsSamePostingLineWhereAccountValuesAtPostingDateNotEqualToNull()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereAccountValuesAtPostingDateNotEqualToNull()
         {
             IAccount account = _fixture.BuildAccountMock().Object;
             IPostingLine sut = CreateSut(account: account);
@@ -315,7 +396,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledWithAccountWhereCalculatedAccountDoesNotHaveCreditInfoForPostingDate_ReturnsSamePostingLineWhereCreditOnAccountValuesAtPostingDateEqualToZero()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGivenAndWithAccountWhereCalculatedAccountDoesNotHaveCreditInfoForPostingDate_ReturnsSamePostingLineWhereCreditOnAccountValuesAtPostingDateEqualToZero()
         {
             ICreditInfoCollection creditInfoCollection = _fixture.BuildCreditInfoCollectionMock(hasCreditInfoForFind: false, isEmpty: true).Object;
             IAccount calculatedAccount = _fixture.BuildAccountMock(creditInfoCollection: creditInfoCollection).Object;
@@ -330,7 +411,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledWithAccountWhereCalculatedAccountHasCreditInfoForPostingDate_ReturnsSamePostingLineWhereCreditOnAccountValuesAtPostingDateEqualToCreditOnCreditInfoForPostingDate()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGivenAndWithAccountWhereCalculatedAccountHasCreditInfoForPostingDate_ReturnsSamePostingLineWhereCreditOnAccountValuesAtPostingDateEqualToCreditOnCreditInfoForPostingDate()
         {
             ICreditInfo creditInfo = _fixture.BuildCreditInfoMock().Object;
             ICreditInfoCollection creditInfoCollection = _fixture.BuildCreditInfoCollectionMock(creditInfoForFind: creditInfo, isEmpty: true).Object;
@@ -346,7 +427,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_ReturnsSamePostingLineWhereBalanceOnAccountValuesAtPostingDateEqualToCalculatedPostingValueFromPostingLineCollection()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereBalanceOnAccountValuesAtPostingDateEqualToCalculatedPostingValueFromPostingLineCollection()
         {
             decimal calculatedPostingValue = _fixture.Create<decimal>();
             IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(calculatedPostingValue: calculatedPostingValue, isEmpty: true).Object;
@@ -358,6 +439,34 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             IPostingLine result = await sut.CalculateAsync(statusDate);
 
             Assert.That(result.AccountValuesAtPostingDate.Balance, Is.EqualTo(calculatedPostingValue));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereAccountValuesAtPostingDateNotEqualToNull()
+        {
+            IAccount account = _fixture.BuildAccountMock().Object;
+            ICreditInfoValues accountValuesAtPostingDate = _fixture.BuildCreditInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, accountValuesAtPostingDate: accountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.AccountValuesAtPostingDate, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWhereAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereAccountValuesAtPostingDateEqualToGivenAccountValuesAtPostingDate()
+        {
+            IAccount account = _fixture.BuildAccountMock().Object;
+            ICreditInfoValues accountValuesAtPostingDate = _fixture.BuildCreditInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, accountValuesAtPostingDate: accountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.AccountValuesAtPostingDate, Is.EqualTo(accountValuesAtPostingDate));
         }
 
         [Test]
@@ -378,7 +487,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateNotEqualToNull()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateNotEqualToNull()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -393,7 +502,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountWhereCalculatedBudgetAccountDoesNotHaveBudgetInfoForPostingDate_ReturnsSamePostingLineWhereBudgetOnBudgetAccountValuesAtPostingDateEqualToZero()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGivenAndCalculatedBudgetAccountDoesNotHaveBudgetInfoForPostingDate_ReturnsSamePostingLineWhereBudgetOnBudgetAccountValuesAtPostingDateEqualToZero()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -410,7 +519,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountWhereCalculatedBudgetAccountHasBudgetInfoForPostingDate_ReturnsSamePostingLineWhereBudgetOnBudgetAccountValuesAtPostingDateEqualToBudgetOnBudgetInfoForPostingDate()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGivenAndCalculatedBudgetAccountHasBudgetInfoForPostingDate_ReturnsSamePostingLineWhereBudgetOnBudgetAccountValuesAtPostingDateEqualToBudgetOnBudgetInfoForPostingDate()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -428,7 +537,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccount_ReturnsSamePostingLineWherePostedOnBudgetAccountValuesAtPostingDateEqualToCalculatedPostingValueFromPostingLineCollection()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWherePostedOnBudgetAccountValuesAtPostingDateEqualToCalculatedPostingValueFromPostingLineCollection()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -446,6 +555,38 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateNotEqualToNull()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(accounting).Object;
+            IBudgetInfoValues budgetAccountValuesAtPostingDate = _fixture.BuildBudgetInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, budgetAccount: budgetAccount, budgetAccountValuesAtPostingDate: budgetAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.BudgetAccountValuesAtPostingDate, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithBudgetAccountAndBudgetAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateEqualToGivenBudgetAccountAndBudgetAccountValues()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(accounting).Object;
+            IBudgetInfoValues budgetAccountValuesAtPostingDate = _fixture.BuildBudgetInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, budgetAccount: budgetAccount, budgetAccountValuesAtPostingDate: budgetAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.BudgetAccountValuesAtPostingDate, Is.EqualTo(budgetAccountValuesAtPostingDate));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalledOnPostingLineWithoutBudgetAccount_ReturnsSamePostingLineWhereBudgetAccountEqualToNull()
         {
             IPostingLine sut = CreateSut();
@@ -458,9 +599,22 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithoutBudgetAccount_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateEqualToNull()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithoutBudgetAccountAndBudgetAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateEqualToNull()
         {
             IPostingLine sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.BudgetAccountValuesAtPostingDate, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithoutBudgetAccountAndBudgetAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereBudgetAccountValuesAtPostingDateEqualToNull()
+        {
+            IBudgetInfoValues budgetAccountValuesAtPostingDate = _fixture.BuildBudgetInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(budgetAccountValuesAtPostingDate: budgetAccountValuesAtPostingDate);
 
             DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
             IPostingLine result = await sut.CalculateAsync(statusDate);
@@ -486,7 +640,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccount_ReturnsSamePostingLineWhereContactAccountValuesAtPostingDateNotEqualToNull()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereContactAccountValuesAtPostingDateNotEqualToNull()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -501,7 +655,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccount_ReturnsSamePostingLineWhereBalanceOnContactAccountValuesAtPostingDateEqualToCalculatedPostingValueFromPostingLineCollection()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereBalanceOnContactAccountValuesAtPostingDateEqualToCalculatedPostingValueFromPostingLineCollection()
         {
             IAccounting accounting = _fixture.BuildAccountingMock().Object;
             IAccount account = _fixture.BuildAccountMock(accounting).Object;
@@ -519,6 +673,38 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereContactAccountValuesAtPostingDateNotEqualToNull()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            IContactAccount contactAccount = _fixture.BuildContactAccountMock(accounting).Object;
+            IContactInfoValues contactAccountValuesAtPostingDate = _fixture.BuildContactInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, contactAccount: contactAccount, contactAccountValuesAtPostingDate: contactAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.ContactAccountValuesAtPostingDate, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereBalanceOnContactAccountValuesAtPostingDateEqualToGivenContactAccountValuesAtPostingDate()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock().Object;
+            IAccount account = _fixture.BuildAccountMock(accounting).Object;
+            IContactAccount contactAccount = _fixture.BuildContactAccountMock(accounting).Object;
+            IContactInfoValues contactAccountValuesAtPostingDate = _fixture.BuildContactInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(account: account, contactAccount: contactAccount, contactAccountValuesAtPostingDate: contactAccountValuesAtPostingDate);
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.ContactAccountValuesAtPostingDate, Is.EqualTo(contactAccountValuesAtPostingDate));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalledOnPostingLineWithoutContactAccount_ReturnsSamePostingLineWhereContactAccountEqualToNull()
         {
             IPostingLine sut = CreateSut();
@@ -531,9 +717,22 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledOnPostingLineWithoutContactAccount_ReturnsSamePostingLineWhereContactAccountValuesAtPostingDateEqualToNull()
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasNotGiven_ReturnsSamePostingLineWhereContactAccountValuesAtPostingDateEqualToNull()
         {
             IPostingLine sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IPostingLine result = await sut.CalculateAsync(statusDate);
+
+            Assert.That(result.ContactAccountValuesAtPostingDate, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledOnPostingLineWithContactAccountAndContactAccountValuesAtPostingDateWasGiven_ReturnsSamePostingLineWhereContactAccountValuesAtPostingDateEqualToNull()
+        {
+            IContactInfoValues contactAccountValuesAtPostingDate = _fixture.BuildContactInfoValuesMock().Object;
+            IPostingLine sut = CreateSut(contactAccountValuesAtPostingDate: contactAccountValuesAtPostingDate);
 
             DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
             IPostingLine result = await sut.CalculateAsync(statusDate);
@@ -801,13 +1000,13 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLine
             Assert.That(result, Is.SameAs(sut));
         }
 
-        private IPostingLine CreateSut(DateTime? postingDate = null, IAccount account = null, IBudgetAccount budgetAccount = null, IContactAccount contactAccount = null, int? sortOrder = null)
+        private IPostingLine CreateSut(DateTime? postingDate = null, IAccount account = null, IBudgetAccount budgetAccount = null, IContactAccount contactAccount = null, int? sortOrder = null, ICreditInfoValues accountValuesAtPostingDate = null, IBudgetInfoValues budgetAccountValuesAtPostingDate = null, IContactInfoValues contactAccountValuesAtPostingDate = null)
         {
             int year = _random.Next(InfoBase<ICreditInfo>.MinYear, Math.Min(DateTime.Today.Year, InfoBase<ICreditInfo>.MaxYear));
             int month = _random.Next(InfoBase<ICreditInfo>.MinMonth, Math.Min(DateTime.Today.Month, InfoBase<ICreditInfo>.MaxMonth));
             int day = _random.Next(1, DateTime.DaysInMonth(year, month));
 
-            return new Domain.Accounting.PostingLine(Guid.NewGuid(), postingDate ?? new DateTime(year, month, day), _fixture.Create<string>(), account ?? _fixture.BuildAccountMock().Object, _fixture.Create<string>(), budgetAccount, Math.Abs(_fixture.Create<decimal>()), Math.Abs(_fixture.Create<decimal>()), contactAccount, sortOrder ?? Math.Abs(_fixture.Create<int>()));
+            return new Domain.Accounting.PostingLine(Guid.NewGuid(), postingDate ?? new DateTime(year, month, day), _fixture.Create<string>(), account ?? _fixture.BuildAccountMock().Object, _fixture.Create<string>(), budgetAccount, Math.Abs(_fixture.Create<decimal>()), Math.Abs(_fixture.Create<decimal>()), contactAccount, sortOrder ?? Math.Abs(_fixture.Create<int>()), accountValuesAtPostingDate, budgetAccountValuesAtPostingDate, contactAccountValuesAtPostingDate);
         }
     }
 }

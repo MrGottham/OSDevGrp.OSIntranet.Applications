@@ -49,7 +49,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            TAccount[] calculatedAccountCollection = await Task.WhenAll(this.Select(account => account.CalculateAsync(StatusDate)).ToArray());
+            TAccount[] calculatedAccountCollection = await Task.WhenAll(this.AsParallel().Select(account => account.CalculateAsync(StatusDate)).ToArray());
 
             return Calculate(StatusDate, calculatedAccountCollection);
         }

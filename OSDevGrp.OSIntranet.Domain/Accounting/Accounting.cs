@@ -95,13 +95,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            Task[] calculateTasks =
-            {
+            await Task.WhenAll(
                 GetAccountCollectionCalculationTask(StatusDate),
                 GetBudgetAccountCollectionCalculationTask(StatusDate),
-                GetContactAccountCollectionCalculationTask(StatusDate)
-            };
-            await Task.WhenAll(calculateTasks);
+                GetContactAccountCollectionCalculationTask(StatusDate));
 
             return this;
         }
@@ -132,8 +129,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 .ThenByDescending(postingLine => postingLine.SortOrder)
                 .ToArray();
 
-            IPostingLineCollection postingLineCollection = new PostingLineCollection();
-            postingLineCollection.Add(postingLineArray);
+            IPostingLineCollection postingLineCollection = new PostingLineCollection
+            {
+                postingLineArray
+            };
 
             return await postingLineCollection.CalculateAsync(statusDate);
         }

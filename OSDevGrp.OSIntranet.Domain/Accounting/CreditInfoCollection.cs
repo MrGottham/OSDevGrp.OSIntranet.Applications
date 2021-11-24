@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -19,7 +20,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        protected override ICreditInfoCollection Calculate(DateTime statusDate, ICreditInfo[] calculatedCreditInfoCollection)
+        protected override ICreditInfoCollection Calculate(DateTime statusDate, IReadOnlyCollection<ICreditInfo> calculatedCreditInfoCollection)
         {
             NullGuard.NotNull(calculatedCreditInfoCollection, nameof(calculatedCreditInfoCollection));
 
@@ -45,7 +46,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected override ICreditInfoCollection AlreadyCalculated() => this;
 
-        private ICreditInfoValues ToCreditInfoValues(ICreditInfo creditInfo)
+        private static ICreditInfoValues ToCreditInfoValues(ICreditInfo creditInfo)
         {
             return creditInfo == null ? new CreditInfoValues(0M, 0M) : new CreditInfoValues(creditInfo.Credit, creditInfo.Balance);
         }

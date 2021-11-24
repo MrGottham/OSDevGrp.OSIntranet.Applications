@@ -165,10 +165,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Reference) ? null : src.Reference))
                 .ForMember(dest => dest.AccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.PostingValueForAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.BudgetAccountIdentifier, opt => opt.MapFrom(src => src.BudgetAccount == null ? null : (int?) default(int)))
+                .ForMember(dest => dest.PostingValueForBudgetAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit == 0M ? null : (decimal?) src.Debit))
                 .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit == 0M ? null : (decimal?) src.Credit))
                 .ForMember(dest => dest.ContactAccountIdentifier, opt => opt.MapFrom(src => src.ContactAccount == null ? null : (int?) default(int)))
+                .ForMember(dest => dest.PostingValueForContactAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 

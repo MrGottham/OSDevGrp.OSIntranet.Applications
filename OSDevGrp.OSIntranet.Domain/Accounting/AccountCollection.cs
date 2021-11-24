@@ -12,6 +12,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
     public class AccountCollection : AccountCollectionBase<IAccount, IAccountCollection>, IAccountCollection
     {
         #region Properties
+
         public IAccountCollectionValues ValuesAtStatusDate { get; private set; } = new AccountCollectionValues(0M, 0M);
 
         public IAccountCollectionValues ValuesAtEndOfLastMonthFromStatusDate { get; private set; } = new AccountCollectionValues(0M, 0M);
@@ -24,12 +25,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<IReadOnlyDictionary<IAccountGroup, IAccountCollection>> GroupByAccountGroupAsync()
         {
-            Task<IAccountCollection>[] groupCalculationTasks = this.GroupBy(account => account.AccountGroup.Number, account => account)
+            Task<IAccountCollection>[] groupCalculationTasks = this.AsParallel()
+                .GroupBy(account => account.AccountGroup.Number, account => account)
                 .Select(group =>
                 {
                     IAccountCollection accountCollection = new AccountCollection
                     {
-                        group.AsEnumerable().OrderBy(account => account.AccountNumber).ToArray()
+                        group.AsEnumerable().AsParallel().OrderBy(account => account.AccountNumber).ToArray()
                     };
 
                     return accountCollection.CalculateAsync(StatusDate);
@@ -38,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             IAccountCollection[] calculatedAccountCollections = await Task.WhenAll(groupCalculationTasks);
 
-            return new ReadOnlyDictionary<IAccountGroup, IAccountCollection>(calculatedAccountCollections
+            return new ReadOnlyDictionary<IAccountGroup, IAccountCollection>(calculatedAccountCollections.AsParallel()
                 .OrderBy(calculatedAccountCollection => calculatedAccountCollection.First().AccountGroup.Number)
                 .ToDictionary(calculatedAccountCollection => calculatedAccountCollection.First().AccountGroup, calculatedAccountCollection => calculatedAccountCollection));
         }
@@ -65,7 +67,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             NullGuard.NotNull(accountCollection, nameof(accountCollection));
 
-            return new ReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>>(accountCollection
+            return new ReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>>(accountCollection.AsParallel()
                 .GroupBy(account => account.AccountGroupType, account => account)
                 .ToDictionary(group => group.Key, group => group.AsEnumerable()));
         }

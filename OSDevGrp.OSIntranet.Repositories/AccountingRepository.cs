@@ -110,7 +110,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                     IAccountCollection accountCollection = new AccountCollection
                     {
-                        await accountModelHandler.ReadAsync(accountModel => accountModel.AccountingIdentifier == accountingNumber, new AccountingIdentificationState(accountingNumber))
+                        await accountModelHandler.ReadAsync(accountModel => accountModel.AccountingIdentifier == accountingNumber, prepareReadState: new AccountingIdentificationState(accountingNumber))
                     };
 
                     return accountCollection;
@@ -186,7 +186,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                     IBudgetAccountCollection budgetAccountCollection = new BudgetAccountCollection
                     {
-                        await budgetAccountModelHandler.ReadAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingNumber, new AccountingIdentificationState(accountingNumber))
+                        await budgetAccountModelHandler.ReadAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingNumber, prepareReadState: new AccountingIdentificationState(accountingNumber))
                     };
 
                     return budgetAccountCollection;
@@ -262,7 +262,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
                     IContactAccountCollection contactAccountCollection = new ContactAccountCollection
                     {
-                        await contactAccountModelHandler.ReadAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingNumber, new AccountingIdentificationState(accountingNumber))
+                        await contactAccountModelHandler.ReadAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingNumber, prepareReadState: new AccountingIdentificationState(accountingNumber))
                     };
 
                     return contactAccountCollection;
@@ -357,7 +357,22 @@ namespace OSDevGrp.OSIntranet.Repositories
                     foreach (IGrouping<int, IPostingLine> group in postingJournal.PostingLineCollection.GroupBy(postingLine => postingLine.Accounting.Number))
                     {
                         using PostingLineModelHandler postingLineModelHandler = new PostingLineModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.MinValue, DateTime.Today, true, true, applyingPostingLines: true);
-                        postingLineCollection.Add(await postingLineModelHandler.CreateAsync(group.OrderBy(m => m.PostingDate).ThenBy(m => m.SortOrder), new AccountingIdentificationState(group.Key), true));
+
+                        AccountingIdentificationState accountingIdentificationState = new AccountingIdentificationState(group.Key);
+
+                        IPostingLine[] createdPostingLineCollection = (await postingLineModelHandler.CreateAsync(group.OrderBy(m => m.PostingDate).ThenBy(m => m.SortOrder), accountingIdentificationState, true)).ToArray();
+
+                        IPostingLine[] updatedPostingLineCollection = (await postingLineModelHandler.UpdateAsync(createdPostingLineCollection.OrderBy(m => m.PostingDate.Date).ThenBy(m => m.SortOrder), accountingIdentificationState)).ToArray();
+                        foreach (IPostingLine postingLine in updatedPostingLineCollection)
+                        {
+                            IPostingLine[] affectedPostingCollection = (await postingLineModelHandler.ReadAsync(m => m.AccountingIdentifier == accountingIdentificationState.AccountingIdentifier && (m.PostingDate == postingLine.PostingDate && m.PostingLineIdentifier > postingLine.SortOrder || m.PostingDate > postingLine.PostingDate), prepareReadState: accountingIdentificationState)).ToArray();
+                            foreach (IPostingLine affectedPostingLine in affectedPostingCollection.Where(m => updatedPostingLineCollection.Contains(m) == false))
+                            {
+                                await postingLineModelHandler.UpdateAsync(affectedPostingLine, accountingIdentificationState);
+                            }
+                        }
+
+                        postingLineCollection.Add(updatedPostingLineCollection);
                     }
 
                     return (IPostingJournalResult) new PostingJournalResult(postingLineCollection, postingWarningCalculator);

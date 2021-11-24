@@ -27,8 +27,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary = GroupByContactAccountType(this);
 
-            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection();
-            debtorAccountCollection.Add(ResolveDebtors(contactAccountGroupDictionary).OrderBy(contactAccount => contactAccount.AccountName).ToArray());
+            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection
+            {
+                ResolveDebtors(contactAccountGroupDictionary).AsEnumerable().OrderBy(contactAccount => contactAccount.AccountName).ToArray()
+            };
 
             return debtorAccountCollection.CalculateAsync(StatusDate);
         }
@@ -37,8 +39,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary = GroupByContactAccountType(this);
 
-            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection();
-            debtorAccountCollection.Add(ResolveCreditors(contactAccountGroupDictionary).OrderBy(contactAccount => contactAccount.AccountName).ToArray());
+            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection
+            {
+                ResolveCreditors(contactAccountGroupDictionary).AsParallel().OrderBy(contactAccount => contactAccount.AccountName).ToArray()
+            };
 
             return debtorAccountCollection.CalculateAsync(StatusDate);
         }
@@ -65,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             NullGuard.NotNull(contactAccountCollection, nameof(contactAccountCollection));
 
-            return new ReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>>(contactAccountCollection
+            return new ReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>>(contactAccountCollection.AsParallel()
                 .GroupBy(contactAccount => contactAccount.ContactAccountType, contactAccount => contactAccount)
                 .ToDictionary(group => group.Key, group => group.AsEnumerable()));
         }

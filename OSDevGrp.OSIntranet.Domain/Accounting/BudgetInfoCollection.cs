@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -21,7 +22,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        protected override IBudgetInfoCollection Calculate(DateTime statusDate, IBudgetInfo[] calculatedBudgetInfoCollection)
+        protected override IBudgetInfoCollection Calculate(DateTime statusDate, IReadOnlyCollection<IBudgetInfo> calculatedBudgetInfoCollection)
         {
             NullGuard.NotNull(calculatedBudgetInfoCollection, nameof(calculatedBudgetInfoCollection));
 
@@ -50,16 +51,16 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected override IBudgetInfoCollection AlreadyCalculated() => this;
 
-        private IBudgetInfoValues ToBudgetInfoValues(IBudgetInfo budgetInfo)
+        private static IBudgetInfoValues ToBudgetInfoValues(IBudgetInfo budgetInfo)
         {
             return budgetInfo == null ? new BudgetInfoValues(0M, 0M) : new BudgetInfoValues(budgetInfo.Budget, budgetInfo.Posted);
         }
 
-        private IBudgetInfoValues ToBudgetInfoValues(IBudgetInfo[] budgetInfoCollection)
+        private static IBudgetInfoValues ToBudgetInfoValues(IBudgetInfo[] budgetInfoCollection)
         {
             NullGuard.NotNull(budgetInfoCollection, nameof(budgetInfoCollection));
 
-            return new BudgetInfoValues(budgetInfoCollection.Sum(budgetInfo => budgetInfo.Budget), budgetInfoCollection.Sum(budgetInfo => budgetInfo.Posted));
+            return new BudgetInfoValues(budgetInfoCollection.AsParallel().Sum(budgetInfo => budgetInfo.Budget), budgetInfoCollection.AsParallel().Sum(budgetInfo => budgetInfo.Posted));
         }
 
         #endregion

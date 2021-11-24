@@ -131,7 +131,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return ModelConverter.Convert<TEntityModel, TDomainModel>(await OnReadAsync(entityModel));
         }
 
-        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Expression<Func<TEntityModel, bool>> filterPredicate = null, TPrepareReadState prepareReadState = null)
+        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Expression<Func<TEntityModel, bool>> filterPredicate = null, Func<IQueryable<TEntityModel>, IQueryable<TEntityModel>> queryExtender = null, TPrepareReadState prepareReadState = null)
         {
             if (prepareReadState != null)
             {
@@ -142,6 +142,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             if (filterPredicate != null)
             {
                 entityModelReader = entityModelReader.Where(filterPredicate);
+            }
+            if (queryExtender != null)
+            {
+                entityModelReader = queryExtender(entityModelReader);
             }
 
             TEntityModel[] entityModelCollection = await Task.FromResult(entityModelReader.ToArray());
