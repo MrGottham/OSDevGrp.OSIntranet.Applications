@@ -45,14 +45,14 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 .ToDictionary(calculatedAccountCollection => calculatedAccountCollection.First().AccountGroup, calculatedAccountCollection => calculatedAccountCollection));
         }
 
-        protected override IAccountCollection Calculate(DateTime statusDate, IEnumerable<IAccount> calculatedAccountCollection)
+        protected override IAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<IAccount> calculatedAccountCollection)
         {
             NullGuard.NotNull(calculatedAccountCollection, nameof(calculatedAccountCollection));
 
             IReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>> accountGroupDictionary = GroupByAccountGroupType(calculatedAccountCollection);
 
-            IAccount[] assetAccountCollection = ResolveAssets(accountGroupDictionary);
-            IAccount[] liabilityAccountCollection = ResolveLiabilities(accountGroupDictionary);
+            IReadOnlyCollection<IAccount> assetAccountCollection = ResolveAssets(accountGroupDictionary);
+            IReadOnlyCollection<IAccount> liabilityAccountCollection = ResolveLiabilities(accountGroupDictionary);
 
             ValuesAtStatusDate = ToAccountCollectionValues(assetAccountCollection, liabilityAccountCollection, account => account.ValuesAtStatusDate);
             ValuesAtEndOfLastMonthFromStatusDate = ToAccountCollectionValues(assetAccountCollection, liabilityAccountCollection, account => account.ValuesAtEndOfLastMonthFromStatusDate);
@@ -72,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 .ToDictionary(group => group.Key, group => group.AsEnumerable()));
         }
 
-        private static IAccount[] ResolveAssets(IReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>> accountGroupDictionary)
+        private static IReadOnlyCollection<IAccount> ResolveAssets(IReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>> accountGroupDictionary)
         {
             NullGuard.NotNull(accountGroupDictionary, nameof(accountGroupDictionary));
 
@@ -81,7 +81,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 : Array.Empty<IAccount>();
         }
 
-        private static IAccount[] ResolveLiabilities(IReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>> accountGroupDictionary)
+        private static IReadOnlyCollection<IAccount> ResolveLiabilities(IReadOnlyDictionary<AccountGroupType, IEnumerable<IAccount>> accountGroupDictionary)
         {
             NullGuard.NotNull(accountGroupDictionary, nameof(accountGroupDictionary));
 
@@ -90,7 +90,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 : Array.Empty<IAccount>();
         }
 
-        private static IAccountCollectionValues ToAccountCollectionValues(IEnumerable<IAccount> assetAccountCollection, IEnumerable<IAccount> liabilityAccountCollection, Func<IAccount, ICreditInfoValues> selector)
+        private static IAccountCollectionValues ToAccountCollectionValues(IReadOnlyCollection<IAccount> assetAccountCollection, IReadOnlyCollection<IAccount> liabilityAccountCollection, Func<IAccount, ICreditInfoValues> selector)
         {
             NullGuard.NotNull(assetAccountCollection, nameof(assetAccountCollection))
                 .NotNull(liabilityAccountCollection, nameof(liabilityAccountCollection))

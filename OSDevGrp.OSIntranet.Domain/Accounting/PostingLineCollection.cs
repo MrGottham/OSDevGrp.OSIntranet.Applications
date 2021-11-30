@@ -138,8 +138,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            await Task.WhenAll(this.AsParallel()
-                .GroupBy(postingLine => postingLine.PostingDate.Year)
+            await Task.WhenAll(this.GroupBy(postingLine => postingLine.PostingDate.Year)
                 .Select(group => CalculateAsync(group.ToArray(), StatusDate))
                 .ToArray());
 

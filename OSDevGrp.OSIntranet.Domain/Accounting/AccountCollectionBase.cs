@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
@@ -49,12 +48,16 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             StatusDate = statusDate.Date;
 
-            TAccount[] calculatedAccountCollection = await Task.WhenAll(this.AsParallel().Select(account => account.CalculateAsync(StatusDate)).ToArray());
+            List<TAccount> calculatedAccountCollection = new List<TAccount>();
+            foreach (TAccount account in this)
+            {
+                calculatedAccountCollection.Add(await account.CalculateAsync(StatusDate));
+            }
 
-            return Calculate(StatusDate, calculatedAccountCollection);
+            return Calculate(StatusDate, calculatedAccountCollection.AsReadOnly());
         }
 
-        protected abstract TAccountCollection Calculate(DateTime statusDate, IEnumerable<TAccount> calculatedAccountCollection);
+        protected abstract TAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<TAccount> calculatedAccountCollection);
 
         protected abstract TAccountCollection AlreadyCalculated();
 
