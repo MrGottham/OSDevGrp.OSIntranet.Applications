@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
-    internal class CreditInfoValues : ICreditInfoValues
+    public class CreditInfoValues : ICreditInfoValues
     {
         #region Constructor
 

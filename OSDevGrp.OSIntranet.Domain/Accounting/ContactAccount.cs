@@ -127,7 +127,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             };
         }
 
-        protected override IContactAccount GetCalculationResult() => this;
+        protected override async Task<IContactAccount> GetCalculationResultAsync()
+        {
+            PostingLineCollection = await PostingLineCollection.ApplyCalculationAsync(this);
+
+            return this;
+        }
 
         protected override IContactAccount AlreadyCalculated() => this;
 

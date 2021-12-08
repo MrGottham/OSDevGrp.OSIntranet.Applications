@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
@@ -14,5 +15,15 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         IPostingLineCollection Ordered();
 
         IPostingLineCollection Top(int numberOfPostingLines);
+
+        decimal CalculatePostingValue(DateTime fromDate, DateTime toDate, int? sortOrder = null);
+
+        Task<IPostingLineCollection> ApplyCalculationAsync(IAccounting calculatedAccounting);
+
+        Task<IPostingLineCollection> ApplyCalculationAsync(IAccount calculatedAccount);
+
+        Task<IPostingLineCollection> ApplyCalculationAsync(IBudgetAccount calculatedBudgetAccount);
+
+        Task<IPostingLineCollection> ApplyCalculationAsync(IContactAccount calculatedContactAccount);
     }
 }

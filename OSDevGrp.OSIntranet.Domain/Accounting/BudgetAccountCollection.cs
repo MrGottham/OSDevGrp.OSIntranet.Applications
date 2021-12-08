@@ -26,12 +26,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public async Task<IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection>> GroupByBudgetAccountGroupAsync()
         {
-            Task<IBudgetAccountCollection>[] groupCalculationTasks = this.GroupBy(budgetAccount => budgetAccount.BudgetAccountGroup.Number, budgetAccount => budgetAccount)
+            Task<IBudgetAccountCollection>[] groupCalculationTasks = this.AsParallel()
+                .GroupBy(budgetAccount => budgetAccount.BudgetAccountGroup.Number, budgetAccount => budgetAccount)
                 .Select(group =>
                 {
                     IBudgetAccountCollection budgetAccountCollection = new BudgetAccountCollection
                     {
-                        group.AsEnumerable().OrderBy(account => account.AccountNumber).ToArray()
+                        group.AsEnumerable().AsParallel().OrderBy(account => account.AccountNumber).ToArray()
                     };
 
                     return budgetAccountCollection.CalculateAsync(StatusDate);
@@ -40,28 +41,26 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             IBudgetAccountCollection[] calculatedBudgetAccountCollections = await Task.WhenAll(groupCalculationTasks);
 
-            return new ReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection>(calculatedBudgetAccountCollections
+            return new ReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection>(calculatedBudgetAccountCollections.AsParallel()
                 .OrderBy(calculatedBudgetAccountCollection => calculatedBudgetAccountCollection.First().BudgetAccountGroup.Number)
                 .ToDictionary(calculatedBudgetAccountCollection => calculatedBudgetAccountCollection.First().BudgetAccountGroup, calculatedAccountCollection => calculatedAccountCollection));
         }
 
-        protected override IBudgetAccountCollection Calculate(DateTime statusDate, IEnumerable<IBudgetAccount> calculatedBudgetAccountCollection)
+        protected override IBudgetAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<IBudgetAccount> calculatedBudgetAccountCollection)
         {
             NullGuard.NotNull(calculatedBudgetAccountCollection, nameof(calculatedBudgetAccountCollection));
 
-            IBudgetAccount[] calculatedBudgetAccountArray = calculatedBudgetAccountCollection.ToArray();
-
-            ValuesForMonthOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountArray, budgetAccount => budgetAccount.ValuesForMonthOfStatusDate);
-            ValuesForLastMonthOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountArray, budgetAccount => budgetAccount.ValuesForLastMonthOfStatusDate);
-            ValuesForYearToDateOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountArray, budgetAccount => budgetAccount.ValuesForYearToDateOfStatusDate);
-            ValuesForLastYearOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountArray, budgetAccount => budgetAccount.ValuesForLastYearOfStatusDate);
+            ValuesForMonthOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountCollection, budgetAccount => budgetAccount.ValuesForMonthOfStatusDate);
+            ValuesForLastMonthOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountCollection, budgetAccount => budgetAccount.ValuesForLastMonthOfStatusDate);
+            ValuesForYearToDateOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountCollection, budgetAccount => budgetAccount.ValuesForYearToDateOfStatusDate);
+            ValuesForLastYearOfStatusDate = ToBudgetInfoValues(calculatedBudgetAccountCollection, budgetAccount => budgetAccount.ValuesForLastYearOfStatusDate);
 
             return this;
         }
 
         protected override IBudgetAccountCollection AlreadyCalculated() => this;
 
-        private static IBudgetInfoValues ToBudgetInfoValues(IBudgetAccount[] budgetAccountCollection, Func<IBudgetAccount, IBudgetInfoValues> selector)
+        private static IBudgetInfoValues ToBudgetInfoValues(IReadOnlyCollection<IBudgetAccount> budgetAccountCollection, Func<IBudgetAccount, IBudgetInfoValues> selector)
         {
             NullGuard.NotNull(budgetAccountCollection, nameof(budgetAccountCollection))
                 .NotNull(selector, nameof(selector));

@@ -60,8 +60,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
 
         public void Dispose()
         {
-            DbContext.Dispose();
-
             OnDispose();
         }
 
@@ -72,7 +70,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return (await CreateAsync(new[] {domainModel}, prepareReadState)).SingleOrDefault();
         }
 
-        internal async Task<IEnumerable<TDomainModel>> CreateAsync(IEnumerable<TDomainModel> domainModelCollection, TPrepareReadState prepareReadState = null)
+        internal async Task<IEnumerable<TDomainModel>> CreateAsync(IEnumerable<TDomainModel> domainModelCollection, TPrepareReadState prepareReadState = null, bool saveOnForEach = false)
         {
             NullGuard.NotNull(domainModelCollection, nameof(domainModelCollection));
 
@@ -82,10 +80,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
                 TEntityModel entityModel = ModelConverter.Convert<TDomainModel, TEntityModel>(domainModel);
                 EntityEntry<TEntityModel> entityEntry = await Entities.AddAsync(await OnCreateAsync(domainModel, entityModel));
 
+                if (saveOnForEach)
+                {
+                    await DbContext.SaveChangesAsync();
+                }
+
                 createdDomainModelEntityEntryDictionary.Add(domainModel, entityEntry);
             }
 
-            await DbContext.SaveChangesAsync();
+            if (saveOnForEach == false)
+            {
+                await DbContext.SaveChangesAsync();
+            }
 
             if (createdDomainModelEntityEntryDictionary.Count > 0 && prepareReadState != null)
             {
@@ -125,7 +131,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return ModelConverter.Convert<TEntityModel, TDomainModel>(await OnReadAsync(entityModel));
         }
 
-        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Expression<Func<TEntityModel, bool>> filterPredicate = null, TPrepareReadState prepareReadState = null)
+        internal async Task<IEnumerable<TDomainModel>> ReadAsync(Expression<Func<TEntityModel, bool>> filterPredicate = null, Func<IQueryable<TEntityModel>, IQueryable<TEntityModel>> queryExtender = null, TPrepareReadState prepareReadState = null)
         {
             if (prepareReadState != null)
             {
@@ -136,6 +142,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             if (filterPredicate != null)
             {
                 entityModelReader = entityModelReader.Where(filterPredicate);
+            }
+            if (queryExtender != null)
+            {
+                entityModelReader = queryExtender(entityModelReader);
             }
 
             TEntityModel[] entityModelCollection = await Task.FromResult(entityModelReader.ToArray());
@@ -157,7 +167,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             return (await UpdateAsync(new[] {domainModel}, prepareReadState)).SingleOrDefault();
         }
 
-        internal async Task<IEnumerable<TDomainModel>> UpdateAsync(IEnumerable<TDomainModel> domainModelCollection, TPrepareReadState prepareReadState = null)
+        internal async Task<IEnumerable<TDomainModel>> UpdateAsync(IEnumerable<TDomainModel> domainModelCollection, TPrepareReadState prepareReadState = null, bool saveOnForEach = false)
         {
             NullGuard.NotNull(domainModelCollection, nameof(domainModelCollection));
 
@@ -174,10 +184,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
 
                 await OnUpdateAsync(domainModel, entityModel);
 
+                if (saveOnForEach)
+                {
+                    await DbContext.SaveChangesAsync();
+                }
+
                 updatedPrimaryKeyEntityModelDictionary.Add(primaryKey, entityModel);
             }
 
-            await DbContext.SaveChangesAsync();
+            if (saveOnForEach == false)
+            {
+                await DbContext.SaveChangesAsync();
+            }
 
             if (updatedPrimaryKeyEntityModelDictionary.Count > 0 && prepareReadState != null)
             {

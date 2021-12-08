@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -10,49 +12,38 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
-using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Contacts.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Common.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
-using OSDevGrp.OSIntranet.BusinessLogic.Contacts.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
-using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Core.Resolvers;
+using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
-using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests
 {
@@ -61,12 +52,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
     {
         #region Private variables
 
-        private IValidator _validator;
-        private IMicrosoftGraphRepository _microsoftGraphRepository;
-        private IAccountingRepository _accountingRepository;
-        private IContactRepository _contactRepository;
-        private ICommandBus _commandBus;
-        private IQueryBus _queryBus;
+        private IServiceProvider _serviceProvider;
 
         private static readonly Regex PersonNameRegex = new Regex(@"^([A-Z�����][A-Z�����a-z�����\-]+\s)?([A-Z�����][A-Z�����a-z�����.\s]+\s)?([A-Z�����][A-Z�����a-z�����\-]+)$", RegexOptions.Compiled);
         private static readonly Regex DanishPostalCodeAndCityRegex = new Regex(@"^([0-9]{4})\s+([A-Z���][A-Z���a-z���\s]*)$", RegexOptions.Compiled);
@@ -80,76 +66,32 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         [SetUp]
         public void SetUp()
         {
-            IConfiguration configuration = CreateConfiguration();
-            IPrincipalResolver principalResolver = CreatePrincipalResolver();
-            ILoggerFactory loggerFactory = CreateLoggerFactory();
-            IEventPublisher eventPublisher = CreateEventPublisher();
+            IServiceCollection serviceCollection = new ServiceCollection();
+            // ReSharper disable UnusedParameter.Local
+            serviceCollection.AddTransient(serviceProvider => CreateConfiguration());
+            serviceCollection.AddTransient(serviceProvider => CreatePrincipalResolver());
+            serviceCollection.AddTransient(serviceProvider => CreateLoggerFactory());
+            // ReSharper restore UnusedParameter.Local
 
-            _validator = CreateValidator();
+            serviceCollection.AddEventPublisher();
+            serviceCollection.AddQueryBus();
+            serviceCollection.AddQueryHandlers(typeof(GetLetterHeadQueryHandler).Assembly);
+            serviceCollection.AddCommandBus();
+            serviceCollection.AddCommandHandlers(typeof(CreateLetterHeadCommandHandler).Assembly);
+            serviceCollection.AddDomainLogic();
+            serviceCollection.AddBusinessLogicValidators();
+            serviceCollection.AddBusinessLogicHelpers();
+            serviceCollection.AddRepositories();
 
-            IClaimResolver claimResolver = new ClaimResolver(principalResolver);
-            ICountryHelper countryHelper = new CountryHelper(claimResolver);
-            IAccountingHelper accountingHelper = new AccountingHelper(claimResolver);
+            _serviceProvider = serviceCollection.BuildServiceProvider();
+        }
 
-            ICommonRepository commonRepository = new CommonRepository(configuration, principalResolver, loggerFactory);
-
-            _microsoftGraphRepository = new MicrosoftGraphRepository(configuration, principalResolver, loggerFactory);
-            _contactRepository = new ContactRepository(configuration, principalResolver, loggerFactory);
-            _accountingRepository = new AccountingRepository(configuration, principalResolver, loggerFactory, eventPublisher);
-
-            ICommandHandler<IRefreshTokenForMicrosoftGraphCommand, IRefreshableToken> refreshTokenForMicrosoftGraphCommandHandler = new RefreshTokenForMicrosoftGraphCommandHandler(_microsoftGraphRepository);
-            ICommandHandler<ICreateLetterHeadCommand> createLetterHeadCommandHandler = new CreateLetterHeadCommandHandler(_validator, commonRepository);
-            ICommandHandler<ICreateContactCommand> createContactCommandHandler = new CreateContactCommandHandler(_validator, _microsoftGraphRepository, _contactRepository, _accountingRepository);
-            ICommandHandler<IUpdateContactCommand> updateContactCommandHandler = new UpdateContactCommandHandler(_validator, _microsoftGraphRepository, _contactRepository, _accountingRepository);
-            ICommandHandler<ICreateContactGroupCommand> createContactGroupCommandHandler = new CreateContactGroupCommandHandler(_validator, _contactRepository);
-            ICommandHandler<ICreatePostalCodeCommand> createPostalCodeCommandHandler = new CreatePostalCodeCommandHandler(_validator, _contactRepository);
-            ICommandHandler<ICreateAccountingCommand> createAccountingCommandHandler = new CreateAccountingCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<IUpdateAccountingCommand> updateAccountingCommandHandler = new UpdateAccountingCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<ICreateAccountCommand> createAccountCommandHandler = new CreateAccountCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<IUpdateAccountCommand> updateAccountCommandHandler = new UpdateAccountCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<ICreateBudgetAccountCommand> createBudgetAccountCommandHandler = new CreateBudgetAccountCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<IUpdateBudgetAccountCommand> updateBudgetAccountCommandHandler = new UpdateBudgetAccountCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<ICreateContactAccountCommand> createContactAccountCommandHandler = new CreateContactAccountCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<IUpdateContactAccountCommand> updateContactAccountCommandHandler = new UpdateContactAccountCommandHandler(_validator, _accountingRepository, commonRepository);
-            ICommandHandler<ICreatePaymentTermCommand> createPaymentTermCommandHandler = new CreatePaymentTermCommandHandler(_validator, _accountingRepository);
-            _commandBus = new CommandBus(new ICommandHandler[]
-            {
-                refreshTokenForMicrosoftGraphCommandHandler,
-                createLetterHeadCommandHandler,
-                createContactCommandHandler,
-                updateContactCommandHandler,
-                createContactGroupCommandHandler,
-                createPostalCodeCommandHandler, 
-                createAccountingCommandHandler,
-                updateAccountingCommandHandler,
-                createAccountCommandHandler,
-                updateAccountCommandHandler,
-                createBudgetAccountCommandHandler,
-                updateBudgetAccountCommandHandler,
-                createContactAccountCommandHandler,
-                updateContactAccountCommandHandler,
-                createPaymentTermCommandHandler
-            });
-
-            IQueryHandler<IGetMatchingContactCollectionQuery, IEnumerable<IContact>> getMatchingContactCollectionQueryHandler = new GetMatchingContactCollectionQueryHandler(_validator, _microsoftGraphRepository, _contactRepository);
-            IQueryHandler<EmptyQuery, IEnumerable<ICountry>> getCountryCollectionQueryHandler = new GetCountryCollectionQueryHandler(_contactRepository, countryHelper);
-            IQueryHandler<IGetPostalCodeQuery, IPostalCode> getPostalCodeQueryHandler = new GetPostalCodeQueryHandler(_validator, _contactRepository, countryHelper);
-            IQueryHandler<EmptyQuery, IEnumerable<IAccounting>> getAccountingCollectionQueryHandler = new GetAccountingCollectionQueryHandler(_accountingRepository, accountingHelper);
-            IQueryHandler<IGetAccountCollectionQuery, IAccountCollection> getAccountCollectionQueryHandler = new GetAccountCollectionQueryHandler(_validator, _accountingRepository);
-            IQueryHandler<IGetAccountingQuery, IAccounting> getAccountingQueryHandler = new GetAccountingQueryHandler(_validator, _accountingRepository, accountingHelper);
-            IQueryHandler<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection> getBudgetAccountCollectionQueryHandler = new GetBudgetAccountCollectionQueryHandler(_validator, _accountingRepository);
-            IQueryHandler<IGetContactAccountCollectionQuery, IContactAccountCollection> getContactAccountCollectionQueryHandler = new GetContactAccountCollectionQueryHandler(_validator, _accountingRepository);
-            _queryBus = new QueryBus(new IQueryHandler[]
-            {
-                getMatchingContactCollectionQueryHandler,
-                getCountryCollectionQueryHandler,
-                getPostalCodeQueryHandler,
-                getAccountingCollectionQueryHandler,
-                getAccountingQueryHandler,
-                getAccountCollectionQueryHandler,
-                getBudgetAccountCollectionQueryHandler,
-                getContactAccountCollectionQueryHandler
-            });
+        [TearDown]
+        public void TearDown()
+        {
+            ((ServiceProvider)_serviceProvider).DisposeAsync()
+                .GetAwaiter()
+                .GetResult();
         }
 
         [Test]
@@ -180,7 +122,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     Line7 = string.IsNullOrWhiteSpace(values[10]) ? null : values[10],
                     CompanyIdentificationNumber = string.IsNullOrWhiteSpace(values[11]) ? null : values[11],
                 };
-                await _commandBus.PublishAsync(command);
+                await ExecuteCommand(command);
             });
         }
 
@@ -193,8 +135,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             XmlDocument contactGroupDocument = new XmlDocument();
             contactGroupDocument.Load(fileName);
 
-            XmlNodeList contactGroupNodeList = contactGroupDocument.DocumentElement.SelectNodes("ContactGroup");
-            foreach (XmlElement contactGroupElement in contactGroupNodeList.OfType<XmlElement>())
+            XmlNodeList contactGroupNodeList = contactGroupDocument.DocumentElement?.SelectNodes("ContactGroup");
+            foreach (XmlElement contactGroupElement in contactGroupNodeList?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
             {
                 if (int.TryParse(contactGroupElement.GetAttribute("number"), out int contactGroupNumber) == false)
                 {
@@ -212,7 +154,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     Number = contactGroupNumber,
                     Name = contactGroupName
                 };
-                await _commandBus.PublishAsync(createContactGroupCommand);
+                await ExecuteCommand(createContactGroupCommand);
             }
         }
 
@@ -225,10 +167,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             XmlDocument postalCodeDocument = new XmlDocument();
             postalCodeDocument.Load(fileName);
 
-            IDictionary<string, ICountry> countryDictionary = (await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery())).ToDictionary(country => country.Code, country => country);
+            IDictionary<string, ICountry> countryDictionary = (await ExecuteQuery<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery())).ToDictionary(country => country.Code, country => country);
 
-            XmlNodeList postalCodeNodeList = postalCodeDocument.DocumentElement.SelectNodes("PostalCode");
-            foreach (XmlElement postalCodeElement in postalCodeNodeList.OfType<XmlElement>())
+            XmlNodeList postalCodeNodeList = postalCodeDocument.DocumentElement?.SelectNodes("PostalCode");
+            foreach (XmlElement postalCodeElement in postalCodeNodeList?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
             {
                 string countryCode = GetAttributeValue(postalCodeElement, "countryCode");
                 if (string.IsNullOrWhiteSpace(countryCode) || countryDictionary.ContainsKey(countryCode) == false)
@@ -247,7 +189,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     CountryCode = countryCode,
                     PostalCode = code
                 };
-                if (await _queryBus.QueryAsync<IGetPostalCodeQuery, IPostalCode>(query) != null)
+                if (await ExecuteQuery<IGetPostalCodeQuery, IPostalCode>(query) != null)
                 {
                     continue;
                 }
@@ -259,13 +201,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     City = GetAttributeValue(postalCodeElement, "city"),
                     State = GetAttributeValue(postalCodeElement, "state")
                 };
-                await _commandBus.PublishAsync(command);
+                await ExecuteCommand(command);
             }
         }
 
         [Test]
         [Category("DataImport")]
-        [TestCase("Accountings.xml")] 
+        [TestCase("Accountings.xml")]
         [Ignore("Test which imports data and should only be run once")]
         public async Task Import_Accountings_FromFile(string fileName)
         {
@@ -277,10 +219,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             {
                 return;
             }
-            
+
             DateTime infoFromDate = DateTime.Today;
 
-            IDictionary<int, IAccounting> accountingDictionary = (await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery())).ToDictionary(accounting => accounting.Number, accounting => accounting);
+            IDictionary<int, IAccounting> accountingDictionary = (await ExecuteQuery<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery())).ToDictionary(accounting => accounting.Number, accounting => accounting);
 
             foreach (XmlElement accountingElement in accountingNodeList.OfType<XmlElement>())
             {
@@ -290,13 +232,49 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     continue;
                 }
 
-                IDictionary<string, IAccount> accountDictionary = (await _queryBus.QueryAsync<IGetAccountCollectionQuery, IAccountCollection>(new GetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
-                IDictionary<string, IBudgetAccount> budgetAccountDictionary = (await _queryBus.QueryAsync<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection>(new GetBudgetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
-                IDictionary<string, IContactAccount> contactAccountDictionary = (await _queryBus.QueryAsync<IGetContactAccountCollectionQuery, IContactAccountCollection>(new GetContactAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
+                IDictionary<string, IAccount> accountDictionary = (await ExecuteQuery<IGetAccountCollectionQuery, IAccountCollection>(new GetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
+                IDictionary<string, IBudgetAccount> budgetAccountDictionary = (await ExecuteQuery<IGetBudgetAccountCollectionQuery, IBudgetAccountCollection>(new GetBudgetAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
+                IDictionary<string, IContactAccount> contactAccountDictionary = (await ExecuteQuery<IGetContactAccountCollectionQuery, IContactAccountCollection>(new GetContactAccountCollectionQuery {AccountingNumber = accounting.Number, StatusDate = DateTime.Today})).ToDictionary(m => m.AccountNumber, m => m);
 
                 await HandleAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("Account"), accountDictionary, infoFromDate);
                 await HandleBudgetAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("BudgetAccount"), budgetAccountDictionary, infoFromDate);
-                await HandleContactAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("ContactAccount"), contactAccountDictionary);
+                IReadOnlyDictionary<int, string> contactAccountConvertingMap = await HandleContactAccountElementCollectionAsync(accounting.Number, accountingElement.SelectNodes("ContactAccount"), contactAccountDictionary);
+
+                XmlNodeList postingLineElementCollection = accountingElement.SelectNodes("PostingLine");
+
+                DateTime? latestPostingDate = (await accounting.GetPostingLinesAsync(DateTime.Today))
+                    .Ordered()
+                    .FirstOrDefault()?
+                    .PostingDate.Date;
+
+                DateTime[] postingDateCollection = (postingLineElementCollection?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
+                    .Select(postingLineElement => GetPostingDate(postingLineElement).Date)
+                    .Distinct()
+                    .ToArray();
+
+                DateTime fromPostingDate;
+                if (latestPostingDate != null)
+                {
+                    fromPostingDate = latestPostingDate.Value.AddDays(1).Date;
+                }
+                else
+                {
+                    fromPostingDate = postingDateCollection.Any()
+                        ? postingDateCollection.OrderBy(postingDate => postingDate).First()
+                        : DateTime.MinValue;
+                }
+
+                DateTime toPostingDate = new DateTime(fromPostingDate.Year, 12, 31).Date;
+                while (toPostingDate <= DateTime.Today && postingDateCollection.Any(postingDate => postingDate >= fromPostingDate.Date && postingDate <= toPostingDate) == false)
+                {
+                    toPostingDate = toPostingDate.AddYears(1).Date;
+                }
+                if (toPostingDate.Date >= DateTime.Today)
+                {
+                    toPostingDate = toPostingDate.AddMonths(-1).Date;
+                }
+
+                await HandlePostingLineElementCollectionAsync(accounting.Number, postingLineElementCollection, contactAccountConvertingMap, fromPostingDate, toPostingDate);
             }
         }
 
@@ -309,8 +287,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             XmlDocument paymentTermDocument = new XmlDocument();
             paymentTermDocument.Load(fileName);
 
-            XmlNodeList paymentTermNodeList = paymentTermDocument.DocumentElement.SelectNodes("PaymentTerm");
-            foreach (XmlElement paymentTermElement in paymentTermNodeList.OfType<XmlElement>())
+            XmlNodeList paymentTermNodeList = paymentTermDocument.DocumentElement?.SelectNodes("PaymentTerm");
+            foreach (XmlElement paymentTermElement in paymentTermNodeList?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
             {
                 if (int.TryParse(paymentTermElement.GetAttribute("number"), out int paymentTermNumber) == false)
                 {
@@ -328,7 +306,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     Number = paymentTermNumber,
                     Name = paymentTermName
                 };
-                await _commandBus.PublishAsync(createPaymentTermCommand);
+                await ExecuteCommand(createPaymentTermCommand);
             }
         }
 
@@ -338,7 +316,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         [Ignore("Test which imports data and should only be run once")]
         public async Task Import_Addresses_FromFile(string fileName, string tokenType, string accessToken, string expires, string refreshToken)
         {
-            const bool validateCommands = false;
             DateTime expiresDateTime = DateTime.Parse(expires, CultureInfo.InvariantCulture);
 
             IDictionary<int, XmlElement> elementDictionary = new Dictionary<int, XmlElement>();
@@ -346,16 +323,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             XmlDocument addressDocument = new XmlDocument();
             addressDocument.Load(fileName);
 
-            XmlNodeList companyNodeList = addressDocument.DocumentElement.SelectNodes("Company");
-            foreach (XmlElement companyElement in companyNodeList.OfType<XmlElement>())
+            XmlNodeList companyNodeList = addressDocument.DocumentElement?.SelectNodes("Company");
+            foreach (XmlElement companyElement in companyNodeList?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
             {
                 int number = int.Parse(GetAttributeValue(companyElement, "number"));
 
                 elementDictionary.Add(number, companyElement);
             }
 
-            XmlNodeList personNodeList = addressDocument.DocumentElement.SelectNodes("Person");
-            foreach (XmlElement personElement in personNodeList.OfType<XmlElement>())
+            XmlNodeList personNodeList = addressDocument.DocumentElement?.SelectNodes("Person");
+            foreach (XmlElement personElement in personNodeList?.OfType<XmlElement>() ?? Array.Empty<XmlElement>())
             {
                 int number = int.Parse(GetAttributeValue(personElement, "number"));
 
@@ -367,7 +344,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 if (expiresDateTime <= DateTime.Now)
                 {
                     IRefreshTokenForMicrosoftGraphCommand command = new RefreshTokenForMicrosoftGraphCommand(new Uri("[TBD]"), new RefreshableToken(tokenType, accessToken, refreshToken, expiresDateTime.ToUniversalTime()));
-                    IRefreshableToken token = await _commandBus.PublishAsync<IRefreshTokenForMicrosoftGraphCommand, IRefreshableToken>(command);
+                    IRefreshableToken token = await ExecuteCommand<IRefreshTokenForMicrosoftGraphCommand, IRefreshableToken>(command);
 
                     tokenType = token.TokenType;
                     accessToken = token.AccessToken;
@@ -383,17 +360,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     switch (element.LocalName)
                     {
                         case "Person":
-                            createContactCommand = BuildCreateContactCommandForPerson(tokenType, accessToken, expiresDateTime, refreshToken, element, elementDictionary, validateCommands);
+                            createContactCommand = BuildCreateContactCommandForPerson(tokenType, accessToken, expiresDateTime, refreshToken, element, elementDictionary);
                             break;
 
                         case "Company":
-                            createContactCommand = BuildCreateContactCommandForCompany(tokenType, accessToken, expiresDateTime, refreshToken, element, validateCommands);
+                            createContactCommand = BuildCreateContactCommandForCompany(tokenType, accessToken, expiresDateTime, refreshToken, element);
                             break;
 
                         default:
                             throw new NotSupportedException($"Unhandled element: {element.OuterXml}");
                     }
-                    await _commandBus.PublishAsync(createContactCommand);
+                    await ExecuteCommand(createContactCommand);
                     continue;
                 }
 
@@ -401,17 +378,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 switch (element.LocalName)
                 {
                     case "Person":
-                        updateContactCommand = BuildUpdateContactCommandForPerson(tokenType, accessToken, expiresDateTime, refreshToken, element, contact, elementDictionary, validateCommands);
+                        updateContactCommand = BuildUpdateContactCommandForPerson(tokenType, accessToken, expiresDateTime, refreshToken, element, contact, elementDictionary);
                         break;
 
                     case "Company":
-                        updateContactCommand = BuildUpdateContactCommandForCompany(tokenType, accessToken, expiresDateTime, refreshToken, element, contact, validateCommands);
+                        updateContactCommand = BuildUpdateContactCommandForCompany(tokenType, accessToken, expiresDateTime, refreshToken, element, contact);
                         break;
 
                     default:
                         throw new NotSupportedException($"Unhandled element: {element.OuterXml}");
                 }
-                await _commandBus.PublishAsync(updateContactCommand);
+                await ExecuteCommand(updateContactCommand);
             }
         }
 
@@ -446,9 +423,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     BalanceBelowZero = accountingDictionary[accountingNumber].BalanceBelowZero,
                     BackDating = accountingDictionary[accountingNumber].BackDating
                 };
-                await _commandBus.PublishAsync(updateAccountingCommand);
+                await ExecuteCommand(updateAccountingCommand);
 
-                return await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
+                return await ExecuteQuery<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
             }
 
             ICreateAccountingCommand createAccountingCommand = new CreateAccountingCommand
@@ -459,9 +436,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 BalanceBelowZero = BalanceBelowZeroType.Debtors,
                 BackDating = 30
             };
-            await _commandBus.PublishAsync(createAccountingCommand);
+            await ExecuteCommand(createAccountingCommand);
 
-            return await _queryBus.QueryAsync<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
+            return await ExecuteQuery<IGetAccountingQuery, IAccounting>(new GetAccountingQuery {AccountingNumber = accountingNumber, StatusDate = DateTime.Today});
         }
 
         private async Task HandleAccountElementCollectionAsync(int accountingNumber, XmlNodeList accountElementCollection, IDictionary<string, IAccount> accountDictionary, DateTime infoFromDate)
@@ -536,7 +513,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                         AccountGroupNumber = accountGroupNumber,
                         CreditInfoCollection = creditInfoCommandCollection
                     };
-                    await _commandBus.PublishAsync(updateAccountCommand);
+                    await ExecuteCommand(updateAccountCommand);
 
                     continue;
                 }
@@ -551,7 +528,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     AccountGroupNumber = accountGroupNumber,
                     CreditInfoCollection = creditInfoCommandCollection
                 };
-                await _commandBus.PublishAsync(createAccountCommand);
+                await ExecuteCommand(createAccountCommand);
             }
         }
 
@@ -633,7 +610,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                         BudgetAccountGroupNumber = budgetAccountGroupNumber,
                         BudgetInfoCollection = budgetInfoCommandCollection
                     };
-                    await _commandBus.PublishAsync(updateBudgetAccountCommand);
+                    await ExecuteCommand(updateBudgetAccountCommand);
 
                     continue;
                 }
@@ -648,15 +625,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     BudgetAccountGroupNumber = budgetAccountGroupNumber,
                     BudgetInfoCollection = budgetInfoCommandCollection
                 };
-                await _commandBus.PublishAsync(createBudgetAccountCommand);
+                await ExecuteCommand(createBudgetAccountCommand);
             }
         }
 
-        private async Task HandleContactAccountElementCollectionAsync(int accountingNumber, XmlNodeList contactAccountElementCollection, IDictionary<string, IContactAccount> contactAccountDictionary)
+        private async Task<IReadOnlyDictionary<int, string>> HandleContactAccountElementCollectionAsync(int accountingNumber, XmlNodeList contactAccountElementCollection, IDictionary<string, IContactAccount> contactAccountDictionary)
         {
             NullGuard.NotNull(contactAccountElementCollection, nameof(contactAccountElementCollection))
                 .NotNull(contactAccountDictionary, nameof(contactAccountDictionary));
 
+            IDictionary<int, string> contactAccountConvertingMap = new ConcurrentDictionary<int, string>();
             foreach (XmlElement contactAccountElement in contactAccountElementCollection.OfType<XmlElement>())
             {
                 string accountNumber = GetAttributeValue(contactAccountElement, "primaryPhone")?.Replace(" ", string.Empty).ToUpper();
@@ -702,7 +680,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                         MailAddress = BuildMailAddress(contactAccountElement) ?? contactAccountDictionary[accountNumber].MailAddress,
                         PaymentTermNumber = paymentTermNumber
                     };
-                    await _commandBus.PublishAsync(updateContactAccountCommand);
+                    await ExecuteCommand(updateContactAccountCommand);
+
+                    contactAccountConvertingMap.Add(int.Parse(GetAttributeValue(contactAccountElement, "accountNumber")), accountNumber);
 
                     continue;
                 }
@@ -719,7 +699,44 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     MailAddress = BuildMailAddress(contactAccountElement),
                     PaymentTermNumber = paymentTermNumber
                 };
-                await _commandBus.PublishAsync(createContactAccountCommand);
+                await ExecuteCommand(createContactAccountCommand);
+
+                contactAccountConvertingMap.Add(int.Parse(GetAttributeValue(contactAccountElement, "accountNumber")), accountNumber);
+            }
+
+            return new ReadOnlyDictionary<int, string>(contactAccountConvertingMap);
+        }
+
+        private async Task HandlePostingLineElementCollectionAsync(int accountingNumber, XmlNodeList postingLineElementCollection, IReadOnlyDictionary<int, string> contactAccountConvertingMap, DateTime fromPostingDate, DateTime toPostingDate)
+        {
+            NullGuard.NotNull(postingLineElementCollection, nameof(postingLineElementCollection))
+                .NotNull(contactAccountConvertingMap, nameof(contactAccountConvertingMap));
+
+            IApplyPostingJournalCommand[] applyPostingJournalCommandCollection = postingLineElementCollection.OfType<XmlElement>()
+                .Where(postingLineElement =>
+                {
+                    DateTime postingDate = GetPostingDate(postingLineElement);
+                    return postingDate.Date >= fromPostingDate.Date && postingDate.Date <= toPostingDate.Date;
+                })
+                .Select(postingLineElement => BuildApplyPostingLineCommand(postingLineElement, contactAccountConvertingMap))
+                .GroupBy(applyPostingLineCommand => applyPostingLineCommand.PostingDate.Year * 100 + applyPostingLineCommand.PostingDate.Month)
+                .OrderBy(group => group.Key)
+                .Select(group =>
+                {
+                    IApplyPostingJournalCommand applyPostingJournalCommand = new ApplyPostingJournalCommand
+                    {
+                        AccountingNumber = accountingNumber,
+                        PostingLineCollection = group.OrderBy(m => m.PostingDate.Date)
+                            .ThenBy(m => m.SortOrder)
+                            .ToArray()
+                    };
+                    return applyPostingJournalCommand;
+                })
+                .ToArray();
+
+            foreach (IApplyPostingJournalCommand applyPostingJournalCommand in applyPostingJournalCommandCollection)
+            {
+                await ExecuteCommand<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
             }
         }
 
@@ -783,14 +800,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             };
             querySetter(query);
 
-            IContact[] matchingContactCollection = (await _queryBus.QueryAsync<IGetMatchingContactCollectionQuery, IEnumerable<IContact>>(query))
+            IContact[] matchingContactCollection = (await ExecuteQuery<IGetMatchingContactCollectionQuery, IEnumerable<IContact>>(query))
                 .Where(contact => predicate == null || predicate(contact))
                 .ToArray();
-            
+
             return matchingContactCollection.Length == 1 ? matchingContactCollection.First() : null;
         }
 
-        private ICreateContactCommand BuildCreateContactCommandForCompany(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement companyElement, bool validate)
+        private ICreateContactCommand BuildCreateContactCommandForCompany(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement companyElement)
         {
             NullGuard.NotNullOrWhiteSpace(tokenType, nameof(tokenType))
                 .NotNullOrWhiteSpace(accessToken, nameof(accessToken))
@@ -806,19 +823,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 Name = BuildNameCommandForCompany(companyElement)
             };
 
-            command = FillContactDataCommandForCompany(companyElement, command);
-
-            if (validate == false)
-            {
-                return command;
-            }
-            
-            command.Validate(_validator, _microsoftGraphRepository, _contactRepository, _accountingRepository);
-
-            return command;
+            return FillContactDataCommandForCompany(companyElement, command);
         }
 
-        private IUpdateContactCommand BuildUpdateContactCommandForCompany(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement companyElement, IContact matchingContact, bool validate)
+        private IUpdateContactCommand BuildUpdateContactCommandForCompany(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement companyElement, IContact matchingContact)
         {
             NullGuard.NotNullOrWhiteSpace(tokenType, nameof(tokenType))
                 .NotNullOrWhiteSpace(accessToken, nameof(accessToken))
@@ -836,16 +844,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 Name = BuildNameCommandForCompany(companyElement)
             };
 
-            command = FillContactDataCommandForCompany(companyElement, command);
-
-            if (validate == false)
-            {
-                return command;
-            }
-            
-            command.Validate(_validator, _microsoftGraphRepository, _contactRepository, _accountingRepository);
-
-            return command;
+            return FillContactDataCommandForCompany(companyElement, command);
         }
 
         private INameCommand BuildNameCommandForCompany(XmlElement companyElement)
@@ -887,7 +886,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             return FillContactDataCommand(companyElement, contactDataCommand);
         }
 
-        private ICreateContactCommand BuildCreateContactCommandForPerson(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement personElement, IDictionary<int, XmlElement> elementDictionary, bool validate)
+        private ICreateContactCommand BuildCreateContactCommandForPerson(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement personElement, IDictionary<int, XmlElement> elementDictionary)
         {
             NullGuard.NotNullOrWhiteSpace(tokenType, nameof(tokenType))
                 .NotNullOrWhiteSpace(accessToken, nameof(accessToken))
@@ -904,19 +903,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 Name = BuildNameCommandForPerson(personElement)
             };
 
-            command = FillContactDataCommandForPerson(personElement, elementDictionary, command);
-
-            if (validate == false)
-            {
-                return command;
-            }
-
-            command.Validate(_validator, _microsoftGraphRepository, _contactRepository, _accountingRepository);
-
-            return command;
+            return FillContactDataCommandForPerson(personElement, elementDictionary, command);
         }
 
-        private IUpdateContactCommand BuildUpdateContactCommandForPerson(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement personElement, IContact matchingContact, IDictionary<int, XmlElement> elementDictionary, bool validate)
+        private IUpdateContactCommand BuildUpdateContactCommandForPerson(string tokenType, string accessToken, DateTime expires, string refreshToken, XmlElement personElement, IContact matchingContact, IDictionary<int, XmlElement> elementDictionary)
         {
             NullGuard.NotNullOrWhiteSpace(tokenType, nameof(tokenType))
                 .NotNullOrWhiteSpace(accessToken, nameof(accessToken))
@@ -935,16 +925,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 Name = BuildNameCommandForPerson(personElement)
             };
 
-            command = FillContactDataCommandForPerson(personElement, elementDictionary, command);
-
-            if (validate == false)
-            {
-                return command;
-            }
-            
-            command.Validate(_validator, _microsoftGraphRepository, _contactRepository, _accountingRepository);
-
-            return command;
+            return FillContactDataCommandForPerson(personElement, elementDictionary, command);
         }
 
         private INameCommand BuildNameCommandForPerson(XmlElement personElement)
@@ -1022,7 +1003,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 throw new NotSupportedException($"The value does not match any known companies: {companyIdentifier}");
             }
 
-            IContactDataCommand companyContactData = BuildCreateContactCommandForCompany("[TBD]", "[TBD]", DateTime.Now.AddHours(1), "[TBD]", elementDictionary[companyIdentifier], false);
+            IContactDataCommand companyContactData = BuildCreateContactCommandForCompany("[TBD]", "[TBD]", DateTime.Now.AddHours(1), "[TBD]", elementDictionary[companyIdentifier]);
 
             return new CompanyCommand
             {
@@ -1151,6 +1132,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             throw new NotSupportedException($"The value does not match any known phone number format: {value}");
         }
 
+        private IApplyPostingLineCommand BuildApplyPostingLineCommand(XmlElement element, IReadOnlyDictionary<int, string> contactAccountConvertingMap)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNull(contactAccountConvertingMap, nameof(contactAccountConvertingMap));
+
+            return new ApplyPostingLineCommand
+            {
+                PostingDate = GetPostingDate(element),
+                Reference = GetAttributeValue(element, "reference"),
+                AccountNumber = GetAttributeValue(element, "accountNumber"),
+                Details = GetAttributeValue(element, "details"),
+                BudgetAccountNumber = GetAttributeValue(element, "budgetAccountNumber"),
+                Debit = GetDecimalFromAttributeValue(element, "debit"),
+                Credit = GetDecimalFromAttributeValue(element, "credit"),
+                ContactAccountNumber = GetContactAccountNumber(element, contactAccountConvertingMap),
+                SortOrder = int.Parse(GetAttributeValue(element, "sortOrder"), NumberStyles.Any, CultureInfo.InvariantCulture)
+            };
+        }
+
         private IConfiguration CreateConfiguration()
         {
             return new ConfigurationBuilder()
@@ -1164,28 +1164,51 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             return new GenericPrincipalResolver(currentPrincipal);
         }
 
+        private ClaimsPrincipal CreateClaimsPrincipal()
+        {
+            Claim nameClaim = new Claim(ClaimTypes.Name, "OSDevGrp.OSIntranet.Repositories.Migrations");
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] { nameClaim });
+
+            return new ClaimsPrincipal(claimsIdentity);
+        }
+
         private ILoggerFactory CreateLoggerFactory()
         {
             return NullLoggerFactory.Instance;
         }
 
-        private ClaimsPrincipal CreateClaimsPrincipal()
+        public async Task<TResult> ExecuteQuery<TQuery, TResult>(TQuery query) where TQuery : IQuery
         {
-            Claim nameClaim = new Claim(ClaimTypes.Name, "OSDevGrp.OSIntranet.Repositories.Migrations");
-            
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(new [] {nameClaim});
+            NullGuard.NotNull(query, nameof(query));
 
-            return new ClaimsPrincipal(claimsIdentity);
+            using IServiceScope serviceScope = _serviceProvider.CreateScope();
+
+            IQueryBus queryBus = serviceScope.ServiceProvider.GetRequiredService<IQueryBus>();
+
+            return await queryBus.QueryAsync<TQuery, TResult>(query);
         }
 
-        private IValidator CreateValidator()
+        private async Task ExecuteCommand<TCommand>(TCommand command) where TCommand : ICommand
         {
-            return new Validator(new IntegerValidator(), new DecimalValidator(), new StringValidator(), new DateTimeValidator(), new ObjectValidator(), new EnumerableValidator());
+            NullGuard.NotNull(command, nameof(command));
+
+            using IServiceScope serviceScope = _serviceProvider.CreateScope();
+
+            ICommandBus commandBus = serviceScope.ServiceProvider.GetRequiredService<ICommandBus>();
+
+            await commandBus.PublishAsync(command);
         }
 
-        private IEventPublisher CreateEventPublisher()
+        private async Task<TResult> ExecuteCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand
         {
-            return new EventPublisher();
+            NullGuard.NotNull(command, nameof(command));
+
+            using IServiceScope serviceScope = _serviceProvider.CreateScope();
+
+            ICommandBus commandBus = serviceScope.ServiceProvider.GetRequiredService<ICommandBus>();
+
+            return await commandBus.PublishAsync<TCommand, TResult>(command);
         }
 
         private async Task ImportFromFile(string fileName, Encoding encoding, Func<int, string, Task> lineHandler)
@@ -1199,7 +1222,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             int lineNumber = 0;
             while (streamReader.EndOfStream == false)
             {
-                await lineHandler(++lineNumber, streamReader.ReadLine());
+                await lineHandler(++lineNumber, await streamReader.ReadLineAsync());
             }
         }
 
@@ -1223,6 +1246,42 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                     return value;
                 })
                 .ToArray();
+        }
+
+        private DateTime GetPostingDate(XmlElement element)
+        {
+            NullGuard.NotNull(element, nameof(element));
+
+            return DateTime.ParseExact(GetAttributeValue(element, "postingDate"), "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
+        private string GetContactAccountNumber(XmlElement element, IReadOnlyDictionary<int, string> contactAccountConvertingMap)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNull(contactAccountConvertingMap, nameof(contactAccountConvertingMap));
+
+            string attributeValue = GetAttributeValue(element, "contactAccountNumber");
+            if (string.IsNullOrWhiteSpace(attributeValue))
+            {
+                return null;
+            }
+
+            int contactAccountNumber = int.Parse(attributeValue, NumberStyles.Any, CultureInfo.InvariantCulture);
+            return contactAccountConvertingMap.ContainsKey(contactAccountNumber) ? contactAccountConvertingMap[contactAccountNumber] : null;
+        }
+
+        private decimal? GetDecimalFromAttributeValue(XmlElement element, string attributeName)
+        {
+            NullGuard.NotNull(element, nameof(element))
+                .NotNullOrWhiteSpace(attributeName, nameof(attributeName));
+
+            string attributeValue = GetAttributeValue(element, attributeName);
+            if (string.IsNullOrWhiteSpace(attributeValue))
+            {
+                return null;
+            }
+
+            return decimal.Parse(attributeValue, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
 
         private string GetAttributeValue(XmlElement element, string attributeName)

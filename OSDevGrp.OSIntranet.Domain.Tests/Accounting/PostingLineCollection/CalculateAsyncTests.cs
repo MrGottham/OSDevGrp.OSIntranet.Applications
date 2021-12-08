@@ -29,19 +29,46 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertCalculateAsyncWasCalledOnEachPostingLine()
+        public async Task CalculateAsync_WhenCalled_AssertStatusDateWasCalledTreeTimesOnEachPostingLine()
         {
             IPostingLineCollection sut = CreateSut();
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock()
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue)
+            };
+            sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
+            {
+                postingLineMock.Verify(m => m.StatusDate, Times.Exactly(3));
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertCalculateAsyncWasCalledOnEachPostingLineWhereStatusDateDoesNotMatchStatusDateFromArgument()
+        {
+            IPostingLineCollection sut = CreateSut();
+
+            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
+            {
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue)
             };
             sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
 
@@ -51,6 +78,33 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
             foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
             {
                 postingLineMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertCalculateAsyncWasNotCalledOnAnyPostingLineWhereStatusDateMatchesStatusDateFromArgument()
+        {
+            IPostingLineCollection sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
+            {
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate)
+            };
+            sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
+
+            await sut.CalculateAsync(statusDate);
+
+            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
+            {
+                postingLineMock.Verify(m => m.CalculateAsync(It.IsAny<DateTime>()), Times.Never);
             }
         }
 
@@ -79,19 +133,46 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasCalledOnlyOnceOnEachPostingLine()
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertStatusDateWasCalledTreeTimesOnEachPostingLine()
         {
             IPostingLineCollection sut = CreateSut();
 
             IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
             {
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock()
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue)
+            };
+            sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
+            {
+                postingLineMock.Verify(m => m.StatusDate, Times.Exactly(3));
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasCalledOnEachPostingLineWhereStatusDateDoesNotMatchStatusDateFromArgument()
+        {
+            IPostingLineCollection sut = CreateSut();
+
+            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
+            {
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue),
+                _fixture.BuildPostingLineMock(statusDate: DateTime.MinValue)
             };
             sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
 
@@ -101,6 +182,33 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
             foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
             {
                 postingLineMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalledMultipleTimesWithSameStatusDate_AssertCalculateAsyncWasNotCalledOnAnyPostingLineWhereStatusDateMatchesStatusDateFromArgument()
+        {
+            IPostingLineCollection sut = CreateSut();
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
+            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
+            {
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate),
+                _fixture.BuildPostingLineMock(statusDate: statusDate)
+            };
+            sut.Add(postingLineMockCollection.Select(postingLineMock => postingLineMock.Object).ToArray());
+
+            await (await (await sut.CalculateAsync(statusDate)).CalculateAsync(statusDate)).CalculateAsync(statusDate);
+
+            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
+            {
+                postingLineMock.Verify(m => m.CalculateAsync(It.IsAny<DateTime>()), Times.Never);
             }
         }
 

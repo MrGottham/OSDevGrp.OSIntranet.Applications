@@ -53,7 +53,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 
             IPostingLineCollection postingLineCollection = new PostingLineCollection
             {
-                PostingLineCollection.AsParallel().Select(applyPostingLineCommand => applyPostingLineCommand.ToDomain(accounting))
+                PostingLineCollection.AsParallel()
+                    .Select(applyPostingLineCommand => applyPostingLineCommand.ToDomain(accounting))
+                    .OrderBy(postingLine => postingLine.PostingDate)
+                    .ThenBy(postingLine=> postingLine.SortOrder)
+                    .ToArray()
             };
 
             return new PostingJournal(postingLineCollection);

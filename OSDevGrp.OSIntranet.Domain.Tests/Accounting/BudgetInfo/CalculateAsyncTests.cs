@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -42,375 +40,70 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfo
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenCalled_AssertPostingDateWasCalledOnEachPostingLineInPostingLineCollectionOnBudgetAccount()
-        {
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock(),
-                _fixture.BuildPostingLineMock()
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount);
-
-            await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingDate, Times.Once);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsNewerThanBudgetInfo_AssertPostingValueWasNotCalledOnAnyNewerPostingLineInPostingLineCollectionOnBudgetAccount()
+        public async Task CalculateAsync_WhenStatusDateIsNewerThanBudgetInfo_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromBudgetAccount()
         {
             DateTime statusDate = DateTime.Today;
 
             int year = statusDate.AddMonths(-3).Year;
             int month = statusDate.AddMonths(-3).Month;
 
-            DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, (int) statusDate.Subtract(toDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, (int) statusDate.Subtract(toDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsNewerThanBudgetInfo_AssertPostingValueWasCalledOnEachPostingLineWhichAreWithinBudgetInfoInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime statusDate = DateTime.Today;
-
-            int year = statusDate.AddMonths(-3).Year;
-            int month = statusDate.AddMonths(-3).Month;
-
-            DateTime fromDate = new DateTime(year, month, 1).Date;
-            DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: toDate.Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Once);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsNewerThanBudgetInfo_AssertPostingValueNotWasCalledOnAnyOlderPostingLineInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime statusDate = DateTime.Today;
-
-            int year = statusDate.AddMonths(-3).Year;
-            int month = statusDate.AddMonths(-3).Month;
-
-            DateTime fromDate = new DateTime(year, month, 1).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsWithinBudgetInfo_AssertPostingValueWasNotCalledOnAnyNewerPostingLineInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = new DateTime(today.AddMonths(-3).Year, today.AddMonths(-3).Month, 15);
-
-            int year = statusDate.Year;
-            int month = statusDate.Month;
-
-            DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month)).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) toDate.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) toDate.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsWithinBudgetInfo_AssertPostingValueWasCalledOnEachPostingLineWhichAreWithinBudgetInfoInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = new DateTime(today.AddMonths(-3).Year, today.AddMonths(-3).Month, 15);
-
-            int year = statusDate.Year;
-            int month = statusDate.Month;
-
-            DateTime fromDate = new DateTime(year, month, 1).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: statusDate.Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Once);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsWithinBudgetInfo_AssertPostingValueWasNotCalledOnAnyOlderPostingLineInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = new DateTime(today.AddMonths(-3).Year, today.AddMonths(-3).Month, 15);
-
-            int year = statusDate.Year;
-            int month = statusDate.Month;
-
-            DateTime fromDate = new DateTime(year, month, 1).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsOlderThanBudgetInfo_AssertPostingValueWasNotCalledOnAnyNewerPostingLineInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = DateTime.Today.AddMonths(-3);
-
-            int year = today.Year;
-            int month = today.Month;
-
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) today.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, (int) today.Subtract(statusDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsOlderThanBudgetInfo_AssertPostingValueWasNotCalledOnAnyPostingLineWhichAreWithinBudgetInfoInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = DateTime.Today.AddMonths(-3);
-
-            int year = today.Year;
-            int month = today.Month;
-
-            DateTime fromDate = new DateTime(year, month, 1).Date;
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: today.Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, Math.Max((int) today.Subtract(fromDate).TotalDays, 1))).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenStatusDateIsOlderThanBudgetInfo_AssertPostingValueWasNotCalledOnAnyOlderPostingLineInPostingLineCollectionOnBudgetAccount()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = DateTime.Today.AddMonths(-3);
-
-            int year = today.Year;
-            int month = today.Month;
-
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(_random.Next(1, 365) * -1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            await sut.CalculateAsync(statusDate);
-
-            foreach (Mock<IPostingLine> postingLineMock in postingLineMockCollection)
-            {
-                postingLineMock.Verify(m => m.PostingValue, Times.Never);
-            }
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenPostingLineCollectionOnBudgetAccountOnlyContainsPostingLinesNewerThanStatusDate_AssertCalculatedPostedIsEqualToZero()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = DateTime.Today.AddMonths(_random.Next(1, 5) * -1).AddDays(today.Day * -1).AddDays(15);
-
-            int year = statusDate.Year;
-            int month = statusDate.Month;
-
-            DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month));
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.Date),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(7)),
-                _fixture.BuildPostingLineMock(postingDate: statusDate.AddDays(1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-            IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
-
-            IBudgetInfo result = await sut.CalculateAsync(statusDate);
-
-            Assert.That(result.Posted, Is.EqualTo(0M));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task CalculateAsync_WhenPostingLineCollectionOnBudgetAccountOnlyContainsPostingLinesBetweenStatusDateAndFromDate_AssertCalculatedPostedIsEqualToSumOfPostingValueFromPostingLines()
-        {
-            DateTime today = DateTime.Today;
-            DateTime statusDate = DateTime.Today.AddMonths(_random.Next(1, 5) * -1).AddDays(today.Day * -1).AddDays(15);
-
-            int year = statusDate.Year;
-            int month = statusDate.Month;
-
-            DateTime fromDate = new DateTime(year, month, 1);
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: statusDate.Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) statusDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
+            Mock<IPostingLineCollection> postingLineCollectionMock = _fixture.BuildPostingLineCollectionMock();
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollectionMock.Object).Object;
             IBudgetInfo sut = CreateSut(budgetAccount, (short)year, (short)month);
 
-            IBudgetInfo result = await sut.CalculateAsync(statusDate);
+            await sut.CalculateAsync(statusDate);
 
-            Assert.That(result.Posted, Is.EqualTo(postingLineMockCollection.Sum(postingLineMock => postingLineMock.Object.PostingValue)));
+            postingLineCollectionMock.Verify(m => m.CalculatePostingValue(
+                    It.Is<DateTime>(value => value == new DateTime(year, month, 1)),
+                    It.Is<DateTime>(value => value == new DateTime(year, month, DateTime.DaysInMonth(year, month))),
+                    It.Is<int?>(value => value.HasValue == false)),
+                Times.Once());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task CalculateAsync_WhenPostingLineCollectionOnAccountOnlyContainsPostingLinesOlderThanStatus_AssertCalculatedPostedIsEqualToZero()
+        public async Task CalculateAsync_WhenStatusDateIsWithinBudgetInfo_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromBudgetAccount()
         {
             DateTime today = DateTime.Today;
-            DateTime statusDate = DateTime.Today.AddMonths(_random.Next(1, 5) * -1).AddDays(today.Day * -1).AddDays(15);
+            DateTime statusDate = new DateTime(today.AddMonths(-3).Year, today.AddMonths(-3).Month, 15);
 
             int year = statusDate.Year;
             int month = statusDate.Month;
 
-            DateTime fromDate = new DateTime(year, month, 1);
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
-            };
-            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
+            Mock<IPostingLineCollection> postingLineCollectionMock = _fixture.BuildPostingLineCollectionMock();
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollectionMock.Object).Object;
             IBudgetInfo sut = CreateSut(budgetAccount, (short)year, (short)month);
 
-            IBudgetInfo result = await sut.CalculateAsync(statusDate);
+            await sut.CalculateAsync(statusDate);
 
-            Assert.That(result.Posted, Is.EqualTo(0M));
+            postingLineCollectionMock.Verify(m => m.CalculatePostingValue(
+                    It.Is<DateTime>(value => value == new DateTime(year, month, 1)),
+                    It.Is<DateTime>(value => value == statusDate),
+                    It.Is<int?>(value => value.HasValue == false)),
+                Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenStatusDateIsOlderThanBudgetInfo_AssertCalculatePostingValueWasCalledOnPostingLineCollectionFromBudgetAccount()
+        {
+            DateTime today = DateTime.Today;
+            DateTime statusDate = DateTime.Today.AddMonths(-3);
+
+            int year = today.Year;
+            int month = today.Month;
+
+            Mock<IPostingLineCollection> postingLineCollectionMock = _fixture.BuildPostingLineCollectionMock();
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollectionMock.Object).Object;
+            IBudgetInfo sut = CreateSut(budgetAccount, (short)year, (short)month);
+
+            await sut.CalculateAsync(statusDate);
+
+            postingLineCollectionMock.Verify(m => m.CalculatePostingValue(
+                    It.Is<DateTime>(value => value == new DateTime(year, month, 1)),
+                    It.Is<DateTime>(value => value == statusDate),
+                    It.Is<int?>(value => value.HasValue == false)),
+                Times.Once());
         }
 
         [Test]
@@ -423,43 +116,14 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetInfo
             int year = calculationDate.Year;
             int month = calculationDate.Month;
 
-            DateTime fromDate = new DateTime(year, month, 1);
-            DateTime toDate = new DateTime(year, month, DateTime.DaysInMonth(year, month));
-            IEnumerable<Mock<IPostingLine>> postingLineMockCollection = new List<Mock<IPostingLine>>
-            {
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(_random.Next(1, 365)).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.AddDays(1).Date),
-                _fixture.BuildPostingLineMock(postingDate: toDate.Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, (int) toDate.Subtract(fromDate).TotalDays)).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(-1).Date),
-                _fixture.BuildPostingLineMock(postingDate: fromDate.AddDays(_random.Next(1, 365) * -1).Date)
-            };
+            decimal calculatedPostingValue = _fixture.Create<decimal>();
+            IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(calculatedPostingValue: calculatedPostingValue).Object;
+            IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
+            IBudgetInfo sut = CreateSut(budgetAccount, (short)year, (short)month);
 
-            foreach (DateTime statusDate in postingLineMockCollection.Select(postingLineMock => postingLineMock.Object.PostingDate).OrderByDescending(value => value.Date))
-            {
-                IPostingLineCollection postingLineCollection = _fixture.BuildPostingLineCollectionMock(postingLineCollection: postingLineMockCollection.Select(m => m.Object).ToArray()).Object;
-                IBudgetAccount budgetAccount = _fixture.BuildBudgetAccountMock(postingLineCollection: postingLineCollection).Object;
-                IBudgetInfo sut = CreateSut(budgetAccount, (short) year, (short) month);
+            IBudgetInfo result = await sut.CalculateAsync(calculationDate);
 
-                IBudgetInfo result = await sut.CalculateAsync(statusDate);
-
-                if (statusDate.Date < fromDate.Date)
-                {
-                    Assert.That(result.Posted, Is.EqualTo(0M));
-                    continue;
-                }
-
-                if (statusDate.Date >= fromDate.Date && statusDate.Date <= toDate.Date)
-                {
-                    Assert.That(result.Posted, Is.EqualTo(postingLineMockCollection.Where(postingLineMock => postingLineMock.Object.PostingDate.Date >= fromDate.Date && postingLineMock.Object.PostingDate.Date <= statusDate.Date).Sum(postingLineMock => postingLineMock.Object.PostingValue)));
-                    continue;
-                }
-
-                Assert.That(result.Posted, Is.EqualTo(postingLineMockCollection.Where(postingLineMock => postingLineMock.Object.PostingDate.Date >= fromDate.Date && postingLineMock.Object.PostingDate.Date <= toDate.Date).Sum(postingLineMock => postingLineMock.Object.PostingValue)));
-            }
+            Assert.That(result.Posted, Is.EqualTo(calculatedPostingValue));
         }
 
         [Test]

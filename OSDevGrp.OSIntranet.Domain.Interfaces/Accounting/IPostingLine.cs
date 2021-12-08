@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
@@ -34,5 +35,13 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
         IContactInfoValues ContactAccountValuesAtPostingDate { get; }
 
         int SortOrder { get; }
+
+        Task<IPostingLine> ApplyCalculationAsync(IAccounting calculatedAccounting);
+
+        Task<IPostingLine> ApplyCalculationAsync(IAccount calculatedAccount);
+
+        Task<IPostingLine> ApplyCalculationAsync(IBudgetAccount calculatedBudgetAccount);
+
+        Task<IPostingLine> ApplyCalculationAsync(IContactAccount calculatedContactAccount);
     }
 }

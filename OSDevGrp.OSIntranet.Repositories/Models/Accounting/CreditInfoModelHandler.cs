@@ -231,7 +231,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             creditInfoModel.AccountIdentifier = accountModel.AccountIdentifier;
             creditInfoModel.Account = accountModel;
 
-            EntityEntry<CreditInfoModel> creditInfoModelEntityEntry = await DbContext.CreditInfos.AddAsync(await OnCreateAsync(creditInfo, creditInfoModel));
+            EntityEntry<CreditInfoModel> creditInfoModelEntityEntry = await Entities.AddAsync(await OnCreateAsync(creditInfo, creditInfoModel));
 
             if (accountModel.CreditInfos.Contains(creditInfoModelEntityEntry.Entity) == false)
             {

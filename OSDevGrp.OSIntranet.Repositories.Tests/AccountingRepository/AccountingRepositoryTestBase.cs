@@ -5,7 +5,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 {
-    public abstract class AccountingRepositoryTestBase : RepositoryTestBase
+    public abstract class AccountingRepositoryTestBase : DatabaseRepositoryTestBase
     {
         #region Private variables
 
@@ -19,7 +19,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         protected IAccountingRepository CreateSut()
         {
-            return new Repositories.AccountingRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory(), CreateEventPublisher());
+            return new Repositories.AccountingRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory(), CreateEventPublisher());
         }
 
         protected int WithExistingAccountingNumber()

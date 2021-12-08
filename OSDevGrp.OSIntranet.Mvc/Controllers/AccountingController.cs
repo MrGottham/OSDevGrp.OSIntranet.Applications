@@ -103,26 +103,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadAccounting(int accountingNumber)
         {
-            Task<string> getPostingJournalKeyTask = GetPostingJournalKey(accountingNumber);
-            Task<string> getPostingJournalResultKeyTask = GetPostingJournalResultKey(accountingNumber);
-            await Task.WhenAll(
-                getPostingJournalKeyTask,
-                getPostingJournalResultKeyTask);
+            string postingJournalKey = await GetPostingJournalKey(accountingNumber);
+            string postingJournalResultKey = await GetPostingJournalResultKey(accountingNumber);
 
-            string postingJournalKey = getPostingJournalKeyTask.GetAwaiter().GetResult();
-            string postingJournalResultKey = getPostingJournalResultKeyTask.GetAwaiter().GetResult();
-
-            Task<IEnumerable<LetterHeadViewModel>> getLetterHeadViewModelCollectionTask = GetLetterHeadViewModels();
-            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
-            Task<ApplyPostingJournalViewModel> getPostingJournalTask = GetPostingJournal(accountingNumber, postingJournalKey);
-            Task<ApplyPostingJournalResultViewModel> getPostingJournalResultTask = GetPostingJournalResult(postingJournalResultKey);
-            await Task.WhenAll(
-                getLetterHeadViewModelCollectionTask,
-                getAccountingTask,
-                getPostingJournalTask,
-                getPostingJournalResultTask);
-
-            IAccounting accounting = getAccountingTask.GetAwaiter().GetResult();
+            List<LetterHeadViewModel> letterHeadViewModelCollection = (await GetLetterHeadViewModels()).ToList();
+            IAccounting accounting = await GetAccounting(accountingNumber);
+            ApplyPostingJournalViewModel postingJournal = await GetPostingJournal(accountingNumber, postingJournalKey);
+            ApplyPostingJournalResultViewModel postingJournalResult = await GetPostingJournalResult(postingJournalResultKey);
             if (accounting == null)
             {
                 return BadRequest();
@@ -130,10 +117,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             AccountingViewModel accountingViewModel = _accountingViewModelConverter.Convert<IAccounting, AccountingViewModel>(accounting);
             accountingViewModel.PostingJournalKey = postingJournalKey;
-            accountingViewModel.PostingJournal = getPostingJournalTask.GetAwaiter().GetResult();
+            accountingViewModel.PostingJournal = postingJournal;
             accountingViewModel.PostingJournalResultKey = postingJournalResultKey;
-            accountingViewModel.PostingJournalResult = getPostingJournalResultTask.GetAwaiter().GetResult();
-            accountingViewModel.LetterHeads = getLetterHeadViewModelCollectionTask.GetAwaiter().GetResult().ToList();
+            accountingViewModel.PostingJournalResult = postingJournalResult;
+            accountingViewModel.LetterHeads = letterHeadViewModelCollection;
 
             return PartialView("_PresentAccountingPartial", accountingViewModel);
         }
@@ -217,13 +204,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateAccount(int accountingNumber)
         {
-            Task<IEnumerable<AccountGroupViewModel>> getAccountGroupViewModelCollectionTask = GetAccountGroupViewModels();
-            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
-            await Task.WhenAll(
-                getAccountGroupViewModelCollectionTask,
-                getAccountingTask);
-
-            IAccounting accounting = getAccountingTask.Result;
+            List<AccountGroupViewModel> accountGroupViewModelCollection = (await GetAccountGroupViewModels()).ToList();
+            IAccounting accounting = await GetAccounting(accountingNumber);
             if (accounting == null)
             {
                 return BadRequest();
@@ -231,7 +213,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             AccountViewModel accountViewModel = CreateAccountViewModelForCreation<AccountViewModel>(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting));
             accountViewModel.CreditInfos = CreateInfoDictionaryViewModelForCreation<CreditInfoDictionaryViewModel, CreditInfoCollectionViewModel, CreditInfoViewModel>(DateTime.Today);
-            accountViewModel.AccountGroups = getAccountGroupViewModelCollectionTask.Result.ToArray();
+            accountViewModel.AccountGroups = accountGroupViewModelCollection;
 
             return PartialView("_EditAccountPartial", accountViewModel);
         }
@@ -263,13 +245,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
 
-            Task<IEnumerable<AccountGroupViewModel>> getAccountGroupViewModelCollectionTask = GetAccountGroupViewModels();
-            Task<IAccount> getAccountTask = GetAccount<GetAccountQuery, IAccount>(accountingNumber, accountNumber, DateTime.Today);
-            await Task.WhenAll(
-                getAccountGroupViewModelCollectionTask,
-                getAccountTask);
-
-            IAccount account = getAccountTask.Result;
+            List<AccountGroupViewModel> accountGroupViewModelCollection = (await GetAccountGroupViewModels()).ToList();
+            IAccount account = await GetAccount<GetAccountQuery, IAccount>(accountingNumber, accountNumber, DateTime.Today);
             if (account == null)
             {
                 return BadRequest();
@@ -277,7 +254,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             AccountViewModel accountViewModel = _accountingViewModelConverter.Convert<IAccount, AccountViewModel>(account);
             accountViewModel.EditMode = EditMode.Edit;
-            accountViewModel.AccountGroups = getAccountGroupViewModelCollectionTask.Result.ToArray();
+            accountViewModel.AccountGroups = accountGroupViewModelCollection;
 
             return PartialView("_EditAccountPartial", accountViewModel);
         }
@@ -321,13 +298,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateBudgetAccount(int accountingNumber)
         {
-            Task<IEnumerable<BudgetAccountGroupViewModel>> getBudgetAccountGroupViewModelCollectionTask = GetBudgetAccountGroupViewModels();
-            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
-            await Task.WhenAll(
-                getBudgetAccountGroupViewModelCollectionTask,
-                getAccountingTask);
-
-            IAccounting accounting = getAccountingTask.Result;
+            List<BudgetAccountGroupViewModel> budgetAccountGroupViewModelCollection = (await GetBudgetAccountGroupViewModels()).ToList();
+            IAccounting accounting = await GetAccounting(accountingNumber);
             if (accounting == null)
             {
                 return BadRequest();
@@ -335,7 +307,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             BudgetAccountViewModel budgetAccountViewModel = CreateAccountViewModelForCreation<BudgetAccountViewModel>(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting));
             budgetAccountViewModel.BudgetInfos= CreateInfoDictionaryViewModelForCreation<BudgetInfoDictionaryViewModel, BudgetInfoCollectionViewModel, BudgetInfoViewModel>(DateTime.Today);
-            budgetAccountViewModel.BudgetAccountGroups = getBudgetAccountGroupViewModelCollectionTask.Result.ToArray();
+            budgetAccountViewModel.BudgetAccountGroups = budgetAccountGroupViewModelCollection;
 
             return PartialView("_EditBudgetAccountPartial", budgetAccountViewModel);
         }
@@ -367,13 +339,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
 
-            Task<IEnumerable<BudgetAccountGroupViewModel>> getBudgetAccountGroupViewModelCollectionTask = GetBudgetAccountGroupViewModels();
-            Task<IBudgetAccount> getBudgetAccountTask = GetAccount<GetBudgetAccountQuery, IBudgetAccount>(accountingNumber, accountNumber, DateTime.Today);
-            await Task.WhenAll(
-                getBudgetAccountGroupViewModelCollectionTask,
-                getBudgetAccountTask);
-
-            IBudgetAccount budgetAccount = getBudgetAccountTask.Result;
+            List<BudgetAccountGroupViewModel> budgetAccountGroupViewModelCollection = (await GetBudgetAccountGroupViewModels()).ToList();
+            IBudgetAccount budgetAccount = await GetAccount<GetBudgetAccountQuery, IBudgetAccount>(accountingNumber, accountNumber, DateTime.Today);
             if (budgetAccount == null)
             {
                 return BadRequest();
@@ -381,7 +348,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             BudgetAccountViewModel budgetAccountViewModel = _accountingViewModelConverter.Convert<IBudgetAccount, BudgetAccountViewModel>(budgetAccount);
             budgetAccountViewModel.EditMode = EditMode.Edit;
-            budgetAccountViewModel.BudgetAccountGroups = getBudgetAccountGroupViewModelCollectionTask.Result.ToArray();
+            budgetAccountViewModel.BudgetAccountGroups = budgetAccountGroupViewModelCollection;
 
             return PartialView("_EditBudgetAccountPartial", budgetAccountViewModel);
         }
@@ -425,13 +392,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateContactAccount(int accountingNumber)
         {
-            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
-            Task<IAccounting> getAccountingTask = GetAccounting(accountingNumber);
-            await Task.WhenAll(
-                getPaymentTermViewModelCollectionTask,
-                getAccountingTask);
-
-            IAccounting accounting = getAccountingTask.Result;
+            List<PaymentTermViewModel> paymentTermViewModelCollection = (await GetPaymentTermViewModels()).ToList();
+            IAccounting accounting = await GetAccounting(accountingNumber);
             if (accounting == null)
             {
                 return BadRequest();
@@ -439,7 +401,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             ContactAccountViewModel contactAccountViewModel = CreateAccountViewModelForCreation<ContactAccountViewModel>(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting));
             contactAccountViewModel.BalanceInfos = CreateInfoDictionaryViewModelForCreation<BalanceInfoDictionaryViewModel, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(DateTime.Today);
-            contactAccountViewModel.PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToArray();
+            contactAccountViewModel.PaymentTerms = paymentTermViewModelCollection;
 
             return PartialView("_EditContactAccountPartial", contactAccountViewModel);
         }
@@ -471,13 +433,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
 
-            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
-            Task<IContactAccount> getContactAccountTask = GetAccount<GetContactAccountQuery, IContactAccount>(accountingNumber, accountNumber, DateTime.Today);
-            await Task.WhenAll(
-                getPaymentTermViewModelCollectionTask,
-                getContactAccountTask);
-
-            IContactAccount contactAccount = getContactAccountTask.Result;
+            List<PaymentTermViewModel> paymentTermViewModelCollection = (await GetPaymentTermViewModels()).ToList();
+            IContactAccount contactAccount = await GetAccount<GetContactAccountQuery, IContactAccount>(accountingNumber, accountNumber, DateTime.Today);
             if (contactAccount == null)
             {
                 return BadRequest();
@@ -485,7 +442,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             ContactAccountViewModel contactAccountViewModel = _accountingViewModelConverter.Convert<IContactAccount, ContactAccountViewModel>(contactAccount);
             contactAccountViewModel.EditMode = EditMode.Edit;
-            contactAccountViewModel.PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToArray();
+            contactAccountViewModel.PaymentTerms = paymentTermViewModelCollection;
 
             return PartialView("_EditContactAccountPartial", contactAccountViewModel);
         }
@@ -534,28 +491,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                     .Build();
             }
 
-            Task<string> getPostingJournalKeyTask = GetPostingJournalKey(applyPostingJournalViewModel.AccountingNumber);
-            Task<string> getPostingJournalResultKeyTask = GetPostingJournalResultKey(applyPostingJournalViewModel.AccountingNumber);
-            await Task.WhenAll(
-                getPostingJournalKeyTask,
-                getPostingJournalResultKeyTask);
+            string postingJournalKey = await GetPostingJournalKey(applyPostingJournalViewModel.AccountingNumber);
+            string postingJournalResultKey = await GetPostingJournalResultKey(applyPostingJournalViewModel.AccountingNumber);
 
-            string postingJournalKey = getPostingJournalKeyTask.GetAwaiter().GetResult();
-            string postingJournalResultKey = getPostingJournalResultKeyTask.GetAwaiter().GetResult();
+            ApplyPostingJournalViewModel postingJournal = await GetPostingJournal(applyPostingJournalViewModel.AccountingNumber, postingJournalKey);
+            ApplyPostingJournalResultViewModel postingJournalResult = await GetPostingJournalResult(postingJournalResultKey);
+
             IApplyPostingJournalCommand applyPostingJournalCommand = _accountingViewModelConverter.Convert<ApplyPostingJournalViewModel, ApplyPostingJournalCommand>(applyPostingJournalViewModel);
+            IPostingJournalResult applyPostingJournalResult = await _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
 
-            Task<ApplyPostingJournalViewModel> getPostingJournalTask = GetPostingJournal(applyPostingJournalViewModel.AccountingNumber, postingJournalKey);
-            Task<ApplyPostingJournalResultViewModel> getPostingJournalResultTask = GetPostingJournalResult(postingJournalResultKey);
-            Task<IPostingJournalResult> applyPostingJournalTask = _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
-            await Task.WhenAll(
-                getPostingJournalTask,
-                getPostingJournalResultTask,
-                applyPostingJournalTask);
+            ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel = _accountingViewModelConverter.Convert<IPostingJournalResult, ApplyPostingJournalResultViewModel>(applyPostingJournalResult);
 
-            ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel = _accountingViewModelConverter.Convert<IPostingJournalResult, ApplyPostingJournalResultViewModel>(applyPostingJournalTask.GetAwaiter().GetResult());
-            await Task.WhenAll(
-                HandlePostingJournalResult(applyPostingJournalResultViewModel, postingJournalKey, getPostingJournalTask.GetAwaiter().GetResult()),
-                HandlePostingJournalResult(applyPostingJournalResultViewModel, postingJournalResultKey, getPostingJournalResultTask.GetAwaiter().GetResult()));
+            await HandlePostingJournalResult(applyPostingJournalResultViewModel, postingJournalKey, postingJournal);
+            await HandlePostingJournalResult(applyPostingJournalResultViewModel, postingJournalResultKey, postingJournalResult);
 
             return RedirectToAction("Accountings", "Accounting", new { accountingNumber = applyPostingJournalViewModel.AccountingNumber });
         }

@@ -12,6 +12,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         private string _description;
         private string _note;
+        private bool _isCalculating;
 
         #endregion
 
@@ -56,7 +57,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool Deletable { get; private set; }
 
-        public IPostingLineCollection PostingLineCollection { get; private set; }
+        public IPostingLineCollection PostingLineCollection { get; protected set; }
 
         #endregion
 
@@ -66,15 +67,27 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return AlreadyCalculated();
             }
 
             StatusDate = statusDate.Date;
 
-            Task[] calculationTasks = GetCalculationTasks(StatusDate);
-            await Task.WhenAll(calculationTasks);
+            _isCalculating = true;
+            try
+            {
+                await Task.WhenAll(GetCalculationTasks(StatusDate));
 
-            return GetCalculationResult();
+                return await GetCalculationResultAsync();
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
         }
 
         public void AllowDeletion()
@@ -99,7 +112,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         protected abstract Task[] GetCalculationTasks(DateTime statusDate);
 
-        protected abstract T GetCalculationResult();
+        protected abstract Task<T> GetCalculationResultAsync();
 
         protected abstract T AlreadyCalculated();
 

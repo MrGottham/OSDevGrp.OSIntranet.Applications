@@ -35,7 +35,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Add((IAccount) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("account"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -61,9 +63,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.Add(account));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(account.GetType().Name), Is.True);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectAlreadyExists));
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -74,7 +78,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Add((IEnumerable<IAccount>) null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountCollection"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -120,9 +126,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.Add(accountCollection));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(existingAccount.GetType().Name), Is.True);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectAlreadyExists));
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IAccountCollectionBase<IAccount, Sut> CreateSut()
@@ -134,7 +142,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
         {
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate, IEnumerable<IAccount> calculatedAccountCollection) => throw new NotSupportedException();
+            protected override Sut Calculate(DateTime statusDate, IReadOnlyCollection<IAccount> calculatedAccountCollection) => throw new NotSupportedException();
 
             protected override Sut AlreadyCalculated() => throw new NotSupportedException();
 

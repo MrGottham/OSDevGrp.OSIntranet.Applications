@@ -65,8 +65,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            await Task.CompletedTask;
-
             if (User?.Identity == null || User.Identity.IsAuthenticated == false)
             {
                 return View("Index", BuildHomeOperationsViewModelForUnauthenticatedUser());

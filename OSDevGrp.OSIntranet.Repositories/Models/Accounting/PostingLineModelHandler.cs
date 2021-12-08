@@ -54,9 +54,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             _numberOfPostingLines = numberOfPostingLines;
             _applyingPostingLines = applyingPostingLines;
             _accountingModelHandler = new AccountingModelHandler(dbContext, ModelConverter, _eventPublisher, _toDate, false, false);
-            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeCreditInformation, false);
-            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeBudgetInformation, false);
-            _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, false);
+            _accountModelHandler = new AccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeCreditInformation, false, true);
+            _budgetAccountModelHandler = new BudgetAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, _includeBudgetInformation, false, true);
+            _contactAccountModelHandler = new ContactAccountModelHandler(dbContext, modelConverter, _eventPublisher, _toDate, false, true);
 
             _eventPublisher.AddSubscriber(this);
         }
@@ -68,8 +68,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         protected override DbSet<PostingLineModel> Entities => DbContext.PostingLines;
 
         protected override Func<IPostingLine, string> PrimaryKey => postingLine => postingLine.Identifier.ToString("D").ToUpper();
-
-        protected override IQueryable<PostingLineModel> Reader => CreateReader(_numberOfPostingLines);
 
         #endregion
 
@@ -161,7 +159,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             DateTime startDate = _fromDate.Date;
             DateTime endDate = _toDate.AddDays(1).Date;
 
-            return ReadAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingNumber && postingLineModel.PostingDate >= startDate && postingLineModel.PostingDate < endDate, new AccountingIdentificationState(accountingNumber));
+            return ReadAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingNumber && postingLineModel.PostingDate >= startDate && postingLineModel.PostingDate < endDate, Top, new AccountingIdentificationState(accountingNumber));
         }
 
         internal async Task<IEnumerable<PostingLineModel>> ReadAsync(IEnumerable<PostingLineModel> postingLineModelCollection)
@@ -181,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             DateTime startDate = _fromDate.Date;
             DateTime endDate = _toDate.AddDays(1).Date;
 
-            IQueryable<PostingLineModel> query = CreateReader(null)
+            IQueryable<PostingLineModel> query = Reader
                 .Where(postingLineModel => postingLineModel.AccountingIdentifier == accountingNumber &&
                                            postingLineModel.PostingDate >= startDate &&
                                            postingLineModel.PostingDate < endDate);
@@ -289,24 +287,42 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return postingLineModel;
         }
 
-        protected override Task OnUpdateAsync(IPostingLine postingLine, PostingLineModel postingLineModel) => throw new NotSupportedException();
+        protected override Task OnUpdateAsync(IPostingLine postingLine, PostingLineModel postingLineModel)
+        {
+            NullGuard.NotNull(postingLine, nameof(postingLine))
+                .NotNull(postingLineModel, nameof(postingLineModel));
+
+            postingLineModel.PostingValueForAccount = postingLine.Account.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, postingLine.PostingDate, postingLine.SortOrder);
+
+            if (postingLine.BudgetAccount != null)
+            {
+                postingLineModel.PostingValueForBudgetAccount = postingLine.BudgetAccount.PostingLineCollection.CalculatePostingValue(new DateTime(postingLine.PostingDate.Year, postingLine.PostingDate.Month, 1), postingLine.PostingDate, postingLine.SortOrder);
+            }
+
+            if (postingLine.ContactAccount != null)
+            {
+                postingLineModel.PostingValueForContactAccount = postingLine.ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, postingLine.PostingDate, postingLine.SortOrder);
+            }
+
+            return Task.CompletedTask;
+        }
 
         protected override Task<bool> CanDeleteAsync(PostingLineModel postingLineModel) => throw new NotSupportedException();
 
         protected override Task<PostingLineModel> OnDeleteAsync(PostingLineModel postingLineModel) => throw new NotSupportedException();
 
-        private IQueryable<PostingLineModel> CreateReader(int? numberOfPostingLines)
+        private IQueryable<PostingLineModel> Top(IQueryable<PostingLineModel> query)
         {
-            IQueryable<PostingLineModel> reader = Entities;
+            NullGuard.NotNull(query, nameof(query));
 
-            if (numberOfPostingLines == null)
+            if (_numberOfPostingLines == null)
             {
-                return reader;
+                return query;
             }
 
-            return reader.OrderByDescending(postingLineModel => postingLineModel.PostingDate)
+            return query.OrderByDescending(postingLineModel => postingLineModel.PostingDate)
                 .ThenByDescending(postingLineModel => postingLineModel.PostingLineIdentifier)
-                .Take(numberOfPostingLines.Value);
+                .Take(_numberOfPostingLines.Value);
         }
 
         private static Task<AccountingModel> OnReadAsync(PostingLineModel postingLineModel, AccountingModel accountModel)
@@ -316,27 +332,27 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return accountModel == null
                 ? Task.FromResult(postingLineModel.Accounting)
                 : Task.FromResult(postingLineModel.Accounting ?? accountModel);
-            }
+        }
 
-        private static async Task<AccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<AccountModel> accountModelCollection)
-            {
+        private async Task<AccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<AccountModel> accountModelCollection)
+        {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel));
 
             if (accountModelCollection == null || postingLineModel.Account != null)
             {
-                return await OnReadAsync(postingLineModel.Account, statusDate);
+                return await OnReadAsync(postingLineModel.Account, statusDate, accountModel => _accountModelHandler.IsDeletableAsync(accountModel));
             }
 
-            return await OnReadAsync(accountModelCollection.Single(m => m.AccountIdentifier == postingLineModel.AccountIdentifier), statusDate);
-            }
+            return await OnReadAsync(accountModelCollection.Single(m => m.AccountIdentifier == postingLineModel.AccountIdentifier), statusDate, accountModel => _accountModelHandler.IsDeletableAsync(accountModel));
+        }
 
-        private static async Task<BudgetAccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<BudgetAccountModel> budgetAccountModelCollection)
-            {
+        private async Task<BudgetAccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<BudgetAccountModel> budgetAccountModelCollection)
+        {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel));
 
             if (budgetAccountModelCollection == null || postingLineModel.BudgetAccount != null)
             {
-                return await OnReadAsync(postingLineModel.BudgetAccount, statusDate);
+                return await OnReadAsync(postingLineModel.BudgetAccount, statusDate, budgetAccountModel => _budgetAccountModelHandler.IsDeletableAsync(budgetAccountModel));
             }
 
             if (postingLineModel.BudgetAccountIdentifier == null)
@@ -344,16 +360,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return null;
             }
 
-            return await OnReadAsync(budgetAccountModelCollection.Single(m => m.BudgetAccountIdentifier == postingLineModel.BudgetAccountIdentifier.Value), statusDate);
+            return await OnReadAsync(budgetAccountModelCollection.Single(m => m.BudgetAccountIdentifier == postingLineModel.BudgetAccountIdentifier.Value), statusDate, budgetAccountModel => _budgetAccountModelHandler.IsDeletableAsync(budgetAccountModel));
         }
 
-        private static async Task<ContactAccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<ContactAccountModel> contactAccountModelCollection)
+        private async Task<ContactAccountModel> OnReadAsync(PostingLineModel postingLineModel, DateTime statusDate, IReadOnlyCollection<ContactAccountModel> contactAccountModelCollection)
         {
             NullGuard.NotNull(postingLineModel, nameof(postingLineModel));
 
             if (contactAccountModelCollection == null || postingLineModel.ContactAccount != null)
             {
-                return await OnReadAsync(postingLineModel.ContactAccount, statusDate);
+                return await OnReadAsync(postingLineModel.ContactAccount, statusDate, contactAccountModel => _contactAccountModelHandler.IsDeletableAsync(contactAccountModel));
             }
 
             if (postingLineModel.ContactAccountIdentifier == null)
@@ -361,20 +377,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return null;
             }
 
-            return await OnReadAsync(contactAccountModelCollection.Single(m => m.ContactAccountIdentifier == postingLineModel.ContactAccountIdentifier.Value), statusDate);
+            return await OnReadAsync(contactAccountModelCollection.Single(m => m.ContactAccountIdentifier == postingLineModel.ContactAccountIdentifier.Value), statusDate, contactAccountModel => _contactAccountModelHandler.IsDeletableAsync(contactAccountModel));
         }
 
-        private static Task<TAccountModel> OnReadAsync<TAccountModel>(TAccountModel accountModel, DateTime statusDate) where TAccountModel : AccountModelBase
-            {
+        private static async Task<TAccountModel> OnReadAsync<TAccountModel>(TAccountModel accountModel, DateTime statusDate, Func<TAccountModel, Task<bool>> deletableResolver) where TAccountModel : AccountModelBase
+        {
+            NullGuard.NotNull(deletableResolver, nameof(deletableResolver));
+
             if (accountModel == null)
             {
-                return Task.FromResult<TAccountModel>(null);
+                return null;
             }
 
             accountModel.StatusDate = statusDate;
-            accountModel.Deletable = false;
+            accountModel.Deletable = await deletableResolver(accountModel);
 
-            return Task.FromResult(accountModel);
+            return accountModel;
         }
 
         #endregion
