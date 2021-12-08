@@ -10,9 +10,11 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
     {
         #region Private variables
 
+        private bool _isCalculating;
         private readonly bool _calculateAccountValuesAtPostingDate;
         private readonly bool _calculateBudgetAccountValuesAtPostingDate;
         private readonly bool _calculateContactAccountValuesAtPostingDate;
+        private readonly object _syncRoot = new object();
 
         #endregion
 
@@ -122,18 +124,116 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return this;
             }
 
             StatusDate = statusDate.Date;
 
-            await Task.WhenAll(
-                CalculateAccountingAsync(StatusDate),
-                CalculateAccountAsync(StatusDate),
-                CalculateBudgetAccountAsync(StatusDate),
-                CalculateContactAccountAsync(StatusDate));
+            _isCalculating = true;
+            try
+            {
+                await Task.WhenAll(
+                    CalculateAccountAsync(StatusDate),
+                    CalculateBudgetAccountAsync(StatusDate),
+                    CalculateContactAccountAsync(StatusDate));
 
-            return this;
+                return this;
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
+        }
+
+        public Task<IPostingLine> ApplyCalculationAsync(IAccounting calculatedAccounting)
+        {
+            NullGuard.NotNull(calculatedAccounting, nameof(calculatedAccounting));
+
+            return Task.Run<IPostingLine>(() =>
+            {
+                lock (_syncRoot)
+                {
+                    Accounting = calculatedAccounting;
+                }
+
+                return this;
+            });
+        }
+
+        public Task<IPostingLine> ApplyCalculationAsync(IAccount calculatedAccount)
+        {
+            NullGuard.NotNull(calculatedAccount, nameof(calculatedAccount));
+
+            return Task.Run<IPostingLine>(() =>
+            {
+                lock (_syncRoot)
+                {
+                    Account = calculatedAccount;
+                }
+
+                if (_calculateAccountValuesAtPostingDate == false)
+                {
+                    return this;
+                }
+
+                ICreditInfo creditInfo = Account.CreditInfoCollection.Find(PostingDate);
+                decimal balance = Account.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
+                AccountValuesAtPostingDate = new CreditInfoValues(creditInfo?.Credit ?? 0M, balance);
+
+                return this;
+            });
+        }
+
+        public Task<IPostingLine> ApplyCalculationAsync(IBudgetAccount calculatedBudgetAccount)
+        {
+            NullGuard.NotNull(calculatedBudgetAccount, nameof(calculatedBudgetAccount));
+
+            return Task.Run<IPostingLine>(() =>
+            {
+                lock (_syncRoot)
+                {
+                    BudgetAccount = calculatedBudgetAccount;
+                }
+
+                if (_calculateBudgetAccountValuesAtPostingDate == false)
+                {
+                    return this;
+                }
+
+                IBudgetInfo budgetInfo = BudgetAccount.BudgetInfoCollection.Find(PostingDate);
+                decimal posted = BudgetAccount.PostingLineCollection.CalculatePostingValue(new DateTime(PostingDate.Year, PostingDate.Month, 1), PostingDate, SortOrder);
+                BudgetAccountValuesAtPostingDate = new BudgetInfoValues(budgetInfo?.Budget ?? 0M, posted);
+
+                return this;
+            });
+        }
+
+        public Task<IPostingLine> ApplyCalculationAsync(IContactAccount calculatedContactAccount)
+        {
+            NullGuard.NotNull(calculatedContactAccount, nameof(calculatedContactAccount));
+
+            return Task.Run<IPostingLine>(() =>
+            {
+                lock (_syncRoot)
+                {
+                    ContactAccount = calculatedContactAccount;
+                }
+
+                if (_calculateContactAccountValuesAtPostingDate == false)
+                {
+                    return this;
+                }
+
+                decimal balance = ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
+                ContactAccountValuesAtPostingDate = new ContactInfoValues(balance);
+
+                return this;
+            });
         }
 
         public override int GetHashCode()
@@ -156,24 +256,14 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             return false;
         }
 
-        private async Task CalculateAccountingAsync(DateTime statusDate)
-        {
-            Accounting = await Accounting.CalculateAsync(statusDate);
-        }
-
         private async Task CalculateAccountAsync(DateTime statusDate)
         {
-            Account = await Account.CalculateAsync(statusDate);
-
-            if (_calculateAccountValuesAtPostingDate == false)
+            if (Account.StatusDate == statusDate)
             {
                 return;
             }
 
-            ICreditInfo creditInfo = Account.CreditInfoCollection.Find(PostingDate);
-            decimal balance = Account.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
-
-            AccountValuesAtPostingDate = new CreditInfoValues(creditInfo?.Credit ?? 0M, balance);
+            await Account.CalculateAsync(statusDate);
         }
 
         private async Task CalculateBudgetAccountAsync(DateTime statusDate)
@@ -184,17 +274,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 return;
             }
 
-            BudgetAccount = await BudgetAccount.CalculateAsync(statusDate);
-
-            if (_calculateBudgetAccountValuesAtPostingDate == false)
+            if (BudgetAccount.StatusDate == statusDate)
             {
                 return;
             }
 
-            IBudgetInfo budgetInfo = BudgetAccount.BudgetInfoCollection.Find(PostingDate);
-            decimal posted = BudgetAccount.PostingLineCollection.CalculatePostingValue(new DateTime(PostingDate.Year, PostingDate.Month, 1), PostingDate, SortOrder);
-
-            BudgetAccountValuesAtPostingDate = new BudgetInfoValues(budgetInfo?.Budget ?? 0M, posted);
+            await BudgetAccount.CalculateAsync(statusDate);
         }
 
         private async Task CalculateContactAccountAsync(DateTime statusDate)
@@ -205,16 +290,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 return;
             }
 
-            ContactAccount = await ContactAccount.CalculateAsync(statusDate);
-
-            if (_calculateContactAccountValuesAtPostingDate == false)
+            if (ContactAccount.StatusDate == statusDate)
             {
                 return;
             }
 
-            decimal balance = ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, PostingDate, SortOrder);
-
-            ContactAccountValuesAtPostingDate = new ContactInfoValues(balance);
+            await ContactAccount.CalculateAsync(statusDate);
         }
 
         #endregion

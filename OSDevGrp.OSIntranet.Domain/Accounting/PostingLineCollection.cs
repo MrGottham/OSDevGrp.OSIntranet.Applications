@@ -13,6 +13,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
     {
         #region Private variables
 
+        private bool _isCalculating;
         private IDictionary<int, IPostingLineCollection> _yearMonthDictionary;
         private IDictionary<int, IPostingLineCollection> _yearDictionary;
         private IDictionary<int, decimal> _postingValueForYearMonthDictionary;
@@ -133,14 +134,72 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return this;
             }
 
             StatusDate = statusDate.Date;
 
-            await Task.WhenAll(this.GroupBy(postingLine => postingLine.PostingDate.Year)
-                .Select(group => CalculateAsync(group.ToArray(), StatusDate))
-                .ToArray());
+            _isCalculating = true;
+            try
+            {
+                await Task.WhenAll(GenerateTasks(this, postingLine => postingLine.StatusDate != StatusDate, postingLines => CalculateAsync(postingLines, StatusDate)));
+
+                return this;
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
+        }
+
+        public async Task<IPostingLineCollection> ApplyCalculationAsync(IAccounting calculatedAccounting)
+        {
+            NullGuard.NotNull(calculatedAccounting, nameof(calculatedAccounting));
+
+            int accountingNumber = calculatedAccounting.Number;
+
+            await Task.WhenAll(GenerateTasks(this, postingLine => postingLine.Accounting.Number == accountingNumber, postingLines => ApplyCalculationAsync(postingLines, postingLine => postingLine.ApplyCalculationAsync(calculatedAccounting))));
+
+            return this;
+        }
+
+        public async Task<IPostingLineCollection> ApplyCalculationAsync(IAccount calculatedAccount)
+        {
+            NullGuard.NotNull(calculatedAccount, nameof(calculatedAccount));
+
+            int accountingNumber = calculatedAccount.Accounting.Number;
+            string accountNumber = calculatedAccount.AccountNumber;
+
+            await Task.WhenAll(GenerateTasks(this, postingLine => postingLine.Accounting.Number == accountingNumber && string.CompareOrdinal(postingLine.Account.AccountNumber, accountNumber) == 0, postingLines => ApplyCalculationAsync(postingLines, postingLine => postingLine.ApplyCalculationAsync(calculatedAccount))));
+
+            return this;
+        }
+
+        public async Task<IPostingLineCollection> ApplyCalculationAsync(IBudgetAccount calculatedBudgetAccount)
+        {
+            NullGuard.NotNull(calculatedBudgetAccount, nameof(calculatedBudgetAccount));
+
+            int accountingNumber = calculatedBudgetAccount.Accounting.Number;
+            string accountNumber = calculatedBudgetAccount.AccountNumber;
+
+            await Task.WhenAll(GenerateTasks(this, postingLine => postingLine.Accounting.Number == accountingNumber && postingLine.BudgetAccount != null && string.CompareOrdinal(postingLine.BudgetAccount.AccountNumber, accountNumber) == 0, postingLines => ApplyCalculationAsync(postingLines, postingLine => postingLine.ApplyCalculationAsync(calculatedBudgetAccount))));
+
+            return this;
+        }
+
+        public async Task<IPostingLineCollection> ApplyCalculationAsync(IContactAccount calculatedContactAccount)
+        {
+            NullGuard.NotNull(calculatedContactAccount, nameof(calculatedContactAccount));
+
+            int accountingNumber = calculatedContactAccount.Accounting.Number;
+            string accountNumber = calculatedContactAccount.AccountNumber;
+
+            await Task.WhenAll(GenerateTasks(this, postingLine => postingLine.Accounting.Number == accountingNumber && postingLine.ContactAccount != null && string.CompareOrdinal(postingLine.ContactAccount.AccountNumber, accountNumber) == 0, postingLines => ApplyCalculationAsync(postingLines, postingLine => postingLine.ApplyCalculationAsync(calculatedContactAccount))));
 
             return this;
         }
@@ -257,13 +316,41 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             }
         }
 
+        private static Task[] GenerateTasks(IPostingLineCollection postingLineCollection, Predicate<IPostingLine> selector, Func<IReadOnlyCollection<IPostingLine>, Task> taskGenerator)
+        {
+            NullGuard.NotNull(postingLineCollection, nameof(postingLineCollection))
+                .NotNull(selector, nameof(selector))
+                .NotNull(taskGenerator, nameof(taskGenerator));
+
+            return postingLineCollection.AsParallel()
+                .GroupBy(postingLine => postingLine.PostingDate.Year)
+                .Select(group => taskGenerator(group.AsParallel().Where(postingLine => selector(postingLine)).ToArray()))
+                .ToArray();
+        }
+
         private static async Task CalculateAsync(IReadOnlyCollection<IPostingLine> postingLineCollection, DateTime statusDate)
         {
             NullGuard.NotNull(postingLineCollection, nameof(postingLineCollection));
 
+            foreach (IPostingLine postingLine in postingLineCollection.Where(m => m.StatusDate != statusDate))
+            {
+                if (postingLine.StatusDate == statusDate)
+                {
+                    continue;
+                }
+
+                await postingLine.CalculateAsync(statusDate);
+            }
+        }
+
+        private static async Task ApplyCalculationAsync(IReadOnlyCollection<IPostingLine> postingLineCollection, Func<IPostingLine, Task<IPostingLine>> applyCalculationTaskGetter)
+        {
+            NullGuard.NotNull(postingLineCollection, nameof(postingLineCollection))
+                .NotNull(applyCalculationTaskGetter, nameof(applyCalculationTaskGetter));
+
             foreach (IPostingLine postingLine in postingLineCollection)
             {
-                await postingLine.CalculateAsync(statusDate);
+                await applyCalculationTaskGetter(postingLine);
             }
         }
 

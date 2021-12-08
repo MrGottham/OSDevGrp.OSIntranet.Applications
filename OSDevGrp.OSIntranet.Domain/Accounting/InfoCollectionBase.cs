@@ -13,6 +13,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
     {
         #region Private variables
 
+        private bool _isCalculating;
         private IDictionary<int, TInfo> _infoDictionary;
         private readonly object _syncRoot = new object();
 
@@ -93,18 +94,31 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return AlreadyCalculated();
             }
 
             StatusDate = statusDate.Date;
 
-            List<TInfo> calculatedInfoCollection = new List<TInfo>();
-            foreach (TInfo info in this)
+            _isCalculating = true;
+            try
             {
-                calculatedInfoCollection.Add(await info.CalculateAsync(StatusDate));
-            }
+                List<TInfo> calculatedInfoCollection = new List<TInfo>();
+                foreach (TInfo info in this)
+                {
+                    calculatedInfoCollection.Add(await info.CalculateAsync(StatusDate));
+                }
 
-            return Calculate(StatusDate, calculatedInfoCollection.AsReadOnly());
+                return Calculate(StatusDate, calculatedInfoCollection.AsReadOnly());
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
         }
 
         protected abstract TInfoCollection Calculate(DateTime statusDate, IReadOnlyCollection<TInfo> calculatedInfoCollection);

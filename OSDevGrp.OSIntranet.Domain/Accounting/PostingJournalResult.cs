@@ -9,6 +9,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
     {
         #region Private variables
 
+        private bool _isCalculating;
         private readonly IPostingWarningCalculator _postingWarningCalculator;
 
         #endregion
@@ -39,15 +40,28 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return this;
             }
 
             StatusDate = statusDate.Date;
 
-            PostingLineCollection = await PostingLineCollection.CalculateAsync(StatusDate);
-            PostingWarningCollection = await _postingWarningCalculator.CalculateAsync(PostingLineCollection);
+            _isCalculating = true;
+            try
+            {
+                PostingLineCollection = await PostingLineCollection.CalculateAsync(StatusDate);
+                PostingWarningCollection = await _postingWarningCalculator.CalculateAsync(PostingLineCollection);
 
-            return this;
+                return this;
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
         }
 
         #endregion

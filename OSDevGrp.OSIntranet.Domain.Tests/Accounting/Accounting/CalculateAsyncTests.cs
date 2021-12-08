@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -63,6 +65,58 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.Accounting
             await sut.CalculateAsync(statusDate);
 
             contactAccountCollectionMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertPostingLineCollectionWasCalledOnEachAccountFromCalculatedAccountCollection()
+        {
+            IList<Mock<IAccount>> accountMockCollection = new List<Mock<IAccount>>
+            {
+                _fixture.BuildAccountMock(),
+                _fixture.BuildAccountMock(),
+                _fixture.BuildAccountMock(),
+                _fixture.BuildAccountMock(),
+                _fixture.BuildAccountMock(),
+                _fixture.BuildAccountMock(),
+                _fixture.BuildAccountMock()
+            };
+            IAccountCollection calculatedAccountCollection = _fixture.BuildAccountCollectionMock(accountCollection: accountMockCollection.Select(m => m.Object).ToArray()).Object;
+            IAccountCollection accountCollection = _fixture.BuildAccountCollectionMock(calculatedAccountCollection: calculatedAccountCollection).Object;
+            ICalculable<IAccounting> sut = CreateSut(accountCollection);
+
+            await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            foreach (Mock<IAccount> accountMock in accountMockCollection)
+            {
+                accountMock.Verify(m => m.PostingLineCollection, Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertApplyCalculationAsyncWasCalledOnEachPostingLineCollectionForEachAccountFromCalculatedAccountCollection()
+        {
+            IList<Mock<IPostingLineCollection>> postingLineCollectionMockCollection = new List<Mock<IPostingLineCollection>>
+            {
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true),
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true),
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true),
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true),
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true),
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true),
+                _fixture.BuildPostingLineCollectionMock(isEmpty: true)
+            };
+            IAccountCollection calculatedAccountCollection = _fixture.BuildAccountCollectionMock(accountCollection: postingLineCollectionMockCollection.Select(m => _fixture.BuildAccountMock(postingLineCollection: m.Object).Object).ToArray()).Object;
+            IAccountCollection accountCollection = _fixture.BuildAccountCollectionMock(calculatedAccountCollection: calculatedAccountCollection).Object;
+            ICalculable<IAccounting> sut = CreateSut(accountCollection);
+
+            await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            foreach (Mock<IPostingLineCollection> postingLineCollectionMock in postingLineCollectionMockCollection)
+            {
+                postingLineCollectionMock.Verify(m => m.ApplyCalculationAsync(It.Is<IAccounting>(value => value != null && value == sut)), Times.Once);
+            }
         }
 
         [Test]
