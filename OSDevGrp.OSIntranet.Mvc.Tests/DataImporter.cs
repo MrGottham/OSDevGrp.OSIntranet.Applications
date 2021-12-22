@@ -269,9 +269,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
                 {
                     toPostingDate = toPostingDate.AddYears(1).Date;
                 }
-                if (toPostingDate.Date >= DateTime.Today)
+
+                DateTime today = DateTime.Today;
+                if (toPostingDate.Date >= today)
                 {
-                    toPostingDate = toPostingDate.AddMonths(-1).Date;
+                    toPostingDate = today.AddMonths(-1);
                 }
 
                 await HandlePostingLineElementCollectionAsync(accounting.Number, postingLineElementCollection, contactAccountConvertingMap, fromPostingDate, toPostingDate);
