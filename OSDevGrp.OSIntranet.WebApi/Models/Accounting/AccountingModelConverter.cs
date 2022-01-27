@@ -16,6 +16,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
         #region Private variables
 
         private readonly IConverter _commonModelConverter = new CommonModelConverter();
+        private readonly IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>> _applyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter = new ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter();
 
         #endregion
 
@@ -122,7 +123,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
                 .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder ?? 0));
 
             mapperConfiguration.CreateMap<ApplyPostingJournalModel, ApplyPostingJournalCommand>()
-                .ForMember(dest => dest.PostingLineCollection, opt => opt.ConvertUsing(new ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter(), src => src.ApplyPostingLines));
+                .ForMember(dest => dest.PostingLineCollection, opt => opt.ConvertUsing(_applyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter, src => src.ApplyPostingLines));
 
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupModel>();
 
