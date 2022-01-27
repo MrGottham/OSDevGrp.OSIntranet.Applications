@@ -314,7 +314,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
                 TAccountDictionaryViewModel result = new TAccountDictionaryViewModel
                 {
-                    Items = new ReadOnlyDictionary<TAccountGroupViewModel, TAccountCollectionViewModel>(new ConcurrentDictionary<TAccountGroupViewModel, TAccountCollectionViewModel>(dictionary))
+                    Items = new ReadOnlyDictionary<TAccountGroupViewModel, TAccountCollectionViewModel>(dictionary)
                 };
 
                 return OnConvert(accountCollection, result, context);
