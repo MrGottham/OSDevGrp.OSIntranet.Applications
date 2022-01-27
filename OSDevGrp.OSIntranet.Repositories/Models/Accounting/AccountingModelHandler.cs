@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -390,7 +389,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return accountingModel.PostingLines;
             }
 
-            accountingModel.Accounts?.ForAll(async accountModel =>
+            foreach (AccountModel accountModel in accountingModel.Accounts ?? new List<AccountModel>(0))
             {
                 if (accountModel.PostingLines == null)
                 {
@@ -402,9 +401,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 {
                     accountModel.Deletable = await accountModelHandler.IsDeletableAsync(accountModel);
                 }
-            });
+            }
 
-            accountingModel.BudgetAccounts?.ForAll(async budgetAccountModel =>
+            foreach (BudgetAccountModel budgetAccountModel in accountingModel.BudgetAccounts ?? new List<BudgetAccountModel>(0))
             {
                 if (budgetAccountModel.PostingLines == null)
                 {
@@ -416,9 +415,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 {
                     budgetAccountModel.Deletable = await budgetAccountModelHandler.IsDeletableAsync(budgetAccountModel);
                 }
-            });
+            }
 
-            accountingModel.ContactAccounts?.ForAll(async contactAccountModel =>
+            foreach (ContactAccountModel contactAccountModel in accountingModel.ContactAccounts ?? new List<ContactAccountModel>(0))
             {
                 if (contactAccountModel.PostingLines == null)
                 {
@@ -430,7 +429,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 {
                     contactAccountModel.Deletable = await contactAccountModelHandler.IsDeletableAsync(contactAccountModel);
                 }
-            });
+            }
 
             if (accountingModel.PostingLines == null)
             {
