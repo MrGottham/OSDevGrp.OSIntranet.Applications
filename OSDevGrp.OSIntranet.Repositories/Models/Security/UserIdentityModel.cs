@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
     internal class UserIdentityModel : AuditModelBase
     {
         public virtual int UserIdentityIdentifier { get; set; }
-        
+
         public virtual string ExternalUserIdentifier { get; set; }
 
         public virtual List<UserIdentityClaimModel> UserIdentityClaims { get; set; }
@@ -52,8 +52,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
         {
             NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel));
 
-            userIdentityModel.UserIdentityIdentifier = default(int);
-            
+            userIdentityModel.UserIdentityIdentifier = default;
+
             return userIdentityModel;
         }
 
@@ -64,7 +64,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 .NotNull(context, nameof(context))
                 .NotNull(securityModelConverter, nameof(securityModelConverter));
 
-            IList<ClaimModel> claimModelCollection = context.Claims.ToList();
+            IList<ClaimModel> claimModelCollection = context.Claims.ToListAsync()
+                .GetAwaiter()
+                .GetResult();
 
             userIdentityModel.UserIdentityClaims = claimCollection.AsParallel()
                 .Where(claim => claimModelCollection.Any(c => c.ClaimType == claim.Type))

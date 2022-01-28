@@ -196,7 +196,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             await PrepareReadAsync(new AccountingIdentificationState(number));
 
-            AccountingModel accountingModel = CreateReader(false).SingleOrDefault(m => m.AccountingIdentifier == number);
+            AccountingModel accountingModel = await CreateReader(false).SingleOrDefaultAsync(m => m.AccountingIdentifier == number);
             if (accountingModel == null)
             {
                 return null;
@@ -292,10 +292,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            bool usedOnAccounts = await InUseAsync(accountingModel.Accounts, DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnBudgetAccounts = await InUseAsync(accountingModel.BudgetAccounts, DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnContactAccounts = await InUseAsync(accountingModel.ContactAccounts, DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnPostingLines = await InUseAsync(accountingModel.PostingLines, DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnAccounts = await InUseAsync(accountingModel.Accounts, () => DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnBudgetAccounts = await InUseAsync(accountingModel.BudgetAccounts, () => DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnContactAccounts = await InUseAsync(accountingModel.ContactAccounts, () => DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnPostingLines = await InUseAsync(accountingModel.PostingLines, () => DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
 
             return usedOnAccounts == false && usedOnBudgetAccounts == false && usedOnContactAccounts == false && usedOnPostingLines == false;
         }
@@ -439,7 +439,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return (await postingLineModelHandler.ReadAsync(accountingModel.PostingLines)).ToList();
         }
 
-        private static async Task<bool> InUseAsync<TAccountModel>(IEnumerable<TAccountModel> accountModelCollection, Task<TAccountModel> accountModelGetter) where TAccountModel : AccountModelBase
+        private static async Task<bool> InUseAsync<TAccountModel>(IEnumerable<TAccountModel> accountModelCollection, Func<Task<TAccountModel>> accountModelGetter) where TAccountModel : AccountModelBase
         {
             NullGuard.NotNull(accountModelGetter, nameof(accountModelGetter));
 
@@ -448,10 +448,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return accountModelCollection.Any();
             }
 
-            return await accountModelGetter != null;
+            return await accountModelGetter() != null;
         }
 
-        private static async Task<bool> InUseAsync(IEnumerable<PostingLineModel> postingLineModelCollection, Task<PostingLineModel> postingLineModelGetter)
+        private static async Task<bool> InUseAsync(IEnumerable<PostingLineModel> postingLineModelCollection, Func<Task<PostingLineModel>> postingLineModelGetter)
         {
             NullGuard.NotNull(postingLineModelGetter, nameof(postingLineModelGetter));
 
@@ -460,7 +460,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return postingLineModelCollection.Any();
             }
 
-            return await postingLineModelGetter != null;
+            return await postingLineModelGetter() != null;
         }
 
         #endregion

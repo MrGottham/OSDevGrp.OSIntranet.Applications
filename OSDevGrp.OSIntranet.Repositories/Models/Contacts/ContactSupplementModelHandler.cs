@@ -64,13 +64,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
             return contact;
         }
 
-        internal async Task<IEnumerable<IContact>> ApplyContactSupplementAsync(IEnumerable<IContact> contactCollection)
+        internal Task<IEnumerable<IContact>> ApplyContactSupplementAsync(IEnumerable<IContact> contactCollection)
         {
             NullGuard.NotNull(contactCollection, nameof(contactCollection));
 
-            Task<IContact>[] applyContactSupplementTaskCollection = contactCollection.Select(ApplyContactSupplementAsync).ToArray();
-
-            return await Task.WhenAll(applyContactSupplementTaskCollection);
+            return Task.FromResult<IEnumerable<IContact>>(contactCollection.Select(contact => ApplyContactSupplementAsync(contact).GetAwaiter().GetResult()).ToArray());
         }
 
         internal async Task<ContactSupplementModel> ReadAsync(IContact contact, string existingExternalIdentifier = null)

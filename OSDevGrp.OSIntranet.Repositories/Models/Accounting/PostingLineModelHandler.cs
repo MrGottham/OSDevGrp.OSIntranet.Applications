@@ -184,7 +184,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                                            postingLineModel.PostingDate >= startDate &&
                                            postingLineModel.PostingDate < endDate);
 
-            IReadOnlyCollection<PostingLineModel> postingLineModelCollection = (await ReadAsync(query)).ToArray();
+            IReadOnlyCollection<PostingLineModel> postingLineModelCollection = (await ReadAsync(await query.ToArrayAsync())).ToArray();
 
             lock (_syncRoot)
             {

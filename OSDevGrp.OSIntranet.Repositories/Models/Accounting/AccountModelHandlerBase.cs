@@ -120,7 +120,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             await PrepareReadAsync(new AccountingIdentificationState(accountingNumber));
 
-            IReadOnlyCollection<TAccountModel> accountModelCollection = (await ReadAsync(Reader.Where(accountModel => accountModel.AccountingIdentifier == accountingNumber))).ToArray();
+            IReadOnlyCollection<TAccountModel> accountModelCollection = (await ReadAsync(await Reader.Where(accountModel => accountModel.AccountingIdentifier == accountingNumber).ToArrayAsync())).ToArray();
 
             await PublishModelCollectionLoadedEvent(accountModelCollection);
 

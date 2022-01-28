@@ -154,7 +154,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             await PrepareReadAsync(new AccountingIdentificationState(accountingNumber));
 
-            IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection = (await ReadAsync(CreateReader(false).Where(budgetInfoModel => budgetInfoModel.BudgetAccount.AccountingIdentifier == accountingNumber))).ToArray();
+            IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection = (await ReadAsync(await CreateReader(false).Where(budgetInfoModel => budgetInfoModel.BudgetAccount.AccountingIdentifier == accountingNumber).ToArrayAsync())).ToArray();
 
             lock (_syncRoot)
             {
