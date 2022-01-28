@@ -76,7 +76,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 opt.JsonSerializerOptions.Converters.Add(new DecimalFormatJsonConverter());
                 opt.JsonSerializerOptions.Converters.Add(new NullableDecimalFormatJsonConverter());
-                opt.JsonSerializerOptions.IgnoreNullValues = true;
+                opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
 
             services.AddApiVersioning(opt => opt.ApiVersionReader = new HeaderApiVersionReader());

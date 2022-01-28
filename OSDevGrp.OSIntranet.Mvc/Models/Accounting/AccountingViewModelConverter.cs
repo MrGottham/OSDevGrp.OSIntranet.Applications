@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
@@ -19,6 +20,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         #region Private variables
 
         private readonly IConverter _commonViewModelConverter = new CommonViewModelConverter();
+        private readonly ITypeConverter<IAccountCollection, AccountDictionaryViewModel> _accountCollectionToAccountDictionaryViewModelTypeConverter = new AccountCollectionToAccountDictionaryViewModelTypeConverter();
+        private readonly ITypeConverter<IBudgetAccountCollection, BudgetAccountDictionaryViewModel> _budgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter = new BudgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter();
+        private readonly ITypeConverter<ICreditInfoCollection, CreditInfoDictionaryViewModel> _creditInfoCollectionToCreditInfoDictionaryViewModelTypeConverter = new CreditInfoCollectionToCreditInfoDictionaryViewModelTypeConverter();
+        private readonly ITypeConverter<IBudgetInfoCollection, BudgetInfoDictionaryViewModel> _budgetInfoCollectionToBudgetInfoDictionaryViewModelTypeConverter = new BudgetInfoCollectionToBudgetInfoDictionaryViewModelTypeConverter();
+        private readonly ITypeConverter<IContactInfoCollection, BalanceInfoDictionaryViewModel> _contactInfoCollectionTBalanceInfoCollectionViewModelTypeConverter = new ContactInfoCollectionTBalanceInfoCollectionViewModelTypeConverter();
+        private readonly IValueConverter<CreditInfoDictionaryViewModel, IEnumerable<ICreditInfoCommand>> _creditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter = new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter();
+        private readonly IValueConverter<BudgetInfoDictionaryViewModel, IEnumerable<IBudgetInfoCommand>> _budgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter = new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter();
+        private readonly ITypeConverter<IPostingLineCollection, PostingLineCollectionViewModel> _postingLineCollectionToPostingLineCollectionViewModelTypeConverter = new PostingLineCollectionToPostingLineCollectionViewModelTypeConverter();
+        private readonly ITypeConverter<IPostingWarningCollection, PostingWarningCollectionViewModel> _postingWarningCollectionToPostingWarningCollectionViewModelTypeConverter = new PostingWarningCollectionToPostingWarningCollectionViewModelTypeConverter();
+        private readonly IValueConverter<ApplyPostingLineCollectionViewModel, IEnumerable<IApplyPostingLineCommand>> _applyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter = new ApplyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter();
 
         #endregion
 
@@ -73,7 +84,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.CreditInfoCollection, opt =>
                 {
                     opt.Condition(src => src.CreditInfos != null);
-                    opt.ConvertUsing(new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter(), src => src.CreditInfos);
+                    opt.ConvertUsing(_creditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter, src => src.CreditInfos);
                 });
 
             mapperConfiguration.CreateMap<AccountViewModel, UpdateAccountCommand>()
@@ -82,7 +93,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.CreditInfoCollection, opt =>
                 {
                     opt.Condition(src => src.CreditInfos != null);
-                    opt.ConvertUsing(new CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter(), src => src.CreditInfos);
+                    opt.ConvertUsing(_creditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter, src => src.CreditInfos);
                 });
 
             mapperConfiguration.CreateMap<AccountViewModel, DeleteAccountCommand>()
@@ -92,9 +103,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(account => account.AccountNumber).ToArray()));
 
             mapperConfiguration.CreateMap<IAccountCollection, AccountDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.GroupByAccountGroupAsync().GetAwaiter().GetResult()))
-                .ForMember(dest => dest.Keys, opt => opt.Ignore())
-                .ForMember(dest => dest.Values, opt => opt.Ignore());
+                .ConvertUsing(_accountCollectionToAccountDictionaryViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<ICreditInfo, CreditInfoViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -109,9 +118,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(creditInfo => creditInfo.Year * 100 + creditInfo.Month).ToArray()));
 
             mapperConfiguration.CreateMap<ICreditInfoCollection, CreditInfoDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<ICreditInfoCollection, ICreditInfo, CreditInfoCollectionViewModel, CreditInfoViewModel>(), src => src))
-                .ForMember(dest => dest.Keys, opt => opt.Ignore())
-                .ForMember(dest => dest.Values, opt => opt.Ignore());
+                .ConvertUsing(_creditInfoCollectionToCreditInfoDictionaryViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IBudgetAccount, AccountIdentificationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -131,7 +138,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.BudgetInfoCollection, opt =>
                 {
                     opt.Condition(src => src.BudgetInfos != null);
-                    opt.ConvertUsing(new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter(), src => src.BudgetInfos);
+                    opt.ConvertUsing(_budgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter, src => src.BudgetInfos);
                 });
 
             mapperConfiguration.CreateMap<BudgetAccountViewModel, UpdateBudgetAccountCommand>()
@@ -140,7 +147,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.BudgetInfoCollection, opt =>
                 {
                     opt.Condition(src => src.BudgetInfos != null);
-                    opt.ConvertUsing(new BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter(), src => src.BudgetInfos);
+                    opt.ConvertUsing(_budgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter, src => src.BudgetInfos);
                 });
 
             mapperConfiguration.CreateMap<BudgetAccountViewModel, DeleteBudgetAccountCommand>()
@@ -150,9 +157,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(budgetAccount => budgetAccount.AccountNumber).ToArray()));
 
             mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.GroupByBudgetAccountGroupAsync().GetAwaiter().GetResult()))
-                .ForMember(dest => dest.Keys, opt => opt.Ignore())
-                .ForMember(dest => dest.Values, opt => opt.Ignore());
+                .ConvertUsing(_budgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IBudgetInfo, BudgetInfoViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -165,9 +170,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(budgetInfo => budgetInfo.Year * 100 + budgetInfo.Month).ToArray()));
 
             mapperConfiguration.CreateMap<IBudgetInfoCollection, BudgetInfoDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IBudgetInfoCollection, IBudgetInfo, BudgetInfoCollectionViewModel, BudgetInfoViewModel>(), src => src))
-                .ForMember(dest => dest.Keys, opt => opt.Ignore())
-                .ForMember(dest => dest.Values, opt => opt.Ignore());
+                .ConvertUsing(_budgetInfoCollectionToBudgetInfoDictionaryViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IContactAccount, AccountIdentificationViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -206,9 +209,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderByDescending(contactInfo => contactInfo.Year * 100 + contactInfo.Month).ToArray()));
 
             mapperConfiguration.CreateMap<IContactInfoCollection, BalanceInfoDictionaryViewModel>()
-                .ForMember(dest => dest.Items, opt => opt.ConvertUsing(new InfoCollectionToDictionaryValueConverter<IContactInfoCollection, IContactInfo, BalanceInfoCollectionViewModel, BalanceInfoViewModel>(), src => src))
-                .ForMember(dest => dest.Keys, opt => opt.Ignore())
-                .ForMember(dest => dest.Values, opt => opt.Ignore());
+                .ConvertUsing(_contactInfoCollectionTBalanceInfoCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingLine, PostingLineViewModel>()
                 .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit != 0M ? src.Debit : (decimal?) null))
@@ -216,13 +217,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionViewModel>()
-                .ConvertUsing(new PostingLineCollectionToPostingLineCollectionViewModelTypeConverter());
+                .ConvertUsing(_postingLineCollectionToPostingLineCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingWarning, PostingWarningViewModel>()
                 .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => Guid.NewGuid()));
 
             mapperConfiguration.CreateMap<IPostingWarningCollection, PostingWarningCollectionViewModel>()
-                .ConvertUsing(new PostingWarningCollectionToPostingWarningCollectionViewModelTypeConverter());
+                .ConvertUsing(_postingWarningCollectionToPostingWarningCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingJournalResult, ApplyPostingJournalResultViewModel>()
                 .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection))
@@ -248,7 +249,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.SortOrder, opt => opt.MapFrom(src => src.SortOrder ?? 0));
 
             mapperConfiguration.CreateMap<ApplyPostingJournalViewModel, ApplyPostingJournalCommand>()
-                .ForMember(dest => dest.PostingLineCollection, opt => opt.ConvertUsing(new ApplyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter(), src => src.ApplyPostingLines));
+                .ForMember(dest => dest.PostingLineCollection, opt => opt.ConvertUsing(_applyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter, src => src.ApplyPostingLines));
 
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupViewModel>()
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
@@ -280,16 +281,119 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<PaymentTermViewModel, DeletePaymentTermCommand>();
         }
 
-        private class InfoCollectionToDictionaryValueConverter<TInfoCollection, TInfo, TInfoCollectionViewModel, TInfoViewModel> : IValueConverter<TInfoCollection, IDictionary<short, TInfoCollectionViewModel>> where TInfoCollection : IInfoCollection<TInfo> where TInfo : IInfo<TInfo> where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase
+        private abstract class AccountCollectionToAccountDictionaryViewModelTypeConverterBase<TAccountGroup, TAccountCollection, TAccount, TAccountDictionaryViewModel, TAccountGroupViewModel, TAccountCollectionViewModel, TAccountViewModel> : ITypeConverter<TAccountCollection, TAccountDictionaryViewModel> where TAccountGroup : IAccountGroupBase where TAccountCollection : IAccountCollectionBase<TAccount> where TAccount : IAccountBase<TAccount> where TAccountDictionaryViewModel : AccountDictionaryViewModelBase<TAccountGroupViewModel, TAccountCollectionViewModel, TAccountViewModel>, new() where TAccountGroupViewModel : AccountGroupViewModelBase where TAccountCollectionViewModel : AccountCollectionViewModelBase<TAccountViewModel> where TAccountViewModel : AccountIdentificationViewModel
+        {
+            #region Private variables
+
+            private readonly Func<TAccountCollection, IReadOnlyDictionary<TAccountGroup, TAccountCollection>> _dictionaryGetter;
+
+            #endregion
+
+            #region Constructor
+
+            protected AccountCollectionToAccountDictionaryViewModelTypeConverterBase(Func<TAccountCollection, IReadOnlyDictionary<TAccountGroup, TAccountCollection>> dictionaryGetter)
+            {
+                NullGuard.NotNull(dictionaryGetter, nameof(dictionaryGetter));
+
+                _dictionaryGetter = dictionaryGetter;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public TAccountDictionaryViewModel Convert(TAccountCollection accountCollection, TAccountDictionaryViewModel accountDictionaryViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(accountCollection, nameof(accountCollection))
+                    .NotNull(context, nameof(context));
+
+                IDictionary<TAccountGroupViewModel, TAccountCollectionViewModel> dictionary = _dictionaryGetter(accountCollection)
+                    .ToDictionary(
+                        item => context.Mapper.Map<TAccountGroup, TAccountGroupViewModel>(item.Key),
+                        item => context.Mapper.Map<TAccountCollection, TAccountCollectionViewModel>(item.Value));
+
+                TAccountDictionaryViewModel result = new TAccountDictionaryViewModel
+                {
+                    Items = new ReadOnlyDictionary<TAccountGroupViewModel, TAccountCollectionViewModel>(dictionary)
+                };
+
+                return OnConvert(accountCollection, result, context);
+            }
+
+            protected abstract TAccountDictionaryViewModel OnConvert(TAccountCollection accountCollection, TAccountDictionaryViewModel accountDictionaryViewModel, ResolutionContext context);
+
+            #endregion
+        }
+
+        private class AccountCollectionToAccountDictionaryViewModelTypeConverter : AccountCollectionToAccountDictionaryViewModelTypeConverterBase<IAccountGroup, IAccountCollection, IAccount, AccountDictionaryViewModel, AccountGroupViewModel,  AccountCollectionViewModel, AccountViewModel>
+        {
+            #region Constructor
+
+            public AccountCollectionToAccountDictionaryViewModelTypeConverter()
+                : base(accountCollection => accountCollection.GroupByAccountGroupAsync().GetAwaiter().GetResult())
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override AccountDictionaryViewModel OnConvert(IAccountCollection accountCollection, AccountDictionaryViewModel accountDictionaryViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(accountCollection, nameof(accountCollection))
+                    .NotNull(accountDictionaryViewModel, nameof(accountDictionaryViewModel))
+                    .NotNull(context, nameof(context));
+
+                accountDictionaryViewModel.ValuesAtStatusDate = context.Mapper.Map<IAccountCollectionValues, AccountCollectionValuesViewModel>(accountCollection.ValuesAtStatusDate);
+                accountDictionaryViewModel.ValuesAtEndOfLastMonthFromStatusDate = context.Mapper.Map<IAccountCollectionValues, AccountCollectionValuesViewModel>(accountCollection.ValuesAtEndOfLastMonthFromStatusDate);
+                accountDictionaryViewModel.ValuesAtEndOfLastYearFromStatusDate = context.Mapper.Map<IAccountCollectionValues, AccountCollectionValuesViewModel>(accountCollection.ValuesAtEndOfLastYearFromStatusDate);
+
+                return accountDictionaryViewModel;
+            }
+
+            #endregion
+        }
+
+        private class BudgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter : AccountCollectionToAccountDictionaryViewModelTypeConverterBase<IBudgetAccountGroup, IBudgetAccountCollection, IBudgetAccount, BudgetAccountDictionaryViewModel, BudgetAccountGroupViewModel, BudgetAccountCollectionViewModel, BudgetAccountViewModel>
+        {
+            #region Constructor
+
+            public BudgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter() 
+                : base(budgetAccountCollection => budgetAccountCollection.GroupByBudgetAccountGroupAsync().GetAwaiter().GetResult())
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override BudgetAccountDictionaryViewModel OnConvert(IBudgetAccountCollection budgetAccountCollection, BudgetAccountDictionaryViewModel budgetAccountDictionaryViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(budgetAccountCollection, nameof(budgetAccountCollection))
+                    .NotNull(budgetAccountDictionaryViewModel, nameof(budgetAccountDictionaryViewModel))
+                    .NotNull(context, nameof(context));
+
+                budgetAccountDictionaryViewModel.ValuesForMonthOfStatusDate = context.Mapper.Map<IBudgetInfoValues, BudgetInfoValuesViewModel>(budgetAccountCollection.ValuesForMonthOfStatusDate);
+                budgetAccountDictionaryViewModel.ValuesForLastMonthOfStatusDate = context.Mapper.Map<IBudgetInfoValues, BudgetInfoValuesViewModel>(budgetAccountCollection.ValuesForLastMonthOfStatusDate);
+                budgetAccountDictionaryViewModel.ValuesForYearToDateOfStatusDate = context.Mapper.Map<IBudgetInfoValues, BudgetInfoValuesViewModel>(budgetAccountCollection.ValuesForYearToDateOfStatusDate);
+                budgetAccountDictionaryViewModel.ValuesForLastYearOfStatusDate = context.Mapper.Map<IBudgetInfoValues, BudgetInfoValuesViewModel>(budgetAccountCollection.ValuesForLastYearOfStatusDate);
+
+                return budgetAccountDictionaryViewModel;
+            }
+
+            #endregion
+        }
+
+        private abstract class InfoCollectionToInfoDictionaryViewModelTypeConverterBase<TInfoCollection, TInfo, TInfoDictionaryViewModel, TInfoCollectionViewModel, TInfoViewModel> : ITypeConverter<TInfoCollection, TInfoDictionaryViewModel> where TInfoCollection : IInfoCollection<TInfo> where TInfo : IInfo<TInfo> where TInfoDictionaryViewModel : InfoDictionaryViewModelBase<TInfoCollectionViewModel, TInfoViewModel>, new() where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel>, new() where TInfoViewModel : InfoViewModelBase
         {
             #region Methods
 
-            public IDictionary<short, TInfoCollectionViewModel> Convert(TInfoCollection sourceMember, ResolutionContext context)
+            public TInfoDictionaryViewModel Convert(TInfoCollection infoCollection, TInfoDictionaryViewModel infoDictionaryViewModel, ResolutionContext context)
             {
-                NullGuard.NotNull(sourceMember, nameof(sourceMember))
+                NullGuard.NotNull(infoCollection, nameof(infoCollection))
                     .NotNull(context, nameof(context));
 
-                IDictionary<short, TInfoCollectionViewModel> dictionary = sourceMember.GroupBy(info => info.Year)
+                IDictionary<short, TInfoCollectionViewModel> dictionary = infoCollection.GroupBy(info => info.Year)
                     .OrderBy(group => group.Key)
                     .ToDictionary(group => group.Key, group =>
                     {
@@ -301,43 +405,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                         };
                     });
 
-                return new ConcurrentDictionary<short, TInfoCollectionViewModel>(dictionary);
+                return new TInfoDictionaryViewModel
+                {
+                    Items = new ConcurrentDictionary<short, TInfoCollectionViewModel>(dictionary)
+                };
             }
 
             #endregion
         }
 
-        private class CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter : InfoDictionaryViewModelToInfoCommandCollectionValueConverter<CreditInfoCollectionViewModel, CreditInfoViewModel, ICreditInfoCommand>
+        private class CreditInfoCollectionToCreditInfoDictionaryViewModelTypeConverter : InfoCollectionToInfoDictionaryViewModelTypeConverterBase<ICreditInfoCollection, ICreditInfo, CreditInfoDictionaryViewModel, CreditInfoCollectionViewModel, CreditInfoViewModel>
         {
-            #region Methods
-
-            protected override ICreditInfoCommand Convert(CreditInfoViewModel creditInfoViewModel, ResolutionContext context)
-            {
-                NullGuard.NotNull(creditInfoViewModel, nameof(creditInfoViewModel))
-                    .NotNull(context, nameof(context));
-
-                return context.Mapper.Map<CreditInfoViewModel, CreditInfoCommand>(creditInfoViewModel);
-            }
-
-            #endregion
         }
 
-        private class BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter : InfoDictionaryViewModelToInfoCommandCollectionValueConverter<BudgetInfoCollectionViewModel, BudgetInfoViewModel, IBudgetInfoCommand>
+        private class BudgetInfoCollectionToBudgetInfoDictionaryViewModelTypeConverter : InfoCollectionToInfoDictionaryViewModelTypeConverterBase<IBudgetInfoCollection, IBudgetInfo, BudgetInfoDictionaryViewModel, BudgetInfoCollectionViewModel, BudgetInfoViewModel>
         {
-            #region Methods
-
-            protected override IBudgetInfoCommand Convert(BudgetInfoViewModel budgetInfoViewModel, ResolutionContext context)
-            {
-                NullGuard.NotNull(budgetInfoViewModel, nameof(budgetInfoViewModel))
-                    .NotNull(context, nameof(context));
-
-                return context.Mapper.Map<BudgetInfoViewModel, BudgetInfoCommand>(budgetInfoViewModel);
-            }
-
-            #endregion
         }
 
-        private abstract class InfoDictionaryViewModelToInfoCommandCollectionValueConverter<TInfoCollectionViewModel, TInfoViewModel, TInfoCommand> : IValueConverter<IReadOnlyDictionary<short, TInfoCollectionViewModel>, IEnumerable<TInfoCommand>> where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel> where TInfoViewModel : InfoViewModelBase where TInfoCommand : IInfoCommand
+        private class ContactInfoCollectionTBalanceInfoCollectionViewModelTypeConverter : InfoCollectionToInfoDictionaryViewModelTypeConverterBase<IContactInfoCollection, IContactInfo, BalanceInfoDictionaryViewModel, BalanceInfoCollectionViewModel, BalanceInfoViewModel>
+        {
+        }
+
+        private abstract class InfoDictionaryViewModelToInfoCommandCollectionValueConverterBase<TInfoCollectionViewModel, TInfoViewModel, TInfoCommand> : IValueConverter<IReadOnlyDictionary<short, TInfoCollectionViewModel>, IEnumerable<TInfoCommand>> where TInfoCollectionViewModel : InfoCollectionViewModelBase<TInfoViewModel> where TInfoViewModel : InfoViewModelBase where TInfoCommand : IInfoCommand
         {
             #region Methods
 
@@ -354,6 +443,36 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             }
 
             protected abstract TInfoCommand Convert(TInfoViewModel infoViewModel, ResolutionContext context);
+
+            #endregion
+        }
+
+        private class CreditInfoDictionaryViewModelToCreditInfoCommandCollectionValueConverter : InfoDictionaryViewModelToInfoCommandCollectionValueConverterBase<CreditInfoCollectionViewModel, CreditInfoViewModel, ICreditInfoCommand>
+        {
+            #region Methods
+
+            protected override ICreditInfoCommand Convert(CreditInfoViewModel creditInfoViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(creditInfoViewModel, nameof(creditInfoViewModel))
+                    .NotNull(context, nameof(context));
+
+                return context.Mapper.Map<CreditInfoViewModel, CreditInfoCommand>(creditInfoViewModel);
+            }
+
+            #endregion
+        }
+
+        private class BudgetInfoDictionaryViewModelToBudgetInfoCommandCollectionValueConverter : InfoDictionaryViewModelToInfoCommandCollectionValueConverterBase<BudgetInfoCollectionViewModel, BudgetInfoViewModel, IBudgetInfoCommand>
+        {
+            #region Methods
+
+            protected override IBudgetInfoCommand Convert(BudgetInfoViewModel budgetInfoViewModel, ResolutionContext context)
+            {
+                NullGuard.NotNull(budgetInfoViewModel, nameof(budgetInfoViewModel))
+                    .NotNull(context, nameof(context));
+
+                return context.Mapper.Map<BudgetInfoViewModel, BudgetInfoCommand>(budgetInfoViewModel);
+            }
 
             #endregion
         }

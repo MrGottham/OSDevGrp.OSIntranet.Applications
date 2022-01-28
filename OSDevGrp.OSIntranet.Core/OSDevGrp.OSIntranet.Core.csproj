@@ -5,10 +5,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="AutoMapper" Version="11.0.0" />
     <PackageReference Include="DataAnnotationsValidatorNetStandard" Version="1.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

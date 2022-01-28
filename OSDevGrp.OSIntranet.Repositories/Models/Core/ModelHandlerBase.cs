@@ -148,10 +148,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
                 entityModelReader = queryExtender(entityModelReader);
             }
 
-            TEntityModel[] entityModelCollection = await Task.FromResult(entityModelReader.ToArray());
+            TEntityModel[] entityModelCollection = await entityModelReader.ToArrayAsync();
 
-            Task<TEntityModel>[] readEntityModelTaskCollection = entityModelCollection.Select(OnReadAsync).ToArray();
-            TEntityModel[] riddenEntityModelCollection = await Task.WhenAll(readEntityModelTaskCollection);
+            TEntityModel[] riddenEntityModelCollection = entityModelCollection.Select(entityModel => OnReadAsync(entityModel).GetAwaiter().GetResult()).ToArray();
 
             TDomainModel[] domainModelCollection = riddenEntityModelCollection.AsParallel()
                 .Select(riddenEntityModel => ModelConverter.Convert<TEntityModel, TDomainModel>(riddenEntityModel))
