@@ -197,7 +197,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollectionBase
 
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate, IEnumerable<IAccount> calculatedAccountCollection)
+            protected override Sut Calculate(DateTime statusDate, IReadOnlyCollection<IAccount> calculatedAccountCollection)
             {
                 NullGuard.NotNull(calculatedAccountCollection, nameof(calculatedAccountCollection));
 

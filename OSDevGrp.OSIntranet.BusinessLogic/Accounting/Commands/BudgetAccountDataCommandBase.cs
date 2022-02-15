@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper.Internal;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
@@ -36,8 +35,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(accountingRepository, nameof(accountingRepository))
                 .NotNull(commonRepository, nameof(commonRepository));
-            
-            BudgetInfoCollection?.ForAll(budgetInfo => budgetInfo.Validate(validator));
+
+            foreach (IBudgetInfoCommand budgetInfo in BudgetInfoCollection ?? Array.Empty<IBudgetInfoCommand>())
+            {
+                budgetInfo.Validate(validator);
+            }
 
             return base.Validate(validator, accountingRepository, commonRepository)
                 .ValidateAccountGroupIdentifier(BudgetAccountGroupNumber, GetType(), nameof(BudgetAccountGroupNumber))

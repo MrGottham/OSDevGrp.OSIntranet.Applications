@@ -115,7 +115,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync("OSDevGrp.OSIntranet.External");
-            if (authenticateResult.Succeeded == false || authenticateResult.Ticket == null)
+            if (authenticateResult.Succeeded == false || authenticateResult.Ticket == null || authenticateResult.Principal == null)
             {
                 return Unauthorized();
             }
@@ -137,18 +137,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             await HttpContext.SignInAsync("OSDevGrp.OSIntranet.Internal", new ClaimsPrincipal(claimsIdentity));
 
             AuthenticationProperties authenticationProperties = authenticateResult.Ticket.Properties;
-            if (authenticationProperties?.Items != null)
+            foreach (TokenType tokenType in Enum.GetValues(typeof(TokenType)).Cast<TokenType>())
             {
-                foreach (TokenType tokenType in Enum.GetValues(typeof(TokenType)).Cast<TokenType>())
+                string tokenTypeKey = $".{tokenType}";
+                if (authenticationProperties.Items.ContainsKey(tokenTypeKey) == false)
                 {
-                    string tokenTypeKey = $".{tokenType}";
-                    if (authenticationProperties.Items.ContainsKey(tokenTypeKey) == false)
-                    {
-                        continue;
-                    }
-
-                    await _tokenHelperFactory.StoreTokenAsync(tokenType, HttpContext, authenticationProperties.Items[tokenTypeKey]);
+                    continue;
                 }
+
+                await _tokenHelperFactory.StoreTokenAsync(tokenType, HttpContext, authenticationProperties.Items[tokenTypeKey]);
             }
 
             if (returnUri != null)

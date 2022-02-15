@@ -42,7 +42,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 .AddClaims(claimCollection)
                 .Build();
 
-
             if (latestClientSecretIdentityClaimModel == null || latestClientSecretIdentityClaimModel.ModifiedUtcDateTime < clientSecretIdentityModel.ModifiedUtcDateTime)
             {
                 clientSecretIdentity.AddAuditInformation(clientSecretIdentityModel.CreatedUtcDateTime, clientSecretIdentityModel.CreatedByIdentifier, clientSecretIdentityModel.ModifiedUtcDateTime, clientSecretIdentityModel.ModifiedByIdentifier);
@@ -59,8 +58,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
         {
             NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel));
 
-            clientSecretIdentityModel.ClientSecretIdentityIdentifier = default(int);
-            
+            clientSecretIdentityModel.ClientSecretIdentityIdentifier = default;
+
             return clientSecretIdentityModel;
         }
 
@@ -71,7 +70,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
                 .NotNull(context, nameof(context))
                 .NotNull(securityModelConverter, nameof(securityModelConverter));
 
-            IList<ClaimModel> claimModelCollection = context.Claims.ToList();
+            IList<ClaimModel> claimModelCollection = context.Claims.ToListAsync()
+                .GetAwaiter()
+                .GetResult();
 
             clientSecretIdentityModel.ClientSecretIdentityClaims = claimCollection.AsParallel()
                 .Where(claim => claimModelCollection.Any(c => c.ClaimType == claim.Type))

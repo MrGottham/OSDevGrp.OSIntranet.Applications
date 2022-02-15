@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters.Extensions
                 (year, month, creditInfoBeforeFromDate) => BuildCreditInfo(account, year, month, creditInfoBeforeFromDate),
                 (year, month) => BuildCreditInfo(account, year, month));
             creditInfoCollection.Add(creditInfoForFromDate);
-            
+
             creditInfoCollection.Add(creditInfos.Between(creditInfoForFromDate.ToDate.AddDays(1), statusDateForCreditInfos));
 
             ICreditInfo lastCreditInfo = creditInfoCollection.Last();

@@ -40,69 +40,77 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                    contactAccountModel.PaymentTerm != null;
         }
 
-        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, IConverter accountingModelConverter, object syncRoot)
+        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
-                .NotNull(accountingModelConverter, nameof(accountingModelConverter))
-                .NotNull(syncRoot, nameof(syncRoot));
+                .NotNull(mapperCache, nameof(mapperCache))
+                .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            lock (syncRoot)
+            lock (mapperCache.SyncRoot)
             {
                 IAccounting accounting = accountingModelConverter.Convert<AccountingModel, IAccounting>(contactAccountModel.Accounting);
 
-                return contactAccountModel.ToDomain(accounting, accountingModelConverter);
+                return contactAccountModel.ToDomain(accounting, mapperCache, accountingModelConverter);
             }
         }
 
-        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, IAccounting accounting, IConverter accountingModelConverter)
+        internal static IContactAccount ToDomain(this ContactAccountModel contactAccountModel, IAccounting accounting, MapperCache mapperCache, IConverter accountingModelConverter)
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
                 .NotNull(accounting, nameof(accounting))
+                .NotNull(mapperCache, nameof(mapperCache))
                 .NotNull(accountingModelConverter, nameof(accountingModelConverter));
 
-            IContactAccount contactAccount = contactAccountModel.ResolveFromDomain(accounting.ContactAccountCollection);
-            if (contactAccount != null)
+            lock (mapperCache.SyncRoot)
             {
+                IContactAccount contactAccount = contactAccountModel.Resolve(mapperCache.ContactAccountDictionary);
+                if (contactAccount != null)
+                {
+                    return contactAccount;
+                }
+
+                IPaymentTerm paymentTerm = accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(contactAccountModel.PaymentTerm);
+
+                contactAccount = new ContactAccount(accounting, contactAccountModel.AccountNumber, contactAccountModel.BasicAccount.AccountName, paymentTerm)
+                {
+                    Description = contactAccountModel.BasicAccount.Description,
+                    Note = contactAccountModel.BasicAccount.Note,
+                    MailAddress = contactAccountModel.MailAddress,
+                    PrimaryPhone = contactAccountModel.PrimaryPhone,
+                    SecondaryPhone = contactAccountModel.SecondaryPhone
+                };
+                contactAccountModel.CopyAuditInformationTo(contactAccount);
+                contactAccount.SetDeletable(contactAccountModel.Deletable);
+
+                mapperCache.ContactAccountDictionary.Add(contactAccountModel.ContactAccountIdentifier, contactAccount);
+
+                accounting.ContactAccountCollection.Add(contactAccount);
+
+                contactAccount.ContactInfoCollection.Populate(contactAccount, contactAccountModel.StatusDate, contactAccountModel.StatusDateForInfos);
+
+                if (contactAccountModel.PostingLines != null)
+                {
+                    contactAccount.PostingLineCollection.Add(contactAccountModel.PostingLines
+                        .Where(postingLineModel => postingLineModel.Convertible() && 
+                            postingLineModel.PostingDate >= contactAccountModel.GetFromDateForPostingLines() &&
+                            postingLineModel.PostingDate < contactAccountModel.GetToDateForPostingLines(1))
+                        .Select(postingLineModel => postingLineModel.ToDomain(accounting, contactAccount, mapperCache, accountingModelConverter))
+                        .Where(postingLine => contactAccount.PostingLineCollection.Contains(postingLine) == false)
+                        .ToArray());
+                }
+
                 return contactAccount;
             }
-
-            IPaymentTerm paymentTerm = accountingModelConverter.Convert<PaymentTermModel, IPaymentTerm>(contactAccountModel.PaymentTerm);
-
-            contactAccount = new ContactAccount(accounting, contactAccountModel.AccountNumber, contactAccountModel.BasicAccount.AccountName, paymentTerm)
-            {
-                Description = contactAccountModel.BasicAccount.Description,
-                Note = contactAccountModel.BasicAccount.Note,
-                MailAddress = contactAccountModel.MailAddress,
-                PrimaryPhone = contactAccountModel.PrimaryPhone,
-                SecondaryPhone = contactAccountModel.SecondaryPhone
-            };
-            contactAccountModel.CopyAuditInformationTo(contactAccount);
-            contactAccount.SetDeletable(contactAccountModel.Deletable);
-
-            accounting.ContactAccountCollection.Add(contactAccount);
-
-            contactAccount.ContactInfoCollection.Populate(contactAccount, contactAccountModel.StatusDate, contactAccountModel.StatusDateForInfos);
-
-            if (contactAccountModel.PostingLines != null)
-            {
-                contactAccount.PostingLineCollection.Add(contactAccountModel.PostingLines
-                    .Where(postingLineModel => postingLineModel.Convertible() && 
-                                               postingLineModel.PostingDate >= contactAccountModel.GetFromDateForPostingLines() &&
-                                               postingLineModel.PostingDate < contactAccountModel.GetToDateForPostingLines(1))
-                    .Select(postingLineModel => postingLineModel.ToDomain(accounting, contactAccount, accountingModelConverter))
-                    .Where(postingLine => contactAccount.PostingLineCollection.Contains(postingLine) == false)
-                    .ToArray());
-            }
-
-            return contactAccount;
         }
 
-        internal static IContactAccount ResolveFromDomain(this ContactAccountModel contactAccountModel, IContactAccountCollection contactAccountCollection)
+        internal static IContactAccount Resolve(this ContactAccountModel contactAccountModel, IDictionary<int, IContactAccount> contactAccountDictionary)
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel))
-                .NotNull(contactAccountCollection, nameof(contactAccountCollection));
+                .NotNull(contactAccountDictionary, nameof(contactAccountDictionary));
 
-            return contactAccountCollection.SingleOrDefault(contactAccount => contactAccount.Accounting.Number == contactAccountModel.AccountingIdentifier && contactAccount.AccountNumber == contactAccountModel.AccountNumber);
+            return contactAccountDictionary.TryGetValue(contactAccountModel.ContactAccountIdentifier, out IContactAccount contactAccount)
+                ? contactAccount
+                : null;
         }
 
         internal static void ExtractPostingLines(this ContactAccountModel contactAccountModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection)

@@ -78,8 +78,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
             IBudgetAccountCollection budgetAccountCollection = accounting.BudgetAccountCollection;
             IContactAccountCollection contactAccountCollection = accounting.ContactAccountCollection;
 
-            IValidator result = validator.DateTime
-                .ShouldBePastDateWithinDaysFromOffsetDate(PostingDate, backDating, DateTime.Today, GetType(), nameof(PostingDate))
+            IValidator result = validator
+                .DateTime.ShouldBePastDateWithinDaysFromOffsetDate(PostingDate, backDating, DateTime.Today, GetType(), nameof(PostingDate))
                 .DateTime.ShouldBePastDateOrToday(PostingDate, GetType(), nameof(PostingDate))
                 .String.ShouldHaveMinLength(Reference, 1, GetType(), nameof(Reference), true)
                 .String.ShouldHaveMaxLength(Reference, 16, GetType(), nameof(Reference), true)

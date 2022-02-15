@@ -93,25 +93,21 @@
                             @for (int j = i; j < Math.Min(i + 3, item.Value.Count); j++)
                             {
                                 int elementNo = j;
-                                <div class="card">
-                                    <div class="card-header">@Html.DisplayFor(m => m.BalanceInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
-                                    <div class="card-body">
-                                        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Year" />
-                                        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Month" />
-                                        @if (Model.BalanceInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BalanceInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
-                                        {
+                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Year" />
+                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Month" />
+                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
+                                @if (Model.BalanceInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BalanceInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
+                                {
+                                    <div class="card">
+                                        <div class="card-header">@Html.DisplayFor(m => m.BalanceInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
+                                        <div class="card-body">
                                             <div class="form-group">
                                                 <label asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance"></label>
-                                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
                                                 <input type="text" value="@Model.BalanceInfos.Items[item.Key].Items[elementNo].Balance.AsCurrency()" class="form-control" readonly />
                                             </div>
-                                        }
-                                        else
-                                        {
-                                            <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
-                                        }
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             }
                         </div>
                     }

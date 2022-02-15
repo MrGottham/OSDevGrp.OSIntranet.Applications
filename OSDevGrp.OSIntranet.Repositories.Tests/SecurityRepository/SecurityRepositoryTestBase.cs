@@ -2,11 +2,11 @@
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
 {
-    public abstract class SecurityRepositoryTestBase : RepositoryTestBase
+    public abstract class SecurityRepositoryTestBase : DatabaseRepositoryTestBase
     {
         protected ISecurityRepository CreateSut()
         {
-            return new Repositories.SecurityRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
+            return new Repositories.SecurityRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory());
         }
     }
 }

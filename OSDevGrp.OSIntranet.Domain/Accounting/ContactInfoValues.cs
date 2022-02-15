@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
-    internal class ContactInfoValues : IContactInfoValues
+    public class ContactInfoValues : IContactInfoValues
     {
         #region Constructor
 

@@ -12,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Converters;
@@ -32,15 +31,15 @@ namespace OSDevGrp.OSIntranet.Repositories
         #endregion
 
         #region Private variables
-        
+
         private IRefreshableToken _currentToken;
 
         #endregion
 
         #region Constructor
 
-        public MicrosoftGraphRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
-            : base(configuration, principalResolver, loggerFactory)
+        public MicrosoftGraphRepository(IConfiguration configuration, ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 

@@ -67,7 +67,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountBase
 
             protected override Task[] GetCalculationTasks(DateTime statusDate) => throw new NotSupportedException();
 
-            protected override IAccountBase GetCalculationResult() => throw new NotSupportedException();
+            protected override Task<IAccountBase> GetCalculationResultAsync() => throw new NotSupportedException();
 
             protected override IAccountBase AlreadyCalculated() => throw new NotSupportedException();
 

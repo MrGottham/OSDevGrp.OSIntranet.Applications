@@ -197,7 +197,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
 
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate, ICreditInfo[] calculatedInfoCollection)
+            protected override Sut Calculate(DateTime statusDate, IReadOnlyCollection<ICreditInfo> calculatedInfoCollection)
             {
                 NullGuard.NotNull(calculatedInfoCollection, nameof(calculatedInfoCollection));
 

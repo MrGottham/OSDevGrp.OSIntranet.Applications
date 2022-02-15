@@ -20,7 +20,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
-    internal class RepositoryContext : DbContext
+    public class RepositoryContext : DbContext
     {
         #region Constructors
 
@@ -48,65 +48,65 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #region DbSets for Common data
 
-        public DbSet<LetterHeadModel> LetterHeads { get; set; }
+        internal DbSet<LetterHeadModel> LetterHeads { get; set; }
 
-        public DbSet<KeyValueEntryModel> KeyValueEntries { get; set; }
+        internal DbSet<KeyValueEntryModel> KeyValueEntries { get; set; }
 
         #endregion
 
         #region DbSets for Contact data
 
-        public DbSet<ContactSupplementModel> ContactSupplements { get; set; }
+        internal DbSet<ContactSupplementModel> ContactSupplements { get; set; }
 
-        public DbSet<ContactSupplementBindingModel> ContactSupplementBindings { get; set; }
+        internal DbSet<ContactSupplementBindingModel> ContactSupplementBindings { get; set; }
 
-        public DbSet<ContactGroupModel> ContactGroups { get; set; }
+        internal DbSet<ContactGroupModel> ContactGroups { get; set; }
 
-        public DbSet<CountryModel> Countries { get; set; }
+        internal DbSet<CountryModel> Countries { get; set; }
 
-        public DbSet<PostalCodeModel> PostalCodes { get; set; }
+        internal DbSet<PostalCodeModel> PostalCodes { get; set; }
 
         #endregion
 
         #region DbSets for Accounting data
 
-        public DbSet<AccountingModel> Accountings { get; set; }
+        internal DbSet<AccountingModel> Accountings { get; set; }
 
-        public DbSet<AccountModel> Accounts { get; set; }
+        internal DbSet<AccountModel> Accounts { get; set; }
 
-        public DbSet<BudgetAccountModel> BudgetAccounts { get; set; }
+        internal DbSet<BudgetAccountModel> BudgetAccounts { get; set; }
 
-        public DbSet<ContactAccountModel> ContactAccounts { get; set; }
+        internal DbSet<ContactAccountModel> ContactAccounts { get; set; }
 
-        public DbSet<BasicAccountModel> BasicAccounts { get; set; }
+        internal DbSet<BasicAccountModel> BasicAccounts { get; set; }
 
-        public DbSet<CreditInfoModel> CreditInfos { get; set; }
+        internal DbSet<CreditInfoModel> CreditInfos { get; set; }
 
-        public DbSet<BudgetInfoModel> BudgetInfos { get; set; }
+        internal DbSet<BudgetInfoModel> BudgetInfos { get; set; }
 
-        public DbSet<YearMonthModel> YearMonths { get; set; }
+        internal DbSet<YearMonthModel> YearMonths { get; set; }
 
-        public DbSet<PostingLineModel> PostingLines { get; set; }
+        internal DbSet<PostingLineModel> PostingLines { get; set; }
 
-        public DbSet<AccountGroupModel> AccountGroups { get; set; }
+        internal DbSet<AccountGroupModel> AccountGroups { get; set; }
 
-        public DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
+        internal DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
 
-        public DbSet<PaymentTermModel> PaymentTerms { get; set; }
+        internal DbSet<PaymentTermModel> PaymentTerms { get; set; }
 
         #endregion
 
         #region DbSets for Security data
 
-        public DbSet<UserIdentityModel> UserIdentities { get; set; }
+        internal DbSet<UserIdentityModel> UserIdentities { get; set; }
 
-        public DbSet<UserIdentityClaimModel> UserIdentityClaims { get; set; }
+        internal DbSet<UserIdentityClaimModel> UserIdentityClaims { get; set; }
 
-        public DbSet<ClientSecretIdentityModel> ClientSecretIdentities { get; set; }
+        internal DbSet<ClientSecretIdentityModel> ClientSecretIdentities { get; set; }
 
-        public DbSet<ClientSecretIdentityClaimModel> ClientSecretIdentityClaims { get; set; }
+        internal DbSet<ClientSecretIdentityClaimModel> ClientSecretIdentityClaims { get; set; }
 
-        public DbSet<ClaimModel> Claims { get; set; }
+        internal DbSet<ClaimModel> Claims { get; set; }
 
         #endregion
 
@@ -164,6 +164,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             optionsBuilder.UseLoggerFactory(LoggerFactory)
                 .UseMySQL(Configuration.GetConnectionString(ConnectionStringNames.IntranetName));
+
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+            optionsBuilder.EnableDetailedErrors();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -292,6 +295,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateClientSecretIdentityModel();
             modelBuilder.CreateClientSecretIdentityClaimModel();
             modelBuilder.CreateClaimModel();
+        }
+
+        public static RepositoryContext Create(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration))
+                .NotNull(principalResolver, nameof(principalResolver))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new RepositoryContext(configuration, principalResolver, loggerFactory);
         }
 
         #endregion

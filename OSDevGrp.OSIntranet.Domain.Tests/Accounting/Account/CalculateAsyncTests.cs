@@ -53,6 +53,18 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.Account
 
         [Test]
         [Category("UnitTest")]
+        public async Task CalculateAsync_WhenCalled_AssertApplyCalculationAsyncWasCalledOnPostingLineCollection()
+        {
+            Mock<IPostingLineCollection> postingLineCollectionMock = _fixture.BuildPostingLineCollectionMock();
+            IAccount sut = CreateSut(postingLineCollection: postingLineCollectionMock.Object);
+
+            await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1));
+
+            postingLineCollectionMock.Verify(m => m.ApplyCalculationAsync(It.Is<IAccount>(value => value != null && value == sut)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task CalculateAsync_WhenCalled_ReturnsSameAccount()
         {
             IAccount sut = CreateSut();

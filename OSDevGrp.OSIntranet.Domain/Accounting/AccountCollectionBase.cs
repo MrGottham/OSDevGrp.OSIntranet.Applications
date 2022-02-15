@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
@@ -10,6 +9,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
     public abstract class AccountCollectionBase<TAccount, TAccountCollection> : HashSet<TAccount>, IAccountCollectionBase<TAccount, TAccountCollection> where TAccount : IAccountBase<TAccount> where TAccountCollection : IAccountCollectionBase<TAccount>
     {
+        #region Private variables
+
+        private bool _isCalculating;
+
+        #endregion
+
         #region Properties
 
         public DateTime StatusDate { get; private set; }
@@ -44,17 +49,34 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return AlreadyCalculated();
             }
 
             StatusDate = statusDate.Date;
 
-            TAccount[] calculatedAccountCollection = await Task.WhenAll(this.Select(account => account.CalculateAsync(StatusDate)).ToArray());
+            _isCalculating = true;
+            try
+            {
+                List<TAccount> calculatedAccountCollection = new List<TAccount>();
+                foreach (TAccount account in this)
+                {
+                    calculatedAccountCollection.Add(await account.CalculateAsync(StatusDate));
+                }
 
-            return Calculate(StatusDate, calculatedAccountCollection);
+                return Calculate(StatusDate, calculatedAccountCollection.AsReadOnly());
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
         }
 
-        protected abstract TAccountCollection Calculate(DateTime statusDate, IEnumerable<TAccount> calculatedAccountCollection);
+        protected abstract TAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<TAccount> calculatedAccountCollection);
 
         protected abstract TAccountCollection AlreadyCalculated();
 

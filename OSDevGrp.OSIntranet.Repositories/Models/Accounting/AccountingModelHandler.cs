@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -197,7 +196,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             await PrepareReadAsync(new AccountingIdentificationState(number));
 
-            AccountingModel accountingModel = CreateReader(false).SingleOrDefault(m => m.AccountingIdentifier == number);
+            AccountingModel accountingModel = await CreateReader(false).SingleOrDefaultAsync(m => m.AccountingIdentifier == number);
             if (accountingModel == null)
             {
                 return null;
@@ -271,7 +270,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             accountingModel.Accounts = await OnReadAsync(accountingModel, _accountModelCollection, _accountModelHandler);
             accountingModel.BudgetAccounts = await OnReadAsync(accountingModel, _budgetAccountModelCollection, _budgetAccountModelHandler);
             accountingModel.ContactAccounts = await OnReadAsync(accountingModel, _contactAccountModelCollection, _contactAccountModelHandler);
-            accountingModel.PostingLines = await OnReadAsync(accountingModel, _postingLineModelCollection, _postingLineModelHandler);
+            accountingModel.PostingLines = await OnReadAsync(accountingModel, _postingLineModelCollection, _accountModelHandler, _budgetAccountModelHandler, _contactAccountModelHandler, _postingLineModelHandler);
             accountingModel.Deletable = await CanDeleteAsync(accountingModel);
 
             return accountingModel;
@@ -293,10 +292,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
-            bool usedOnAccounts = await InUseAsync(accountingModel.Accounts, DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnBudgetAccounts = await InUseAsync(accountingModel.BudgetAccounts, DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnContactAccounts = await InUseAsync(accountingModel.ContactAccounts, DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
-            bool usedOnPostingLines = await InUseAsync(accountingModel.PostingLines, DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnAccounts = await InUseAsync(accountingModel.Accounts, () => DbContext.Accounts.FirstOrDefaultAsync(accountModel => accountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnBudgetAccounts = await InUseAsync(accountingModel.BudgetAccounts, () => DbContext.BudgetAccounts.FirstOrDefaultAsync(budgetAccountModel => budgetAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnContactAccounts = await InUseAsync(accountingModel.ContactAccounts, () => DbContext.ContactAccounts.FirstOrDefaultAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
+            bool usedOnPostingLines = await InUseAsync(accountingModel.PostingLines, () => DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountingIdentifier == accountingModel.AccountingIdentifier));
 
             return usedOnAccounts == false && usedOnBudgetAccounts == false && usedOnContactAccounts == false && usedOnPostingLines == false;
         }
@@ -381,7 +380,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return (await contactAccountModelHandler.ReadAsync(accountingModel.ContactAccounts)).ToList();
         }
 
-        private static async Task<List<PostingLineModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection, PostingLineModelHandler postingLineModelHandler)
+        private static async Task<List<PostingLineModel>> OnReadAsync(AccountingModel accountingModel, IReadOnlyCollection<PostingLineModel> postingLineModelCollection, AccountModelHandler accountModelHandler, BudgetAccountModelHandler budgetAccountModelHandler, ContactAccountModelHandler contactAccountModelHandler, PostingLineModelHandler postingLineModelHandler)
         {
             NullGuard.NotNull(accountingModel, nameof(accountingModel));
 
@@ -390,7 +389,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return accountingModel.PostingLines;
             }
 
-            accountingModel.Accounts?.ForAll(async accountModel =>
+            foreach (AccountModel accountModel in accountingModel.Accounts ?? new List<AccountModel>(0))
             {
                 if (accountModel.PostingLines == null)
                 {
@@ -398,9 +397,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 }
 
                 accountModel.PostingLines = (await postingLineModelHandler.ReadAsync(accountModel.PostingLines)).ToList();
-            });
+                if (accountModel.PostingLines.Any() == false && accountModelHandler != null)
+                {
+                    accountModel.Deletable = await accountModelHandler.IsDeletableAsync(accountModel);
+                }
+            }
 
-            accountingModel.BudgetAccounts?.ForAll(async budgetAccountModel =>
+            foreach (BudgetAccountModel budgetAccountModel in accountingModel.BudgetAccounts ?? new List<BudgetAccountModel>(0))
             {
                 if (budgetAccountModel.PostingLines == null)
                 {
@@ -408,9 +411,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 }
 
                 budgetAccountModel.PostingLines = (await postingLineModelHandler.ReadAsync(budgetAccountModel.PostingLines)).ToList();
-            });
+                if (budgetAccountModel.PostingLines.Any() == false && budgetAccountModelHandler != null)
+                {
+                    budgetAccountModel.Deletable = await budgetAccountModelHandler.IsDeletableAsync(budgetAccountModel);
+                }
+            }
 
-            accountingModel.ContactAccounts?.ForAll(async contactAccountModel =>
+            foreach (ContactAccountModel contactAccountModel in accountingModel.ContactAccounts ?? new List<ContactAccountModel>(0))
             {
                 if (contactAccountModel.PostingLines == null)
                 {
@@ -418,7 +425,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 }
 
                 contactAccountModel.PostingLines = (await postingLineModelHandler.ReadAsync(contactAccountModel.PostingLines)).ToList();
-            });
+                if (contactAccountModel.PostingLines.Any() == false && contactAccountModelHandler != null)
+                {
+                    contactAccountModel.Deletable = await contactAccountModelHandler.IsDeletableAsync(contactAccountModel);
+                }
+            }
 
             if (accountingModel.PostingLines == null)
             {
@@ -428,7 +439,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             return (await postingLineModelHandler.ReadAsync(accountingModel.PostingLines)).ToList();
         }
 
-        private static async Task<bool> InUseAsync<TAccountModel>(IEnumerable<TAccountModel> accountModelCollection, Task<TAccountModel> accountModelGetter) where TAccountModel : AccountModelBase
+        private static async Task<bool> InUseAsync<TAccountModel>(IEnumerable<TAccountModel> accountModelCollection, Func<Task<TAccountModel>> accountModelGetter) where TAccountModel : AccountModelBase
         {
             NullGuard.NotNull(accountModelGetter, nameof(accountModelGetter));
 
@@ -437,10 +448,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return accountModelCollection.Any();
             }
 
-            return await accountModelGetter != null;
+            return await accountModelGetter() != null;
         }
 
-        private static async Task<bool> InUseAsync(IEnumerable<PostingLineModel> postingLineModelCollection, Task<PostingLineModel> postingLineModelGetter)
+        private static async Task<bool> InUseAsync(IEnumerable<PostingLineModel> postingLineModelCollection, Func<Task<PostingLineModel>> postingLineModelGetter)
         {
             NullGuard.NotNull(postingLineModelGetter, nameof(postingLineModelGetter));
 
@@ -449,7 +460,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 return postingLineModelCollection.Any();
             }
 
-            return await postingLineModelGetter != null;
+            return await postingLineModelGetter() != null;
         }
 
         #endregion

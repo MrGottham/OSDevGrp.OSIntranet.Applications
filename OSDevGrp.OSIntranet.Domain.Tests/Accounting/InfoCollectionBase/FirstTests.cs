@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -71,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.InfoCollectionBase
         {
             #region Methods
 
-            protected override Sut Calculate(DateTime statusDate, ICreditInfo[] calculatedInfoCollection) => throw new NotSupportedException();
+            protected override Sut Calculate(DateTime statusDate, IReadOnlyCollection<ICreditInfo> calculatedInfoCollection) => throw new NotSupportedException();
 
             protected override Sut AlreadyCalculated() => throw new NotSupportedException();
 

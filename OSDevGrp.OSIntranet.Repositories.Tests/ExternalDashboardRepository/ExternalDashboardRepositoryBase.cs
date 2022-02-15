@@ -8,7 +8,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ExternalDashboardRepository
 
         protected IExternalDashboardRepository CreateSut()
         {
-            return new Repositories.ExternalDashboardRepository(CreateTestConfiguration(), CreatePrincipalResolverMock().Object, CreateLoggerFactory());
+            return new Repositories.ExternalDashboardRepository(CreateTestConfiguration(), CreateLoggerFactory());
         }
 
         #endregion

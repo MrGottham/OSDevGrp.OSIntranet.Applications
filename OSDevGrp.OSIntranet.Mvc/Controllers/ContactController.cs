@@ -171,20 +171,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IGetContactQuery getContactQuery = CreateContactQueryBase<GetContactQuery>(token);
             getContactQuery.ExternalIdentifier = externalIdentifier;
 
-            Task<IEnumerable<ContactGroupViewModel>> getContactGroupViewModelCollectionTask = GetContactGroupViewModels();
-            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
-            Task<IEnumerable<CountryViewModel>> getCountryViewModelCollectionTask = GetCountryViewModels();
-            Task<ICountry> getCountryTask = GetCountry(countryCode);
-            Task<IContact> getContactTask = _queryBus.QueryAsync<IGetContactQuery, IContact>(getContactQuery);
-            await Task.WhenAll(
-                getContactGroupViewModelCollectionTask,
-                getPaymentTermViewModelCollectionTask,
-                getCountryViewModelCollectionTask,
-                getCountryTask,
-                getContactTask);
-
-            ICountry country = getCountryTask.Result;
-            IContact contact = getContactTask.Result;
+            List<ContactGroupViewModel> contactGroupViewModelCollection = (await GetContactGroupViewModels()).ToList();
+            List<PaymentTermViewModel> paymentTermViewModelCollection = (await GetPaymentTermViewModels()).ToList();
+            List<CountryViewModel> countryViewModelCollection = (await GetCountryViewModels()).ToList();
+            ICountry country = await GetCountry(countryCode);
+            IContact contact = await _queryBus.QueryAsync<IGetContactQuery, IContact>(getContactQuery);
             if (country == null || contact == null)
             {
                 return BadRequest();
@@ -192,9 +183,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             ContactViewModel contactViewModel = _contactViewModelConverter.Convert<IContact, ContactViewModel>(contact);
             contactViewModel.Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country);
-            contactViewModel.Countries = getCountryViewModelCollectionTask.Result.ToList();
-            contactViewModel.ContactGroups = getContactGroupViewModelCollectionTask.Result.ToList();
-            contactViewModel.PaymentTerms = getPaymentTermViewModelCollectionTask.Result.ToList();
+            contactViewModel.Countries = countryViewModelCollection;
+            contactViewModel.ContactGroups = contactGroupViewModelCollection;
+            contactViewModel.PaymentTerms = paymentTermViewModelCollection;
 
             return PartialView("_ContactPartial", contactViewModel);
         }
@@ -229,24 +220,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return Unauthorized();
             }
 
-            Task<IEnumerable<ContactGroupViewModel>> getContactGroupViewModelCollectionTask = GetContactGroupViewModels();
-            Task<IEnumerable<PaymentTermViewModel>> getPaymentTermViewModelCollectionTask = GetPaymentTermViewModels();
-            Task<IEnumerable<CountryViewModel>> getCountryViewModelCollectionTask = GetCountryViewModels();
-            Task<ICountry> getCountryTask = GetCountry(countryCode);
-            await Task.WhenAll(
-                getContactGroupViewModelCollectionTask,
-                getPaymentTermViewModelCollectionTask,
-                getCountryViewModelCollectionTask,
-                getCountryTask);
-
-            ICountry country = getCountryTask.Result;
+            List<ContactGroupViewModel> contactGroupViewModelCollection = (await GetContactGroupViewModels()).ToList();
+            List<PaymentTermViewModel> paymentTermViewModelCollection = (await GetPaymentTermViewModels()).ToList();
+            List<CountryViewModel> countryViewModelCollection = (await GetCountryViewModels()).ToList();
+            ICountry country = await GetCountry(countryCode);
             if (country == null)
             {
                 return BadRequest();
             }
-
-            List<ContactGroupViewModel> contactGroupViewModels = getContactGroupViewModelCollectionTask.Result.ToList();
-            List<PaymentTermViewModel> paymentTermViewModels = getPaymentTermViewModelCollectionTask.Result.ToList();
 
             ContactViewModel contactViewModel = new ContactViewModel
             {
@@ -257,13 +238,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 {
                     Country = country.DefaultForPrincipal ? null : country.UniversalName
                 },
-                ContactGroup = contactGroupViewModels.FirstOrDefault() ?? new ContactGroupViewModel(),
-                PaymentTerm = paymentTermViewModels.FirstOrDefault() ?? new PaymentTermViewModel(),
+                ContactGroup = contactGroupViewModelCollection.FirstOrDefault() ?? new ContactGroupViewModel(),
+                PaymentTerm = paymentTermViewModelCollection.FirstOrDefault() ?? new PaymentTermViewModel(),
                 Country = _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country),
-                Countries = getCountryViewModelCollectionTask.Result.ToList(),
-                ContactGroups = contactGroupViewModels,
+                Countries = countryViewModelCollection,
+                ContactGroups = contactGroupViewModelCollection,
                 LendingLimit = 14,
-                PaymentTerms = paymentTermViewModels,
+                PaymentTerms = paymentTermViewModelCollection,
                 EditMode = EditMode.Create
             };
 

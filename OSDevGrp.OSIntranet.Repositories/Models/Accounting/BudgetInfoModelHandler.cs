@@ -154,7 +154,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             await PrepareReadAsync(new AccountingIdentificationState(accountingNumber));
 
-            IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection = (await ReadAsync(CreateReader(false).Where(budgetInfoModel => budgetInfoModel.BudgetAccount.AccountingIdentifier == accountingNumber))).ToArray();
+            IReadOnlyCollection<BudgetInfoModel> budgetInfoModelCollection = (await ReadAsync(await CreateReader(false).Where(budgetInfoModel => budgetInfoModel.BudgetAccount.AccountingIdentifier == accountingNumber).ToArrayAsync())).ToArray();
 
             lock (_syncRoot)
             {
@@ -232,7 +232,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             budgetInfoModel.BudgetAccountIdentifier = budgetAccountModel.BudgetAccountIdentifier;
             budgetInfoModel.BudgetAccount = budgetAccountModel;
 
-            EntityEntry<BudgetInfoModel> budgetInfoModelEntityEntry = await DbContext.BudgetInfos.AddAsync(await OnCreateAsync(budgetInfo, budgetInfoModel));
+            EntityEntry<BudgetInfoModel> budgetInfoModelEntityEntry = await Entities.AddAsync(await OnCreateAsync(budgetInfo, budgetInfoModel));
 
             if (budgetAccountModel.BudgetInfos.Contains(budgetInfoModelEntityEntry.Entity) == false)
             {

@@ -25,8 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         #region Constructor
 
-        public BudgetAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeBudgetInformation, bool includePostingLines)
-            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, new DateTime(statusDate.AddYears(-1).Year, 1, 1), statusDate, false, false) : null)
+        public BudgetAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeBudgetInformation, bool includePostingLines, bool fromPostingLineModelHandler = false)
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, new DateTime(statusDate.AddYears(-1).Year, 1, 1), statusDate, false, false) : null, fromPostingLineModelHandler)
         {
             _includeBudgetInformation = includeBudgetInformation;
 
@@ -143,12 +143,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(budgetAccountModel, nameof(budgetAccountModel));
 
-            if (budgetAccountModel.BudgetInfos == null || budgetAccountModel.PostingLines == null)
+            if (budgetAccountModel.BudgetInfos == null || budgetAccountModel.PostingLines == null || FromPostingLineModelHandler)
             {
                 return false;
             }
 
-            return budgetAccountModel.PostingLines.Any() == false || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos);
+            if (budgetAccountModel.PostingLines.Any() || _budgetInfoModelHandler == null || await _budgetInfoModelHandler.IsDeletable(budgetAccountModel.BudgetInfos) == false)
+            {
+                return false;
+            }
+
+            return await DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.BudgetAccountIdentifier != null && postingLineModel.BudgetAccountIdentifier.Value == budgetAccountModel.BudgetAccountIdentifier) == null;
         }
 
         protected override async Task<BudgetAccountModel> OnDeleteAsync(BudgetAccountModel budgetAccountModel)

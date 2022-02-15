@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
@@ -85,14 +84,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             DateTime calculationFromDate = FromDate;
             DateTime calculationToDate = ResolveCalculationToDate(statusDate);
 
-            Posted = BudgetAccount.PostingLineCollection.AsParallel()
-                .Where(postingLine =>
-                {
-                    DateTime postingDate = postingLine.PostingDate.Date;
-
-                    return postingDate >= calculationFromDate && postingDate <= calculationToDate;
-                })
-                .Sum(postingLine => postingLine.PostingValue);
+            Posted = BudgetAccount.PostingLineCollection.CalculatePostingValue(calculationFromDate, calculationToDate);
 
             return this;
         }

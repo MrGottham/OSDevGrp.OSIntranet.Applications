@@ -25,8 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         #region Constructor
 
-        public AccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeCreditInformation, bool includePostingLines) 
-            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false) : null)
+        public AccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includeCreditInformation, bool includePostingLines, bool fromPostingLineModelHandler = false) 
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false) : null, fromPostingLineModelHandler)
         {
             _includeCreditInformation = includeCreditInformation;
 
@@ -143,12 +143,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         {
             NullGuard.NotNull(accountModel, nameof(accountModel));
 
-            if (accountModel.CreditInfos == null || accountModel.PostingLines == null)
+            if (accountModel.CreditInfos == null || accountModel.PostingLines == null || FromPostingLineModelHandler)
             {
                 return false;
             }
 
-            return accountModel.PostingLines.Any() == false || await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos);
+            if (accountModel.PostingLines.Any() || _creditInfoModelHandler == null || await _creditInfoModelHandler.IsDeletable(accountModel.CreditInfos) == false)
+            {
+                return false;
+            }
+
+            return await DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.AccountIdentifier == accountModel.AccountIdentifier) == null;
         }
 
         protected override async Task<AccountModel> OnDeleteAsync(AccountModel accountModel)

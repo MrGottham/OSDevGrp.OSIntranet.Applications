@@ -14,6 +14,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         #region Private variables
 
         private ILetterHead _letterHead;
+        private bool _isCalculating;
 
         #endregion
 
@@ -90,20 +91,35 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             if (statusDate.Date == StatusDate)
             {
+                while (_isCalculating)
+                {
+                    await Task.Delay(250);
+                }
+
                 return this;
             }
 
             StatusDate = statusDate.Date;
 
-            Task[] calculateTasks =
+            _isCalculating = true;
+            try
             {
-                GetAccountCollectionCalculationTask(StatusDate),
-                GetBudgetAccountCollectionCalculationTask(StatusDate),
-                GetContactAccountCollectionCalculationTask(StatusDate)
-            };
-            await Task.WhenAll(calculateTasks);
+                await Task.WhenAll(
+                    GetAccountCollectionCalculationTask(StatusDate),
+                    GetBudgetAccountCollectionCalculationTask(StatusDate),
+                    GetContactAccountCollectionCalculationTask(StatusDate));
 
-            return this;
+                foreach (IPostingLineCollection postingLineCollection in AccountCollection.AsParallel().Select(account => account.PostingLineCollection).ToArray())
+                {
+                    await postingLineCollection.ApplyCalculationAsync(this);
+                }
+
+                return this;
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
         }
 
         public void AllowDeletion()
@@ -132,8 +148,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 .ThenByDescending(postingLine => postingLine.SortOrder)
                 .ToArray();
 
-            IPostingLineCollection postingLineCollection = new PostingLineCollection();
-            postingLineCollection.Add(postingLineArray);
+            IPostingLineCollection postingLineCollection = new PostingLineCollection
+            {
+                postingLineArray
+            };
 
             return await postingLineCollection.CalculateAsync(statusDate);
         }

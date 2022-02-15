@@ -16,6 +16,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #endregion
 
+        #region Private variables
+
+        private bool _isCalculating;
+
+        #endregion
+
         #region Constructor
 
         protected InfoBase(short year, short month)
@@ -64,19 +70,29 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        public Task<T> CalculateAsync(DateTime statusDate)
+        public async Task<T> CalculateAsync(DateTime statusDate)
         {
-            return Task.Run(() =>
+            if (statusDate.Date == StatusDate)
             {
-                if (statusDate.Date == StatusDate)
+                while (_isCalculating)
                 {
-                    return AlreadyCalculated();
+                    await Task.Delay(250);
                 }
 
-                StatusDate = statusDate.Date;
+                return AlreadyCalculated();
+            }
 
+            StatusDate = statusDate.Date;
+
+            _isCalculating = true;
+            try
+            {
                 return Calculate(StatusDate);
-            });
+            }
+            finally
+            {
+                _isCalculating = false;
+            }
         }
 
         public void AllowDeletion()

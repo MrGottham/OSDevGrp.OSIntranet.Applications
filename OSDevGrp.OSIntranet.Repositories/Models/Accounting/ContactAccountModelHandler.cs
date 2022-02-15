@@ -16,8 +16,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
     {
         #region Constructor
 
-        public ContactAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includePostingLines) 
-            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false) : null)
+        public ContactAccountModelHandler(RepositoryContext dbContext, IConverter modelConverter, IEventPublisher eventPublisher, DateTime statusDate, bool includePostingLines, bool fromPostingLineModelHandler = false) 
+            : base(dbContext, modelConverter, eventPublisher, statusDate, includePostingLines, includePostingLines ? new PostingLineModelHandler(dbContext, modelConverter, eventPublisher, DateTime.MinValue, statusDate, false, false) : null, fromPostingLineModelHandler)
         {
         }
 
@@ -62,11 +62,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             contactAccountModel.SecondaryPhone = contactAccount.SecondaryPhone;
         }
 
-        protected override Task<bool> CanDeleteAsync(ContactAccountModel contactAccountModel)
+        protected override async Task<bool> CanDeleteAsync(ContactAccountModel contactAccountModel)
         {
             NullGuard.NotNull(contactAccountModel, nameof(contactAccountModel));
 
-            return Task.FromResult(contactAccountModel.PostingLines != null && contactAccountModel.PostingLines.Any() == false);
+            if (contactAccountModel.PostingLines == null || contactAccountModel.PostingLines.Any() || FromPostingLineModelHandler)
+            {
+                return false;
+            } 
+
+            return await DbContext.PostingLines.FirstOrDefaultAsync(postingLineModel => postingLineModel.ContactAccountIdentifier != null && postingLineModel.ContactAccountIdentifier.Value == contactAccountModel.ContactAccountIdentifier) == null;
         }
 
         protected override async Task<ContactAccountModel> OnDeleteAsync(ContactAccountModel contactAccountModel)

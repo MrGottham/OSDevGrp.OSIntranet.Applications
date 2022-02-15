@@ -27,8 +27,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary = GroupByContactAccountType(this);
 
-            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection();
-            debtorAccountCollection.Add(ResolveDebtors(contactAccountGroupDictionary).OrderBy(contactAccount => contactAccount.AccountName).ToArray());
+            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection
+            {
+                ResolveDebtors(contactAccountGroupDictionary).AsEnumerable().OrderBy(contactAccount => contactAccount.AccountName).ToArray()
+            };
 
             return debtorAccountCollection.CalculateAsync(StatusDate);
         }
@@ -37,20 +39,22 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary = GroupByContactAccountType(this);
 
-            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection();
-            debtorAccountCollection.Add(ResolveCreditors(contactAccountGroupDictionary).OrderBy(contactAccount => contactAccount.AccountName).ToArray());
+            IContactAccountCollection debtorAccountCollection = new ContactAccountCollection
+            {
+                ResolveCreditors(contactAccountGroupDictionary).AsParallel().OrderBy(contactAccount => contactAccount.AccountName).ToArray()
+            };
 
             return debtorAccountCollection.CalculateAsync(StatusDate);
         }
 
-        protected override IContactAccountCollection Calculate(DateTime statusDate, IEnumerable<IContactAccount> calculatedContactAccountCollection)
+        protected override IContactAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<IContactAccount> calculatedContactAccountCollection)
         {
             NullGuard.NotNull(calculatedContactAccountCollection, nameof(calculatedContactAccountCollection));
 
             IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary = GroupByContactAccountType(calculatedContactAccountCollection);
 
-            IContactAccount[] debtorAccountCollection = ResolveDebtors(contactAccountGroupDictionary);
-            IContactAccount[] creditorAccountCollection = ResolveCreditors(contactAccountGroupDictionary);
+            IReadOnlyCollection<IContactAccount> debtorAccountCollection = ResolveDebtors(contactAccountGroupDictionary);
+            IReadOnlyCollection<IContactAccount> creditorAccountCollection = ResolveCreditors(contactAccountGroupDictionary);
 
             ValuesAtStatusDate = ToContactAccountCollectionValues(debtorAccountCollection, creditorAccountCollection, contactAccount => contactAccount.ValuesAtStatusDate);
             ValuesAtEndOfLastMonthFromStatusDate = ToContactAccountCollectionValues(debtorAccountCollection, creditorAccountCollection, contactAccount => contactAccount.ValuesAtEndOfLastMonthFromStatusDate);
@@ -65,12 +69,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         {
             NullGuard.NotNull(contactAccountCollection, nameof(contactAccountCollection));
 
-            return new ReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>>(contactAccountCollection
+            return new ReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>>(contactAccountCollection.AsParallel()
                 .GroupBy(contactAccount => contactAccount.ContactAccountType, contactAccount => contactAccount)
                 .ToDictionary(group => group.Key, group => group.AsEnumerable()));
         }
 
-        private static IContactAccount[] ResolveDebtors(IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary)
+        private static IReadOnlyCollection<IContactAccount> ResolveDebtors(IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary)
         {
             NullGuard.NotNull(contactAccountGroupDictionary, nameof(contactAccountGroupDictionary));
 
@@ -79,7 +83,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 : Array.Empty<IContactAccount>();
         }
 
-        private static IContactAccount[] ResolveCreditors(IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary)
+        private static IReadOnlyCollection<IContactAccount> ResolveCreditors(IReadOnlyDictionary<ContactAccountType, IEnumerable<IContactAccount>> contactAccountGroupDictionary)
         {
             NullGuard.NotNull(contactAccountGroupDictionary, nameof(contactAccountGroupDictionary));
 
@@ -88,7 +92,7 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 : Array.Empty<IContactAccount>();
         }
 
-        private static IContactAccountCollectionValues ToContactAccountCollectionValues(IEnumerable<IContactAccount> debtorAccountCollection, IEnumerable<IContactAccount> creditorAccountCollection, Func<IContactAccount, IContactInfoValues> selector)
+        private static IContactAccountCollectionValues ToContactAccountCollectionValues(IReadOnlyCollection<IContactAccount> debtorAccountCollection, IReadOnlyCollection<IContactAccount> creditorAccountCollection, Func<IContactAccount, IContactInfoValues> selector)
         {
             NullGuard.NotNull(debtorAccountCollection, nameof(debtorAccountCollection))
                 .NotNull(creditorAccountCollection, nameof(creditorAccountCollection))

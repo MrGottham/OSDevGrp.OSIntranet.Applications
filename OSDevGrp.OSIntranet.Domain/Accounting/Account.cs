@@ -69,7 +69,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             };
         }
 
-        protected override IAccount GetCalculationResult() => this;
+        protected override async Task<IAccount> GetCalculationResultAsync()
+        {
+            PostingLineCollection = await PostingLineCollection.ApplyCalculationAsync(this);
+
+            return this;
+        }
 
         protected override IAccount AlreadyCalculated() => this;
 

@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
-    internal class BudgetInfoValues : IBudgetInfoValues
+    public class BudgetInfoValues : IBudgetInfoValues
     {
         #region Constructor
 

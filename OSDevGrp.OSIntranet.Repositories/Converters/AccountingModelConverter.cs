@@ -14,9 +14,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
     {
         #region Private variables
 
+        private readonly MapperCache _mapperCache = new MapperCache();
         private readonly IConverter _commonModelConverter = CommonModelConverter.Create();
-        private readonly IDictionary<int, IAccounting> _accountingDictionary = new ConcurrentDictionary<int, IAccounting>();
-        private readonly object _syncRoot = new object();
 
         #endregion
 
@@ -27,9 +26,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             get
             {
                 IDictionary<string, object> stateDictionary = new ConcurrentDictionary<string, object>();
-                stateDictionary.Add("AccountingDictionary", _accountingDictionary);
+                stateDictionary.Add("MapperCache", _mapperCache);
                 stateDictionary.Add("AccountingModelConverter", this);
-                stateDictionary.Add("SyncRoot", _syncRoot);
                 return stateDictionary;
             }
         }
@@ -43,7 +41,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<AccountingModel, IAccounting>()
-                .ConvertUsing((accountingModel, accounting, context) => accountingModel.ToDomain(ResolveAccountingDictionaryFromContext(context.Items), ResolveAccountingModelConverterFromContext(context.Items), _commonModelConverter, ResolveSyncRootFromContext(context.Items)));
+                .ConvertUsing((accountingModel, accounting, context) => accountingModel.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveAccountingModelConverterFromContext(context.Items), _commonModelConverter));
 
             mapperConfiguration.CreateMap<IAccounting, AccountingModel>()
                 .ForMember(dest => dest.AccountingIdentifier, opt => opt.MapFrom(src => src.Number))
@@ -57,7 +55,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<AccountModel, IAccount>()
-                .ConvertUsing((accountModel, account, context) => accountModel.ToDomain(ResolveAccountingModelConverterFromContext(context.Items), ResolveSyncRootFromContext(context.Items)));
+                .ConvertUsing((accountModel, account, context) => accountModel.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveAccountingModelConverterFromContext(context.Items)));
 
             mapperConfiguration.CreateMap<IAccount, AccountModel>()
                 .ForMember(dest => dest.AccountIdentifier, opt => opt.MapFrom(src => default(int)))
@@ -79,7 +77,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<BudgetAccountModel, IBudgetAccount>()
-                .ConvertUsing((budgetAccountModel, budgetAccount, context) => budgetAccountModel.ToDomain(ResolveAccountingModelConverterFromContext(context.Items), ResolveSyncRootFromContext(context.Items)));
+                .ConvertUsing((budgetAccountModel, budgetAccount, context) => budgetAccountModel.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveAccountingModelConverterFromContext(context.Items)));
 
             mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountModel>()
                 .ForMember(dest => dest.BudgetAccountIdentifier, opt => opt.MapFrom(src => default(int)))
@@ -101,7 +99,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<ContactAccountModel, IContactAccount>()
-                .ConvertUsing((contactAccountModel, contactAccount, context) => contactAccountModel.ToDomain(ResolveAccountingModelConverterFromContext(context.Items), ResolveSyncRootFromContext(context.Items)));
+                .ConvertUsing((contactAccountModel, contactAccount, context) => contactAccountModel.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveAccountingModelConverterFromContext(context.Items)));
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountModel>()
                 .ForMember(dest => dest.ContactAccountIdentifier, opt => opt.MapFrom(src => default(int)))
@@ -158,7 +156,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
             mapperConfiguration.CreateMap<PostingLineModel, IPostingLine>()
-                .ConvertUsing((postingLineModel, postingLine, context) => postingLineModel.ToDomain(ResolveAccountingModelConverterFromContext(context.Items), ResolveSyncRootFromContext(context.Items)));
+                .ConvertUsing((postingLineModel, postingLine, context) => postingLineModel.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveAccountingModelConverterFromContext(context.Items)));
 
             mapperConfiguration.CreateMap<IPostingLine, PostingLineModel>()
                 .ForMember(dest => dest.PostingLineIdentifier, opt => opt.MapFrom(src => default(int)))
@@ -167,10 +165,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Reference) ? null : src.Reference))
                 .ForMember(dest => dest.AccountIdentifier, opt => opt.MapFrom(src => default(int)))
+                .ForMember(dest => dest.PostingValueForAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.BudgetAccountIdentifier, opt => opt.MapFrom(src => src.BudgetAccount == null ? null : (int?) default(int)))
+                .ForMember(dest => dest.PostingValueForBudgetAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit == 0M ? null : (decimal?) src.Debit))
                 .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit == 0M ? null : (decimal?) src.Credit))
                 .ForMember(dest => dest.ContactAccountIdentifier, opt => opt.MapFrom(src => src.ContactAccount == null ? null : (int?) default(int)))
+                .ForMember(dest => dest.PostingValueForContactAccount, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
@@ -208,11 +209,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             return new AccountingModelConverter();
         }
 
-        private static IDictionary<int, IAccounting> ResolveAccountingDictionaryFromContext(IDictionary<string, object> stateDictionary)
+        private static MapperCache ResolveMapperCacheFromContext(IDictionary<string, object> stateDictionary)
         {
             NullGuard.NotNull(stateDictionary, nameof(stateDictionary));
 
-            return stateDictionary["AccountingDictionary"] as IDictionary<int, IAccounting>;
+            return stateDictionary["MapperCache"] as MapperCache;
         }
 
         private static IConverter ResolveAccountingModelConverterFromContext(IDictionary<string, object> stateDictionary)
@@ -220,13 +221,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
             NullGuard.NotNull(stateDictionary, nameof(stateDictionary));
 
             return stateDictionary["AccountingModelConverter"] as IConverter;
-        }
-
-        private static object ResolveSyncRootFromContext(IDictionary<string, object> stateDictionary)
-        {
-            NullGuard.NotNull(stateDictionary, nameof(stateDictionary));
-
-            return stateDictionary["SyncRoot"];
         }
 
         #endregion

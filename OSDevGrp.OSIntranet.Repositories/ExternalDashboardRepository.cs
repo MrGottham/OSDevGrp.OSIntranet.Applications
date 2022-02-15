@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -20,8 +19,8 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        public ExternalDashboardRepository(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
-            : base(configuration, principalResolver, loggerFactory)
+        public ExternalDashboardRepository(IConfiguration configuration, ILoggerFactory loggerFactory)
+            : base(configuration,  loggerFactory)
         {
         }
 

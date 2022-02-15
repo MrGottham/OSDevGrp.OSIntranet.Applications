@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -17,8 +16,8 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected WebRepositoryBase(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
-            : base(configuration, principalResolver, loggerFactory)
+        protected WebRepositoryBase(IConfiguration configuration, ILoggerFactory loggerFactory)
+            : base(configuration, loggerFactory)
         {
         }
 
