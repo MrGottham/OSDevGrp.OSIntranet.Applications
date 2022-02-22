@@ -18,10 +18,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             NullGuard.NotNull(migrationBuilder, nameof(migrationBuilder));
 
             DateTime createdUtcDateTime = DateTime.UtcNow;
-            const string createdByIdentifier = "OSDevGrp.OSIntranet.Repositories.Migrations";
             foreach (Claim claim in GetClaims())
             {
-                migrationBuilder.InsertData("Claims", new[] {"ClaimType", "ClaimValue", "CreatedUtcDateTime", "CreatedByIdentifier", "ModifiedUtcDateTime", "ModifiedByIdentifier"}, new object[] {claim.Type, claim.Value, createdUtcDateTime, createdByIdentifier, createdUtcDateTime, createdByIdentifier});
+                migrationBuilder.InsertData("Claims", new[] {"ClaimType", "ClaimValue", "CreatedUtcDateTime", "CreatedByIdentifier", "ModifiedUtcDateTime", "ModifiedByIdentifier"}, new object[] {claim.Type, claim.Value, createdUtcDateTime, MigrationHelper.MigrationUserIdentifier, createdUtcDateTime, MigrationHelper.MigrationUserIdentifier});
             }
         }
 

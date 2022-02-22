@@ -13,6 +13,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         string GetMailAddress();
 
+        int? GetNumberOfNewsToCollect();
+
         TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken;
     }
 }

@@ -11,7 +11,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
     [TestFixture]
-    public class GetAccountingNumberTests
+    public class GetNumberOfNewsToCollectTests
     {
         #region Private variables
 
@@ -29,74 +29,74 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalled_AssertGetCurrentPrincipalWasCalledOnPrincipalResolver()
+        public void GetNumberOfNewsToCollect_WhenCalled_AssertGetCurrentPrincipalWasCalledOnPrincipalResolver()
         {
             IClaimResolver sut = CreateSut();
 
-            sut.GetAccountingNumber();
+            sut.GetNumberOfNewsToCollect();
 
             _principalResolverMock.Verify(m => m.GetCurrentPrincipal(), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalledAndPrincipalDoesNotHaveAccountingClaim_ReturnsNull()
+        public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalDoesNotHaveCollectNewsClaim_ReturnsNull()
         {
             IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
             IClaimResolver sut = CreateSut(principal);
 
-            int? result = sut.GetAccountingNumber();
+            int? result = sut.GetNumberOfNewsToCollect();
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaimWithoutClaimValue_ReturnsNull()
+        public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithoutClaimValue_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim(null)});
+            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCollectNewsClaim(null)});
             IClaimResolver sut = CreateSut(principal);
 
-            int? result = sut.GetAccountingNumber();
+            int? result = sut.GetNumberOfNewsToCollect();
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaimWithNonIntegerClaimValue_ReturnsNull()
+        public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithNonIntegerClaimValue_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateClaim(ClaimHelper.AccountingClaimType, _fixture.Create<string>())});
+            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateClaim(ClaimHelper.CollectNewsClaimType, _fixture.Create<string>())});
             IClaimResolver sut = CreateSut(principal);
 
-            int? result = sut.GetAccountingNumber();
+            int? result = sut.GetNumberOfNewsToCollect();
 
             Assert.That(result, Is.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaimWithIntegerClaimValue_ReturnsNotNull()
+        public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithIntegerClaimValue_ReturnsNotNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim(_fixture.Create<int>())});
+            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCollectNewsClaim(_fixture.Create<int>())});
             IClaimResolver sut = CreateSut(principal);
 
-            int? result = sut.GetAccountingNumber();
+            int? result = sut.GetNumberOfNewsToCollect();
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaimWithIntegerClaimValue_ReturnsAccountingNumber()
+        public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithIntegerClaimValue_ReturnsNumberOfNewsToCollect()
         {
-            int accountingNumber = _fixture.Create<int>();
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim(accountingNumber)});
+            int numberOfNewsToCollect = _fixture.Create<int>();
+            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCollectNewsClaim(numberOfNewsToCollect)});
             IClaimResolver sut = CreateSut(principal);
 
-            int? result = sut.GetAccountingNumber();
+            int? result = sut.GetNumberOfNewsToCollect();
 
-            Assert.That(result, Is.EqualTo(accountingNumber));
+            Assert.That(result, Is.EqualTo(numberOfNewsToCollect));
         }
 
         private IClaimResolver CreateSut(IPrincipal principal = null)

@@ -35,10 +35,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
                 });
 
             DateTime createdUtcDateTime = DateTime.UtcNow;
-            const string createdByIdentifier = "OSDevGrp.OSIntranet.Repositories.Migrations";
             foreach (ICountry country in GetCountries())
             {
-                migrationBuilder.InsertData("Countries", new[] {"Code", "Name", "UniversalName", "PhonePrefix", "CreatedUtcDateTime", "CreatedByIdentifier", "ModifiedUtcDateTime", "ModifiedByIdentifier"}, new object[] {country.Code, country.Name, country.UniversalName, country.PhonePrefix, createdUtcDateTime, createdByIdentifier, createdUtcDateTime, createdByIdentifier});
+                migrationBuilder.InsertData("Countries", new[] {"Code", "Name", "UniversalName", "PhonePrefix", "CreatedUtcDateTime", "CreatedByIdentifier", "ModifiedUtcDateTime", "ModifiedByIdentifier"}, new object[] {country.Code, country.Name, country.UniversalName, country.PhonePrefix, createdUtcDateTime, MigrationHelper.MigrationUserIdentifier, createdUtcDateTime, MigrationHelper.MigrationUserIdentifier});
             }
         }
 

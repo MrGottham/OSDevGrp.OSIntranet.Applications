@@ -21,6 +21,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public const string CommonDataClaimType = "urn:osdevgrp:osintranet:claims:commondata";
         public const string ContactsClaimType = "urn:osdevgrp:osintranet:claims:contacts";
         public const string CountryCodeClaimType = "urn:osdevgrp:osintranet:claims:countrycode";
+        public const string CollectNewsClaimType = "urn:osdevgrp:osintranet:claims:collectnews";
 
         #endregion
 
@@ -101,6 +102,11 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNullOrWhiteSpace(countryCode, nameof(countryCode));
 
             return CreateClaim(CountryCodeClaimType, countryCode);
+        }
+
+        public static Claim CreateCollectNewsClaim(int? NumberOfNews)
+        {
+            return CreateClaim(CollectNewsClaimType, NumberOfNews?.ToString());
         }
 
         public static Claim CreateClaim(string type, string value = null, string valueType = null)

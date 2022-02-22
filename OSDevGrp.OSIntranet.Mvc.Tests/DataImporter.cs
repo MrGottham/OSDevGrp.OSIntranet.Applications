@@ -44,6 +44,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using OSDevGrp.OSIntranet.Repositories.Migrations;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests
 {
@@ -1168,7 +1169,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
 
         private ClaimsPrincipal CreateClaimsPrincipal()
         {
-            Claim nameClaim = new Claim(ClaimTypes.Name, "OSDevGrp.OSIntranet.Repositories.Migrations");
+            Claim nameClaim = new Claim(ClaimTypes.Name, MigrationHelper.MigrationUserIdentifier);
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(new[] { nameClaim });
 
