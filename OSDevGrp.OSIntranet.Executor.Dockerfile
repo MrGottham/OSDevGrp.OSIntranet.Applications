@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get install -y supervisor openssh-server
