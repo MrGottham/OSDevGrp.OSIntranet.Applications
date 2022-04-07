@@ -9,7 +9,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
-    public class ClaimResolver : IClaimResolver
+    internal class ClaimResolver : IClaimResolver
     {
         #region Private variables
 
@@ -49,6 +49,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         {
             return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimTypes.Email));
         }
+
+        public int? GetNumberOfNewsToCollect()
+        {
+            return GetClaimIntegerValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.CollectNewsClaimType));
+        } 
 
         public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
         {

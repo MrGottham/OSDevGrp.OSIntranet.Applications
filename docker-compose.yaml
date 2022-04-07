@@ -47,6 +47,7 @@ services:
       - Security__TrustedDomainCollection=[TBD]
       - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
+      - ExternalData__Dashboard__EndpointAddress=[TBD]
     depends_on:
       - reverseproxy
     build:

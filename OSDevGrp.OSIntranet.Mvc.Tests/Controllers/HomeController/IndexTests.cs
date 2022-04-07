@@ -74,6 +74,30 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_AssertGetNumberOfNewsToCollectWasNotCalledOnClaimResolver()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            await sut.Index();
+
+            _claimResolverMock.Verify(m => m.GetNumberOfNewsToCollect(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_ReturnsNotNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            IActionResult result = await sut.Index();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResult()
         {
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
@@ -86,6 +110,30 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResultWhereViewNameIsNotNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            Assert.That(result.ViewName, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResultWhereViewNameIsNotIsNullEmptyOrWhiteSpace()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            Assert.That(string.IsNullOrWhiteSpace(result.ViewName), Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResultWhereViewNameIsEqualToIndex()
         {
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
@@ -94,6 +142,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             ViewResult result = (ViewResult) await sut.Index();
 
             Assert.That(result.ViewName, Is.EqualTo("Index"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResultWhereModelIsNotNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            Assert.That(result.Model, Is.Not.Null);
         }
 
         [Test]
@@ -180,6 +240,34 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithNumberOfNewsToCollectNotEqualToNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsNotAuthenticated_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithNumberOfNewsToCollectEqualTo10()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.EqualTo(10));
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Index_WhenUserIsAuthenticatedWithAccessToContacts_AssertGetTokenAsyncWasCalledOnTokenHelperFactoryForMicrosoftGraphToken()
         {
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasContactsClaimType: true);
@@ -247,6 +335,41 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWhoShouldCollectNews_AssertGetNumberOfNewsToCollectWasCalledOnClaimResolver()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasCollectNewsClaim: true);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            await sut.Index();
+
+            _claimResolverMock.Verify(m => m.GetNumberOfNewsToCollect(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWhoShouldNotCollectNews_AssertGetNumberOfNewsToCollectWasNotCalledOnClaimResolver()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasCollectNewsClaim: false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            await sut.Index();
+
+            _claimResolverMock.Verify(m => m.GetNumberOfNewsToCollect(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticated_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.Index();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Index_WhenUserIsAuthenticated_ReturnsViewResult()
         {
             Controller sut = CreateSut();
@@ -258,6 +381,28 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticated_ReturnsViewResultWhereViewNameIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            Assert.That(result.ViewName, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticated_ReturnsViewResultWhereViewNameIsNotIsNullEmptyOrWhiteSpace()
+        {
+            Controller sut = CreateSut();
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            Assert.That(string.IsNullOrWhiteSpace(result.ViewName), Is.False);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Index_WhenUserIsAuthenticated_ReturnsViewResultWhereViewNameIsEqualToIndex()
         {
             Controller sut = CreateSut();
@@ -265,6 +410,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             ViewResult result = (ViewResult) await sut.Index();
 
             Assert.That(result.ViewName, Is.EqualTo("Index"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticated_ReturnsViewResultWhereModelIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            Assert.That(result.Model, Is.Not.Null);
         }
 
         [Test]
@@ -438,6 +594,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWithAccessToAccountingsAndAccountingNumberWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithAccountingNumberNotEqualToNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasAccountingClaimType: true);
+            Controller sut = CreateSut(claimsPrincipal, hasAccountingNumber: true);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.AccountingNumber, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task Index_WhenUserIsAuthenticatedWithAccessToAccountingsAndAccountingNumberWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithAccountingNumberEqualToAccountingNumberFromClaimResolver()
         {
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasAccountingClaimType: true);
@@ -493,13 +663,72 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             Assert.That(homeOperationsViewModel.AccountingNumber, Is.Null);
         }
 
-        private Controller CreateSut(ClaimsPrincipal claimsPrincipal = null, bool? hasRefreshableToken = null, IRefreshableToken refreshableToken = null, bool? hasAccountingNumber = null, int? accountingNumber = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWhoShouldCollectNewsAndNumberOfNewsToCollectWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithNumberOfNewsToCollectNotEqualToNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasCollectNewsClaim: true);
+            Controller sut = CreateSut(claimsPrincipal, hasNumberOfNewsToCollect: true);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWhoShouldCollectNewsAndNumberOfNewsToCollectWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithNumberOfNewsToCollectEqualToNumberOfNewsToCollectFromClaimResolver()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasCollectNewsClaim: true);
+            int numberOfNewsToCollect = _fixture.Create<int>();
+            Controller sut = CreateSut(claimsPrincipal, hasNumberOfNewsToCollect: true, numberOfNewsToCollect: numberOfNewsToCollect);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.EqualTo(numberOfNewsToCollect));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWhoShouldCollectNewsButNoNumberOfNewsToCollectWasReturnedFromClaimResolver_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithNumberOfNewsToCollectEqualToNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasCollectNewsClaim: true);
+            Controller sut = CreateSut(claimsPrincipal, hasNumberOfNewsToCollect: false);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Index_WhenUserIsAuthenticatedWhoShouldNotCollectNews_ReturnsViewResultWhereModelIsHomeOperationsViewModelWithNumberOfNewsToCollectEqualToNull()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasCollectNewsClaim: false);
+            Controller sut = CreateSut(claimsPrincipal);
+
+            ViewResult result = (ViewResult) await sut.Index();
+
+            HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
+
+            Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Null);
+        }
+
+        private Controller CreateSut(ClaimsPrincipal claimsPrincipal = null, bool? hasRefreshableToken = null, IRefreshableToken refreshableToken = null, bool? hasAccountingNumber = null, int? accountingNumber = null, bool? hasNumberOfNewsToCollect = null, int? numberOfNewsToCollect = null)
         {
             _tokenHelperFactoryMock.Setup(m => m.GetTokenAsync<IRefreshableToken>(It.IsAny<TokenType>(), It.IsAny<HttpContext>()))
                 .Returns(Task.FromResult(hasRefreshableToken ?? _random.Next(100) > 50 ? refreshableToken ?? _fixture.BuildRefreshableTokenMock().Object : null));
 
             _claimResolverMock.Setup(m => m.GetAccountingNumber())
                 .Returns(hasAccountingNumber ?? _random.Next(100) > 50 ? accountingNumber ?? (int?) _fixture.Create<int>() : null);
+            _claimResolverMock.Setup(m => m.GetNumberOfNewsToCollect())
+                .Returns(hasNumberOfNewsToCollect ?? _random.Next(100) > 50 ? numberOfNewsToCollect ?? (int?) _fixture.Create<int>() : null);
 
             Controller controller = new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, _acmeChallengeResolverMock.Object)
             {
@@ -519,14 +748,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             };
         }
 
-        private ClaimsPrincipal CreateClaimsPrincipal(bool isAuthenticated = true, bool? hasContactsClaimType = null, bool? hasAccountingClaimType = null)
+        private ClaimsPrincipal CreateClaimsPrincipal(bool isAuthenticated = true, bool? hasContactsClaimType = null, bool? hasAccountingClaimType = null, bool? hasCollectNewsClaim = null)
         {
-            return new ClaimsPrincipal(CreateClaimsIdentity(isAuthenticated, hasContactsClaimType, hasAccountingClaimType));
+            return new ClaimsPrincipal(CreateClaimsIdentity(isAuthenticated, hasContactsClaimType, hasAccountingClaimType, hasCollectNewsClaim));
         }
 
-        private ClaimsIdentity CreateClaimsIdentity(bool isAuthenticated = true, bool? hasContactsClaimType = null, bool? hasAccountingClaimType = null)
+        private ClaimsIdentity CreateClaimsIdentity(bool isAuthenticated = true, bool? hasContactsClaimType = null, bool? hasAccountingClaimType = null, bool? hasCollectNewsClaim = null)
         {
             IList<Claim> claimCollection = new List<Claim>();
+
             if (isAuthenticated && (hasContactsClaimType ?? _random.Next(100) > 50))
             {
                 claimCollection.Add(ClaimHelper.CreateContactsClaim());
@@ -535,6 +765,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             if (isAuthenticated && (hasAccountingClaimType ?? _random.Next(100) > 50))
             {
                 claimCollection.Add(ClaimHelper.CreateAccountingClaim());
+            }
+
+            if (isAuthenticated && (hasCollectNewsClaim ?? _random.Next(100) > 50))
+            {
+                claimCollection.Add(ClaimHelper.CreateCollectNewsClaim());
             }
 
             return isAuthenticated

@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.ExternalData.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.ExternalData.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -20,6 +22,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
@@ -125,6 +128,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        public async Task<IActionResult> CollectNews(int numberOfNewsToCollect)
+        {
+            IGetNewsCollectionQuery query = new GetNewsCollectionQuery(true, numberOfNewsToCollect);
+            IEnumerable<INews> news = await _queryBus.QueryAsync<IGetNewsCollectionQuery, IEnumerable<INews>>(query);
+
+            IEnumerable<ExternalNewsViewModel> externalNewsViewModels = _homeViewModelConverter.Convert<IEnumerable<INews>, IEnumerable<ExternalNewsViewModel>>(news ?? Array.Empty<INews>())
+                .OrderByDescending(externalNewsViewModel => externalNewsViewModel.Timestamp)
+                .ToArray();
+
+            return PartialView("_ExternalNewsCollectionPartial", externalNewsViewModels);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -163,7 +180,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 HasAcquiredMicrosoftGraphToken = false,
                 UpcomingBirthdaysWithinDays = default,
                 CanAccessAccountings = false,
-                AccountingNumber = default
+                AccountingNumber = default,
+                NumberOfNewsToCollect = 10
             };
         }
 
@@ -188,13 +206,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 accountingNumber = _claimResolver.GetAccountingNumber();
             }
 
+            bool collectNews = User.HasClaim(claim => claim.Type == ClaimHelper.CollectNewsClaimType);
+            int? numberOfNewsToCollect = default;
+            if (collectNews)
+            {
+                numberOfNewsToCollect = _claimResolver.GetNumberOfNewsToCollect();
+            }
+
             return new HomeOperationsViewModel
             {
                 CanAccessContacts = canAccessContacts,
                 HasAcquiredMicrosoftGraphToken = hasAcquiredMicrosoftGraphToken,
                 UpcomingBirthdaysWithinDays = upcomingBirthdaysWithinDays,
                 CanAccessAccountings = canAccessAccountings,
-                AccountingNumber = accountingNumber
+                AccountingNumber = accountingNumber,
+                NumberOfNewsToCollect = numberOfNewsToCollect
             };
         }
 

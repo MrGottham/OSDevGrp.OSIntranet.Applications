@@ -1,0 +1,20 @@
+﻿@model ExternalNewsViewModel;
+<li class="timeline-item rounded ml-3 p-2 shadow">
+    <div class="timeline-arrow"></div>
+    @if (string.IsNullOrWhiteSpace(Model.SourceUrl) == false)
+    {
+        <h2 class="h5"><a href="@Model.SourceUrl" target="_blank">@Html.Raw(Model.Header)</a></h2>
+    }
+    else
+    {
+        <h2 class="h5">@Html.Raw(Model.Header)</h2>
+    }
+    @if (string.IsNullOrWhiteSpace(Model.Provider) == false)
+    {
+        <span class="small text-gray"><i class="fas fa-clock mr-1"></i>@Html.DisplayFor(m => m.Weekday)&nbsp;den&nbsp;@Html.DisplayFor(m => m.Date)&nbsp;kl.&nbsp;@Html.DisplayFor(m => m.Time)&nbsp;@Html.Raw("@")&nbsp;@Html.Raw(Model.Provider)</span>
+    }
+    else
+    {
+        <span class="small text-gray"><i class="fas fa-clock mr-1"></i>@Html.DisplayFor(m => m.Weekday)&nbsp;den&nbsp;@Html.DisplayFor(m => m.Date)&nbsp;kl.&nbsp;@Html.DisplayFor(m => m.Time)</span>
+    }
+</li>
