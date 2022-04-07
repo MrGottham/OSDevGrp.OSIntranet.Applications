@@ -1,5 +1,11 @@
 ﻿@model IEnumerable<ContactWithUpcomingBirthdayViewModel>;
-@foreach (ContactWithUpcomingBirthdayViewModel contactWithUpcomingBirthdayViewModel in Model)
+@if (Model.Any())
 {
-    @await Html.PartialAsync("_UpcomingBirthdayPartial", contactWithUpcomingBirthdayViewModel)
+    <h1 class="h3">Fødselsdage</h1>
+    <ul class="timeline">
+        @foreach (ContactWithUpcomingBirthdayViewModel contactWithUpcomingBirthdayViewModel in Model)
+        {
+            @await Html.PartialAsync("_UpcomingBirthdayPartial", contactWithUpcomingBirthdayViewModel)
+        }
+    </ul>
 }

@@ -8,7 +8,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
     public static class ExternalDataMockBuilder
     {
-        public static Mock<INews> BuildNewsMock(this Fixture fixture)
+        public static Mock<INews> BuildNewsMock(this Fixture fixture, string identifier = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 
             Mock<INews> newsMock = new Mock<INews>();
             newsMock.Setup(m => m.Identifier)
-                .Returns(fixture.Create<string>());
+                .Returns(identifier ?? fixture.Create<string>());
             newsMock.Setup(m => m.Timestamp)
                 .Returns(DateTime.Now.AddDays(random.Next(0, 7) * -1).AddMinutes(random.Next(-120, 120)));
             newsMock.Setup(m => m.Header)

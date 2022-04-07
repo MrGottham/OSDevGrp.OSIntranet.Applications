@@ -4,6 +4,7 @@ using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
@@ -81,6 +82,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
             mapperConfiguration.CreateMap<IContactInfoValues, BalanceInfoValuesViewModel>();
 
             mapperConfiguration.CreateMap<IContactAccountCollectionValues, ContactAccountCollectionValuesViewModel>();
+
+            mapperConfiguration.CreateMap<INews, ExternalNewsViewModel>()
+                .ForMember(dest => dest.Provider, opt => 
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.Provider) == false);
+                    opt.MapFrom(src => src.Provider);
+                })
+                .ForMember(dest => dest.SourceUrl, opt => 
+                {
+                    opt.Condition(src => src.SourceUrl != null && src.SourceUrl.IsAbsoluteUri);
+                    opt.MapFrom(src => src.SourceUrl.AbsoluteUri);
+                });
         }
 
         #endregion

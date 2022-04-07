@@ -15,6 +15,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
         public bool CanAccessAccountings { get; set; }
 
         public int? AccountingNumber { get; set; }
+
+        public int? NumberOfNewsToCollect { get; set; }
     }
 
     public static class HomeOperationsViewModelExtensions
@@ -33,6 +35,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
                 .NotNull(urlHelper, nameof(urlHelper));
 
             return urlHelper.AbsoluteAction("AccountingInformation", "Home", new {accountingNumber = homeOperationsViewModel.AccountingNumber ?? 0});
+        }
+
+        public static string GetCollectNewsUrl(this HomeOperationsViewModel homeOperationsViewModel, IUrlHelper urlHelper)
+        {
+            NullGuard.NotNull(homeOperationsViewModel, nameof(homeOperationsViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("CollectNews", "Home", new {numberOfNewsToCollect = homeOperationsViewModel.NumberOfNewsToCollect ?? 0});
         }
     }
 }

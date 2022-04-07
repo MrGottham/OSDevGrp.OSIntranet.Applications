@@ -1,0 +1,11 @@
+﻿@model IEnumerable<ExternalNewsViewModel>;
+@if (Model.Any())
+{
+    <h1 class="h3">Nyheder</h1>
+    <ul class="timeline">
+        @foreach (ExternalNewsViewModel externalNewsViewModel in Model)
+        {
+            @await Html.PartialAsync("_ExternalNewsPartial", externalNewsViewModel)
+        }
+    </ul>
+}
