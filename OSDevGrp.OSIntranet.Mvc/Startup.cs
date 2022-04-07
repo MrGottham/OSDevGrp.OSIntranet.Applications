@@ -134,7 +134,12 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.AddPolicy("Contacts", policy => policy.RequireClaim(ClaimHelper.ContactsClaimType));
             });
 
-            services.AddHealthChecks();
+            services.AddHealthChecks()
+                .AddRepositoryHealthChecks(opt => 
+                {
+                    opt.WithRepositoryContextValidation();
+                    opt.WithConnectionStringsValidation();
+                });
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);

@@ -15,7 +15,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.ExternalDashboard;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class ExternalDashboardRepository : WebRepositoryBase, IExternalDashboardRepository
+    internal class ExternalDashboardRepository : WebRepositoryBase, IExternalDashboardRepository
     {
         #region Constructor
 

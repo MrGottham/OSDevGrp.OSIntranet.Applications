@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 serviceProvider.GetRequiredService<IPrincipalResolver>(),
                 serviceProvider.GetRequiredService<ILoggerFactory>()));
 
-            TypeInfo[] classArray = typeof(RepositoryBase).Assembly.ExportedTypes
+            TypeInfo[] classArray = typeof(RepositoryBase).Assembly.DefinedTypes
                 .Select(exportedType => exportedType.GetTypeInfo())
                 .Where(typeInfo => typeInfo.IsClass && typeInfo.IsAbstract == false)
                 .ToArray();
@@ -41,6 +42,26 @@ namespace OSDevGrp.OSIntranet.Repositories
             }
 
             return serviceCollection;
+        }
+
+        public static IHealthChecksBuilder AddRepositoryHealthChecks(this IHealthChecksBuilder healthChecksBuilder, Action<RepositoryHealthCheckOptions> configure)
+        {
+            NullGuard.NotNull(healthChecksBuilder, nameof(healthChecksBuilder))
+                .NotNull(configure, nameof(configure));
+
+            RepositoryHealthCheckOptions options = new RepositoryHealthCheckOptions();
+            configure(options);
+
+            if (options.ValidateRepositoryContext)
+            {
+                healthChecksBuilder.AddDbContextCheck<RepositoryContext>();
+            }
+
+            if (options.ValidateConnectionStrings)
+            {
+            }
+
+            return healthChecksBuilder;
         }
     }
 }

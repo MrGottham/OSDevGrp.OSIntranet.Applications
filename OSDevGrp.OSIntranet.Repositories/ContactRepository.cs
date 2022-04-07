@@ -13,7 +13,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class ContactRepository : DatabaseRepositoryBase<RepositoryContext>, IContactRepository
+    internal class ContactRepository : DatabaseRepositoryBase<RepositoryContext>, IContactRepository
     {
         #region Constructor
 

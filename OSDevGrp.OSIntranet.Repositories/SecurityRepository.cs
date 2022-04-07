@@ -13,7 +13,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class SecurityRepository : DatabaseRepositoryBase<RepositoryContext>, ISecurityRepository
+    internal class SecurityRepository : DatabaseRepositoryBase<RepositoryContext>, ISecurityRepository
     {
         #region Constructor
 

@@ -149,7 +149,12 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
             services.AddSwaggerGenNewtonsoftSupport();
 
-            services.AddHealthChecks();
+            services.AddHealthChecks()
+                .AddRepositoryHealthChecks(opt => 
+                {
+                    opt.WithRepositoryContextValidation();
+                    opt.WithConnectionStringsValidation();
+                });
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);

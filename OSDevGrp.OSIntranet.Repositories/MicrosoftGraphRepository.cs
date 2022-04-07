@@ -20,7 +20,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class MicrosoftGraphRepository : TokenBasedWebRepositoryBase<IRefreshableToken>, IMicrosoftGraphRepository
+    internal class MicrosoftGraphRepository : TokenBasedWebRepositoryBase<IRefreshableToken>, IMicrosoftGraphRepository
     {
         #region Private constants
 
