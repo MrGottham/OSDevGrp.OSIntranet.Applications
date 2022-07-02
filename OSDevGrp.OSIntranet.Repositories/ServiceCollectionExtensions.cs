@@ -49,16 +49,13 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(healthChecksBuilder, nameof(healthChecksBuilder))
                 .NotNull(configure, nameof(configure));
 
-            RepositoryHealthCheckOptions options = new RepositoryHealthCheckOptions();
-            configure(options);
+            healthChecksBuilder.Services.Configure<RepositoryHealthCheckOptions>(opt => configure(opt));
 
-            if (options.ValidateRepositoryContext)
+            RepositoryHealthCheckOptions repositoryHealthCheckOptions = new RepositoryHealthCheckOptions();
+            configure(repositoryHealthCheckOptions);
+            if (repositoryHealthCheckOptions.ValidateRepositoryContext)
             {
                 healthChecksBuilder.AddDbContextCheck<RepositoryContext>();
-            }
-
-            if (options.ValidateConnectionStrings)
-            {
             }
 
             return healthChecksBuilder;

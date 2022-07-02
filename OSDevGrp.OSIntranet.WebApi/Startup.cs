@@ -153,7 +153,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 .AddRepositoryHealthChecks(opt => 
                 {
                     opt.WithRepositoryContextValidation();
-                    opt.WithConnectionStringsValidation();
                 });
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
