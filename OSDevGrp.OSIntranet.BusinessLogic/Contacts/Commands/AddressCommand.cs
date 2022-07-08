@@ -31,6 +31,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
         {
             NullGuard.NotNull(validator, nameof(validator));
 
+            if (IsEmpty())
+            {
+                return validator;
+            }
+
             return validator.String.ShouldHaveMinLength(StreetLine1, 1, GetType(), nameof(StreetLine1), true)
                 .String.ShouldHaveMinLength(StreetLine2, 1, GetType(), nameof(StreetLine2), true)
                 .ValidateOptionalPostalCode(PostalCode, GetType(), nameof(PostalCode))
