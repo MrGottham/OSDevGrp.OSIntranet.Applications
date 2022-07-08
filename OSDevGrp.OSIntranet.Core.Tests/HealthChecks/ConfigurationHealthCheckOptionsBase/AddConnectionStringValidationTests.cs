@@ -33,7 +33,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConfigurationHealthCheckOp
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AddConnectionStringValidation(null, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("configuration"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -44,7 +46,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConfigurationHealthCheckOp
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AddConnectionStringValidation(_configurationMock.Object, null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("name"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -55,7 +59,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConfigurationHealthCheckOp
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AddConnectionStringValidation(_configurationMock.Object, string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("name"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -66,7 +72,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConfigurationHealthCheckOp
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AddConnectionStringValidation(_configurationMock.Object, " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("name"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -89,7 +97,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConfigurationHealthCheckOp
 
             sut.AddConnectionStringValidation(_configurationMock.Object, _fixture.Create<string>());
 
-            Assert.That(sut.ConfigurationValueValidators.Last(), Is.TypeOf<OSDevGrp.OSIntranet.Core.HealthChecks.ConnectionStringValidator>());
+            Assert.That(sut.ConfigurationValueValidators.Last(), Is.TypeOf<Core.HealthChecks.ConnectionStringValidator>());
         }
 
         [Test]

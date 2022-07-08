@@ -9,9 +9,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.RepositoryHealthCheckOptions
         [Category("UnitTest")]
         public void WithRepositoryContextValidation_WhenCalled_ReturnsNotNull()
         {
-            OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions sut = CreateSut();
+            Repositories.RepositoryHealthCheckOptions sut = CreateSut();
 
-            OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
+            Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
 
             Assert.That(result, Is.Not.Null);
         }
@@ -20,9 +20,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.RepositoryHealthCheckOptions
         [Category("UnitTest")]
         public void WithRepositoryContextValidation_WhenCalled_ReturnsSameRepositoryHealthCheckOptions()
         {
-            OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions sut = CreateSut();
+            Repositories.RepositoryHealthCheckOptions sut = CreateSut();
 
-            OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
+            Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
 
             Assert.That(result, Is.SameAs(sut));
         }
@@ -31,14 +31,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.RepositoryHealthCheckOptions
         [Category("UnitTest")]
         public void WithRepositoryContextValidation_WhenCalled_ReturnsSameRepositoryHealthCheckOptionsWhereValidateRepositoryContextIsTrue()
         {
-            OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions sut = CreateSut();
+            Repositories.RepositoryHealthCheckOptions sut = CreateSut();
 
-            OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
+            Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
 
             Assert.IsTrue(result.ValidateRepositoryContext);
         }
 
-        private OSDevGrp.OSIntranet.Repositories.RepositoryHealthCheckOptions CreateSut()
+        private Repositories.RepositoryHealthCheckOptions CreateSut()
         {
             return new Repositories.RepositoryHealthCheckOptions();
         }
