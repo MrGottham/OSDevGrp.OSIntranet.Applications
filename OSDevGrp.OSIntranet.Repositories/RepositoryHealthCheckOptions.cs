@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Configuration;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.HealthChecks;
+using OSDevGrp.OSIntranet.Repositories.Contexts;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -26,6 +29,13 @@ namespace OSDevGrp.OSIntranet.Repositories
             ValidateRepositoryContext = false;
 
             return HealthCheckOptions;
+        }
+
+        public RepositoryHealthCheckOptions WithConnectionStringsValidation(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddConnectionStringValidation(configuration, ConnectionStringNames.IntranetName);
         }
 
         #endregion

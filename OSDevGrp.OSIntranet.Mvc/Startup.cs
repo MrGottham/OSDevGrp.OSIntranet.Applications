@@ -135,9 +135,10 @@ namespace OSDevGrp.OSIntranet.Mvc
             });
 
             services.AddHealthChecks()
-                .AddRepositoryHealthChecks(opt => 
+                .AddRepositoryHealthChecks(opt =>
                 {
                     opt.WithRepositoryContextValidation();
+                    opt.WithConnectionStringsValidation(Configuration);
                 });
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,23 +41,6 @@ namespace OSDevGrp.OSIntranet.Repositories
             }
 
             return serviceCollection;
-        }
-
-        public static IHealthChecksBuilder AddRepositoryHealthChecks(this IHealthChecksBuilder healthChecksBuilder, Action<RepositoryHealthCheckOptions> configure)
-        {
-            NullGuard.NotNull(healthChecksBuilder, nameof(healthChecksBuilder))
-                .NotNull(configure, nameof(configure));
-
-            healthChecksBuilder.Services.Configure<RepositoryHealthCheckOptions>(opt => configure(opt));
-
-            RepositoryHealthCheckOptions repositoryHealthCheckOptions = new RepositoryHealthCheckOptions();
-            configure(repositoryHealthCheckOptions);
-            if (repositoryHealthCheckOptions.ValidateRepositoryContext)
-            {
-                healthChecksBuilder.AddDbContextCheck<RepositoryContext>();
-            }
-
-            return healthChecksBuilder;
         }
     }
 }

@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Core\OSDevGrp.OSIntranet.Core.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories.Interfaces\OSDevGrp.OSIntranet.Repositories.Interfaces.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories\OSDevGrp.OSIntranet.Repositories.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.Interfaces\OSDevGrp.OSIntranet.Domain.Interfaces.csproj" />
