@@ -51,7 +51,9 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
+                // ReSharper disable UnusedParameter.Local
                 opt.CheckConsentNeeded = context => true;
+                // ReSharper restore UnusedParameter.Local
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
                 opt.Secure = CookieSecurePolicy.SameAsRequest;
             });
@@ -135,6 +137,9 @@ namespace OSDevGrp.OSIntranet.Mvc
             });
 
             services.AddHealthChecks()
+                .AddSecurityHealthChecks(opt =>
+                {
+                })
                 .AddRepositoryHealthChecks(opt =>
                 {
                     opt.WithRepositoryContextValidation();

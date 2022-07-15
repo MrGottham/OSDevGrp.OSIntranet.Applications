@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Configuration
 {
@@ -12,10 +13,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:JWT:Key"];
+            string result = sut[SecurityConfigurationKeys.JwtKey];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithSecurityJwtKey_ReturnsKeyMatchingJwtKeyRegularExpression()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut[SecurityConfigurationKeys.JwtKey];
+
+            Assert.That(ConfigurationValueRegularExpressions.JwtKeyRegularExpression.IsMatch(result));
         }
     }
 }

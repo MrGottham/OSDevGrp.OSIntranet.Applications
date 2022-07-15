@@ -18,6 +18,7 @@ using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -93,7 +94,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration["Security:JWT:Key"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey])),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -150,6 +151,10 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddHealthChecks()
+                .AddSecurityHealthChecks(opt =>
+                {
+                    opt.WithJwtValidation(Configuration);
+                })
                 .AddRepositoryHealthChecks(opt => 
                 {
                     opt.WithRepositoryContextValidation();

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 
@@ -17,7 +18,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         private readonly IConfiguration _configuration;
 
         #endregion
-        
+
         #region Constructor
 
         public TokenHelper(IConfiguration configuration)
@@ -35,7 +36,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         {
             NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
 
-            byte[] key = Encoding.Default.GetBytes(_configuration["Security:JWT:Key"]);
+            byte[] key = Encoding.Default.GetBytes(_configuration[SecurityConfigurationKeys.JwtKey]);
 
             DateTime expires = DateTime.UtcNow.AddHours(1);
 
