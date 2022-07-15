@@ -46,6 +46,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
         public virtual ContactAccountModel ContactAccount { get; set; }
 
         public virtual decimal? PostingValueForContactAccount { get; set; }
+
+        public virtual bool StoreInMemoryCache { get; set; } = true;
     }
 
     internal static class PostingLineModelExtensions
@@ -165,7 +167,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 postingLine = new PostingLine(postingLineIdentification, postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier, accountValuesAtPostingDate, budgetAccountValuesAtPostingDate, contactAccountValuesAtPostingDate);
                 postingLine.AddAuditInformation(postingLineModel.CreatedUtcDateTime, postingLineModel.CreatedByIdentifier, postingLineModel.ModifiedUtcDateTime, postingLineModel.ModifiedByIdentifier);
 
-                mapperCache.PostingLineDictionary.Add(postingLineIdentification, postingLine);
+                if (postingLineModel.StoreInMemoryCache)
+                {
+                    mapperCache.PostingLineDictionary.Add(postingLineIdentification, postingLine);
+                }
 
                 if (account.PostingLineCollection.Contains(postingLine) == false)
                 {
@@ -210,6 +215,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
                 entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
                 entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
+                entity.Ignore(e => e.StoreInMemoryCache);
                 entity.HasIndex(e => e.PostingLineIdentification).IsUnique();
                 entity.HasIndex(e => new {e.AccountingIdentifier, e.PostingDate, e.PostingLineIdentifier}).IsUnique();
                 entity.HasIndex(e => new {e.PostingDate, e.PostingLineIdentifier}).IsUnique();

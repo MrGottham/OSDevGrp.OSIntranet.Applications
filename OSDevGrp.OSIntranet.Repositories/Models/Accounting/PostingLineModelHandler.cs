@@ -250,6 +250,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 postingLineModel.ContactAccount = await DbContext.ContactAccounts.SingleAsync(contactAccountModel => contactAccountModel.AccountingIdentifier == postingLine.Accounting.Number && contactAccountModel.AccountNumber == postingLine.ContactAccount.AccountNumber);
             }
 
+            postingLineModel.StoreInMemoryCache = false;
+
             return postingLineModel;
         }
 
@@ -303,6 +305,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             {
                 postingLineModel.PostingValueForContactAccount = postingLine.ContactAccount.PostingLineCollection.CalculatePostingValue(DateTime.MinValue, postingLine.PostingDate, postingLine.SortOrder);
             }
+
+            postingLineModel.StoreInMemoryCache = true;
 
             return Task.CompletedTask;
         }
