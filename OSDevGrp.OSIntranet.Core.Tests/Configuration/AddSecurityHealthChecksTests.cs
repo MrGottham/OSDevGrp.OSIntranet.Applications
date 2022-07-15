@@ -28,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
                 .AddSecurityHealthChecks(opt =>
                 {
                     opt.WithJwtValidation(sut);
+                    opt.WithMicrosoftValidation(sut);
                 });
 
             IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();

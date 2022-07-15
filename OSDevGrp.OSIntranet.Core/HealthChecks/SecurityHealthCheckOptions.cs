@@ -20,6 +20,15 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
             return AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKey, ConfigurationValueRegularExpressions.JwtKeyRegularExpression);
         }
 
+        public SecurityHealthCheckOptions WithMicrosoftValidation(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftClientId)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftClientSecret)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftTenant);
+        }
+
         #endregion
     }
 }

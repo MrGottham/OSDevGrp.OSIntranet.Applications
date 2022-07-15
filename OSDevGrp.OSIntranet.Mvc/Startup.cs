@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -100,8 +101,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddMicrosoftAccount(opt => 
             {
-                opt.ClientId = Configuration["Security:Microsoft:ClientId"];
-                opt.ClientSecret = Configuration["Security:Microsoft:ClientSecret"];
+                opt.ClientId = Configuration[SecurityConfigurationKeys.MicrosoftClientId];
+                opt.ClientSecret = Configuration[SecurityConfigurationKeys.MicrosoftClientSecret];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -139,6 +140,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddHealthChecks()
                 .AddSecurityHealthChecks(opt =>
                 {
+                    opt.WithMicrosoftValidation(Configuration);
                 })
                 .AddRepositoryHealthChecks(opt =>
                 {
