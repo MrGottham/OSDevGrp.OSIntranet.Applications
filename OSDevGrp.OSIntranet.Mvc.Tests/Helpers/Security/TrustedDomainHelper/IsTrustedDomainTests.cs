@@ -3,6 +3,7 @@ using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TrustedDomainHelper
@@ -34,7 +35,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TrustedDomainHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.IsTrustedDomain(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("uri"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -77,7 +80,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TrustedDomainHelper
 
         private ITrustedDomainHelper CreateSut(params string[] knownDomainCollection)
         {
-            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, "Security:TrustedDomainCollection") == 0)])
+            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.TrustedDomainCollection) == 0)])
                 .Returns(string.Join(";", knownDomainCollection ?? new[] {_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()}));
 
             return new Mvc.Helpers.Security.TrustedDomainHelper(_configurationMock.Object);

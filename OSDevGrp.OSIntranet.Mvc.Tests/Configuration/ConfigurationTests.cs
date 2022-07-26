@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:TrustedDomainCollection"];
+            string result = sut[SecurityConfigurationKeys.TrustedDomainCollection];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);

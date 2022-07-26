@@ -10,5 +10,7 @@
 
         public const string GoogleClientId = "Security:Google:ClientId";
         public const string GoogleClientSecret = "Security:Google:ClientSecret";
+
+        public const string TrustedDomainCollection = "Security:TrustedDomainCollection";
     }
 }

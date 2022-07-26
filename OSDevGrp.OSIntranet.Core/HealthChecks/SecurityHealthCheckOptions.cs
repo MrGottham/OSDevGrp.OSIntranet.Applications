@@ -37,6 +37,13 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
                 .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.GoogleClientSecret);
         }
 
+        public SecurityHealthCheckOptions WithTrustedDomainCollectionValidation(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddStringCollectionConfigurationValidation(configuration, SecurityConfigurationKeys.TrustedDomainCollection, ";");
+        }
+
         #endregion
     }
 }
