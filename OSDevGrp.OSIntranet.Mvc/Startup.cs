@@ -122,8 +122,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddGoogle(opt =>
             {
-                opt.ClientId = Configuration["Security:Google:ClientId"];
-                opt.ClientSecret = Configuration["Security:Google:ClientSecret"];
+                opt.ClientId = Configuration[SecurityConfigurationKeys.GoogleClientId];
+                opt.ClientSecret = Configuration[SecurityConfigurationKeys.GoogleClientSecret];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -141,6 +141,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 .AddSecurityHealthChecks(opt =>
                 {
                     opt.WithMicrosoftValidation(Configuration);
+                    opt.WithGoogleValidation(Configuration);
                 })
                 .AddRepositoryHealthChecks(opt =>
                 {

@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.SecurityHealthCheckOptions
 
         [Test]
         [Category("UnitTest")]
-        public void WithMicrosoftValidation_WhenConfigurationIsNotNull_ReturnsSameSecurityHealthCheckOptionsWhereStringConfigurationValidatorWasAddedToConfigurationValueValidatorsForSecurityMicrosoftClientId()
+        public void WithMicrosoftValidation_WhenConfigurationIsNotNull_ReturnsSameSecurityHealthCheckOptionsWhereStringConfigurationValidatorWasAddedToConfigurationValueValidatorsForMicrosoftClientId()
         {
             Core.HealthChecks.SecurityHealthCheckOptions sut = CreateSut();
             int count = sut.ConfigurationValueValidators.Count();
@@ -104,7 +104,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.SecurityHealthCheckOptions
 
         [Test]
         [Category("UnitTest")]
-        public void WithMicrosoftValidation_WhenConfigurationIsNotNull_ReturnsSameSecurityHealthCheckOptionsWhereStringConfigurationValidatorWasAddedToConfigurationValueValidatorsForSecurityMicrosoftClientSecret()
+        public void WithMicrosoftValidation_WhenConfigurationIsNotNull_ReturnsSameSecurityHealthCheckOptionsWhereStringConfigurationValidatorWasAddedToConfigurationValueValidatorsForMicrosoftClientSecret()
         {
             Core.HealthChecks.SecurityHealthCheckOptions sut = CreateSut();
             int count = sut.ConfigurationValueValidators.Count();
@@ -116,7 +116,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.SecurityHealthCheckOptions
 
         [Test]
         [Category("UnitTest")]
-        public void WithMicrosoftValidation_WhenConfigurationIsNotNull_ReturnsSameSecurityHealthCheckOptionsWhereStringConfigurationValidatorWasAddedToConfigurationValueValidatorsForSecurityMicrosoftTenant()
+        public void WithMicrosoftValidation_WhenConfigurationIsNotNull_ReturnsSameSecurityHealthCheckOptionsWhereStringConfigurationValidatorWasAddedToConfigurationValueValidatorsForMicrosoftTenant()
         {
             Core.HealthChecks.SecurityHealthCheckOptions sut = CreateSut();
             int count = sut.ConfigurationValueValidators.Count();

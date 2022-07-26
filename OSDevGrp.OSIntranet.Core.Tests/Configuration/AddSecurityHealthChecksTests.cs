@@ -29,6 +29,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
                 {
                     opt.WithJwtValidation(sut);
                     opt.WithMicrosoftValidation(sut);
+                    opt.WithGoogleValidation(sut);
                 });
 
             IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();

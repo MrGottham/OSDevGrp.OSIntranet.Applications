@@ -29,6 +29,14 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
                 .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftTenant);
         }
 
+        public SecurityHealthCheckOptions WithGoogleValidation(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.GoogleClientId)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.GoogleClientSecret);
+        }
+
         #endregion
     }
 }
