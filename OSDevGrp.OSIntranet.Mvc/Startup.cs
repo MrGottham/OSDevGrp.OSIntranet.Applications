@@ -143,6 +143,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                     opt.WithMicrosoftValidation(Configuration);
                     opt.WithGoogleValidation(Configuration);
                     opt.WithTrustedDomainCollectionValidation(Configuration);
+                    opt.WithAcmeChallengeValidation(Configuration);
                 })
                 .AddRepositoryHealthChecks(opt =>
                 {

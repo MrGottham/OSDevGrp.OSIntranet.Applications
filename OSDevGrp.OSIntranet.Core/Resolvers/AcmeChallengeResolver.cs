@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 
 namespace OSDevGrp.OSIntranet.Core.Resolvers
@@ -26,7 +27,7 @@ namespace OSDevGrp.OSIntranet.Core.Resolvers
 
         public string GetWellKnownChallengeToken()
         {
-            string wellKnownChallengeToken = _configuration["Security:AcmeChallenge:WellKnownChallengeToken"];
+            string wellKnownChallengeToken = _configuration[SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken];
             return string.IsNullOrWhiteSpace(wellKnownChallengeToken) ? null : wellKnownChallengeToken;
         }
 
@@ -40,7 +41,7 @@ namespace OSDevGrp.OSIntranet.Core.Resolvers
                 return null;
             }
 
-            string constructedKeyAuthorization = _configuration["Security:AcmeChallenge:ConstructedKeyAuthorization"];
+            string constructedKeyAuthorization = _configuration[SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization];
             return string.IsNullOrWhiteSpace(constructedKeyAuthorization) ? null : constructedKeyAuthorization;
         }
 

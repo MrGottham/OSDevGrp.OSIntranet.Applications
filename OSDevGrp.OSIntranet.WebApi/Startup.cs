@@ -154,6 +154,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 .AddSecurityHealthChecks(opt =>
                 {
                     opt.WithJwtValidation(Configuration);
+                    opt.WithAcmeChallengeValidation(Configuration);
                 })
                 .AddRepositoryHealthChecks(opt => 
                 {

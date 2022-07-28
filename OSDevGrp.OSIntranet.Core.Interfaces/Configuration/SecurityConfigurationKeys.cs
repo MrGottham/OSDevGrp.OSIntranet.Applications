@@ -12,5 +12,8 @@
         public const string GoogleClientSecret = "Security:Google:ClientSecret";
 
         public const string TrustedDomainCollection = "Security:TrustedDomainCollection";
+
+        public const string AcmeChallengeWellKnownChallengeToken = "Security:AcmeChallenge:WellKnownChallengeToken";
+        public const string AcmeChallengeConstructedKeyAuthorization = "Security:AcmeChallenge:ConstructedKeyAuthorization";
     }
 }

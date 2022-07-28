@@ -44,6 +44,14 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
             return AddStringCollectionConfigurationValidation(configuration, SecurityConfigurationKeys.TrustedDomainCollection, ";");
         }
 
+        public SecurityHealthCheckOptions WithAcmeChallengeValidation(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization);
+        }
+
         #endregion
     }
 }

@@ -31,6 +31,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
                     opt.WithMicrosoftValidation(sut);
                     opt.WithGoogleValidation(sut);
                     opt.WithTrustedDomainCollectionValidation(sut);
+                    opt.WithAcmeChallengeValidation(sut);
                 });
 
             IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
