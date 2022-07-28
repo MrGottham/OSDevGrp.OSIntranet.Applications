@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using OSDevGrp.OSIntranet.Repositories.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Repositories.Models.ExternalDashboard;
 
 namespace OSDevGrp.OSIntranet.Repositories
@@ -28,7 +29,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Properties
 
-        private string ExternalDashboardUrl => Configuration["ExternalData:Dashboard:EndpointAddress"];
+        private string ExternalDashboardUrl => Configuration[ExternalDataConfigurationKeys.DashboardEndpointAddress];
 
         private string GetNewsUrl => $"{ExternalDashboardUrl}/api/export?numberOfNews={{numberOfNews}}";
 

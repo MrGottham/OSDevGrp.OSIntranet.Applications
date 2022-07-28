@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.Repositories.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 {
@@ -49,7 +50,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["ExternalData:Dashboard:EndpointAddress"];
+            string result = sut[ExternalDataConfigurationKeys.DashboardEndpointAddress];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);

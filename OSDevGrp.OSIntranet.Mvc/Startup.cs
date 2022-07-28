@@ -149,6 +149,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 {
                     opt.WithRepositoryContextValidation();
                     opt.WithConnectionStringsValidation(Configuration);
+                    opt.WithExternalDataDashboardValidation(Configuration);
                 });
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);

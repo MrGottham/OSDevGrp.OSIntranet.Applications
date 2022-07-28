@@ -28,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
                 {
                     opt.WithRepositoryContextValidation();
                     opt.WithConnectionStringsValidation(sut);
+                    opt.WithExternalDataDashboardValidation(sut);
                 });
 
             IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();

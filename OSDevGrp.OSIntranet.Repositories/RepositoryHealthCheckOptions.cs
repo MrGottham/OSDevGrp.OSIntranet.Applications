@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.HealthChecks;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -36,6 +37,13 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(configuration, nameof(configuration));
 
             return AddConnectionStringValidation(configuration, ConnectionStringNames.IntranetName);
+        }
+
+        public RepositoryHealthCheckOptions WithExternalDataDashboardValidation(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddEndpointConfigurationValidation(configuration, ExternalDataConfigurationKeys.DashboardEndpointAddress);
         }
 
         #endregion
