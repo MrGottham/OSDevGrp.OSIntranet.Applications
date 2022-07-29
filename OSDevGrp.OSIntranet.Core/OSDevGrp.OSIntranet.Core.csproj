@@ -9,7 +9,7 @@
     <PackageReference Include="DataAnnotationsValidatorNetStandard" Version="1.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.7" />
   </ItemGroup>
 
   <PropertyGroup>
