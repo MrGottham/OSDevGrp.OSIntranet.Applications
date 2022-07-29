@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 
@@ -34,7 +35,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Generate(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientSecretIdentity"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -45,7 +48,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
 
             sut.Generate(_fixture.BuildClientSecretIdentityMock().Object);
 
-            _configurationMock.Verify(m => m[It.Is<string>(value => string.Compare(value, "Security:JWT:Key", StringComparison.Ordinal) == 0)], Times.Once);
+            _configurationMock.Verify(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.JwtKey) == 0)], Times.Once);
         }
 
         [Test]
@@ -111,7 +114,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
 
         private ITokenHelper CreateSut()
         {
-            _configurationMock.Setup(m => m[It.Is<string>(value => string.Compare(value, "Security:JWT:Key", StringComparison.Ordinal) == 0)])
+            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.JwtKey) == 0)])
                 .Returns(_fixture.Create<string>());
 
             return new BusinessLogic.Security.Logic.TokenHelper(_configurationMock.Object);

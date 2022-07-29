@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 {
@@ -19,7 +20,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
         {
             NullGuard.NotNull(configuration, nameof(configuration));
 
-            string trustedDomainCollection = configuration["Security:TrustedDomainCollection"];
+            string trustedDomainCollection = configuration[SecurityConfigurationKeys.TrustedDomainCollection];
             _trustedDomainCollection = string.IsNullOrWhiteSpace(trustedDomainCollection) ? new string[0] : trustedDomainCollection.Split(';');
         }
 

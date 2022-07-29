@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -51,7 +52,9 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
+                // ReSharper disable UnusedParameter.Local
                 opt.CheckConsentNeeded = context => true;
+                // ReSharper restore UnusedParameter.Local
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
                 opt.Secure = CookieSecurePolicy.SameAsRequest;
             });
@@ -98,8 +101,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddMicrosoftAccount(opt => 
             {
-                opt.ClientId = Configuration["Security:Microsoft:ClientId"];
-                opt.ClientSecret = Configuration["Security:Microsoft:ClientSecret"];
+                opt.ClientId = Configuration[SecurityConfigurationKeys.MicrosoftClientId];
+                opt.ClientSecret = Configuration[SecurityConfigurationKeys.MicrosoftClientSecret];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -119,8 +122,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddGoogle(opt =>
             {
-                opt.ClientId = Configuration["Security:Google:ClientId"];
-                opt.ClientSecret = Configuration["Security:Google:ClientSecret"];
+                opt.ClientId = Configuration[SecurityConfigurationKeys.GoogleClientId];
+                opt.ClientSecret = Configuration[SecurityConfigurationKeys.GoogleClientSecret];
                 opt.SignInScheme = "OSDevGrp.OSIntranet.External";
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -134,7 +137,20 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.AddPolicy("Contacts", policy => policy.RequireClaim(ClaimHelper.ContactsClaimType));
             });
 
-            services.AddHealthChecks();
+            services.AddHealthChecks()
+                .AddSecurityHealthChecks(opt =>
+                {
+                    opt.WithMicrosoftValidation(Configuration);
+                    opt.WithGoogleValidation(Configuration);
+                    opt.WithTrustedDomainCollectionValidation(Configuration);
+                    opt.WithAcmeChallengeValidation(Configuration);
+                })
+                .AddRepositoryHealthChecks(opt =>
+                {
+                    opt.WithRepositoryContextValidation();
+                    opt.WithConnectionStringsValidation(Configuration);
+                    opt.WithExternalDataDashboardValidation(Configuration);
+                });
 
             services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);

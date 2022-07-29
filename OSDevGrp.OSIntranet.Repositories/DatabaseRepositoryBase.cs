@@ -5,7 +5,7 @@ using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public abstract class DatabaseRepositoryBase<TDbContext> : RepositoryBase where TDbContext : DbContext
+    internal abstract class DatabaseRepositoryBase<TDbContext> : RepositoryBase where TDbContext : DbContext
     {
         #region Constructor
 

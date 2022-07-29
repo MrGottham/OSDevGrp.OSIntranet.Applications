@@ -125,6 +125,15 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         SubmittedMessageInvalid = 1040,
 
         [ErrorCode("Unable to resolve the identifier for the current user.", typeof(IntranetSystemException))]
-        UnableToResolveUserIdentifier = 1041
+        UnableToResolveUserIdentifier = 1041,
+
+        [ErrorCode("The connection string named '{0}' is missing or has no value.", typeof(IntranetSystemException))]
+        MissingConnectionString = 1042,
+
+        [ErrorCode("The configuration named '{0}' is missing or has no value.", typeof(IntranetSystemException))]
+        MissingConfiguration = 1043,
+
+        [ErrorCode("The value for the configuration named '{0}' is invalid.", typeof(IntranetSystemException))]
+        InvalidConfigurationValue = 1044
     }
 }

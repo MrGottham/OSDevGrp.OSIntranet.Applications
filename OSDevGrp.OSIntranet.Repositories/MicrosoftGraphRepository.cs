@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Converters;
@@ -20,7 +21,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class MicrosoftGraphRepository : TokenBasedWebRepositoryBase<IRefreshableToken>, IMicrosoftGraphRepository
+    internal class MicrosoftGraphRepository : TokenBasedWebRepositoryBase<IRefreshableToken>, IMicrosoftGraphRepository
     {
         #region Private constants
 
@@ -51,7 +52,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             get
             {
-                string tenant = Configuration["Security:Microsoft:Tenant"];
+                string tenant = Configuration[SecurityConfigurationKeys.MicrosoftTenant];
                 return $"{MicrosoftLoginUrl}/{tenant}/oauth2/v2.0/authorize";
             }
         }
@@ -60,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             get
             {
-                string tenant = Configuration["Security:Microsoft:Tenant"];
+                string tenant = Configuration[SecurityConfigurationKeys.MicrosoftTenant];
                 return $"{MicrosoftLoginUrl}/{tenant}/oauth2/v2.0/token";
             }
         }
@@ -220,7 +221,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNullOrWhiteSpace(state, nameof(state));
 
             IDictionary<string, string> parametersToAuthorize = base.GetParametersToAuthorize(redirectUri, scope, state);
-            parametersToAuthorize.Add("client_id", Configuration["Security:Microsoft:ClientId"]);
+            parametersToAuthorize.Add("client_id", Configuration[SecurityConfigurationKeys.MicrosoftClientId]);
             parametersToAuthorize.Add("response_type", "code");
             parametersToAuthorize.Add("redirect_uri", redirectUri.AbsoluteUri);
             parametersToAuthorize.Add("scope", scope);
@@ -237,12 +238,12 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             IDictionary<string, string> parameters = new Dictionary<string, string>
             {
-                {"client_id", Configuration["Security:Microsoft:ClientId"]},
+                {"client_id", Configuration[SecurityConfigurationKeys.MicrosoftClientId]},
                 {"grant_type", "authorization_code"},
                 {"scope", scope},
                 {"code", code},
                 {"redirect_uri", redirectUri.AbsoluteUri},
-                {"client_secret", Configuration["Security:Microsoft:ClientSecret"]},
+                {"client_secret", Configuration[SecurityConfigurationKeys.MicrosoftClientSecret]},
             };
 
             httpRequestMessage.Content = new FormUrlEncodedContent(parameters);
@@ -257,12 +258,12 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             IDictionary<string, string> parameters = new Dictionary<string, string>
             {
-                {"client_id", Configuration["Security:Microsoft:ClientId"]},
+                {"client_id", Configuration[SecurityConfigurationKeys.MicrosoftClientId]},
                 {"grant_type", "refresh_token"},
                 {"scope", scope},
                 {"refresh_token", refreshableToken.RefreshToken},
                 {"redirect_uri", redirectUri.AbsoluteUri},
-                {"client_secret", Configuration["Security:Microsoft:ClientSecret"]},
+                {"client_secret", Configuration[SecurityConfigurationKeys.MicrosoftClientSecret]},
             };
 
             httpRequestMessage.Content = new FormUrlEncodedContent(parameters);

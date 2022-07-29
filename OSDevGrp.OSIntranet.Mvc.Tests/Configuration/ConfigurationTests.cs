@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
 {
@@ -12,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Microsoft:ClientId"];
+            string result = sut[SecurityConfigurationKeys.MicrosoftClientId];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -24,7 +25,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Microsoft:ClientSecret"];
+            string result = sut[SecurityConfigurationKeys.MicrosoftClientSecret];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -36,7 +37,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Google:ClientId"];
+            string result = sut[SecurityConfigurationKeys.GoogleClientId];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -48,7 +49,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Google:ClientSecret"];
+            string result = sut[SecurityConfigurationKeys.GoogleClientSecret];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -60,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:TrustedDomainCollection"];
+            string result = sut[SecurityConfigurationKeys.TrustedDomainCollection];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);

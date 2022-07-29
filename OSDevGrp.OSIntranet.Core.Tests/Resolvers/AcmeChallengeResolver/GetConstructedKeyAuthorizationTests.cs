@@ -3,6 +3,7 @@ using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
@@ -32,7 +33,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.GetConstructedKeyAuthorization(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -43,7 +46,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.GetConstructedKeyAuthorization(string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -54,7 +59,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.GetConstructedKeyAuthorization(" "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -65,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             sut.GetConstructedKeyAuthorization(_fixture.Create<string>());
 
-            _configurationMock.Verify(m => m["Security:AcmeChallenge:WellKnownChallengeToken"], Times.Once);
+            _configurationMock.Verify(m => m[SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken], Times.Once);
         }
 
         [Test]
@@ -76,7 +83,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             sut.GetConstructedKeyAuthorization(_fixture.Create<string>());
 
-            _configurationMock.Verify(m => m["Security:AcmeChallenge:ConstructedKeyAuthorization"], Times.Never);
+            _configurationMock.Verify(m => m[SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization], Times.Never);
         }
 
         [Test]
@@ -99,7 +106,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             sut.GetConstructedKeyAuthorization(wellKnownChallengeToken + _fixture.Create<string>());
 
-            _configurationMock.Verify(m => m["Security:AcmeChallenge:ConstructedKeyAuthorization"], Times.Never);
+            _configurationMock.Verify(m => m[SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization], Times.Never);
         }
 
         [Test]
@@ -123,7 +130,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             sut.GetConstructedKeyAuthorization(wellKnownChallengeToken);
 
-            _configurationMock.Verify(m => m["Security:AcmeChallenge:ConstructedKeyAuthorization"], Times.Once);
+            _configurationMock.Verify(m => m[SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization], Times.Once);
         }
 
         [Test]
@@ -177,9 +184,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
         private IAcmeChallengeResolver CreateSut(bool hasWellKnownChallengeToken = true, string wellKnownChallengeToken = null, bool hasConstructedKeyAuthorization = true, string constructedKeyAuthorization = null)
         {
-            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, "Security:AcmeChallenge:WellKnownChallengeToken") == 0)])
+            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken) == 0)])
                 .Returns(hasWellKnownChallengeToken ? wellKnownChallengeToken ?? _fixture.Create<string>() : null);
-            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, "Security:AcmeChallenge:ConstructedKeyAuthorization") == 0)])
+            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization) == 0)])
                 .Returns(hasConstructedKeyAuthorization ? constructedKeyAuthorization ?? _fixture.Create<string>() : null);
 
             return new Core.Resolvers.AcmeChallengeResolver(_configurationMock.Object);

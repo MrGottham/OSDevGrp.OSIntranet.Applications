@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.Repositories.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 {
@@ -12,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Microsoft:ClientId"];
+            string result = sut[SecurityConfigurationKeys.MicrosoftClientId];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -24,7 +26,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Microsoft:ClientSecret"];
+            string result = sut[SecurityConfigurationKeys.MicrosoftClientSecret];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -36,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:Microsoft:Tenant"];
+            string result = sut[SecurityConfigurationKeys.MicrosoftTenant];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -48,7 +50,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["ExternalData:Dashboard:EndpointAddress"];
+            string result = sut[ExternalDataConfigurationKeys.DashboardEndpointAddress];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);

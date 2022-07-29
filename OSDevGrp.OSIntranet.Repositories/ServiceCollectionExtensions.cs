@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 serviceProvider.GetRequiredService<IPrincipalResolver>(),
                 serviceProvider.GetRequiredService<ILoggerFactory>()));
 
-            TypeInfo[] classArray = typeof(RepositoryBase).Assembly.ExportedTypes
+            TypeInfo[] classArray = typeof(RepositoryBase).Assembly.DefinedTypes
                 .Select(exportedType => exportedType.GetTypeInfo())
                 .Where(typeInfo => typeInfo.IsClass && typeInfo.IsAbstract == false)
                 .ToArray();

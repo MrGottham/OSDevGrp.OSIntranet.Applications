@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
 {
@@ -12,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:AcmeChallenge:WellKnownChallengeToken"];
+            string result = sut[SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
@@ -24,7 +25,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
         {
             IConfiguration sut = CreateSut();
 
-            string result = sut["Security:AcmeChallenge:ConstructedKeyAuthorization"];
+            string result = sut[SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization];
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);

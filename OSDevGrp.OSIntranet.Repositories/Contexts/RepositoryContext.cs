@@ -33,7 +33,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             LoggerFactory = NullLoggerFactory.Instance;
         }
 
-        public RepositoryContext(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+        internal RepositoryContext(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
         {
             NullGuard.NotNull(configuration, nameof(configuration))
                 .NotNull(principalResolver, nameof(principalResolver))
@@ -297,7 +297,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateClaimModel();
         }
 
-        public static RepositoryContext Create(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+        internal static RepositoryContext Create(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
         {
             NullGuard.NotNull(configuration, nameof(configuration))
                 .NotNull(principalResolver, nameof(principalResolver))

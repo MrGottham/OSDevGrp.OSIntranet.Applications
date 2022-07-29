@@ -12,7 +12,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public abstract class WebRepositoryBase : RepositoryBase
+    internal abstract class WebRepositoryBase : RepositoryBase
     {
         #region Constructor
 

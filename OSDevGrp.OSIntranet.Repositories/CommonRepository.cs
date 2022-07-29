@@ -12,7 +12,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class CommonRepository : DatabaseRepositoryBase<RepositoryContext>, ICommonRepository
+    internal class CommonRepository : DatabaseRepositoryBase<RepositoryContext>, ICommonRepository
     {
         #region Constructor
 

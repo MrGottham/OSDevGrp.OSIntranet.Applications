@@ -9,7 +9,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public abstract class RepositoryBase
+    internal abstract class RepositoryBase
     {
         #region Constructor
 

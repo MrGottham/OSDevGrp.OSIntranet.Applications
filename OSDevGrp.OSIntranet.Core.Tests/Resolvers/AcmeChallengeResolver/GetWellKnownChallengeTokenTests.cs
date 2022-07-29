@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
@@ -31,7 +32,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
             sut.GetWellKnownChallengeToken();
 
-            _configurationMock.Verify(m => m["Security:AcmeChallenge:WellKnownChallengeToken"], Times.Once);
+            _configurationMock.Verify(m => m[SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken], Times.Once);
         }
 
         [Test]
@@ -81,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
         private IAcmeChallengeResolver CreateSut(bool hasWellKnownChallengeToken = true, string wellKnownChallengeToken = null)
         {
-            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, "Security:AcmeChallenge:WellKnownChallengeToken") == 0)])
+            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken) == 0)])
                 .Returns(hasWellKnownChallengeToken ? wellKnownChallengeToken ?? _fixture.Create<string>() : null);
 
             return new Core.Resolvers.AcmeChallengeResolver(_configurationMock.Object);

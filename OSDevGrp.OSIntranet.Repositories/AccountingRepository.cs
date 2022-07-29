@@ -16,7 +16,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public class AccountingRepository : DatabaseRepositoryBase<RepositoryContext>, IAccountingRepository
+    internal class AccountingRepository : DatabaseRepositoryBase<RepositoryContext>, IAccountingRepository
     {
         #region Private variables
 

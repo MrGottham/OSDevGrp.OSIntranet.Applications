@@ -14,7 +14,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    public abstract class TokenBasedWebRepositoryBase<TToken> : WebRepositoryBase where TToken : IToken
+    internal abstract class TokenBasedWebRepositoryBase<TToken> : WebRepositoryBase where TToken : IToken
     {
         #region Constructor
 
