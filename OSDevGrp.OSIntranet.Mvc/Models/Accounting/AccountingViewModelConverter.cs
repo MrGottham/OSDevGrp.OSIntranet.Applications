@@ -182,7 +182,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection))
                 .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection.Between(DateTime.MinValue, src.StatusDate).Top(25)))
                 .ForMember(dest => dest.PaymentTerms, opt => opt.MapFrom(src => new List<PaymentTermViewModel>(0)))
-                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None))
+                .AfterMap((src, dest) =>
+                {
+                    if (dest.PostingLines != null)
+                    {
+                        dest.PostingLines.ViewMode = PostingLineCollectionViewMode.WithBalanceForContactAccount;
+                    }
+                });
 
             mapperConfiguration.CreateMap<ContactAccountViewModel, CreateContactAccountCommand>()
                 .ForMember(dest => dest.AccountingNumber, opt => opt.MapFrom(src => src.Accounting.AccountingNumber))
@@ -212,8 +219,23 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ConvertUsing(_contactInfoCollectionTBalanceInfoCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingLine, PostingLineViewModel>()
-                .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit != 0M ? src.Debit : (decimal?) null))
-                .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit != 0M ? src.Credit : (decimal?) null))
+                .ForMember(dest => dest.AccountValuesAtPostingDate, opt =>
+                {
+                    opt.Condition(src => src.Account != null && src.AccountValuesAtPostingDate != null);
+                    opt.MapFrom(src => src.AccountValuesAtPostingDate);
+                })
+                .ForMember(dest => dest.BudgetAccountValuesAtPostingDate, opt =>
+                {
+                    opt.Condition(src => src.BudgetAccount != null && src.BudgetAccountValuesAtPostingDate != null);
+                    opt.MapFrom(src => src.BudgetAccountValuesAtPostingDate);
+                })
+                .ForMember(dest => dest.Debit, opt => opt.MapFrom(src => src.Debit != 0M ? src.Debit : (decimal?)null))
+                .ForMember(dest => dest.Credit, opt => opt.MapFrom(src => src.Credit != 0M ? src.Credit : (decimal?)null))
+                .ForMember(dest => dest.ContactAccountValuesAtPostingDate, opt =>
+                {
+                    opt.Condition(src => src.ContactAccount != null && src.ContactAccountValuesAtPostingDate != null);
+                    opt.MapFrom(src => src.ContactAccountValuesAtPostingDate);
+                })
                 .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
 
             mapperConfiguration.CreateMap<IPostingLineCollection, PostingLineCollectionViewModel>()

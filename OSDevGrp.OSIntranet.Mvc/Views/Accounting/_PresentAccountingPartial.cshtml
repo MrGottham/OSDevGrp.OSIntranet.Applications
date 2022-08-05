@@ -326,6 +326,7 @@ else
                                             <tr>
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
+                                                <th class="text-right">Saldo</th>
                                                 <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
                                             </tr>
                                         </thead>
@@ -336,12 +337,14 @@ else
                                                     <td class="d-none d-lg-block d-xl-block"></td>
                                                     <td class="font-weight-bold">@item.Key.Name.ToHtmlString()</td>
                                                     <td></td>
+                                                    <td></td>
                                                 </tr>
                                                 @foreach (AccountViewModel accountViewModel in item.Value)
                                                 {
                                                     <tr>
                                                         <td class="d-none d-lg-block d-xl-block">@accountViewModel.AccountNumber.ToHtmlString()</td>
                                                         <td>@accountViewModel.AccountName.ToHtmlString()</td>
+                                                        <td class="text-right">@accountViewModel.ValuesAtStatusDate.Balance.AsCurrency()</td>
                                                         <td>
                                                             <span class="fa-stack">
                                                                 <a href="#" onclick="javascript:$().editAccount('@accountViewModel.GetStartUpdatingAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
@@ -377,6 +380,8 @@ else
                                             <tr>
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
+                                                <th class="d-none d-xl-block text-right">Budget</th>
+                                                <th class="text-right">Bogført</th>
                                                 <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
                                             </tr>
                                         </thead>
@@ -386,6 +391,8 @@ else
                                                 <tr>
                                                     <td class="d-none d-lg-block d-xl-block"></td>
                                                     <td class="font-weight-bold">@item.Key.Name.ToHtmlString()</td>
+                                                    <td class="d-none d-xl-block"></td>
+                                                    <td></td>
                                                     <td></td>
                                                 </tr>
                                                 @foreach (BudgetAccountViewModel budgetAccountViewModel in item.Value)
@@ -393,6 +400,8 @@ else
                                                     <tr>
                                                         <td class="d-none d-lg-block d-xl-block">@budgetAccountViewModel.AccountNumber.ToHtmlString()</td>
                                                         <td>@budgetAccountViewModel.AccountName.ToHtmlString()</td>
+                                                        <td class="d-none d-xl-block text-right">@budgetAccountViewModel.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+                                                        <td class="text-right">@budgetAccountViewModel.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
                                                         <td>
                                                             <span class="fa-stack">
                                                                 <a href="#" onclick="javascript:$().editAccount('@budgetAccountViewModel.GetStartUpdatingBudgetAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
@@ -428,6 +437,7 @@ else
                                             <tr>
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
+                                                <th class="text-right">Saldo</th>
                                                 <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
                                             </tr>
                                         </thead>
@@ -437,6 +447,7 @@ else
                                                 <tr>
                                                     <td class="d-none d-lg-block d-xl-block">@contactAccountViewModel.AccountNumber.ToHtmlString()</td>
                                                     <td>@contactAccountViewModel.AccountName.ToHtmlString()</td>
+                                                    <td class="text-right">@contactAccountViewModel.ValuesAtStatusDate.Balance.AsCurrency()</td>
                                                     <td>
                                                         <span class="fa-stack">
                                                             <a href="#" onclick="javascript:$().editAccount('@contactAccountViewModel.GetStartUpdatingContactAccountUrl(Url)');"><i class="fas fa-pen"></i></a>

@@ -296,7 +296,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWithPostingLinesWhereViewModeIsEqualToWithDebitAndCredit()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.LoadAccounting(_fixture.Create<int>());
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(accountingViewModel.PostingLines.ViewMode, Is.EqualTo(PostingLineCollectionViewMode.WithDebitAndCredit));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -444,7 +461,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResult.PostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -457,7 +476,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResult.PostingLines, Is.Empty);
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadAccounting_WhenAccountingWasReturnedFromQueryBusAndNoKeyValueEntryForPostingJournalResultWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsAccountingViewModelWithPostingJournalResultWhereViewModeOnPostingLinesIsEqualToWithDebitAndCredit()
+        {
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResultKey: false);
+
+            PartialViewResult result = (PartialViewResult)await sut.LoadAccounting(_fixture.Create<int>());
+
+            AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(accountingViewModel.PostingJournalResult.PostingLines.ViewMode, Is.EqualTo(PostingLineCollectionViewMode.WithDebitAndCredit));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]

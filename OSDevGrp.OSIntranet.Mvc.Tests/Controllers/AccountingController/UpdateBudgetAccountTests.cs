@@ -382,7 +382,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             BudgetAccountViewModel budgetAccountViewModel = (BudgetAccountViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(budgetAccountViewModel.PostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UpdateBudgetAccount_WhenCalledWithAccountingNumberAndAccountNumberForExistingBudgetAccount_ReturnsPartialViewResultWhereModelIsBudgetAccountViewModelWithPostingLinesWhereViewModeIsEqualToWithDebitAndCredit()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.UpdateBudgetAccount(_fixture.Create<int>(), _fixture.Create<string>());
+
+            BudgetAccountViewModel budgetAccountViewModel = (BudgetAccountViewModel)result.Model;
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(budgetAccountViewModel.PostingLines.ViewMode, Is.EqualTo(PostingLineCollectionViewMode.WithDebitAndCredit));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
