@@ -369,7 +369,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountViewModel accountViewModel = (AccountViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountViewModel.PostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UpdateAccount_WhenCalledWithAccountingNumberAndAccountNumberForExistingAccount_ReturnsPartialViewResultWhereModelIsAccountViewModelWithPostingLinesWhereViewModeIsEqualToWithDebitAndCredit()
+        {
+            Controller sut = CreateSut();
+
+            PartialViewResult result = (PartialViewResult)await sut.UpdateAccount(_fixture.Create<int>(), _fixture.Create<string>());
+
+            AccountViewModel accountViewModel = (AccountViewModel)result.Model;
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(accountViewModel.PostingLines.ViewMode, Is.EqualTo(PostingLineCollectionViewMode.WithDebitAndCredit));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]

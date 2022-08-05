@@ -16,9 +16,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         public AccountIdentificationViewModel Account { get; set; }
 
+        public CreditInfoValuesViewModel AccountValuesAtPostingDate { get; set; }
+
         public string Details { get; set; }
 
         public AccountIdentificationViewModel BudgetAccount { get; set; }
+
+        public BudgetInfoValuesViewModel BudgetAccountValuesAtPostingDate { get; set; }
 
         public decimal? Debit { get; set; }
 
@@ -27,6 +31,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public decimal PostingValue => Debit ?? 0M - Credit ?? 0M;
 
         public AccountIdentificationViewModel ContactAccount { get; set; }
+
+        public BalanceInfoValuesViewModel ContactAccountValuesAtPostingDate { get; set; }
 
         public int SortOrder { get; set; }
     }

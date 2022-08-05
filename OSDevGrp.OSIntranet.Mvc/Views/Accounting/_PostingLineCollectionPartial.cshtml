@@ -37,9 +37,17 @@
                             <th class="text-right text-nowrap">Bilag</th>
                             <th class="text-right text-nowrap">Konto</th>
                             <th>Tekst</th>
-                            <th class="text-right text-nowrap">Budgetkonto</th>
-                            <th class="text-right text-nowrap">Debit</th>
-                            <th class="text-right text-nowrap">Kredit</th>
+	                        <th class="text-right text-nowrap">Budgetkonto</th>
+                            @if (Model.ViewMode == PostingLineCollectionViewMode.WithDebitAndCredit)
+                            {
+	                            <th class="text-right text-nowrap">Debit</th>
+	                            <th class="text-right text-nowrap">Kredit</th>
+                            }
+                            else if (Model.ViewMode == PostingLineCollectionViewMode.WithBalanceForContactAccount)
+                            {
+	                            <th class="text-right text-nowrap">Bogført</th>
+	                            <th class="text-right text-nowrap">Saldo</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -58,21 +66,43 @@
                                 {
                                     <td class="text-right text-nowrap"></td>
                                 }
-                                @if (Model[i].Debit != null)
+                                @if (Model.ViewMode == PostingLineCollectionViewMode.WithDebitAndCredit)
                                 {
-                                    <td class="text-right text-nowrap">@Model[i].Debit.Value.AsCurrency()</td>
+	                                @if (Model[i].Debit != null)
+	                                {
+		                                <td class="text-right text-nowrap">@Model[i].Debit.Value.AsCurrency()</td>
+	                                }
+	                                else
+	                                {
+		                                <td class="text-right text-nowrap"></td>
+	                                }
+	                                @if (Model[i].Credit != null)
+	                                {
+		                                <td class="text-right text-nowrap">@Model[i].Credit.Value.AsCurrency()</td>
+	                                }
+	                                else
+	                                {
+		                                <td class="text-right text-nowrap"></td>
+	                                }
                                 }
-                                else
+                                else if (Model.ViewMode == PostingLineCollectionViewMode.WithBalanceForContactAccount)
                                 {
-                                    <td class="text-right text-nowrap"></td>
-                                }
-                                @if (Model[i].Credit != null)
-                                {
-                                    <td class="text-right text-nowrap">@Model[i].Credit.Value.AsCurrency()</td>
-                                }
-                                else
-                                {
-                                    <td class="text-right text-nowrap"></td>
+	                                @if (Model[i].PostingValue != 0M)
+	                                {
+		                                <td class="text-right text-nowrap">@Model[i].PostingValue.AsCurrency()</td>
+	                                }
+	                                else
+	                                {
+		                                <td class="text-right text-nowrap"></td>
+	                                }
+	                                @if (Model[i].ContactAccountValuesAtPostingDate != null && Model[i].ContactAccountValuesAtPostingDate.Balance != 0M)
+	                                {
+		                                <td class="text-right text-nowrap">@Model[i].ContactAccountValuesAtPostingDate.Balance.AsCurrency()</td>
+	                                }
+	                                else
+	                                {
+		                                <td class="text-right text-nowrap"></td>
+	                                }
                                 }
                             </tr>
                         }
