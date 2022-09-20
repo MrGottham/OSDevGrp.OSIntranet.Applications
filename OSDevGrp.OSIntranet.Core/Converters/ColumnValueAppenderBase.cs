@@ -28,6 +28,8 @@ namespace OSDevGrp.OSIntranet.Core.Converters
 
         public IEnumerable<string> ColumnValues => _columnValues;
 
+        protected IFormatProvider FormatProvider => _formatProvider;
+
         #endregion
 
         #region Methods

@@ -134,6 +134,12 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         MissingConfiguration = 1043,
 
         [ErrorCode("The value for the configuration named '{0}' is invalid.", typeof(IntranetSystemException))]
-        InvalidConfigurationValue = 1044
+        InvalidConfigurationValue = 1044,
+
+        [ErrorCode("The value named '{0}' has not been set on an instance of '{1}'.", typeof(IntranetSystemException))]
+        NamedValueNotSetOnObject = 1045,
+
+        [ErrorCode("Unable to translate the value for: {0}", typeof(IntranetSystemException))]
+        UnableToTranslateValueFor = 1046
     }
 }
