@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core.Interfaces.Builders;
 using OSDevGrp.OSIntranet.Core.Interfaces.Queries;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
@@ -13,10 +14,14 @@ namespace OSDevGrp.OSIntranet.Core.QueryHandlers
         {
             NullGuard.NotNull(query, nameof(query));
 
+            await ValidateQueryAsync(query);
+
+            await BeforeExportAsync(query);
+
             TExportData exportData = await GetExportDataAsync(query);
             if (exportData == null)
             {
-                return new byte[0];
+                return Array.Empty<byte>();
             }
 
             using IExportDataContentBuilder exportDataContentBuilder = await CreateExportDataContentBuilderAsync();
@@ -25,6 +30,20 @@ namespace OSDevGrp.OSIntranet.Core.QueryHandlers
             await exportDataContentBuilder.WithFooterAsync(query);
 
             return await exportDataContentBuilder.BuildAsync();
+        }
+
+        protected virtual Task ValidateQueryAsync(TExportQuery query)
+        {
+            NullGuard.NotNull(query, nameof(query));
+
+            return Task.CompletedTask;
+        }
+
+        protected virtual Task BeforeExportAsync(TExportQuery query)
+        {
+            NullGuard.NotNull(query, nameof(query));
+
+            return Task.CompletedTask;
         }
 
         protected abstract Task<TExportData> GetExportDataAsync(TExportQuery query);

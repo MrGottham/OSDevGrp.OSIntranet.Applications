@@ -38,7 +38,55 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryHandlers.ExportQueryHandlerBase
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertValidateQueryAsyncWasCalledOnExportQueryHandlerBase()
+        {
+            IQueryHandler<IExportQuery, byte[]> sut = CreateSut();
+
+            await sut.QueryAsync(CreateExportQuery());
+
+            Assert.That(((MyExportQueryHandler)sut).ValidateQueryAsyncWasCalled, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertValidateQueryAsyncWasCalledOnExportQueryHandlerBaseWithExportQuery()
+        {
+            IQueryHandler<IExportQuery, byte[]> sut = CreateSut();
+
+            IExportQuery query = CreateExportQuery();
+            await sut.QueryAsync(query);
+
+            Assert.That(((MyExportQueryHandler)sut).ValidateQueryAsyncExportQuery, Is.EqualTo(query));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertBeforeExportAsyncWasCalledOnExportQueryHandlerBase()
+        {
+            IQueryHandler<IExportQuery, byte[]> sut = CreateSut();
+
+            await sut.QueryAsync(CreateExportQuery());
+
+            Assert.That(((MyExportQueryHandler)sut).BeforeExportAsyncWasCalled, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalled_AssertBeforeExportAsyncWasCalledOnExportQueryHandlerBaseWithExportQuery()
+        {
+            IQueryHandler<IExportQuery, byte[]> sut = CreateSut();
+
+            IExportQuery query = CreateExportQuery();
+            await sut.QueryAsync(query);
+
+            Assert.That(((MyExportQueryHandler)sut).BeforeExportAsyncExportQuery, Is.EqualTo(query));
         }
 
         [Test]
@@ -329,6 +377,14 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryHandlers.ExportQueryHandlerBase
 
             #region Protperties
 
+            public bool ValidateQueryAsyncWasCalled { get; private set; }
+
+            public IExportQuery ValidateQueryAsyncExportQuery { get; private set; }
+
+            public bool BeforeExportAsyncWasCalled { get; private set; }
+
+            public IExportQuery BeforeExportAsyncExportQuery { get; private set; }
+
             public bool GetExportDataAsyncWasCalled { get; private set; }
 
             public IExportQuery GetExportDataAsyncExportQuery { get; private set; }
@@ -338,6 +394,26 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryHandlers.ExportQueryHandlerBase
             #endregion
 
             #region Methods
+
+            protected override Task ValidateQueryAsync(IExportQuery query)
+            {
+                Core.NullGuard.NotNull(query, nameof(query));
+
+                ValidateQueryAsyncWasCalled = true;
+                ValidateQueryAsyncExportQuery = query;
+
+                return base.ValidateQueryAsync(query);
+            }
+
+            protected override Task BeforeExportAsync(IExportQuery query)
+            {
+                Core.NullGuard.NotNull(query, nameof(query));
+
+                BeforeExportAsyncWasCalled = true;
+                BeforeExportAsyncExportQuery = query;
+
+                return base.BeforeExportAsync(query);
+            }
 
             protected override Task<string> GetExportDataAsync(IExportQuery query)
             {
