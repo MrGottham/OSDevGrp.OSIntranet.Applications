@@ -327,7 +327,12 @@ else
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
                                                 <th class="text-right">Saldo</th>
-                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+                                                <th>
+                                                    <span class="fa-stack">
+                                                        <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
+                                                        <a href="@Model.GetExportAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i></a>
+                                                    </span>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -382,7 +387,12 @@ else
                                                 <th>Kontonavn</th>
                                                 <th class="d-none d-xl-block text-right">Budget</th>
                                                 <th class="text-right">Bogført</th>
-                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+                                                <th>
+                                                    <span class="fa-stack">
+                                                        <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
+                                                        <a href="@Model.GetExportBudgetAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i></a>
+                                                    </span>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -438,7 +448,12 @@ else
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
                                                 <th class="text-right">Saldo</th>
-                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+                                                <th>
+                                                    <span class="fa-stack">
+                                                        <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
+                                                        <a href="@Model.GetExportContactAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i></a>
+                                                    </span>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>

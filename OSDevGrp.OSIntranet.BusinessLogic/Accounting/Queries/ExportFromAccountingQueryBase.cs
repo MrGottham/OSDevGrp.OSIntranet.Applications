@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries
 {
-    public abstract class ExportFromAccountingQueryBase : AccountIdentificationQueryBase, IExportFromAccountingQuery
+    public abstract class ExportFromAccountingQueryBase : AccountingIdentificationQueryBase, IExportFromAccountingQuery
     {
     }
 }

@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IClaimResolver, ClaimResolver>()
                 .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()
-                .AddTransient<IAccountingHelper>()
+                .AddTransient<IAccountingHelper, AccountingHelper>()
                 .AddScoped<IStatusDateProvider, StatusDateProvider>()
                 .AddScoped(serviceProvider => (IStatusDateSetter)serviceProvider.GetRequiredService<IStatusDateProvider>())
                 .AddTransient<IAccountToCsvConverter, AccountToCsvConverter>()

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
@@ -114,6 +115,30 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .NotNull(htmlHelper, nameof(htmlHelper));
 
             return '{' + $"accountingNumber: '{accountingIdentificationViewModel.AccountingNumber}', {htmlHelper.AntiForgeryTokenToJsonString()}" + '}';
+        }
+
+        public static string GetExportAccountCollectionToCsvUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("ExportAccountCollectionToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
+
+        public static string GetExportBudgetAccountCollectionToCsvUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("ExportBudgetAccountCollectionToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
+
+        public static string GetExportContactAccountCollectionToCsvUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("ExportContactAccountCollectionToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
         }
     }
 }

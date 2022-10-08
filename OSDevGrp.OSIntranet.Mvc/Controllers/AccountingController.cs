@@ -881,6 +881,45 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return PartialView("_PostingWarningCollectionPartial", applyPostingJournalResultViewModel.PostingWarnings);
         }
 
+        [HttpGet("api/accountings/{accountingNumber}/accounts/action/export")]
+        public async Task<IActionResult> ExportAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportAccountCollectionQuery query = new ExportAccountCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportAccountCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Accounts.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/budgetaccounts/action/export")]
+        public async Task<IActionResult> ExportBudgetAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportBudgetAccountCollectionQuery query = new ExportBudgetAccountCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportBudgetAccountCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Budget accounts.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/contactaccounts/action/export")]
+        public async Task<IActionResult> ExportContactAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportContactAccountCollectionQuery query = new ExportContactAccountCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportContactAccountCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Contact accounts.csv");
+        }
+
         private Task<IAccounting> GetAccounting(int accountingNumber)
         {
             IGetAccountingQuery query = new GetAccountingQuery
