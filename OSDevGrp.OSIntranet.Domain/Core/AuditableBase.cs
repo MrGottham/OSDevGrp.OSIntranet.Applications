@@ -20,14 +20,22 @@ namespace OSDevGrp.OSIntranet.Domain.Core
 
         #region Methods
 
-        public void AddAuditInformation(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)
+        public virtual void AddAuditInformation(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)
         {
             NullGuard.NotNullOrWhiteSpace(createdByIdentifier, nameof(createdByIdentifier))
                 .NotNullOrWhiteSpace(modifiedByIdentifier, nameof(modifiedByIdentifier));
 
-            CreatedDateTime = createdUtcDateTime.ToLocalTime();
+            SetAuditInformation(createdUtcDateTime.ToLocalTime(), createdByIdentifier, modifiedUtcDateTime.ToLocalTime(), modifiedByIdentifier);
+        }
+
+        protected void SetAuditInformation(DateTime createdDateTime, string createdByIdentifier, DateTime modifiedDateTime, string modifiedByIdentifier)
+        {
+            NullGuard.NotNullOrWhiteSpace(createdByIdentifier, nameof(createdByIdentifier))
+                .NotNullOrWhiteSpace(modifiedByIdentifier, nameof(modifiedByIdentifier));
+
+            CreatedDateTime = createdDateTime;
             CreatedByIdentifier = createdByIdentifier;
-            ModifiedDateTime = modifiedUtcDateTime.ToLocalTime();
+            ModifiedDateTime = modifiedDateTime;
             ModifiedByIdentifier = modifiedByIdentifier;
         }
 

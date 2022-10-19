@@ -24,8 +24,6 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollection
         public void SetUp()
         {
             _fixture = new Fixture();
-            _fixture.Customize<IAccountGroup>(builder => builder.FromFactory(() => _fixture.BuildAccountGroupMock().Object));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -87,70 +85,82 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollection
 
         [Test]
         [Category("UnitTest")]
+        public async Task GroupByAccountGroupAsync_WhenCalled_AssertCalculateAsyncWasCalledOnEachUniqueAccountGroupInAccountCollection()
+        {
+            IAccountCollection sut = CreateSut();
+
+            Mock<IAccountGroup>[] accountGroupMockCollection =
+            {
+                _fixture.BuildAccountGroupMock(),
+                _fixture.BuildAccountGroupMock(),
+                _fixture.BuildAccountGroupMock()
+            };
+            sut.Add(CreateAccountCollection(accountGroupMockCollection.Select(accountGroupMock => accountGroupMock.Object).ToArray()));
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(0, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            await sut.GroupByAccountGroupAsync();
+
+            foreach (Mock<IAccountGroup> accountGroupMock in accountGroupMockCollection)
+            {
+                accountGroupMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date), It.Is<IAccountCollection>(value => value != null)), Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsNotNull()
         {
             IAccountCollection sut = CreateSut();
 
             sut.Add(CreateAccountCollection());
 
-            IReadOnlyDictionary<IAccountGroup, IAccountCollection> result = await sut.GroupByAccountGroupAsync();
+            IEnumerable<IAccountGroupStatus> result = await sut.GroupByAccountGroupAsync();
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhichContainsEachAccountGroupFromAccountsInAccountCollection()
+        public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsNotEmpty()
         {
             IAccountCollection sut = CreateSut();
 
-            IAccountGroup[] accountGroupCollection = _fixture.CreateMany<IAccountGroup>(_random.Next(2, 5)).ToArray();
+            sut.Add(CreateAccountCollection());
+
+            IEnumerable<IAccountGroupStatus> result = await sut.GroupByAccountGroupAsync();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsAccountGroupStatusCollectionWhichContainsCalculatedAccountGroupStatusFromEachUniqueAccountGroupInAccountCollection()
+        {
+            IAccountCollection sut = CreateSut();
+
+            int accountGroupNumber1 = _fixture.Create<int>();
+            int accountGroupNumber2 = _fixture.Create<int>();
+            int accountGroupNumber3 = _fixture.Create<int>();
+            IAccountGroupStatus[] calculatedAccountGroupStatusCollection =
+            {
+                _fixture.BuildAccountGroupStatusMock(accountGroupNumber1).Object,
+                _fixture.BuildAccountGroupStatusMock(accountGroupNumber2).Object,
+                _fixture.BuildAccountGroupStatusMock(accountGroupNumber3).Object
+            };
+
+            IAccountGroup[] accountGroupCollection =
+            {
+                _fixture.BuildAccountGroupMock(accountGroupNumber1, calculatedAccountGroupStatus: calculatedAccountGroupStatusCollection[0]).Object,
+                _fixture.BuildAccountGroupMock(accountGroupNumber2, calculatedAccountGroupStatus: calculatedAccountGroupStatusCollection[1]).Object,
+                _fixture.BuildAccountGroupMock(accountGroupNumber3, calculatedAccountGroupStatus: calculatedAccountGroupStatusCollection[2]).Object
+            };
             sut.Add(CreateAccountCollection(accountGroupCollection));
 
-            IReadOnlyDictionary<IAccountGroup, IAccountCollection> result = await sut.GroupByAccountGroupAsync();
+            IEnumerable<IAccountGroupStatus> result = await sut.GroupByAccountGroupAsync();
 
-            Assert.That(accountGroupCollection.All(accountGroup => result.Keys.Single(key => key.Number == accountGroup.Number) != null), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhichContainsAccountCollectionMatchingEachAccountGroupFromAccountsInAccountCollection()
-        {
-            IAccountCollection sut = CreateSut();
-
-            sut.Add(CreateAccountCollection());
-
-            IReadOnlyDictionary<IAccountGroup, IAccountCollection> result = await sut.GroupByAccountGroupAsync();
-
-            Assert.That(result.All(item => item.Value.All(account => account.AccountGroup.Number == item.Key.Number)), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhichContainsAllAccountsInAccountCollection()
-        {
-            IAccountCollection sut = CreateSut();
-
-            IAccount[] accountCollection = CreateAccountCollection();
-            sut.Add(accountCollection);
-
-            IReadOnlyDictionary<IAccountGroup, IAccountCollection> result = await sut.GroupByAccountGroupAsync();
-
-            Assert.That(accountCollection.All(account => result.SelectMany(item => item.Value).Contains(account)), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GroupByAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhereAllAccountCollectionsIsCalculated()
-        {
-            IAccountCollection sut = CreateSut();
-
-            sut.Add(CreateAccountCollection());
-
-            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
-            IReadOnlyDictionary<IAccountGroup, IAccountCollection> result = await (await sut.CalculateAsync(statusDate)).GroupByAccountGroupAsync();
-
-            Assert.That(result.Select(item => item.Value.StatusDate).All(value => value == statusDate.Date), Is.True);
+            Assert.That(calculatedAccountGroupStatusCollection.All(calculatedAccountGroupStatus => result.Contains(calculatedAccountGroupStatus)), Is.True);
         }
 
         private IAccountCollection CreateSut()
@@ -167,13 +177,18 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountCollection
 
         private Mock<IAccount>[] CreateAccountMockCollection(IEnumerable<IAccountGroup> accountGroupCollection = null)
         {
-            accountGroupCollection ??= _fixture.CreateMany<IAccountGroup>(_random.Next(2, 5));
+            accountGroupCollection ??= new[]
+            {
+                _fixture.BuildAccountGroupMock().Object,
+                _fixture.BuildAccountGroupMock().Object,
+                _fixture.BuildAccountGroupMock().Object
+            };
 
             return accountGroupCollection.SelectMany(accountGroup =>
                 {
                     int numberOfAccounts = _random.Next(5, 10);
 
-                    List<Mock<IAccount>> accountMockCollection = new List<Mock<IAccount>>();
+                    List<Mock<IAccount>> accountMockCollection = new List<Mock<IAccount>>(numberOfAccounts);
                     while (accountMockCollection.Count < numberOfAccounts)
                     {
                         accountMockCollection.Add(_fixture.BuildAccountMock(accountGroup: accountGroup));

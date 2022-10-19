@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
@@ -24,26 +23,25 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        public async Task<IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection>> GroupByBudgetAccountGroupAsync()
+        public async Task<IEnumerable<IBudgetAccountGroupStatus>> GroupByBudgetAccountGroupAsync()
         {
-            Task<IBudgetAccountCollection>[] groupCalculationTasks = this.AsParallel()
+            Task<IBudgetAccountGroupStatus>[] groupCalculationTasks = this.AsParallel()
                 .GroupBy(budgetAccount => budgetAccount.BudgetAccountGroup.Number, budgetAccount => budgetAccount)
                 .Select(group =>
                 {
+                    IBudgetAccountGroup budgetAccountGroup = group.First().BudgetAccountGroup;
                     IBudgetAccountCollection budgetAccountCollection = new BudgetAccountCollection
                     {
                         group.AsEnumerable().AsParallel().OrderBy(account => account.AccountNumber).ToArray()
                     };
 
-                    return budgetAccountCollection.CalculateAsync(StatusDate);
+                    return budgetAccountGroup.CalculateAsync(StatusDate, budgetAccountCollection);
                 })
                 .ToArray();
 
-            IBudgetAccountCollection[] calculatedBudgetAccountCollections = await Task.WhenAll(groupCalculationTasks);
+            IBudgetAccountGroupStatus[] budgetAccountGroupStatusCollections = await Task.WhenAll(groupCalculationTasks);
 
-            return new ReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection>(calculatedBudgetAccountCollections.AsParallel()
-                .OrderBy(calculatedBudgetAccountCollection => calculatedBudgetAccountCollection.First().BudgetAccountGroup.Number)
-                .ToDictionary(calculatedBudgetAccountCollection => calculatedBudgetAccountCollection.First().BudgetAccountGroup, calculatedAccountCollection => calculatedAccountCollection));
+            return budgetAccountGroupStatusCollections.OrderBy(budgetAccountGroupStatus => budgetAccountGroupStatus.Number).ToArray();
         }
 
         protected override IBudgetAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<IBudgetAccount> calculatedBudgetAccountCollection)

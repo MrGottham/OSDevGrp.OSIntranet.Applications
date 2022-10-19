@@ -32,15 +32,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountGroupBase
 
         private IDeletable CreateSut()
         {
-            return new Sut(_fixture.Create<int>(), _fixture.Create<string>());
+            return new Sut(_fixture.Create<int>(), _fixture.Create<string>(), false);
         }
 
         private class Sut : Domain.Accounting.AccountGroupBase
         {
             #region Constructor
 
-            public Sut(int number, string name)
-                : base(number, name)
+            public Sut(int number, string name, bool deletable)
+                : base(number, name, deletable)
             {
             }
 

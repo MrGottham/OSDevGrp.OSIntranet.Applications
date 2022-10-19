@@ -24,8 +24,6 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetAccountCollection
         public void SetUp()
         {
             _fixture = new Fixture();
-            _fixture.Customize<IBudgetAccountGroup>(builder => builder.FromFactory(() => _fixture.BuildBudgetAccountGroupMock().Object));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -87,70 +85,82 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetAccountCollection
 
         [Test]
         [Category("UnitTest")]
+        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_AssertCalculateAsyncWasCalledOnEachUniqueBudgetAccountGroupInBudgetAccountCollection()
+        {
+            IBudgetAccountCollection sut = CreateSut();
+
+            Mock<IBudgetAccountGroup>[] budgetAccountGroupMockCollection =
+            {
+                _fixture.BuildBudgetAccountGroupMock(),
+                _fixture.BuildBudgetAccountGroupMock(),
+                _fixture.BuildBudgetAccountGroupMock()
+            };
+            sut.Add(CreateBudgetAccountCollection(budgetAccountGroupMockCollection.Select(budgetAccountGroupMock => budgetAccountGroupMock.Object).ToArray()));
+
+            DateTime statusDate = DateTime.Now.AddDays(_random.Next(0, 365) * -1);
+            await sut.CalculateAsync(statusDate);
+
+            await sut.GroupByBudgetAccountGroupAsync();
+
+            foreach (Mock<IBudgetAccountGroup> budgetAccountGroupMock in budgetAccountGroupMockCollection)
+            {
+                budgetAccountGroupMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value == statusDate.Date), It.Is<IBudgetAccountCollection>(value => value != null)), Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsNotNull()
         {
             IBudgetAccountCollection sut = CreateSut();
 
             sut.Add(CreateBudgetAccountCollection());
 
-            IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection> result = await sut.GroupByBudgetAccountGroupAsync();
+            IEnumerable<IBudgetAccountGroupStatus> result = await sut.GroupByBudgetAccountGroupAsync();
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhichContainsEachBudgetAccountGroupFromBudgetAccountsInBudgetAccountCollection()
+        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsNotEmpty()
         {
             IBudgetAccountCollection sut = CreateSut();
 
-            IBudgetAccountGroup[] budgetAccountGroupCollection = _fixture.CreateMany<IBudgetAccountGroup>(_random.Next(2, 5)).ToArray();
+            sut.Add(CreateBudgetAccountCollection());
+
+            IEnumerable<IBudgetAccountGroupStatus> result = await sut.GroupByBudgetAccountGroupAsync();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsBudgetAccountGroupStatusCollectionWhichContainsCalculatedBudgetAccountGroupStatusFromEachUniqueBudgetAccountGroupInBudgetAccountCollection()
+        {
+            IBudgetAccountCollection sut = CreateSut();
+
+            int budgetAccountGroupNumber1 = _fixture.Create<int>();
+            int budgetAccountGroupNumber2 = _fixture.Create<int>();
+            int budgetAccountGroupNumber3 = _fixture.Create<int>();
+            IBudgetAccountGroupStatus[] calculatedBudgetAccountGroupStatusCollection =
+            {
+                _fixture.BuildBudgetAccountGroupStatusMock(budgetAccountGroupNumber1).Object,
+                _fixture.BuildBudgetAccountGroupStatusMock(budgetAccountGroupNumber2).Object,
+                _fixture.BuildBudgetAccountGroupStatusMock(budgetAccountGroupNumber3).Object
+            };
+
+            IBudgetAccountGroup[] budgetAccountGroupCollection =
+            {
+                _fixture.BuildBudgetAccountGroupMock(budgetAccountGroupNumber1, calculatedBudgetAccountGroupStatus: calculatedBudgetAccountGroupStatusCollection[0]).Object,
+                _fixture.BuildBudgetAccountGroupMock(budgetAccountGroupNumber2, calculatedBudgetAccountGroupStatus: calculatedBudgetAccountGroupStatusCollection[1]).Object,
+                _fixture.BuildBudgetAccountGroupMock(budgetAccountGroupNumber3, calculatedBudgetAccountGroupStatus: calculatedBudgetAccountGroupStatusCollection[2]).Object
+            };
             sut.Add(CreateBudgetAccountCollection(budgetAccountGroupCollection));
 
-            IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection> result = await sut.GroupByBudgetAccountGroupAsync();
+            IEnumerable<IBudgetAccountGroupStatus> result = await sut.GroupByBudgetAccountGroupAsync();
 
-            Assert.That(budgetAccountGroupCollection.All(budgetAccountGroup => result.Keys.Single(key => key.Number == budgetAccountGroup.Number) != null), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhichContainsBudgetAccountCollectionMatchingEachBudgetAccountGroupFromBudgetAccountsInBudgetAccountCollection()
-        {
-            IBudgetAccountCollection sut = CreateSut();
-
-            sut.Add(CreateBudgetAccountCollection());
-
-            IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection> result = await sut.GroupByBudgetAccountGroupAsync();
-
-            Assert.That(result.All(item => item.Value.All(budgetAccount => budgetAccount.BudgetAccountGroup.Number == item.Key.Number)), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhichContainsAllBudgetAccountsInBudgetAccountCollection()
-        {
-            IBudgetAccountCollection sut = CreateSut();
-
-            IBudgetAccount[] budgetAccountCollection = CreateBudgetAccountCollection();
-            sut.Add(budgetAccountCollection);
-
-            IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection> result = await sut.GroupByBudgetAccountGroupAsync();
-
-            Assert.That(budgetAccountCollection.All(budgetAccount => result.SelectMany(item => item.Value).Contains(budgetAccount)), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GroupByBudgetAccountGroupAsync_WhenCalled_ReturnsReadOnlyDictionaryWhereAllBudgetAccountCollectionsIsCalculated()
-        {
-            IBudgetAccountCollection sut = CreateSut();
-
-            sut.Add(CreateBudgetAccountCollection());
-
-            DateTime statusDate = DateTime.Now.AddDays(_random.Next(1, 365) * -1);
-            IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection> result = await (await sut.CalculateAsync(statusDate)).GroupByBudgetAccountGroupAsync();
-
-            Assert.That(result.Select(item => item.Value.StatusDate).All(value => value == statusDate.Date), Is.True);
+            Assert.That(calculatedBudgetAccountGroupStatusCollection.All(calculatedBudgetAccountGroupStatus => result.Contains(calculatedBudgetAccountGroupStatus)), Is.True);
         }
 
         private IBudgetAccountCollection CreateSut()
@@ -167,7 +177,12 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.BudgetAccountCollection
 
         private Mock<IBudgetAccount>[] CreateBudgetAccountMockCollection(IEnumerable<IBudgetAccountGroup> budgetAccountGroupCollection = null)
         {
-            budgetAccountGroupCollection ??= _fixture.CreateMany<IBudgetAccountGroup>(_random.Next(2, 5));
+            budgetAccountGroupCollection ??= new[]
+            {
+                _fixture.BuildBudgetAccountGroupMock().Object,
+                _fixture.BuildBudgetAccountGroupMock().Object,
+                _fixture.BuildBudgetAccountGroupMock().Object
+            };
 
             return budgetAccountGroupCollection.SelectMany(budgetAccountGroup =>
                 {
