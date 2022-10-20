@@ -5,9 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Providers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
 {
@@ -81,7 +79,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
 
             AddColumnValue(accountGroup.Number)
                 .AddColumnValue(accountGroup.Name)
-                .AddColumnValue(Translate(accountGroup.AccountGroupType));
+                .AddColumnValue(accountGroup.AccountGroupType.Translate());
         }
 
         private void AddColumnValues(ICreditInfoValues creditInfoValues)
@@ -90,21 +88,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
 
             AddColumnValue(creditInfoValues.Balance)
                 .AddColumnValue(creditInfoValues.Credit);
-        }
-
-        private static string Translate(AccountGroupType accountGroupType)
-        {
-            switch (accountGroupType)
-            {
-                case AccountGroupType.Assets:
-                    return "Aktiver";
-
-                case AccountGroupType.Liabilities:
-                    return "Passiver";
-
-                default:
-                    throw new IntranetExceptionBuilder(ErrorCode.UnableToTranslateValueFor, accountGroupType).Build();
-            }
         }
 
         #endregion
