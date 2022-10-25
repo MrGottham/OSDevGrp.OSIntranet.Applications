@@ -140,5 +140,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return urlHelper.AbsoluteAction("ExportContactAccountCollectionToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
         }
+
+        public static string GetExportAnnualResultToCsvUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("ExportAnnualResultToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
+
+        public static string GetExportBalanceToCsvUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("ExportBalanceToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
     }
 }

@@ -206,6 +206,9 @@ else
                         </div>
                         <div id="collapseResult" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
+                                <dl>
+                                    <dd class="mb-0"><a href="@Model.GetExportAnnualResultToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér resultat</a></dd>
+                                </dl>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
@@ -246,6 +249,9 @@ else
                         </div>
                         <div id="collapseBalance" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
+                                <dl>
+                                    <dd class="mb-0"><a href="@Model.GetExportBalanceToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér balance</a></dd>
+                                </dl>
                                 @if (Model.Accounts.Any(item => item.Key.AccountGroupType == AccountGroupType.Assets))
                                 {
                                     <dl class="mb-0">
@@ -320,6 +326,9 @@ else
                         </div>
                         <div id="collapseAccounts" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
+                                <dl>
+                                    <dd class="mb-0"><a href="@Model.GetExportAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér konti</a></dd>
+                                </dl>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
@@ -327,12 +336,7 @@ else
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
                                                 <th class="text-right">Saldo</th>
-                                                <th>
-                                                    <span class="fa-stack">
-                                                        <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
-                                                        <a href="@Model.GetExportAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i></a>
-                                                    </span>
-                                                </th>
+                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -379,6 +383,9 @@ else
                         </div>
                         <div id="collapseBudgetAccounts" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
+                                <dl>
+                                    <dd class="mb-0"><a href="@Model.GetExportBudgetAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér budgetkonti</a></dd>
+                                </dl>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
@@ -387,12 +394,7 @@ else
                                                 <th>Kontonavn</th>
                                                 <th class="d-none d-xl-block text-right">Budget</th>
                                                 <th class="text-right">Bogført</th>
-                                                <th>
-                                                    <span class="fa-stack">
-                                                        <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
-                                                        <a href="@Model.GetExportBudgetAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i></a>
-                                                    </span>
-                                                </th>
+                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -441,6 +443,9 @@ else
                         </div>
                         <div id="collapseContactAccounts" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
+                                <dl>
+                                    <dd class="mb-0"><a href="@Model.GetExportContactAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér kontaktkonti</a></dd>
+                                </dl>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
@@ -448,12 +453,7 @@ else
                                                 <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
                                                 <th>Kontonavn</th>
                                                 <th class="text-right">Saldo</th>
-                                                <th>
-                                                    <span class="fa-stack">
-                                                        <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
-                                                        <a href="@Model.GetExportContactAccountCollectionToCsvUrl(Url)"><i class="fas fa-download"></i></a>
-                                                    </span>
-                                                </th>
+                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
                                             </tr>
                                         </thead>
                                         <tbody>

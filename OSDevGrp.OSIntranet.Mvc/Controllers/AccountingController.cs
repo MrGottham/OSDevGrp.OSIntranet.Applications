@@ -881,7 +881,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return PartialView("_PostingWarningCollectionPartial", applyPostingJournalResultViewModel.PostingWarnings);
         }
 
-        [HttpGet("api/accountings/{accountingNumber}/accounts/action/export")]
+        [HttpGet("api/accountings/{accountingNumber}/accounts/action/export/csv")]
         public async Task<IActionResult> ExportAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportAccountCollectionQuery query = new ExportAccountCollectionQuery
@@ -894,7 +894,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Accounts.csv");
         }
 
-        [HttpGet("api/accountings/{accountingNumber}/budgetaccounts/action/export")]
+        [HttpGet("api/accountings/{accountingNumber}/budgetaccounts/action/export/csv")]
         public async Task<IActionResult> ExportBudgetAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportBudgetAccountCollectionQuery query = new ExportBudgetAccountCollectionQuery
@@ -907,7 +907,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Budget accounts.csv");
         }
 
-        [HttpGet("api/accountings/{accountingNumber}/contactaccounts/action/export")]
+        [HttpGet("api/accountings/{accountingNumber}/contactaccounts/action/export/csv")]
         public async Task<IActionResult> ExportContactAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportContactAccountCollectionQuery query = new ExportContactAccountCollectionQuery
@@ -918,6 +918,32 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             byte[] csvContent = await _queryBus.QueryAsync<IExportContactAccountCollectionQuery, byte[]>(query);
 
             return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Contact accounts.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/annualresult/action/export/csv")]
+        public async Task<IActionResult> ExportAnnualResultToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportBudgetAccountGroupStatusCollectionQuery query = new ExportBudgetAccountGroupStatusCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportBudgetAccountGroupStatusCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Annual result.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/balance/action/export/csv")]
+        public async Task<IActionResult> ExportBalanceToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportAccountGroupStatusCollectionQuery query = new ExportAccountGroupStatusCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportAccountGroupStatusCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Balance.csv");
         }
 
         private Task<IAccounting> GetAccounting(int accountingNumber)
