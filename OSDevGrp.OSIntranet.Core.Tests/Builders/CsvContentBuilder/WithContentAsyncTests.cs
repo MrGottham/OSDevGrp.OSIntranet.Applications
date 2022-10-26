@@ -37,43 +37,49 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public void WithContentAsync_WhenQueryIsNull_ThrowsArgumentNullException()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(null, new object[0]));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(null, Array.Empty<object>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public void WithContentAsync_WhenDataIsNull_ThrowsArgumentNullException()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(CreateExportQuery(), null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("data"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public void WithContentAsync_WhenDataCantBeCastToEnumerableOfDomainObject_ThrowsArgumentException()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             ArgumentException result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.WithContentAsync(CreateExportQuery(), _fixture.Create<object>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.EqualTo($"Value cannot be cast to IEnumerable<{nameof(Object)}>. (Parameter 'data')"));
             Assert.That(result.ParamName, Is.EqualTo("data"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsEmptyDomainObjectCollection_AssertConvertAsyncWasNotCalledOnDomainObjectToCsvConverter()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
-            await sut.WithContentAsync(CreateExportQuery(), new object[0]);
+            await sut.WithContentAsync(CreateExportQuery(), Array.Empty<object>());
 
             _domainObjectToCsvConverterMock.Verify(m => m.ConvertAsync(It.IsAny<object>()), Times.Never);
         }
@@ -82,9 +88,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsEmptyDomainObjectCollection_AssertNoWrittenData()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
-            await sut.WithContentAsync(CreateExportQuery(), new object[0]);
+            await sut.WithContentAsync(CreateExportQuery(), Array.Empty<object>());
 
             byte[] result = await sut.BuildAsync();
 
@@ -95,7 +101,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsNonEmptyDomainObjectCollectionContainingNullValues_AssertConvertAsyncWasNotCalledOnDomainObjectToCsvConverter()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             await sut.WithContentAsync(CreateExportQuery(), new object[] {null, null, null});
 
@@ -106,7 +112,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsNonEmptyDomainObjectCollectionContainingNullValues_AssertNoWrittenData()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             await sut.WithContentAsync(CreateExportQuery(), new object[] {null, null, null});
 
@@ -119,7 +125,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsNonEmptyDomainObjectCollectionContainingValues_AssertConvertAsyncWasCalledOnDomainObjectToCsvConverter()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             object[] domainObjectCollection = _fixture.CreateMany<object>(_random.Next(5, 10)).ToArray();
             await sut.WithContentAsync(CreateExportQuery(), domainObjectCollection);
@@ -131,7 +137,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsNonEmptyDomainObjectCollectionContainingValues_AssertConvertAsyncWasCalledOnDomainObjectToCsvConverterForEachDomainObject()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             object[] domainObjectCollection = _fixture.CreateMany<object>(_random.Next(5, 10)).ToArray();
             await sut.WithContentAsync(CreateExportQuery(), domainObjectCollection);
@@ -146,7 +152,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenDataIsNonEmptyDomainObjectCollectionContainingValues_AssertDataForDomainObjectCollectionHasBeenWritten()
         {
-            IExportDataContentBuilder sut = CreateSut();
+            using IExportDataContentBuilder sut = CreateSut();
 
             object[] domainObjectCollection = _fixture.CreateMany<object>(_random.Next(5, 10)).ToArray();
             await sut.WithContentAsync(CreateExportQuery(), domainObjectCollection);
@@ -160,7 +166,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenConvertAsyncReturnsNullForOneDomainObject_AssertNoWrittenData()
         {
-            IExportDataContentBuilder sut = CreateSut(false);
+            using IExportDataContentBuilder sut = CreateSut(false);
 
             await sut.WithContentAsync(CreateExportQuery(), new[] {_fixture.Create<object>()});
 
@@ -173,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenConvertAsyncReturnsEmptyCollectionForOneDomainObject_AssertNoWrittenData()
         {
-            IExportDataContentBuilder sut = CreateSut(columnValueCollection: new string[0]);
+            using IExportDataContentBuilder sut = CreateSut(columnValueCollection: Array.Empty<string>());
 
             await sut.WithContentAsync(CreateExportQuery(), new[] {_fixture.Create<object>()});
 
@@ -186,7 +192,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenConvertAsyncReturnsNonEmptyCollectionContainingNullValuesForOneDomainObject_AssertColumnValuesHasBeenWritten()
         {
-            IExportDataContentBuilder sut = CreateSut(columnValueCollection: new string[] {null, null, null});
+            using IExportDataContentBuilder sut = CreateSut(columnValueCollection: new string[] {null, null, null});
 
             await sut.WithContentAsync(CreateExportQuery(), new[] {_fixture.Create<object>()});
 
@@ -199,7 +205,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenConvertAsyncReturnsNonEmptyCollectionContainingEmptyValuesForOneDomainObject_AssertColumnValuesHasBeenWritten()
         {
-            IExportDataContentBuilder sut = CreateSut(columnValueCollection: new[] {string.Empty, string.Empty, string.Empty});
+            using IExportDataContentBuilder sut = CreateSut(columnValueCollection: new[] {string.Empty, string.Empty, string.Empty});
 
             await sut.WithContentAsync(CreateExportQuery(), new[] {_fixture.Create<object>()});
 
@@ -212,7 +218,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         [Category("UnitTest")]
         public async Task WithContentAsync_WhenConvertAsyncReturnsNonEmptyCollectionContainingWhiteSpaceValuesForOneDomainObject_AssertColumnValuesHasBeenWritten()
         {
-            IExportDataContentBuilder sut = CreateSut(columnValueCollection: new[] {" ", "  ", "   "});
+            using IExportDataContentBuilder sut = CreateSut(columnValueCollection: new[] {" ", "  ", "   "});
 
             await sut.WithContentAsync(CreateExportQuery(), new[] {_fixture.Create<object>()});
 
@@ -226,7 +232,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
         public async Task WithContentAsync_WhenConvertAsyncReturnsNonEmptyCollectionContainingValuesForOneDomainObject_AssertColumnValuesHasBeenWritten()
         {
             string[] columnValueCollection = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
-            IExportDataContentBuilder sut = CreateSut(columnValueCollection: columnValueCollection);
+            using IExportDataContentBuilder sut = CreateSut(columnValueCollection: columnValueCollection);
 
             await sut.WithContentAsync(CreateExportQuery(), new[] {_fixture.Create<object>()});
 

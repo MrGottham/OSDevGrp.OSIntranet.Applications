@@ -49,8 +49,7 @@ namespace OSDevGrp.OSIntranet.Core.Builders
             NullGuard.NotNull(query, nameof(query))
                 .NotNull(data, nameof(data));
 
-            IEnumerable<TDomainObject> exportDataCollection = data as IEnumerable<TDomainObject>;
-            if (exportDataCollection == null)
+            if (data is IEnumerable<TDomainObject> exportDataCollection == false)
             {
                 throw new ArgumentException($"Value cannot be cast to IEnumerable<{typeof(TDomainObject).Name}>.", nameof(data));
             }
