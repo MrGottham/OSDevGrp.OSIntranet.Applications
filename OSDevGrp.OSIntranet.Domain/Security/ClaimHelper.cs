@@ -104,9 +104,9 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return CreateClaim(CountryCodeClaimType, countryCode);
         }
 
-        public static Claim CreateCollectNewsClaim(int? NumberOfNews = null)
+        public static Claim CreateCollectNewsClaim(int? numberOfNews = null)
         {
-            return CreateClaim(CollectNewsClaimType, NumberOfNews?.ToString());
+            return CreateClaim(CollectNewsClaimType, numberOfNews?.ToString());
         }
 
         public static Claim CreateClaim(string type, string value = null, string valueType = null)

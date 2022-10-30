@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
@@ -14,7 +12,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.ExportDomainCollectionFromAccountingToCsvQueryHandlerBase
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeMarkdownForDomainObjectFromAccountingQueryHandlerBase
 {
     [TestFixture]
     public class QueryAsyncTests
@@ -24,7 +22,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
         private Mock<IValidator> _validatorMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<IStatusDateSetter> _statusDateSetterMock;
-        private Mock<IDomainObjectToCsvConverter<object>> _domainObjectToCsvConverterMock;
+        private Mock<IDomainObjectToMarkdownConverter<object>> _domainObjectToMarkdownConverterMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -36,7 +34,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
             _validatorMock = new Mock<IValidator>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _statusDateSetterMock = new Mock<IStatusDateSetter>();
-            _domainObjectToCsvConverterMock = new Mock<IDomainObjectToCsvConverter<object>>();
+            _domainObjectToMarkdownConverterMock = new Mock<IDomainObjectToMarkdownConverter<object>>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
@@ -102,7 +100,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
 
             await sut.QueryAsync(CreateExportFromAccountingQuery());
 
-            Assert.That(((MyExportDomainCollectionFromAccountingToCsvQueryHandler)sut).GetExportDataAsyncWasCalled, Is.True);
+            Assert.That(((MyMakeMarkdownForDomainObjectFromAccountingQueryHandler)sut).GetExportDataAsyncWasCalled, Is.True);
         }
 
         [Test]
@@ -114,7 +112,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
             IExportFromAccountingQuery exportFromAccountingQuery = CreateExportFromAccountingQuery();
             await sut.QueryAsync(exportFromAccountingQuery);
 
-            Assert.That(((MyExportDomainCollectionFromAccountingToCsvQueryHandler)sut).GetExportDataAsyncExportFromAccountingQuery, Is.EqualTo(exportFromAccountingQuery));
+            Assert.That(((MyMakeMarkdownForDomainObjectFromAccountingQueryHandler)sut).GetExportDataAsyncExportFromAccountingQuery, Is.EqualTo(exportFromAccountingQuery));
         }
 
         [Test]
@@ -130,7 +128,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenExportDataWasReturned_ReturnsNonEmptyByteArray()
+        public async Task QueryAsync_WhenNoMarkdownContentWasReturnedForExportData_ReturnsEmptyByteArray()
+        {
+            IQueryHandler<IExportFromAccountingQuery, byte[]> sut = CreateSut(hasMarkdownContent: false);
+
+            byte[] result = await sut.QueryAsync(CreateExportFromAccountingQuery());
+
+            Assert.That(result.Length, Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenMarkdownContentWasReturnedForExportData_ReturnsNonEmptyByteArray()
         {
             IQueryHandler<IExportFromAccountingQuery, byte[]> sut = CreateSut();
 
@@ -139,16 +148,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
             Assert.That(result.Length, Is.GreaterThan(0));
         }
 
-        private IQueryHandler<IExportFromAccountingQuery, byte[]> CreateSut(bool hasDomainObjectCollection = true, int? numberOfColumns = null)
+        private IQueryHandler<IExportFromAccountingQuery, byte[]> CreateSut(bool hasDomainObject = true, bool hasMarkdownContent = true)
         {
-            int columns = numberOfColumns ?? _random.Next(5, 10);
+            _domainObjectToMarkdownConverterMock.Setup(m => m.ConvertAsync(It.IsAny<object>()))
+                .Returns(Task.FromResult(hasMarkdownContent ? _fixture.Create<string>() : null));
 
-            _domainObjectToCsvConverterMock.Setup(m => m.GetColumnNamesAsync())
-                .Returns(Task.FromResult(_fixture.CreateMany<string>(columns).ToArray().AsEnumerable()));
-            _domainObjectToCsvConverterMock.Setup(m => m.ConvertAsync(It.IsAny<object>()))
-                .Returns(Task.FromResult(_fixture.CreateMany<string>(columns).ToArray().AsEnumerable()));
-
-            return new MyExportDomainCollectionFromAccountingToCsvQueryHandler(hasDomainObjectCollection, _fixture.CreateMany<object>(_random.Next(32, 64)).ToArray(), _validatorMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _domainObjectToCsvConverterMock.Object, false);
+            return new MyMakeMarkdownForDomainObjectFromAccountingQueryHandler(hasDomainObject, _fixture.Create<object>(), _validatorMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _domainObjectToMarkdownConverterMock.Object, false);
         }
 
         private IExportFromAccountingQuery CreateExportFromAccountingQuery(DateTime? statusDate = null)
@@ -164,24 +169,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
             return exportFromAccountingMock;
         }
 
-        private class MyExportDomainCollectionFromAccountingToCsvQueryHandler : ExportDomainCollectionFromAccountingToCsvQueryHandlerBase<IExportFromAccountingQuery, object, IDomainObjectToCsvConverter<object>>
+        private class MyMakeMarkdownForDomainObjectFromAccountingQueryHandler : MakeMarkdownForDomainObjectFromAccountingQueryHandlerBase<IExportFromAccountingQuery, object, IDomainObjectToMarkdownConverter<object>>
         {
             #region Private variables
 
-            private readonly bool _hasDomainObjectCollection;
-            private readonly IEnumerable<object> _domainObjectCollection;
+            private readonly bool _hasDomainObject;
+            private readonly object _domainObject;
 
             #endregion
 
             #region Constructor
 
-            public MyExportDomainCollectionFromAccountingToCsvQueryHandler(bool hasDomainObjectCollection, IEnumerable<object> domainObjectCollection, IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IDomainObjectToCsvConverter<object> domainObjectToCsvConverter, bool encoderShouldEmitUtf8Identifier = true)
-                : base(validator, accountingRepository, statusDateSetter, domainObjectToCsvConverter, encoderShouldEmitUtf8Identifier)
+            public MyMakeMarkdownForDomainObjectFromAccountingQueryHandler(bool hasDomainObject, object domainObject, IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IDomainObjectToMarkdownConverter<object> domainObjectToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true)
+                : base(validator, accountingRepository, statusDateSetter, domainObjectToMarkdownConverter, encoderShouldEmitUtf8Identifier)
             {
-                NullGuard.NotNull(domainObjectCollection, nameof(domainObjectCollection));
+                NullGuard.NotNull(domainObject, nameof(domainObject));
 
-                _hasDomainObjectCollection = hasDomainObjectCollection;
-                _domainObjectCollection = domainObjectCollection;
+                _hasDomainObject = hasDomainObject;
+                _domainObject = domainObject;
             }
 
             #endregion
@@ -196,14 +201,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
 
             #region Methods
 
-            protected override Task<IEnumerable<object>> GetExportDataAsync(IExportFromAccountingQuery query)
+            protected override Task<object> GetExportDataAsync(IExportFromAccountingQuery query)
             {
                 NullGuard.NotNull(query, nameof(query));
 
                 GetExportDataAsyncWasCalled = true;
                 GetExportDataAsyncExportFromAccountingQuery = query;
 
-                return Task.FromResult(_hasDomainObjectCollection ? _domainObjectCollection : null);
+                return Task.FromResult(_hasDomainObject ? _domainObject : null);
             }
 
             #endregion

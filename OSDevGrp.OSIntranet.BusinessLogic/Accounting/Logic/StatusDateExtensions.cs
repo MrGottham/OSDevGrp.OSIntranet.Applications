@@ -10,6 +10,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic
             return statusDate.AddDays(statusDate.Day * -1).Date;
         }
 
+        internal static DateTime GetFirstDateOfMonth(this DateTime statusDate)
+        {
+            return new DateTime(statusDate.Year, statusDate.Month, 1);
+        }
+
         internal static DateTime GetFirstDateOfYear(this DateTime statusDateTime)
         {
             return new DateTime(statusDateTime.Year, 1, 1);

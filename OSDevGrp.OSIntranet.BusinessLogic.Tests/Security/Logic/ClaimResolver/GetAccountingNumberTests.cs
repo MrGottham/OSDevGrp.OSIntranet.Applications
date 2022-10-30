@@ -54,7 +54,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetAccountingNumber_WhenCalledAndPrincipalHasAccountingClaimWithoutClaimValue_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim(null)});
+            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingClaim()});
             IClaimResolver sut = CreateSut(principal);
 
             int? result = sut.GetAccountingNumber();

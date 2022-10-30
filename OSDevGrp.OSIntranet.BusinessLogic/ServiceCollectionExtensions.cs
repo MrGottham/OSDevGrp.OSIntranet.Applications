@@ -44,6 +44,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IContactAccountToCsvConverter, ContactAccountToCsvConverter>()
                 .AddTransient<IAccountGroupStatusToCsvConverter, AccountGroupStatusToCsvConverter>()
                 .AddTransient<IBudgetAccountGroupStatusToCsvConverter, BudgetAccountGroupStatusToCsvConverter>()
+                .AddTransient<IMonthlyAccountingStatementToMarkdownConverter, MonthlyAccountingStatementToMarkdownConverter>()
+                .AddTransient<IAnnualAccountingStatementToMarkdownConverter, AnnualAccountingStatementToMarkdownConverter>()
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
                 .AddTransient<IKeyGenerator, KeyGenerator>();
         }
