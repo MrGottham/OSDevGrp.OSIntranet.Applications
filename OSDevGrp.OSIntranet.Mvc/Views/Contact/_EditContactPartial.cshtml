@@ -66,24 +66,24 @@
             <div id="editContactCompanyPhoneNumbers" class="d-none">
                 <div class="form-group">
                     <label asp-for="PrimaryPhone"></label>
-                    <input asp-for="PrimaryPhone" class="form-control" />
+                    <input asp-for="PrimaryPhone" class="form-control" onkeyup="javascript:$().applyValue('#@Html.IdFor(m => m.MobilePhone)', $(this).val());" />
                     <span asp-validation-for="PrimaryPhone" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="SecondaryPhone"></label>
-                    <input asp-for="SecondaryPhone" class="form-control" />
+                    <input asp-for="SecondaryPhone" class="form-control" onkeyup="javascript:$().applyValue('#@Html.IdFor(m => m.HomePhone)', $(this).val());" />
                     <span asp-validation-for="SecondaryPhone" class="text-danger"></span>
                 </div>
             </div>
             <div id="editContactPersonPhoneNumbers" class="d-none">
                 <div class="form-group">
                     <label asp-for="MobilePhone"></label>
-                    <input asp-for="MobilePhone" class="form-control" />
+                    <input asp-for="MobilePhone" class="form-control" onkeyup="javascript:$().applyValue('#@Html.IdFor(m => m.PrimaryPhone)', $(this).val());" />
                     <span asp-validation-for="MobilePhone" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="HomePhone"></label>
-                    <input asp-for="HomePhone" class="form-control" />
+                    <input asp-for="HomePhone" class="form-control" onkeyup="javascript:$().applyValue('#@Html.IdFor(m => m.SecondaryPhone)', $(this).val());" />
                     <span asp-validation-for="HomePhone" class="text-danger"></span>
                 </div>
             </div>
