@@ -207,6 +207,8 @@ else
                         <div id="collapseResult" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
                                 <dl>
+                                    <dd><a href="@Model.GetMakeMonthlyAccountingStatementMarkdownUrl(Url)"><i class="fab fa-markdown"></i>&nbsp;Månedsopgørelse</a></dd>
+                                    <dd><a href="@Model.GetMakeAnnualAccountingStatementMarkdownUrl(Url)"><i class="fab fa-markdown"></i>&nbsp;Årsopgørelse</a></dd>
                                     <dd class="mb-0"><a href="@Model.GetExportAnnualResultToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér resultat</a></dd>
                                 </dl>
                                 <div class="table-responsive">

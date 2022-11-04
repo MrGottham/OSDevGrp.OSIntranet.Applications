@@ -156,5 +156,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return urlHelper.AbsoluteAction("ExportBalanceToCsv", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
         }
+
+        public static string GetMakeMonthlyAccountingStatementMarkdownUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("MakeMonthlyAccountingStatementMarkdown", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
+
+        public static string GetMakeAnnualAccountingStatementMarkdownUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("MakeAnnualAccountingStatementMarkdown", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
     }
 }

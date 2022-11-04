@@ -920,7 +920,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Contact accounts.csv");
         }
 
-        [HttpGet("api/accountings/{accountingNumber}/annualresult/action/export/csv")]
+        [HttpGet("api/accountings/{accountingNumber}/result/annual/action/export/csv")]
         public async Task<IActionResult> ExportAnnualResultToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportBudgetAccountGroupStatusCollectionQuery query = new ExportBudgetAccountGroupStatusCollectionQuery
@@ -944,6 +944,32 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             byte[] csvContent = await _queryBus.QueryAsync<IExportAccountGroupStatusCollectionQuery, byte[]>(query);
 
             return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Balance.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/result/monthly/action/export/markdown")]
+        public async Task<IActionResult> MakeMonthlyAccountingStatementMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IMakeMonthlyAccountingStatementQuery query = new MakeMonthlyAccountingStatementQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeMonthlyAccountingStatementQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Monthly result.md");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/result/annual/action/export/markdown")]
+        public async Task<IActionResult> MakeAnnualAccountingStatementMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IMakeAnnualAccountingStatementQuery query = new MakeAnnualAccountingStatementQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeAnnualAccountingStatementQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Annual result.md");
         }
 
         private Task<IAccounting> GetAccounting(int accountingNumber)
