@@ -46,6 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IBudgetAccountGroupStatusToCsvConverter, BudgetAccountGroupStatusToCsvConverter>()
                 .AddTransient<IMonthlyAccountingStatementToMarkdownConverter, MonthlyAccountingStatementToMarkdownConverter>()
                 .AddTransient<IAnnualAccountingStatementToMarkdownConverter, AnnualAccountingStatementToMarkdownConverter>()
+                .AddTransient<IBalanceSheetToMarkdownConverter, BalanceSheetToMarkdownConverter>()
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
                 .AddTransient<IKeyGenerator, KeyGenerator>();
         }
