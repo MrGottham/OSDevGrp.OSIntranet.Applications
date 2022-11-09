@@ -172,5 +172,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
             return urlHelper.AbsoluteAction("MakeAnnualAccountingStatementMarkdown", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
         }
+
+        public static string GetMakeBalanceSheetMarkdownUrl(this AccountingIdentificationViewModel accountingIdentificationViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(accountingIdentificationViewModel, nameof(accountingIdentificationViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("MakeBalanceSheetMarkdown", "Accounting", new { accountingNumber = accountingIdentificationViewModel.AccountingNumber, statusDate = statusDate?.Date });
+        }
     }
 }

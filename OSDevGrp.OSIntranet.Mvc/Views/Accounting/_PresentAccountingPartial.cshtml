@@ -252,6 +252,7 @@ else
                         <div id="collapseBalance" class="collapse" data-parent="#accountingAccordion">
                             <div class="card-body">
                                 <dl>
+                                    <dd><a href="@Model.GetMakeBalanceSheetMarkdownUrl(Url)"><i class="fab fa-markdown"></i>&nbsp;Balance</a></dd>
                                     <dd class="mb-0"><a href="@Model.GetExportBalanceToCsvUrl(Url)"><i class="fas fa-download"></i>&nbsp;Eksportér balance</a></dd>
                                 </dl>
                                 @if (Model.Accounts.Any(item => item.Key.AccountGroupType == AccountGroupType.Assets))

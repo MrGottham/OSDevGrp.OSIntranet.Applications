@@ -972,6 +972,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Annual result.md");
         }
 
+        [HttpGet("api/accountings/{accountingNumber}/balance/action/export/markdown")]
+        public async Task<IActionResult> MakeBalanceSheetMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IMakeBalanceSheetQuery query = new MakeBalanceSheetQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeBalanceSheetQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Balance sheet.md");
+        }
+
         private Task<IAccounting> GetAccounting(int accountingNumber)
         {
             IGetAccountingQuery query = new GetAccountingQuery
