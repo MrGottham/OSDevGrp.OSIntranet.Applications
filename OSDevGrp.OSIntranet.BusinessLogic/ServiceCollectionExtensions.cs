@@ -47,6 +47,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IMonthlyAccountingStatementToMarkdownConverter, MonthlyAccountingStatementToMarkdownConverter>()
                 .AddTransient<IAnnualAccountingStatementToMarkdownConverter, AnnualAccountingStatementToMarkdownConverter>()
                 .AddTransient<IBalanceSheetToMarkdownConverter, BalanceSheetToMarkdownConverter>()
+                .AddTransient<IContactAccountStatementToMarkdownConverter, ContactAccountStatementToMarkdownConverter>()
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
                 .AddTransient<IKeyGenerator, KeyGenerator>();
         }

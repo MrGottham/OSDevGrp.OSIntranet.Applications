@@ -70,9 +70,9 @@ namespace OSDevGrp.OSIntranet.Core.Converters
             return GetParagraphMarkdown(GetItalicTextMarkdown($"{createdMarkdown}"));
         }
 
-        protected MarkdownInlineElement GetCurrencyMarkdown(decimal value)
+        protected MarkdownInlineElement GetCurrencyMarkdown(decimal value, bool hideZero = true)
         {
-            return value == 0M ? GetEmptyMarkdown() : GetTextMarkdown(value.ToString("c", FormatProvider));
+            return value == 0M && hideZero ? GetEmptyMarkdown() : GetTextMarkdown(value.ToString("c", FormatProvider));
         }
 
         protected static IMarkdownBlockElement GetHeaderMarkdown(MarkdownInlineElement markdownInlineElement, int level)
