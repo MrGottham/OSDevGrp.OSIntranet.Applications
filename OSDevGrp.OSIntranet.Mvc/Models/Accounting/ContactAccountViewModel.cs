@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
@@ -51,6 +54,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel));
 
             return contactAccountViewModel.EditMode == EditMode.Create ? "CreateContactAccount" : "UpdateContactAccount";
+        }
+
+        public static string GetMakeContactAccountStatementMarkdownUrl(this ContactAccountViewModel contactAccountViewModel, IUrlHelper urlHelper, DateTime? statusDate = null)
+        {
+            NullGuard.NotNull(contactAccountViewModel, nameof(contactAccountViewModel))
+                .NotNull(urlHelper, nameof(urlHelper));
+
+            return urlHelper.AbsoluteAction("MakeContactAccountStatementMarkdown", "Accounting", new { accountingNumber = contactAccountViewModel.Accounting.AccountingNumber, accountNumber = contactAccountViewModel.AccountNumber, statusDate = statusDate?.Date });
         }
     }
 }
