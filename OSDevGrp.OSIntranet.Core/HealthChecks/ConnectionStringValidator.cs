@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
@@ -33,10 +34,19 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
         {
             return Task.Run(() => 
             {
-                string value = _configuration.GetConnectionString(_name);
-                if (string.IsNullOrWhiteSpace(value))
+                try
                 {
-                    throw new IntranetExceptionBuilder(ErrorCode.MissingConnectionString, _name).Build();
+                    string value = _configuration.GetConnectionString(_name);
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        throw new IntranetExceptionBuilder(ErrorCode.MissingConnectionString, _name).Build();
+                    }
+                }
+                catch (NullReferenceException ex)
+                {
+                    throw new IntranetExceptionBuilder(ErrorCode.MissingConnectionString, _name)
+                        .WithInnerException(ex)
+                        .Build();
                 }
             });
         }
