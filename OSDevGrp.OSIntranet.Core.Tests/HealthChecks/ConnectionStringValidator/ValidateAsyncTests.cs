@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             await sut.ValidateAsync();
 
-            _configurationMock.Verify(m => m.GetSection(It.Is<string>(value => string.Compare(value, "connectionStrings", true) == 0)), Times.Once);
+            _configurationMock.Verify(m => m.GetSection(It.Is<string>(value => string.Compare(value, "connectionStrings", StringComparison.OrdinalIgnoreCase) == 0)), Times.Once);
         }
 
         [Test]
@@ -58,7 +59,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -69,7 +72,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -81,7 +86,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains($"'{name}'"), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -92,18 +99,35 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConnectionString));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
+        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNotNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
-            Assert.That(result.InnerException, Is.Null);
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result.InnerException, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNullReferenceException()
+        {
+            IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
+
+            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result.InnerException, Is.TypeOf<NullReferenceException>());
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -137,7 +161,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -148,7 +174,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -160,7 +188,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains($"'{name}'"), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -171,7 +201,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConnectionString));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -182,7 +214,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -212,7 +246,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -227,7 +263,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -243,7 +281,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains($"'{name}'"), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -258,7 +298,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConnectionString));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -273,7 +315,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -290,10 +334,10 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
             _connectionStringsMock.Setup(m => m[It.IsAny<string>()])
                 .Returns(hasConnectionString ? connectionString ?? _fixture.Create<string>() : null);
 
-            _configurationMock.Setup(m => m.GetSection(It.Is<string>(value => string.Compare(value, "connectionStrings", true) == 0)))
+            _configurationMock.Setup(m => m.GetSection(It.Is<string>(value => string.Compare(value, "connectionStrings", StringComparison.OrdinalIgnoreCase) == 0)))
                 .Returns(hasConfigurationSectionForConnectionStrings ? _connectionStringsMock.Object : null);
 
-            return new OSDevGrp.OSIntranet.Core.HealthChecks.ConnectionStringValidator(_configurationMock.Object, name ?? _fixture.Create<string>());
+            return new Core.HealthChecks.ConnectionStringValidator(_configurationMock.Object, name ?? _fixture.Create<string>());
         }
     }
 }
