@@ -11,6 +11,6 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 
         IAccountCollectionValues ValuesAtEndOfLastYearFromStatusDate { get; }
 
-        Task<IReadOnlyDictionary<IAccountGroup, IAccountCollection>> GroupByAccountGroupAsync();
+        Task<IEnumerable<IAccountGroupStatus>> GroupByAccountGroupAsync();
     }
 }

@@ -23,26 +23,25 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        public async Task<IReadOnlyDictionary<IAccountGroup, IAccountCollection>> GroupByAccountGroupAsync()
+        public async Task<IEnumerable<IAccountGroupStatus>> GroupByAccountGroupAsync()
         {
-            Task<IAccountCollection>[] groupCalculationTasks = this.AsParallel()
+            Task<IAccountGroupStatus>[] groupCalculationTasks = this.AsParallel()
                 .GroupBy(account => account.AccountGroup.Number, account => account)
                 .Select(group =>
                 {
+                    IAccountGroup accountGroup = group.First().AccountGroup;
                     IAccountCollection accountCollection = new AccountCollection
                     {
                         group.AsEnumerable().AsParallel().OrderBy(account => account.AccountNumber).ToArray()
                     };
 
-                    return accountCollection.CalculateAsync(StatusDate);
+                    return accountGroup.CalculateAsync(StatusDate, accountCollection);
                 })
                 .ToArray();
 
-            IAccountCollection[] calculatedAccountCollections = await Task.WhenAll(groupCalculationTasks);
+            IAccountGroupStatus[] accountGroupStatusCollection = await Task.WhenAll(groupCalculationTasks);
 
-            return new ReadOnlyDictionary<IAccountGroup, IAccountCollection>(calculatedAccountCollections.AsParallel()
-                .OrderBy(calculatedAccountCollection => calculatedAccountCollection.First().AccountGroup.Number)
-                .ToDictionary(calculatedAccountCollection => calculatedAccountCollection.First().AccountGroup, calculatedAccountCollection => calculatedAccountCollection));
+            return accountGroupStatusCollection.OrderBy(accountGroupStatus => accountGroupStatus.Number).ToArray();
         }
 
         protected override IAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<IAccount> calculatedAccountCollection)

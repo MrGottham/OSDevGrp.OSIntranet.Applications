@@ -45,6 +45,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimTypes.NameIdentifier));
         }
 
+        public string GetName()
+        {
+            return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimTypes.Name));
+        }
+
         public string GetMailAddress()
         {
             return GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimTypes.Email));

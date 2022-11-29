@@ -881,6 +881,129 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return PartialView("_PostingWarningCollectionPartial", applyPostingJournalResultViewModel.PostingWarnings);
         }
 
+        [HttpGet("api/accountings/{accountingNumber}/accounts/action/export/csv")]
+        public async Task<IActionResult> ExportAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportAccountCollectionQuery query = new ExportAccountCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportAccountCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Accounts.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/budgetaccounts/action/export/csv")]
+        public async Task<IActionResult> ExportBudgetAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportBudgetAccountCollectionQuery query = new ExportBudgetAccountCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportBudgetAccountCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Budget accounts.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/contactaccounts/action/export/csv")]
+        public async Task<IActionResult> ExportContactAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportContactAccountCollectionQuery query = new ExportContactAccountCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportContactAccountCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Contact accounts.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/result/annual/action/export/csv")]
+        public async Task<IActionResult> ExportAnnualResultToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportBudgetAccountGroupStatusCollectionQuery query = new ExportBudgetAccountGroupStatusCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportBudgetAccountGroupStatusCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Annual result.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/balance/action/export/csv")]
+        public async Task<IActionResult> ExportBalanceToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IExportAccountGroupStatusCollectionQuery query = new ExportAccountGroupStatusCollectionQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] csvContent = await _queryBus.QueryAsync<IExportAccountGroupStatusCollectionQuery, byte[]>(query);
+
+            return File(csvContent ?? Array.Empty<byte>(), "application/csv", $"{query.StatusDate:yyyyMMdd} - Balance.csv");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/result/monthly/action/export/markdown")]
+        public async Task<IActionResult> MakeMonthlyAccountingStatementMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IMakeMonthlyAccountingStatementQuery query = new MakeMonthlyAccountingStatementQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeMonthlyAccountingStatementQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Monthly result.md");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/result/annual/action/export/markdown")]
+        public async Task<IActionResult> MakeAnnualAccountingStatementMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IMakeAnnualAccountingStatementQuery query = new MakeAnnualAccountingStatementQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeAnnualAccountingStatementQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Annual result.md");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/balance/action/export/markdown")]
+        public async Task<IActionResult> MakeBalanceSheetMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            IMakeBalanceSheetQuery query = new MakeBalanceSheetQuery
+            {
+                AccountingNumber = accountingNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeBalanceSheetQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Balance sheet.md");
+        }
+
+        [HttpGet("api/accountings/{accountingNumber}/contactaccounts/{accountNumber}/action/export/markdown")]
+        public async Task<IActionResult> MakeContactAccountStatementMarkdown([FromRoute] int accountingNumber, string accountNumber, [FromQuery] DateTime? statusDate = null)
+        {
+            if (string.IsNullOrWhiteSpace(accountNumber))
+            {
+                return BadRequest();
+            }
+
+            IMakeContactAccountStatementQuery query = new MakeContactAccountStatementQuery
+            {
+                AccountingNumber = accountingNumber,
+                AccountNumber = accountNumber,
+                StatusDate = statusDate?.Date ?? DateTime.Today
+            };
+            byte[] markdownContent = await _queryBus.QueryAsync<IMakeContactAccountStatementQuery, byte[]>(query);
+
+            return File(markdownContent ?? Array.Empty<byte>(), "text/markdown", $"{query.StatusDate:yyyyMMdd} - Contact account statement ({accountNumber}).md");
+        }
+
         private Task<IAccounting> GetAccounting(int accountingNumber)
         {
             IGetAccountingQuery query = new GetAccountingQuery

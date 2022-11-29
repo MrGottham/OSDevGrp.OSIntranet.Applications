@@ -352,7 +352,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             #region Constructor
 
             public AccountCollectionToAccountDictionaryViewModelTypeConverter()
-                : base(accountCollection => accountCollection.GroupByAccountGroupAsync().GetAwaiter().GetResult())
+                : base(accountCollection => accountCollection.GroupByAccountGroupAsync().GetAwaiter().GetResult().ToDictionary(accountGroupStatus => (IAccountGroup) accountGroupStatus, accountGroupStatus => accountGroupStatus.AccountCollection))
             {
             }
 
@@ -381,7 +381,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             #region Constructor
 
             public BudgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter() 
-                : base(budgetAccountCollection => budgetAccountCollection.GroupByBudgetAccountGroupAsync().GetAwaiter().GetResult())
+                : base(budgetAccountCollection => budgetAccountCollection.GroupByBudgetAccountGroupAsync().GetAwaiter().GetResult().ToDictionary(budgetAccountGroupStatus => (IBudgetAccountGroup) budgetAccountGroupStatus, budgetAccountGroupStatus => budgetAccountGroupStatus.BudgetAccountCollection))
             {
             }
 

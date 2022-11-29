@@ -8,12 +8,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
     {
         #region Constructor
 
-        protected AccountGroupBase(int number, string name)
+        protected AccountGroupBase(int number, string name, bool deletable)
         {
             NullGuard.NotNullOrWhiteSpace(name, nameof(name));
 
             Number = number;
             Name = name;
+            Deletable = deletable;
         }
 
         #endregion
@@ -30,12 +31,12 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         #region Methods
 
-        public void AllowDeletion()
+        public virtual void AllowDeletion()
         {
             Deletable = true;
         }
 
-        public void DisallowDeletion()
+        public virtual void DisallowDeletion()
         {
             Deletable = false;
         }

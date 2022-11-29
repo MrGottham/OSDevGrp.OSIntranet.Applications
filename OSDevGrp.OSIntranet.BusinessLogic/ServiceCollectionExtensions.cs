@@ -37,6 +37,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()
                 .AddTransient<IAccountingHelper, AccountingHelper>()
+                .AddScoped<IStatusDateProvider, StatusDateProvider>()
+                .AddScoped(serviceProvider => (IStatusDateSetter)serviceProvider.GetRequiredService<IStatusDateProvider>())
+                .AddTransient<IAccountToCsvConverter, AccountToCsvConverter>()
+                .AddTransient<IBudgetAccountToCsvConverter, BudgetAccountToCsvConverter>()
+                .AddTransient<IContactAccountToCsvConverter, ContactAccountToCsvConverter>()
+                .AddTransient<IAccountGroupStatusToCsvConverter, AccountGroupStatusToCsvConverter>()
+                .AddTransient<IBudgetAccountGroupStatusToCsvConverter, BudgetAccountGroupStatusToCsvConverter>()
+                .AddTransient<IMonthlyAccountingStatementToMarkdownConverter, MonthlyAccountingStatementToMarkdownConverter>()
+                .AddTransient<IAnnualAccountingStatementToMarkdownConverter, AnnualAccountingStatementToMarkdownConverter>()
+                .AddTransient<IBalanceSheetToMarkdownConverter, BalanceSheetToMarkdownConverter>()
+                .AddTransient<IContactAccountStatementToMarkdownConverter, ContactAccountStatementToMarkdownConverter>()
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
                 .AddTransient<IKeyGenerator, KeyGenerator>();
         }

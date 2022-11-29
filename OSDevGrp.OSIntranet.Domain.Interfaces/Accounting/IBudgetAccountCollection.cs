@@ -13,6 +13,6 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 
         IBudgetInfoValues ValuesForLastYearOfStatusDate { get; }
 
-        Task<IReadOnlyDictionary<IBudgetAccountGroup, IBudgetAccountCollection>> GroupByBudgetAccountGroupAsync();
+        Task<IEnumerable<IBudgetAccountGroupStatus>> GroupByBudgetAccountGroupAsync();
     }
 }

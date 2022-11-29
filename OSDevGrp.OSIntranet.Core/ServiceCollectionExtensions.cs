@@ -82,8 +82,8 @@ namespace OSDevGrp.OSIntranet.Core
             NullGuard.NotNull(assembly, nameof(assembly))
                 .NotNull(handlerInterfaceTypeInfo, nameof(handlerInterfaceTypeInfo));
 
-            return assembly.ExportedTypes
-                .Select(exportedType => exportedType.GetTypeInfo())
+            return assembly.GetTypes()
+                .Select(type => type.GetTypeInfo())
                 .Where(typeInfo =>
                 {
                     if (typeInfo.IsClass == false || typeInfo.IsAbstract)

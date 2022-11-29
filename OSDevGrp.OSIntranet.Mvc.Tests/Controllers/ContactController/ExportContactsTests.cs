@@ -119,13 +119,35 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task ExportContacts_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsFileContentResultWhereFileDownloadNameIsEqualToContactsCsv()
+        public async Task ExportContacts_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsFileContentResultWhereFileDownloadNameIsNotNull()
         {
             Controller sut = CreateSut();
 
-            FileContentResult result = (FileContentResult) await sut.ExportContacts();
+            FileContentResult result = (FileContentResult)await sut.ExportContacts();
 
-            Assert.That(result.FileDownloadName, Is.EqualTo("Contacts.csv"));
+            Assert.That(result.FileDownloadName, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExportContacts_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsFileContentResultWhereFileDownloadNameIsNotEmpty()
+        {
+            Controller sut = CreateSut();
+
+            FileContentResult result = (FileContentResult)await sut.ExportContacts();
+
+            Assert.That(result.FileDownloadName, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExportContacts_WhenTokenWasReturnedFromTokenHelperFactory_ReturnsFileContentResultWhereFileDownloadNameIsEqualToContactsCsvPrefixedWithToday()
+        {
+            Controller sut = CreateSut();
+
+            FileContentResult result = (FileContentResult)await sut.ExportContacts();
+
+            Assert.That(result.FileDownloadName, Is.EqualTo($"{DateTime.Today:yyyyMMdd} - Contacts.csv"));
         }
 
         [Test]

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -383,7 +384,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("Contacts", "Contact");
         }
 
-        [HttpGet]
+        [HttpGet("/api/countries/action/export/csv")]
         public async Task<IActionResult> ExportContacts()
         {
             IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
@@ -401,7 +402,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             };
             byte[] fileContent = await _queryBus.QueryAsync<IExportContactCollectionQuery, byte[]>(query);
 
-            return File(fileContent, "application/csv", "Contacts.csv");
+            return File(fileContent, "application/csv", $"{DateTime.Today:yyyyMMdd} - Contacts.csv");
         }
 
         [HttpGet]

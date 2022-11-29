@@ -11,6 +11,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         string GetNameIdentifier();
 
+        string GetName();
+
         string GetMailAddress();
 
         int? GetNumberOfNewsToCollect();
