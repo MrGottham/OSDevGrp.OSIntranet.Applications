@@ -19,6 +19,14 @@
     <UserSecretsId>D90A43A7-8021-4B7F-924E-BBFC306C544E</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>OSDevGrp.OSIntranet.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Ole Sørensen</Authors>
+    <Company>OS Development Group</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>$(AssemblyName).Tests</_Parameter1>
