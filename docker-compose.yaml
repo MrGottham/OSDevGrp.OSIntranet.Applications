@@ -17,6 +17,7 @@ services:
       args:
         appUserGroup: [TBD]
         nonRootUser: [TBD]
+        nonPassword: [TBD]
         sshPassword: [TBD]
     restart: "no"
 
@@ -41,6 +42,7 @@ services:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_URLS=http://+:8080
       - NON_ROOT_USER=[TBD]
+      - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
       - Security__Microsoft__ClientId=[TBD]
       - Security__Microsoft__ClientSecret=[TBD]
@@ -74,6 +76,7 @@ services:
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_URLS=http://+:8080
       - NON_ROOT_USER=[TBD]
+      - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
       - Security__JWT__Key=[TBD]
       - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
