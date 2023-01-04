@@ -1,11 +1,13 @@
-﻿using System;
-using System.Security.Claims;
-using System.Security.Principal;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
@@ -38,6 +40,26 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         public int? GetAccountingNumber()
         {
             return GetClaimIntegerValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.AccountingClaimType));
+        }
+
+        public bool IsAccountingAdministrator()
+        {
+            return HasClaim(principal => principal.GetClaim(ClaimHelper.AccountingAdministratorClaimType));
+        }
+
+        public bool IsAccountingCreator()
+        {
+            return HasClaim(principal => principal.GetClaim(ClaimHelper.AccountingCreatorClaimType));
+        }
+
+        public bool CanModifyAccounting(int accountingNumber)
+        {
+            return EvaluateValueAgainstClaimValue(principal => principal.GetClaim(ClaimHelper.AccountingModifierClaimType), accountingNumber);
+        }
+
+        public bool CanAccessAccounting(int accountingNumber)
+        {
+            return EvaluateValueAgainstClaimValue(principal => principal.GetClaim(ClaimHelper.AccountingViewerClaimType), accountingNumber);
         }
 
         public string GetNameIdentifier()
@@ -73,6 +95,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             return Token.Create<TToken>(unprotect(tokenValue));
         }
 
+        private bool HasClaim(Func<IPrincipal, Claim> claimGetter)
+        {
+            NullGuard.NotNull(claimGetter, nameof(claimGetter));
+
+            IPrincipal currentPrincipal = _principalResolver.GetCurrentPrincipal();
+
+            return claimGetter(currentPrincipal) != null;
+        }
+
         private string GetClaimStingValue(Func<IPrincipal, Claim> claimGetter)
         {
             NullGuard.NotNull(claimGetter, nameof(claimGetter));
@@ -101,6 +132,32 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             }
 
             return value;
+        }
+
+        private bool EvaluateValueAgainstClaimValue(Func<IPrincipal, Claim> claimGetter, int value, char separator = ',', char wildcard = '*', bool allowWildcard = true)
+        {
+            NullGuard.NotNull(claimGetter, nameof(claimGetter))
+                .NotNull(separator, nameof(separator))
+                .NotNull(wildcard, nameof(wildcard));
+
+            string claimValue = GetClaimStingValue(claimGetter);
+            if (string.IsNullOrWhiteSpace(claimValue))
+            {
+                return false;
+            }
+
+            string[] valueCollection = claimValue.Split(separator);
+            if (valueCollection.Length == 0)
+            {
+                return false;
+            }
+
+            if (allowWildcard && valueCollection.Contains(wildcard.ToString(CultureInfo.InvariantCulture)))
+            {
+                return true;
+            }
+
+            return valueCollection.Contains(value.ToString(CultureInfo.InvariantCulture));
         }
 
         #endregion

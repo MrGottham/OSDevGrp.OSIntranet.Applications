@@ -1,5 +1,5 @@
-﻿using System;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 {
@@ -8,6 +8,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
         string GetCountryCode();
 
         int? GetAccountingNumber();
+
+        bool IsAccountingAdministrator();
+
+        bool IsAccountingCreator();
+
+        bool CanModifyAccounting(int accountingNumber);
+
+        bool CanAccessAccounting(int accountingNumber);
 
         string GetNameIdentifier();
 
