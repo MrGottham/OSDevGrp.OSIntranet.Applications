@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
 {
-    public class EnumerableValidator : Validator, IEnumerableValidator
+    internal class EnumerableValidator : Validator, IEnumerableValidator
     {
         #region Methods
 

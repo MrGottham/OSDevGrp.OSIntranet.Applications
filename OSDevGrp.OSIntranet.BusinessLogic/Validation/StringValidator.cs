@@ -1,12 +1,12 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
+using System.Text.RegularExpressions;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
 {
-    public class StringValidator : Validator, IStringValidator
+    internal class StringValidator : Validator, IStringValidator
     {
         #region Methods
 

@@ -24,11 +24,20 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public string Name { get; }
 
+        public bool IsProtected { get; private set; }
+
         public bool Deletable { get; private set; }
 
         #endregion
 
         #region Methods
+
+        public void ApplyProtection()
+        {
+            DisallowDeletion();
+
+            IsProtected = true;
+        }
 
         public void AllowDeletion()
         {

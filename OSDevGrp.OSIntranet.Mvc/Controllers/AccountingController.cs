@@ -1,11 +1,3 @@
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -28,13 +20,22 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Core.Validators;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
-using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.Mvc.Security;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-    [Authorize(Policy = "Accounting")]
+    [Authorize(Policy = Policies.AccountingPolicy)]
     public class AccountingController : Controller
     {
         #region Private variables
@@ -82,7 +83,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IAccounting> accountings = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery());
 
             IEnumerable<AccountingIdentificationViewModel> accountingIdentificationViewModels = accountings.AsParallel()
-                .Select(accounting => _accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>(accounting))
+                .Select(_accountingViewModelConverter.Convert<IAccounting, AccountingIdentificationViewModel>)
                 .OrderBy(accountingIdentificationViewModel => accountingIdentificationViewModel.AccountingNumber)
                 .ToList();
 
@@ -515,6 +516,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         public IActionResult CreateAccountGroup()
         {
             AccountGroupViewModel accountGroupViewModel = new AccountGroupViewModel
@@ -526,6 +528,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAccountGroup(AccountGroupViewModel accountGroupViewModel)
         {
@@ -543,6 +546,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         public async Task<IActionResult> UpdateAccountGroup(int number)
         {
             IGetAccountGroupQuery query = new GetAccountGroupQuery
@@ -558,6 +562,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAccountGroup(AccountGroupViewModel accountGroupViewModel)
         {
@@ -575,6 +580,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccountGroup(int number)
         {
@@ -594,6 +600,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         public IActionResult CreateBudgetAccountGroup()
         {
             BudgetAccountGroupViewModel budgetAccountGroupViewModel = new BudgetAccountGroupViewModel
@@ -605,6 +612,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBudgetAccountGroup(BudgetAccountGroupViewModel budgetAccountGroupViewModel)
         {
@@ -622,6 +630,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         public async Task<IActionResult> UpdateBudgetAccountGroup(int number)
         {
             IGetBudgetAccountGroupQuery query = new GetBudgetAccountGroupQuery
@@ -637,6 +646,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBudgetAccountGroup(BudgetAccountGroupViewModel budgetAccountGroupViewModel)
         {
@@ -654,6 +664,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBudgetAccountGroup(int number)
         {
@@ -673,6 +684,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         public IActionResult CreatePaymentTerm()
         {
             PaymentTermViewModel paymentTermViewModel = new PaymentTermViewModel
@@ -684,6 +696,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePaymentTerm(PaymentTermViewModel paymentTermViewModel)
         {
@@ -701,6 +714,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         public async Task<IActionResult> UpdatePaymentTerm(int number)
         {
             IGetPaymentTermQuery query = new GetPaymentTermQuery
@@ -716,6 +730,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePaymentTerm(PaymentTermViewModel paymentTermViewModel)
         {
@@ -733,6 +748,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingAdministratorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePaymentTerm(int number)
         {
@@ -1034,7 +1050,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IAccountGroup> accountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccountGroup>>(new EmptyQuery());
 
             return accountGroups.AsParallel()
-                .Select(accountGroup => _accountingViewModelConverter.Convert<IAccountGroup, AccountGroupViewModel>(accountGroup))
+                .Select(_accountingViewModelConverter.Convert<IAccountGroup, AccountGroupViewModel>)
                 .OrderBy(accountGroupViewModel => accountGroupViewModel.Number)
                 .ToList();
         }
@@ -1044,7 +1060,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IBudgetAccountGroup> budgetAccountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IBudgetAccountGroup>>(new EmptyQuery());
 
             return budgetAccountGroups.AsParallel()
-                .Select(budgetAccountGroup => _accountingViewModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupViewModel>(budgetAccountGroup))
+                .Select(_accountingViewModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupViewModel>)
                 .OrderBy(budgetAccountGroupViewModel => budgetAccountGroupViewModel.Number)
                 .ToList();
         }
@@ -1054,7 +1070,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
 
             return paymentTerms.AsParallel()
-                .Select(paymentTerm => _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm))
+                .Select(_accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>)
                 .OrderBy(paymentTermViewModel => paymentTermViewModel.Number)
                 .ToList();
         }
@@ -1064,7 +1080,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
 
             return letterHeads.AsParallel()
-                .Select(letterHead => _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(letterHead))
+                .Select(_commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>)
                 .OrderBy(letterHeadViewModel => letterHeadViewModel.Number)
                 .ToList();
         }

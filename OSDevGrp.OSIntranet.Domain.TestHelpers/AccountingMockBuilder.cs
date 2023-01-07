@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
@@ -945,6 +945,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(name ?? fixture.Create<string>());
             accountGroupMock.Setup(m => m.AccountGroupType)
                 .Returns(accountGroupType ?? fixture.Create<AccountGroupType>());
+            accountGroupMock.Setup(m => m.IsProtected)
+                .Returns(fixture.Create<bool>());
             accountGroupMock.Setup(m => m.Deletable)
                 .Returns(deletable ?? fixture.Create<bool>());
             accountGroupMock.Setup(m => m.CreatedDateTime)
@@ -981,6 +983,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(valuesAtEndOfLastYearFromStatusDate ?? fixture.BuildAccountCollectionValuesMock().Object);
             accountGroupStatusMock.Setup(m => m.StatusDate)
                 .Returns(statusDate?.Date ?? fixture.Create<DateTime>().Date);
+            accountGroupStatusMock.Setup(m => m.IsProtected)
+                .Returns(fixture.Create<bool>());
             accountGroupStatusMock.Setup(m => m.Deletable)
                 .Returns(fixture.Create<bool>());
             accountGroupStatusMock.Setup(m => m.CreatedDateTime)
@@ -1005,6 +1009,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(number ?? fixture.Create<int>());
             budgetAccountGroupMock.Setup(m => m.Name)
                 .Returns(name ?? fixture.Create<string>());
+            budgetAccountGroupMock.Setup(m => m.IsProtected)
+                .Returns(fixture.Create<bool>());
             budgetAccountGroupMock.Setup(m => m.Deletable)
                 .Returns(deletable ?? fixture.Create<bool>());
             budgetAccountGroupMock.Setup(m => m.CreatedDateTime)
@@ -1041,6 +1047,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(valuesForLastYearOfStatusDate ?? fixture.BuildBudgetInfoValuesMock().Object);
             budgetAccountGroupStatusMock.Setup(m => m.StatusDate)
                 .Returns(statusDate?.Date ?? fixture.Create<DateTime>().Date);
+            budgetAccountGroupStatusMock.Setup(m => m.IsProtected)
+                .Returns(fixture.Create<bool>());
             budgetAccountGroupStatusMock.Setup(m => m.Deletable)
                 .Returns(fixture.Create<bool>());
             budgetAccountGroupStatusMock.Setup(m => m.CreatedDateTime)
@@ -1065,6 +1073,18 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(number ?? fixture.Create<int>());
             paymentTermMock.Setup(m => m.Name)
                 .Returns(name ?? fixture.Create<string>());
+            paymentTermMock.Setup(m => m.IsProtected)
+                .Returns(fixture.Create<bool>());
+            paymentTermMock.Setup(m => m.Deletable)
+                .Returns(fixture.Create<bool>());
+            paymentTermMock.Setup(m => m.CreatedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            paymentTermMock.Setup(m => m.CreatedByIdentifier)
+                .Returns(fixture.Create<string>());
+            paymentTermMock.Setup(m => m.ModifiedDateTime)
+                .Returns(fixture.Create<DateTime>());
+            paymentTermMock.Setup(m => m.ModifiedByIdentifier)
+                .Returns(fixture.Create<string>());
             return paymentTermMock;
         }
     }

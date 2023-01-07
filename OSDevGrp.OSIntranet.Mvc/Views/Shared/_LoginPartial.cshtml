@@ -1,4 +1,4 @@
-@if (User.Identity.IsAuthenticated)
+@if (User.Identity is {IsAuthenticated: true })
 {
     <li class="nav-item d-none d-lg-block d-xl-block">
         <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Manage">@User.Identity.Name</a>

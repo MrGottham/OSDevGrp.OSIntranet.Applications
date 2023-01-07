@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
@@ -9,10 +6,14 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using OSDevGrp.OSIntranet.WebApi.Security;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
-    [Authorize(Policy = "CommonData")]
+    [Authorize(Policy = Policies.CommonDataPolicy)]
     [ApiVersion("1.0")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]
@@ -44,7 +45,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
 
             IEnumerable<LetterHeadModel> letterHeadModels = letterHeads.AsParallel()
-                .Select(letterHead => _commonModelConverter.Convert<ILetterHead, LetterHeadModel>(letterHead))
+                .Select(_commonModelConverter.Convert<ILetterHead, LetterHeadModel>)
                 .OrderBy(letterHeadModel => letterHeadModel.Number)
                 .ToList();
 

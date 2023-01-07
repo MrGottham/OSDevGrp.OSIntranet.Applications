@@ -1,14 +1,15 @@
-using System;
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetBudgetAccountGroupQueryHandler;
+using System;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetBudgetAccountGroupQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBudgetAccountGroupQueryHandler
 {
@@ -18,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -27,6 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
 
             _fixture = new Fixture();
@@ -41,7 +44,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -78,33 +83,107 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetBu
             QueryHandler sut = CreateSut();
 
             int number = _fixture.Create<int>();
-            IGetBudgetAccountGroupQuery query = CreateQueryMock(number).Object;
-            await sut.QueryAsync(query);
+            await sut.QueryAsync(CreateQuery(number));
 
             _accountingRepositoryMock.Verify(m => m.GetBudgetAccountGroupAsync(It.Is<int>(value => value == number)), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnsBudgetAccountGroupFromAccountingRepository()
+        public async Task QueryAsync_WhenBudgetAccountGroupWasReturnedFromAccountingRepository_AssertIsAccountingAdministratorWasCalledOnClaimResolver()
+        {
+            QueryHandler sut = CreateSut();
+
+            await sut.QueryAsync(CreateQuery());
+
+            _claimResolverMock.Verify(m => m.IsAccountingAdministrator(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenIsAccountingAdministratorOnClaimResolverReturnsTrue_AssertApplyProtectionWasNotCalledOnBudgetAccountGroupFromAccountingRepository()
+        {
+            Mock<IBudgetAccountGroup> budgetAccountGroupMock = _fixture.BuildBudgetAccountGroupMock();
+            QueryHandler sut = CreateSut(budgetAccountGroup: budgetAccountGroupMock.Object, isAccountingAdministrator: true);
+
+            await sut.QueryAsync(CreateQuery());
+
+            budgetAccountGroupMock.Verify(m => m.ApplyProtection(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenIsAccountingAdministratorOnClaimResolverReturnsFalse_AssertApplyProtectionWasCalledOnBudgetAccountGroupFromAccountingRepository()
+        {
+            Mock<IBudgetAccountGroup> budgetAccountGroupMock = _fixture.BuildBudgetAccountGroupMock();
+            QueryHandler sut = CreateSut(budgetAccountGroup: budgetAccountGroupMock.Object, isAccountingAdministrator: false);
+
+            await sut.QueryAsync(CreateQuery());
+
+            budgetAccountGroupMock.Verify(m => m.ApplyProtection(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoBudgetAccountGroupWasReturnedFromAccountingRepository_AssertIsAccountingAdministratorWasNotCalledOnClaimResolver()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            await sut.QueryAsync(CreateQuery());
+
+            _claimResolverMock.Verify(m => m.IsAccountingAdministrator(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenBudgetAccountGroupWasReturnedFromAccountingRepository_ReturnsNotNull()
+        {
+            QueryHandler sut = CreateSut();
+
+            IBudgetAccountGroup result = await sut.QueryAsync(CreateQuery());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenBudgetAccountGroupWasReturnedFromAccountingRepository_ReturnsBudgetAccountGroupFromAccountingRepository()
         {
             IBudgetAccountGroup budgetAccountGroup = _fixture.Create<IBudgetAccountGroup>();
-            QueryHandler sut = CreateSut(budgetAccountGroup);
+            QueryHandler sut = CreateSut(budgetAccountGroup: budgetAccountGroup);
 
-            IGetBudgetAccountGroupQuery query = CreateQueryMock().Object;
-            IBudgetAccountGroup result = await sut.QueryAsync(query);
+            IBudgetAccountGroup result = await sut.QueryAsync(CreateQuery());
 
             Assert.That(result, Is.EqualTo(budgetAccountGroup));
         }
 
-        private QueryHandler CreateSut(IBudgetAccountGroup budgetAccountGroup = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoBudgetAccountGroupWasReturnedFromAccountingRepository_ReturnsNull()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IBudgetAccountGroup result = await sut.QueryAsync(CreateQuery());
+
+            Assert.That(result, Is.Null);
+        }
+
+        private QueryHandler CreateSut(bool hasBudgetAccountGroup = true, IBudgetAccountGroup budgetAccountGroup = null, bool? isAccountingAdministrator = null)
         {
             _accountingRepositoryMock.Setup(m => m.GetBudgetAccountGroupAsync(It.IsAny<int>()))
-                .Returns(Task.Run(() => budgetAccountGroup ?? _fixture.Create<IBudgetAccountGroup>()));
+                .Returns(Task.FromResult(hasBudgetAccountGroup ? budgetAccountGroup ?? _fixture.Create<IBudgetAccountGroup>() : null));
 
-           return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
+            _claimResolverMock.Setup(m => m.IsAccountingAdministrator())
+                .Returns(isAccountingAdministrator ?? _fixture.Create<bool>());
+
+           return new QueryHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
         }
- 
+
+        private IGetBudgetAccountGroupQuery CreateQuery(int? number = null)
+        {
+            return CreateQueryMock(number).Object;
+        }
+
         private Mock<IGetBudgetAccountGroupQuery> CreateQueryMock(int? number = null)
         {
             Mock<IGetBudgetAccountGroupQuery> queryMock = new Mock<IGetBudgetAccountGroupQuery>();

@@ -1,14 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
 {
-    public class ObjectValidator : Validator, IObjectValidator
+    internal class ObjectValidator : Validator, IObjectValidator
     {
         #region Methods
 
@@ -129,7 +129,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
             try
             {
                 IDeletable deletable = deletableGetter(value).GetAwaiter().GetResult();
-                if (deletable != null && deletable.Deletable)
+                if (deletable is { Deletable: true })
                 {
                     return this;
                 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries;
@@ -23,10 +19,15 @@ using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-    [Authorize(Policy = "Contacts")]
+    [Authorize(Policy = Policies.ContactPolicy)]
     public class ContactController : Controller
     {
         #region Private variables
@@ -122,7 +123,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             IEnumerable<ContactInfoViewModel> contactInfoViewModels = contacts.AsParallel()
-                .Select(contact => _contactViewModelConverter.Convert<IContact, ContactInfoViewModel>(contact))
+                .Select(_contactViewModelConverter.Convert<IContact, ContactInfoViewModel>)
                 .OrderBy(contactInfoViewModel => contactInfoViewModel.DisplayName)
                 .ToList();
 
@@ -595,7 +596,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IPostalCode> postalCodes = await _queryBus.QueryAsync<IGetPostalCodeCollectionQuery, IEnumerable<IPostalCode>>(query);
 
             IEnumerable<PostalCodeViewModel> postalCodeViewModels = postalCodes.AsParallel()
-                .Select(postalCode => _contactViewModelConverter.Convert<IPostalCode, PostalCodeViewModel>(postalCode))
+                .Select(_contactViewModelConverter.Convert<IPostalCode, PostalCodeViewModel>)
                 .OrderBy(postalCodeViewModel => postalCodeViewModel.City)
                 .ToList();
 
@@ -718,7 +719,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IContactGroup> contactGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IContactGroup>>(new EmptyQuery());
 
             return contactGroups.AsParallel()
-                .Select(contactGroup => _contactViewModelConverter.Convert<IContactGroup, ContactGroupViewModel>(contactGroup))
+                .Select(_contactViewModelConverter.Convert<IContactGroup, ContactGroupViewModel>)
                 .OrderBy(contactGroupViewModel => contactGroupViewModel.Number)
                 .ToList();
         }
@@ -728,7 +729,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<ICountry> countries = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ICountry>>(new EmptyQuery());
 
             return countries.AsParallel()
-                .Select(country => _contactViewModelConverter.Convert<ICountry, CountryViewModel>(country))
+                .Select(_contactViewModelConverter.Convert<ICountry, CountryViewModel>)
                 .OrderBy(countryViewModel => countryViewModel.Name)
                 .ToList();
         }
@@ -762,7 +763,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
 
             return paymentTerms.AsParallel()
-                .Select(paymentTerm => _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(paymentTerm))
+                .Select(_accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>)
                 .OrderBy(paymentTermViewModel => paymentTermViewModel.Number)
                 .ToList();
         }

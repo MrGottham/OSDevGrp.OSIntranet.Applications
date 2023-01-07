@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IPaymentTerm : IAuditable, IDeletable
+    public interface IPaymentTerm : IAuditable, IProtectable
     {
         int Number { get; }
 

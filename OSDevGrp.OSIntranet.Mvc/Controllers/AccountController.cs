@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -15,6 +11,13 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using OSDevGrp.OSIntranet.Mvc.Security;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
@@ -114,7 +117,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 }
             }
 
-            AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync("OSDevGrp.OSIntranet.External");
+            AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemas.ExternalAuthenticationSchema);
             if (authenticateResult.Succeeded == false || authenticateResult.Ticket == null || authenticateResult.Principal == null)
             {
                 return Unauthorized();
@@ -133,8 +136,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return Unauthorized();
             }
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, "OSDevGrp.OSIntranet.Internal");
-            await HttpContext.SignInAsync("OSDevGrp.OSIntranet.Internal", new ClaimsPrincipal(claimsIdentity));
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, Schemas.InternalAuthenticationSchema);
+            await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, new ClaimsPrincipal(claimsIdentity));
 
             AuthenticationProperties authenticationProperties = authenticateResult.Ticket.Properties;
             foreach (TokenType tokenType in Enum.GetValues(typeof(TokenType)).Cast<TokenType>())
@@ -167,7 +170,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             await _tokenHelperFactory.HandleLogoutAsync(HttpContext);
 
-            await HttpContext.SignOutAsync("OSDevGrp.OSIntranet.Internal");
+            await HttpContext.SignOutAsync(Schemas.InternalAuthenticationSchema);
 
             if (string.IsNullOrWhiteSpace(returnUrl))
             {
@@ -197,7 +200,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return await _tokenHelperFactory.AcquireTokenAsync(TokenType.MicrosoftGraphToken, HttpContext, stateIdentifier, code);
         }
 
-        private Uri ConvertToAbsoluteUri(string returnUrl)
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+	        ErrorViewModel errorViewModel = new ErrorViewModel
+	        {
+		        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                ErrorCode = null,
+                ErrorMesssage = "Handlingen kan ikke udføres, fordi du ikke har de nødvendige tilladelser."
+	        };
+
+	        return View("Error", errorViewModel);
+        }
+
+		private Uri ConvertToAbsoluteUri(string returnUrl)
         {
             NullGuard.NotNullOrWhiteSpace(returnUrl, nameof(returnUrl));
 

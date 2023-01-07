@@ -1,45 +1,56 @@
+@using Microsoft.AspNetCore.Authorization
+@using OSDevGrp.OSIntranet.Mvc.Security
+@inject IAuthorizationService AuthorizationService
 @model IEnumerable<AccountGroupViewModel>;
 @{
-    ViewData["Title"] = "Kontogrupper";
+	ViewData["Title"] = "Kontogrupper";
 }
 
 <div class="row">
-    <div class="col-xl-1 d-none d-xl-block">
-    </div>
-    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
-        <h2>Kontogrupper</h2>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nummer</th>
-                        <th>Navn</th>
-                        <th>Type</th>
-                        <th><a asp-area="" asp-controller="Accounting" asp-action="CreateAccountGroup"><i class="fas fa-plus"></i></a></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (AccountGroupViewModel accountGroupViewModel in @Model)
-                    {
-                        <tr>
-                            <td>@accountGroupViewModel.Number</td>
-                            <td>@accountGroupViewModel.Name</td>
-                            <td>@accountGroupViewModel.AccountGroupType.EnumDisplayNameFor()</td>
-                            <td>
-                                <span class="fa-stack">
-                                    <a asp-area="" asp-controller="Accounting" asp-action="UpdateAccountGroup" asp-route-number="@accountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
-                                    @if (accountGroupViewModel.Deletable)
-                                    {
-                                        <a href="#" onclick="javascript:$().askForDeletion('Slet kontogruppe', '@(accountGroupViewModel.GetDeletionLink(Url))', @(accountGroupViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
-                                    }
-                                </span>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="col-xl-1 d-none d-xl-block">
-    </div>
+	<div class="col-xl-1 d-none d-xl-block">
+	</div>
+	<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+		<h2>Kontogrupper</h2>
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Nummer</th>
+						<th>Navn</th>
+						<th>Type</th>
+						<th>
+							@if (User.Identity is { IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.AccountingAdministratorPolicy)).Succeeded)
+							{
+								<a asp-area="" asp-controller="Accounting" asp-action="CreateAccountGroup"><i class="fas fa-plus"></i></a>
+							}
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (AccountGroupViewModel accountGroupViewModel in @Model)
+					{
+						<tr>
+							<td>@accountGroupViewModel.Number</td>
+							<td>@accountGroupViewModel.Name</td>
+							<td>@accountGroupViewModel.AccountGroupType.EnumDisplayNameFor()</td>
+							<td>
+								<span class="fa-stack">
+									@if (accountGroupViewModel.IsProtected == false)
+									{
+										<a asp-area="" asp-controller="Accounting" asp-action="UpdateAccountGroup" asp-route-number="@accountGroupViewModel.Number"><i class="fas fa-pen"></i></a>
+									}
+									@if (accountGroupViewModel.IsProtected == false && accountGroupViewModel.Deletable)
+									{
+										<a href="#" onclick="javascript:$().askForDeletion('Slet kontogruppe', '@(accountGroupViewModel.GetDeletionLink(Url))', @(accountGroupViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+									}
+								</span>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="col-xl-1 d-none d-xl-block">
+	</div>
 </div>

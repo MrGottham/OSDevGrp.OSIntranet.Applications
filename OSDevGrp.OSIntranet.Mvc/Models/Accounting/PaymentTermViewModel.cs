@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -23,6 +23,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Required(ErrorMessage = "Navnet skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(256, MinimumLength = 1, ErrorMessage = "Længden på navnet skal være mellem {2} og {1} tegn.")]
         public string Name { get; set; }
+
+        public bool IsProtected { get; set; }
 
         public bool Deletable { get; set; }
 

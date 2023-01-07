@@ -1,6 +1,6 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation
 {

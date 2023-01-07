@@ -1,30 +1,34 @@
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
-    public class GetAccountGroupQueryHandler : IQueryHandler<IGetAccountGroupQuery, IAccountGroup>
+    internal class GetAccountGroupQueryHandler : IQueryHandler<IGetAccountGroupQuery, IAccountGroup>
     {
         #region Private variables
 
         private readonly IValidator _validator;
+        private readonly IClaimResolver _claimResolver;
         private readonly IAccountingRepository _accountingRepository;
 
         #endregion
 
         #region Constructor
 
-        public GetAccountGroupQueryHandler(IValidator validator, IAccountingRepository accountingRepository)
+        public GetAccountGroupQueryHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
             _validator = validator;
+            _claimResolver = claimResolver;
             _accountingRepository = accountingRepository;
         }
 
@@ -38,7 +42,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
             query.Validate(_validator, _accountingRepository);
 
-            return await _accountingRepository.GetAccountGroupAsync(query.Number);
+            IAccountGroup accountGroup = await _accountingRepository.GetAccountGroupAsync(query.Number);
+            if (accountGroup == null)
+            {
+                return null;
+            }
+
+            if (_claimResolver.IsAccountingAdministrator())
+            {
+                return accountGroup;
+            }
+
+            accountGroup.ApplyProtection();
+
+            return accountGroup;
         }
 
         #endregion

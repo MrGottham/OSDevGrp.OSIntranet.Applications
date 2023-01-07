@@ -1,12 +1,13 @@
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.DeletePaymentTermCommandHandler;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.DeletePaymentTermCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.DeletePaymentTermCommandHandler
 {
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Del
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -25,6 +27,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Del
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -57,9 +60,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Del
         private CommandHandler CreateSut()
         {
             _accountingRepositoryMock.Setup(m => m.DeletePaymentTermAsync(It.IsAny<int>()))
-                .Returns(Task.Run(() => (IPaymentTerm) null));
+                .Returns(Task.FromResult((IPaymentTerm)null));
 
-            return new CommandHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
+            return new CommandHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
         }
 
         private Mock<IDeletePaymentTermCommand> CreateCommandMock(int? number = null)

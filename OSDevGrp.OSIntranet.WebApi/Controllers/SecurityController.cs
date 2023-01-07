@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +9,8 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.WebApi.Security;
+using System.Text;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
@@ -44,7 +45,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Methods
 
-        [Authorize(Policy = "AcquireToken")]
+        [Authorize(Policy = Policies.AcquireTokenPolicy)]
         [HttpPost("/api/oauth/token")]
         public ActionResult<AccessTokenModel> AcquireToken([FromForm(Name = "grant_type")]string grantType)
         {

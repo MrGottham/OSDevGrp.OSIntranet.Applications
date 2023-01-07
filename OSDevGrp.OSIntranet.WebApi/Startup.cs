@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +22,11 @@ using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.WebApi.Filters;
 using OSDevGrp.OSIntranet.WebApi.Handlers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
+using OSDevGrp.OSIntranet.WebApi.Security;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
@@ -103,22 +104,17 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy("AcquireToken", policy =>
+                opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetOAuthAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.TokenClaimType);
                 });
-                opt.AddPolicy("SecurityAdmin", policy =>
-                {
-                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
-                    policy.RequireClaim(ClaimHelper.SecurityAdminClaimType);
-                });
-                opt.AddPolicy("Accounting", policy =>
+                opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
-                opt.AddPolicy("CommonData", policy =>
+                opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
