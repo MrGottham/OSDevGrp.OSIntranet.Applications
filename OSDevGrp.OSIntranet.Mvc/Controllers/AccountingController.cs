@@ -127,12 +127,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingCreatorPolicy)]
         public IActionResult StartCreatingAccounting()
         {
             return PartialView("_CreatingAccountingPartial", CreateAccountingOptionsViewModel());
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingCreatorPolicy)]
         public async Task<IActionResult> CreateAccounting()
         {
             List<LetterHeadViewModel> letterHeadViewModelCollection = (await GetLetterHeadViewModels()).ToList();
@@ -150,6 +152,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingCreatorPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAccounting(AccountingViewModel accountingViewModel)
         {

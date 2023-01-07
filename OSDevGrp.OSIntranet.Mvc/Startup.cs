@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +11,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -24,6 +22,9 @@ using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Filters;
 using OSDevGrp.OSIntranet.Mvc.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using System;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc
 {
@@ -104,8 +105,8 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddMicrosoftAccount(opt => 
             {
-                opt.ClientId = Configuration[SecurityConfigurationKeys.MicrosoftClientId];
-                opt.ClientSecret = Configuration[SecurityConfigurationKeys.MicrosoftClientSecret];
+                opt.ClientId = Configuration[SecurityConfigurationKeys.MicrosoftClientId] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
+                opt.ClientSecret = Configuration[SecurityConfigurationKeys.MicrosoftClientSecret] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
                 opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -125,9 +126,9 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddGoogle(opt =>
             {
-                opt.ClientId = Configuration[SecurityConfigurationKeys.GoogleClientId];
-                opt.ClientSecret = Configuration[SecurityConfigurationKeys.GoogleClientSecret];
-                opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
+                opt.ClientId = Configuration[SecurityConfigurationKeys.GoogleClientId] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
+				opt.ClientSecret = Configuration[SecurityConfigurationKeys.GoogleClientSecret] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
+				opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
@@ -149,6 +150,12 @@ namespace OSDevGrp.OSIntranet.Mvc
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingAdministratorClaimType);
+                });
+                opt.AddPolicy(Policies.AccountingCreatorPolicy, policy =>
+                {
+	                policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+	                policy.RequireClaim(ClaimHelper.AccountingClaimType);
+	                policy.RequireClaim(ClaimHelper.AccountingCreatorClaimType);
                 });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {

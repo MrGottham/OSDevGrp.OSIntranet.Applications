@@ -1,12 +1,13 @@
-using System;
-using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.AccountingIdentificationCommandHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands.IAccountingIdentificationCommand>;
+using System;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.AccountingIdentificationCommandHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands.IAccountingIdentificationCommand>;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.AccountingIdentificationCommandHandlerBase
 {
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<ICommonRepository> _commonRepositoryMock;
 
@@ -25,6 +27,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _commonRepositoryMock = new Mock<ICommonRepository>();
         }
@@ -37,7 +40,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("command"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -51,6 +56,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
 
             commandMock.Verify(m => m.Validate(
                     It.Is<IValidator>(value => value == _validatorMock.Object), 
+                    It.Is<IClaimResolver>(value => value == _claimResolverMock.Object),
                     It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object),
                     It.Is<ICommonRepository>(value => value == _commonRepositoryMock.Object)), 
                 Times.Once);
@@ -82,7 +88,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
 
         private CommandHandler CreateSut()
         {
-            return new Sut(_validatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+            return new Sut(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
         }
 
         private Mock<IAccountingIdentificationCommand> CreateCommandMock()
@@ -94,8 +100,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.Acc
         {
             #region Constructor
 
-            public Sut(IValidator validator, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
-                : base(validator, accountingRepository, commonRepository)
+            public Sut(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
+                : base(validator, claimResolver, accountingRepository, commonRepository)
             {
             }
 

@@ -1,14 +1,15 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 {
@@ -34,13 +35,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 
         #region Methods
 
-        public override IValidator Validate(IValidator validator, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
+        public override IValidator Validate(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+	            .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository))
                 .NotNull(commonRepository, nameof(commonRepository));
 
-            return base.Validate(validator, accountingRepository, commonRepository)
+            return base.Validate(validator, claimResolver, accountingRepository, commonRepository)
                 .String.ShouldNotBeNullOrWhiteSpace(Name, GetType(), nameof(Name))
                 .String.ShouldHaveMinLength(Name, 1, GetType(), nameof(Name))
                 .String.ShouldHaveMaxLength(Name, 256, GetType(), nameof(Name))

@@ -15,6 +15,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -95,7 +96,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -223,7 +224,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
                     swaggerDoc.Servers = new List<OpenApiServer>
                     {
-                        new OpenApiServer
+                        new()
                         {
                             Url = $"{httpRequest.Headers[forwardedProtoHeader]}://{httpRequest.Headers[forwardedHostHeader]}"
                         }

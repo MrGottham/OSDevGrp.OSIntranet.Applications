@@ -1,18 +1,19 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 {
-    public class CreateContactAccountCommandHandler : AccountIdentificationCommandHandlerBase<ICreateContactAccountCommand>
+    internal class CreateContactAccountCommandHandler : AccountIdentificationCommandHandlerBase<ICreateContactAccountCommand>
     {
         #region Constructor
 
-        public CreateContactAccountCommandHandler(IValidator validator, IAccountingRepository accountingRepository, ICommonRepository commonRepository) 
-            : base(validator, accountingRepository, commonRepository)
+        public CreateContactAccountCommandHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, ICommonRepository commonRepository) 
+            : base(validator, claimResolver, accountingRepository, commonRepository)
         {
         }
 
