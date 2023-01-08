@@ -98,13 +98,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.Accounting
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertCanModifyAccountingWasNotCalledOnClaimResolver()
+        public void Validate_WhenCalled_AssertCanModifyAccountingWasCalledOnClaimResolver()
         {
-	        IAccountingIdentificationCommand sut = CreateSut();
+            int accountingNumber = _fixture.Create<int>();
+	        IAccountingIdentificationCommand sut = CreateSut(accountingNumber);
 
 	        sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
-	        _claimResolverMock.Verify(m => m.CanModifyAccounting(It.IsAny<int>()), Times.Never);
+	        _claimResolverMock.Verify(m => m.CanModifyAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once);
         }
 
         [Test]
@@ -117,7 +118,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.Accounting
 
 	        sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
-	        _validatorMockContext.PermissionValidatorMock.Verify(m => m.HasNecessaryPermission(It.Is<bool>(value => value)), Times.Once);
+	        _validatorMockContext.PermissionValidatorMock.Verify(m => m.HasNecessaryPermission(It.Is<bool>(value => value == canModifyAccounting)), Times.Once);
         }
 
         [Test]

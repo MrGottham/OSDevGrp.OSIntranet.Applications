@@ -37,7 +37,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 	            .ValidateAccountingIdentifier(AccountingNumber, GetType(), nameof(AccountingNumber));
         }
 
-        protected virtual bool EvaluateNecessaryPermission(IClaimResolver claimResolver) => true;
+        protected virtual bool EvaluateNecessaryPermission(IClaimResolver claimResolver)
+        {
+            NullGuard.NotNull(claimResolver, nameof(claimResolver));
+
+            return claimResolver.CanModifyAccounting(AccountingNumber);
+        }
 
         protected async Task<bool> AccountingExistsAsync(IAccountingRepository accountingRepository)
         {

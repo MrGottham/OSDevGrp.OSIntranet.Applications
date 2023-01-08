@@ -1,18 +1,19 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
-    public class GetContactAccountQueryHandler : AccountingIdentificationQueryHandlerBase<IGetContactAccountQuery, IContactAccount>
+    internal class GetContactAccountQueryHandler : AccountingIdentificationQueryHandlerBase<IGetContactAccountQuery, IContactAccount>
     {
         #region Constructor
 
-        public GetContactAccountQueryHandler(IValidator validator, IAccountingRepository accountingRepository) 
-            : base(validator, accountingRepository)
+        public GetContactAccountQueryHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository) 
+            : base(validator, claimResolver, accountingRepository)
         {
         }
 

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -25,6 +25,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         #region Properties
 
         public DateTime StatusDate { get; private set;  }
+
+        public bool IsProtected { get; private set; }
+
+        public bool Deletable => false;
 
         #endregion
 
@@ -203,6 +207,15 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
             return this;
         }
+
+        public void ApplyProtection()
+        {
+            IsProtected = true;
+        }
+
+        public void AllowDeletion() => throw new NotSupportedException();
+
+        public void DisallowDeletion() => throw new NotSupportedException();
 
         private IPostingLineCollection Between(DateTime fromDate, DateTime toDate, int? sortOrder)
         {

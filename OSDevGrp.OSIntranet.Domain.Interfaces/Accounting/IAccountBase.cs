@@ -2,7 +2,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IAccountBase : IAuditable, ICalculable, IDeletable
+    public interface IAccountBase : IAuditable, ICalculable, IProtectable
     {
         IAccounting Accounting { get; }
 

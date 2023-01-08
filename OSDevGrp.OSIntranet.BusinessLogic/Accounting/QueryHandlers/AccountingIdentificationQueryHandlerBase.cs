@@ -1,23 +1,27 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
-    public abstract class AccountingIdentificationQueryHandlerBase<TQuery, TResult> : IQueryHandler<TQuery, TResult> where TQuery : IAccountingIdentificationQuery where TResult : ICalculable<TResult>
+    internal abstract class AccountingIdentificationQueryHandlerBase<TQuery, TResult> : IQueryHandler<TQuery, TResult> where TQuery : IAccountingIdentificationQuery where TResult : ICalculable<TResult>, IProtectable
     {
         #region Constructor
 
-        protected AccountingIdentificationQueryHandlerBase(IValidator validator, IAccountingRepository accountingRepository)
+        protected AccountingIdentificationQueryHandlerBase(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
             Validator = validator;
+            ClaimResolver = claimResolver;
             AccountingRepository = accountingRepository;
         }
 
@@ -26,6 +30,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
         #region Properties
 
         protected IValidator Validator { get; }
+
+        protected IClaimResolver ClaimResolver { get; }
 
         protected IAccountingRepository AccountingRepository { get; }
 
@@ -40,12 +46,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
             query.Validate(Validator, AccountingRepository);
 
             TResult result = await GetDataAsync(query);
-            if (result == null)
-            {
-                return await GetResultForNoDataAsync(query);
-            }
 
-            return await result.CalculateAsync(query.StatusDate);
+            return result == null
+                ? ApplyProtection(query, await GetResultForNoDataAsync(query))
+                : ApplyProtection(query, await result.CalculateAsync(query.StatusDate));
         }
 
         protected abstract Task<TResult> GetDataAsync(TQuery query);
@@ -55,6 +59,23 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
             NullGuard.NotNull(query, nameof(query));
 
             return Task.FromResult(default(TResult));
+        }
+
+        private TResult ApplyProtection(TQuery query, TResult data)
+        {
+            NullGuard.NotNull(query, nameof(query));
+
+            if (data == null)
+            {
+                return default;
+            }
+
+            if (ClaimResolver.CanModifyAccounting(query.AccountingNumber) == false)
+            {
+                data.ApplyProtection();
+            }
+
+            return data;
         }
 
         #endregion

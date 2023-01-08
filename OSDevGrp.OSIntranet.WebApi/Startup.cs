@@ -115,6 +115,12 @@ namespace OSDevGrp.OSIntranet.WebApi
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
+                opt.AddPolicy(Policies.AccountingModifierPolicy, policy =>
+                {
+                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireClaim(ClaimHelper.AccountingClaimType);
+                    policy.RequireClaim(ClaimHelper.AccountingModifierClaimType);
+                });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());

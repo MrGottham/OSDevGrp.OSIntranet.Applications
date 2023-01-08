@@ -1,7 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -58,6 +58,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         #endregion
 
         #region Methods
+
+        public override void ApplyProtection()
+        {
+            BudgetInfoCollection?.ApplyProtection();
+
+            base.ApplyProtection();
+        }
 
         protected override Task[] GetCalculationTasks(DateTime statusDate)
         {

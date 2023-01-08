@@ -1,15 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetPostingLineCollectionQueryHandler;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetPostingLineCollectionQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetPostingLineCollectionQueryHandler
 {
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetPo
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -28,6 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetPo
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -54,7 +57,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetPo
             Mock<IGetPostingLineCollectionQuery> queryMock = CreateQueryMock();
             await sut.QueryAsync(queryMock.Object);
 
-            queryMock.Verify(m => m.AccountingNumber, Times.Once);
+            queryMock.Verify(m => m.AccountingNumber, Times.Exactly(2));
         }
 
         [Test]
@@ -153,10 +156,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetPo
 
         private QueryHandler CreateSut(bool hasPostingLineCollection = true, IPostingLineCollection postingLineCollection = null)
         {
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(_fixture.Create<bool>());
+
             _accountingRepositoryMock.Setup(m => m.GetPostingLinesAsync(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<int>()))
                 .Returns(Task.FromResult(hasPostingLineCollection ? postingLineCollection ?? _fixture.BuildPostingLineCollectionMock().Object : null));
 
-            return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
+            return new QueryHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
         }
 
         private IGetPostingLineCollectionQuery CreateQuery(int? accountingNumber = null, DateTime? statusDate = null, int? numberOfPostingLines = null)

@@ -1,5 +1,4 @@
-﻿
-namespace OSDevGrp.OSIntranet.Mvc.Security
+﻿namespace OSDevGrp.OSIntranet.Mvc.Security
 {
     public static class Policies
     {
@@ -9,6 +8,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Security
         public const string AccountingPolicy = "Accounting";
         public const string AccountingAdministratorPolicy = "AccountingAdministrator";
         public const string AccountingCreatorPolicy = "AccountingCreator";
+        public const string AccountingModifierPolicy = "AccountingModifier";
         public const string CommonDataPolicy = "CommonData";
         public const string SecurityAdminPolicy = "SecurityAdmin";
 

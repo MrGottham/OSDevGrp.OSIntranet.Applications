@@ -1,11 +1,11 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
-using OSDevGrp.OSIntranet.Domain.Core;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -73,6 +73,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public DateTime StatusDate { get; private set; }
 
+        public bool IsProtected { get; private set; }
+
         public bool Deletable { get; private set; }
 
         public bool DefaultForPrincipal { get; private set; }
@@ -120,6 +122,17 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             {
                 _isCalculating = false;
             }
+        }
+
+        public void ApplyProtection()
+        {
+            AccountCollection?.ApplyProtection();
+            BudgetAccountCollection.ApplyProtection();
+            ContactAccountCollection.ApplyProtection();
+
+            DisallowDeletion();
+
+            IsProtected = true;
         }
 
         public void AllowDeletion()

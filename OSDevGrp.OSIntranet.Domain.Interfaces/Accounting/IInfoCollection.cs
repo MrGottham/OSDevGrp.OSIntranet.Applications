@@ -1,9 +1,10 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
 using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IInfoCollection<TInfo> : IEnumerable<TInfo>, ICalculable where TInfo : IInfo<TInfo>
+    public interface IInfoCollection<TInfo> : IEnumerable<TInfo>, ICalculable, IProtectable where TInfo : IInfo<TInfo>
     {
         void Add(TInfo info);
 

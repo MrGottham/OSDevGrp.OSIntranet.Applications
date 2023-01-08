@@ -1,15 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetCreditorAccountCollectionQueryHandler;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetCreditorAccountCollectionQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetCreditorAccountCollectionQueryHandler
 {
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetCr
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -28,6 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetCr
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -40,7 +43,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetCr
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -52,7 +57,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetCr
             Mock<IGetCreditorAccountCollectionQuery> queryMock = CreateQueryMock();
             await sut.QueryAsync(queryMock.Object);
 
-            queryMock.Verify(m => m.AccountingNumber, Times.Once);
+            queryMock.Verify(m => m.AccountingNumber, Times.Exactly(2));
         }
 
         [Test]
@@ -169,10 +174,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetCr
 
         private QueryHandler CreateSut(bool hasContactAccountCollection = true, IContactAccountCollection contactAccountCollection = null)
         {
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(_fixture.Create<bool>());
+
             _accountingRepositoryMock.Setup(m => m.GetContactAccountsAsync(It.IsAny<int>(), It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(hasContactAccountCollection ? contactAccountCollection ?? _fixture.BuildContactAccountCollectionMock().Object : null));
 
-            return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
+            return new QueryHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
         }
 
         private IGetCreditorAccountCollectionQuery CreateQuery(int? accountingNumber = null, DateTime? statusDate = null)

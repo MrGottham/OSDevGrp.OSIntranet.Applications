@@ -266,6 +266,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpPost("postinglines")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync([FromBody] ApplyPostingJournalModel applyPostingJournal)
         {
             if (applyPostingJournal == null)
@@ -284,6 +285,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpPost("{accountingNumber}/postinglines")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(int accountingNumber, [FromBody] ApplyPostingLineCollectionModel applyPostingLineCollection)
         {
             if (applyPostingLineCollection == null)

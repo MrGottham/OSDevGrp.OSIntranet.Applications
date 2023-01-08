@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
@@ -12,6 +7,11 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -509,8 +509,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                     .NotNull(context, nameof(context));
 
                 postingLineCollectionViewModel ??= new PostingLineCollectionViewModel();
+                postingLineCollectionViewModel.IsProtected = postingLineCollection.IsProtected;
 
-                postingLineCollectionViewModel.AddRange(postingLineCollection.Ordered().Select(postingLine => context.Mapper.Map<IPostingLine, PostingLineViewModel>(postingLine)).ToArray());
+                postingLineCollectionViewModel.AddRange(postingLineCollection.Ordered().Select(context.Mapper.Map<IPostingLine, PostingLineViewModel>).ToArray());
 
                 return postingLineCollectionViewModel;
             }

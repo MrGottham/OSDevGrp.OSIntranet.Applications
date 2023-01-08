@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using OSDevGrp.OSIntranet.Mvc.Models.Common;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using OSDevGrp.OSIntranet.Mvc.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -18,6 +18,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Required(ErrorMessage = "Antal dage for tilbagedatering skal udfyldes.")]
         [Range(0, 365, ErrorMessage = "Antallet af dage for tilbagedatering skal være mellem {1} og {2} dage.")]
         public int BackDating { get; set; }
+
+        public bool IsProtected { get; set; }
 
         public bool Deletable { get; set; }
 

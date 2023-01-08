@@ -1,15 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.AccountingIdentificationQueryHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries.IAccountingIdentificationQuery, OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.IAccounting>;
+using System;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.AccountingIdentificationQueryHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries.IAccountingIdentificationQuery, OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.IAccounting>;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.AccountingIdentificationQueryHandlerBase
 {
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -28,6 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -40,7 +43,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -118,12 +123,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
 
         [Test]
         [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoDataWasReturned_AssertAccountingNumberWasNotCalledOnAccountingIdentificationQuery()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            Mock<IAccountingIdentificationQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.AccountingNumber, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoDataWasReturned_AssertCanModifyAccountingWasNotCalledOnClaimResolver()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            await sut.QueryAsync(CreateQuery());
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task QueryAsync_WhenNoDataWasReturned_ReturnsNull()
         {
             QueryHandler sut = CreateSut(false);
 
-            IAccountingIdentificationQuery query = CreateQuery();
-            IAccounting result = await sut.QueryAsync(query);
+            IAccounting result = await sut.QueryAsync(CreateQuery());
 
             Assert.That(result, Is.Null);
         }
@@ -170,7 +197,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
             QueryHandler sut = CreateSut(accounting: accountingMock.Object);
 
             DateTime statusDate = _fixture.Create<DateTime>().Date;
-            IAccountingIdentificationQuery query = CreateQuery(statusDate);
+            IAccountingIdentificationQuery query = CreateQuery(statusDate: statusDate);
             await sut.QueryAsync(query);
 
             accountingMock.Verify(m => m.CalculateAsync(It.Is<DateTime>(value => value ==  statusDate)), Times.Once);
@@ -178,10 +205,113 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenDataWasReturned_ReturnsCalculatedData()
+        public async Task QueryAsync_WhenNoCalculatedDataWasReturnedFromDataWasReturned_AssertAccountingNumberWasNotCalledOnAccountingIdentificationQuery()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: false).Object;
+            QueryHandler sut = CreateSut(accounting: accounting);
+
+            Mock<IAccountingIdentificationQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.AccountingNumber, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoCalculatedDataWasReturnedFromDataWasReturned_AssertCanModifyAccountingWasNotCalledOnClaimResolver()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: false).Object;
+            QueryHandler sut = CreateSut(accounting: accounting);
+
+            await sut.QueryAsync(CreateQuery());
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoCalculatedDataWasReturnedFromDataWasReturned_ReturnsNull()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: false).Object;
+            QueryHandler sut = CreateSut(accounting: accounting);
+
+            IAccounting result = await sut.QueryAsync(CreateQuery());
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalculatedDataWasReturnedFromDataWasReturned_AssertAccountingNumberWasCalledOnAccountingIdentificationQuery()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: true).Object;
+            QueryHandler sut = CreateSut(accounting: accounting);
+
+            Mock<IAccountingIdentificationQuery> queryMock = CreateQueryMock();
+            await sut.QueryAsync(queryMock.Object);
+
+            queryMock.Verify(m => m.AccountingNumber, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCalculatedDataWasReturnedFromDataWasReturned_AssertCanModifyAccountingWasCalledOnClaimResolver()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: true).Object;
+            QueryHandler sut = CreateSut(accounting: accounting);
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.QueryAsync(CreateQuery(accountingNumber));
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCanModifyAccountingReturnsFalse_AssertApplyProtectionWasCalledOnCalculatedDataFromReturnedData()
+        {
+            Mock<IAccounting> calculatedAccountingMock = _fixture.BuildAccountingMock();
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: true, calculatedAccounting: calculatedAccountingMock.Object).Object;
+            QueryHandler sut = CreateSut(accounting: accounting, canModifyAccounting: false);
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.QueryAsync(CreateQuery(accountingNumber));
+
+            calculatedAccountingMock.Verify(m => m.ApplyProtection(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenCanModifyAccountingReturnsTrue_AssertApplyProtectionWasNotCalledOnCalculatedDataFromReturnedData()
+        {
+            Mock<IAccounting> calculatedAccountingMock = _fixture.BuildAccountingMock();
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: true, calculatedAccounting: calculatedAccountingMock.Object).Object;
+            QueryHandler sut = CreateSut(accounting: accounting, canModifyAccounting: true);
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.QueryAsync(CreateQuery(accountingNumber));
+
+            calculatedAccountingMock.Verify(m => m.ApplyProtection(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoCalculatedDataWasReturnedFromDataWasReturned_ReturnsNotNull()
+        {
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: true).Object;
+            QueryHandler sut = CreateSut(accounting: accounting);
+
+            IAccounting result = await sut.QueryAsync(CreateQuery());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoCalculatedDataWasReturnedFromDataWasReturned_ReturnsCalculatedData()
         {
             IAccounting calculatedAccounting = _fixture.BuildAccountingMock().Object;
-            IAccounting accounting = _fixture.BuildAccountingMock(calculatedAccounting: calculatedAccounting).Object;
+            IAccounting accounting = _fixture.BuildAccountingMock(hasCalculatedAccounting: true, calculatedAccounting: calculatedAccounting).Object;
             QueryHandler sut = CreateSut(accounting: accounting);
 
             IAccounting result = await sut.QueryAsync(CreateQuery());
@@ -189,19 +319,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
             Assert.That(result, Is.EqualTo(calculatedAccounting));
         }
 
-        private QueryHandler CreateSut(bool hasAccounting = true, IAccounting accounting = null)
+        private QueryHandler CreateSut(bool hasAccounting = true, IAccounting accounting = null, bool? canModifyAccounting = null)
         {
-            return new Sut(_validatorMock.Object, _accountingRepositoryMock.Object, hasAccounting ? accounting ?? _fixture.BuildAccountingMock().Object : null);
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(canModifyAccounting ?? _fixture.Create<bool>());
+
+            return new Sut(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, hasAccounting ? accounting ?? _fixture.BuildAccountingMock().Object : null);
         }
 
-        private IAccountingIdentificationQuery CreateQuery(DateTime? statusDate = null)
+        private IAccountingIdentificationQuery CreateQuery(int? accountingNumber = null, DateTime? statusDate = null)
         {
-            return CreateQueryMock(statusDate).Object;
+            return CreateQueryMock(accountingNumber, statusDate).Object;
         }
 
-        private Mock<IAccountingIdentificationQuery> CreateQueryMock(DateTime? statusDate = null)
+        private Mock<IAccountingIdentificationQuery> CreateQueryMock(int? accountingNumber = null, DateTime? statusDate = null)
         {
             Mock<IAccountingIdentificationQuery> queryMock = new Mock<IAccountingIdentificationQuery>();
+            queryMock.Setup(m => m.AccountingNumber)
+                .Returns(accountingNumber ?? _fixture.Create<int>());
             queryMock.Setup(m => m.StatusDate)
                 .Returns(statusDate ?? _fixture.Create<DateTime>().Date);
             return queryMock;
@@ -217,8 +352,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
 
             #region Constructor
 
-            public Sut(IValidator validator, IAccountingRepository accountingRepository, IAccounting accounting) 
-                : base(validator, accountingRepository)
+            public Sut(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IAccounting accounting) 
+                : base(validator, claimResolver, accountingRepository)
             {
                 _accounting = accounting;
             }

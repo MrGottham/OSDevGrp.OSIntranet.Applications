@@ -1,9 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -18,6 +19,10 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         #region Properties
 
         public DateTime StatusDate { get; private set; }
+
+        public bool IsProtected { get; private set; }
+
+        public bool Deletable => IsProtected == false && this.All(account => account.Deletable);
 
         #endregion
 
@@ -75,6 +80,20 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
                 _isCalculating = false;
             }
         }
+
+        public void ApplyProtection()
+        {
+            foreach (TAccount account in this)
+            {
+                account.ApplyProtection();
+            }
+
+            IsProtected = true;
+        }
+
+        public void AllowDeletion() => throw new NotSupportedException();
+
+        public void DisallowDeletion() => throw new NotSupportedException();
 
         protected abstract TAccountCollection Calculate(DateTime statusDate, IReadOnlyCollection<TAccount> calculatedAccountCollection);
 

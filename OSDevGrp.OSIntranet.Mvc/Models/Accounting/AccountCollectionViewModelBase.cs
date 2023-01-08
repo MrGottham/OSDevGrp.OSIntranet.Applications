@@ -10,6 +10,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 
         public int Count => Items.Count;
 
+        public bool IsProtected { get; set; }
+
         IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();
 
         IEnumerator<TAccountViewModel> IEnumerable<TAccountViewModel>.GetEnumerator() => Items.GetEnumerator();

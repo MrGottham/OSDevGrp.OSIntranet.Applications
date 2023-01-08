@@ -1,14 +1,15 @@
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
-    public class GetAccountingQueryHandler : AccountingIdentificationQueryHandlerBase<IGetAccountingQuery, IAccounting>
+    internal class GetAccountingQueryHandler : AccountingIdentificationQueryHandlerBase<IGetAccountingQuery, IAccounting>
     {
         #region Private variables
 
@@ -18,8 +19,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
         #region Constructor
 
-        public GetAccountingQueryHandler(IValidator validator, IAccountingRepository accountingRepository, IAccountingHelper accountingHelper)
-            : base(validator, accountingRepository)
+        public GetAccountingQueryHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IAccountingHelper accountingHelper)
+            : base(validator, claimResolver, accountingRepository)
         {
             NullGuard.NotNull(accountingHelper, nameof(accountingHelper));
 

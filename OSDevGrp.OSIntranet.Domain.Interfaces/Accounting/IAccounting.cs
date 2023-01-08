@@ -1,12 +1,12 @@
-using System;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IAccounting : IAuditable, ICalculable<IAccounting>, IDeletable
+    public interface IAccounting : IAuditable, ICalculable<IAccounting>, IProtectable
     {
         int Number { get; }
 

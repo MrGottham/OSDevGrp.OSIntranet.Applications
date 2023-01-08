@@ -1,10 +1,11 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IPostingLineCollection : IEnumerable<IPostingLine>, ICalculable<IPostingLineCollection>
+    public interface IPostingLineCollection : IEnumerable<IPostingLine>, ICalculable<IPostingLineCollection>, IProtectable
     {
         void Add(IPostingLine postingLine);
 

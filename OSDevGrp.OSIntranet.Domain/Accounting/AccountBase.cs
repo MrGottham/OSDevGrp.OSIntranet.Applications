@@ -1,8 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -55,6 +55,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public DateTime StatusDate { get; private set; }
 
+        public bool IsProtected { get; private set; }
+
         public bool Deletable { get; private set; }
 
         public IPostingLineCollection PostingLineCollection { get; protected set; }
@@ -88,6 +90,15 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             {
                 _isCalculating = false;
             }
+        }
+
+        public virtual void ApplyProtection()
+        {
+            PostingLineCollection?.ApplyProtection();
+
+            DisallowDeletion();
+
+            IsProtected = true;
         }
 
         public void AllowDeletion()
