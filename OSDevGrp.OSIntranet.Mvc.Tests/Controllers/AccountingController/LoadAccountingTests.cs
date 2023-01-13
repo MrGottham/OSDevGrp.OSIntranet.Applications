@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -17,7 +13,11 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 {
@@ -104,6 +104,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             await sut.LoadAccounting(_fixture.Create<int>());
 
             _queryBusMock.Verify(m => m.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(It.Is<IPullKeyValueEntryQuery>(query => query != null && string.CompareOrdinal(query.Key, postingJournalKey) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task LoadAccounting_WhenCalled_AssertCanModifyAccountingWasCalledOnClaimResolver()
+        {
+            Controller sut = CreateSut();
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.LoadAccounting(accountingNumber);
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once());
         }
 
         [Test]
@@ -231,7 +243,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.AccountingNumber, Is.EqualTo(accountingNumber));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -244,7 +258,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.EditMode, Is.EqualTo(EditMode.None));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -257,7 +273,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.Accounts, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -270,7 +288,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.BudgetAccounts, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -283,7 +303,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.ContactAccounts, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -326,7 +348,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalKey, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -340,7 +364,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalKey, Is.EqualTo(postingJournalKey));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -353,7 +379,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournal, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -367,7 +395,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournal.AccountingNumber, Is.EqualTo(accountingNumber));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -380,7 +410,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournal.ApplyPostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -393,7 +425,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournal.ApplyPostingLines, Is.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -408,7 +442,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournal, Is.EqualTo(postingJournal));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -421,7 +457,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResultKey, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -435,7 +473,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResultKey, Is.EqualTo(postingJournalResultKey));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -448,7 +488,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResult, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -506,7 +548,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResult.PostingWarnings, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -519,7 +563,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResult.PostingWarnings, Is.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -534,7 +580,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.PostingJournalResult, Is.EqualTo(postingJournalResult));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -548,15 +596,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             AccountingViewModel accountingViewModel = (AccountingViewModel) result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(accountingViewModel.LetterHeads, Is.Not.Null);
             Assert.That(accountingViewModel.LetterHeads.Count, Is.EqualTo(letterHeadCollection.Count()));
             Assert.That(accountingViewModel.LetterHeads.All(letterHeadViewModel => letterHeadCollection.Any(letterHead => letterHead.Number == letterHeadViewModel.Number)), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private Controller CreateSut(IEnumerable<ILetterHead> letterHeadCollection = null, bool hasAccounting = true, IAccounting accounting = null, string postingJournalKey = null, bool hasKeyValueEntryForPostingJournalKey = true, IKeyValueEntry keyValueEntryForPostingJournalKey = null, string postingJournalResultKey = null, bool hasKeyValueEntryForPostingJournalResultKey = true, IKeyValueEntry keyValueEntryForPostingJournalResultKey = null)
         {
             postingJournalKey ??= _fixture.Create<string>();
             postingJournalResultKey ??= _fixture.Create<string>();
+
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(_fixture.Create<bool>());
 
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.FromResult(letterHeadCollection ?? _fixture.CreateMany<ILetterHead>(_random.Next(5, 10)).ToList()));

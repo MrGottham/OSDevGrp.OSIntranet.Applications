@@ -13,8 +13,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [StringLength(4096, MinimumLength = 0, ErrorMessage = "Længden på noten skal være mellem {2} og {1} tegn.")]
         public string Note { get; set; }
 
-        public bool IsProtected { get; set; }
-
         public bool Deletable { get; set; }
     }
 }

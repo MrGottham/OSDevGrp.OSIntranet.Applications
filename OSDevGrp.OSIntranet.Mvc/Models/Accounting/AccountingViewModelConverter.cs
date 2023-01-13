@@ -242,14 +242,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ConvertUsing(_postingLineCollectionToPostingLineCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingWarning, PostingWarningViewModel>()
-                .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => Guid.NewGuid()));
+                .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => Guid.NewGuid()))
+                .ForMember(dest => dest.IsProtected, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IPostingWarningCollection, PostingWarningCollectionViewModel>()
                 .ConvertUsing(_postingWarningCollectionToPostingWarningCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingJournalResult, ApplyPostingJournalResultViewModel>()
                 .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection))
-                .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection));
+                .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection))
+                .ForMember(dest => dest.IsProtected, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<ApplyPostingLineViewModel, ApplyPostingLineCommand>()
                 .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.LocalDateTime.Date))

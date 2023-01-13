@@ -36,132 +36,201 @@
                 <input type="hidden" asp-for="ValuesForLastYearOfStatusDate.Available" />
             }
             <h3>@Model.Accounting.Name.ToHtmlString()</h3>
-            @await Html.PartialAsync("_EditAccountIdentificationPartial", Model)
-            @await Html.PartialAsync("_EditAccountCoreDataPartial", Model)
-            <div class="form-group">
-                <label asp-for="BudgetAccountGroup"></label>
-                <select asp-for="BudgetAccountGroup.Number" asp-items="Model.BudgetAccountGroups.SelectListFor(Model.BudgetAccountGroup?.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.BudgetAccountGroup.Name)', $(this).find('option:selected').text());"></select>
-                <span asp-validation-for="BudgetAccountGroup" class="text-danger"></span>
-            </div>
-            @if (Model.EditMode == EditMode.Edit && (Model.ValuesForMonthOfStatusDate != null || Model.ValuesForLastMonthOfStatusDate != null || Model.ValuesForYearToDateOfStatusDate != null || Model.ValuesForLastYearOfStatusDate != null))
-            {
-                <div class="table-responsive d-none d-lg-block d-xl-block">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th class="text-right">Budget</th>
-                                <th class="text-right">Bogført</th>
-                                <th class="text-right">Disponibel</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.ValuesForMonthOfStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesForMonthOfStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForMonthOfStatusDate.Available.AsCurrency()</td>
-                                </tr>
-                            }
-                            @if (Model.ValuesForLastMonthOfStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesForLastMonthOfStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesForLastMonthOfStatusDate.Budget.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForLastMonthOfStatusDate.Posted.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForLastMonthOfStatusDate.Available.AsCurrency()</td>
-                                </tr>
-                            }
-                            @if (Model.ValuesForYearToDateOfStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesForYearToDateOfStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesForYearToDateOfStatusDate.Budget.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForYearToDateOfStatusDate.Posted.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForYearToDateOfStatusDate.Available.AsCurrency()</td>
-                                </tr>
-                            }
-                            @if (Model.ValuesForLastYearOfStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesForLastYearOfStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesForLastYearOfStatusDate.Budget.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForLastYearOfStatusDate.Posted.AsCurrency()</td>
-                                    <td class="text-right">@Model.ValuesForLastYearOfStatusDate.Available.AsCurrency()</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            @if (Model.BudgetInfos != null)
-            {
-                @foreach (KeyValuePair<short, BudgetInfoCollectionViewModel> item in Model.BudgetInfos.OrderBy(m => m.Key))
-                {
-                    <p class="font-weight-bold">@Html.LabelFor(m => m.BudgetInfos)&nbsp;@Html.Raw(item.Key)</p>
-                    @for (int i = 0; i < item.Value.Count; i += 3)
-                    {
-                        <div class="card-deck mb-4">
-                            @for (int j = i; j < Math.Min(i + 3, item.Value.Count); j++)
-                            {
-                                int elementNo = j;
-                                <div class="card">
-                                    <div class="card-header">@Html.DisplayFor(m => m.BudgetInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
-                                    <div class="card-body">
-                                        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Year" />
-                                        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Month" />
-                                        @if (Model.BudgetInfos.Items[item.Key].Items[elementNo].Editable == false)
-                                        {
-                                            <div class="form-group">
-                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Budget"></label>
-                                                <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Budget" />
-                                                <input type="text" value="@Model.BudgetInfos.Items[item.Key].Items[elementNo].Budget.AsCurrency()" class="form-control" readonly />
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="form-group">
-                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income"></label>
-                                                <input asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="form-control" />
-                                                <span asp-validation-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="text-danger"></span>
-                                            </div>
-                                            <div class="form-group">
-                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses"></label>
-                                                <input asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="form-control" />
-                                                <span asp-validation-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="text-danger"></span>
-                                            </div>
-                                        }
-                                        @if (Model.BudgetInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BudgetInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
-                                        {
-                                            <div class="form-group">
-                                                <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Posted"></label>
-                                                <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Posted" />
-                                                <input type="text" value="@Model.BudgetInfos.Items[item.Key].Items[elementNo].Posted.AsCurrency()" class="form-control" readonly />
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    <hr />
-                }
-            }
-            @if (Model.EditMode == EditMode.Edit && Model.PostingLines != null)
-            {
-                <div>
-                    <p class="font-weight-bold">@Html.LabelFor(m => m.PostingLines)</p>
-                    @await Html.PartialAsync("_PostingLineCollectionPartial", Model.PostingLines)
-                    <hr />
-                </div>
-            }
-            @if (Model.EditMode == EditMode.Edit)
-            {
-                @await Html.PartialAsync("_AuditablePartial", Model)
-            }
-            @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
+        <div id="budgetAccountAccordion">
+	        <div class="card">
+		        <div class="card-header">
+			        <a class="card-link" data-toggle="collapse" href="#collapseCoreData">
+				        <h5>Stamdata</h5>
+			        </a>
+		        </div>
+		        <div id="collapseCoreData" class="collapse show" data-parent="#budgetAccountAccordion">
+			        <div class="card-body">
+				        @await Html.PartialAsync("_EditAccountIdentificationPartial", Model)
+				        @await Html.PartialAsync("_EditAccountCoreDataPartial", Model)
+				        <div class="form-group">
+					        <label asp-for="BudgetAccountGroup"></label>
+					        @if (Model.IsProtected == false)
+					        {
+						        <select asp-for="BudgetAccountGroup.Number" asp-items="Model.BudgetAccountGroups.SelectListFor(Model.BudgetAccountGroup?.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.BudgetAccountGroup.Name)', $(this).find('option:selected').text());"></select>
+						        <span asp-validation-for="BudgetAccountGroup" class="text-danger"></span>
+					        }
+					        else
+					        {
+						        <input type="hidden" asp-for="BudgetAccountGroup.Number" />
+						        <select asp-items="Model.BudgetAccountGroups.SelectListFor(Model.BudgetAccountGroup?.Number)" class="form-control" readonly disabled></select>
+					        }
+				        </div>
+			        </div>
+		        </div>
+	        </div>
+	        @if (Model.EditMode == EditMode.Edit && (Model.ValuesForMonthOfStatusDate != null || Model.ValuesForLastMonthOfStatusDate != null || Model.ValuesForYearToDateOfStatusDate != null || Model.ValuesForLastYearOfStatusDate != null))
+	        {
+		        <div class="card d-none d-lg-block d-xl-block">
+			        <div class="card-header">
+				        <a class="card-link" data-toggle="collapse" href="#collapseActualStatus">
+					        <h5>Aktuel status</h5>
+				        </a>
+			        </div>
+			        <div id="collapseActualStatus" class="collapse show" data-parent="#budgetAccountAccordion">
+				        <div class="card-body">
+					        <div class="table-responsive">
+						        <table class="table table-sm">
+							        <thead>
+							        <tr>
+								        <th></th>
+								        <th class="text-right">Budget</th>
+								        <th class="text-right">Bogført</th>
+								        <th class="text-right">Disponibel</th>
+							        </tr>
+							        </thead>
+							        <tbody>
+							        @if (Model.ValuesForMonthOfStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesForMonthOfStatusDate)</td>
+									        <td class="text-right">@Model.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForMonthOfStatusDate.Available.AsCurrency()</td>
+								        </tr>
+							        }
+							        @if (Model.ValuesForLastMonthOfStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesForLastMonthOfStatusDate)</td>
+									        <td class="text-right">@Model.ValuesForLastMonthOfStatusDate.Budget.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForLastMonthOfStatusDate.Posted.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForLastMonthOfStatusDate.Available.AsCurrency()</td>
+								        </tr>
+							        }
+							        @if (Model.ValuesForYearToDateOfStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesForYearToDateOfStatusDate)</td>
+									        <td class="text-right">@Model.ValuesForYearToDateOfStatusDate.Budget.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForYearToDateOfStatusDate.Posted.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForYearToDateOfStatusDate.Available.AsCurrency()</td>
+								        </tr>
+							        }
+							        @if (Model.ValuesForLastYearOfStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesForLastYearOfStatusDate)</td>
+									        <td class="text-right">@Model.ValuesForLastYearOfStatusDate.Budget.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForLastYearOfStatusDate.Posted.AsCurrency()</td>
+									        <td class="text-right">@Model.ValuesForLastYearOfStatusDate.Available.AsCurrency()</td>
+								        </tr>
+							        }
+							        </tbody>
+						        </table>
+					        </div>
+				        </div>
+			        </div>
+		        </div>
+	        }
+	        @if (Model.BudgetInfos != null)
+	        {
+		        @foreach (KeyValuePair<short, BudgetInfoCollectionViewModel> item in Model.BudgetInfos.OrderBy(m => m.Key))
+		        {
+			        <div class="card">
+				        <div class="card-header">
+					        <a class="card-link" data-toggle="collapse" href="@($"#collapseBudgetInfoCollectionFor{item.Key}")">
+						        <h5>@Html.LabelFor(m => m.BudgetInfos)&nbsp;@Html.Raw(item.Key)</h5>
+					        </a>
+				        </div>
+				        <div id="@($"collapseBudgetInfoCollectionFor{item.Key}")" class="collapse show" data-parent="#budgetAccountAccordion">
+					        <div class="card-body">
+						        <div class="table-responsive">
+							        <table class="table table-sm">
+								        <thead>
+								        <tr>
+									        <th></th>
+									        <th class="text-right">Budget</th>
+									        <th class="text-right">Bogført</th>
+								        </tr>
+								        </thead>
+								        <tbody>
+								        @for (int i = 0; i < item.Value.Count; i++)
+								        {
+									        int elementNo = i;
+									        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Year" />
+									        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Month" />
+									        <tr>
+										        <td>@Html.DisplayFor(m => m.BudgetInfos.Items[item.Key].Items[elementNo].MonthAsText)</td>
+										        <td>
+											        @if (Model.IsProtected || Model.BudgetInfos.Items[item.Key].Items[elementNo].Editable == false)
+											        {
+												        <div class="form-group">
+													        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" />
+													        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" />
+													        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Budget" />
+													        <input type="text" value="@Model.BudgetInfos.Items[item.Key].Items[elementNo].Budget.AsCurrency()" class="form-control text-right" readonly />
+												        </div>
+											        }
+											        else
+											        {
+												        <div class="form-group">
+													        <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="float-right"></label>
+													        <input asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="form-control text-right" />
+													        <span asp-validation-for="BudgetInfos.Items[item.Key].Items[elementNo].Income" class="text-danger float-right text-wrap"></span>
+												        </div>
+												        <div class="form-group">
+													        <label asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="float-right"></label>
+													        <input asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="form-control text-right" />
+													        <span asp-validation-for="BudgetInfos.Items[item.Key].Items[elementNo].Expenses" class="text-danger float-right text-wrap"></span>
+												        </div>
+											        }
+										        </td>
+										        <td>
+											        @if (Model.BudgetInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BudgetInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
+											        {
+												        <div class="form-group">
+													        <input type="hidden" asp-for="BudgetInfos.Items[item.Key].Items[elementNo].Posted" />
+													        <input type="text" value="@Model.BudgetInfos.Items[item.Key].Items[elementNo].Posted.AsCurrency()" class="form-control text-right" readonly />
+												        </div>
+											        }
+										        </td>
+									        </tr>
+								        }
+								        </tbody>
+							        </table>
+						        </div>
+					        </div>
+				        </div>
+			        </div>
+		        }
+	        }
+	        @if (Model.EditMode == EditMode.Edit && Model.PostingLines != null)
+	        {
+		        <div class="card">
+			        <div class="card-header">
+				        <a class="card-link" data-toggle="collapse" href="#collapsePostingLineCollection">
+					        <h5>@Html.LabelFor(m => m.PostingLines)</h5>
+				        </a>
+			        </div>
+			        <div id="collapsePostingLineCollection" class="collapse show" data-parent="#budgetAccountAccordion">
+				        <div class="card-body">
+					        @await Html.PartialAsync("_PostingLineCollectionPartial", Model.PostingLines)
+				        </div>
+			        </div>
+		        </div>
+	        }
+	        @if (Model.EditMode == EditMode.Edit)
+	        {
+		        <div class="card">
+			        <div class="card-header">
+				        <a class="card-link" data-toggle="collapse" href="#collapseAuditable">
+					        <h5>Revisionsoplysninger</h5>
+				        </a>
+			        </div>
+			        <div id="collapseAuditable" class="collapse show" data-parent="#budgetAccountAccordion">
+				        <div class="card-body">
+					        @await Html.PartialAsync("_AuditablePartial", Model)
+				        </div>
+			        </div>
+		        </div>
+	        }
+        </div>
+        @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
         </form>
     </div>
 </div>

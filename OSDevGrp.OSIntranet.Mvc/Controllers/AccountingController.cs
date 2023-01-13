@@ -23,6 +23,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -31,7 +32,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Mvc.Security;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
@@ -109,8 +109,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             List<LetterHeadViewModel> letterHeadViewModelCollection = (await GetLetterHeadViewModels()).ToList();
             IAccounting accounting = await GetAccounting(accountingNumber);
-            ApplyPostingJournalViewModel postingJournal = await GetPostingJournal(accountingNumber, postingJournalKey);
-            ApplyPostingJournalResultViewModel postingJournalResult = await GetPostingJournalResult(postingJournalResultKey);
+
+            bool canModifyAccounting = _claimResolver.CanModifyAccounting(accountingNumber);
+            ApplyPostingJournalViewModel postingJournal = await GetPostingJournal(accountingNumber, postingJournalKey, canModifyAccounting);
+            ApplyPostingJournalResultViewModel postingJournalResult = await GetPostingJournalResult(postingJournalResultKey, canModifyAccounting);
+
             if (accounting == null)
             {
                 return BadRequest();
@@ -170,6 +173,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAccounting(AccountingViewModel accountingViewModel)
         {
@@ -187,6 +191,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccounting(int accountingNumber)
         {
@@ -200,12 +205,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public IActionResult StartCreatingAccount(int accountingNumber)
         {
             return PartialView("_CreatingAccountPartial", CreateAccountingIdentificationViewModel(accountingNumber));
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public async Task<IActionResult> CreateAccount(int accountingNumber)
         {
             List<AccountGroupViewModel> accountGroupViewModelCollection = (await GetAccountGroupViewModels()).ToList();
@@ -223,6 +230,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
         {
@@ -264,6 +272,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAccount(AccountViewModel accountViewModel)
         {
@@ -278,6 +287,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAccount(int accountingNumber, string accountNumber)
         {
@@ -294,12 +304,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public IActionResult StartCreatingBudgetAccount(int accountingNumber)
         {
             return PartialView("_CreatingBudgetAccountPartial", CreateAccountingIdentificationViewModel(accountingNumber));
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public async Task<IActionResult> CreateBudgetAccount(int accountingNumber)
         {
             List<BudgetAccountGroupViewModel> budgetAccountGroupViewModelCollection = (await GetBudgetAccountGroupViewModels()).ToList();
@@ -317,6 +329,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
         {
@@ -358,6 +371,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBudgetAccount(BudgetAccountViewModel budgetAccountViewModel)
         {
@@ -372,6 +386,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBudgetAccount(int accountingNumber, string accountNumber)
         {
@@ -388,12 +403,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public IActionResult StartCreatingContactAccount(int accountingNumber)
         {
             return PartialView("_CreatingContactAccountPartial", CreateAccountingIdentificationViewModel(accountingNumber));
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public async Task<IActionResult> CreateContactAccount(int accountingNumber)
         {
             List<PaymentTermViewModel> paymentTermViewModelCollection = (await GetPaymentTermViewModels()).ToList();
@@ -411,6 +428,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateContactAccount(ContactAccountViewModel contactAccountViewModel)
         {
@@ -452,6 +470,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateContactAccount(ContactAccountViewModel contactAccountViewModel)
         {
@@ -466,6 +485,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteContactAccount(int accountingNumber, string accountNumber)
         {
@@ -482,6 +502,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyPostingJournal(ApplyPostingJournalViewModel applyPostingJournalViewModel)
         {
@@ -495,11 +516,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                     .Build();
             }
 
+            bool canModifyAccounting = _claimResolver.CanModifyAccounting(applyPostingJournalViewModel.AccountingNumber);
+            if (canModifyAccounting == false)
+            {
+                return Forbid();
+            }
+
             string postingJournalKey = await GetPostingJournalKey(applyPostingJournalViewModel.AccountingNumber);
             string postingJournalResultKey = await GetPostingJournalResultKey(applyPostingJournalViewModel.AccountingNumber);
 
-            ApplyPostingJournalViewModel postingJournal = await GetPostingJournal(applyPostingJournalViewModel.AccountingNumber, postingJournalKey);
-            ApplyPostingJournalResultViewModel postingJournalResult = await GetPostingJournalResult(postingJournalResultKey);
+            ApplyPostingJournalViewModel postingJournal = await GetPostingJournal(applyPostingJournalViewModel.AccountingNumber, postingJournalKey, true);
+            ApplyPostingJournalResultViewModel postingJournalResult = await GetPostingJournalResult(postingJournalResultKey, true);
 
             IApplyPostingJournalCommand applyPostingJournalCommand = _accountingViewModelConverter.Convert<ApplyPostingJournalViewModel, ApplyPostingJournalCommand>(applyPostingJournalViewModel);
             IPostingJournalResult applyPostingJournalResult = await _commandBus.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(applyPostingJournalCommand);
@@ -816,6 +843,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost("api/accountings/{accountingNumber}/postingjournals")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddPostingLineToPostingJournal(int accountingNumber, string postingJournalKey, string postingLine, string postingJournalHeader = null)
         {
@@ -843,13 +871,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest(ex.Message);
             }
 
-            ApplyPostingJournalViewModel applyPostingJournalViewModel = await GetPostingJournal(accountingNumber, postingJournalKey);
+            bool canModifyAccounting = _claimResolver.CanModifyAccounting(accountingNumber);
+            if (canModifyAccounting == false)
+            {
+                return Forbid();
+            }
+
+            ApplyPostingJournalViewModel applyPostingJournalViewModel = await GetPostingJournal(accountingNumber, postingJournalKey, true);
             applyPostingJournalViewModel.ApplyPostingLines.Add(applyPostingLineViewModel);
 
             return GetPartialViewForPostingJournal(await SavePostingJournal(postingJournalKey, applyPostingJournalViewModel), postingJournalKey, postingJournalHeader);
         }
 
         [HttpPost("api/accountings/{accountingNumber}/postingjournals/{postingLineIdentifier}")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemovePostingLineFromPostingJournal(int accountingNumber, string postingJournalKey, Guid postingLineIdentifier, string postingJournalHeader = null)
         {
@@ -858,7 +893,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            ApplyPostingJournalViewModel applyPostingJournalViewModel = await GetPostingJournal(accountingNumber, postingJournalKey);
+            bool canModifyAccounting = _claimResolver.CanModifyAccounting(accountingNumber);
+            if (canModifyAccounting == false)
+            {
+                return Forbid();
+            }
+
+            ApplyPostingJournalViewModel applyPostingJournalViewModel = await GetPostingJournal(accountingNumber, postingJournalKey, true);
             applyPostingJournalViewModel.ApplyPostingLines.RemoveAll(m => m.Identifier == postingLineIdentifier);
 
             if (applyPostingJournalViewModel.ApplyPostingLines.Any())
@@ -874,6 +915,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost("api/accountings/{accountingNumber}/postingwarnings/{postingWarningIdentifier}")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemovePostingWarningFromPostingJournalResult(int accountingNumber, string postingJournalResultKey, Guid postingWarningIdentifier)
         {
@@ -882,7 +924,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel = await GetPostingJournalResult(postingJournalResultKey);
+            bool canModifyAccounting = _claimResolver.CanModifyAccounting(accountingNumber);
+            if (canModifyAccounting == false)
+            {
+                return Forbid();
+            }
+
+            ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel = await GetPostingJournalResult(postingJournalResultKey, true);
             applyPostingJournalResultViewModel.PostingWarnings.RemoveAll(m => m.Identifier == postingWarningIdentifier);
 
             if (applyPostingJournalResultViewModel.PostingWarnings.Any())
@@ -1111,21 +1159,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return _queryBus.QueryAsync<IGetUserSpecificKeyQuery, string>(query);
         }
 
-        private async Task<ApplyPostingJournalViewModel> GetPostingJournal(int accountingNumber, string key)
+        private async Task<ApplyPostingJournalViewModel> GetPostingJournal(int accountingNumber, string key, bool canModifyAccounting)
         {
             NullGuard.NotNullOrWhiteSpace(key, nameof(key));
 
-            ApplyPostingJournalViewModel postingJournal = await GetObjectFromKeyValueEntry<ApplyPostingJournalViewModel>(key);
-            if (postingJournal != null)
+            ApplyPostingJournalViewModel postingJournal =
+                await GetObjectFromKeyValueEntry<ApplyPostingJournalViewModel>(key) ??
+                new ApplyPostingJournalViewModel
+                {
+                    AccountingNumber = accountingNumber,
+                    ApplyPostingLines = new ApplyPostingLineCollectionViewModel()
+                };
+
+            if (canModifyAccounting == false)
             {
-                return postingJournal;
+                postingJournal.ApplyProtection();
             }
 
-            return new ApplyPostingJournalViewModel
-            {
-                AccountingNumber = accountingNumber,
-                ApplyPostingLines = new ApplyPostingLineCollectionViewModel()
-            };
+            return postingJournal;
         }
 
         private Task<ApplyPostingJournalViewModel> SavePostingJournal(string key, ApplyPostingJournalViewModel applyPostingJournalViewModel)
@@ -1153,21 +1204,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return _queryBus.QueryAsync<IGetUserSpecificKeyQuery, string>(query);
         }
 
-        private async Task<ApplyPostingJournalResultViewModel> GetPostingJournalResult(string key)
+        private async Task<ApplyPostingJournalResultViewModel> GetPostingJournalResult(string key, bool canModifyAccounting)
         {
             NullGuard.NotNullOrWhiteSpace(key, nameof(key));
 
-            ApplyPostingJournalResultViewModel postingJournalResult = await GetObjectFromKeyValueEntry<ApplyPostingJournalResultViewModel>(key);
-            if (postingJournalResult != null)
+            ApplyPostingJournalResultViewModel postingJournalResult =
+                await GetObjectFromKeyValueEntry<ApplyPostingJournalResultViewModel>(key) ??
+                new ApplyPostingJournalResultViewModel
+                {
+                    PostingLines = new PostingLineCollectionViewModel(),
+                    PostingWarnings = new PostingWarningCollectionViewModel()
+                };
+
+            if (canModifyAccounting == false)
             {
-                return postingJournalResult;
+                postingJournalResult.ApplyProtection();
             }
 
-            return new ApplyPostingJournalResultViewModel
-            {
-                PostingLines = new PostingLineCollectionViewModel(),
-                PostingWarnings = new PostingWarningCollectionViewModel()
-            };
+            return postingJournalResult;
         }
 
         private Task<ApplyPostingJournalResultViewModel> SavePostingJournalResult(string key, ApplyPostingJournalResultViewModel applyPostingJournalResultViewModel)

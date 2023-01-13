@@ -24,109 +24,195 @@
                 <input type="hidden" asp-for="ValuesAtEndOfLastYearFromStatusDate.Balance" />
             }
             <h3>@Model.Accounting.Name.ToHtmlString()</h3>
-            @await Html.PartialAsync("_EditAccountIdentificationPartial", Model)
-            <div class="form-group">
-                <label asp-for="MailAddress"></label>
-                <input asp-for="MailAddress" class="form-control" />
-                <span asp-validation-for="MailAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PrimaryPhone"></label>
-                <input asp-for="PrimaryPhone" class="form-control" />
-                <span asp-validation-for="PrimaryPhone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SecondaryPhone"></label>
-                <input asp-for="SecondaryPhone" class="form-control" />
-                <span asp-validation-for="SecondaryPhone" class="text-danger"></span>
-            </div>
-            @await Html.PartialAsync("_EditAccountCoreDataPartial", Model)
-            <div class="form-group">
-                <label asp-for="PaymentTerm"></label>
-                <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm?.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.PaymentTerm.Name)', $(this).find('option:selected').text());"></select>
-                <span asp-validation-for="PaymentTerm" class="text-danger"></span>
-            </div>
-            @if (Model.EditMode == EditMode.Edit && (Model.ValuesAtStatusDate != null || Model.ValuesAtEndOfLastMonthFromStatusDate != null || Model.ValuesAtEndOfLastYearFromStatusDate != null))
-            {
-                <div class="table-responsive d-none d-lg-block d-xl-block">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th class="text-right">Saldo</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.ValuesAtStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesAtStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesAtStatusDate.Balance.AsCurrency()</td>
-                                </tr>
-                            }
-                            @if (Model.ValuesAtEndOfLastMonthFromStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesAtEndOfLastMonthFromStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesAtEndOfLastMonthFromStatusDate.Balance.AsCurrency()</td>
-                                </tr>
-                            }
-                            @if (Model.ValuesAtEndOfLastYearFromStatusDate != null)
-                            {
-                                <tr>
-                                    <td>@Html.LabelFor(m => m.ValuesAtEndOfLastYearFromStatusDate)</td>
-                                    <td class="text-right">@Model.ValuesAtEndOfLastYearFromStatusDate.Balance.AsCurrency()</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            @if (Model.BalanceInfos != null)
-            {
-                @foreach (KeyValuePair<short, BalanceInfoCollectionViewModel> item in Model.BalanceInfos.Where(m => m.Value.Any(n => n.Editable == false || n.IsCurrentMonth)).OrderBy(m => m.Key))
-                {
-                    <p class="font-weight-bold">@Html.LabelFor(m => m.BalanceInfos)&nbsp;@Html.Raw(item.Key)</p>
-                    @for (int i = 0; i < item.Value.Count; i += 3)
-                    {
-                        <div class="card-deck mb-4">
-                            @for (int j = i; j < Math.Min(i + 3, item.Value.Count); j++)
-                            {
-                                int elementNo = j;
-                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Year" />
-                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Month" />
-                                <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
-                                @if (Model.BalanceInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BalanceInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
-                                {
-                                    <div class="card">
-                                        <div class="card-header">@Html.DisplayFor(m => m.BalanceInfos.Items[item.Key].Items[elementNo].MonthAsText)</div>
-                                        <div class="card-body">
-                                            <div class="form-group">
-                                                <label asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance"></label>
-                                                <input type="text" value="@Model.BalanceInfos.Items[item.Key].Items[elementNo].Balance.AsCurrency()" class="form-control" readonly />
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
-                    }
-                    <hr />
-                }
-            }
-            @if (Model.EditMode == EditMode.Edit && Model.PostingLines != null)
-            {
-                <div>
-                    <p class="font-weight-bold">@Html.LabelFor(m => m.PostingLines)</p>
-                    @await Html.PartialAsync("_PostingLineCollectionPartial", Model.PostingLines)
-                    <hr />
-                </div>
-            }
-            @if (Model.EditMode == EditMode.Edit)
-            {
-                @await Html.PartialAsync("_AuditablePartial", Model)
-            }
-            @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
+        <div id="contactAccountAccordion">
+	        <div class="card">
+		        <div class="card-header">
+			        <a class="card-link" data-toggle="collapse" href="#collapseCoreData">
+				        <h5>Stamdata</h5>
+			        </a>
+		        </div>
+		        <div id="collapseCoreData" class="collapse show" data-parent="#contactAccountAccordion">
+			        <div class="card-body">
+				        @await Html.PartialAsync("_EditAccountIdentificationPartial", Model)
+				        <div class="form-group">
+					        <label asp-for="MailAddress"></label>
+					        @if (Model.IsProtected == false)
+					        {
+						        <input asp-for="MailAddress" class="form-control" />
+						        <span asp-validation-for="MailAddress" class="text-danger"></span>
+					        }
+					        else
+					        {
+						        <input asp-for="MailAddress" class="form-control" readonly />
+					        }
+				        </div>
+				        <div class="form-group">
+					        <label asp-for="PrimaryPhone"></label>
+					        @if (Model.IsProtected == false)
+					        {
+						        <input asp-for="PrimaryPhone" class="form-control" />
+						        <span asp-validation-for="PrimaryPhone" class="text-danger"></span>
+					        }
+					        else
+					        {
+						        <input asp-for="PrimaryPhone" class="form-control" readonly />
+					        }
+				        </div>
+				        <div class="form-group">
+					        <label asp-for="SecondaryPhone"></label>
+					        @if (Model.IsProtected == false)
+					        {
+						        <input asp-for="SecondaryPhone" class="form-control" />
+						        <span asp-validation-for="SecondaryPhone" class="text-danger"></span>
+					        }
+					        else
+					        {
+						        <input asp-for="SecondaryPhone" class="form-control" readonly />
+					        }
+				        </div>
+				        @await Html.PartialAsync("_EditAccountCoreDataPartial", Model)
+				        <div class="form-group">
+					        <label asp-for="PaymentTerm"></label>
+					        @if (Model.IsProtected == false)
+					        {
+						        <select asp-for="PaymentTerm.Number" asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm?.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.PaymentTerm.Name)', $(this).find('option:selected').text());"></select>
+						        <span asp-validation-for="PaymentTerm" class="text-danger"></span>
+					        }
+					        else
+					        {
+						        <input type="hidden" asp-for="PaymentTerm.Number" />
+						        <select asp-items="Model.PaymentTerms.SelectListFor(Model.PaymentTerm?.Number)" class="form-control" readonly disabled></select>
+					        }
+				        </div>
+			        </div>
+		        </div>
+	        </div>
+	        @if (Model.EditMode == EditMode.Edit && (Model.ValuesAtStatusDate != null || Model.ValuesAtEndOfLastMonthFromStatusDate != null || Model.ValuesAtEndOfLastYearFromStatusDate != null))
+	        {
+		        <div class="card">
+			        <div class="card-header d-none d-lg-block d-xl-block">
+				        <a class="card-link" data-toggle="collapse" href="#collapseActualStatus">
+					        <h5>Aktuel status</h5>
+				        </a>
+			        </div>
+			        <div id="collapseActualStatus" class="collapse show" data-parent="#contactAccountAccordion">
+				        <div class="card-body">
+					        <div class="table-responsive">
+						        <table class="table table-sm">
+							        <thead>
+							        <tr>
+								        <th></th>
+								        <th class="text-right">Saldo</th>
+							        </tr>
+							        </thead>
+							        <tbody>
+							        @if (Model.ValuesAtStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesAtStatusDate)</td>
+									        <td class="text-right">@Model.ValuesAtStatusDate.Balance.AsCurrency()</td>
+								        </tr>
+							        }
+							        @if (Model.ValuesAtEndOfLastMonthFromStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesAtEndOfLastMonthFromStatusDate)</td>
+									        <td class="text-right">@Model.ValuesAtEndOfLastMonthFromStatusDate.Balance.AsCurrency()</td>
+								        </tr>
+							        }
+							        @if (Model.ValuesAtEndOfLastYearFromStatusDate != null)
+							        {
+								        <tr>
+									        <td>@Html.LabelFor(m => m.ValuesAtEndOfLastYearFromStatusDate)</td>
+									        <td class="text-right">@Model.ValuesAtEndOfLastYearFromStatusDate.Balance.AsCurrency()</td>
+								        </tr>
+							        }
+							        </tbody>
+						        </table>
+					        </div>
+				        </div>
+			        </div>
+		        </div>
+	        }
+	        @if (Model.BalanceInfos != null)
+	        {
+		        @foreach (KeyValuePair<short, BalanceInfoCollectionViewModel> item in Model.BalanceInfos.Where(m => m.Value.Any(n => n.Editable == false || n.IsCurrentMonth)).OrderBy(m => m.Key))
+		        {
+			        <div class="card">
+				        <div class="card-header">
+					        <a class="card-link" data-toggle="collapse" href="@($"#collapseBalanceInfoCollectionFor{item.Key}")">
+						        <h5>@Html.LabelFor(m => m.BalanceInfos)&nbsp;@Html.Raw(item.Key)</h5>
+					        </a>
+				        </div>
+				        <div id="@($"collapseBalanceInfoCollectionFor{item.Key}")" class="collapse show" data-parent="#contactAccountAccordion">
+					        <div class="card-body">
+						        <div class="table-responsive">
+							        <table class="table table-sm">
+								        <thead>
+								        <tr>
+									        <th></th>
+									        <th class="text-right">Saldo</th>
+								        </tr>
+								        </thead>
+								        <tbody>
+								        @for (int i = 0; i < item.Value.Count; i++)
+								        {
+									        int elementNo = i;
+									        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Year" />
+									        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Month" />
+									        <input type="hidden" asp-for="BalanceInfos.Items[item.Key].Items[elementNo].Balance" />
+									        @if (Model.BalanceInfos.Items[item.Key].Items[elementNo].Editable == false || Model.BalanceInfos.Items[item.Key].Items[elementNo].IsCurrentMonth)
+									        {
+										        <tr>
+											        <td>@Html.DisplayFor(m => m.BalanceInfos.Items[item.Key].Items[elementNo].MonthAsText)</td>
+											        <td>
+												        <div class="form-group">
+													        <input type="text" value="@Model.BalanceInfos.Items[item.Key].Items[elementNo].Balance.AsCurrency()" class="form-control text-right" readonly />
+												        </div>
+											        </td>
+										        </tr>
+									        }
+								        }
+								        </tbody>
+							        </table>
+						        </div>
+					        </div>
+				        </div>
+			        </div>
+		        }
+	        }
+	        @if (Model.EditMode == EditMode.Edit && Model.PostingLines != null)
+	        {
+		        <div class="card">
+			        <div class="card-header">
+				        <a class="card-link" data-toggle="collapse" href="#collapsePostingLineCollection">
+					        <h5>@Html.LabelFor(m => m.PostingLines)</h5>
+				        </a>
+			        </div>
+			        <div id="collapsePostingLineCollection" class="collapse show" data-parent="#contactAccountAccordion">
+				        <div class="card-body">
+					        @await Html.PartialAsync("_PostingLineCollectionPartial", Model.PostingLines)
+				        </div>
+			        </div>
+		        </div>
+	        }
+	        @if (Model.EditMode == EditMode.Edit)
+	        {
+		        <div class="card">
+			        <div class="card-header">
+				        <a class="card-link" data-toggle="collapse" href="#collapseAuditable">
+					        <h5>Revisionsoplysninger</h5>
+				        </a>
+			        </div>
+			        <div id="collapseAuditable" class="collapse show" data-parent="#contactAccountAccordion">
+				        <div class="card-body">
+					        @await Html.PartialAsync("_AuditablePartial", Model)
+				        </div>
+			        </div>
+		        </div>
+	        }
+        </div>
+        @await Html.PartialAsync("_EditAccountIdentificationOptionsPartial", Model)
         </form>
     </div>
 </div>
