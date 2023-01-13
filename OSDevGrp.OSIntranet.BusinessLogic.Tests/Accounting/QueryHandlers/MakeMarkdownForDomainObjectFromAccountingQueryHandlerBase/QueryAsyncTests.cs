@@ -1,16 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeMarkdownForDomainObjectFromAccountingQueryHandlerBase
 {
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<IStatusDateSetter> _statusDateSetterMock;
         private Mock<IDomainObjectToMarkdownConverter<object>> _domainObjectToMarkdownConverterMock;
@@ -32,6 +34,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _statusDateSetterMock = new Mock<IStatusDateSetter>();
             _domainObjectToMarkdownConverterMock = new Mock<IDomainObjectToMarkdownConverter<object>>();
@@ -63,6 +66,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
 
             exportFromAccountingQueryMock.Verify(m => m.Validate(
                     It.Is<IValidator>(value => value != null && value == _validatorMock.Object),
+                    It.Is<IClaimResolver>(value => value == _claimResolverMock.Object),
                     It.Is<IAccountingRepository>(value => value != null && value == _accountingRepositoryMock.Object)),
                 Times.Once);
         }
@@ -153,7 +157,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
             _domainObjectToMarkdownConverterMock.Setup(m => m.ConvertAsync(It.IsAny<object>()))
                 .Returns(Task.FromResult(hasMarkdownContent ? _fixture.Create<string>() : null));
 
-            return new MyMakeMarkdownForDomainObjectFromAccountingQueryHandler(hasDomainObject, _fixture.Create<object>(), _validatorMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _domainObjectToMarkdownConverterMock.Object, false);
+            return new MyMakeMarkdownForDomainObjectFromAccountingQueryHandler(hasDomainObject, _fixture.Create<object>(), _validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _domainObjectToMarkdownConverterMock.Object, false);
         }
 
         private IExportFromAccountingQuery CreateExportFromAccountingQuery(DateTime? statusDate = null)
@@ -180,8 +184,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
 
             #region Constructor
 
-            public MyMakeMarkdownForDomainObjectFromAccountingQueryHandler(bool hasDomainObject, object domainObject, IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IDomainObjectToMarkdownConverter<object> domainObjectToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true)
-                : base(validator, accountingRepository, statusDateSetter, domainObjectToMarkdownConverter, encoderShouldEmitUtf8Identifier)
+            public MyMakeMarkdownForDomainObjectFromAccountingQueryHandler(bool hasDomainObject, object domainObject, IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IDomainObjectToMarkdownConverter<object> domainObjectToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true)
+                : base(validator, claimResolver, accountingRepository, statusDateSetter, domainObjectToMarkdownConverter, encoderShouldEmitUtf8Identifier)
             {
                 NullGuard.NotNull(domainObject, nameof(domainObject));
 

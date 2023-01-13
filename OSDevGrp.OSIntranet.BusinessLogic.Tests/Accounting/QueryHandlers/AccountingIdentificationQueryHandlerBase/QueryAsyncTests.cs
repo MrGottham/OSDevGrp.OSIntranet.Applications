@@ -59,6 +59,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
 
             queryMock.Verify(m => m.Validate(
                     It.Is<IValidator>(value => value == _validatorMock.Object),
+                    It.Is<IClaimResolver>(value => value == _claimResolverMock.Object),
                     It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object)),
                 Times.Once);
         }

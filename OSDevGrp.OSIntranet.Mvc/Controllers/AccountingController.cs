@@ -102,6 +102,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> LoadAccounting(int accountingNumber)
         {
             string postingJournalKey = await GetPostingJournalKey(accountingNumber);
@@ -245,6 +246,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public IActionResult StartUpdatingAccount(int accountingNumber, string accountNumber)
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
@@ -253,6 +255,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> UpdateAccount(int accountingNumber, string accountNumber)
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
@@ -344,6 +347,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public IActionResult StartUpdatingBudgetAccount(int accountingNumber, string accountNumber)
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
@@ -352,6 +356,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> UpdateBudgetAccount(int accountingNumber, string accountNumber)
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
@@ -443,6 +448,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public IActionResult StartUpdatingContactAccount(int accountingNumber, string accountNumber)
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
@@ -451,6 +457,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> UpdateContactAccount(int accountingNumber, string accountNumber)
         {
             NullGuard.NotNullOrWhiteSpace(accountNumber, nameof(accountNumber));
@@ -792,6 +799,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/accounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ResolveAccount(int accountingNumber, string accountNumber, DateTimeOffset statusDate)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -809,6 +817,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/budgetaccounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ResolveBudgetAccount(int accountingNumber, string accountNumber, DateTimeOffset statusDate)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -826,6 +835,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/contactaccounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ResolveContactAccount(int accountingNumber, string accountNumber, DateTimeOffset statusDate)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -949,6 +959,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/accounts/action/export/csv")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ExportAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportAccountCollectionQuery query = new ExportAccountCollectionQuery
@@ -962,6 +973,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/budgetaccounts/action/export/csv")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ExportBudgetAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportBudgetAccountCollectionQuery query = new ExportBudgetAccountCollectionQuery
@@ -975,6 +987,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/contactaccounts/action/export/csv")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ExportContactAccountCollectionToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportContactAccountCollectionQuery query = new ExportContactAccountCollectionQuery
@@ -988,6 +1001,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/result/annual/action/export/csv")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ExportAnnualResultToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportBudgetAccountGroupStatusCollectionQuery query = new ExportBudgetAccountGroupStatusCollectionQuery
@@ -1001,6 +1015,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/balance/action/export/csv")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> ExportBalanceToCsv([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IExportAccountGroupStatusCollectionQuery query = new ExportAccountGroupStatusCollectionQuery
@@ -1014,6 +1029,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/result/monthly/action/export/markdown")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> MakeMonthlyAccountingStatementMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IMakeMonthlyAccountingStatementQuery query = new MakeMonthlyAccountingStatementQuery
@@ -1027,6 +1043,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/result/annual/action/export/markdown")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> MakeAnnualAccountingStatementMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IMakeAnnualAccountingStatementQuery query = new MakeAnnualAccountingStatementQuery
@@ -1040,6 +1057,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/balance/action/export/markdown")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> MakeBalanceSheetMarkdown([FromRoute] int accountingNumber, [FromQuery] DateTime? statusDate = null)
         {
             IMakeBalanceSheetQuery query = new MakeBalanceSheetQuery
@@ -1053,6 +1071,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet("api/accountings/{accountingNumber}/contactaccounts/{accountNumber}/action/export/markdown")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<IActionResult> MakeContactAccountStatementMarkdown([FromRoute] int accountingNumber, string accountNumber, [FromQuery] DateTime? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))

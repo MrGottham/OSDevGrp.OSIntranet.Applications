@@ -43,7 +43,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
         {
             NullGuard.NotNull(query, nameof(query));
 
-            query.Validate(Validator, AccountingRepository);
+            query.Validate(Validator, ClaimResolver, AccountingRepository);
 
             TResult result = await GetDataAsync(query);
 

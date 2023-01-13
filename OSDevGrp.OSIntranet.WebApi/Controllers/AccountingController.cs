@@ -65,6 +65,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<AccountingModel>> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetAccountingQuery query = new GetAccountingQuery
@@ -80,6 +81,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/accounts")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<AccountCollectionModel>> AccountsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetAccountCollectionQuery query = new GetAccountCollectionQuery
@@ -95,6 +97,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/accounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<AccountModel>> AccountAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -126,6 +129,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/budgetaccounts")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<BudgetAccountCollectionModel>> BudgetAccountsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetBudgetAccountCollectionQuery query = new GetBudgetAccountCollectionQuery
@@ -141,6 +145,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/budgetaccounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<BudgetAccountModel>> BudgetAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -172,6 +177,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/contactaccounts")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountCollectionModel>> ContactAccountsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetContactAccountCollectionQuery query = new GetContactAccountCollectionQuery
@@ -187,6 +193,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/debtors")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountCollectionModel>> DebtorsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetDebtorAccountCollectionQuery query = new GetDebtorAccountCollectionQuery
@@ -202,6 +209,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/creditors")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountCollectionModel>> CreditorsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetCreditorAccountCollectionQuery query = new GetCreditorAccountCollectionQuery
@@ -219,6 +227,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpGet("{accountingNumber}/contactaccounts/{accountNumber}")]
         [HttpGet("{accountingNumber}/debtors/{accountNumber}")]
         [HttpGet("{accountingNumber}/creditors/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountModel>> ContactAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -250,6 +259,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/postinglines")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<PostingLineCollectionModel>> PostingLinesAsync(int accountingNumber, DateTimeOffset? statusDate = null, int? numberOfPostingLines = null)
         {
             IGetPostingLineCollectionQuery query = new GetPostingLineCollectionQuery

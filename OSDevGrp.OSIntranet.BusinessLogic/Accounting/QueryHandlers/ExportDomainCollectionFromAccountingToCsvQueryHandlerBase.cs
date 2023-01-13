@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Converters;
 using OSDevGrp.OSIntranet.Core.QueryHandlers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
@@ -14,20 +15,23 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
         #region Private variables
 
         private readonly IValidator _validator;
+        private readonly IClaimResolver _claimResolver;
         private readonly IStatusDateSetter _statusDateSetter;
 
         #endregion
 
         #region Constructor
 
-        protected ExportDomainCollectionFromAccountingToCsvQueryHandlerBase(IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, TDomainObjectToCsvConverter domainObjectToCsvConverter, bool encoderShouldEmitUtf8Identifier = true) 
+        protected ExportDomainCollectionFromAccountingToCsvQueryHandlerBase(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, TDomainObjectToCsvConverter domainObjectToCsvConverter, bool encoderShouldEmitUtf8Identifier = true) 
             : base(domainObjectToCsvConverter, encoderShouldEmitUtf8Identifier)
         {
             NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository))
                 .NotNull(statusDateSetter, nameof(statusDateSetter));
 
             _validator = validator;
+            _claimResolver = claimResolver;
             _statusDateSetter = statusDateSetter;
 
             AccountingRepository = accountingRepository;
@@ -49,7 +53,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 
             await base.ValidateQueryAsync(query);
 
-            query.Validate(_validator, AccountingRepository);
+            query.Validate(_validator, _claimResolver, AccountingRepository);
         }
 
         protected override async Task BeforeExportAsync(TExportFromAccountingQuery query)

@@ -1,18 +1,19 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.ExportAccountGroupStatusCollectionQueryHandler
 {
@@ -22,12 +23,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<IStatusDateSetter> _statusDateSetterMock;
         private Mock<IAccountGroupStatusToCsvConverter> _accountGroupStatusToCsvConverterMock;
         private Fixture _fixture;
         private Random _random;
-        private static readonly Regex NewLineRegex = new Regex(Environment.NewLine, RegexOptions.Compiled);
+        private static readonly Regex NewLineRegex = new(Environment.NewLine, RegexOptions.Compiled);
 
         #endregion
 
@@ -35,6 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _statusDateSetterMock = new Mock<IStatusDateSetter>();
             _accountGroupStatusToCsvConverterMock = new Mock<IAccountGroupStatusToCsvConverter>();
@@ -270,7 +273,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
             _accountGroupStatusToCsvConverterMock.Setup(m => m.ConvertAsync(It.IsAny<IAccountGroupStatus>()))
                 .Returns(Task.FromResult(_fixture.CreateMany<string>(columns).ToArray().AsEnumerable()));
 
-            return new BusinessLogic.Accounting.QueryHandlers.ExportAccountGroupStatusCollectionQueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _accountGroupStatusToCsvConverterMock.Object);
+            return new BusinessLogic.Accounting.QueryHandlers.ExportAccountGroupStatusCollectionQueryHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _accountGroupStatusToCsvConverterMock.Object);
         }
 
         private IExportAccountGroupStatusCollectionQuery CreateExportAccountGroupStatusCollectionQuery(int? accountingNumber = null, DateTime? statusDate = null)

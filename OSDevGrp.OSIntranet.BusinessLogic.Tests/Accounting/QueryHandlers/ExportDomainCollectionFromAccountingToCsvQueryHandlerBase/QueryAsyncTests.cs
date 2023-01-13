@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.ExportDomainCollectionFromAccountingToCsvQueryHandlerBase
 {
@@ -22,6 +23,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<IStatusDateSetter> _statusDateSetterMock;
         private Mock<IDomainObjectToCsvConverter<object>> _domainObjectToCsvConverterMock;
@@ -34,6 +36,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _statusDateSetterMock = new Mock<IStatusDateSetter>();
             _domainObjectToCsvConverterMock = new Mock<IDomainObjectToCsvConverter<object>>();
@@ -65,6 +68,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
 
             exportFromAccountingQueryMock.Verify(m => m.Validate(
                     It.Is<IValidator>(value => value != null && value == _validatorMock.Object),
+                    It.Is<IClaimResolver>(value => value == _claimResolverMock.Object),
                     It.Is<IAccountingRepository>(value => value != null && value == _accountingRepositoryMock.Object)),
                 Times.Once);
         }
@@ -148,7 +152,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
             _domainObjectToCsvConverterMock.Setup(m => m.ConvertAsync(It.IsAny<object>()))
                 .Returns(Task.FromResult(_fixture.CreateMany<string>(columns).ToArray().AsEnumerable()));
 
-            return new MyExportDomainCollectionFromAccountingToCsvQueryHandler(hasDomainObjectCollection, _fixture.CreateMany<object>(_random.Next(32, 64)).ToArray(), _validatorMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _domainObjectToCsvConverterMock.Object, false);
+            return new MyExportDomainCollectionFromAccountingToCsvQueryHandler(hasDomainObjectCollection, _fixture.CreateMany<object>(_random.Next(32, 64)).ToArray(), _validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _domainObjectToCsvConverterMock.Object, false);
         }
 
         private IExportFromAccountingQuery CreateExportFromAccountingQuery(DateTime? statusDate = null)
@@ -175,8 +179,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Expor
 
             #region Constructor
 
-            public MyExportDomainCollectionFromAccountingToCsvQueryHandler(bool hasDomainObjectCollection, IEnumerable<object> domainObjectCollection, IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IDomainObjectToCsvConverter<object> domainObjectToCsvConverter, bool encoderShouldEmitUtf8Identifier = true)
-                : base(validator, accountingRepository, statusDateSetter, domainObjectToCsvConverter, encoderShouldEmitUtf8Identifier)
+            public MyExportDomainCollectionFromAccountingToCsvQueryHandler(bool hasDomainObjectCollection, IEnumerable<object> domainObjectCollection, IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IDomainObjectToCsvConverter<object> domainObjectToCsvConverter, bool encoderShouldEmitUtf8Identifier = true)
+                : base(validator, claimResolver, accountingRepository, statusDateSetter, domainObjectToCsvConverter, encoderShouldEmitUtf8Identifier)
             {
                 NullGuard.NotNull(domainObjectCollection, nameof(domainObjectCollection));
 

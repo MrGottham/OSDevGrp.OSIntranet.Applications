@@ -1,13 +1,14 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIdentificationQueryBase
 {
@@ -17,6 +18,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
         #region Private variables
 
         private ValidatorMockContext _validatorMockContext;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -26,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
         public void SetUp()
         {
             _validatorMockContext = new ValidatorMockContext();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -36,9 +39,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
         {
             IAccountIdentificationQuery sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _accountingRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _claimResolverMock.Object, _accountingRepositoryMock.Object));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenClaimResolverIsNull_ThrowsArgumentNullException()
+        {
+            IAccountIdentificationQuery sut = CreateSut();
+
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _accountingRepositoryMock.Object));
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result.ParamName, Is.EqualTo("claimResolver"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -47,9 +65,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
         {
             IAccountIdentificationQuery sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountingRepository"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -59,7 +79,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
             int accountingNumber = _fixture.Create<int>();
             IAccountingIdentificationQuery sut = CreateSut(accountingNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
                     It.Is<int>(value => value == accountingNumber),
@@ -77,7 +97,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
             string accountNumber = _fixture.Create<string>().ToUpper();
             IAccountIdentificationQuery sut = CreateSut(accountNumber: accountNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => value == accountNumber),
@@ -93,7 +113,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
             string accountNumber = _fixture.Create<string>().ToUpper();
             IAccountIdentificationQuery sut = CreateSut(accountNumber: accountNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => value == accountNumber),
@@ -111,7 +131,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
             string accountNumber = _fixture.Create<string>().ToUpper();
             IAccountIdentificationQuery sut = CreateSut(accountNumber: accountNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
                     It.Is<string>(value => value == accountNumber),
@@ -129,7 +149,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
             string accountNumber = _fixture.Create<string>().ToUpper();
             IAccountIdentificationQuery sut = CreateSut(accountNumber: accountNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
                     It.Is<string>(value => value == accountNumber),
@@ -146,13 +166,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.AccountIden
         {
             IAccountIdentificationQuery sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             Assert.That(result, Is.SameAs(_validatorMockContext.ValidatorMock.Object));
         }
 
         private IAccountIdentificationQuery CreateSut(int? accountingNumber = null, string accountNumber = null)
         {
+            _claimResolverMock.Setup(m => m.CanAccessAccounting(It.IsAny<int>()))
+                .Returns(_fixture.Create<bool>());
+
             return _fixture.Build<Sut>()
                 .With(m => m.AccountingNumber, accountingNumber ?? _fixture.Create<int>())
                 .With(m => m.AccountNumber, accountNumber ?? _fixture.Create<string>().ToUpper())
