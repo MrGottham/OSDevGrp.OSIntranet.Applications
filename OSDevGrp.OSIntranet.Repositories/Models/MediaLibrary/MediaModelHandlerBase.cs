@@ -1,4 +1,5 @@
-﻿using OSDevGrp.OSIntranet.Core;
+﻿using Microsoft.EntityFrameworkCore;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
@@ -39,11 +40,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.MediaIdentifier == primaryKey;
 
-        protected override Task<IEnumerable<TMedia>> SortAsync(IEnumerable<TMedia> mediaCollection)
+        protected sealed override Task<IEnumerable<TMedia>> SortAsync(IEnumerable<TMedia> mediaCollection)
         {
             NullGuard.NotNull(mediaCollection, nameof(mediaCollection));
 
-            return Task.FromResult(mediaCollection.OrderBy(media => media.Name).AsEnumerable());
+            return Task.FromResult(mediaCollection.OrderBy(media => media.Title).AsEnumerable());
         }
 
         protected sealed override Task<TMediaModel> OnCreateAsync(TMedia media, TMediaModel mediaModel)
@@ -51,7 +52,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
             NullGuard.NotNull(media, nameof(media))
                 .NotNull(mediaModel, nameof(mediaModel));
 
-            throw new NotImplementedException(); // Handle Creation for Media and MediaCoreData.
+            throw new NotImplementedException(); // Handle Creation for Media, MediaCoreData and initialization of MediaTypeIdentifier on MediaCoreData.
         }
 
         protected sealed override async Task<TMediaModel> OnReadAsync(TMediaModel mediaModel)
@@ -63,18 +64,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
             return mediaModel;
         }
 
-        protected override Task OnUpdateAsync(TMedia media, TMediaModel mediaModel)
+        protected override async Task OnUpdateAsync(TMedia media, TMediaModel mediaModel)
         {
             NullGuard.NotNull(media, nameof(media))
                 .NotNull(mediaModel, nameof(mediaModel));
 
-            mediaModel.CoreData.Name = media.Name;
+            mediaModel.CoreData.Title = media.Title;
+            mediaModel.CoreData.Subtitle = media.Subtitle;
             mediaModel.CoreData.Description = media.Description;
+            mediaModel.CoreData.MediaTypeIdentifier = media.MediaType.Number;
+            mediaModel.CoreData.MediaType = await DbContext.MediaTypes.SingleAsync(m => m.MediaTypeIdentifier == media.MediaType.Number);
+            mediaModel.CoreData.Published = media.Published;
+            mediaModel.CoreData.Details = media.Details;
 
             string imageAsBase64 = Encoding.UTF8.GetString(media.Image ?? Array.Empty<byte>());
             mediaModel.CoreData.Image = string.IsNullOrWhiteSpace(imageAsBase64) ? null : imageAsBase64;
-
-            return Task.CompletedTask;
         }
 
         protected override Task<bool> CanDeleteAsync(TMediaModel mediaModel)

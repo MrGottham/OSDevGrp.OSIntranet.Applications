@@ -7,9 +7,17 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary
     {
         Guid MediaIdentifier { get; }
 
-        string Name { get; }
+        string Title { get; }
+
+        string Subtitle { get; }
 
         string Description { get; }
+
+        IMediaType MediaType { get; }
+
+        short? Published { get; }
+
+        string Details { get; }
 
         byte[] Image { get; }
     }

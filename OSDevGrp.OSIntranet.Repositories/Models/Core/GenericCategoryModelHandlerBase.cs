@@ -5,7 +5,6 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Core
@@ -29,13 +28,19 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
 
         #region Methods
 
-        protected sealed override Expression<Func<TGenericCategoryModel, bool>> EntitySelector(int primaryKey) => genericCategoryModel => genericCategoryModel.GenericCategoryIdentifier == primaryKey;
-
         protected sealed override Task<IEnumerable<TGenericCategory>> SortAsync(IEnumerable<TGenericCategory> genericCategoryCollection)
         {
             NullGuard.NotNull(genericCategoryCollection, nameof(genericCategoryCollection));
 
             return Task.FromResult(genericCategoryCollection.OrderBy(genericCategory => genericCategory.Number).AsEnumerable());
+        }
+
+        protected sealed override Task<TGenericCategoryModel> OnCreateAsync(TGenericCategory genericCategory, TGenericCategoryModel genericCategoryModel)
+        {
+            NullGuard.NotNull(genericCategory, nameof(genericCategory))
+                .NotNull(genericCategoryModel, nameof(genericCategoryModel));
+
+            return Task.FromResult(genericCategoryModel);
         }
 
         protected sealed override async Task<TGenericCategoryModel> OnReadAsync(TGenericCategoryModel genericCategoryModel)
@@ -62,6 +67,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Core
             NullGuard.NotNull(genericCategoryModel, nameof(genericCategoryModel));
 
             return Task.FromResult(false);
+        }
+
+        protected sealed override Task<TGenericCategoryModel> OnDeleteAsync(TGenericCategoryModel genericCategoryModel)
+        {
+            NullGuard.NotNull(genericCategoryModel, nameof(genericCategoryModel));
+
+            return Task.FromResult(genericCategoryModel);
         }
 
         #endregion
