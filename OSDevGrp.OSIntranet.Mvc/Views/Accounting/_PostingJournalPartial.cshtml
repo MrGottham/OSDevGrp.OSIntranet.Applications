@@ -13,7 +13,12 @@
                             <th class="text-nowrap">Dato</th>
                             <th>Tekst</th>
                             <th class="text-right text-nowrap">Beløb</th>
-                            <th class="text-nowrap"><a href="#" onclick="javascript:$().startAddingToPostingJournal();"><i class="fas fa-plus"></i></a></th>
+	                        <th class="text-nowrap">
+                                @if (Model.IsProtected == false)
+                                {
+	                                <a href="#" onclick="javascript:$().startAddingToPostingJournal();"><i class="fas fa-plus"></i></a>
+                                }
+	                        </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -25,9 +30,9 @@
                                 <tr>
                                     <td class="text-nowrap">@Html.DisplayFor(m => m.ApplyPostingLines[itemNo].PostingDateAsLocalDateTime)</td>
                                     <td>@Model.ApplyPostingLines[itemNo].Details.ToHtmlString()</td>
-                                    <td>@Model.ApplyPostingLines[itemNo].PostingValue.AsCurrency()</td>
+                                    <td class ="text-right text-nowrap">@Model.ApplyPostingLines[itemNo].PostingValue.AsCurrency()</td>
                                     <td class="text-nowrap">
-                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)) == false)
+                                        @if (Model.ApplyPostingLines[itemNo].IsProtected == false && string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)) == false)
                                         {
                                             <a href="#" onclick="javascript:$().removeFromPostingJournal(this, '#postingJournalHeader', '@Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)', @Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalData(Html, (string)ViewData["PostingJournalKey"]));"><i class="fas fa-trash"></i></a>
                                         }
@@ -51,7 +56,12 @@
                             <th class="text-right text-nowrap">Budgetkonto</th>
                             <th class="text-right text-nowrap">Debit</th>
                             <th class="text-right text-nowrap">Kredit</th>
-                            <th class="text-nowrap"><a href="#" onclick="javascript:$().startAddingToPostingJournal();"><i class="fas fa-plus"></i></a></th>
+	                        <th class="text-nowrap">
+                                @if (Model.IsProtected == false)
+                                {
+	                                <a href="#" onclick="javascript:$().startAddingToPostingJournal();"><i class="fas fa-plus"></i></a>
+                                }
+	                        </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -90,7 +100,7 @@
                                         <td class="text-right text-nowrap"></td>
                                     }
                                     <td class="text-nowrap">
-                                        @if (string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)) == false)
+                                        @if (Model.ApplyPostingLines[itemNo].IsProtected == false && string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false && string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)) == false)
                                         {
                                             <a href="#" onclick="javascript:$().removeFromPostingJournal(this, '#postingJournalHeader', '@Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalUrl(Url, Model.AccountingNumber)', @Model.ApplyPostingLines[itemNo].GetRemovePostingLineFromPostingJournalData(Html, (string)ViewData["PostingJournalKey"]));"><i class="fas fa-trash"></i></a>
                                         }
@@ -102,53 +112,56 @@
                 </table>
             </div>
         </div>
-        <form asp-controller="Accounting" asp-action="ApplyPostingJournal" method="post">
-            @Html.HiddenFor(m => m.AccountingNumber)
-            @if (Model.ApplyPostingLines != null)
-            {
-                for (int i = 0; i < Model.ApplyPostingLines.Count; i++)
-                {
-                    int itemNo = i;
-                    if (Model.ApplyPostingLines[itemNo].Identifier.HasValue)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Identifier)
-                    }
-                    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].PostingDate)
-                    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].Reference) == false)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Reference)
-                    }
-                    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].AccountNumber)
-                    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Details)
-                    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].BudgetAccountNumber) == false)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].BudgetAccountNumber)
-                    }
-                    if (Model.ApplyPostingLines[itemNo].Debit.HasValue)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Debit)
-                    }
-                    if (Model.ApplyPostingLines[itemNo].Credit.HasValue)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Credit)
-                    }
-                    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].ContactAccountNumber) == false)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].ContactAccountNumber)
-                    }
-                    if (Model.ApplyPostingLines[itemNo].SortOrder.HasValue)
-                    {
-                        @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].SortOrder)
-                    }
-                }
-            }
-            @if (Model.ApplyPostingLines is { Count: > 0 })
-            {
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">Bogfør</button>
-                </div>
-            }
-        </form>
-        @await Html.PartialAsync("_AddPostingLineToPostingJournalPartial", Model.CreatePostingLineToAdd(), new[] {new KeyValuePair<string, object>("AccountingNumber", Model.AccountingNumber)})
+	    <form asp-controller="Accounting" asp-action="ApplyPostingJournal" method="post">
+		    @Html.HiddenFor(m => m.AccountingNumber)
+		    @if (Model.ApplyPostingLines != null)
+		    {
+			    for (int i = 0; i < Model.ApplyPostingLines.Count; i++)
+			    {
+				    int itemNo = i;
+				    if (Model.ApplyPostingLines[itemNo].Identifier.HasValue)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Identifier)
+				    }
+				    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].PostingDate)
+				    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].Reference) == false)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Reference)
+				    }
+				    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].AccountNumber)
+				    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Details)
+				    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].BudgetAccountNumber) == false)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].BudgetAccountNumber)
+				    }
+				    if (Model.ApplyPostingLines[itemNo].Debit.HasValue)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Debit)
+				    }
+				    if (Model.ApplyPostingLines[itemNo].Credit.HasValue)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].Credit)
+				    }
+				    if (string.IsNullOrWhiteSpace(Model.ApplyPostingLines[itemNo].ContactAccountNumber) == false)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].ContactAccountNumber)
+				    }
+				    if (Model.ApplyPostingLines[itemNo].SortOrder.HasValue)
+				    {
+					    @Html.HiddenFor(m => m.ApplyPostingLines[itemNo].SortOrder)
+				    }
+			    }
+		    }
+		    @if (Model.IsProtected == false && Model.ApplyPostingLines is { Count: > 0 })
+		    {
+			    <div class="btn-group">
+				    <button type="submit" class="btn btn-primary">Bogfør</button>
+			    </div>
+		    }
+	    </form>
+        @if (Model.IsProtected == false)
+        {
+	        @await Html.PartialAsync("_AddPostingLineToPostingJournalPartial", Model.CreatePostingLineToAdd(), new[] {new KeyValuePair<string, object>("AccountingNumber", Model.AccountingNumber)})
+        }
     </dd>
 </dl>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
@@ -17,10 +13,15 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
-    [Authorize(Policy = "Accounting")]
+    [Authorize(Policy = Policies.AccountingPolicy)]
     [ApiVersion("0.1")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]
@@ -56,7 +57,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<IAccounting> accountings = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(new EmptyQuery());
 
             IEnumerable<AccountingModel> accountingModels = accountings.AsParallel()
-                .Select(accounting => _accountingModelConverter.Convert<IAccounting, AccountingModel>(accounting))
+                .Select(_accountingModelConverter.Convert<IAccounting, AccountingModel>)
                 .OrderBy(accountingModel => accountingModel.Number)
                 .ToList();
 
@@ -64,6 +65,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<AccountingModel>> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetAccountingQuery query = new GetAccountingQuery
@@ -79,6 +81,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/accounts")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<AccountCollectionModel>> AccountsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetAccountCollectionQuery query = new GetAccountCollectionQuery
@@ -94,6 +97,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/accounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<AccountModel>> AccountAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -125,6 +129,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/budgetaccounts")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<BudgetAccountCollectionModel>> BudgetAccountsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetBudgetAccountCollectionQuery query = new GetBudgetAccountCollectionQuery
@@ -140,6 +145,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/budgetaccounts/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<BudgetAccountModel>> BudgetAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -171,6 +177,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/contactaccounts")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountCollectionModel>> ContactAccountsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetContactAccountCollectionQuery query = new GetContactAccountCollectionQuery
@@ -186,6 +193,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/debtors")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountCollectionModel>> DebtorsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetDebtorAccountCollectionQuery query = new GetDebtorAccountCollectionQuery
@@ -201,6 +209,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/creditors")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountCollectionModel>> CreditorsAsync(int accountingNumber, DateTimeOffset? statusDate = null)
         {
             IGetCreditorAccountCollectionQuery query = new GetCreditorAccountCollectionQuery
@@ -218,6 +227,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpGet("{accountingNumber}/contactaccounts/{accountNumber}")]
         [HttpGet("{accountingNumber}/debtors/{accountNumber}")]
         [HttpGet("{accountingNumber}/creditors/{accountNumber}")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<ContactAccountModel>> ContactAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate = null)
         {
             if (string.IsNullOrWhiteSpace(accountNumber))
@@ -249,6 +259,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpGet("{accountingNumber}/postinglines")]
+        [Authorize(Policy = Policies.AccountingViewerPolicy)]
         public async Task<ActionResult<PostingLineCollectionModel>> PostingLinesAsync(int accountingNumber, DateTimeOffset? statusDate = null, int? numberOfPostingLines = null)
         {
             IGetPostingLineCollectionQuery query = new GetPostingLineCollectionQuery
@@ -265,6 +276,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpPost("postinglines")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync([FromBody] ApplyPostingJournalModel applyPostingJournal)
         {
             if (applyPostingJournal == null)
@@ -283,6 +295,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         }
 
         [HttpPost("{accountingNumber}/postinglines")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
         public Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(int accountingNumber, [FromBody] ApplyPostingLineCollectionModel applyPostingLineCollection)
         {
             if (applyPostingLineCollection == null)
@@ -312,7 +325,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<IAccountGroup> accountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IAccountGroup>>(new EmptyQuery());
 
             IEnumerable<AccountGroupModel> accountGroupModels = accountGroups.AsParallel()
-                .Select(accountGroup => _accountingModelConverter.Convert<IAccountGroup, AccountGroupModel>(accountGroup))
+                .Select(_accountingModelConverter.Convert<IAccountGroup, AccountGroupModel>)
                 .OrderBy(accountGroupModel => accountGroupModel.Number)
                 .ToList();
 
@@ -325,7 +338,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<IBudgetAccountGroup> budgetAccountGroups = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IBudgetAccountGroup>>(new EmptyQuery());
 
             IEnumerable<BudgetAccountGroupModel> budgetAccountGroupModels = budgetAccountGroups.AsParallel()
-                .Select(budgetAccountGroup => _accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>(budgetAccountGroup))
+                .Select(_accountingModelConverter.Convert<IBudgetAccountGroup, BudgetAccountGroupModel>)
                 .OrderBy(budgetAccountGroupModel => budgetAccountGroupModel.Number)
                 .ToList();
 
@@ -338,7 +351,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
 
             IEnumerable<PaymentTermModel> paymentTermModels = paymentTerms.AsParallel()
-                .Select(paymentTerm => _accountingModelConverter.Convert<IPaymentTerm, PaymentTermModel>(paymentTerm))
+                .Select(_accountingModelConverter.Convert<IPaymentTerm, PaymentTermModel>)
                 .OrderBy(paymentTermModel => paymentTermModel.Number)
                 .ToList();
 

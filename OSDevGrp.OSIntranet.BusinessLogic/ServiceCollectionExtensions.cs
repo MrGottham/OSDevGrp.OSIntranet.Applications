@@ -15,6 +15,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
 {
     public static class ServiceCollectionExtensions
     {
+        #region Methods
+
         public static IServiceCollection AddBusinessLogicValidators(this IServiceCollection serviceCollection)
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
@@ -25,7 +27,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddSingleton<IStringValidator, StringValidator>()
                 .AddSingleton<IDateTimeValidator, DateTimeValidator>()
                 .AddSingleton<IObjectValidator, ObjectValidator>()
-                .AddSingleton<IEnumerableValidator, EnumerableValidator>();
+                .AddSingleton<IEnumerableValidator, EnumerableValidator>()
+                .AddSingleton<IPermissionValidator, PermissionValidator>();
         }
 
         public static IServiceCollection AddBusinessLogicHelpers(this IServiceCollection serviceCollection)
@@ -51,5 +54,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
                 .AddTransient<IKeyGenerator, KeyGenerator>();
         }
+
+        #endregion
     }
 }

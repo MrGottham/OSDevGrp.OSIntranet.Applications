@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
@@ -16,10 +12,15 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
+using OSDevGrp.OSIntranet.Mvc.Security;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-    [Authorize(Policy = "Accounting")]
+    [Authorize(Policy = Policies.SecurityAdminPolicy)]
     public class SecurityController : Controller
     {
         #region Private variables
@@ -51,7 +52,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IUserIdentity> userIdentities = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IUserIdentity>>(new EmptyQuery());
 
             IEnumerable<UserIdentityViewModel> userIdentityViewModels = userIdentities.AsParallel()
-                .Select(userIdentity => _securityViewModelConverter.Convert<IUserIdentity, UserIdentityViewModel>(userIdentity))
+                .Select(_securityViewModelConverter.Convert<IUserIdentity, UserIdentityViewModel>)
                 .OrderBy(userIdentityViewModel => userIdentityViewModel.ExternalUserIdentifier)
                 .ToList();
 
@@ -143,7 +144,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<IClientSecretIdentity> clientSecretIdentities = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IClientSecretIdentity>>(new EmptyQuery());
 
             IEnumerable<ClientSecretIdentityViewModel> clientSecretIdentityViewModels = clientSecretIdentities.AsParallel()
-                .Select(clientSecretIdentity => _securityViewModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityViewModel>(clientSecretIdentity))
+                .Select(_securityViewModelConverter.Convert<IClientSecretIdentity, ClientSecretIdentityViewModel>)
                 .OrderBy(clientSecretIdentityViewModel => clientSecretIdentityViewModel.FriendlyName)
                 .ToList();
 

@@ -13,5 +13,7 @@
         IObjectValidator Object { get; }
 
         IEnumerableValidator Enumerable { get; }
+
+        IPermissionValidator Permission { get; }
     }
 }

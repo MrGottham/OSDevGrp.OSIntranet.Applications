@@ -1,18 +1,19 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 {
-    public class UpdatePaymentTermCommandHandler : PaymentTermIdentificationCommandHandlerBase<IUpdatePaymentTermCommand>
+    internal class UpdatePaymentTermCommandHandler : PaymentTermIdentificationCommandHandlerBase<IUpdatePaymentTermCommand>
     {
         #region Constructor
 
-        public UpdatePaymentTermCommandHandler(IValidator validator, IAccountingRepository accountingRepository) 
-            : base(validator, accountingRepository)
+        public UpdatePaymentTermCommandHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository) 
+            : base(validator, claimResolver, accountingRepository)
         {
         }
 

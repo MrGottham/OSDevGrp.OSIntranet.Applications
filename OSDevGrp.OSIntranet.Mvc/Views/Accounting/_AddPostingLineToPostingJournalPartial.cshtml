@@ -121,10 +121,13 @@
             </div>
             @if (ViewData["AccountingNumber"] != null && string.IsNullOrWhiteSpace((string)ViewData["PostingJournalKey"]) == false)
             {
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Luk</button>
-                    <button id="addToPostingJournalButton" type="button" class="btn btn-primary" onclick="javascript:$().addToPostingJournal('#postingJournalHeader', '#@Html.IdFor(m => m.Identifier)', '#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.Reference)', '#@Html.IdFor(m => m.AccountNumber)', '#@Html.IdFor(m => m.Details)', '#@Html.IdFor(m => m.BudgetAccountNumber)', '#@Html.IdFor(m => m.Debit)', '#@Html.IdFor(m => m.Credit)', '#@Html.IdFor(m => m.ContactAccountNumber)', '#@Html.IdFor(m => m.SortOrder)', '@Model.GetAddPostingLineToPostingJournalUrl(Url, (int)ViewData["AccountingNumber"])', @Model.GetAddPostingLineToPostingJournalData(Html, (string)ViewData["PostingJournalKey"]));">Tilføj</button>
-                </div>
+	            <div class="modal-footer">
+                    @if (Model.IsProtected == false)
+                    {
+	                    <button id="addToPostingJournalButton" type="button" class="btn btn-primary" onclick="javascript:$().addToPostingJournal('#postingJournalHeader', '#@Html.IdFor(m => m.Identifier)', '#@Html.IdFor(m => m.PostingDate)', '#@Html.IdFor(m => m.Reference)', '#@Html.IdFor(m => m.AccountNumber)', '#@Html.IdFor(m => m.Details)', '#@Html.IdFor(m => m.BudgetAccountNumber)', '#@Html.IdFor(m => m.Debit)', '#@Html.IdFor(m => m.Credit)', '#@Html.IdFor(m => m.ContactAccountNumber)', '#@Html.IdFor(m => m.SortOrder)', '@Model.GetAddPostingLineToPostingJournalUrl(Url, (int)ViewData["AccountingNumber"])', @Model.GetAddPostingLineToPostingJournalData(Html, (string)ViewData["PostingJournalKey"]));">Tilføj</button>
+                    }
+		            <button type="button" class="btn btn-secondary" data-dismiss="modal">Luk</button>
+	            </div>
             }
         </div>
     </div>

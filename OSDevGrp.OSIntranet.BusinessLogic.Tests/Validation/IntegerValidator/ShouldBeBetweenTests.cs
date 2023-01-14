@@ -1,9 +1,9 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
 {
@@ -35,7 +35,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
             int value = _random.Next(minValue, maxValue);
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeBetween(value, minValue, maxValue, null, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingType"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -49,7 +51,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
             int value = _random.Next(minValue, maxValue);
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeBetween(value, minValue, maxValue, GetType(), null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -63,7 +67,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
             int value = _random.Next(minValue, maxValue);
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeBetween(value, minValue, maxValue, GetType(), string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -77,7 +83,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
             int value = _random.Next(minValue, maxValue);
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeBetween(value, minValue, maxValue, GetType(), " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -135,9 +143,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeBetween(value, minValue, maxValue, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueNotBetween));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -153,9 +163,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.IntegerValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeBetween(value, minValue, maxValue, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueNotBetween));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IIntegerValidator CreateSut()

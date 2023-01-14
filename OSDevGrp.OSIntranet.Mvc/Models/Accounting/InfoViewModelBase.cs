@@ -1,6 +1,6 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
 using System.ComponentModel.DataAnnotations;
-using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -23,6 +23,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public bool IsCurrentMonth => Year == Today.Year && Month == Today.Month;
 
         public bool Editable => Year > Today.Year || Year == Today.Year && Month >= Today.Month;
+
+        public bool IsProtected { get; set; }
 
         public bool Deletable { get; set; }
 

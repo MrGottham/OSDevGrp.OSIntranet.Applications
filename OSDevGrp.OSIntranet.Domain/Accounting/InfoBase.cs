@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Domain.Core;
+﻿using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -64,6 +64,8 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
 
         public bool IsLastYearOfStatusDate => FirstDateOfMonth(StatusDate).AddYears(-1).Year == Year;
 
+        public bool IsProtected { get; private set; }
+
         public bool Deletable { get; private set; }
 
         #endregion
@@ -93,6 +95,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
             {
                 _isCalculating = false;
             }
+        }
+
+        public void ApplyProtection()
+        {
+            DisallowDeletion();
+
+            IsProtected = true;
         }
 
         public void AllowDeletion()

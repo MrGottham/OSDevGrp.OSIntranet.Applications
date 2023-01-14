@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -18,7 +15,10 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 {
@@ -187,6 +187,40 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);
             // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsValid_AssertCanModifyAccountingWasCalledOnClaimResolver()
+        {
+            Controller sut = CreateSut();
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel(accountingNumber));
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ApplyPostingJournal_WhenCanModifyAccountingReturnsFalse_ReturnsNotNull()
+        {
+            Controller sut = CreateSut(canModifyAccounting: false);
+
+            IActionResult result = await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ApplyPostingJournal_WhenCanModifyAccountingReturnsFalse_ReturnsForbidResult()
+        {
+            Controller sut = CreateSut(canModifyAccounting: false);
+
+            IActionResult result = await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel());
+
+            Assert.That(result, Is.TypeOf<ForbidResult>());
         }
 
         [Test]
@@ -750,7 +784,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             RedirectToActionResult result = (RedirectToActionResult)await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel());
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.RouteValues["accountingNumber"], Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -763,13 +799,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             ApplyPostingJournalViewModel applyPostingJournalViewModel = BuildApplyPostingJournalViewModel(accountingNumber);
             RedirectToActionResult result = (RedirectToActionResult)await sut.ApplyPostingJournal(applyPostingJournalViewModel);
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.RouteValues["accountingNumber"], Is.EqualTo(accountingNumber));
+            // ReSharper restore PossibleNullReferenceException
         }
 
-        private Controller CreateSut(bool modelIsValid = true, string validationError = null, string postingJournalKey = null, bool hasKeyValueEntryForPostingJournalKey = true, IKeyValueEntry keyValueEntryForPostingJournalKey = null, string postingJournalResultKey = null, bool hasKeyValueEntryForPostingJournalResultKey = true, IKeyValueEntry keyValueEntryForPostingJournalResultKey = null, IPostingJournalResult postingJournalResult = null)
+        private Controller CreateSut(bool modelIsValid = true, string validationError = null, bool canModifyAccounting = true, string postingJournalKey = null, bool hasKeyValueEntryForPostingJournalKey = true, IKeyValueEntry keyValueEntryForPostingJournalKey = null, string postingJournalResultKey = null, bool hasKeyValueEntryForPostingJournalResultKey = true, IKeyValueEntry keyValueEntryForPostingJournalResultKey = null, IPostingJournalResult postingJournalResult = null)
         {
             postingJournalKey ??= _fixture.Create<string>();
             postingJournalResultKey ??= _fixture.Create<string>();
+
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(canModifyAccounting);
 
             _queryBusMock.Setup(m => m.QueryAsync<IGetUserSpecificKeyQuery, string>(It.Is<IGetUserSpecificKeyQuery>(query => query != null && query.KeyElementCollection != null && query.KeyElementCollection.Contains(nameof(ApplyPostingJournalViewModel)))))
                 .Returns(Task.FromResult(postingJournalKey));

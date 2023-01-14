@@ -1,9 +1,9 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
 {
@@ -32,7 +32,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBePastDate(_fixture.Create<DateTime>(), null, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingType"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -43,7 +45,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBePastDate(_fixture.Create<DateTime>(), GetType(), null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -54,7 +58,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBePastDate(_fixture.Create<DateTime>(), GetType(), string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -65,7 +71,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBePastDate(_fixture.Create<DateTime>(), GetType(), " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -91,9 +99,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBePastDate(value, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldBePastDate));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -107,9 +117,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DateTimeValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBePastDate(value, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldBePastDate));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IDateTimeValidator CreateSut()

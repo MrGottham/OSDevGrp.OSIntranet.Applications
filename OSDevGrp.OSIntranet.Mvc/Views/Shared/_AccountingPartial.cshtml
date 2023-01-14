@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Authorization
+@using OSDevGrp.OSIntranet.Mvc.Security
 @inject IAuthorizationService AuthorizationService
-@if (User.Identity.IsAuthenticated && (await AuthorizationService.AuthorizeAsync(User, "Accounting")).Succeeded)
+@if (User.Identity is {IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.AccountingPolicy)).Succeeded)
 {
     <div class="dropdown dropright dropdown-submenu">
         <button class="text-dark dropdown-item dropdown-toggle" type="button" data-toggle="dropdown">Finansstyring</button>

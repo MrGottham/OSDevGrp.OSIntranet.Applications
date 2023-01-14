@@ -1,10 +1,11 @@
-using System;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries
 {
@@ -30,12 +31,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries
 
         #region Methods
 
-        public virtual IValidator Validate(IValidator validator, IAccountingRepository accountingRepository)
+        public virtual IValidator Validate(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
-            return validator.ValidateAccountingIdentifier(AccountingNumber, GetType(), nameof(AccountingNumber))
+            return validator.Permission.HasNecessaryPermission(claimResolver.CanAccessAccounting(AccountingNumber))
+                .ValidateAccountingIdentifier(AccountingNumber, GetType(), nameof(AccountingNumber))
                 .DateTime.ShouldBePastDateOrToday(StatusDate, GetType(), nameof(StatusDate));
         }
 

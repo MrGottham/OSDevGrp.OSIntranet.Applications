@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDataCommandBase
 {
@@ -18,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         #region Private variables
 
         private ValidatorMockContext _validatorMockContext;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<ICommonRepository> _commonRepositoryMock;
         private Fixture _fixture;
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         public void SetUp()
         {
             _validatorMockContext = new ValidatorMockContext();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _commonRepositoryMock = new Mock<ICommonRepository>();
 
@@ -44,9 +47,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         {
             IAccountDataCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _accountingRepositoryMock.Object, _commonRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenClaimResolverIsNull_ThrowsArgumentNullException()
+        {
+	        IAccountDataCommand sut = CreateSut();
+
+	        ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _accountingRepositoryMock.Object, _commonRepositoryMock.Object));
+
+	        // ReSharper disable PossibleNullReferenceException
+	        Assert.That(result.ParamName, Is.EqualTo("claimResolver"));
+	        // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -55,9 +73,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         {
             IAccountDataCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _commonRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, null, _commonRepositoryMock.Object));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountingRepository"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -66,9 +86,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         {
             IAccountDataCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("commonRepository"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -83,7 +105,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             };
             IAccountDataCommand sut = CreateSut(creditInfoCommandCollection: creditInfoCommandMockCollection.Select(creditInfoCommandMock => creditInfoCommandMock.Object).ToArray());
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
             foreach (Mock<ICreditInfoCommand> creditInfoCommandMock in creditInfoCommandMockCollection)
             {
@@ -98,7 +120,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             int accountGroupNumber = _fixture.Create<int>();
             IAccountDataCommand sut = CreateSut(accountGroupNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
             _validatorMockContext.IntegerValidatorMock.Verify(m => m.ShouldBeBetween(
                     It.Is<int>(value => value == accountGroupNumber),
@@ -116,7 +138,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             int accountGroupNumber = _fixture.Create<int>();
             IAccountDataCommand sut = CreateSut(accountGroupNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
                     It.Is<int>(value => value == accountGroupNumber),
@@ -134,7 +156,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
             ICreditInfoCommand[] creditInfoCommandCollection = _fixture.CreateMany<ICreditInfoCommand>(_random.Next(5, 10)).ToArray();
             IAccountDataCommand sut = CreateSut(creditInfoCommandCollection: creditInfoCommandCollection);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
                     It.Is<IEnumerable<ICreditInfoCommand>>(value => value == creditInfoCommandCollection),
@@ -149,14 +171,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.AccountDat
         {
             IAccountDataCommand sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object);
 
             Assert.That(result, Is.SameAs(_validatorMockContext.ValidatorMock.Object));
         }
 
         private IAccountDataCommand CreateSut(int? accountGroupNumber = null, IEnumerable<ICreditInfoCommand> creditInfoCommandCollection = null)
         {
-            return _fixture.Build<Sut>()
+	        _claimResolverMock.Setup(m => m.IsAccountingCreator())
+		        .Returns(_fixture.Create<bool>());
+	        _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+		        .Returns(_fixture.Create<bool>());
+
+	        return _fixture.Build<Sut>()
                 .With(m => m.AccountGroupNumber, accountGroupNumber ?? _fixture.Create<int>())
                 .With(m => m.CreditInfoCollection, creditInfoCommandCollection ?? _fixture.CreateMany<ICreditInfoCommand>(_random.Next(5, 10)).ToArray())
                 .Create();

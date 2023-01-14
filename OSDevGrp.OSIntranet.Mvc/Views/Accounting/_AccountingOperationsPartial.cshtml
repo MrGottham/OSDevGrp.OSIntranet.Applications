@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Authorization
+@using OSDevGrp.OSIntranet.Mvc.Security
+@inject IAuthorizationService AuthorizationService
 @model AccountingOptionsViewModel;
 <div class="pb-2" onsubmit="javascript:return false;">
     @if (Model.DefaultAccountingNumber.HasValue)
@@ -6,9 +9,12 @@
             @Html.HiddenFor(m => m.DefaultAccountingNumber)
         </div>
     }
-    <div class="form-group">
-        <a href="#" onclick="javascript:$().newAccounting('@Model.GetStartCreatingAccountingUrl(Url)');"><i class="fas fa-plus"></i>&nbsp;Nyt regnskab</a>
-    </div>
+    @if (User.Identity is { IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.AccountingCreatorPolicy)).Succeeded)
+    {
+	    <div class="form-group">
+		    <a href="#" onclick="javascript:$().newAccounting('@Model.GetStartCreatingAccountingUrl(Url)');"><i class="fas fa-plus"></i>&nbsp;Nyt regnskab</a>
+	    </div>
+    }
     <div class="form-group">
         <a href="#" onclick="javascript:$().refreshAccountings('@Model.GetStartLoadingAccountingsUrl(Url)');"><i class="fas fa-sync"></i>&nbsp;Genindlæs regnskaber</a>
     </div>

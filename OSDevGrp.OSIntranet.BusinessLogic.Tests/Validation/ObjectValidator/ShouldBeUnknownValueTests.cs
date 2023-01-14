@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
 {
@@ -31,7 +31,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), null, GetType(), _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("isUnknownValueGetter"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -40,9 +42,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
         {
             IObjectValidator sut = CreateSut();
 
+            // ReSharper disable UnusedParameter.Local
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run(() => _fixture.Create<bool>()), null, _fixture.Create<string>()));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingType"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -51,9 +57,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
         {
             IObjectValidator sut = CreateSut();
 
+            // ReSharper disable UnusedParameter.Local
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run(() => _fixture.Create<bool>()), GetType(), null));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -62,9 +72,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
         {
             IObjectValidator sut = CreateSut();
 
+            // ReSharper disable UnusedParameter.Local
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run(() => _fixture.Create<bool>()), GetType(), string.Empty));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -73,9 +87,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
         {
             IObjectValidator sut = CreateSut();
 
+            // ReSharper disable UnusedParameter.Local
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run(() => _fixture.Create<bool>()), GetType(), " "));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -84,7 +102,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
         {
             IObjectValidator sut = CreateSut();
 
+            // ReSharper disable UnusedParameter.Local
             IValidator result = sut.ShouldBeUnknownValue<object>(null, async obj => await Task.Run(() => _fixture.Create<bool>()), GetType(), _fixture.Create<string>(), true);
+            // ReSharper restore UnusedParameter.Local
 
             Assert.That(result, Is.TypeOf<BusinessLogic.Validation.ObjectValidator>());
         }
@@ -97,11 +117,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
 
             Type validatingType = GetType();
             string validatingField = _fixture.Create<string>();
+            // ReSharper disable UnusedParameter.Local
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeUnknownValue<object>(null, async obj => await Task.Run(() => _fixture.Create<bool>()), validatingType, validatingField));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNull));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -129,7 +153,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
         {
             IObjectValidator sut = CreateSut();
 
+            // ReSharper disable UnusedParameter.Local
             IValidator result = sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run(() => true), GetType(), _fixture.Create<string>());
+            // ReSharper restore UnusedParameter.Local
 
             Assert.That(result, Is.TypeOf<BusinessLogic.Validation.ObjectValidator>());
         }
@@ -142,12 +168,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
 
             Type validatingType = GetType();
             string validatingField = _fixture.Create<string>();
+            // ReSharper disable UnusedParameter.Local
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run(() => false), validatingType, validatingField));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldBeUnknown));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
             Assert.That(result.InnerException, Is.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -161,12 +191,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.ObjectValidator
 
             Type validatingType = GetType();
             string validatingField = _fixture.Create<string>();
+            // ReSharper disable UnusedParameter.Local
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeUnknownValue(_fixture.Create<object>(), async obj => await Task.Run((Func<bool>) IsUnknownValueGetter), validatingType, validatingField));
+            // ReSharper restore UnusedParameter.Local
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldBeUnknown));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
             Assert.That(result.InnerException, Is.EqualTo(exception));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IObjectValidator CreateSut()

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -13,7 +11,9 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
+using System;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 {
@@ -104,6 +104,40 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             IActionResult result = await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), " ", Guid.NewGuid());
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_AssertCanModifyAccountingWasCalledOnClaimResolver()
+        {
+            Controller sut = CreateSut();
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.RemovePostingLineFromPostingJournal(accountingNumber, _fixture.Create<string>(), Guid.NewGuid());
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task RemovePostingLineFromPostingJournal_WhenCanModifyAccountingReturnsFalse_ReturnsNotNull()
+        {
+            Controller sut = CreateSut(false);
+
+            IActionResult result = await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task RemovePostingLineFromPostingJournal_WhenCanModifyAccountingReturnsFalse_ReturnsForbidResult()
+        {
+            Controller sut = CreateSut(false);
+
+            IActionResult result = await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
+
+            Assert.That(result, Is.TypeOf<ForbidResult>());
         }
 
         [Test]
@@ -296,7 +330,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndNoKeyValueEntryForPostingJournalWasReturnedFromQueryBus_AssertPublishAsyncWasNotCalledOnCommandBusWithPushKeyValueEntryCommandForPostingJournal()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: false);
 
             await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -307,7 +341,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndNoKeyValueEntryForPostingJournalWasReturnedFromQueryBus_AssertQueryAsyncWasCalledTwiceOnQueryBusWithPullKeyValueEntryQueryForPostingJournalKey()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: false);
 
             string postingJournalKey = _fixture.Create<string>();
             await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), postingJournalKey, Guid.NewGuid());
@@ -319,7 +353,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndNoKeyValueEntryForPostingJournalWasReturnedFromQueryBus_AssertPublishAsyncWasNotCalledOnCommandBusWithDeleteKeyValueEntryCommandForPostingJournal()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: false);
 
             await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -330,7 +364,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             IActionResult result = await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -341,7 +375,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResult()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             IActionResult result = await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -352,7 +386,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewNameIsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -363,7 +397,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewNameIsEqualToPostingJournalPartial()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -374,7 +408,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereModelIsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -385,7 +419,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereModelIsApplyPostingJournalViewModel()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -405,7 +439,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.AccountingNumber, Is.EqualTo(accountingNumber));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -418,7 +454,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -437,10 +475,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines, Is.Not.Empty);
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines.Contains(postingLine1), Is.True);
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines.Contains(postingLine2), Is.True);
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines.Contains(postingLine3), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -460,10 +500,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines, Is.Not.Empty);
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines.Contains(postingLine1), Is.True);
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines.Contains(postingLine2), Is.False);
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines.Contains(postingLine3), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -481,7 +523,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines, Is.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -503,6 +547,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             for (int i = 1; i < applyPostingJournalViewModel.ApplyPostingLines.Count; i++)
             {
                 Assert.That(applyPostingJournalViewModel.ApplyPostingLines[i].PostingDate.UtcDateTime.Date, Is.LessThanOrEqualTo(applyPostingJournalViewModel.ApplyPostingLines[i - 1].PostingDate.UtcDateTime.Date));
@@ -513,53 +558,60 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
                 Assert.That(applyPostingJournalViewModel.ApplyPostingLines[i].SortOrder ?? 0, Is.LessThanOrEqualTo(applyPostingJournalViewModel.ApplyPostingLines[i - 1].SortOrder ?? 0));
             }
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndNoKeyValueEntryForPostingJournalWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsApplyPostingJournalViewModelWithAccountingNumberEqualToAccountingNumberFromArguments()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: false);
 
             int accountingNumber = _fixture.Create<int>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(accountingNumber, _fixture.Create<string>(), Guid.NewGuid());
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.AccountingNumber, Is.EqualTo(accountingNumber));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndNoKeyValueEntryForPostingJournalWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsApplyPostingJournalViewModelWithApplyPostingLinesNotEqualToNull()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: false);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines, Is.Not.Null);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndNoKeyValueEntryForPostingJournalWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsApplyPostingJournalViewModelWithEmptyApplyPostingLines()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: false);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
             ApplyPostingJournalViewModel applyPostingJournalViewModel = (ApplyPostingJournalViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(applyPostingJournalViewModel.ApplyPostingLines, Is.Empty);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewDataIsNotEqualToNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -570,7 +622,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewDataIsNotEmpty()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -581,7 +633,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewDataContainingKeyForPostingJournalKey()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -592,7 +644,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewDataContainingPostingJournalKeyWithValueNotEqualToNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -603,7 +655,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValue_ReturnsPartialViewResultWhereViewDataContainingPostingJournalKeyWithValueEqualToPostingJournalKeyFromArguments()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             string postingJournalKey = _fixture.Create<string>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), postingJournalKey, Guid.NewGuid());
@@ -615,7 +667,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndPostingJournalHeaderIsNull_ReturnsPartialViewResultWhereWithViewDataDoesNotContainKeyForHeader()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -626,7 +678,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndPostingJournalHeaderIsEmpty_ReturnsPartialViewResultWhereWithViewDataDoesNotContainKeyForHeader()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid(), string.Empty);
 
@@ -637,7 +689,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndPostingJournalHeaderIsWhiteSpace_ReturnsPartialViewResultWhereWithViewDataDoesNotContainKeyForHeader()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid(), " ");
 
@@ -648,7 +700,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndPostingJournalHeaderIsNotNullEmptyOrWhiteSpace_ReturnsPartialViewResultWhereWithViewContainingKeyForHeader()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid(), _fixture.Create<string>());
 
@@ -659,7 +711,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndPostingJournalHeaderIsNotNullEmptyOrWhiteSpace_ReturnsPartialViewResultWhereWithViewContainingHeaderWithValueNotEqualToNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid(), _fixture.Create<string>());
 
@@ -670,7 +722,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingLineFromPostingJournal_WhenPostingJournalKeyHasValueAndPostingJournalHeaderIsNotNullEmptyOrWhiteSpace_ReturnsPartialViewResultWhereWithViewContainingHeaderWithValueEqualToPostingJournalHeaderFromArguments()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournal: _random.Next(100) > 50);
 
             string postingJournalHeader = _fixture.Create<string>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingLineFromPostingJournal(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid(), postingJournalHeader);
@@ -678,8 +730,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             Assert.That(result.ViewData["Header"], Is.EqualTo(postingJournalHeader));
         }
 
-        private Controller CreateSut(bool hasKeyValueEntryForPostingJournal = true, IKeyValueEntry keyValueEntryForPostingJournal = null)
+        private Controller CreateSut(bool canModifyAccounting = true, bool hasKeyValueEntryForPostingJournal = true, IKeyValueEntry keyValueEntryForPostingJournal = null)
         {
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(canModifyAccounting);
+
             _queryBusMock.Setup(m => m.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(It.IsAny<IPullKeyValueEntryQuery>()))
                 .Returns(Task.FromResult(hasKeyValueEntryForPostingJournal ? keyValueEntryForPostingJournal ?? BuildKeyValueEntryForPostingJournal() : null));
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IPushKeyValueEntryCommand>()))

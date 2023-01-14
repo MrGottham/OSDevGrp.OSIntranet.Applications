@@ -8,12 +8,17 @@
 
 @if (showBanner)
 {
-    <div id="cookieConsent" class="alert alert-info alert-dismissible fade show" role="alert">
-        OS Development Group anvender cookies på dette domæne for at tilpasse indhold, funktioner samt optimere brugeroplevelsen.<br>Ved at klikke Accepter, giver du samtykke til anvendelse af cookies på domænet. Du kan altid tilbagekalde dit samtykke.
-        <button type="button" class="accept-policy close" data-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString">
-            <span aria-hidden="true">Accepter</span>
-        </button>
-    </div>
+	<div id="cookieConsent" class="row alert alert-info alert-dismissible fade show" role="alert">
+		<div class="col-9 col-sm-9 col-md-10 col-lg-10 col-xl-10">
+			<p class="text-wrap">OS Development Group anvender cookies på dette domæne for at tilpasse indhold, funktioner samt optimere brugeroplevelsen.</p>
+            <p class="text-wrap">Ved at klikke Accepter, giver du samtykke til anvendelse af cookies på domænet. Du kan altid tilbagekalde dit samtykke.</p>
+		</div>
+		<div class="col-3 col-sm-3 col-md-2 col-lg-2 col-xl-2">
+			<button type="button" class="accept-policy close" data-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString">
+				<span aria-hidden="true">Accepter</span>
+			</button>
+		</div>
+	</div>
     <script>
         (function () {
             var button = document.querySelector("#cookieConsent button[data-cookie-string]");

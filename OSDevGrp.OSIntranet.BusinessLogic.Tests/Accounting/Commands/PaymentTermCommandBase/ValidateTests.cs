@@ -1,11 +1,12 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTermCommandBase
 {
@@ -15,6 +16,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
         #region Private variables
 
         private ValidatorMockContext _validatorMockContext;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
         public void SetUp()
         {
             _validatorMockContext = new ValidatorMockContext();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -34,9 +37,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
         {
             IPaymentTermCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _accountingRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _claimResolverMock.Object, _accountingRepositoryMock.Object));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenClaimResolverIsNull_ThrowsArgumentNullException()
+        {
+            IPaymentTermCommand sut = CreateSut();
+
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _accountingRepositoryMock.Object));
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result.ParamName, Is.EqualTo("claimResolver"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -45,9 +63,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
         {
             IPaymentTermCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountingRepository"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -57,7 +77,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
             string name = _fixture.Create<string>();
             IPaymentTermCommand sut = CreateSut(name);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.CompareOrdinal(value, name) == 0),
@@ -73,7 +93,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
             string name = _fixture.Create<string>();
             IPaymentTermCommand sut = CreateSut(name);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.CompareOrdinal(value, name) == 0),
@@ -91,7 +111,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
             string name = _fixture.Create<string>();
             IPaymentTermCommand sut = CreateSut(name);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
                     It.Is<string>(value => string.CompareOrdinal(value, name) == 0),
@@ -108,13 +128,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Commands.PaymentTer
         {
             IPaymentTermCommand sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
         private IPaymentTermCommand CreateSut(string name = null)
         {
+            _claimResolverMock.Setup(m => m.IsAccountingAdministrator())
+                .Returns(_fixture.Create<bool>());
+
             return _fixture.Build<Sut>()
                 .With(m => m.Name, name ?? _fixture.Create<string>())
                 .Create();

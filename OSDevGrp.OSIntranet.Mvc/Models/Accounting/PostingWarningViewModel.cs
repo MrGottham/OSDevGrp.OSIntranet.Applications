@@ -1,10 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Text;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
+using System;
+using System.ComponentModel;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -21,6 +22,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         public decimal Amount { get; set; }
 
         public PostingLineViewModel PostingLine { get; set; }
+
+        [JsonIgnore]
+        public bool IsProtected { get; private set; }
+
+        internal void ApplyProtection()
+        {
+            IsProtected = true;
+        }
     }
 
     public static class PostingWarningViewModelExtensions

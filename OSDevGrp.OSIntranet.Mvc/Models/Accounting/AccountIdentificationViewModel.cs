@@ -1,9 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System.ComponentModel.DataAnnotations;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -23,6 +23,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         [Required(ErrorMessage = "Kontonavnet skal udfyldes.", AllowEmptyStrings = false)]
         [StringLength(256, MinimumLength = 1, ErrorMessage = "Længden på kontonavnet skal være mellem {2} og {1} tegn.")]
         public string AccountName { get; set; }
+
+        public bool IsProtected { get; set; }
     }
 
     public static class AccountIdentificationViewModelExtensions

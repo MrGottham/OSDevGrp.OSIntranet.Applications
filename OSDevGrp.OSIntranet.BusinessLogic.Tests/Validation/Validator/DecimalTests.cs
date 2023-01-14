@@ -15,6 +15,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.Validator
         private Mock<IDateTimeValidator> _dateTimeValidatorMock;
         private Mock<IObjectValidator> _objectValidatorMock;
         private Mock<IEnumerableValidator> _enumerableValidatorMock;
+        private Mock<IPermissionValidator> _permissionValidatorMock;
 
         #endregion
 
@@ -27,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.Validator
             _dateTimeValidatorMock = new Mock<IDateTimeValidator>();
             _objectValidatorMock = new Mock<IObjectValidator>();
             _enumerableValidatorMock = new Mock<IEnumerableValidator>();
+            _permissionValidatorMock = new Mock<IPermissionValidator>();
         }
 
         [Test]
@@ -42,7 +44,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.Validator
 
         private IValidator CreateSut()
         {
-            return new BusinessLogic.Validation.Validator(_integerValidatorMock.Object, _decimalValidatorMock.Object, _stringValidatorMock.Object, _dateTimeValidatorMock.Object, _objectValidatorMock.Object, _enumerableValidatorMock.Object);
+            return new BusinessLogic.Validation.Validator(_integerValidatorMock.Object, _decimalValidatorMock.Object, _stringValidatorMock.Object, _dateTimeValidatorMock.Object, _objectValidatorMock.Object, _enumerableValidatorMock.Object, _permissionValidatorMock.Object);
         }
     }
 }

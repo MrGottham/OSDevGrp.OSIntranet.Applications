@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
@@ -15,10 +12,14 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Security;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-    [Authorize(Policy = "CommonData")]
+    [Authorize(Policy = Policies.CommonDataPolicy)]
     public class CommonController : Controller
     {
         #region Private variables
@@ -50,7 +51,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
 
             IEnumerable<LetterHeadViewModel> letterHeadViewModels = letterHeads.AsParallel()
-                .Select(letterHead => _commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>(letterHead))
+                .Select(_commonViewModelConverter.Convert<ILetterHead, LetterHeadViewModel>)
                 .OrderBy(letterHeadViewModel => letterHeadViewModel.Number)
                 .ToList();
 

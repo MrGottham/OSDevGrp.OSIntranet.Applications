@@ -140,6 +140,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         NamedValueNotSetOnObject = 1045,
 
         [ErrorCode("Unable to translate the value for: {0}", typeof(IntranetSystemException))]
-        UnableToTranslateValueFor = 1046
+        UnableToTranslateValueFor = 1046,
+
+        [ErrorCode("The operation can’t be completed because you don’t have the necessary permission.", typeof(IntranetBusinessException))]
+        MissingNecessaryPermission = 1047
     }
 }

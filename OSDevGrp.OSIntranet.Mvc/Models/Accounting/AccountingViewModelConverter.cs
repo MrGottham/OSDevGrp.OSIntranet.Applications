@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using AutoMapper;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
@@ -12,6 +7,11 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
 {
@@ -242,14 +242,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                 .ConvertUsing(_postingLineCollectionToPostingLineCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingWarning, PostingWarningViewModel>()
-                .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => Guid.NewGuid()));
+                .ForMember(dest => dest.Identifier, opt => opt.MapFrom(src => Guid.NewGuid()))
+                .ForMember(dest => dest.IsProtected, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<IPostingWarningCollection, PostingWarningCollectionViewModel>()
                 .ConvertUsing(_postingWarningCollectionToPostingWarningCollectionViewModelTypeConverter);
 
             mapperConfiguration.CreateMap<IPostingJournalResult, ApplyPostingJournalResultViewModel>()
                 .ForMember(dest => dest.PostingLines, opt => opt.MapFrom(src => src.PostingLineCollection))
-                .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection));
+                .ForMember(dest => dest.PostingWarnings, opt => opt.MapFrom(src => src.PostingWarningCollection))
+                .ForMember(dest => dest.IsProtected, opt => opt.Ignore());
 
             mapperConfiguration.CreateMap<ApplyPostingLineViewModel, ApplyPostingLineCommand>()
                 .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.LocalDateTime.Date))
@@ -509,8 +511,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
                     .NotNull(context, nameof(context));
 
                 postingLineCollectionViewModel ??= new PostingLineCollectionViewModel();
+                postingLineCollectionViewModel.IsProtected = postingLineCollection.IsProtected;
 
-                postingLineCollectionViewModel.AddRange(postingLineCollection.Ordered().Select(postingLine => context.Mapper.Map<IPostingLine, PostingLineViewModel>(postingLine)).ToArray());
+                postingLineCollectionViewModel.AddRange(postingLineCollection.Ordered().Select(context.Mapper.Map<IPostingLine, PostingLineViewModel>).ToArray());
 
                 return postingLineCollectionViewModel;
             }

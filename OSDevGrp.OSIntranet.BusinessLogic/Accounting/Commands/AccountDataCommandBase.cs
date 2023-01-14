@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 {
@@ -30,9 +31,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 
         #region Methods
 
-        public override IValidator Validate(IValidator validator, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
+        public override IValidator Validate(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+	            .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository))
                 .NotNull(commonRepository, nameof(commonRepository));
 
@@ -41,7 +43,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
                 creditInfo.Validate(validator);
             }
 
-            return base.Validate(validator, accountingRepository, commonRepository)
+            return base.Validate(validator, claimResolver, accountingRepository, commonRepository)
                 .ValidateAccountGroupIdentifier(AccountGroupNumber, GetType(), nameof(AccountGroupNumber))
                 .Object.ShouldBeKnownValue(AccountGroupNumber, accountGroupNumber => Task.Run(async () => await GetAccountGroupAsync(accountingRepository) != null), GetType(), nameof(AccountGroupNumber))
                 .Object.ShouldNotBeNull(CreditInfoCollection, GetType(), nameof(CreditInfoCollection));

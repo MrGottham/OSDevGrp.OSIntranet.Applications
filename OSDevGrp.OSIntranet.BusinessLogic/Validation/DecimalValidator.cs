@@ -1,11 +1,11 @@
-﻿using System;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
 {
-    public class DecimalValidator : Validator, IDecimalValidator
+    internal class DecimalValidator : Validator, IDecimalValidator
     {
         #region Methods
 

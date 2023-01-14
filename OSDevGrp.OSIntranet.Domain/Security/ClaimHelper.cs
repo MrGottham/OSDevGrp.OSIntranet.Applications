@@ -1,8 +1,10 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
+using System.Globalization;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
@@ -18,6 +20,10 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public const string TokenClaimType = "urn:osdevgrp:osintranet:claims:token";
         public const string SecurityAdminClaimType = "urn:osdevgrp:osintranet:claims:securityadmin";
         public const string AccountingClaimType = "urn:osdevgrp:osintranet:claims:accounting";
+        public const string AccountingAdministratorClaimType = "urn:osdevgrp:osintranet:claims:accounting:administrator";
+        public const string AccountingCreatorClaimType = "urn:osdevgrp:osintranet:claims:accounting:creator";
+        public const string AccountingModifierClaimType = "urn:osdevgrp:osintranet:claims:accounting:modifier";
+        public const string AccountingViewerClaimType = "urn:osdevgrp:osintranet:claims:accounting:viewer";
         public const string CommonDataClaimType = "urn:osdevgrp:osintranet:claims:commondata";
         public const string ContactsClaimType = "urn:osdevgrp:osintranet:claims:contacts";
         public const string CountryCodeClaimType = "urn:osdevgrp:osintranet:claims:countrycode";
@@ -87,6 +93,30 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return CreateClaim(AccountingClaimType, accountingNumber?.ToString());
         }
 
+        public static Claim CreateAccountingAdministratorClaim()
+        {
+            return CreateClaim(AccountingAdministratorClaimType);
+        }
+
+        public static Claim CreateAccountingCreatorClaim()
+        {
+            return CreateClaim(AccountingCreatorClaimType);
+        }
+
+        public static Claim CreateAccountingModifierClaim(bool canModifyAllAccountings, params int[] accountingIdentificationCollection)
+        {
+            NullGuard.NotNull(accountingIdentificationCollection, nameof(accountingIdentificationCollection));
+
+            return CreateClaim(AccountingModifierClaimType, BuildClaimValue(canModifyAllAccountings, accountingIdentificationCollection));
+        }
+
+        public static Claim CreateAccountingViewerClaim(bool canAccessAllAccountings, params int[] accountingIdentificationCollection)
+        {
+            NullGuard.NotNull(accountingIdentificationCollection, nameof(accountingIdentificationCollection));
+
+            return CreateClaim(AccountingViewerClaimType, BuildClaimValue(canAccessAllAccountings, accountingIdentificationCollection));
+        }
+
         public static Claim CreateCommonDataClaim()
         {
             return CreateClaim(CommonDataClaimType);
@@ -130,6 +160,23 @@ namespace OSDevGrp.OSIntranet.Domain.Security
                 .NotNullOrWhiteSpace(type, nameof(type));
 
             return claimsPrincipal.FindFirst(type);
+        }
+
+        private static string BuildClaimValue(bool allWildcard, params int[] collection)
+        {
+            NullGuard.NotNull(collection, nameof(collection));
+
+            string claimValue = string.Join(",", collection.Select(value => value.ToString(CultureInfo.InvariantCulture)).ToArray());
+            if (allWildcard && string.IsNullOrWhiteSpace(claimValue))
+            {
+                claimValue = "*";
+            }
+            else if (allWildcard)
+            {
+                claimValue += ",*";
+            }
+
+            return claimValue;
         }
 
         #endregion

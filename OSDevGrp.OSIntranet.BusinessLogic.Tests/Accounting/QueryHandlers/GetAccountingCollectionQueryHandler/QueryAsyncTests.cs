@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetAccountingCollectionQueryHandler;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetAccountingCollectionQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAccountingCollectionQueryHandler
 {
@@ -21,6 +22,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         #region Private variables
 
         private Mock<IAccountingRepository> _accountingRepositoryMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingHelper> _accountingHelperMock;
         private Fixture _fixture;
         private Random _random;
@@ -31,6 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         public void SetUp()
         {
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingHelperMock = new Mock<IAccountingHelper>();
 
             _fixture = new Fixture();
@@ -48,7 +51,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -64,14 +69,50 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalledAndAccountingCollectionWasNotReturnedFromAccountingRepository_AssertCalculateAsyncWasNotCalledOnAnyAccounting()
+        public async Task QueryAsync_WhenNoAccountingsWasReturnedFromAccountingRepository_AssertNumberWasNotCalledOnAnyAccounting()
         {
-            List<Mock<IAccounting>> accountingMockCollection = new List<Mock<IAccounting>>(_random.Next(5, 10));
-            while (accountingMockCollection.Count < accountingMockCollection.Capacity)
+            Mock<IAccounting>[] accountingMockCollection =
             {
-                accountingMockCollection.Add(_fixture.BuildAccountingMock());
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock()
+            };
+            QueryHandler sut = CreateSut(false, accountingMockCollection.Select(m => m.Object).ToArray());
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            foreach (Mock<IAccounting> accountingMock in accountingMockCollection)
+            {
+                accountingMock.Verify(m => m.Number, Times.Never);
             }
-            QueryHandler sut = CreateSut(false, accountingMockCollection.Select(m => m.Object).ToList());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoAccountingsWasReturnedFromAccountingRepository_AssertCanAccessAccountingWasNotCalledOnClaimResolver()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            _claimResolverMock.Verify(m => m.CanAccessAccounting(It.IsAny<int>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoAccountingsWasReturnedFromAccountingRepository_AssertCalculateAsyncWasNotCalledOnAnyAccounting()
+        {
+            Mock<IAccounting>[] accountingMockCollection =
+            {
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock()
+            };
+            QueryHandler sut = CreateSut(false, accountingMockCollection.Select(m => m.Object).ToArray());
 
             await sut.QueryAsync(new EmptyQuery());
 
@@ -83,7 +124,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalledAndAccountingCollectionWasNotReturnedFromAccountingRepository_AssertApplyLogicForPrincipalWasNotCalledOnAccountingHelper()
+        public async Task QueryAsync_WhenNoAccountingsWasReturnedFromAccountingRepository_AssertApplyLogicForPrincipalWasNotCalledOnAccountingHelper()
         {
             QueryHandler sut = CreateSut(false);
 
@@ -94,26 +135,83 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalledAndAccountingCollectionWasNotReturnedFromAccountingRepository_ReturnEmptyAccountingCollection()
+        public async Task QueryAsync_WhenNoAccountingsWasReturnedFromAccountingRepository_ReturnsNotNull()
         {
             QueryHandler sut = CreateSut(false);
 
-            IList<IAccounting> result = (await sut.QueryAsync(new EmptyQuery())).ToList();
+            IEnumerable<IAccounting> result = await sut.QueryAsync(new EmptyQuery());
 
             Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenNoAccountingsWasReturnedFromAccountingRepository_ReturnsEmptyAccountingCollection()
+        {
+            QueryHandler sut = CreateSut(false);
+
+            IEnumerable<IAccounting> result = await sut.QueryAsync(new EmptyQuery());
+
             Assert.That(result, Is.Empty);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalledAndAccountingCollectionWasReturnedFromAccountingRepository_AssertCalculateAsyncWasCalledOnEachAccounting()
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_AssertNumberWasCalledOnEachAccounting()
         {
-            List<Mock<IAccounting>> accountingMockCollection = new List<Mock<IAccounting>>(_random.Next(5, 10));
-            while (accountingMockCollection.Count < accountingMockCollection.Capacity)
+            Mock<IAccounting>[] accountingMockCollection =
             {
-                accountingMockCollection.Add(_fixture.BuildAccountingMock());
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock()
+            };
+            QueryHandler sut = CreateSut(accountingCollection: accountingMockCollection.Select(m => m.Object).ToArray());
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            foreach (Mock<IAccounting> accountingMock in accountingMockCollection)
+            {
+                accountingMock.Verify(m => m.Number, Times.Once);
             }
-            QueryHandler sut = CreateSut(accountingCollection: accountingMockCollection.Select(m => m.Object).ToList());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_AssertCanAccessAccountingWasCalledOnClaimResolverWithEachAccountingNumber()
+        {
+            int[] accountingNumberCollection =
+            {
+                _fixture.Create<int>(),
+                _fixture.Create<int>(),
+                _fixture.Create<int>(),
+                _fixture.Create<int>(),
+                _fixture.Create<int>()
+            };
+            QueryHandler sut = CreateSut(accountingCollection: accountingNumberCollection.Select(accountingNumber => _fixture.BuildAccountingMock(accountingNumber).Object).ToArray());
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            foreach (int accountingNumber in accountingNumberCollection)
+            {
+                _claimResolverMock.Verify(m => m.CanAccessAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_AssertCalculateAsyncWasCalledOnEachAccessibleAccounting()
+        {
+            Mock<IAccounting>[] accountingMockCollection =
+            {
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock()
+            };
+            QueryHandler sut = CreateSut(accountingCollection: accountingMockCollection.Select(m => m.Object).ToArray());
 
             await sut.QueryAsync(new EmptyQuery());
 
@@ -125,19 +223,65 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalledAndAccountingCollectionWasReturnedFromAccountingRepository_AssertApplyLogicForPrincipalWasCalledOnAccountingHelperWithCalculatedAccountingCollection()
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_AssertCalculateAsyncWasNotCalledOnEachNonAccessibleAccounting()
+        {
+            Mock<IAccounting>[] accountingMockCollection =
+            {
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock(),
+                _fixture.BuildAccountingMock()
+            };
+            QueryHandler sut = CreateSut(accountingCollection: accountingMockCollection.Select(m => m.Object).ToArray(), canAccessAccounting: false);
+
+            await sut.QueryAsync(new EmptyQuery());
+
+            foreach (Mock<IAccounting> accountingMock in accountingMockCollection)
+            {
+                accountingMock.Verify(m => m.CalculateAsync(It.IsAny<DateTime>()), Times.Never);
+            }
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_AssertApplyLogicForPrincipalWasCalledOnAccountingHelperWithAccessibleCalculatedAccountingCollection()
         {
             IEnumerable<IAccounting> calculatedAccountingCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
             QueryHandler sut = CreateSut(accountingCollection: calculatedAccountingCollection.Select(calculatedAccounting => _fixture.BuildAccountingMock(calculatedAccounting: calculatedAccounting).Object).ToList());
 
             await sut.QueryAsync(new EmptyQuery());
-            
+
             _accountingHelperMock.Verify(m => m.ApplyLogicForPrincipal(It.Is<IEnumerable<IAccounting>>(value => value.All(accounting => calculatedAccountingCollection.Any(calculatedAccounting => calculatedAccounting == accounting)))), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task QueryAsync_WhenCalled_ReturnCalculatedAccountingCollectionFromAccountingHelper()
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_ReturnsNotNull()
+        {
+            IEnumerable<IAccounting> calculatedAccountingCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
+            QueryHandler sut = CreateSut(accountingCollection: calculatedAccountingCollection.Select(calculatedAccounting => _fixture.BuildAccountingMock(calculatedAccounting: calculatedAccounting).Object).ToList(), calculatedAccountingCollection: calculatedAccountingCollection);
+
+            IEnumerable<IAccounting> result = await sut.QueryAsync(new EmptyQuery());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_ReturnsNonEmptyAccountingCollection()
+        {
+            IEnumerable<IAccounting> calculatedAccountingCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
+            QueryHandler sut = CreateSut(accountingCollection: calculatedAccountingCollection.Select(calculatedAccounting => _fixture.BuildAccountingMock(calculatedAccounting: calculatedAccounting).Object).ToList(), calculatedAccountingCollection: calculatedAccountingCollection);
+
+            IEnumerable<IAccounting> result = await sut.QueryAsync(new EmptyQuery());
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenAccountingsWasReturnedFromAccountingRepository_ReturnsAccessibleCalculatedAccountingCollectionFromAccountingHelper()
         {
             IEnumerable<IAccounting> calculatedAccountingCollection = _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList();
             QueryHandler sut = CreateSut(accountingCollection: calculatedAccountingCollection.Select(calculatedAccounting => _fixture.BuildAccountingMock(calculatedAccounting: calculatedAccounting).Object).ToList(), calculatedAccountingCollection: calculatedAccountingCollection);
@@ -147,14 +291,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
             Assert.That(result, Is.EqualTo(calculatedAccountingCollection));
         }
 
-        private QueryHandler CreateSut(bool hasAccountingCollection = true, IEnumerable<IAccounting> accountingCollection = null, IEnumerable<IAccounting> calculatedAccountingCollection = null)
+        private QueryHandler CreateSut(bool hasAccountingCollection = true, IEnumerable<IAccounting> accountingCollection = null, IEnumerable<IAccounting> calculatedAccountingCollection = null, bool canAccessAccounting = true)
         {
             _accountingRepositoryMock.Setup(m => m.GetAccountingsAsync())
-                .Returns(Task.Run(() => hasAccountingCollection ? accountingCollection ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList() : null));
+                .Returns(Task.FromResult(hasAccountingCollection ? accountingCollection ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList() : null));
+
+            _claimResolverMock.Setup(m => m.CanAccessAccounting(It.IsAny<int>()))
+                .Returns(canAccessAccounting);
+
             _accountingHelperMock.Setup(m => m.ApplyLogicForPrincipal(It.IsAny<IEnumerable<IAccounting>>()))
                 .Returns(calculatedAccountingCollection ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList());
 
-           return new QueryHandler(_accountingRepositoryMock.Object, _accountingHelperMock.Object);
+           return new QueryHandler(_accountingRepositoryMock.Object, _claimResolverMock.Object, _accountingHelperMock.Object);
         }
     }
 }

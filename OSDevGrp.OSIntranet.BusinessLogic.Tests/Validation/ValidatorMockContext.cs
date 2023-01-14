@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Moq;
+﻿using Moq;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
@@ -13,6 +8,11 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
@@ -30,6 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             DateTimeValidatorMock = BuildDateTimeValidatorMock(ValidatorMock);
             ObjectValidatorMock = BuildObjectValidatorMock(ValidatorMock);
             EnumerableValidatorMock = BuildEnumerableValidatorMock(ValidatorMock);
+            PermissionValidatorMock = BuildPermissionValidatorMock(ValidatorMock);
 
             ValidatorMock.Setup(m => m.Integer)
                 .Returns(IntegerValidatorMock.Object);
@@ -43,6 +44,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
                 .Returns(ObjectValidatorMock.Object);
             ValidatorMock.Setup(m => m.Enumerable)
                 .Returns(EnumerableValidatorMock.Object);
+            ValidatorMock.Setup(m => m.Permission)
+                .Returns(PermissionValidatorMock.Object);
         }
 
         #endregion
@@ -62,6 +65,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
         internal Mock<IObjectValidator> ObjectValidatorMock;
 
         internal Mock<IEnumerableValidator> EnumerableValidatorMock;
+
+        internal Mock<IPermissionValidator> PermissionValidatorMock;
 
         #endregion
 
@@ -217,6 +222,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 
             enumerableValidatorMock.Setup(m => m.ShouldContainItems(It.IsAny<IEnumerable<T>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(validatorMock.Object);
+        }
+
+        private static Mock<IPermissionValidator> BuildPermissionValidatorMock(Mock<IValidator> validatorMock)
+        {
+            NullGuard.NotNull(validatorMock, nameof(validatorMock));
+
+            Mock<IPermissionValidator> permissionValidatorMock = new Mock<IPermissionValidator>();
+            permissionValidatorMock.Setup(m => m.HasNecessaryPermission(It.IsAny<bool>()))
+                .Returns(validatorMock.Object);
+            return permissionValidatorMock;
         }
 
         #endregion

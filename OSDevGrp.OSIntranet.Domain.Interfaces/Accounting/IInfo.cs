@@ -1,9 +1,9 @@
-﻿using System;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using System;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Accounting
 {
-    public interface IInfo : IAuditable, ICalculable, IDeletable
+    public interface IInfo : IAuditable, ICalculable, IProtectable
     {
         short Year { get; }
 

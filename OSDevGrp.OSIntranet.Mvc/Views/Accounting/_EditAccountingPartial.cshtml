@@ -11,49 +11,112 @@
         <input type="hidden" id="@Html.IdFor(m => m.LetterHead.Name)" name="@Html.NameFor(m => m.LetterHead.Name)" value="@Model.LetterHeads.FirstOrDefault()?.Name" />
         <input type="hidden" id="@Html.IdFor(m => m.LetterHead.Line1)" name="@Html.NameFor(m => m.LetterHead.Line1)" value="@Model.LetterHeads.FirstOrDefault()?.Line1" />
     }
-    <div class="row">
-        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            @if (Model.EditMode == EditMode.Create)
-            {
-                <div class="form-group">
-                    <label asp-for="AccountingNumber"></label>
-                    <input asp-for="AccountingNumber" class="form-control" />
-                    <span asp-validation-for="AccountingNumber" class="text-danger"></span>
-                </div>
-            }
-            else
-            {
-                <div class="form-group">
-                    <label asp-for="AccountingNumber"></label>
-                    <input asp-for="AccountingNumber" class="form-control" readonly />
-                </div>
-            }
-            <div class="form-group">
-                <label asp-for="Name"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LetterHead"></label>
-                <select asp-for="LetterHead.Number" asp-items="Model.LetterHeads.SelectListFor(Model.LetterHead.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.LetterHead.Name)', $(this).find('option:selected').text());"></select>
-                <span asp-validation-for="LetterHead" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BalanceBelowZero"></label>
-                <select asp-for="BalanceBelowZero" asp-items="Model.BalanceBelowZero.SelectListFor()" class="form-control"></select>
-                <span asp-validation-for="BalanceBelowZero" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BackDating"></label>
-                <input asp-for="BackDating" class="form-control" />
-                <span asp-validation-for="BackDating" class="text-danger"></span>
-            </div>
-            @if (Model.EditMode != EditMode.Create)
-            {
-                @await Html.PartialAsync("_AuditablePartial", Model)
-            }
-            <button type="submit" class="btn btn-primary">@Model.GetActionText()</button>
-            <a class="btn btn-secondary" onclick="javascript:$().cancelEditAccounting();">Fortryd</a>
-        </div>
+    <div class="row d-block">
+	    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+		    <div id="editAccountingAccordion">
+			    <div class="card">
+				    <div class="card-header">
+					    <a class="card-link" data-toggle="collapse" href="#collapseEditBasicInformation">
+						    <h5>Stamdata</h5>
+					    </a>
+				    </div>
+					<div id="collapseEditBasicInformation" class="collapse show" data-parent="#editAccountingAccordion">
+						<div class="card-body">
+							@if (Model.EditMode == EditMode.Create)
+							{
+								<div class="form-group">
+									<label asp-for="AccountingNumber"></label>
+									<input asp-for="AccountingNumber" class="form-control"/>
+									<span asp-validation-for="AccountingNumber" class="text-danger"></span>
+								</div>
+							}
+							else
+							{
+								<div class="form-group">
+									<label asp-for="AccountingNumber"></label>
+									<input asp-for="AccountingNumber" class="form-control" readonly/>
+								</div>
+							}
+							<div class="form-group">
+								<label asp-for="Name"></label>
+								@if (Model.EditMode == EditMode.Create || Model.IsProtected == false)
+								{
+									<input asp-for="Name" class="form-control"/>
+									<span asp-validation-for="Name" class="text-danger"></span>
+								}
+								else
+								{
+									<input asp-for="Name" class="form-control" readonly />
+								}
+							</div>
+							<div class="form-group">
+								<label asp-for="LetterHead"></label>
+								@if (Model.EditMode == EditMode.Create || Model.IsProtected == false)
+								{
+									<select asp-for="LetterHead.Number" asp-items="Model.LetterHeads.SelectListFor(Model.LetterHead.Number)" class="form-control" onchange="javascript:$().applyValue('#@Html.IdFor(m => m.LetterHead.Name)', $(this).find('option:selected').text());"></select>
+									<span asp-validation-for="LetterHead" class="text-danger"></span>
+								}
+								else
+								{
+									<input type="hidden" asp-for="LetterHead.Number" />
+									<select asp-items="Model.LetterHeads.SelectListFor(Model.LetterHead.Number)" class="form-control" readonly disabled></select>
+								}
+							</div>
+							<div class="form-group">
+								<label asp-for="BalanceBelowZero"></label>
+								@if (Model.EditMode == EditMode.Create || Model.IsProtected == false)
+								{
+									<select asp-for="BalanceBelowZero" asp-items="Model.BalanceBelowZero.SelectListFor()" class="form-control"></select>
+									<span asp-validation-for="BalanceBelowZero" class="text-danger"></span>
+								}
+								else
+								{
+									<input type="hidden" asp-for="BalanceBelowZero" />
+									<select asp-items="Model.BalanceBelowZero.SelectListFor()" class="form-control" readonly disabled></select>
+								}
+							</div>
+							<div class="form-group">
+								<label asp-for="BackDating"></label>
+								@if (Model.EditMode == EditMode.Create || Model.IsProtected == false)
+								{
+									<input asp-for="BackDating" class="form-control"/>
+									<span asp-validation-for="BackDating" class="text-danger"></span>
+								}
+								else
+								{
+									<input asp-for="BackDating" class="form-control" readonly />
+								}
+							</div>
+						</div>
+				    </div>
+			    </div>
+			    @if (Model.EditMode != EditMode.Create)
+			    {
+				    <div class="card">
+					    <div class="card-header">
+						    <a class="card-link" data-toggle="collapse" href="#collapseAuditable">
+							    <h5>Revisionsoplysninger</h5>
+						    </a>
+					    </div>
+					    <div id="collapseAuditable" class="collapse show" data-parent="#editAccountingAccordion">
+						    <div class="card-body">
+							    @await Html.PartialAsync("_AuditablePartial", Model)
+						    </div>
+					    </div>
+				    </div>
+			    }
+		    </div>
+		    <div class="mt-2">
+				@if (Model.EditMode == EditMode.Create || Model.IsProtected == false)
+				{
+					<button type="submit" class="btn btn-primary">@Model.GetActionText()</button>
+					<a class="btn btn-secondary" onclick="javascript:$().cancelEditAccounting();">Fortryd</a>
+				}
+				else
+				{
+					<a class="btn btn-primary" onclick="javascript:$().cancelEditAccounting();">Tilbage</a>
+				}
+		    </div>
+	    </div>
     </div>
 </form>

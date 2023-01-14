@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +15,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -26,6 +23,11 @@ using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.WebApi.Filters;
 using OSDevGrp.OSIntranet.WebApi.Handlers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
+using OSDevGrp.OSIntranet.WebApi.Security;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
@@ -94,7 +96,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -103,22 +105,29 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy("AcquireToken", policy =>
+                opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetOAuthAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.TokenClaimType);
                 });
-                opt.AddPolicy("SecurityAdmin", policy =>
-                {
-                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
-                    policy.RequireClaim(ClaimHelper.SecurityAdminClaimType);
-                });
-                opt.AddPolicy("Accounting", policy =>
+                opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
-                opt.AddPolicy("CommonData", policy =>
+                opt.AddPolicy(Policies.AccountingModifierPolicy, policy =>
+                {
+                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireClaim(ClaimHelper.AccountingClaimType);
+                    policy.RequireClaim(ClaimHelper.AccountingModifierClaimType);
+                });
+                opt.AddPolicy(Policies.AccountingViewerPolicy, policy =>
+                {
+                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireClaim(ClaimHelper.AccountingClaimType);
+                    policy.RequireClaim(ClaimHelper.AccountingViewerClaimType);
+                });
+                opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
@@ -227,7 +236,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
                     swaggerDoc.Servers = new List<OpenApiServer>
                     {
-                        new OpenApiServer
+                        new()
                         {
                             Url = $"{httpRequest.Headers[forwardedProtoHeader]}://{httpRequest.Headers[forwardedHostHeader]}"
                         }

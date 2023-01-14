@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -14,7 +11,10 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 {
@@ -105,6 +105,40 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             IActionResult result = await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), " ", Guid.NewGuid());
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_AssertCanModifyAccountingWasCalledOnClaimResolver()
+        {
+            Controller sut = CreateSut();
+
+            int accountingNumber = _fixture.Create<int>();
+            await sut.RemovePostingWarningFromPostingJournalResult(accountingNumber, _fixture.Create<string>(), Guid.NewGuid());
+
+            _claimResolverMock.Verify(m => m.CanModifyAccounting(It.Is<int>(value => value == accountingNumber)), Times.Once());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task RemovePostingWarningFromPostingJournalResult_WhenCanModifyAccountingReturnsFalse_ReturnsNotNull()
+        {
+            Controller sut = CreateSut(false);
+
+            IActionResult result = await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task RemovePostingWarningFromPostingJournalResult_WhenCanModifyAccountingReturnsFalse_ReturnsForbidResult()
+        {
+            Controller sut = CreateSut(false);
+
+            IActionResult result = await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
+
+            Assert.That(result, Is.TypeOf<ForbidResult>());
         }
 
         [Test]
@@ -277,7 +311,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             IActionResult result = await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -288,7 +322,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResult()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             IActionResult result = await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -299,7 +333,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewNameIsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -310,7 +344,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewNameIsEqualToPostingWarningCollectionPartial()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -321,7 +355,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereModelIsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -332,7 +366,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereModelIsPostingWarningCollectionViewModel()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -353,7 +387,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             PostingWarningCollectionViewModel resultViewModel = (PostingWarningCollectionViewModel)result.Model;
 
+            // ReSharper disable AssignNullToNotNullAttribute
             Assert.That(resultViewModel.All(postingWarningViewModel => postingWarningIdentifierCollection.Any(postingWarningIdentifier => postingWarningViewModel.Identifier == postingWarningIdentifier)), Is.True);
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
         [Test]
@@ -371,7 +407,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             PostingWarningCollectionViewModel resultViewModel = (PostingWarningCollectionViewModel)result.Model;
 
+            // ReSharper disable AssignNullToNotNullAttribute
             Assert.That(resultViewModel.All(postingWarningViewModel => postingWarningIdentifierCollection.Where(identifier => identifier != postingWarningIdentifier).Any(identifier => postingWarningViewModel.Identifier == identifier)), Is.True);
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
         [Test]
@@ -406,6 +444,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
             PostingWarningCollectionViewModel resultViewModel = (PostingWarningCollectionViewModel)result.Model;
 
+            // ReSharper disable PossibleNullReferenceException
             for (int i = 1; i < resultViewModel.Count; i++)
             {
                 Assert.That(resultViewModel[i].PostingLine.PostingDate.Date, Is.LessThanOrEqualTo(resultViewModel[i - 1].PostingLine.PostingDate.Date));
@@ -422,13 +461,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
                 Assert.That((int)resultViewModel[i].Reason, Is.LessThanOrEqualTo((int)resultViewModel[i - 1].Reason));
             }
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValueAndNoKeyValueEntryForPostingJournalResultWasReturnedFromQueryBus_ReturnsPartialViewResultWhereModelIsPostingWarningCollectionViewModelWithEmptyPostingWarnings()
         {
-            Controller sut = CreateSut(false);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: false);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -441,7 +481,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataIsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -452,7 +492,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataIsNotEmpty()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -463,7 +503,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataContainsKeyForAccountingNumber()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -474,7 +514,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataContainsKeyForAccountingNumberWhereValueIsNotNull()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             int accountingNumber = _fixture.Create<int>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(accountingNumber, _fixture.Create<string>(), Guid.NewGuid());
@@ -486,7 +526,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataContainsKeyForAccountingNumberWhereValueIsEqualToAccountingNumberFromArguments()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             int accountingNumber = _fixture.Create<int>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(accountingNumber, _fixture.Create<string>(), Guid.NewGuid());
@@ -498,7 +538,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataContainsKeyForPostingJournalResultKey()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), _fixture.Create<string>(), Guid.NewGuid());
 
@@ -509,7 +549,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataContainsKeyForPostingJournalResultKeyWhereValueIsNotNul()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             string postingJournalResultKey = _fixture.Create<string>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), postingJournalResultKey, Guid.NewGuid());
@@ -521,7 +561,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
         [Category("UnitTest")]
         public async Task RemovePostingWarningFromPostingJournalResult_WhenPostingJournalResultKeyHasValue_ReturnsPartialViewResultWhereViewDataContainsKeyForPostingJournalResultKeyWhereValueIsEqualToPostingJournalResultKeyFromArguments()
         {
-            Controller sut = CreateSut(_random.Next(100) > 50);
+            Controller sut = CreateSut(hasKeyValueEntryForPostingJournalResult: _random.Next(100) > 50);
 
             string postingJournalResultKey = _fixture.Create<string>();
             PartialViewResult result = (PartialViewResult)await sut.RemovePostingWarningFromPostingJournalResult(_fixture.Create<int>(), postingJournalResultKey, Guid.NewGuid());
@@ -529,8 +569,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             Assert.That(result.ViewData["PostingJournalResultKey"], Is.EqualTo(postingJournalResultKey));
         }
 
-        private Controller CreateSut(bool hasKeyValueEntryForPostingJournalResult = true, IKeyValueEntry keyValueEntryForPostingJournalResult = null)
+        private Controller CreateSut(bool canModifyAccounting = true, bool hasKeyValueEntryForPostingJournalResult = true, IKeyValueEntry keyValueEntryForPostingJournalResult = null)
         {
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(canModifyAccounting);
+
             _queryBusMock.Setup(m => m.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(It.IsAny<IPullKeyValueEntryQuery>()))
                 .Returns(Task.FromResult(hasKeyValueEntryForPostingJournalResult ? keyValueEntryForPostingJournalResult ?? BuildKeyValueEntryForPostingJournalResult() : null));
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IPushKeyValueEntryCommand>()))

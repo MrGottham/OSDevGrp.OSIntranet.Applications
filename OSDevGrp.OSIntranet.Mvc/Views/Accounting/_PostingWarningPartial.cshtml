@@ -5,7 +5,7 @@
         <p>@Html.DisplayFor(m => m.PostingLine.PostingDate)&nbsp;@Html.DisplayFor(m => m.PostingLine.Details)</p>
         <p>@Html.DisplayNameFor(m => m.Account):&nbsp;@Html.DisplayFor(m => m.Account.AccountNumber)&nbsp;@Html.DisplayFor(m => m.Account.AccountName)</p>
         <p>@Html.DisplayNameFor(m => m.Amount):&nbsp;@Model.Amount.AsCurrency()</p>
-        @if (ViewData["AccountingNumber"] != null && string.IsNullOrWhiteSpace((string) ViewData["PostingJournalResultKey"]) == false)
+        @if (Model.IsProtected == false && ViewData["AccountingNumber"] != null && string.IsNullOrWhiteSpace((string) ViewData["PostingJournalResultKey"]) == false)
         {
             <div class="btn-group">
                 <a href="#" onclick="javascript:$().removeFromPostingJournalResult(this, '@Model.GetRemovePostingWarningFromPostingJournalResultUrl(Url, (int)ViewData["AccountingNumber"])', @Model.GetRemovePostingWarningFromPostingJournalResultData(Html, (string)ViewData["PostingJournalResultKey"]) );" class="btn btn-primary"><i class="fas fa-trash"></i></a>

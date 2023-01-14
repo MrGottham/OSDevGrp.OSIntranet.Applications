@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.EnumerableValidator
 {

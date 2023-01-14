@@ -1,10 +1,10 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
+using System.Text.RegularExpressions;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
 {
@@ -33,7 +33,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldMatchPattern(_fixture.Create<string>(), null, GetType(), _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("pattern"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -44,7 +46,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldMatchPattern(_fixture.Create<string>(), _pattern, null, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingType"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -55,7 +59,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldMatchPattern(_fixture.Create<string>(), _pattern, GetType(), null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -66,7 +72,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldMatchPattern(_fixture.Create<string>(), _pattern, GetType(), string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -77,7 +85,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldMatchPattern(_fixture.Create<string>(), _pattern, GetType(), " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -101,9 +111,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldMatchPattern(null, _pattern, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNull));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -129,9 +141,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.StringValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldMatchPattern(value, _pattern, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldMatchPattern));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IStringValidator CreateSut()

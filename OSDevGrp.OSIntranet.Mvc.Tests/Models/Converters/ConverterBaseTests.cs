@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Models.Converters
 {

@@ -1,9 +1,9 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
 {
@@ -32,7 +32,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeGreaterThanZero(_fixture.Create<decimal>(), null, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingType"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -43,7 +45,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeGreaterThanZero(_fixture.Create<decimal>(), GetType(), null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -54,7 +58,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeGreaterThanZero(_fixture.Create<decimal>(), GetType(), string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -65,7 +71,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ShouldBeGreaterThanZero(_fixture.Create<decimal>(), GetType(), " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validatingField"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -89,9 +97,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeGreaterThanZero(0M, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueNotGreaterThanZero));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -104,9 +114,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation.DecimalValidator
             string validatingField = _fixture.Create<string>();
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.ShouldBeGreaterThanZero(_random.Next(1, 5) * -1, validatingType, validatingField));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueNotGreaterThanZero));
             Assert.That(result.ValidatingType, Is.EqualTo(validatingType));
             Assert.That(result.ValidatingField, Is.EqualTo(validatingField));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private IDecimalValidator CreateSut()

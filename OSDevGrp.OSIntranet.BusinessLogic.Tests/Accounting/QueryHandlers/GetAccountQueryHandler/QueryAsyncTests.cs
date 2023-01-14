@@ -1,14 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetAccountQueryHandler;
+using System;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.GetAccountQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAccountQueryHandler
 {
@@ -18,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -27,6 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -39,7 +42,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -51,7 +56,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
             Mock<IGetAccountQuery> queryMock = CreateQueryMock();
             await sut.QueryAsync(queryMock.Object);
 
-            queryMock.Verify(m => m.AccountingNumber, Times.Once);
+            queryMock.Verify(m => m.AccountingNumber, Times.Exactly(2));
         }
 
         [Test]
@@ -125,10 +130,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAc
 
         private QueryHandler CreateSut(bool hasAccount = true, IAccount account = null)
         {
+            _claimResolverMock.Setup(m => m.CanModifyAccounting(It.IsAny<int>()))
+                .Returns(_fixture.Create<bool>());
+
             _accountingRepositoryMock.Setup(m => m.GetAccountAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTime>()))
                 .Returns(Task.FromResult(hasAccount ? account ?? _fixture.BuildAccountMock().Object : null));
 
-            return new QueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object);
+            return new QueryHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
         }
 
         private IGetAccountQuery CreateQuery(int? accountingNumber = null, string accountNumber = null, DateTime? statusDate = null)

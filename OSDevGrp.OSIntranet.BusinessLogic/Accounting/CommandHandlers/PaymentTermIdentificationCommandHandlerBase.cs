@@ -1,23 +1,26 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 {
-    public abstract class PaymentTermIdentificationCommandHandlerBase<T> : CommandHandlerTransactionalBase, ICommandHandler<T> where T : IPaymentTermIdentificationCommand
+    internal abstract class PaymentTermIdentificationCommandHandlerBase<T> : CommandHandlerTransactionalBase, ICommandHandler<T> where T : IPaymentTermIdentificationCommand
     {
         #region Constructors
 
-        protected PaymentTermIdentificationCommandHandlerBase(IValidator validator, IAccountingRepository accountingRepository)
+        protected PaymentTermIdentificationCommandHandlerBase(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+                .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository));
 
             Validator = validator;
+            ClaimResolver = claimResolver;
             AccountingRepository = accountingRepository;
         }
 
@@ -26,6 +29,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
         #region Properties
 
         protected IValidator Validator { get; }
+
+        protected IClaimResolver ClaimResolver { get; }
 
         protected IAccountingRepository AccountingRepository { get; }
 
@@ -37,7 +42,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
         {
             NullGuard.NotNull(command, nameof(command));
 
-            command.Validate(Validator, AccountingRepository);
+            command.Validate(Validator, ClaimResolver, AccountingRepository);
 
             await ManageRepositoryAsync(command);
         }

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAccountCollectionQuery
 {
@@ -16,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAc
         #region Private variables
 
         private ValidatorMockContext _validatorMockContext;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Fixture _fixture;
 
@@ -25,6 +27,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAc
         public void SetUp()
         {
             _validatorMockContext = new ValidatorMockContext();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _fixture = new Fixture();
         }
@@ -35,9 +38,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAc
         {
             IGetBudgetAccountCollectionQuery sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _accountingRepositoryMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _claimResolverMock.Object, _accountingRepositoryMock.Object));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
+            // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenClaimResolverIsNull_ThrowsArgumentNullException()
+        {
+            IGetBudgetAccountCollectionQuery sut = CreateSut();
+
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _accountingRepositoryMock.Object));
+
+            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result.ParamName, Is.EqualTo("claimResolver"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -46,9 +64,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAc
         {
             IGetBudgetAccountCollectionQuery sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountingRepository"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -58,7 +78,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAc
             int accountingNumber = _fixture.Create<int>();
             IGetBudgetAccountCollectionQuery sut = CreateSut(accountingNumber);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
                     It.Is<int>(value => value == accountingNumber),
@@ -75,13 +95,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Queries.GetBudgetAc
         {
             IGetBudgetAccountCollectionQuery sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _accountingRepositoryMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
         private IGetBudgetAccountCollectionQuery CreateSut(int? accountingNumber = null)
         {
+            _claimResolverMock.Setup(m => m.CanAccessAccounting(It.IsAny<int>()))
+                .Returns(_fixture.Create<bool>());
+
             return _fixture.Build<BusinessLogic.Accounting.Queries.GetBudgetAccountCollectionQuery>()
                 .With(m => m.AccountingNumber, accountingNumber ?? _fixture.Create<int>())
                 .Create();

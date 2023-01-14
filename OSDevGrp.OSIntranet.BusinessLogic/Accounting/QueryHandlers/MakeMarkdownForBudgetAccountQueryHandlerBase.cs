@@ -1,11 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
 {
@@ -13,8 +14,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers
     {
         #region Constructor
 
-        protected MakeMarkdownForBudgetAccountQueryHandlerBase(IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, TBudgetAccountToMarkdownConverter budgetAccountToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true) :
-            base(validator, accountingRepository, statusDateSetter, budgetAccountToMarkdownConverter, encoderShouldEmitUtf8Identifier)
+        protected MakeMarkdownForBudgetAccountQueryHandlerBase(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, TBudgetAccountToMarkdownConverter budgetAccountToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true) :
+            base(validator, claimResolver, accountingRepository, statusDateSetter, budgetAccountToMarkdownConverter, encoderShouldEmitUtf8Identifier)
         {
         }
 

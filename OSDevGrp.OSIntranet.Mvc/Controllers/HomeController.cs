@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
@@ -29,6 +22,14 @@ using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Home;
+using OSDevGrp.OSIntranet.Mvc.Security;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
@@ -68,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            if (User?.Identity == null || User.Identity.IsAuthenticated == false)
+            if (User.Identity == null || User.Identity.IsAuthenticated == false)
             {
                 return View("Index", BuildHomeOperationsViewModelForUnauthenticatedUser());
             }
@@ -77,7 +78,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Contacts")]
+        [Authorize(Policy = Policies.ContactPolicy)]
         public async Task<IActionResult> UpcomingBirthdays(int withinDays)
         {
             IRefreshableToken token = await _tokenHelperFactory.GetTokenAsync<IRefreshableToken>(TokenType.MicrosoftGraphToken, HttpContext);
@@ -98,7 +99,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             List<ContactWithUpcomingBirthdayViewModel> contactWithUpcomingBirthdayViewModels = contacts.AsParallel()
                 .Where(contact => contact.Birthday.HasValue)
-                .Select(contact => _homeViewModelConverter.Convert<IContact, ContactWithUpcomingBirthdayViewModel>(contact))
+                .Select(_homeViewModelConverter.Convert<IContact, ContactWithUpcomingBirthdayViewModel>)
                 .OrderBy(contactWithUpcomingBirthdayViewModel => contactWithUpcomingBirthdayViewModel.UpcomingBirthday)
                 .ThenBy(contactWithUpcomingBirthdayViewModel => contactWithUpcomingBirthdayViewModel.DisplayName)
                 .ToList();
@@ -107,7 +108,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "Accounting")]
+        [Authorize(Policy = Policies.AccountingPolicy)]
         public async Task<IActionResult> AccountingInformation(int accountingNumber)
         {
             IGetAccountingQuery query = new GetAccountingQuery

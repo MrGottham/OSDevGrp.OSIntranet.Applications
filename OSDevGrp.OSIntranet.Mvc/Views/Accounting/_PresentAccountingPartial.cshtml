@@ -10,14 +10,14 @@
                 }
             </div>
             <div class="float-right">
-                @if (Model.EditMode == EditMode.None && Model.Deletable)
+                @if (Model.EditMode == EditMode.None && Model.IsProtected == false && Model.Deletable)
                 {
                     <div class="fa-stack">
                         <a href="#" onclick="javascript:$().editAccounting();"><i class="fas fa-pen"></i></a>
                         <a href="#" onclick="javascript:$().askForDeletion('Slet regnskab', '@Model.GetDeletionUrl(Url)', @Model.GetDeletionData(Html), null, true);"><i class="fas fa-trash"></i></a>
                     </div>
                 }
-                else if (Model.EditMode == EditMode.None)
+                else if (Model.EditMode == EditMode.None && Model.IsProtected == false)
                 {
                     <a href="#" onclick="javascript:$().editAccounting();"><i class="fas fa-pen"></i></a>
                 }
@@ -25,7 +25,7 @@
         </div>
     </div>
 }
-@if (Model.EditMode == EditMode.Create || Model.EditMode == EditMode.Edit)
+@if (Model.EditMode == EditMode.Create || (Model.IsProtected == false && Model.EditMode == EditMode.Edit))
 {
     <div class="row d-block">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -35,11 +35,14 @@
 }
 else
 {
-    <div id="editAccounting" class="row d-none">
-        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            @await Html.PartialAsync("_EditAccountingPartial", Model)
-        </div>
-    </div>
+    @if (Model.IsProtected == false)
+    {
+	    <div id="editAccounting" class="row d-none">
+		    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			    @await Html.PartialAsync("_EditAccountingPartial", Model)
+		    </div>
+	    </div>
+    }
     <div id="presentAccounting" class="row d-block">
         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
             <div id="accountingAccordion">
@@ -216,7 +219,7 @@ else
                                         <thead>
                                             <tr>
                                                 <th></th>
-                                                <th class="d-none d-lg-block d-xl-block text-right">Budget</th>
+                                                <th class="text-right"><div class="d-none d-lg-block d-xl-block">Budget</div></th>
                                                 <th class="text-right">Resultat</th>
                                             </tr>
                                         </thead>
@@ -225,13 +228,13 @@ else
                                             {
                                                 <tr>
                                                     <td>@item.Key.Name.ToHtmlString()</td>
-                                                    <td class="d-none d-lg-block d-xl-block text-right">@item.Value.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+                                                    <td class="text-right"><div class="d-none d-lg-block d-xl-block">@item.Value.ValuesForMonthOfStatusDate.Budget.AsCurrency()</div></td>
                                                     <td class="text-right">@item.Value.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
                                                 </tr>
                                             }
                                             <tr>
                                                 <td class="font-weight-bold">Resultat i alt</td>
-                                                <td class="d-none d-lg-block d-xl-block font-weight-bold text-right">@Model.BudgetAccounts.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+                                                <td class="font-weight-bold text-right"><div class="d-none d-lg-block d-xl-block">@Model.BudgetAccounts.ValuesForMonthOfStatusDate.Budget.AsCurrency()</div></td>
                                                 <td class="font-weight-bold text-right">@Model.BudgetAccounts.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
                                             </tr>
                                         </tbody>
@@ -336,17 +339,22 @@ else
                                     <table class="table table-sm">
                                         <thead>
                                             <tr>
-                                                <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
-                                                <th>Kontonavn</th>
+                                                <th><div class="d-none d-lg-block d-xl-block">Kontonr.</div></th>
+	                                            <th>Kontonavn</th>
                                                 <th class="text-right">Saldo</th>
-                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+	                                            <th>
+		                                            @if (Model.IsProtected == false)
+		                                            {
+			                                            <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
+		                                            }
+	                                            </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (KeyValuePair<AccountGroupViewModel, AccountCollectionViewModel> item in Model.Accounts)
                                             {
                                                 <tr>
-                                                    <td class="d-none d-lg-block d-xl-block"></td>
+                                                    <td><div class="d-none d-lg-block d-xl-block"></div></td>
                                                     <td class="font-weight-bold">@item.Key.Name.ToHtmlString()</td>
                                                     <td></td>
                                                     <td></td>
@@ -354,17 +362,24 @@ else
                                                 @foreach (AccountViewModel accountViewModel in item.Value)
                                                 {
                                                     <tr>
-                                                        <td class="d-none d-lg-block d-xl-block">@accountViewModel.AccountNumber.ToHtmlString()</td>
+                                                        <td><div class="d-none d-lg-block d-xl-block">@accountViewModel.AccountNumber.ToHtmlString()</div></td>
                                                         <td>@accountViewModel.AccountName.ToHtmlString()</td>
                                                         <td class="text-right">@accountViewModel.ValuesAtStatusDate.Balance.AsCurrency()</td>
                                                         <td>
-                                                            <span class="fa-stack">
-                                                                <a href="#" onclick="javascript:$().editAccount('@accountViewModel.GetStartUpdatingAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
-                                                                @if (accountViewModel.Deletable)
+	                                                        <span class="fa-stack">
+                                                                @if (accountViewModel.IsProtected == false)
                                                                 {
-                                                                    <a href="#" onclick="javascript:$().askForDeletion('Slet konto', '@accountViewModel.GetDeleteAccountUrl(Url)', @accountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+	                                                                <a href="#" onclick="javascript:$().editAccount('@accountViewModel.GetStartUpdatingAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+	                                                                @if (accountViewModel.Deletable)
+	                                                                {
+		                                                                <a href="#" onclick="javascript:$().askForDeletion('Slet konto', '@accountViewModel.GetDeleteAccountUrl(Url)', @accountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+	                                                                }
                                                                 }
-                                                            </span>
+                                                                else
+                                                                {
+                                                                    <a href="#" onclick="javascript:$().editAccount('@accountViewModel.GetStartUpdatingAccountUrl(Url)');"><i class="fas fa-magnifying-glass"></i></a>
+                                                                }
+	                                                        </span>
                                                         </td>
                                                     </tr>
                                                 }
@@ -393,38 +408,50 @@ else
                                     <table class="table table-sm">
                                         <thead>
                                             <tr>
-                                                <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
+                                                <th><div class="d-none d-lg-block d-xl-block">Kontonr.</div></th>
                                                 <th>Kontonavn</th>
-                                                <th class="d-none d-xl-block text-right">Budget</th>
+                                                <th class="text-right"><div class="d-none d-xl-block">Budget</div></th>
                                                 <th class="text-right">Bogført</th>
-                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+	                                            <th>
+		                                            @if (Model.IsProtected == false)
+		                                            {
+			                                            <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingBudgetAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
+		                                            }
+	                                            </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (KeyValuePair<BudgetAccountGroupViewModel, BudgetAccountCollectionViewModel> item in Model.BudgetAccounts)
                                             {
                                                 <tr>
-                                                    <td class="d-none d-lg-block d-xl-block"></td>
+                                                    <td><div class="d-none d-lg-block d-xl-block"></div></td>
                                                     <td class="font-weight-bold">@item.Key.Name.ToHtmlString()</td>
-                                                    <td class="d-none d-xl-block"></td>
+                                                    <td><div class="d-none d-xl-block"></div></td>
                                                     <td></td>
                                                     <td></td>
                                                 </tr>
                                                 @foreach (BudgetAccountViewModel budgetAccountViewModel in item.Value)
                                                 {
                                                     <tr>
-                                                        <td class="d-none d-lg-block d-xl-block">@budgetAccountViewModel.AccountNumber.ToHtmlString()</td>
+                                                        <td><div class="d-none d-lg-block d-xl-block">@budgetAccountViewModel.AccountNumber.ToHtmlString()</div></td>
                                                         <td>@budgetAccountViewModel.AccountName.ToHtmlString()</td>
-                                                        <td class="d-none d-xl-block text-right">@budgetAccountViewModel.ValuesForMonthOfStatusDate.Budget.AsCurrency()</td>
+                                                        <td class="text-right"><div class="d-none d-xl-block">@budgetAccountViewModel.ValuesForMonthOfStatusDate.Budget.AsCurrency()</div></td>
                                                         <td class="text-right">@budgetAccountViewModel.ValuesForMonthOfStatusDate.Posted.AsCurrency()</td>
                                                         <td>
-                                                            <span class="fa-stack">
-                                                                <a href="#" onclick="javascript:$().editAccount('@budgetAccountViewModel.GetStartUpdatingBudgetAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
-                                                                @if (budgetAccountViewModel.Deletable)
+	                                                        <span class="fa-stack">
+                                                                @if (budgetAccountViewModel.IsProtected == false)
                                                                 {
-                                                                    <a href="#" onclick="javascript:$().askForDeletion('Slet budgetkonto', '@budgetAccountViewModel.GetDeleteBudgetAccountUrl(Url)', @budgetAccountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+	                                                                <a href="#" onclick="javascript:$().editAccount('@budgetAccountViewModel.GetStartUpdatingBudgetAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+	                                                                @if (budgetAccountViewModel.Deletable)
+	                                                                {
+		                                                                <a href="#" onclick="javascript:$().askForDeletion('Slet budgetkonto', '@budgetAccountViewModel.GetDeleteBudgetAccountUrl(Url)', @budgetAccountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+	                                                                }
                                                                 }
-                                                            </span>
+                                                                else
+                                                                {
+                                                                    <a href="#" onclick="javascript:$().editAccount('@budgetAccountViewModel.GetStartUpdatingBudgetAccountUrl(Url)');"><i class="fas fa-magnifying-glass"></i></a>
+                                                                }
+	                                                        </span>
                                                         </td>
                                                     </tr>
                                                 }
@@ -453,29 +480,46 @@ else
                                     <table class="table table-sm">
                                         <thead>
                                             <tr>
-                                                <th class="d-none d-lg-block d-xl-block">Kontonr.</th>
+                                                <th><div class="d-none d-lg-block d-xl-block">Kontonr.</div></th>
                                                 <th>Kontonavn</th>
                                                 <th class="text-right">Saldo</th>
-                                                <th><a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a></th>
+	                                            <th>
+		                                            @if (Model.IsProtected == false)
+		                                            {
+			                                            <a href="#" onclick="javascript:$().newAccount('@Model.GetStartCreatingContactAccountUrl(Url)');"><i class="fas fa-plus"></i></a>
+		                                            }
+	                                            </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (ContactAccountViewModel contactAccountViewModel in Model.ContactAccounts)
                                             {
                                                 <tr>
-                                                    <td class="d-none d-lg-block d-xl-block">@contactAccountViewModel.AccountNumber.ToHtmlString()</td>
+                                                    <td><div class="d-none d-lg-block d-xl-block">@contactAccountViewModel.AccountNumber.ToHtmlString()</div></td>
                                                     <td>@contactAccountViewModel.AccountName.ToHtmlString()</td>
                                                     <td class="text-right">@contactAccountViewModel.ValuesAtStatusDate.Balance.AsCurrency()</td>
-                                                    <td>
-                                                        <span class="fa-stack">
-                                                            <a href="#" onclick="javascript:$().editAccount('@contactAccountViewModel.GetStartUpdatingContactAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
-                                                            @if (contactAccountViewModel.Deletable)
-                                                            {
-                                                                <a href="#" onclick="javascript:$().askForDeletion('Slet kontaktkonto', '@contactAccountViewModel.GetDeleteContactAccountUrl(Url)', @contactAccountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
-                                                            }
+	                                                <td>
+                                                        @if (contactAccountViewModel.IsProtected == false && contactAccountViewModel.Deletable)
+                                                        {
+	                                                        <span class="fa-stack">
+		                                                        <a href="#" onclick="javascript:$().editAccount('@contactAccountViewModel.GetStartUpdatingContactAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+		                                                        <a href="#" onclick="javascript:$().askForDeletion('Slet kontaktkonto', '@contactAccountViewModel.GetDeleteContactAccountUrl(Url)', @contactAccountViewModel.GetDeletionData(Html), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
+	                                                        </span>
+	                                                        <span class="fa-stack">
+		                                                        <a href="@contactAccountViewModel.GetMakeContactAccountStatementMarkdownUrl(Url)"><i class="fas fa-file-export"></i></a>
+	                                                        </span>
+                                                        }
+                                                        else if (contactAccountViewModel.IsProtected == false)
+                                                        {
+	                                                        <a href="#" onclick="javascript:$().editAccount('@contactAccountViewModel.GetStartUpdatingContactAccountUrl(Url)');"><i class="fas fa-pen"></i></a>
+	                                                        <a href="@contactAccountViewModel.GetMakeContactAccountStatementMarkdownUrl(Url)"><i class="fas fa-file-export"></i></a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" onclick="javascript:$().editAccount('@contactAccountViewModel.GetStartUpdatingContactAccountUrl(Url)');"><i class="fas fa-magnifying-glass"></i></a>
                                                             <a href="@contactAccountViewModel.GetMakeContactAccountStatementMarkdownUrl(Url)"><i class="fas fa-file-export"></i></a>
-                                                        </span>
-                                                    </td>
+                                                        }
+	                                                </td>
                                                 </tr>
                                             }
                                         </tbody>

@@ -1,17 +1,18 @@
-﻿using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers
 {
-    public class DeleteAccountCommandHandler : AccountIdentificationCommandHandlerBase<IDeleteAccountCommand>
+    internal class DeleteAccountCommandHandler : AccountIdentificationCommandHandlerBase<IDeleteAccountCommand>
     {
         #region Constructor
 
-        public DeleteAccountCommandHandler(IValidator validator, IAccountingRepository accountingRepository, ICommonRepository commonRepository) 
-            : base(validator, accountingRepository, commonRepository)
+        public DeleteAccountCommandHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, ICommonRepository commonRepository) 
+            : base(validator, claimResolver, accountingRepository, commonRepository)
         {
         }
 

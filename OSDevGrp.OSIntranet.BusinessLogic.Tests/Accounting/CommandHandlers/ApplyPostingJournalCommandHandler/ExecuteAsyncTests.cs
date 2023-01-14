@@ -1,16 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.ApplyPostingJournalCommandHandler;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.CommandHandlers.ApplyPostingJournalCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.ApplyPostingJournalCommandHandler
 {
@@ -20,6 +21,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.App
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<ICommonRepository> _commonRepositoryMock;
         private Mock<IPostingWarningCalculator> _postingWarningCalculatorMock;
@@ -31,6 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.App
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _commonRepositoryMock = new Mock<ICommonRepository>();
             _postingWarningCalculatorMock = new Mock<IPostingWarningCalculator>();
@@ -60,13 +63,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.App
             await sut.ExecuteAsync(applyPostingJournalCommandMock.Object);
 
             applyPostingJournalCommandMock.Verify(m => m.Validate(
-                    It.Is<IValidator>(value => value == _validatorMock.Object),
-                    It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object),
-                    It.Is<ICommonRepository>(value => value == _commonRepositoryMock.Object)),
-                Times.Once);
+		            It.Is<IValidator>(value => value == _validatorMock.Object),
+		            It.Is<IClaimResolver>(value => value == _claimResolverMock.Object),
+		            It.Is<IAccountingRepository>(value => value == _accountingRepositoryMock.Object),
+		            It.Is<ICommonRepository>(value => value == _commonRepositoryMock.Object)),
+	            Times.Once);
         }
 
-        [Test]
+		[Test]
         [Category("UnitTest")]
         public async Task ExecuteAsync_WhenCalled_AssertToDomainWasCalledOnApplyPostingJournalCommand()
         {
@@ -238,7 +242,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.App
             _postingWarningCalculatorMock.Setup(m => m.CalculateAsync(It.IsAny<IPostingLineCollection>()))
                 .Returns(Task.FromResult(postingWarningCollection ?? _fixture.BuildPostingWarningCollectionMock(isEmpty: true).Object));
 
-            return new CommandHandler(_validatorMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object, _postingWarningCalculatorMock.Object);
+            return new CommandHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _commonRepositoryMock.Object, _postingWarningCalculatorMock.Object);
         }
 
         private IApplyPostingJournalCommand CreateApplyPostingJournalCommand(IPostingJournal postingJournal = null)
@@ -249,7 +253,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.CommandHandlers.App
         private Mock<IApplyPostingJournalCommand> CreateApplyPostingJournalCommandMock(IPostingJournal postingJournal = null)
         {
             Mock<IApplyPostingJournalCommand> applyPostingJournalCommandMock = new Mock<IApplyPostingJournalCommand>();
-            applyPostingJournalCommandMock.Setup(m => m.Validate(It.IsAny<IValidator>(), It.IsAny<IAccountingRepository>(), It.IsAny<ICommonRepository>()))
+            applyPostingJournalCommandMock.Setup(m => m.Validate(It.IsAny<IValidator>(), It.IsAny<IClaimResolver>(), It.IsAny<IAccountingRepository>(), It.IsAny<ICommonRepository>()))
                 .Returns(_validatorMock.Object);
             applyPostingJournalCommandMock.Setup(m => m.ToDomain(It.IsAny<IAccountingRepository>()))
                 .Returns(postingJournal ?? _fixture.BuildPostingJournalMock().Object);

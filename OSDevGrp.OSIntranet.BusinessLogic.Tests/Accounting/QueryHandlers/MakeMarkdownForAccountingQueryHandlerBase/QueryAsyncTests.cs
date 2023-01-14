@@ -1,17 +1,18 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeMarkdownForAccountingQueryHandlerBase
 {
@@ -21,6 +22,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
         #region Private variables
 
         private Mock<IValidator> _validatorMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Mock<IAccountingRepository> _accountingRepositoryMock;
         private Mock<IStatusDateSetter> _statusDateSetterMock;
         private Mock<IAccountingToMarkdownConverter> _accountingToMarkdownConverterMock;
@@ -33,6 +35,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
         public void SetUp()
         {
             _validatorMock = new Mock<IValidator>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _accountingRepositoryMock = new Mock<IAccountingRepository>();
             _statusDateSetterMock = new Mock<IStatusDateSetter>();
             _accountingToMarkdownConverterMock = new Mock<IAccountingToMarkdownConverter>();
@@ -214,7 +217,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
             _accountingToMarkdownConverterMock.Setup(m => m.ConvertAsync(It.IsAny<IAccounting>()))
                 .Returns(Task.FromResult(hasMarkdownContent ? markdownContent ?? _fixture.Create<string>() : null));
 
-            return new MyMakeMarkdownForAccountingQueryHandler(_validatorMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _accountingToMarkdownConverterMock.Object, false);
+            return new MyMakeMarkdownForAccountingQueryHandler(_validatorMock.Object, _claimResolverMock.Object, _accountingRepositoryMock.Object, _statusDateSetterMock.Object, _accountingToMarkdownConverterMock.Object, false);
         }
 
         private IExportFromAccountingQuery CreateExportFromAccountingQuery(int? accountingNumber = null, DateTime? statusDate = null)
@@ -236,8 +239,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.MakeM
         {
             #region Constructor
 
-            public MyMakeMarkdownForAccountingQueryHandler(IValidator validator, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IAccountingToMarkdownConverter accountingToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true) 
-                : base(validator, accountingRepository, statusDateSetter, accountingToMarkdownConverter, encoderShouldEmitUtf8Identifier)
+            public MyMakeMarkdownForAccountingQueryHandler(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, IStatusDateSetter statusDateSetter, IAccountingToMarkdownConverter accountingToMarkdownConverter, bool encoderShouldEmitUtf8Identifier = true) 
+                : base(validator, claimResolver, accountingRepository, statusDateSetter, accountingToMarkdownConverter, encoderShouldEmitUtf8Identifier)
             {
             }
 

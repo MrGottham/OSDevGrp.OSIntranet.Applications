@@ -1,8 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Domain.Accounting
 {
@@ -117,6 +117,13 @@ namespace OSDevGrp.OSIntranet.Domain.Accounting
         #endregion
 
         #region Methods
+
+        public override void ApplyProtection()
+        {
+            ContactInfoCollection?.ApplyProtection();
+
+            base.ApplyProtection();
+        }
 
         protected override Task[] GetCalculationTasks(DateTime statusDate)
         {

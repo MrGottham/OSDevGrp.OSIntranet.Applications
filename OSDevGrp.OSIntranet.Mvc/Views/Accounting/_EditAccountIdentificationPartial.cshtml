@@ -1,7 +1,7 @@
 @model AccountIdentificationViewModel;
 <input type="hidden" asp-for="Accounting.AccountingNumber" />
 <input type="hidden" asp-for="Accounting.Name" />
-@if (Model.EditMode == EditMode.Create)
+@if (Model.EditMode == EditMode.Create && (Model.IsProtected == false || Model.IsProtected && string.IsNullOrWhiteSpace(Model.AccountNumber)))
 {
     <div class="form-group">
         <label asp-for="AccountNumber"></label>
@@ -17,7 +17,14 @@ else
     </div>
 }
 <div class="form-group">
-    <label asp-for="AccountName"></label>
-    <input asp-for="AccountName" class="form-control" />
-    <span asp-validation-for="AccountName" class="text-danger"></span>
+	<label asp-for="AccountName"></label>
+    @if (Model.IsProtected == false || Model.IsProtected && string.IsNullOrWhiteSpace(Model.AccountName))
+    {
+	    <input asp-for="AccountName" class="form-control" />
+	    <span asp-validation-for="AccountName" class="text-danger"></span>
+    }
+    else
+    {
+        <input asp-for="AccountName" class="form-control" readonly />
+    }
 </div>

@@ -1,4 +1,5 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -20,13 +21,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands
 
         #region Methods
 
-        public override IValidator Validate(IValidator validator, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
+        public override IValidator Validate(IValidator validator, IClaimResolver claimResolver, IAccountingRepository accountingRepository, ICommonRepository commonRepository)
         {
             NullGuard.NotNull(validator, nameof(validator))
+	            .NotNull(claimResolver, nameof(claimResolver))
                 .NotNull(accountingRepository, nameof(accountingRepository))
                 .NotNull(commonRepository, nameof(commonRepository));
 
-            return base.Validate(validator, accountingRepository, commonRepository)
+            return base.Validate(validator, claimResolver, accountingRepository, commonRepository)
                 .String.ShouldNotBeNullOrWhiteSpace(AccountName, GetType(), nameof(AccountName))
                 .String.ShouldHaveMinLength(AccountName, 1, GetType(), nameof(AccountName))
                 .String.ShouldHaveMaxLength(AccountName, 256, GetType(), nameof(AccountName))
