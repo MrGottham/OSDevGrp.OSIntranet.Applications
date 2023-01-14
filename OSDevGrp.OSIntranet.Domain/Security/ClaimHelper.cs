@@ -24,6 +24,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public const string AccountingCreatorClaimType = "urn:osdevgrp:osintranet:claims:accounting:creator";
         public const string AccountingModifierClaimType = "urn:osdevgrp:osintranet:claims:accounting:modifier";
         public const string AccountingViewerClaimType = "urn:osdevgrp:osintranet:claims:accounting:viewer";
+        public const string MediaLibraryClaimType = "urn:osdevgrp:osintranet:claims:medialibrary";
         public const string CommonDataClaimType = "urn:osdevgrp:osintranet:claims:commondata";
         public const string ContactsClaimType = "urn:osdevgrp:osintranet:claims:contacts";
         public const string CountryCodeClaimType = "urn:osdevgrp:osintranet:claims:countrycode";
@@ -115,6 +116,11 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             NullGuard.NotNull(accountingIdentificationCollection, nameof(accountingIdentificationCollection));
 
             return CreateClaim(AccountingViewerClaimType, BuildClaimValue(canAccessAllAccountings, accountingIdentificationCollection));
+        }
+
+        public static Claim CreateMediaLibraryClaim()
+        {
+            return CreateClaim(MediaLibraryClaimType);
         }
 
         public static Claim CreateCommonDataClaim()
