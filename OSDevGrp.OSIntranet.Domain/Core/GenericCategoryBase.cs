@@ -12,7 +12,7 @@ namespace OSDevGrp.OSIntranet.Domain.Core
             NullGuard.NotNullOrWhiteSpace(name, nameof(name));
 
             Number = number;
-            Name = name;
+            Name = name.Trim();
             Deletable = deletable;
         }
 
