@@ -6,6 +6,36 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
     public interface IMediaLibraryRepository : IRepository
     {
+        Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync();
+
+        Task<IMovieGenre> GetMovieGenreAsync(int number);
+
+        Task CreateMovieGenreAsync(IMovieGenre movieGenre);
+
+        Task UpdateMovieGenreAsync(IMovieGenre movieGenre);
+
+        Task DeleteMovieGenreAsync(int number);
+
+        Task<IEnumerable<IMusicGenre>> GetMusicGenresAsync();
+
+        Task<IMusicGenre> GetMusicGenreAsync(int number);
+
+        Task CreateMusicGenreAsync(IMusicGenre musicGenre);
+
+        Task UpdateMusicGenreAsync(IMusicGenre musicGenre);
+
+        Task DeleteMusicGenreAsync(int number);
+
+        Task<IEnumerable<IBookGenre>> GetBookGenresAsync();
+
+        Task<IBookGenre> GetBookGenreAsync(int number);
+
+        Task CreateBookGenreAsync(IBookGenre bookGenre);
+
+        Task UpdateBookGenreAsync(IBookGenre bookGenre);
+
+        Task DeleteBookGenreAsync(int number);
+
         Task<IEnumerable<IMediaType>> GetMediaTypesAsync();
 
         Task<IMediaType> GetMediaTypeAsync(int number);

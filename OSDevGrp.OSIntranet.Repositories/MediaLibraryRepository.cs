@@ -25,6 +25,168 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Methods
 
+        public Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync()
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IMovieGenre> GetMovieGenreAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.ReadAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task CreateMovieGenreAsync(IMovieGenre movieGenre)
+        {
+            NullGuard.NotNull(movieGenre, nameof(movieGenre));
+
+            return ExecuteAsync(async () =>
+                {
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.CreateAsync(movieGenre);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task UpdateMovieGenreAsync(IMovieGenre movieGenre)
+        {
+            NullGuard.NotNull(movieGenre, nameof(movieGenre));
+
+            return ExecuteAsync(async () =>
+                {
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.UpdateAsync(movieGenre);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task DeleteMovieGenreAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.DeleteAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IEnumerable<IMusicGenre>> GetMusicGenresAsync()
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IMusicGenre> GetMusicGenreAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.ReadAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task CreateMusicGenreAsync(IMusicGenre musicGenre)
+        {
+            NullGuard.NotNull(musicGenre, nameof(musicGenre));
+
+            return ExecuteAsync(async () =>
+                {
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.CreateAsync(musicGenre);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task UpdateMusicGenreAsync(IMusicGenre musicGenre)
+        {
+            NullGuard.NotNull(musicGenre, nameof(musicGenre));
+
+            return ExecuteAsync(async () =>
+                {
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.UpdateAsync(musicGenre);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task DeleteMusicGenreAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.DeleteAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IEnumerable<IBookGenre>> GetBookGenresAsync()
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IBookGenre> GetBookGenreAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.ReadAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task CreateBookGenreAsync(IBookGenre bookGenre)
+        {
+            NullGuard.NotNull(bookGenre, nameof(bookGenre));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.CreateAsync(bookGenre);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task UpdateBookGenreAsync(IBookGenre bookGenre)
+        {
+            NullGuard.NotNull(bookGenre, nameof(bookGenre));
+
+            return ExecuteAsync(async () =>
+                {
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.UpdateAsync(bookGenre);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task DeleteBookGenreAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    return await handler.DeleteAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
         public Task<IEnumerable<IMediaType>> GetMediaTypesAsync()
         {
             return ExecuteAsync(async () =>

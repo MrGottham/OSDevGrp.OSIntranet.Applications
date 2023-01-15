@@ -14,6 +14,30 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
+            mapperConfiguration.CreateMap<MovieGenreModel, IMovieGenre>()
+                .ConvertUsing(src => src.ToDomain());
+
+            mapperConfiguration.CreateMap<IMovieGenre, MovieGenreModel>()
+                .ForMember(dest => dest.MovieGenreIdentifier, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<MusicGenreModel, IMusicGenre>()
+                .ConvertUsing(src => src.ToDomain());
+
+            mapperConfiguration.CreateMap<IMusicGenre, MusicGenreModel>()
+                .ForMember(dest => dest.MusicGenreIdentifier, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<BookGenreModel, IBookGenre>()
+                .ConvertUsing(src => src.ToDomain());
+
+            mapperConfiguration.CreateMap<IBookGenre, BookGenreModel>()
+                .ForMember(dest => dest.BookGenreIdentifier, opt => opt.MapFrom(src => src.Number))
+                .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+                .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
             mapperConfiguration.CreateMap<MediaTypeModel, IMediaType>()
                 .ConvertUsing(src => src.ToDomain());
 

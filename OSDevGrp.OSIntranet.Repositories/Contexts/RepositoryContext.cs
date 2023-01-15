@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MySql.Data.MySqlClient;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
@@ -100,6 +101,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         #region DbSets for Media Library
 
+        internal DbSet<MovieGenreModel> MovieGenres { get; set; }
+
+        internal DbSet<MusicGenreModel> MusicGenres { get; set; }
+
+        internal DbSet<BookGenreModel> BookGenres { get; set; }
+
         internal DbSet<MediaTypeModel> MediaTypes { get; set; }
 
         #endregion
@@ -176,8 +183,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                 throw new IntranetExceptionBuilder(ErrorCode.MissingConnectionString, ConnectionStringNames.IntranetName).Build();
             }
 
+            MySqlConnectionStringBuilder connectionStringBuilder = new MySqlConnectionStringBuilder(connectionString);
+
             optionsBuilder.UseLoggerFactory(LoggerFactory)
-                .UseMySQL(connectionString);
+                .UseMySQL(connectionStringBuilder.ConnectionString);
 
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
             optionsBuilder.EnableDetailedErrors();
@@ -314,6 +323,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
+            modelBuilder.CreateMovieGenreModel();
+            modelBuilder.CreateMusicGenreModel();
+            modelBuilder.CreateBookGenreModel();
             modelBuilder.CreateMediaTypeModel();
         }
 
