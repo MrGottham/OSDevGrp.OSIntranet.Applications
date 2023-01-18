@@ -55,6 +55,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         internal DbSet<KeyValueEntryModel> KeyValueEntries { get; set; }
 
+        internal DbSet<NationalityModel> Nationalities { get; set; }
+
+        internal DbSet<LanguageModel> Languages { get; set; }
+
         #endregion
 
         #region DbSets for Contact data
@@ -288,6 +292,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
             modelBuilder.CreateLetterHeadModel();
             modelBuilder.CreateKeyValueEntryModel();
+            modelBuilder.CreateNationalityModel();
+            modelBuilder.CreateLanguageModel();
         }
 
         private static void CreateModelsForContactData(ModelBuilder modelBuilder)

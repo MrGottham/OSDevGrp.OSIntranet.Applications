@@ -52,7 +52,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.CreateAsync(movieGenre);
+                    await handler.CreateAsync(movieGenre);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.UpdateAsync(movieGenre);
+                    await handler.UpdateAsync(movieGenre);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -74,7 +74,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.DeleteAsync(number);
+                    await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -106,7 +106,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.CreateAsync(musicGenre);
+                    await handler.CreateAsync(musicGenre);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -118,7 +118,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.UpdateAsync(musicGenre);
+                    await handler.UpdateAsync(musicGenre);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -128,7 +128,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.DeleteAsync(number);
+                    await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -160,7 +160,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.CreateAsync(bookGenre);
+                    await handler.CreateAsync(bookGenre);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -172,7 +172,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.UpdateAsync(bookGenre);
+                    await handler.UpdateAsync(bookGenre);
                 },
                 MethodBase.GetCurrentMethod());
         }
@@ -182,7 +182,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
                     using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
-                    return await handler.DeleteAsync(number);
+                    await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
         }

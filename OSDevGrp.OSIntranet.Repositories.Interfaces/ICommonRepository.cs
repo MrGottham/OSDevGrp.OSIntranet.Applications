@@ -1,6 +1,6 @@
+using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 
 namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
@@ -21,5 +21,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
         Task<IKeyValueEntry> PushKeyValueEntryAsync(IKeyValueEntry keyValueEntry);
 
         Task<IKeyValueEntry> DeleteKeyValueEntryAsync(string key);
+
+        Task<IEnumerable<INationality>> GetNationalitiesAsync();
+
+        Task<INationality> GetNationalityAsync(int number);
+
+        Task CreateNationalityAsync(INationality nationality);
+
+        Task UpdateNationalityAsync(INationality nationality);
+
+        Task DeleteNationalityAsync(int number);
+
+        Task<IEnumerable<ILanguage>> GetLanguagesAsync();
+
+        Task<ILanguage> GetLanguageAsync(int number);
+
+        Task CreateLanguageAsync(ILanguage language);
+
+        Task UpdateLanguageAsync(ILanguage language);
+
+        Task DeleteLanguageAsync(int number);
     }
 }
