@@ -1,0 +1,24 @@
+@model GenericCategoryViewModel;
+@{
+    ViewData["Title"] = Model.Header;
+}
+
+<div class="row">
+    <div class="col-xl-1 d-none d-xl-block">
+    </div>
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-10">
+        <h2>@Model.Header</h2>
+        <form asp-area="" asp-controller="@Model.Controller" asp-action="@Model.SubmitAction" method="post">
+            <partial name="_GenericCategoryPartial" />
+            <button type="submit" class="btn btn-primary">@Model.SubmitText</button>
+            <a class="btn btn-secondary" asp-controller="@Model.Controller" asp-action="@Model.CancelAction">@Model.CancelText</a>
+       </form>
+    </div>
+    <div class="col-xl-1 d-none d-xl-block">
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

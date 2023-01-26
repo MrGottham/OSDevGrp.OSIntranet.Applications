@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -131,6 +132,106 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return RedirectToAction("LetterHeads", "Common");
         }
 
-        #endregion
-   }
+        [HttpGet]
+        public async Task<IActionResult> Nationalities()
+        {
+            IEnumerable<INationality> nationalities = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<INationality>>(CommonQueryFactory.BuildEmptyQuery());
+
+            return GenericCategoryCollectionViewModel.Create("Nationaliteter", "Common", nameof(CreateNationality), nameof(UpdateNationality), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("Common", nameof(DeleteNationality), urlHelper), nationalities ?? Array.Empty<INationality>(), _commonViewModelConverter)
+                .AsView(this);
+        }
+
+        [HttpGet]
+        public IActionResult CreateNationality()
+        {
+	        return GenericCategoryViewModel.Create("Opret nationalitet", "Common", nameof(CreateNationality), nameof(Nationalities))
+		        .AsView(this);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateNationality(GenericCategoryViewModel genericCategoryViewModel)
+        {
+	        throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateNationality(int number)
+        {
+            INationality nationality = await _queryBus.QueryAsync<IGetNationalityQuery, INationality>(CommonQueryFactory.BuildGetNationalityQuery(number));
+            if (nationality == null)
+            {
+                return BadRequest();
+            }
+
+            return GenericCategoryViewModel.Create("Redigér nationalitet", "Common", nameof(UpdateNationality), nameof(Nationalities), nationality)
+                .AsView(this);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> UpdateNationality(GenericCategoryViewModel genericCategoryViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> DeleteNationality(int number)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Languages()
+        {
+            IEnumerable<ILanguage> languages = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILanguage>>(CommonQueryFactory.BuildEmptyQuery());
+
+            return GenericCategoryCollectionViewModel.Create("Sprog", "Common", nameof(CreateLanguage), nameof(UpdateLanguage), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("Common", nameof(DeleteLanguage), urlHelper), languages ?? Array.Empty<ILanguage>(), _commonViewModelConverter)
+                .AsView(this);
+        }
+
+        [HttpGet]
+        public IActionResult CreateLanguage()
+        {
+            return GenericCategoryViewModel.Create("Opret sprog", "Common", nameof(CreateLanguage), nameof(Languages))
+                .AsView(this);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CreateLanguage(GenericCategoryViewModel genericCategoryViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateLanguage(int number)
+        {
+            ILanguage language = await _queryBus.QueryAsync<IGetLanguageQuery, ILanguage>(CommonQueryFactory.BuildGetLanguageQuery(number));
+            if (language == null)
+            {
+                return BadRequest();
+            }
+
+            return GenericCategoryViewModel.Create("Redigér sprog", "Common", nameof(UpdateLanguage), nameof(Languages), language)
+                .AsView(this);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateLanguage(GenericCategoryViewModel genericCategoryViewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> DeleteLanguage(int number)
+        {
+            throw new NotImplementedException();
+        }
+
+		#endregion
+	}
 }

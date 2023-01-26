@@ -76,18 +76,18 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return keyValueEntryMock;
         }
 
-        public static Mock<INationality> BuildNationalityMock(this Fixture fixture, int? number = null, string name = null)
+        public static Mock<INationality> BuildNationalityMock(this Fixture fixture, int? number = null, string name = null, bool? deletable = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return fixture.BuildGenericCategoryMock<INationality>(number, name);
+            return fixture.BuildGenericCategoryMock<INationality>(number, name, deletable);
         }
 
-        public static Mock<ILanguage> BuildLanguageMock(this Fixture fixture, int? number = null, string name = null)
+        public static Mock<ILanguage> BuildLanguageMock(this Fixture fixture, int? number = null, string name = null, bool? deletable = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return fixture.BuildGenericCategoryMock<ILanguage>(number, name);
+            return fixture.BuildGenericCategoryMock<ILanguage>(number, name, deletable);
         }
     }
 }

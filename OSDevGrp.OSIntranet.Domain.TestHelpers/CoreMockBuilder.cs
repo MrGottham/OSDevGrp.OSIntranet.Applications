@@ -18,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return deletableMock;
         }
 
-        internal static Mock<TGenericCategory> BuildGenericCategoryMock<TGenericCategory>(this Fixture fixture, int? number = null, string name = null) where TGenericCategory : class, IGenericCategory
+        internal static Mock<TGenericCategory> BuildGenericCategoryMock<TGenericCategory>(this Fixture fixture, int? number = null, string name = null, bool? deletable = null) where TGenericCategory : class, IGenericCategory
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             genericCategoryMock.Setup(m => m.Name)
                 .Returns(name ?? fixture.Create<string>());
             genericCategoryMock.Setup(m => m.Deletable)
-                .Returns(fixture.Create<bool>());
+                .Returns(deletable ?? fixture.Create<bool>());
             genericCategoryMock.Setup(m => m.CreatedDateTime)
                 .Returns(fixture.Create<DateTime>());
             genericCategoryMock.Setup(m => m.CreatedByIdentifier)

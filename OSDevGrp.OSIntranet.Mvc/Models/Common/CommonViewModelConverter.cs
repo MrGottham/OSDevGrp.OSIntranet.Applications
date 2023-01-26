@@ -20,6 +20,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Common
             mapperConfiguration.CreateMap<LetterHeadViewModel, CreateLetterHeadCommand>();
             mapperConfiguration.CreateMap<LetterHeadViewModel, UpdateLetterHeadCommand>();
             mapperConfiguration.CreateMap<LetterHeadViewModel, DeleteLetterHeadCommand>();
+
+            mapperConfiguration.CreateMap<INationality, GenericCategoryViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
+
+            mapperConfiguration.CreateMap<ILanguage, GenericCategoryViewModel>()
+                .ForMember(dest => dest.EditMode, opt => opt.MapFrom(src => EditMode.None));
         }
 
         #endregion
