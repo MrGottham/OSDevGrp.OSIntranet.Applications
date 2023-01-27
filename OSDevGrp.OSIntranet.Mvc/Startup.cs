@@ -169,6 +169,11 @@ namespace OSDevGrp.OSIntranet.Mvc
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingViewerClaimType);
                 });
+                opt.AddPolicy(Policies.MediaLibraryPolicy, policy =>
+                {
+                    policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
+                });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
