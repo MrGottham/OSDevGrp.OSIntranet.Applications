@@ -4,163 +4,159 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    @if (User.Identity is {IsAuthenticated: true })
-    {
-        <title>@ViewData["Title"] - OS Intranet</title>
-    }
-    else
-    {
-        <title>@ViewData["Title"] - Mr. Gottham's Homepage</title>
-    }
-
-<environment include="Development">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.css" />
-    <link rel="stylesheet" href="~/lib/fontawesome/dist/css/all.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-</environment>
-<environment exclude="Development">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css"
-          asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-          asp-fallback-test-class="sr-only"
-          asp-fallback-test-property="position"
-          asp-fallback-test-value="absolute"
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer"
-          integrity="sha512-rt/SrQ4UNIaGfDyEXZtNcyWvQeOq0QLygHluFQcSjaGB04IxWhal71tKuzP6K8eYXYB6vJV4pHkXcmFGGQ1/0w==" />
-    <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-          crossorigin="anonymous"
-          referrerpolicy="no-referrer"
-          integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==">
-    <link rel="stylesheet" href="~/css/site.min.css" />
-</environment>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	@if (User.Identity is { IsAuthenticated: true })
+	{
+		<title>@ViewData["Title"] - OS Intranet</title>
+	}
+	else
+	{
+		<title>@ViewData["Title"] - Mr. Gottham's Homepage</title>
+	}
+	<environment include="Development">
+		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+		<link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.css" />
+		<link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.css" />
+		<link rel="stylesheet" href="~/lib/fontawesome/dist/css/all.css" />
+		<link rel="stylesheet" href="~/css/site.css" />
+	</environment>
+	<environment exclude="Development">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css"
+			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+			  asp-fallback-test-class="sr-only"
+			  asp-fallback-test-property="position"
+			  asp-fallback-test-value="absolute"
+			  crossorigin="anonymous"
+			  referrerpolicy="no-referrer"
+			  integrity="sha512-rt/SrQ4UNIaGfDyEXZtNcyWvQeOq0QLygHluFQcSjaGB04IxWhal71tKuzP6K8eYXYB6vJV4pHkXcmFGGQ1/0w==" />
+		<link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+		<link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+			  crossorigin="anonymous"
+			  referrerpolicy="no-referrer"
+			  integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==">
+		<link rel="stylesheet" href="~/css/site.min.css" />
+	</environment>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3 fixed-top">
-            <div class="container">
-                @if (User.Identity is {IsAuthenticated: true })
-                {
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OS Intranet</a>
-                }
-                else
-                {
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Mr. Gottham&lsquo;s Homepage</a>
-                }
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item d-none d-lg-block d-xl-block">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Start</a>
-                        </li>
-                        @if (User.Identity is {IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.ContactPolicy)).Succeeded)
-                        {
-                            <li class="nav-item d-none d-md-block d-lg-block d-xl-block">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Contact" asp-action="Contacts">Kontakter</a>
-                            </li>
-                        }
-                        @if (User.Identity is {IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.AccountingPolicy)).Succeeded)
-                        {
-                            <li class="nav-item d-none d-md-block d-lg-block d-xl-block">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Accounting" asp-action="Accountings">Finansstyring</a>
-                            </li>
-                        }
-                        @if (User.Identity is {IsAuthenticated: true })
-                        {
-                            <li class="flex-grow-1" />
-                            <li class="nav-item dropdown">
-                                <a href="#" class="nav-link text-dark dropdown-toggle" data-toggle="dropdown" data-submenu>Administration</a>
-                                <div class="dropdown-menu">
-                                    <partial name="_ContactsPartial" />
-                                    <partial name="_AccountingPartial" />
-                                    <partial name="_MediaLibraryPartial" />
-                                    <partial name="_CommonDataPartial" />
-                                    <partial name="_SecurityPartial" />
-                                </div>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="flex-grow-1" />
-                        }
-                        <partial name="_LoginPartial" />
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        @if (User.Identity is {IsAuthenticated: true })
-        {
-            <div class="container">
-                OS Development Group &copy; 2023 - OS Intranet
-            </div>
-        }
-        else
-        {
-            <div class="container">
-                OS Development Group &copy; 2023 - Mr. Gottham&lsquo;s Homepage
-            </div>
-        }
-    </footer>
-
-    <environment include="Development">
-        <script src="~/lib/jquery/dist/jquery-3.6.2.js"></script>
-        <script src="~/lib/popper/dist/popper.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script defer src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
-        <script defer src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js"></script>
-        <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.js"></script>
-        <script defer src="~/lib/fontawesome/dist/js/all.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"
-                asp-fallback-src="~/lib/jquery/dist/jquery-3.6.2.min.js"
-                asp-fallback-test="window.jQuery"
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"
-                integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==">
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js" 
-                asp-fallback-src="~/lib/popper/dist/popper.min.js"
-                asp-fallback-test="window.jQuery"
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"
-                integrity="sha512-6UofPqm0QupIL0kzS/UIzekR73/luZdC6i/kXDbWnLOJoqwklBK6519iUnShaYceJ0y4FaiPtX/hRnV/X/xlUQ==">
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"
-                integrity="sha512-7rusk8kGPFynZWu26OKbTeI+QPoYchtxsmPeBqkHIEXJxeun4yJ4ISYe7C6sz9wdxeE1Gk3VxsIWgCZTc+vX3g==">
-        </script>
-        <script defer src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
-        <script defer src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js"></script>
-        <script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.min.js"></script>
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js"
-                crossorigin="anonymous"
-                referrerpolicy="no-referrer"
-                integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==">
-        </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
-
-    @RenderSection("Scripts", required: false)
+	<header>
+		<nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3 fixed-top">
+			<div class="container">
+				@if (User.Identity is { IsAuthenticated: true })
+				{
+					<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OS Intranet</a>
+				}
+				else
+				{
+					<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Mr. Gottham&lsquo;s Homepage</a>
+				}
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+					<ul class="navbar-nav flex-grow-1">
+						<li class="nav-item d-none d-lg-block d-xl-block">
+							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Start</a>
+						</li>
+						@if (User.Identity is { IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.ContactPolicy)).Succeeded)
+						{
+							<li class="nav-item d-none d-md-block d-lg-block d-xl-block">
+								<a class="nav-link text-dark" asp-area="" asp-controller="Contact" asp-action="Contacts">Kontakter</a>
+							</li>
+						}
+						@if (User.Identity is { IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.AccountingPolicy)).Succeeded)
+						{
+							<li class="nav-item d-none d-md-block d-lg-block d-xl-block">
+								<a class="nav-link text-dark" asp-area="" asp-controller="Accounting" asp-action="Accountings">Finansstyring</a>
+							</li>
+						}
+						@if (User.Identity is { IsAuthenticated: true })
+						{
+							<li class="flex-grow-1" />
+							<li class="nav-item dropdown">
+								<a href="#" class="nav-link text-dark dropdown-toggle" data-toggle="dropdown" data-submenu>Administration</a>
+								<div class="dropdown-menu">
+									<partial name="_ContactsPartial" />
+									<partial name="_AccountingPartial" />
+									<partial name="_MediaLibraryPartial" />
+									<partial name="_CommonDataPartial" />
+									<partial name="_SecurityPartial" />
+								</div>
+							</li>
+						}
+						else
+						{
+							<li class="flex-grow-1" />
+						}
+						<partial name="_LoginPartial" />
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+	<div class="container">
+		<partial name="_CookieConsentPartial" />
+		<main role="main" class="pb-3">
+			@RenderBody()
+		</main>
+	</div>
+	<footer class="border-top footer text-muted">
+		@if (User.Identity is { IsAuthenticated: true })
+		{
+			<div class="container">
+				OS Development Group &copy; 2023 - OS Intranet
+			</div>
+		}
+		else
+		{
+			<div class="container">
+				OS Development Group &copy; 2023 - Mr. Gottham&lsquo;s Homepage
+			</div>
+		}
+	</footer>
+	<environment include="Development">
+		<script src="~/lib/jquery/dist/jquery-3.6.2.js"></script>
+		<script src="~/lib/popper/dist/popper.js"></script>
+		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+		<script defer src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+		<script defer src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js"></script>
+		<script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.js"></script>
+		<script defer src="~/lib/fontawesome/dist/js/all.js"></script>
+		<script src="~/js/site.js" asp-append-version="true"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.2/jquery.min.js"
+				asp-fallback-src="~/lib/jquery/dist/jquery-3.6.2.min.js"
+				asp-fallback-test="window.jQuery"
+				crossorigin="anonymous"
+				referrerpolicy="no-referrer"
+				integrity="sha512-tWHlutFnuG0C6nQRlpvrEhE4QpkG1nn2MOUMWmUeRePl4e3Aki0VB6W1v3oLjFtd0hVOtRQ9PHpSfN6u6/QXkQ==">
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"
+				asp-fallback-src="~/lib/popper/dist/popper.min.js"
+				asp-fallback-test="window.jQuery"
+				crossorigin="anonymous"
+				referrerpolicy="no-referrer"
+				integrity="sha512-6UofPqm0QupIL0kzS/UIzekR73/luZdC6i/kXDbWnLOJoqwklBK6519iUnShaYceJ0y4FaiPtX/hRnV/X/xlUQ==">
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.min.js"
+				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
+				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+				crossorigin="anonymous"
+				referrerpolicy="no-referrer"
+				integrity="sha512-7rusk8kGPFynZWu26OKbTeI+QPoYchtxsmPeBqkHIEXJxeun4yJ4ISYe7C6sz9wdxeE1Gk3VxsIWgCZTc+vX3g==">
+		</script>
+		<script defer src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+		<script defer src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js"></script>
+		<script defer src="~/lib/bootstrap-submenu/dist/js/bootstrap-submenu.min.js"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js"
+				crossorigin="anonymous"
+				referrerpolicy="no-referrer"
+				integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==">
+		</script>
+		<script src="~/js/site.min.js" asp-append-version="true"></script>
+	</environment>
+	@RenderSection("Scripts", required: false)
 </body>
 </html>
