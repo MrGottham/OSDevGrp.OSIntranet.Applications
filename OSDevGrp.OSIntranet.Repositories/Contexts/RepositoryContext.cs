@@ -187,7 +187,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
                 throw new IntranetExceptionBuilder(ErrorCode.MissingConnectionString, ConnectionStringNames.IntranetName).Build();
             }
 
-            MySqlConnectionStringBuilder connectionStringBuilder = new MySqlConnectionStringBuilder(connectionString);
+            MySqlConnectionStringBuilder connectionStringBuilder;
+			try
+            {
+	            connectionStringBuilder = new MySqlConnectionStringBuilder(connectionString);
+			}
+			catch (ArgumentException)
+			{
+				LoggerFactory.CreateLogger(GetType()).LogWarning($"Unable to parse the following connection string: {connectionString}");
+				throw;
+            }
 
             optionsBuilder.UseLoggerFactory(LoggerFactory)
                 .UseMySQL(connectionStringBuilder.ConnectionString);
