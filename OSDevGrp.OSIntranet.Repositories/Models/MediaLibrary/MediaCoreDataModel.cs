@@ -12,13 +12,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         public virtual string Description { get; set; }
 
+        public virtual string Details { get; set; }
+
         public virtual int MediaTypeIdentifier { get; set; }
 
         public virtual MediaTypeModel MediaType { get; set; }
 
         public virtual short? Published { get; set; }
 
-        public virtual string Details { get; set; }
+        public virtual string Url { get; set; }
 
         public virtual string Image { get; set; }
     }

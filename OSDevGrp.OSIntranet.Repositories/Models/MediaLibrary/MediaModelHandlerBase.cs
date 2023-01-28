@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         #region Methods
 
-        protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.MediaIdentifier == primaryKey;
+        protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == primaryKey;
 
         protected sealed override Task<IEnumerable<TMedia>> SortAsync(IEnumerable<TMedia> mediaCollection)
         {
@@ -72,10 +72,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
             mediaModel.CoreData.Title = media.Title;
             mediaModel.CoreData.Subtitle = media.Subtitle;
             mediaModel.CoreData.Description = media.Description;
+            mediaModel.CoreData.Details = media.Details;
             mediaModel.CoreData.MediaTypeIdentifier = media.MediaType.Number;
             mediaModel.CoreData.MediaType = await DbContext.MediaTypes.SingleAsync(m => m.MediaTypeIdentifier == media.MediaType.Number);
             mediaModel.CoreData.Published = media.Published;
-            mediaModel.CoreData.Details = media.Details;
+            mediaModel.CoreData.Url = media.Url?.AbsolutePath;
 
             string imageAsBase64 = Encoding.UTF8.GetString(media.Image ?? Array.Empty<byte>());
             mediaModel.CoreData.Image = string.IsNullOrWhiteSpace(imageAsBase64) ? null : imageAsBase64;

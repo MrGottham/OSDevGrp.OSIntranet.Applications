@@ -13,11 +13,13 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary
 
         string Description { get; }
 
+        string Details { get; }
+
         IMediaType MediaType { get; }
 
         short? Published { get; }
 
-        string Details { get; }
+        Uri Url { get; }
 
         byte[] Image { get; }
     }

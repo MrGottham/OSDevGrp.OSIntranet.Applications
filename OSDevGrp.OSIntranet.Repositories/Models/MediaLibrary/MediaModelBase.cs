@@ -1,11 +1,13 @@
-﻿using OSDevGrp.OSIntranet.Repositories.Models.Core;
-using System;
+﻿using System;
+using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
     internal abstract class MediaModelBase : AuditModelBase
     {
-        public virtual Guid MediaIdentifier { get; set; }
+        public virtual int MediaIdentifier { get; set; }
+
+        public virtual Guid ExternalMediaIdentifier { get; set; }
 
         public virtual int CoreDataIdentifier { get; set; }
 

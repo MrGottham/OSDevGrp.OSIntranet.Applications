@@ -9,7 +9,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
     {
         #region Constructor
 
-        protected MediaBase(Guid mediaIdentifier, string title, string subtitle, string description, IMediaType mediaType, short? published, string details, byte[] image, bool deletable = false)
+        protected MediaBase(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, bool deletable = false)
         {
             NullGuard.NotNullOrWhiteSpace(title, nameof(title))
                 .NotNull(mediaType, nameof(mediaType));
@@ -18,9 +18,10 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
             Title = title.Trim();
             Subtitle = string.IsNullOrWhiteSpace(subtitle) ? null : subtitle.Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+            Details = string.IsNullOrWhiteSpace(details) ? null : details.Trim();
             MediaType = mediaType;
             Published = published;
-            Details = string.IsNullOrWhiteSpace(details) ? null : details.Trim();
+            Url = url;
             Image = image ?? Array.Empty<byte>();
             Deletable = deletable;
         }
@@ -37,11 +38,13 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 
         public string Description { get; }
 
-        public IMediaType MediaType { get; }
-
         public string Details { get; }
 
+        public IMediaType MediaType { get; }
+
         public short? Published { get; }
+
+        public Uri Url { get; }
 
         public byte[] Image { get; }
 
