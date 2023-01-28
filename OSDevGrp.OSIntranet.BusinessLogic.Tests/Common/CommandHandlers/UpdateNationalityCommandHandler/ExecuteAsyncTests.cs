@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.UpdateN
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertToUpdateNationalityAsyncOnCommonRepositoryWithNationalityFromUpdateNationalityCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertUpdateNationalityAsyncWasCalledOnCommonRepositoryWithNationalityFromUpdateNationalityCommand()
 		{
 			ICommandHandler<IUpdateNationalityCommand> sut = CreateSut();
 

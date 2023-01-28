@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.CreateN
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertToCreateNationalityAsyncOnCommonRepositoryWithNationalityFromCreateNationalityCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertCreateNationalityAsyncWasCalledOnCommonRepositoryWithNationalityFromCreateNationalityCommand()
 		{
 			ICommandHandler<ICreateNationalityCommand> sut = CreateSut();
 

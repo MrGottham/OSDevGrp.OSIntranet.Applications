@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.CreateL
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertToCreateLanguageAsyncOnCommonRepositoryWithLanguageFromCreateLanguageCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertCreateLanguageAsyncWasCalledOnCommonRepositoryWithLanguageFromCreateLanguageCommand()
 		{
 			ICommandHandler<ICreateLanguageCommand> sut = CreateSut();
 

@@ -72,7 +72,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.DeleteN
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertToDeleteNationalityAsyncOnCommonRepositoryWithNumberFromDeleteNationalityCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertDeleteNationalityAsyncWasCalledOnCommonRepositoryWithNumberFromDeleteNationalityCommand()
 		{
 			ICommandHandler<IDeleteNationalityCommand> sut = CreateSut();
 

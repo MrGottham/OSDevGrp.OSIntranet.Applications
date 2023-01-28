@@ -1,0 +1,28 @@
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Core.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
+using OSDevGrp.OSIntranet.Domain.MediaLibrary;
+
+namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
+{
+	internal class UpdateMediaTypeCommand : UpdateGenericCategoryCommandBase<IMediaType>, IUpdateMediaTypeCommand
+	{
+		#region Constructor
+
+		public UpdateMediaTypeCommand(int number, string name) 
+			: base(number, name)
+		{
+		}
+
+		#endregion
+
+		#region Methods
+
+		public override IMediaType ToDomain()
+		{
+			return new MediaType(Number, Name);
+		}
+
+		#endregion
+	}
+}

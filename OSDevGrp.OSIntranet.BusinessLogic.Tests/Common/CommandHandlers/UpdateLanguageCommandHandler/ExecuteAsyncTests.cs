@@ -73,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.UpdateL
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertToUpdateLanguageAsyncOnCommonRepositoryWithLanguageFromUpdateLanguageCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertUpdateLanguageAsyncWasCalledOnCommonRepositoryWithLanguageFromUpdateLanguageCommand()
 		{
 			ICommandHandler<IUpdateLanguageCommand> sut = CreateSut();
 

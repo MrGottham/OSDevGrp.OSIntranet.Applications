@@ -72,7 +72,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.DeleteL
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertToUpdateLanguageAsyncOnCommonRepositoryWithNumberFromDeleteLanguageCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertDeleteLanguageAsyncWasCalledOnCommonRepositoryWithNumberFromDeleteLanguageCommand()
 		{
 			ICommandHandler<IDeleteLanguageCommand> sut = CreateSut();
 
