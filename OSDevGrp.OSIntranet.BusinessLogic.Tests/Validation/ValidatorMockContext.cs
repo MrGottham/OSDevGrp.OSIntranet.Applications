@@ -193,6 +193,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPaymentTerm>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IGenericCategory>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IKeyValueEntry>(validatorMock, objectValidatorMock);
         }
 
