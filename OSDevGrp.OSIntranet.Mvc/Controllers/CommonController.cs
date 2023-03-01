@@ -150,9 +150,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> CreateNationality(GenericCategoryViewModel genericCategoryViewModel)
+        public async Task<IActionResult> CreateNationality(GenericCategoryViewModel genericCategoryViewModel)
         {
-	        throw new NotImplementedException();
+	        if (genericCategoryViewModel == null)
+	        {
+		        return BadRequest();
+	        }
+
+	        if (ModelState.IsValid == false)
+	        {
+		        return BadRequest(ModelState);
+	        }
+
+	        await _commandBus.PublishAsync(CommonCommandFactory.BuildCreateNationalityCommand(genericCategoryViewModel.Number, genericCategoryViewModel.Name));
+
+	        return RedirectToAction(nameof(Nationalities), "Common");
         }
 
         [HttpGet]
@@ -170,19 +182,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> UpdateNationality(GenericCategoryViewModel genericCategoryViewModel)
+        public async Task<IActionResult> UpdateNationality(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        if (genericCategoryViewModel == null)
+	        {
+		        return BadRequest();
+	        }
+
+	        if (ModelState.IsValid == false)
+	        {
+		        return BadRequest(ModelState);
+	        }
+
+	        await _commandBus.PublishAsync(CommonCommandFactory.BuildUpdateNationalityCommand(genericCategoryViewModel.Number, genericCategoryViewModel.Name));
+
+	        return RedirectToAction(nameof(Nationalities), "Common");
         }
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteNationality(int number)
+        public async Task<IActionResult> DeleteNationality(int number)
         {
-            throw new NotImplementedException();
+	        await _commandBus.PublishAsync(CommonCommandFactory.BuildDeleteNationalityCommand(number));
+
+	        return RedirectToAction(nameof(Nationalities), "Common");
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> Languages()
         {
             IEnumerable<ILanguage> languages = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILanguage>>(CommonQueryFactory.BuildEmptyQuery());
@@ -200,12 +226,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateLanguage(GenericCategoryViewModel genericCategoryViewModel)
+        public async Task<IActionResult> CreateLanguage(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        if (genericCategoryViewModel == null)
+	        {
+		        return BadRequest();
+	        }
+
+	        if (ModelState.IsValid == false)
+	        {
+		        return BadRequest(ModelState);
+	        }
+
+	        await _commandBus.PublishAsync(CommonCommandFactory.BuildCreateLanguageCommand(genericCategoryViewModel.Number, genericCategoryViewModel.Name));
+
+	        return RedirectToAction(nameof(Languages), "Common");
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> UpdateLanguage(int number)
         {
             ILanguage language = await _queryBus.QueryAsync<IGetLanguageQuery, ILanguage>(CommonQueryFactory.BuildGetLanguageQuery(number));
@@ -220,16 +258,30 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateLanguage(GenericCategoryViewModel genericCategoryViewModel)
+        public async Task<IActionResult> UpdateLanguage(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        if (genericCategoryViewModel == null)
+	        {
+		        return BadRequest();
+	        }
+
+	        if (ModelState.IsValid == false)
+	        {
+		        return BadRequest(ModelState);
+	        }
+
+	        await _commandBus.PublishAsync(CommonCommandFactory.BuildUpdateLanguageCommand(genericCategoryViewModel.Number, genericCategoryViewModel.Name));
+
+	        return RedirectToAction(nameof(Languages), "Common");
         }
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteLanguage(int number)
+        public async Task<IActionResult> DeleteLanguage(int number)
         {
-            throw new NotImplementedException();
+	        await _commandBus.PublishAsync(CommonCommandFactory.BuildDeleteLanguageCommand(number));
+
+	        return RedirectToAction(nameof(Languages), "Common");
         }
 
 		#endregion
