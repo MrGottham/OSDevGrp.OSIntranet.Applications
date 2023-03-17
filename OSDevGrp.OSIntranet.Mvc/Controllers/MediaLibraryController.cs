@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
@@ -21,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-    [Authorize(Policy = Policies.MediaLibraryPolicy)]
+	[Authorize(Policy = Policies.MediaLibraryPolicy)]
     public class MediaLibraryController : Controller
     {
         #region Private variables
@@ -67,10 +68,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateMovieGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildCreateMovieGenreCommand(viewModel.Number, viewModel.Name), nameof(MovieGenres));
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> UpdateMovieGenre(int number)
         {
             IMovieGenre movieGenre = await GetMovieGenreAsync(number);
@@ -87,14 +88,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateMovieGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildUpdateMovieGenreCommand(viewModel.Number, viewModel.Name), nameof(MovieGenres));
         }
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteMovieGenre(int number)
+        public async Task<IActionResult> DeleteMovieGenre(int number)
         {
-            throw new NotImplementedException();
+	        await _commandBus.PublishAsync(MediaLibraryCommandFactory.BuildDeleteMovieGenreCommand(number));
+
+	        return RedirectToAction(nameof(MovieGenres), "MediaLibrary");
         }
 
         [HttpGet]
@@ -116,10 +119,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateMusicGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildCreateMusicGenreCommand(viewModel.Number, viewModel.Name), nameof(MusicGenres));
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> UpdateMusicGenre(int number)
         {
             IMusicGenre musicGenre = await GetMusicGenreAsync(number);
@@ -136,17 +139,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateMusicGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildUpdateMusicGenreCommand(viewModel.Number, viewModel.Name), nameof(MusicGenres));
         }
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteMusicGenre(int number)
+        public async Task<IActionResult> DeleteMusicGenre(int number)
         {
-            throw new NotImplementedException();
+	        await _commandBus.PublishAsync(MediaLibraryCommandFactory.BuildDeleteMusicGenreCommand(number));
+
+	        return RedirectToAction(nameof(MusicGenres), "MediaLibrary");
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> BookGenres()
         {
 	        GenericCategoryCollectionViewModel bookGenreCollectionViewModel = await GetBookGenreCollectionViewModelAsync();
@@ -165,10 +170,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateBookGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildCreateBookGenreCommand(viewModel.Number, viewModel.Name), nameof(BookGenres));
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> UpdateBookGenre(int number)
         {
             IBookGenre bookGenre = await GetBookGenreAsync(number);
@@ -185,17 +190,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateBookGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildUpdateBookGenreCommand(viewModel.Number, viewModel.Name), nameof(BookGenres));
         }
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteBookGenre(int number)
+        public async Task<IActionResult> DeleteBookGenre(int number)
         {
-	        throw new NotImplementedException();
+	        await _commandBus.PublishAsync(MediaLibraryCommandFactory.BuildDeleteBookGenreCommand(number));
+
+	        return RedirectToAction(nameof(BookGenres), "MediaLibrary");
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> MediaTypes()
         {
             GenericCategoryCollectionViewModel mediaTypeCollectionViewModel = await GetMediaTypeCollectionViewModelAsync();
@@ -214,10 +221,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateMediaType(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildCreateMediaTypeCommand(viewModel.Number, viewModel.Name), nameof(MediaTypes));
         }
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> UpdateMediaType(int number)
         {
             IMediaType mediaType = await GetMediaTypeAsync(number);
@@ -234,17 +241,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateMediaType(GenericCategoryViewModel genericCategoryViewModel)
         {
-            throw new NotImplementedException();
+	        return ExecuteCommandBasedOnGenericCategoryViewModel(genericCategoryViewModel, viewModel => MediaLibraryCommandFactory.BuildUpdateMediaTypeCommand(viewModel.Number, viewModel.Name), nameof(MediaTypes));
         }
 
-        [HttpPost]
+		[HttpPost]
         [ValidateAntiForgeryToken]
-        public Task<IActionResult> DeleteMediaType(int number)
+        public async Task<IActionResult> DeleteMediaType(int number)
         {
-            throw new NotImplementedException();
+	        await _commandBus.PublishAsync(MediaLibraryCommandFactory.BuildDeleteMediaTypeCommand(number));
+
+	        return RedirectToAction(nameof(MediaTypes), "MediaLibrary");
         }
 
-        private async Task<GenericCategoryCollectionViewModel> GetMovieGenreCollectionViewModelAsync()
+		private async Task<GenericCategoryCollectionViewModel> GetMovieGenreCollectionViewModelAsync()
         {
             IEnumerable<IMovieGenre> movieGenres = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IMovieGenre>>(MediaLibraryQueryFactory.BuildEmptyQuery());
 
@@ -316,6 +325,26 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return _queryBus.QueryAsync<IGetLanguageQuery, ILanguage>(CommonQueryFactory.BuildGetLanguageQuery(number));
         }
 
+        private async Task<IActionResult> ExecuteCommandBasedOnGenericCategoryViewModel<T>(GenericCategoryViewModel genericCategoryViewModel, Func<GenericCategoryViewModel, T> commandBuilder, string redirectToAction) where T : ICommand
+        {
+	        NullGuard.NotNull(commandBuilder, nameof(commandBuilder))
+		        .NotNullOrWhiteSpace(redirectToAction, nameof(redirectToAction));
+
+	        if (genericCategoryViewModel == null)
+	        {
+		        return BadRequest();
+	        }
+
+	        if (ModelState.IsValid == false)
+	        {
+		        return BadRequest(ModelState);
+	        }
+
+	        await _commandBus.PublishAsync(commandBuilder(genericCategoryViewModel));
+
+	        return RedirectToAction(redirectToAction, "MediaLibrary");
+        }
+
 		#endregion
-    }
+	}
 }
