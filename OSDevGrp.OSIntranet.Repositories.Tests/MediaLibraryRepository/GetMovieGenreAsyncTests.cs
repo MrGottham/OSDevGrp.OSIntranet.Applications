@@ -10,13 +10,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
     {
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetMovieGenreAsync_WhenCalled_ReturnsNull()
+        public async Task GetMovieGenreAsync_WhenCalled_ReturnsNotNull()
         {
             IMediaLibraryRepository sut = CreateSut();
 
             IMovieGenre result = await sut.GetMovieGenreAsync(1);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.Not.Null);
         }
     }
 }

@@ -22,13 +22,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetMusicGenresAsync_WhenCalled_ReturnsEmptyCollectionOfMusicGenres()
+        public async Task GetMusicGenresAsync_WhenCalled_ReturnsNonEmptyCollectionOfMusicGenres()
         {
             IMediaLibraryRepository sut = CreateSut();
 
             IEnumerable<IMusicGenre> result = await sut.GetMusicGenresAsync();
 
-            Assert.That(result, Is.Empty);
+            Assert.That(result, Is.Not.Empty);
         }
     }
 }

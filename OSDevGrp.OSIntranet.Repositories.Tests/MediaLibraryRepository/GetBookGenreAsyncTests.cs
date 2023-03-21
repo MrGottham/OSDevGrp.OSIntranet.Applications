@@ -10,13 +10,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
     {
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetMusicGenreAsync_WhenCalled_ReturnsNull()
+        public async Task GetMusicGenreAsync_WhenCalled_ReturnsNotNull()
         {
             IMediaLibraryRepository sut = CreateSut();
 
             IBookGenre result = await sut.GetBookGenreAsync(1);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.Not.Null);
         }
     }
 }

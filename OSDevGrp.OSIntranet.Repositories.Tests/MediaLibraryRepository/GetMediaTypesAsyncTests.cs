@@ -22,13 +22,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetMediaTypesAsync_WhenCalled_ReturnsEmptyCollectionOfMediaTypes()
+        public async Task GetMediaTypesAsync_WhenCalled_ReturnsNonEmptyCollectionOfMediaTypes()
         {
             IMediaLibraryRepository sut = CreateSut();
 
             IEnumerable<IMediaType> result = await sut.GetMediaTypesAsync();
 
-            Assert.That(result, Is.Empty);
+            Assert.That(result, Is.Not.Empty);
         }
     }
 }

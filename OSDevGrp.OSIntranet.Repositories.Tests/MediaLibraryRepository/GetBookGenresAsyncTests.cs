@@ -22,13 +22,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetBookGenresAsync_WhenCalled_ReturnsEmptyCollectionOfBookGenres()
+        public async Task GetBookGenresAsync_WhenCalled_ReturnsNonEmptyCollectionOfBookGenres()
         {
             IMediaLibraryRepository sut = CreateSut();
 
             IEnumerable<IBookGenre> result = await sut.GetBookGenresAsync();
 
-            Assert.That(result, Is.Empty);
+            Assert.That(result, Is.Not.Empty);
         }
     }
 }

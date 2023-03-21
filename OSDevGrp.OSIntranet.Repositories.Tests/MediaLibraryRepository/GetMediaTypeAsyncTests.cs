@@ -10,13 +10,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
     {
         [Test]
         [Category("IntegrationTest")]
-        public async Task GetMediaTypeAsync_WhenCalled_ReturnsNull()
+        public async Task GetMediaTypeAsync_WhenCalled_ReturnsNotNull()
         {
             IMediaLibraryRepository sut = CreateSut();
 
             IMediaType result = await sut.GetMediaTypeAsync(1);
 
-            Assert.That(result, Is.Null);
+            Assert.That(result, Is.Not.Null);
         }
     }
 }
