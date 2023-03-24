@@ -1,9 +1,10 @@
 ﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
 using System;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary
 {
-    public interface IMedia : IAuditable, IDeletable
+	public interface IMedia : IAuditable, IDeletable
     {
         Guid MediaIdentifier { get; }
 
@@ -22,5 +23,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary
         Uri Url { get; }
 
         byte[] Image { get; }
+
+        IEnumerable<IMediaBinding> GetMediaBindings();
     }
 }

@@ -2,17 +2,19 @@
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using System;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 {
-    public abstract class MediaBase : AuditableBase, IMedia
+	public abstract class MediaBase : AuditableBase, IMedia
     {
         #region Constructor
 
-        protected MediaBase(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, bool deletable = false)
+        protected MediaBase(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, IEnumerable<IMediaBinding> mediaBindings, bool deletable = false)
         {
-            NullGuard.NotNullOrWhiteSpace(title, nameof(title))
-                .NotNull(mediaType, nameof(mediaType));
+	        NullGuard.NotNullOrWhiteSpace(title, nameof(title))
+		        .NotNull(mediaType, nameof(mediaType))
+		        .NotNull(mediaBindings, nameof(mediaBindings));
 
             MediaIdentifier = mediaIdentifier;
             Title = title.Trim();
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
             Url = url;
             Image = image ?? Array.Empty<byte>();
             Deletable = deletable;
+            MediaBindings = new HashSet<IMediaBinding>(mediaBindings);
         }
 
         #endregion
@@ -50,9 +53,29 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 
         public bool Deletable { get; private set; }
 
-        #endregion
+        protected HashSet<IMediaBinding> MediaBindings { get; }
 
-        #region Methods
+		#endregion
+
+		#region Methods
+
+		public override string ToString()
+		{
+			return string.IsNullOrWhiteSpace(Subtitle) == false
+				? $"{Title}, {Subtitle}"
+				: Title;
+		}
+
+		public override bool Equals(object obj)
+		{
+			IMedia media = obj as IMedia;
+			return media != null && MediaIdentifier.Equals(media.MediaIdentifier);
+		}
+
+		public override int GetHashCode()
+		{
+			return MediaIdentifier.GetHashCode();
+		}
 
         public void AllowDeletion()
         {
@@ -63,6 +86,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
         {
             Deletable = false;
         }
+
+        public IEnumerable<IMediaBinding> GetMediaBindings() => MediaBindings;
 
         #endregion
     }
