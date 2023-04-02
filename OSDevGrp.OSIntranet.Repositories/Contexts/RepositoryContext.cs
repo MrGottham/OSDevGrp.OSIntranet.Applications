@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
-    public class RepositoryContext : DbContext
+	public class RepositoryContext : DbContext
     {
         #region Constructors
 
@@ -104,6 +104,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         #endregion
 
         #region DbSets for Media Library
+
+        internal DbSet<MovieModel> Movies { get; set; }
+
+        internal DbSet<MovieBindingModel> MovieBindings { get; set; }
+
+        internal DbSet<MusicModel> Music { get; set; }
+
+        internal DbSet<MusicBindingModel> MusicBindings { get; set; }
+
+        internal DbSet<BookModel> Books { get; set; }
+
+        internal DbSet<BookBindingModel> BookBindings { get; set; }
+
+        internal DbSet<MediaCoreDataModel> MediaCoreData { get; set; }
+
+        internal DbSet<MediaPersonalityModel> MediaPersonalities { get; set; }
 
         internal DbSet<MovieGenreModel> MovieGenres { get; set; }
 
@@ -338,6 +354,14 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
+            modelBuilder.CreateMovieModel();
+            modelBuilder.CreateMovieBindingModel();
+            modelBuilder.CreateMusicModel();
+            modelBuilder.CreateMusicBindingModel();
+            modelBuilder.CreateBookModel();
+            modelBuilder.CreateBookBindingModel();
+            modelBuilder.CreateMediaCoreDataModel();
+            modelBuilder.CreateMediaPersonalityModel();
             modelBuilder.CreateMovieGenreModel();
             modelBuilder.CreateMusicGenreModel();
             modelBuilder.CreateBookGenreModel();

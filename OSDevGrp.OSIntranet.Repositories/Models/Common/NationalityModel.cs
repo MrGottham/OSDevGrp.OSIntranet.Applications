@@ -4,12 +4,16 @@ using OSDevGrp.OSIntranet.Domain.Common;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Common
 {
-    internal class NationalityModel : GenericCategoryModelBase
+	internal class NationalityModel : GenericCategoryModelBase
     {
         public virtual int NationalityIdentifier { get; set; }
+
+        public virtual List<MediaPersonalityModel> MediaPersonalities { get; set; }
     }
 
     internal static class NationalityModelExtensions

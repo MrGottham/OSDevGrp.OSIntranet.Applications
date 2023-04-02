@@ -4,12 +4,15 @@ using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal class MediaTypeModel : GenericCategoryModelBase
+	internal class MediaTypeModel : GenericCategoryModelBase
     {
         public virtual int MediaTypeIdentifier { get; set; }
+
+        public virtual List<MediaCoreDataModel> CoreData { get; set; }
     }
 
     internal static class MediaTypeModelExtensions

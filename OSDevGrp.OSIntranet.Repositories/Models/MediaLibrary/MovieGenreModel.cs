@@ -4,12 +4,15 @@ using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal class MovieGenreModel : GenericCategoryModelBase
+	internal class MovieGenreModel : GenericCategoryModelBase
     {
         public virtual int MovieGenreIdentifier { get; set; }
+
+        public virtual List<MovieModel> Movies { get; set; }
     }
 
     internal static class MovieGenreModelExtensions

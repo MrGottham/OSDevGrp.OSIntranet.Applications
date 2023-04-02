@@ -4,12 +4,15 @@ using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal class BookGenreModel : GenericCategoryModelBase
+	internal class BookGenreModel : GenericCategoryModelBase
     {
         public virtual int BookGenreIdentifier { get; set; }
+
+        public virtual List<BookModel> Books { get; set; }
     }
 
     internal static class BookGenreModelExtensions

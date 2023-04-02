@@ -8,12 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal abstract class MediaModelHandlerBase<TMedia, TMediaModel> : ModelHandlerBase<TMedia, RepositoryContext, TMediaModel, Guid> where TMedia : class, IMedia where TMediaModel : MediaModelBase, new()
+	internal abstract class MediaModelHandlerBase<TMedia, TMediaModel> : ModelHandlerBase<TMedia, RepositoryContext, TMediaModel, Guid> where TMedia : class, IMedia where TMediaModel : MediaModelBase, new()
     {
         #region Constructor
 
@@ -38,7 +37,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         #region Methods
 
-        protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == primaryKey;
+        protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == primaryKey.ToString("D").ToUpper();
 
         protected sealed override Task<IEnumerable<TMedia>> SortAsync(IEnumerable<TMedia> mediaCollection)
         {
@@ -76,10 +75,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
             mediaModel.CoreData.MediaTypeIdentifier = media.MediaType.Number;
             mediaModel.CoreData.MediaType = await DbContext.MediaTypes.SingleAsync(m => m.MediaTypeIdentifier == media.MediaType.Number);
             mediaModel.CoreData.Published = media.Published;
-            mediaModel.CoreData.Url = media.Url?.AbsolutePath;
-
-            string imageAsBase64 = Encoding.UTF8.GetString(media.Image ?? Array.Empty<byte>());
-            mediaModel.CoreData.Image = string.IsNullOrWhiteSpace(imageAsBase64) ? null : imageAsBase64;
+            mediaModel.CoreData.Url = ValueConverter.UriToString(media.Url);
+            mediaModel.CoreData.Image = ValueConverter.ByteArrayToString(media.Image);
         }
 
         protected override Task<bool> CanDeleteAsync(TMediaModel mediaModel)
