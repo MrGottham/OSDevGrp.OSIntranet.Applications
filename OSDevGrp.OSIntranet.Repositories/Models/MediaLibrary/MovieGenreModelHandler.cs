@@ -5,12 +5,13 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal class MovieGenreModelHandler : GenericCategoryModelHandlerBase<IMovieGenre, MovieGenreModel>
+	internal class MovieGenreModelHandler : GenericCategoryModelHandlerBase<IMovieGenre, MovieGenreModel>
     {
         #region Methods
 
@@ -31,13 +32,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         protected override Expression<Func<MovieGenreModel, bool>> EntitySelector(int primaryKey) => movieGenreModel => movieGenreModel.MovieGenreIdentifier == primaryKey;
 
-        protected override Task<bool> CanDeleteAsync(MovieGenreModel movieGenreModel)
+        protected override async Task<bool> CanDeleteAsync(MovieGenreModel movieGenreModel)
         {
             NullGuard.NotNull(movieGenreModel, nameof(movieGenreModel));
 
-            return Task.FromResult(true);
+            if (movieGenreModel.Movies != null)
+            {
+	            return movieGenreModel.Movies.Any() == false;
+            }
+
+            return await DbContext.Movies.FirstOrDefaultAsync(movieModel => movieModel.MovieGenreIdentifier == movieGenreModel.MovieGenreIdentifier) == null;
         }
 
-        #endregion
-    }
+		#endregion
+	}
 }

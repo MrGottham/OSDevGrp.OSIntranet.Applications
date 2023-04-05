@@ -5,12 +5,13 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal class BookGenreModelHandler : GenericCategoryModelHandlerBase<IBookGenre, BookGenreModel>
+	internal class BookGenreModelHandler : GenericCategoryModelHandlerBase<IBookGenre, BookGenreModel>
     {
         #region Methods
 
@@ -31,13 +32,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         protected override Expression<Func<BookGenreModel, bool>> EntitySelector(int primaryKey) => bookGenreModel => bookGenreModel.BookGenreIdentifier == primaryKey;
 
-        protected override Task<bool> CanDeleteAsync(BookGenreModel bookGenreModel)
+        protected override async Task<bool> CanDeleteAsync(BookGenreModel bookGenreModel)
         {
             NullGuard.NotNull(bookGenreModel, nameof(bookGenreModel));
 
-            return Task.FromResult(true);
+            if (bookGenreModel.Books != null)
+            {
+	            return bookGenreModel.Books.Any() == false;
+            }
+
+            return await DbContext.Books.FirstOrDefaultAsync(bookModel => bookModel.BookGenreIdentifier == bookGenreModel.BookGenreIdentifier) == null;
         }
 
-        #endregion
-    }
+		#endregion
+	}
 }

@@ -54,7 +54,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				entity.Property(e => e.Title).IsRequired().IsUnicode().HasMaxLength(256);
 				entity.Property(e => e.Subtitle).IsRequired(false).IsUnicode().HasMaxLength(256);
 				entity.Property(e => e.Description).IsRequired(false).IsUnicode().HasMaxLength(512);
-				entity.Property(e => e.Details).IsRequired(false).IsUnicode().HasMaxLength(32768);
+				entity.Property(e => e.Details).HasColumnType("TEXT").IsRequired(false).IsUnicode();
 				entity.Property(e => e.MediaTypeIdentifier).IsRequired();
 				entity.Property(e => e.Published).IsRequired(false);
 				entity.Property(e => e.Url).IsRequired(false).IsUnicode().HasMaxLength(256);

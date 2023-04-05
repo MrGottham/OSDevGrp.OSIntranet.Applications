@@ -5,12 +5,13 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
-    internal class MusicGenreModelHandler : GenericCategoryModelHandlerBase<IMusicGenre, MusicGenreModel>
+	internal class MusicGenreModelHandler : GenericCategoryModelHandlerBase<IMusicGenre, MusicGenreModel>
     {
         #region Methods
 
@@ -31,13 +32,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         protected override Expression<Func<MusicGenreModel, bool>> EntitySelector(int primaryKey) => musicGenreModel => musicGenreModel.MusicGenreIdentifier == primaryKey;
 
-        protected override Task<bool> CanDeleteAsync(MusicGenreModel musicGenreModel)
+        protected override async Task<bool> CanDeleteAsync(MusicGenreModel musicGenreModel)
         {
             NullGuard.NotNull(musicGenreModel, nameof(musicGenreModel));
 
-            return Task.FromResult(true);
+            if (musicGenreModel.Music != null)
+            {
+	            return musicGenreModel.Music.Any() == false;
+            }
+
+            return await DbContext.Music.FirstOrDefaultAsync(musicModel => musicModel.MusicGenreIdentifier == musicGenreModel.MusicGenreIdentifier) == null;
         }
 
-        #endregion
-    }
+		#endregion
+	}
 }

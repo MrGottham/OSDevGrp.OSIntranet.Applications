@@ -5,12 +5,13 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Common
 {
-    internal class NationalityModelHandler : GenericCategoryModelHandlerBase<INationality, NationalityModel>
+	internal class NationalityModelHandler : GenericCategoryModelHandlerBase<INationality, NationalityModel>
     {
         #region Constructor
 
@@ -31,13 +32,18 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Common
 
         protected override Expression<Func<NationalityModel, bool>> EntitySelector(int primaryKey) => nationalityModel => nationalityModel.NationalityIdentifier == primaryKey;
 
-        protected override Task<bool> CanDeleteAsync(NationalityModel nationalityModel)
+        protected override async Task<bool> CanDeleteAsync(NationalityModel nationalityModel)
         {
             NullGuard.NotNull(nationalityModel, nameof(nationalityModel));
 
-            return Task.FromResult(true);
+            if (nationalityModel.MediaPersonalities != null)
+            {
+	            return nationalityModel.MediaPersonalities.Any() == false;
+            }
+
+            return await DbContext.MediaPersonalities.FirstOrDefaultAsync(mediaPersonalityModel => mediaPersonalityModel.NationalityIdentifier == nationalityModel.NationalityIdentifier) == null;
         }
 
-        #endregion
-    }
+		#endregion
+	}
 }
