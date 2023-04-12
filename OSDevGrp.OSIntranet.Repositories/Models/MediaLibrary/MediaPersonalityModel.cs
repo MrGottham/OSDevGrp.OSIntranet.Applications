@@ -60,7 +60,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalMediaPersonalityIdentifier = Guid.Parse(mediaPersonalityModel.ExternalMediaPersonalityIdentifier);
+				Guid externalMediaPersonalityIdentifier = ValueConverter.StringToGuid(mediaPersonalityModel.ExternalMediaPersonalityIdentifier);
 				if (mapperCache.MediaPersonalityDictionary.TryGetValue(externalMediaPersonalityIdentifier, out IMediaPersonality cachedMediaPersonality))
 				{
 					return cachedMediaPersonality;
@@ -78,7 +78,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					mediaPersonalityModel.BirthDate,
 					mediaPersonalityModel.DateOfDead,
 					ValueConverter.StringToUri(mediaPersonalityModel.Url),
-					ValueConverter.StringToByteArray(mediaPersonalityModel.Url));
+					ValueConverter.StringToByteArray(mediaPersonalityModel.Image));
 
 				mediaPersonality.SetDeletable(mediaPersonalityModel.Deletable);
 

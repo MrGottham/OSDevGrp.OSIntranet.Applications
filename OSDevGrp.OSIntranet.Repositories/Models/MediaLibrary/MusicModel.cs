@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalMediaIdentifier = Guid.Parse(musicModel.ExternalMediaIdentifier);
+				Guid externalMediaIdentifier = ValueConverter.StringToGuid(musicModel.ExternalMediaIdentifier);
 				if (mapperCache.MediaDictionary.TryGetValue(externalMediaIdentifier, out IMedia cachedMedia))
 				{
 					return (IMusic)cachedMedia;

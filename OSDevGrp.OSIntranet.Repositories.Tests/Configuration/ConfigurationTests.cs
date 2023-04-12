@@ -2,10 +2,11 @@
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Repositories.Interfaces.Configuration;
+using System;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 {
-    [TestFixture]
+	[TestFixture]
     public class ConfigurationTests : ConfigurationTestBase
     {
         [Test]
@@ -104,6 +105,19 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataMediaLibraryExistingMediaPersonalityIdentifier_ReturnsExistingMediaPersonalityIdentifier()
+        {
+	        IConfiguration sut = CreateSut();
+
+	        string result = sut["TestData:MediaLibrary:ExistingMediaPersonalityIdentifier"];
+
+	        Assert.That(result, Is.Not.Null);
+	        Assert.That(result, Is.Not.Empty);
+            Assert.That(Guid.TryParse(result, out Guid _), Is.True);
         }
     }
 }

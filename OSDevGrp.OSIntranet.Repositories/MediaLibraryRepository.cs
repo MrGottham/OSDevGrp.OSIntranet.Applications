@@ -6,13 +6,14 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal class MediaLibraryRepository : DatabaseRepositoryBase<RepositoryContext>, IMediaLibraryRepository
+	internal class MediaLibraryRepository : DatabaseRepositoryBase<RepositoryContext>, IMediaLibraryRepository
     {
         #region Constructors
 
@@ -25,7 +26,71 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Methods
 
-        public Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync()
+        public Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync()
+        {
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        return await handler.ReadAsync();
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+        public Task<bool> MediaPersonalityExistsAsync(Guid mediaPersonalityIdentifier)
+        {
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+			        return await handler.ReadAsync(mediaPersonalityIdentifier) != null;
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IMediaPersonality> GetMediaPersonalityAsync(Guid mediaPersonalityIdentifier)
+        {
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        return await handler.ReadAsync(mediaPersonalityIdentifier);
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+        public Task CreateMediaPersonalityAsync(IMediaPersonality mediaPersonality)
+        {
+	        NullGuard.NotNull(mediaPersonality, nameof(mediaPersonality));
+
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+			        await handler.CreateAsync(mediaPersonality);
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+        public Task UpdateMediaPersonalityAsync(IMediaPersonality mediaPersonality)
+        {
+	        NullGuard.NotNull(mediaPersonality, nameof(mediaPersonality));
+
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        await handler.UpdateAsync(mediaPersonality);
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+		public Task DeleteMediaPersonalityAsync(Guid mediaPersonalityIdentifier)
+        {
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        await handler.DeleteAsync(mediaPersonalityIdentifier);
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+		public Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync()
         {
             return ExecuteAsync(async () =>
                 {

@@ -42,7 +42,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalMediaIdentifier = Guid.Parse(bookModel.ExternalMediaIdentifier);
+				Guid externalMediaIdentifier = ValueConverter.StringToGuid(bookModel.ExternalMediaIdentifier);
 				if (mapperCache.MediaDictionary.TryGetValue(externalMediaIdentifier, out IMedia cachedMedia))
 				{
 					return (IBook)cachedMedia;

@@ -1,12 +1,25 @@
 ﻿using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
-    public interface IMediaLibraryRepository : IRepository
-    {
-        Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync();
+	public interface IMediaLibraryRepository : IRepository
+	{
+		Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync();
+
+		Task<bool> MediaPersonalityExistsAsync(Guid mediaPersonalityIdentifier);
+
+		Task<IMediaPersonality> GetMediaPersonalityAsync(Guid mediaPersonalityIdentifier);
+
+		Task CreateMediaPersonalityAsync(IMediaPersonality mediaPersonality);
+
+		Task UpdateMediaPersonalityAsync(IMediaPersonality mediaPersonality);
+
+		Task DeleteMediaPersonalityAsync(Guid mediaPersonalityIdentifier);
+
+		Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync();
 
         Task<IMovieGenre> GetMovieGenreAsync(int number);
 
