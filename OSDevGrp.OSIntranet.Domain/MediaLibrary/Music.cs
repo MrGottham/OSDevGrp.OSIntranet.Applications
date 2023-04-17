@@ -11,7 +11,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 		#region Constructors
 
 		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, IEnumerable<IMediaPersonality> artists)
-			: this(mediaIdentifier, title, subtitle, description, details, musicGenre, mediaType, published, tracks, url, image, Array.Empty<IMediaBinding>())
+			: this(mediaIdentifier, title, subtitle, description, details, musicGenre, mediaType, published, tracks, url, image, _ => Array.Empty<IMediaBinding>())
 		{
 			NullGuard.NotNull(artists, nameof(artists));
 
@@ -21,8 +21,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 			}
 		}
 
-		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, IEnumerable<IMediaBinding> mediaBindings)
-			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindings)
+		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder)
+			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder)
 		{
 			NullGuard.NotNull(musicGenre, nameof(musicGenre));
 

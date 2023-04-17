@@ -10,15 +10,15 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
     {
         #region Constructor
 
-        protected MediaBase(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, IEnumerable<IMediaBinding> mediaBindings, bool deletable = false)
+        protected MediaBase(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder, bool deletable = false)
         {
 	        NullGuard.NotNullOrWhiteSpace(title, nameof(title))
 		        .NotNull(mediaType, nameof(mediaType))
-		        .NotNull(mediaBindings, nameof(mediaBindings));
+		        .NotNull(mediaBindingsBuilder, nameof(mediaBindingsBuilder));
 
             MediaIdentifier = mediaIdentifier;
-            Title = title.Trim();
-            Subtitle = string.IsNullOrWhiteSpace(subtitle) ? null : subtitle.Trim();
+            Title = title.ToUpper().Trim();
+            Subtitle = string.IsNullOrWhiteSpace(subtitle) ? null : subtitle.ToUpper().Trim();
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
             Details = string.IsNullOrWhiteSpace(details) ? null : details.Trim();
             MediaType = mediaType;
@@ -26,7 +26,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
             Url = url;
             Image = image ?? Array.Empty<byte>();
             Deletable = deletable;
-            MediaBindings = new HashSet<IMediaBinding>(mediaBindings);
+            MediaBindings = new HashSet<IMediaBinding>(mediaBindingsBuilder(this));
         }
 
         #endregion

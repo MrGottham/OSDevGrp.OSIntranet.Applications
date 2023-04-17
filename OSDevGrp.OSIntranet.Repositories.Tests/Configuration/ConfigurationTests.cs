@@ -119,5 +119,44 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 	        Assert.That(result, Is.Not.Empty);
             Assert.That(Guid.TryParse(result, out Guid _), Is.True);
         }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataMediaLibraryExistingMovieIdentifier_ReturnsExistingMovieIdentifier()
+        {
+	        IConfiguration sut = CreateSut();
+
+	        string result = sut["TestData:MediaLibrary:ExistingMovieIdentifier"];
+
+	        Assert.That(result, Is.Not.Null);
+	        Assert.That(result, Is.Not.Empty);
+	        Assert.That(Guid.TryParse(result, out Guid _), Is.True);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataMediaLibraryExistingMusicIdentifier_ReturnsExistingMusicIdentifier()
+        {
+	        IConfiguration sut = CreateSut();
+
+	        string result = sut["TestData:MediaLibrary:ExistingMusicIdentifier"];
+
+	        Assert.That(result, Is.Not.Null);
+	        Assert.That(result, Is.Not.Empty);
+	        Assert.That(Guid.TryParse(result, out Guid _), Is.True);
+        }
+
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithTestDataMediaLibraryExistingBookIdentifier_ReturnsExistingBookIdentifier()
+        {
+	        IConfiguration sut = CreateSut();
+
+	        string result = sut["TestData:MediaLibrary:ExistingBookIdentifier"];
+
+	        Assert.That(result, Is.Not.Null);
+	        Assert.That(result, Is.Not.Empty);
+	        Assert.That(Guid.TryParse(result, out Guid _), Is.True);
+        }
     }
 }

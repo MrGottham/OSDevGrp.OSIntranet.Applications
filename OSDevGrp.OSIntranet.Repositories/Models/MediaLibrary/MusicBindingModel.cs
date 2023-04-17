@@ -1,5 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
+using OSDevGrp.OSIntranet.Domain.MediaLibrary;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
@@ -15,6 +21,34 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 	internal static class MusicBindingModelExtensions
 	{
 		#region Methods
+
+		internal static IMediaBinding ToDomain(this MusicBindingModel musicBindingModel, IMedia media, MapperCache mapperCache, IConverter mediaLibraryModelConverter, IConverter commonModelConverter)
+		{
+			NullGuard.NotNull(musicBindingModel, nameof(musicBindingModel))
+				.NotNull(media, nameof(media))
+				.NotNull(mapperCache, nameof(mapperCache))
+				.NotNull(mediaLibraryModelConverter, nameof(mediaLibraryModelConverter))
+				.NotNull(commonModelConverter, nameof(commonModelConverter));
+
+			IMediaPersonality mediaPersonality = musicBindingModel.MediaPersonality.ToDomain(mapperCache, mediaLibraryModelConverter, commonModelConverter);
+
+			IMediaBinding mediaBinding = new MediaBinding(media, musicBindingModel.AsMediaRole(), mediaPersonality);
+			mediaBinding.SetDeletable(musicBindingModel.Deletable);
+			mediaBinding.AddAuditInformation(musicBindingModel.CreatedUtcDateTime, musicBindingModel.CreatedByIdentifier, musicBindingModel.ModifiedUtcDateTime, musicBindingModel.ModifiedByIdentifier);
+
+			return mediaBinding;
+		}
+
+		internal static IEnumerable<IMediaBinding> ToDomain(this IEnumerable<MusicBindingModel> musicBindingModels, IMedia media, MapperCache mapperCache, IConverter mediaLibraryModelConverter, IConverter commonModelConverter)
+		{
+			NullGuard.NotNull(musicBindingModels, nameof(musicBindingModels))
+				.NotNull(media, nameof(media))
+				.NotNull(mapperCache, nameof(mapperCache))
+				.NotNull(mediaLibraryModelConverter, nameof(mediaLibraryModelConverter))
+				.NotNull(commonModelConverter, nameof(commonModelConverter));
+
+			return musicBindingModels.Select(musicBindingModel => musicBindingModel.ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter)).ToArray();
+		}
 
 		internal static void CreateMusicBindingModel(this ModelBuilder modelBuilder)
 		{

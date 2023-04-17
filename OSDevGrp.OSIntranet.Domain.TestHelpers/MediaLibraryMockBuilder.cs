@@ -112,9 +112,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 		    mediaPersonalityMock.Setup(m => m.Roles)
 			    .Returns(roles ?? fixture.CreateMany<MediaRole>(1).ToArray());
 		    mediaPersonalityMock.Setup(m => m.BirthDate)
-			    .Returns(birthDate ?? (random.Next(100) > 50 ? fixture.Create<DateTime>() : (DateTime?)null));
+			    .Returns(birthDate?.Date ?? (random.Next(100) > 50 ? fixture.Create<DateTime>().Date : (DateTime?)null));
 		    mediaPersonalityMock.Setup(m => m.DateOfDead)
-			    .Returns(dateOfDead ?? (random.Next(100) > 50 ? fixture.Create<DateTime>() : (DateTime?)null));
+			    .Returns(dateOfDead?.Date ?? (random.Next(100) > 50 ? fixture.Create<DateTime>().Date : (DateTime?)null));
 		    mediaPersonalityMock.Setup(m => m.Url)
 			    .Returns(url ?? (random.Next(100) > 50 ? new Uri($"https://localhost/api/mediapersonalities/{Guid.NewGuid():D}") : null));
 		    mediaPersonalityMock.Setup(m => m.Image)
@@ -205,9 +205,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 			mediaMock.Setup(m => m.MediaIdentifier)
 				.Returns(mediaIdentifier ?? Guid.NewGuid());
 			mediaMock.Setup(m => m.Title)
-				.Returns(title ?? fixture.Create<string>());
+				.Returns((title ?? fixture.Create<string>()).ToUpper());
 			mediaMock.Setup(m => m.Subtitle)
-				.Returns(subtitle ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+				.Returns(subtitle?.ToUpper() ?? (random.Next(100) > 50 ? fixture.Create<string>().ToUpper() : null));
 			mediaMock.Setup(m => m.Description)
 				.Returns(description ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
 			mediaMock.Setup(m => m.Details)

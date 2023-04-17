@@ -88,15 +88,15 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.MediaBase
 
 		private IMedia CreateSut(bool hasMediaBindings = true, IEnumerable<IMediaBinding> mediaBindings = null )
 		{
-			return new MyMedia(Guid.NewGuid(), _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.BuildMediaTypeMock().Object, _random.Next(100) > 50 ? null : _fixture.Create<short>(), _random.Next(100) > 50 ? new Uri($"https://localhost/api/medias/{Guid.NewGuid():D}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : null, hasMediaBindings ? mediaBindings ?? new[] { _fixture.BuildMediaBindingMock().Object, _fixture.BuildMediaBindingMock().Object, _fixture.BuildMediaBindingMock().Object } : Array.Empty<IMediaBinding>());
+			return new MyMedia(Guid.NewGuid(), _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.BuildMediaTypeMock().Object, _random.Next(100) > 50 ? null : _fixture.Create<short>(), _random.Next(100) > 50 ? new Uri($"https://localhost/api/medias/{Guid.NewGuid():D}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : null, _ => hasMediaBindings ? mediaBindings ?? new[] { _fixture.BuildMediaBindingMock().Object, _fixture.BuildMediaBindingMock().Object, _fixture.BuildMediaBindingMock().Object } : Array.Empty<IMediaBinding>());
 		}
 
 		private class MyMedia : Domain.MediaLibrary.MediaBase
 		{
 			#region Constructor
 
-			public MyMedia(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, IEnumerable<IMediaBinding> mediaBindings)
-				: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindings)
+			public MyMedia(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMediaType mediaType, short? published, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder)
+				: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder)
 			{
 			}
 

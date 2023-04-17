@@ -24,8 +24,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 			Surname = surname.Trim();
 			Nationality = nationality;
 			Roles = roles;
-			BirthDate = birthDate;
-			DateOfDead = dateOfDead;
+			BirthDate = birthDate?.Date;
+			DateOfDead = dateOfDead?.Date;
 			Url = url;
 			Image = image ?? Array.Empty<byte>();
 			Deletable = deletable;

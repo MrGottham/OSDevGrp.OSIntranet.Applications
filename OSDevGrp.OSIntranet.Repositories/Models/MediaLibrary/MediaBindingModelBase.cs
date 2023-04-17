@@ -1,9 +1,9 @@
 ﻿using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -37,15 +37,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 			return mediaBindingModels.MaxBy(mediaBinding => mediaBinding.ModifiedUtcDateTime);
 		}
 
-		internal static IEnumerable<IMediaPersonality> AsMediaPersonalities(this IEnumerable<MediaBindingModelBase> mediaBindingModels, MediaRole mediaRole, MapperCache mapperCache, IConverter mediaLibraryModelConverter, IConverter commonModelConverter)
+		internal static bool IsMatchingMediaBindingModel<TMediaBindingModel>(this TMediaBindingModel mediaBindingModel, IMediaBinding mediaBinding) where TMediaBindingModel : MediaBindingModelBase
+		{
+			NullGuard.NotNull(mediaBindingModel, nameof(mediaBindingModel))
+				.NotNull(mediaBinding, nameof(mediaBinding));
+
+			return mediaBindingModel.MediaPersonality != null &&
+			       string.Compare(mediaBindingModel.MediaPersonality.ExternalMediaPersonalityIdentifier, ValueConverter.GuidToString(mediaBinding.MediaPersonality.MediaPersonalityIdentifier), CultureInfo.InvariantCulture, CompareOptions.IgnoreCase) == 0 &&
+			       mediaBindingModel.AsMediaRole() == mediaBinding.Role;
+		}
+
+		internal static TMediaBindingModel FindMatchingMediaBindingModel<TMediaBindingModel>(this IEnumerable<TMediaBindingModel> mediaBindingModels, IMediaBinding mediaBinding) where TMediaBindingModel : MediaBindingModelBase
 		{
 			NullGuard.NotNull(mediaBindingModels, nameof(mediaBindingModels))
-				.NotNull(mapperCache, nameof(mapperCache))
-				.NotNull(mediaLibraryModelConverter, nameof(mediaLibraryModelConverter))
-				.NotNull(commonModelConverter, nameof(commonModelConverter));
+				.NotNull(mediaBinding, nameof(mediaBinding));
 
-			return mediaBindingModels.Where(mediaBindingModel => mediaBindingModel.MediaPersonality != null && mediaBindingModel.AsMediaRole() == mediaRole)
-				.Select(mediaBindingModel => mediaBindingModel.MediaPersonality.ToDomain(mapperCache, mediaLibraryModelConverter, commonModelConverter));
+			return mediaBindingModels.SingleOrDefault(mediaBindingModel => mediaBindingModel.IsMatchingMediaBindingModel(mediaBinding));
 		}
 
 		#endregion

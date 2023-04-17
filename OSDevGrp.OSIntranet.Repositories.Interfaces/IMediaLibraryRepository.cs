@@ -7,7 +7,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
 	public interface IMediaLibraryRepository : IRepository
 	{
-		Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync();
+		Task<IEnumerable<IMedia>> GetMediasAsync();
+
+		Task<IEnumerable<TMedia>> GetMediasAsync<TMedia>() where TMedia : class, IMedia;
+
+		Task<bool> MediaExistsAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
+
+		Task<TMedia> GetMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
+
+		Task CreateMediaAsync<TMedia>(TMedia media) where TMedia : class, IMedia;
+
+		Task UpdateMediaAsync<TMedia>(TMedia media) where TMedia : class, IMedia;
+
+		Task DeleteMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
+
+        Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync();
 
 		Task<bool> MediaPersonalityExistsAsync(Guid mediaPersonalityIdentifier);
 

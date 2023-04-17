@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
-using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
@@ -44,9 +43,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 				IMusicGenre musicGenre = mediaLibraryModelConverter.Convert<MusicGenreModel, IMusicGenre>(musicModel.MusicGenre);
 				IMediaType mediaType = mediaLibraryModelConverter.Convert<MediaTypeModel, IMediaType>(musicModel.CoreData.MediaType);
-				IMediaPersonality[] artists = (musicModel.MusicBindings ?? new List<MusicBindingModel>())
-					.AsMediaPersonalities(MediaRole.Artist, mapperCache, mediaLibraryModelConverter, commonModelConverter)
-					.ToArray();
 
 				IMusic music = new Music(
 					externalMediaIdentifier,
@@ -60,8 +56,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					musicModel.Tracks,
 					ValueConverter.StringToUri(musicModel.CoreData.Url),
 					ValueConverter.StringToByteArray(musicModel.CoreData.Image),
-					artists);
+					media => (musicModel.MusicBindings ?? new List<MusicBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
 
+				music.SetDeletable(musicModel.Deletable);
 				musicModel.ApplyAuditInformation(model => model.MusicBindings, music);
 
 				mapperCache.MediaDictionary.Add(music.MediaIdentifier, music);

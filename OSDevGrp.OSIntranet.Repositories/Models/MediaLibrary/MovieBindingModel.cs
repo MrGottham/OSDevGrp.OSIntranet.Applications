@@ -1,5 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
+using OSDevGrp.OSIntranet.Domain.MediaLibrary;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
@@ -15,6 +21,34 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 	internal static class MovieBindingModelExtensions
 	{
 		#region Methods
+
+		internal static IMediaBinding ToDomain(this MovieBindingModel movieBindingModel, IMedia media, MapperCache mapperCache, IConverter mediaLibraryModelConverter, IConverter commonModelConverter)
+		{
+			NullGuard.NotNull(movieBindingModel, nameof(movieBindingModel))
+				.NotNull(media, nameof(media))
+				.NotNull(mapperCache, nameof(mapperCache))
+				.NotNull(mediaLibraryModelConverter, nameof(mediaLibraryModelConverter))
+				.NotNull(commonModelConverter, nameof(commonModelConverter));
+
+			IMediaPersonality mediaPersonality = movieBindingModel.MediaPersonality.ToDomain(mapperCache, mediaLibraryModelConverter, commonModelConverter);
+
+			IMediaBinding mediaBinding = new MediaBinding(media, movieBindingModel.AsMediaRole(), mediaPersonality);
+			mediaBinding.SetDeletable(movieBindingModel.Deletable);
+			mediaBinding.AddAuditInformation(movieBindingModel.CreatedUtcDateTime, movieBindingModel.CreatedByIdentifier, movieBindingModel.ModifiedUtcDateTime, movieBindingModel.ModifiedByIdentifier);
+
+			return mediaBinding;
+		}
+
+		internal static IEnumerable<IMediaBinding> ToDomain(this IEnumerable<MovieBindingModel> movieBindingModels, IMedia media, MapperCache mapperCache, IConverter mediaLibraryModelConverter, IConverter commonModelConverter)
+		{
+			NullGuard.NotNull(movieBindingModels, nameof(movieBindingModels))
+				.NotNull(media, nameof(media))
+				.NotNull(mapperCache, nameof(mapperCache))
+				.NotNull(mediaLibraryModelConverter, nameof(mediaLibraryModelConverter))
+				.NotNull(commonModelConverter, nameof(commonModelConverter));
+
+			return movieBindingModels.Select(movieBindingModel => movieBindingModel.ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter)).ToArray();
+		}
 
 		internal static void CreateMovieBindingModel(this ModelBuilder modelBuilder)
 		{

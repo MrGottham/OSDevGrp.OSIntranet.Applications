@@ -12,7 +12,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 		#region Constructors
 
 		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, IEnumerable<IMediaPersonality> authors)
-			: this(mediaIdentifier, title, subtitle, description, details, bookGenre, writtenLanguage, mediaType, internationalStandardBookNumber, published, url, image, Array.Empty<IMediaBinding>())
+			: this(mediaIdentifier, title, subtitle, description, details, bookGenre, writtenLanguage, mediaType, internationalStandardBookNumber, published, url, image, _ => Array.Empty<IMediaBinding>())
 		{
 			NullGuard.NotNull(authors, nameof(authors));
 
@@ -22,8 +22,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 			}
 		}
 
-		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, IEnumerable<IMediaBinding> mediaBindings) 
-			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindings)
+		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder) 
+			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder)
 		{
 			NullGuard.NotNull(bookGenre, nameof(bookGenre));
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
@@ -8,6 +9,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -22,11 +24,220 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
         }
 
-        #endregion
+		#endregion
 
-        #region Methods
+		#region Methods
 
-        public Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync()
+		public Task<IEnumerable<IMedia>> GetMediasAsync()
+		{
+			return ExecuteAsync<IEnumerable<IMedia>>(async () =>
+				{
+					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+					using MovieModelHandler movieModelHandler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+					using MusicModelHandler musicModelHandler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+					using BookModelHandler bookModelHandler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+
+					List<IMedia> mediaCollection = new List<IMedia>();
+					mediaCollection.AddRange(await movieModelHandler.ReadAsync());
+					mediaCollection.AddRange(await musicModelHandler.ReadAsync());
+					mediaCollection.AddRange(await bookModelHandler.ReadAsync());
+
+                    HashSet<IMedia> mediaHashSet = new HashSet<IMedia>(mediaCollection);
+
+					return mediaHashSet.OrderBy(media => media.ToString()).ToArray();
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<IEnumerable<TMedia>> GetMediasAsync<TMedia>() where TMedia : class, IMedia
+		{
+			return ExecuteAsync(async () =>
+				{
+					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+					if (typeof(TMedia) == typeof(IMovie))
+					{
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						return (await handler.ReadAsync()).OfType<TMedia>();
+					}
+
+					if (typeof(TMedia) == typeof(IMusic))
+					{
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						return (await handler.ReadAsync()).OfType<TMedia>();
+					}
+
+					if (typeof(TMedia) == typeof(IBook))
+					{
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						return (await handler.ReadAsync()).OfType<TMedia>();
+					}
+
+					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<bool> MediaExistsAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia
+		{
+			return ExecuteAsync(async () =>
+				{
+					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+					if (typeof(TMedia) == typeof(IMovie))
+					{
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						return await handler.ReadAsync(mediaIdentifier) != null;
+					}
+
+					if (typeof(TMedia) == typeof(IMusic))
+					{
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						return await handler.ReadAsync(mediaIdentifier) != null;
+					}
+
+					if (typeof(TMedia) == typeof(IBook))
+					{
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						return await handler.ReadAsync(mediaIdentifier) != null;
+					}
+
+					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<TMedia> GetMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia
+		{
+			return ExecuteAsync(async () =>
+				{
+					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+					if (typeof(TMedia) == typeof(IMovie))
+					{
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						return await handler.ReadAsync(mediaIdentifier) as TMedia;
+					}
+
+					if (typeof(TMedia) == typeof(IMusic))
+					{
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						return await handler.ReadAsync(mediaIdentifier) as TMedia;
+					}
+
+					if (typeof(TMedia) == typeof(IBook))
+					{
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						return await handler.ReadAsync(mediaIdentifier) as TMedia;
+					}
+
+					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task CreateMediaAsync<TMedia>(TMedia media) where TMedia : class, IMedia
+		{
+			NullGuard.NotNull(media, nameof(media));
+
+			return ExecuteAsync(async () =>
+				{
+					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+					if (typeof(TMedia) == typeof(IMovie))
+					{
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						await handler.CreateAsync(media as IMovie);
+						return;
+					}
+
+					if (typeof(TMedia) == typeof(IMusic))
+					{
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						await handler.CreateAsync(media as IMusic);
+						return;
+					}
+
+					if (typeof(TMedia) == typeof(IBook))
+					{
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						await handler.CreateAsync(media as IBook);
+						return;
+					}
+
+					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+        public Task UpdateMediaAsync<TMedia>(TMedia media) where TMedia : class, IMedia
+        {
+	        NullGuard.NotNull(media, nameof(media));
+
+	        return ExecuteAsync(async () =>
+		        {
+			        IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+			        if (typeof(TMedia) == typeof(IMovie))
+			        {
+				        using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        await handler.UpdateAsync(media as IMovie);
+				        return;
+			        }
+
+			        if (typeof(TMedia) == typeof(IMusic))
+			        {
+				        using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        await handler.UpdateAsync(media as IMusic);
+				        return;
+			        }
+
+			        if (typeof(TMedia) == typeof(IBook))
+			        {
+				        using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        await handler.UpdateAsync(media as IBook);
+				        return;
+			        }
+
+			        throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+        public Task DeleteMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia
+		{
+	        return ExecuteAsync(async () =>
+		        {
+			        IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+			        if (typeof(TMedia) == typeof(IMovie))
+			        {
+				        using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        await handler.DeleteAsync(mediaIdentifier);
+				        return;
+			        }
+
+			        if (typeof(TMedia) == typeof(IMusic))
+			        {
+				        using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        await handler.DeleteAsync(mediaIdentifier);
+				        return;
+			        }
+
+					if (typeof(TMedia) == typeof(IBook))
+			        {
+				        using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        await handler.DeleteAsync(mediaIdentifier);
+				        return;
+			        }
+
+					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+		public Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync()
         {
 	        return ExecuteAsync(async () =>
 		        {

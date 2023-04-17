@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
-using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
@@ -51,12 +50,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				IMovieGenre movieGenre = mediaLibraryModelConverter.Convert<MovieGenreModel, IMovieGenre>(movieModel.MovieGenre);
 				ILanguage spokenLanguage = movieModel.SpokenLanguage != null ? commonModelConverter.Convert<LanguageModel, ILanguage>(movieModel.SpokenLanguage) : null;
 				IMediaType mediaType = mediaLibraryModelConverter.Convert<MediaTypeModel, IMediaType>(movieModel.CoreData.MediaType);
-				IMediaPersonality[] directors = (movieModel.MovieBindings ?? new List<MovieBindingModel>())
-					.AsMediaPersonalities(MediaRole.Director, mapperCache, mediaLibraryModelConverter, commonModelConverter)
-					.ToArray();
-				IMediaPersonality[] actors = (movieModel.MovieBindings ?? new List<MovieBindingModel>())
-					.AsMediaPersonalities(MediaRole.Actor, mapperCache, mediaLibraryModelConverter, commonModelConverter)
-					.ToArray();
 
 				IMovie movie = new Movie(
 					externalMediaIdentifier,
@@ -71,9 +64,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					movieModel.Length,
 					ValueConverter.StringToUri(movieModel.CoreData.Url),
 					ValueConverter.StringToByteArray(movieModel.CoreData.Image),
-					directors,
-					actors);
+					media => (movieModel.MovieBindings ?? new List<MovieBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
 
+				movie.SetDeletable(movieModel.Deletable);
 				movieModel.ApplyAuditInformation(model => model.MovieBindings, movie);
 
 				mapperCache.MediaDictionary.Add(movie.MediaIdentifier, movie);

@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
-using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
@@ -51,9 +50,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				IBookGenre bookGenre = mediaLibraryModelConverter.Convert<BookGenreModel, IBookGenre>(bookModel.BookGenre);
 				ILanguage writtenLanguage = bookModel.WrittenLanguage != null ? commonModelConverter.Convert<LanguageModel, ILanguage>(bookModel.WrittenLanguage) : null;
 				IMediaType mediaType = mediaLibraryModelConverter.Convert<MediaTypeModel, IMediaType>(bookModel.CoreData.MediaType);
-				IMediaPersonality[] authors = (bookModel. BookBindings ?? new List<BookBindingModel>())
-					.AsMediaPersonalities(MediaRole.Author, mapperCache, mediaLibraryModelConverter, commonModelConverter)
-					.ToArray();
 
 				IBook book = new Book(
 					externalMediaIdentifier,
@@ -68,8 +64,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					bookModel.CoreData.Published,
 					ValueConverter.StringToUri(bookModel.CoreData.Url),
 					ValueConverter.StringToByteArray(bookModel.CoreData.Image),
-					authors);
+					media => (bookModel.BookBindings ?? new List<BookBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
 
+				book.SetDeletable(bookModel.Deletable);
 				bookModel.ApplyAuditInformation(model => model.BookBindings, book);
 
 				mapperCache.MediaDictionary.Add(book.MediaIdentifier, book);
