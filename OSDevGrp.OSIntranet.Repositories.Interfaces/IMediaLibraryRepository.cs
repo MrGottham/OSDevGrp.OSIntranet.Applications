@@ -7,11 +7,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 {
 	public interface IMediaLibraryRepository : IRepository
 	{
-		Task<IEnumerable<IMedia>> GetMediasAsync();
+		Task<IEnumerable<IMedia>> GetMediasAsync(string titleFilter = null);
 
-		Task<IEnumerable<TMedia>> GetMediasAsync<TMedia>() where TMedia : class, IMedia;
+		Task<IEnumerable<TMedia>> GetMediasAsync<TMedia>(string titleFilter = null) where TMedia : class, IMedia;
 
 		Task<bool> MediaExistsAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
+
+		Task<bool> MediaExistsAsync<TMedia>(string title, string subtitle) where TMedia : class, IMedia;
 
 		Task<TMedia> GetMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
 
@@ -21,9 +23,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
 		Task DeleteMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
 
-        Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync();
+        Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync(string nameFilter = null);
 
 		Task<bool> MediaPersonalityExistsAsync(Guid mediaPersonalityIdentifier);
+
+		Task<bool> MediaPersonalityExistsAsync(string givenName, string middleName, string fullName);
 
 		Task<IMediaPersonality> GetMediaPersonalityAsync(Guid mediaPersonalityIdentifier);
 

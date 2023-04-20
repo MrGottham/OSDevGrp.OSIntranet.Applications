@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 		#region Methods
 
-		public Task<IEnumerable<IMedia>> GetMediasAsync()
+		public Task<IEnumerable<IMedia>> GetMediasAsync(string titleFilter = null)
 		{
 			return ExecuteAsync<IEnumerable<IMedia>>(async () =>
 				{
@@ -39,39 +39,63 @@ namespace OSDevGrp.OSIntranet.Repositories
 					using BookModelHandler bookModelHandler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
 
 					List<IMedia> mediaCollection = new List<IMedia>();
-					mediaCollection.AddRange(await movieModelHandler.ReadAsync());
-					mediaCollection.AddRange(await musicModelHandler.ReadAsync());
-					mediaCollection.AddRange(await bookModelHandler.ReadAsync());
+					if (string.IsNullOrWhiteSpace(titleFilter))
+					{
+						mediaCollection.AddRange(await movieModelHandler.ReadAsync());
+						mediaCollection.AddRange(await musicModelHandler.ReadAsync());
+						mediaCollection.AddRange(await bookModelHandler.ReadAsync());
+					}
+					else
+					{
+						mediaCollection.AddRange(await movieModelHandler.ReadAsync(movieModel => movieModel.CoreData.Title.StartsWith(titleFilter) || (movieModel.CoreData.Subtitle != null && movieModel.CoreData.Subtitle.StartsWith(titleFilter))));
+						mediaCollection.AddRange(await musicModelHandler.ReadAsync(musicModel => musicModel.CoreData.Title.StartsWith(titleFilter) || (musicModel.CoreData.Subtitle != null && musicModel.CoreData.Subtitle.StartsWith(titleFilter))));
+						mediaCollection.AddRange(await bookModelHandler.ReadAsync(bookModel => bookModel.CoreData.Title.StartsWith(titleFilter) || (bookModel.CoreData.Subtitle != null && bookModel.CoreData.Subtitle.StartsWith(titleFilter))));
+					}
 
-                    HashSet<IMedia> mediaHashSet = new HashSet<IMedia>(mediaCollection);
+					HashSet<IMedia> mediaHashSet = new HashSet<IMedia>(mediaCollection);
 
 					return mediaHashSet.OrderBy(media => media.ToString()).ToArray();
 				},
 				MethodBase.GetCurrentMethod());
 		}
 
-		public Task<IEnumerable<TMedia>> GetMediasAsync<TMedia>() where TMedia : class, IMedia
+		public Task<IEnumerable<TMedia>> GetMediasAsync<TMedia>(string titleFilter = null) where TMedia : class, IMedia
 		{
-			return ExecuteAsync(async () =>
+			return ExecuteAsync<IEnumerable<TMedia>>(async () =>
 				{
 					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
 						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
-						return (await handler.ReadAsync()).OfType<TMedia>();
+
+						IEnumerable<IMovie> movies = string.IsNullOrWhiteSpace(titleFilter)
+							? await handler.ReadAsync()
+							: await handler.ReadAsync(movieModel => movieModel.CoreData.Title.StartsWith(titleFilter) || (movieModel.CoreData.Subtitle != null && movieModel.CoreData.Subtitle.StartsWith(titleFilter)));
+
+						return movies.OfType<TMedia>().ToArray();
 					}
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
 						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
-						return (await handler.ReadAsync()).OfType<TMedia>();
+
+						IEnumerable<IMusic> music = string.IsNullOrWhiteSpace(titleFilter)
+							? await handler.ReadAsync()
+							: await handler.ReadAsync(musicModel => musicModel.CoreData.Title.StartsWith(titleFilter) || (musicModel.CoreData.Subtitle != null && musicModel.CoreData.Subtitle.StartsWith(titleFilter)));
+
+						return music.OfType<TMedia>().ToArray();
 					}
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
 						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
-						return (await handler.ReadAsync()).OfType<TMedia>();
+
+						IEnumerable<IBook> books = string.IsNullOrWhiteSpace(titleFilter)
+							? await handler.ReadAsync()
+							: await handler.ReadAsync(bookModel => bookModel.CoreData.Title.StartsWith(titleFilter) || (bookModel.CoreData.Subtitle != null && bookModel.CoreData.Subtitle.StartsWith(titleFilter)));
+
+						return books.OfType<TMedia>().ToArray();
 					}
 
 					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
@@ -101,6 +125,38 @@ namespace OSDevGrp.OSIntranet.Repositories
 					{
 						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false);
 						return await handler.ReadAsync(mediaIdentifier) != null;
+					}
+
+					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<bool> MediaExistsAsync<TMedia>(string title, string subtitle) where TMedia : class, IMedia
+		{
+			NullGuard.NotNullOrWhiteSpace(title, nameof(title));
+
+			return ExecuteAsync(async () =>
+				{
+
+					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+
+					if (typeof(TMedia) == typeof(IMovie))
+					{
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						return (await handler.ReadAsync(movieModel => movieModel.CoreData.Title == title && movieModel.CoreData.Subtitle == subtitle)).Any();
+					}
+
+					if (typeof(TMedia) == typeof(IMusic))
+					{
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						return (await handler.ReadAsync(musicModel => musicModel.CoreData.Title == title && musicModel.CoreData.Subtitle == subtitle)).Any();
+					}
+
+					if (typeof(TMedia) == typeof(IBook))
+					{
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						return (await handler.ReadAsync(bookModel => bookModel.CoreData.Title == title && bookModel.CoreData.Subtitle == subtitle)).Any();
 					}
 
 					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
@@ -237,12 +293,14 @@ namespace OSDevGrp.OSIntranet.Repositories
 		        MethodBase.GetCurrentMethod());
         }
 
-		public Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync()
+		public Task<IEnumerable<IMediaPersonality>> GetMediaPersonalitiesAsync(string nameFilter = null)
         {
 	        return ExecuteAsync(async () =>
 		        {
 			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
-			        return await handler.ReadAsync();
+			        return string.IsNullOrWhiteSpace(nameFilter)
+				        ? await handler.ReadAsync()
+				        : await handler.ReadAsync(mediaPersonalityModel => (mediaPersonalityModel.GivenName != null && mediaPersonalityModel.GivenName.StartsWith(nameFilter)) || (mediaPersonalityModel.MiddleName != null && mediaPersonalityModel.MiddleName.StartsWith(nameFilter)) || mediaPersonalityModel.Surname.StartsWith(nameFilter));
 		        },
 		        MethodBase.GetCurrentMethod());
         }
@@ -257,7 +315,19 @@ namespace OSDevGrp.OSIntranet.Repositories
 		        MethodBase.GetCurrentMethod());
         }
 
-        public Task<IMediaPersonality> GetMediaPersonalityAsync(Guid mediaPersonalityIdentifier)
+        public Task<bool> MediaPersonalityExistsAsync(string givenName, string middleName, string surname)
+        {
+	        NullGuard.NotNullOrWhiteSpace(surname, nameof(surname));
+
+	        return ExecuteAsync(async () =>
+		        {
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+			        return (await handler.ReadAsync(mediaPersonalityModel => mediaPersonalityModel.GivenName == givenName && mediaPersonalityModel.MiddleName == middleName && mediaPersonalityModel.Surname == surname)).Any();
+		        },
+		        MethodBase.GetCurrentMethod());
+        }
+
+		public Task<IMediaPersonality> GetMediaPersonalityAsync(Guid mediaPersonalityIdentifier)
         {
 	        return ExecuteAsync(async () =>
 		        {
