@@ -64,7 +64,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					movieModel.Length,
 					ValueConverter.StringToUri(movieModel.CoreData.Url),
 					ValueConverter.StringToByteArray(movieModel.CoreData.Image),
-					media => (movieModel.MovieBindings ?? new List<MovieBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
+					media => (movieModel.MovieBindings ?? new List<MovieBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter),
+					_ => Array.Empty<ILending>());
 
 				movie.SetDeletable(movieModel.Deletable);
 				movieModel.ApplyAuditInformation(model => model.MovieBindings, movie);

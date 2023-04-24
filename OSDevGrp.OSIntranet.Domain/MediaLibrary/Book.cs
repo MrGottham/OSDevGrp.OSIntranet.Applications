@@ -11,8 +11,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 	{
 		#region Constructors
 
-		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, IEnumerable<IMediaPersonality> authors)
-			: this(mediaIdentifier, title, subtitle, description, details, bookGenre, writtenLanguage, mediaType, internationalStandardBookNumber, published, url, image, _ => Array.Empty<IMediaBinding>())
+		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, IEnumerable<IMediaPersonality> authors, Func<IMedia, IEnumerable<ILending>> lendingsBuilder)
+			: this(mediaIdentifier, title, subtitle, description, details, bookGenre, writtenLanguage, mediaType, internationalStandardBookNumber, published, url, image, _ => Array.Empty<IMediaBinding>(), lendingsBuilder)
 		{
 			NullGuard.NotNull(authors, nameof(authors));
 
@@ -22,8 +22,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 			}
 		}
 
-		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder) 
-			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder)
+		public Book(Guid mediaIdentifier, string title, string subtitle, string description, string details, IBookGenre bookGenre, ILanguage writtenLanguage, IMediaType mediaType, string internationalStandardBookNumber, short? published, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder, Func<IMedia, IEnumerable<ILending>> lendingsBuilder) 
+			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder, lendingsBuilder)
 		{
 			NullGuard.NotNull(bookGenre, nameof(bookGenre));
 

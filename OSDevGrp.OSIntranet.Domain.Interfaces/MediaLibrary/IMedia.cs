@@ -24,6 +24,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary
 
         byte[] Image { get; }
 
-        IEnumerable<IMediaBinding> GetMediaBindings();
+        IEnumerable<ILending> Lendings { get; }
+
+		IEnumerable<IMediaBinding> GetMediaBindings();
     }
 }

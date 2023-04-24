@@ -10,8 +10,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 	{
 		#region Constructors
 
-		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, IEnumerable<IMediaPersonality> artists)
-			: this(mediaIdentifier, title, subtitle, description, details, musicGenre, mediaType, published, tracks, url, image, _ => Array.Empty<IMediaBinding>())
+		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, IEnumerable<IMediaPersonality> artists, Func<IMedia, IEnumerable<ILending>> lendingsBuilder)
+			: this(mediaIdentifier, title, subtitle, description, details, musicGenre, mediaType, published, tracks, url, image, _ => Array.Empty<IMediaBinding>(), lendingsBuilder)
 		{
 			NullGuard.NotNull(artists, nameof(artists));
 
@@ -21,8 +21,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 			}
 		}
 
-		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder)
-			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder)
+		public Music(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMusicGenre musicGenre, IMediaType mediaType, short? published, short? tracks, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder, Func<IMedia, IEnumerable<ILending>> lendingsBuilder)
+			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder, lendingsBuilder)
 		{
 			NullGuard.NotNull(musicGenre, nameof(musicGenre));
 

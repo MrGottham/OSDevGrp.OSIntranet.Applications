@@ -64,7 +64,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					bookModel.CoreData.Published,
 					ValueConverter.StringToUri(bookModel.CoreData.Url),
 					ValueConverter.StringToByteArray(bookModel.CoreData.Image),
-					media => (bookModel.BookBindings ?? new List<BookBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
+					media => (bookModel.BookBindings ?? new List<BookBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter),
+					_ => Array.Empty<ILending>());
 
 				book.SetDeletable(bookModel.Deletable);
 				bookModel.ApplyAuditInformation(model => model.BookBindings, book);

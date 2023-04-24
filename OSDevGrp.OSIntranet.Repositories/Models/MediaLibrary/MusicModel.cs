@@ -56,7 +56,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					musicModel.Tracks,
 					ValueConverter.StringToUri(musicModel.CoreData.Url),
 					ValueConverter.StringToByteArray(musicModel.CoreData.Image),
-					media => (musicModel.MusicBindings ?? new List<MusicBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
+					media => (musicModel.MusicBindings ?? new List<MusicBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter),
+					_ => Array.Empty<ILending>());
 
 				music.SetDeletable(musicModel.Deletable);
 				musicModel.ApplyAuditInformation(model => model.MusicBindings, music);

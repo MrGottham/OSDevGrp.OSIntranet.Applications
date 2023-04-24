@@ -11,8 +11,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 	{
 		#region Constructors
 
-		public Movie(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMovieGenre movieGenre, ILanguage spokenLanguage, IMediaType mediaType, short? published, short? length, Uri url, byte[] image, IEnumerable<IMediaPersonality> directors, IEnumerable<IMediaPersonality> actors)
-			: this(mediaIdentifier, title, subtitle, description, details, movieGenre, spokenLanguage, mediaType, published, length, url, image, _ => Array.Empty<IMediaBinding>())
+		public Movie(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMovieGenre movieGenre, ILanguage spokenLanguage, IMediaType mediaType, short? published, short? length, Uri url, byte[] image, IEnumerable<IMediaPersonality> directors, IEnumerable<IMediaPersonality> actors, Func<IMedia, IEnumerable<ILending>> lendingsBuilder)
+			: this(mediaIdentifier, title, subtitle, description, details, movieGenre, spokenLanguage, mediaType, published, length, url, image, _ => Array.Empty<IMediaBinding>(), lendingsBuilder)
 		{
 			NullGuard.NotNull(directors, nameof(directors))
 				.NotNull(actors, nameof(actors));
@@ -28,8 +28,8 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 			}
 		}
 
-		public Movie(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMovieGenre movieGenre, ILanguage spokenLanguage, IMediaType mediaType, short? published, short? length, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder) 
-			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder)
+		public Movie(Guid mediaIdentifier, string title, string subtitle, string description, string details, IMovieGenre movieGenre, ILanguage spokenLanguage, IMediaType mediaType, short? published, short? length, Uri url, byte[] image, Func<IMedia, IEnumerable<IMediaBinding>> mediaBindingsBuilder, Func<IMedia, IEnumerable<ILending>> lendingsBuilder) 
+			: base(mediaIdentifier, title, subtitle, description, details, mediaType, published, url, image, mediaBindingsBuilder, lendingsBuilder)
 		{
 			NullGuard.NotNull(movieGenre, nameof(movieGenre));
 
