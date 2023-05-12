@@ -30,6 +30,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				.NotNull(mediaLibraryModelConverter, nameof(mediaLibraryModelConverter))
 				.NotNull(commonModelConverter, nameof(commonModelConverter));
 
+			mapperCache.Cache(media);
+
 			IMediaPersonality mediaPersonality = musicBindingModel.MediaPersonality.ToDomain(mapperCache, mediaLibraryModelConverter, commonModelConverter);
 
 			IMediaBinding mediaBinding = new MediaBinding(media, musicBindingModel.AsMediaRole(), mediaPersonality);

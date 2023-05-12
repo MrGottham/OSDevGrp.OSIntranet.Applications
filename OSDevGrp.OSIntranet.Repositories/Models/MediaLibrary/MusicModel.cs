@@ -57,12 +57,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					ValueConverter.StringToUri(musicModel.CoreData.Url),
 					ValueConverter.StringToByteArray(musicModel.CoreData.Image),
 					media => (musicModel.MusicBindings ?? new List<MusicBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter),
-					_ => Array.Empty<ILending>());
+					media => (musicModel.Lendings ?? new List<LendingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
 
 				music.SetDeletable(musicModel.Deletable);
 				musicModel.ApplyAuditInformation(model => model.MusicBindings, music);
 
-				mapperCache.MediaDictionary.Add(music.MediaIdentifier, music);
+				mapperCache.Cache(music);
 
 				return music;
 			}

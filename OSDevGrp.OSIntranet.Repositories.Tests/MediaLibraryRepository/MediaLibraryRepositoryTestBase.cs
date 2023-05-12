@@ -12,6 +12,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 	    private static Guid? _existingMovieIdentifier;
 	    private static Guid? _existingMusicIdentifier;
 	    private static Guid? _existingBookIdentifier;
+	    private static Guid? _existingBorrowerIdentifier;
+	    private static Guid? _existingLendingIdentifier;
 
 		#endregion
 
@@ -83,6 +85,40 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 				// ReSharper disable AssignNullToNotNullAttribute
 				return (_existingBookIdentifier = Guid.Parse(configuration["TestData:MediaLibrary:ExistingBookIdentifier"])).Value;
 				// ReSharper restore AssignNullToNotNullAttribute
+			}
+		}
+
+		protected Guid? WithExistingBorrowerIdentifier()
+		{
+			lock (SyncRoot)
+			{
+				if (_existingBorrowerIdentifier.HasValue)
+				{
+					return _existingBorrowerIdentifier.Value;
+				}
+
+				IConfiguration configuration = CreateTestConfiguration();
+				string value = configuration["TestData:MediaLibrary:ExistingBorrowerIdentifier"];
+				return string.IsNullOrWhiteSpace(value) == false
+					? (_existingBorrowerIdentifier = Guid.Parse(value)).Value
+					: _existingBorrowerIdentifier;
+			}
+		}
+
+		protected Guid? WithExistingLendingIdentifier()
+		{
+			lock (SyncRoot)
+			{
+				if (_existingLendingIdentifier.HasValue)
+				{
+					return _existingLendingIdentifier.Value;
+				}
+
+				IConfiguration configuration = CreateTestConfiguration();
+				string value = configuration["TestData:MediaLibrary:ExistingLendingIdentifier"];
+				return string.IsNullOrWhiteSpace(value) == false
+					? (_existingLendingIdentifier = Guid.Parse(value)).Value
+					: _existingLendingIdentifier;
 			}
 		}
 

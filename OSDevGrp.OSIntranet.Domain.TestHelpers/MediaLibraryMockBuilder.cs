@@ -234,9 +234,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 			lendingMock.Setup(m => m.RecallDate)
 				.Returns(recallDate.Value.Date);
 			lendingMock.Setup(m => m.Returned)
-				.Returns(returnedDate.HasValue);
+				.Returns(returnedDate.HasValue && returnedDate.Value.Date <= DateTime.Today);
 			lendingMock.Setup(m => m.ReturnedDate)
-				.Returns(returnedDate);
+				.Returns(returnedDate?.Date);
 			lendingMock.Setup(m => m.Deletable)
 				.Returns(deletable ?? fixture.Create<bool>());
 			lendingMock.Setup(m => m.CreatedDateTime)

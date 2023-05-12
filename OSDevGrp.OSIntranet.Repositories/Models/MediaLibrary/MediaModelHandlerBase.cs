@@ -18,15 +18,20 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
         #region Private variables
 
         private readonly bool _includeCoreData;
+        private readonly bool _includeLendings;
 
         #endregion
 
         #region Constructor
 
-        protected MediaModelHandlerBase(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData) 
+        protected MediaModelHandlerBase(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeLendings) 
             : base(dbContext, modelConverter)
         {
 	        _includeCoreData = includeCoreData;
+	        _includeLendings = includeLendings;
+
+	        MediaPersonalityModelHandler = new MediaPersonalityModelHandler(dbContext, modelConverter, true);
+	        LendingModelHandler = new LendingModelHandler(dbContext, modelConverter, true, true);
         }
 
         #endregion
@@ -37,17 +42,29 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
         protected sealed override IQueryable<TMediaModel> Reader => CreateReader();
 
-        #endregion
+        protected MediaPersonalityModelHandler MediaPersonalityModelHandler;
 
-        #region Methods
+        protected LendingModelHandler LendingModelHandler;
 
-        protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == ValueConverter.GuidToString(primaryKey);
+		#endregion
+
+		#region Methods
+
+		protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == ValueConverter.GuidToString(primaryKey);
+
+		protected abstract Expression<Func<LendingModel, bool>> LendingModelsSelector(TMediaModel mediaModel);
 
         protected sealed override Task<IEnumerable<TMedia>> SortAsync(IEnumerable<TMedia> mediaCollection)
         {
             NullGuard.NotNull(mediaCollection, nameof(mediaCollection));
 
             return Task.FromResult(mediaCollection.OrderBy(media => media.ToString()).AsEnumerable());
+        }
+
+        protected sealed override void OnDispose()
+        {
+	        MediaPersonalityModelHandler.Dispose();
+	        LendingModelHandler.Dispose();
         }
 
         protected override async Task<TMediaModel> OnCreateAsync(TMedia media, TMediaModel mediaModel)
@@ -68,6 +85,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
         protected override async Task<TMediaModel> OnReadAsync(TMediaModel mediaModel)
         {
             NullGuard.NotNull(mediaModel, nameof(mediaModel));
+
+            if (mediaModel.Lendings != null)
+            {
+	            mediaModel.Lendings = (await LendingModelHandler.ReadAsync(mediaModel.Lendings)).ToList();
+            }
 
             mediaModel.Deletable = await CanDeleteAsync(mediaModel);
 
@@ -90,30 +112,48 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
             mediaModel.CoreData.Image = ValueConverter.ByteArrayToString(media.Image);
 
             await HandleMediaBindingsAsync(media.GetMediaBindings().ToArray(), mediaModel, GetMediaBindingModels(mediaModel));
-
         }
 
-		protected sealed override Task<bool> CanDeleteAsync(TMediaModel mediaModel)
+		protected sealed override async Task<bool> CanDeleteAsync(TMediaModel mediaModel)
         {
             NullGuard.NotNull(mediaModel, nameof(mediaModel));
 
-            return Task.FromResult(true);
+            if (mediaModel.Lendings != null)
+            {
+	            return mediaModel.Lendings.All(LendingModelHandler.IsDeletable.Compile());
+            }
+
+            return await DbContext.Lendings
+	            .Where(LendingModelsSelector(mediaModel))
+	            .AllAsync(LendingModelHandler.IsDeletable);
         }
 
-        protected override Task<TMediaModel> OnDeleteAsync(TMediaModel mediaModel)
+		protected override async Task<TMediaModel> OnDeleteAsync(TMediaModel mediaModel)
         {
             NullGuard.NotNull(mediaModel, nameof(mediaModel));
+
+            mediaModel.Lendings = await LendingModelHandler.DeleteAsync(mediaModel.Lendings);
 
             DbContext.MediaCoreData.Remove(mediaModel.CoreData);
 
-            return Task.FromResult(mediaModel);
+            return mediaModel;
         }
 
         protected virtual IQueryable<TMediaModel> CreateReader()
         {
 	        IQueryable<TMediaModel> reader = Entities;
 
-	        return _includeCoreData == false ? reader : reader.Include(m => m.CoreData).ThenInclude(m => m.MediaType);
+	        if (_includeCoreData)
+	        {
+		        reader = reader.Include(m => m.CoreData).ThenInclude(m => m.MediaType);
+	        }
+
+	        if (_includeLendings)
+	        {
+		        reader = reader.Include(m => m.Lendings).ThenInclude(m => m.Borrower);
+	        }
+
+			return reader;
         }
 
         protected async Task<List<TMediaBindingModel>> HandleMediaBindingsAsync(IMediaBinding[] mediaBindings, TMediaModel mediaModel, List<TMediaBindingModel> mediaBindingModels)

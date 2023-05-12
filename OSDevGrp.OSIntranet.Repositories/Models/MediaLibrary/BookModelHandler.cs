@@ -4,8 +4,10 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -20,8 +22,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Constructor
 
-		public BookModelHandler(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeBookBindings) 
-			: base(dbContext, modelConverter, includeCoreData)
+		public BookModelHandler(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeBookBindings, bool includeLendings) 
+			: base(dbContext, modelConverter, includeCoreData, includeLendings)
 		{
 			_includeBookBindings = includeBookBindings;
 		}
@@ -35,6 +37,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 		#endregion
 
 		#region Methods
+
+		protected sealed override Expression<Func<LendingModel, bool>> LendingModelsSelector(BookModel bookModel) => lendingModel => lendingModel.BookIdentifier != null && lendingModel.BookIdentifier == bookModel.BookIdentifier;
 
 		protected sealed override async Task<BookModel> OnCreateAsync(IBook book, BookModel bookModel)
 		{
@@ -52,16 +56,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 			return bookModel;
 		}
 
-		protected sealed override Task<BookModel> OnReadAsync(BookModel bookModel)
+		protected sealed override async Task<BookModel> OnReadAsync(BookModel bookModel)
 		{
 			NullGuard.NotNull(bookModel, nameof(bookModel));
 
 			foreach (BookBindingModel bookBindingModel in bookModel.BookBindings ?? new List<BookBindingModel>(0))
 			{
+				bookBindingModel.MediaPersonality = await MediaPersonalityModelHandler.ReadAsync(bookBindingModel.MediaPersonality);
 				bookBindingModel.Deletable = true;
 			}
 
-			return base.OnReadAsync(bookModel);
+			return await base.OnReadAsync(bookModel);
 		}
 
 		protected sealed override async Task OnUpdateAsync(IBook book, BookModel bookModel)

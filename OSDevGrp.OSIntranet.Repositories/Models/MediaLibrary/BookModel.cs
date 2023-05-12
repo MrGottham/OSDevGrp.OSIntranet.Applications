@@ -65,12 +65,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					ValueConverter.StringToUri(bookModel.CoreData.Url),
 					ValueConverter.StringToByteArray(bookModel.CoreData.Image),
 					media => (bookModel.BookBindings ?? new List<BookBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter),
-					_ => Array.Empty<ILending>());
+					media => (bookModel.Lendings ?? new List<LendingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
 
 				book.SetDeletable(bookModel.Deletable);
 				bookModel.ApplyAuditInformation(model => model.BookBindings, book);
 
-				mapperCache.MediaDictionary.Add(book.MediaIdentifier, book);
+				mapperCache.Cache(book);
 
 				return book;
 			}

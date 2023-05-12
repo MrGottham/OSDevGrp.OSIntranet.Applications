@@ -34,9 +34,9 @@ namespace OSDevGrp.OSIntranet.Repositories
 				{
 					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
 
-					using MovieModelHandler movieModelHandler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
-					using MusicModelHandler musicModelHandler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
-					using BookModelHandler bookModelHandler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+					using MovieModelHandler movieModelHandler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
+					using MusicModelHandler musicModelHandler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
+					using BookModelHandler bookModelHandler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 
 					List<IMedia> mediaCollection = new List<IMedia>();
 					if (string.IsNullOrWhiteSpace(titleFilter))
@@ -67,7 +67,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
-						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 
 						IEnumerable<IMovie> movies = string.IsNullOrWhiteSpace(titleFilter)
 							? await handler.ReadAsync()
@@ -78,7 +78,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
-						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 
 						IEnumerable<IMusic> music = string.IsNullOrWhiteSpace(titleFilter)
 							? await handler.ReadAsync()
@@ -89,7 +89,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
-						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 
 						IEnumerable<IBook> books = string.IsNullOrWhiteSpace(titleFilter)
 							? await handler.ReadAsync()
@@ -111,19 +111,19 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
-						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
 						return await handler.ReadAsync(mediaIdentifier) != null;
 					}
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
-						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
 						return await handler.ReadAsync(mediaIdentifier) != null;
 					}
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
-						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
 						return await handler.ReadAsync(mediaIdentifier) != null;
 					}
 
@@ -143,19 +143,19 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
-						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
 						return (await handler.ReadAsync(movieModel => movieModel.CoreData.Title == title && movieModel.CoreData.Subtitle == subtitle)).Any();
 					}
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
-						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
 						return (await handler.ReadAsync(musicModel => musicModel.CoreData.Title == title && musicModel.CoreData.Subtitle == subtitle)).Any();
 					}
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
-						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false);
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
 						return (await handler.ReadAsync(bookModel => bookModel.CoreData.Title == title && bookModel.CoreData.Subtitle == subtitle)).Any();
 					}
 
@@ -172,19 +172,19 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
-						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 						return await handler.ReadAsync(mediaIdentifier) as TMedia;
 					}
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
-						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 						return await handler.ReadAsync(mediaIdentifier) as TMedia;
 					}
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
-						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 						return await handler.ReadAsync(mediaIdentifier) as TMedia;
 					}
 
@@ -203,21 +203,21 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
-						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 						await handler.CreateAsync(media as IMovie);
 						return;
 					}
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
-						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 						await handler.CreateAsync(media as IMusic);
 						return;
 					}
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
-						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 						await handler.CreateAsync(media as IBook);
 						return;
 					}
@@ -237,21 +237,21 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			        if (typeof(TMedia) == typeof(IMovie))
 			        {
-				        using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 				        await handler.UpdateAsync(media as IMovie);
 				        return;
 			        }
 
 			        if (typeof(TMedia) == typeof(IMusic))
 			        {
-				        using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 				        await handler.UpdateAsync(media as IMusic);
 				        return;
 			        }
 
 			        if (typeof(TMedia) == typeof(IBook))
 			        {
-				        using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 				        await handler.UpdateAsync(media as IBook);
 				        return;
 			        }
@@ -269,21 +269,21 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			        if (typeof(TMedia) == typeof(IMovie))
 			        {
-				        using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 				        await handler.DeleteAsync(mediaIdentifier);
 				        return;
 			        }
 
 			        if (typeof(TMedia) == typeof(IMusic))
 			        {
-				        using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 				        await handler.DeleteAsync(mediaIdentifier);
 				        return;
 			        }
 
 					if (typeof(TMedia) == typeof(IBook))
 			        {
-				        using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true);
+				        using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 				        await handler.DeleteAsync(mediaIdentifier);
 				        return;
 			        }
@@ -370,6 +370,150 @@ namespace OSDevGrp.OSIntranet.Repositories
 		        },
 		        MethodBase.GetCurrentMethod());
         }
+
+		public Task<IEnumerable<IBorrower>> GetBorrowersAsync(string fullNameFilter = null)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					return string.IsNullOrWhiteSpace(fullNameFilter)
+						? await handler.ReadAsync()
+						: await handler.ReadAsync(borrowerModel => borrowerModel.FullName.StartsWith(fullNameFilter));
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<bool> BorrowerExistsAsync(Guid borrowerIdentifier)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+					return await handler.ReadAsync(borrowerIdentifier) != null;
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<bool> BorrowerExistsAsync(string fullName)
+		{
+			NullGuard.NotNullOrWhiteSpace(fullName, nameof(fullName));
+
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+					return (await handler.ReadAsync(borrowerModel => borrowerModel.FullName == fullName)).Any();
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<IBorrower> GetBorrowerAsync(Guid borrowerIdentifier)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					return await handler.ReadAsync(borrowerIdentifier);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task CreateBorrowerAsync(IBorrower borrower)
+		{
+			NullGuard.NotNull(borrower, nameof(borrower));
+
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+					await handler.CreateAsync(borrower);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task UpdateBorrowerAsync(IBorrower borrower)
+		{
+			NullGuard.NotNull(borrower, nameof(borrower));
+
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					await handler.UpdateAsync(borrower);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task DeleteBorrowerAsync(Guid borrowerIdentifier)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					await handler.DeleteAsync(borrowerIdentifier);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<IEnumerable<ILending>> GetLendingsAsync(bool includeReturned = true)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					return includeReturned
+						? await handler.ReadAsync()
+						: await handler.ReadAsync(lendingModel => lendingModel.ReturnedDate == null || (lendingModel.ReturnedDate != null && lendingModel.ReturnedDate > DateTime.Today));
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<bool> LendingExistsAsync(Guid lendingIdentifier)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					return await handler.ReadAsync(lendingIdentifier) != null;
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task<ILending> GetLendingAsync(Guid lendingIdentifier)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					return await handler.ReadAsync(lendingIdentifier);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task CreateLendingAsync(ILending lending)
+		{
+			NullGuard.NotNull(lending, nameof(lending));
+
+			return ExecuteAsync(async () =>
+				{
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					await handler.CreateAsync(lending);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task UpdateLendingAsync(ILending lending)
+		{
+			NullGuard.NotNull(lending, nameof(lending));
+
+			return ExecuteAsync(async () =>
+				{
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					await handler.UpdateAsync(lending);
+				},
+				MethodBase.GetCurrentMethod());
+		}
+
+		public Task DeleteLendingAsync(Guid lendingIdentifier)
+		{
+			return ExecuteAsync(async () =>
+				{
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					await handler.DeleteAsync(lendingIdentifier);
+				},
+				MethodBase.GetCurrentMethod());
+		}
 
 		public Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync()
         {

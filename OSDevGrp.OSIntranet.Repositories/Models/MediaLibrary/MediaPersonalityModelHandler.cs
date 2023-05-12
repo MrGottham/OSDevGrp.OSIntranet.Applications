@@ -40,6 +40,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Methods
 
+		internal Task<MediaPersonalityModel> ReadAsync(MediaPersonalityModel mediaPersonalityModel)
+		{
+			NullGuard.NotNull(mediaPersonalityModel, nameof(mediaPersonalityModel));
+
+			return OnReadAsync(mediaPersonalityModel);
+		}
+
 		protected sealed override Func<IMediaPersonality, Guid> PrimaryKey => mediaPersonality => mediaPersonality.MediaPersonalityIdentifier;
 
 		protected sealed override Expression<Func<MediaPersonalityModel, bool>> EntitySelector(Guid primaryKey) => mediaPersonalityModel => mediaPersonalityModel.ExternalMediaPersonalityIdentifier == ValueConverter.GuidToString(primaryKey);

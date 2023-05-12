@@ -121,7 +121,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         internal DbSet<MediaPersonalityModel> MediaPersonalities { get; set; }
 
-        internal DbSet<MovieGenreModel> MovieGenres { get; set; }
+        internal DbSet<BorrowerModel> Borrowers { get; set; }
+
+        internal DbSet<LendingModel> Lendings { get; set; }
+
+		internal DbSet<MovieGenreModel> MovieGenres { get; set; }
 
         internal DbSet<MusicGenreModel> MusicGenres { get; set; }
 
@@ -362,6 +366,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateBookBindingModel();
             modelBuilder.CreateMediaCoreDataModel();
             modelBuilder.CreateMediaPersonalityModel();
+            modelBuilder.CreateBorrowerModel();
+            modelBuilder.CreateLendingModel();
             modelBuilder.CreateMovieGenreModel();
             modelBuilder.CreateMusicGenreModel();
             modelBuilder.CreateBookGenreModel();

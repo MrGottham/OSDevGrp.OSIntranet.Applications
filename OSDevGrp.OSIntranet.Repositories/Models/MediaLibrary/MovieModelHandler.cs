@@ -4,8 +4,10 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -20,8 +22,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Constructor
 
-		public MovieModelHandler(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeMovieBindings)
-			: base(dbContext, modelConverter, includeCoreData)
+		public MovieModelHandler(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeMovieBindings, bool includeLendings)
+			: base(dbContext, modelConverter, includeCoreData, includeLendings)
 		{
 			_includeMovieBindings = includeMovieBindings;
 		}
@@ -35,6 +37,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 		#endregion
 
 		#region Methods
+
+		protected sealed override Expression<Func<LendingModel, bool>> LendingModelsSelector(MovieModel movieModel) => lendingModel => lendingModel.MovieIdentifier != null && lendingModel.MovieIdentifier == movieModel.MovieIdentifier;
 
 		protected sealed override async Task<MovieModel> OnCreateAsync(IMovie movie, MovieModel movieModel)
 		{
@@ -52,16 +56,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 			return movieModel;
 		}
 
-		protected sealed override Task<MovieModel> OnReadAsync(MovieModel movieModel)
+		protected sealed override async Task<MovieModel> OnReadAsync(MovieModel movieModel)
 		{
 			NullGuard.NotNull(movieModel, nameof(movieModel));
 
 			foreach (MovieBindingModel movieBindingModel in movieModel.MovieBindings ?? new List<MovieBindingModel>(0))
 			{
+				movieBindingModel.MediaPersonality = await MediaPersonalityModelHandler.ReadAsync(movieBindingModel.MediaPersonality);
 				movieBindingModel.Deletable = true;
 			}
 
-			return base.OnReadAsync(movieModel);
+			return await base.OnReadAsync(movieModel);
 		}
 
 		protected sealed override async Task OnUpdateAsync(IMovie movie, MovieModel movieModel)

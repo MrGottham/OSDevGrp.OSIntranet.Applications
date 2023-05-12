@@ -96,7 +96,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				}
 				mediaPersonality.AddAuditInformation(mediaPersonalityModel.CreatedUtcDateTime, mediaPersonalityModel.CreatedByIdentifier, modifiedUtcDateTime, modifiedByIdentifier);
 
-				mapperCache.MediaPersonalityDictionary.Add(mediaPersonality.MediaPersonalityIdentifier, mediaPersonality);
+				mapperCache.Cache(mediaPersonality);
 
 				return mediaPersonality;
 			}

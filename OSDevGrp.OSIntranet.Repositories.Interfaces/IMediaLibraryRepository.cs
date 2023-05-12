@@ -37,6 +37,32 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
 		Task DeleteMediaPersonalityAsync(Guid mediaPersonalityIdentifier);
 
+		Task<IEnumerable<IBorrower>> GetBorrowersAsync(string fullNameFilter = null);
+
+		Task<bool> BorrowerExistsAsync(Guid borrowerIdentifier);
+
+		Task<bool> BorrowerExistsAsync(string fullName);
+
+		Task<IBorrower> GetBorrowerAsync(Guid borrowerIdentifier);
+
+		Task CreateBorrowerAsync(IBorrower borrower);
+
+		Task UpdateBorrowerAsync(IBorrower borrower);
+
+		Task DeleteBorrowerAsync(Guid borrowerIdentifier);
+
+		Task<IEnumerable<ILending>> GetLendingsAsync(bool includeReturned = true);
+
+		Task<bool> LendingExistsAsync(Guid lendingIdentifier);
+
+		Task<ILending> GetLendingAsync(Guid lendingIdentifier);
+
+		Task CreateLendingAsync(ILending lending);
+
+		Task UpdateLendingAsync(ILending lending);
+
+		Task DeleteLendingAsync(Guid lendingIdentifier);
+
 		Task<IEnumerable<IMovieGenre>> GetMovieGenresAsync();
 
         Task<IMovieGenre> GetMovieGenreAsync(int number);

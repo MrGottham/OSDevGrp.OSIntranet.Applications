@@ -4,8 +4,10 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -20,8 +22,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Constructor
 
-		public MusicModelHandler(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeMusicBindings)
-			: base(dbContext, modelConverter, includeCoreData)
+		public MusicModelHandler(RepositoryContext dbContext, IConverter modelConverter, bool includeCoreData, bool includeMusicBindings, bool includeLendings)
+			: base(dbContext, modelConverter, includeCoreData, includeLendings)
 		{
 			_includeMusicBindings = includeMusicBindings;
 		}
@@ -36,6 +38,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Methods
 
+		protected sealed override Expression<Func<LendingModel, bool>> LendingModelsSelector(MusicModel musicModel) => lendingModel => lendingModel.MusicIdentifier != null && lendingModel.MusicIdentifier == musicModel.MusicIdentifier;
+
 		protected sealed override async Task<MusicModel> OnCreateAsync(IMusic music, MusicModel musicModel)
 		{
 			NullGuard.NotNull(music, nameof(music))
@@ -49,16 +53,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 			return musicModel;
 		}
 
-		protected sealed override Task<MusicModel> OnReadAsync(MusicModel musicModel)
+		protected sealed override async Task<MusicModel> OnReadAsync(MusicModel musicModel)
 		{
 			NullGuard.NotNull(musicModel, nameof(musicModel));
 
 			foreach (MusicBindingModel musicBindingModel in musicModel.MusicBindings ?? new List<MusicBindingModel>(0))
 			{
+				musicBindingModel.MediaPersonality = await MediaPersonalityModelHandler.ReadAsync(musicBindingModel.MediaPersonality);
 				musicBindingModel.Deletable = true;
 			}
 
-			return base.OnReadAsync(musicModel);
+			return await base.OnReadAsync(musicModel);
 		}
 
 		protected sealed override async Task OnUpdateAsync(IMusic music, MusicModel musicModel)

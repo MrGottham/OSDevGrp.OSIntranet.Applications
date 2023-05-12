@@ -41,7 +41,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 
 		public DateTime RecallDate { get; }
 
-		public bool Returned => ReturnedDate.HasValue;
+		public bool Returned => ReturnedDate.HasValue && ReturnedDate.Value.Date <= DateTime.Today;
 
 		public DateTime? ReturnedDate { get; }
 

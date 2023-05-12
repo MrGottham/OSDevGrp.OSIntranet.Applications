@@ -16,6 +16,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
 	    private readonly MapperCache _mapperCache = new();
 	    private readonly IConverter _commonModelConverter = CommonModelConverter.Create();
+	    private readonly IValueConverter<IMedia, MovieModel> _mediaToMovieModelConverter = new MediaToMovieModelConverter();
+	    private readonly IValueConverter<IMedia, MusicModel> _mediaToMusicModelConverter = new MediaToMusicModelConverter();
+	    private readonly IValueConverter<IMedia, BookModel> _mediaToBookModelConverter = new MediaToBookModelConverter();
 
 		#endregion
 
@@ -52,19 +55,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 	            .ForMember(dest => dest.SpokenLanguage, opt => opt.MapFrom(src => src.SpokenLanguage != null ? _commonModelConverter.Convert<ILanguage, LanguageModel>(src.SpokenLanguage) : null))
 	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
 	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
-	            .ForMember(dest => dest.MovieBindings, opt => opt.MapFrom(src => new List<MovieBindingModel>()));
+	            .ForMember(dest => dest.MovieBindings, opt => opt.MapFrom(src => new List<MovieBindingModel>()))
+	            .ForMember(dest => dest.Lendings, opt => opt.MapFrom(src => new List<LendingModel>()));
 
             mapperConfiguration.CreateMap<MusicModel, IMusic>()
 	            .ConvertUsing((src, _, context) => src.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveMediaLibraryModelConverterFromContext(context.Items), _commonModelConverter));
 
-			mapperConfiguration.CreateMap<IMusic, MusicModel>()
+            mapperConfiguration.CreateMap<IMusic, MusicModel>()
 	            .ForMember(dest => dest.MusicIdentifier, opt => opt.MapFrom(src => default(int)))
 	            .ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.MediaIdentifier)))
 	            .ForMember(dest => dest.CoreData, opt => opt.MapFrom(src => (IMedia)src))
 	            .ForMember(dest => dest.MusicGenreIdentifier, opt => opt.MapFrom(src => src.MusicGenre.Number))
 	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
 	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
-	            .ForMember(dest => dest.MusicBindings, opt => opt.MapFrom(src => new List<MusicBindingModel>()));
+	            .ForMember(dest => dest.MusicBindings, opt => opt.MapFrom(src => new List<MusicBindingModel>()))
+	            .ForMember(dest => dest.Lendings, opt => opt.MapFrom(src => new List<LendingModel>()));
 
 			mapperConfiguration.CreateMap<BookModel, IBook>()
 				.ConvertUsing((src, _, context) => src.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveMediaLibraryModelConverterFromContext(context.Items), _commonModelConverter));
@@ -78,7 +83,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 				.ForMember(dest => dest.WrittenLanguage, opt => opt.MapFrom(src => src.WrittenLanguage != null ? _commonModelConverter.Convert<ILanguage, LanguageModel>(src.WrittenLanguage) : null))
 				.ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
 				.ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
-				.ForMember(dest => dest.BookBindings, opt => opt.MapFrom(src => new List<BookBindingModel>()));
+				.ForMember(dest => dest.BookBindings, opt => opt.MapFrom(src => new List<BookBindingModel>()))
+				.ForMember(dest => dest.Lendings, opt => opt.MapFrom(src => new List<LendingModel>()));
 
 			mapperConfiguration.CreateMap<IMedia, MediaCoreDataModel>()
 				.ForMember(dest => dest.MediaCoreDataIdentifier, opt => opt.MapFrom(src => default(int)))
@@ -109,6 +115,32 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 	            .ForMember(dest => dest.MovieBindings, opt => opt.Ignore())
 	            .ForMember(dest => dest.MusicBindings, opt => opt.Ignore())
 	            .ForMember(dest => dest.BookBindings, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<BorrowerModel, IBorrower>()
+	            .ConvertUsing((src, _, context) => src.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveMediaLibraryModelConverterFromContext(context.Items), _commonModelConverter));
+
+            mapperConfiguration.CreateMap<IBorrower, BorrowerModel>()
+	            .ForMember(dest => dest.BorrowerIdentifier, opt => opt.MapFrom(src => default(int)))
+	            .ForMember(dest => dest.ExternalBorrowerIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.BorrowerIdentifier)))
+	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.Lendings, opt => opt.MapFrom(src => new List<LendingModel>()));
+
+			mapperConfiguration.CreateMap<LendingModel, ILending>()
+				.ConvertUsing((src, _, context) => src.ToDomain(ResolveMapperCacheFromContext(context.Items), ResolveMediaLibraryModelConverterFromContext(context.Items), _commonModelConverter));
+
+			mapperConfiguration.CreateMap<ILending, LendingModel>()
+	            .ForMember(dest => dest.LendingIdentifier, opt => opt.MapFrom(src => default(int)))
+	            .ForMember(dest => dest.ExternalLendingIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.LendingIdentifier)))
+	            .ForMember(dest => dest.BorrowerIdentifier, opt => opt.MapFrom(src => default(int)))
+	            .ForMember(dest => dest.MovieIdentifier, opt => opt.MapFrom(src => default(int?)))
+	            .ForMember(dest => dest.Movie, opt => opt.ConvertUsing(_mediaToMovieModelConverter, src => src.Media))
+	            .ForMember(dest => dest.MusicIdentifier, opt => opt.MapFrom(src => default(int?)))
+	            .ForMember(dest => dest.Music, opt => opt.ConvertUsing(_mediaToMusicModelConverter, src => src.Media))
+	            .ForMember(dest => dest.BookIdentifier, opt => opt.MapFrom(src => default(int?)))
+	            .ForMember(dest => dest.Book, opt => opt.ConvertUsing(_mediaToBookModelConverter, src => src.Media))
+	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
 
 			mapperConfiguration.CreateMap<MovieGenreModel, IMovieGenre>()
                 .ConvertUsing(src => src.ToDomain());
@@ -166,6 +198,51 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 	        return stateDictionary["MediaLibraryModelConverter"] as IConverter;
         }
 
-        #endregion
+        private class MediaToMovieModelConverter : IValueConverter<IMedia, MovieModel>
+        {
+			#region Methods
+
+			public MovieModel Convert(IMedia media, ResolutionContext context)
+			{
+				NullGuard.NotNull(media, nameof(media))
+					.NotNull(context, nameof(context));
+
+				return media is IMovie movie ? context.Mapper.Map<IMovie, MovieModel>(movie) : null;
+			}
+
+			#endregion
+		}
+
+        private class MediaToMusicModelConverter : IValueConverter<IMedia, MusicModel>
+        {
+	        #region Methods
+
+	        public MusicModel Convert(IMedia media, ResolutionContext context)
+	        {
+		        NullGuard.NotNull(media, nameof(media))
+			        .NotNull(context, nameof(context));
+
+		        return media is IMusic music ? context.Mapper.Map<IMusic, MusicModel>(music) : null;
+	        }
+
+	        #endregion
+        }
+
+        private class MediaToBookModelConverter : IValueConverter<IMedia, BookModel>
+        {
+	        #region Methods
+
+	        public BookModel Convert(IMedia media, ResolutionContext context)
+	        {
+		        NullGuard.NotNull(media, nameof(media))
+			        .NotNull(context, nameof(context));
+
+		        return media is IBook book ? context.Mapper.Map<IBook, BookModel>(book) : null;
+	        }
+
+	        #endregion
+        }
+
+		#endregion
 	}
 }

@@ -65,12 +65,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 					ValueConverter.StringToUri(movieModel.CoreData.Url),
 					ValueConverter.StringToByteArray(movieModel.CoreData.Image),
 					media => (movieModel.MovieBindings ?? new List<MovieBindingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter),
-					_ => Array.Empty<ILending>());
+					media => (movieModel.Lendings ?? new List<LendingModel>(0)).ToDomain(media, mapperCache, mediaLibraryModelConverter, commonModelConverter));
 
 				movie.SetDeletable(movieModel.Deletable);
 				movieModel.ApplyAuditInformation(model => model.MovieBindings, movie);
 
-				mapperCache.MediaDictionary.Add(movie.MediaIdentifier, movie);
+				mapperCache.Cache(movie);
 
 				return movie;
 			}
