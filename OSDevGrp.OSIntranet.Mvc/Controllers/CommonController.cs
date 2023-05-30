@@ -176,7 +176,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            return GenericCategoryViewModel.Create("Redigér nationalitet", "Common", nameof(UpdateNationality), nameof(Nationalities), nationality)
+            return GenericCategoryViewModel.Create("RedigÃ©r nationalitet", "Common", nameof(UpdateNationality), nameof(Nationalities), nationality)
                 .AsView(this);
         }
 
@@ -252,7 +252,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            return GenericCategoryViewModel.Create("Redigér sprog", "Common", nameof(UpdateLanguage), nameof(Languages), language)
+            return GenericCategoryViewModel.Create("RedigÃ©r sprog", "Common", nameof(UpdateLanguage), nameof(Languages), language)
                 .AsView(this);
         }
 

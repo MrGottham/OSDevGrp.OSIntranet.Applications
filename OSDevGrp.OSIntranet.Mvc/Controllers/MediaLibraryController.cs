@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries;
 using OSDevGrp.OSIntranet.Core;
@@ -29,6 +30,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
+        private readonly IClaimResolver _claimResolver;
         private readonly IConverter _mediaLibraryViewModelConverter = new MediaLibraryViewModelConverter();
         private readonly IConverter _commonViewModelConverter = new CommonViewModelConverter();
 
@@ -36,13 +38,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         #region Constructor
 
-        public MediaLibraryController(ICommandBus commandBus, IQueryBus queryBus)
+        public MediaLibraryController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver)
         {
-            NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+	        NullGuard.NotNull(commandBus, nameof(commandBus))
+		        .NotNull(queryBus, nameof(queryBus))
+		        .NotNull(claimResolver, nameof(claimResolver));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _claimResolver = claimResolver;
         }
 
         #endregion
@@ -58,6 +62,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public IActionResult CreateMovieGenre()
         {
             return GenericCategoryViewModel.Create("Opret filmgenre", "MediaLibrary", "CreateMovieGenre", "MovieGenres")
@@ -65,6 +70,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateMovieGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -72,6 +78,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpGet]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public async Task<IActionResult> UpdateMovieGenre(int number)
         {
             IMovieGenre movieGenre = await GetMovieGenreAsync(number);
@@ -85,6 +92,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateMovieGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -92,6 +100,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpPost]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMovieGenre(int number)
         {
@@ -109,6 +118,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public IActionResult CreateMusicGenre()
         {
             return GenericCategoryViewModel.Create("Opret musikgenre", "MediaLibrary", "CreateMusicGenre", "MusicGenres")
@@ -116,6 +126,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateMusicGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -123,6 +134,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpGet]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public async Task<IActionResult> UpdateMusicGenre(int number)
         {
             IMusicGenre musicGenre = await GetMusicGenreAsync(number);
@@ -136,6 +148,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateMusicGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -143,6 +156,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpPost]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMusicGenre(int number)
         {
@@ -160,6 +174,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpGet]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public IActionResult CreateBookGenre()
         {
             return GenericCategoryViewModel.Create("Opret litterær genre", "MediaLibrary", "CreateBookGenre", "BookGenres")
@@ -167,6 +182,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateBookGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -174,6 +190,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpGet]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public async Task<IActionResult> UpdateBookGenre(int number)
         {
             IBookGenre bookGenre = await GetBookGenreAsync(number);
@@ -187,6 +204,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateBookGenre(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -194,6 +212,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpPost]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteBookGenre(int number)
         {
@@ -211,6 +230,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public IActionResult CreateMediaType()
         {
             return GenericCategoryViewModel.Create("Opret medietype", "MediaLibrary", "CreateMediaType", "MediaTypes")
@@ -218,6 +238,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> CreateMediaType(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -225,6 +246,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpGet]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         public async Task<IActionResult> UpdateMediaType(int number)
         {
             IMediaType mediaType = await GetMediaTypeAsync(number);
@@ -238,6 +260,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public Task<IActionResult> UpdateMediaType(GenericCategoryViewModel genericCategoryViewModel)
         {
@@ -245,6 +268,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         }
 
 		[HttpPost]
+		[Authorize(Policy = Policies.MediaLibraryModifierPolicy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMediaType(int number)
         {
@@ -257,28 +281,36 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             IEnumerable<IMovieGenre> movieGenres = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IMovieGenre>>(MediaLibraryQueryFactory.BuildEmptyQuery());
 
-            return GenericCategoryCollectionViewModel.Create("Filmgenre", "MediaLibrary", nameof(CreateMovieGenre), nameof(UpdateMovieGenre), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteMovieGenre), urlHelper), movieGenres ?? Array.Empty<IMovieGenre>(), _mediaLibraryViewModelConverter);
+            bool isMediaLibraryModifier = _claimResolver.IsMediaLibraryModifier();
+
+            return GenericCategoryCollectionViewModel.Create("Filmgenre", "MediaLibrary", nameof(CreateMovieGenre), nameof(UpdateMovieGenre), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteMovieGenre), urlHelper), movieGenres ?? Array.Empty<IMovieGenre>(), _mediaLibraryViewModelConverter, isMediaLibraryModifier, isMediaLibraryModifier, isMediaLibraryModifier);
         }
 
         private async Task<GenericCategoryCollectionViewModel> GetMusicGenreCollectionViewModelAsync()
         {
             IEnumerable<IMusicGenre> musicGenres = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IMusicGenre>>(MediaLibraryQueryFactory.BuildEmptyQuery());
 
-            return GenericCategoryCollectionViewModel.Create("Musikgenre", "MediaLibrary", nameof(CreateMusicGenre), nameof(UpdateMusicGenre), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteMusicGenre), urlHelper), musicGenres ?? Array.Empty<IMusicGenre>(), _mediaLibraryViewModelConverter);
+            bool isMediaLibraryModifier = _claimResolver.IsMediaLibraryModifier();
+
+            return GenericCategoryCollectionViewModel.Create("Musikgenre", "MediaLibrary", nameof(CreateMusicGenre), nameof(UpdateMusicGenre), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteMusicGenre), urlHelper), musicGenres ?? Array.Empty<IMusicGenre>(), _mediaLibraryViewModelConverter, isMediaLibraryModifier, isMediaLibraryModifier, isMediaLibraryModifier);
         }
 
         private async Task<GenericCategoryCollectionViewModel> GetBookGenreCollectionViewModelAsync()
         {
 	        IEnumerable<IBookGenre> bookGenres = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IBookGenre>>(MediaLibraryQueryFactory.BuildEmptyQuery());
 
-	        return GenericCategoryCollectionViewModel.Create("Litterære genre", "MediaLibrary", nameof(CreateBookGenre), nameof(UpdateBookGenre), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteBookGenre), urlHelper), bookGenres ?? Array.Empty<IBookGenre>(), _mediaLibraryViewModelConverter);
+	        bool isMediaLibraryModifier = _claimResolver.IsMediaLibraryModifier();
+
+	        return GenericCategoryCollectionViewModel.Create("Litterære genre", "MediaLibrary", nameof(CreateBookGenre), nameof(UpdateBookGenre), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteBookGenre), urlHelper), bookGenres ?? Array.Empty<IBookGenre>(), _mediaLibraryViewModelConverter, isMediaLibraryModifier, isMediaLibraryModifier, isMediaLibraryModifier);
         }
 
         private async Task<GenericCategoryCollectionViewModel> GetMediaTypeCollectionViewModelAsync()
         {
             IEnumerable<IMediaType> mediaTypes = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IMediaType>>(MediaLibraryQueryFactory.BuildEmptyQuery());
 
-            return GenericCategoryCollectionViewModel.Create("Medietyper", "MediaLibrary", nameof(CreateMediaType), nameof(UpdateMediaType), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteMediaType), urlHelper), mediaTypes ?? Array.Empty<IMediaType>(), _mediaLibraryViewModelConverter);
+            bool isMediaLibraryModifier = _claimResolver.IsMediaLibraryModifier();
+
+            return GenericCategoryCollectionViewModel.Create("Medietyper", "MediaLibrary", nameof(CreateMediaType), nameof(UpdateMediaType), (genericCategoryViewModel, urlHelper) => genericCategoryViewModel.GetDeletionUrl("MediaLibrary", nameof(DeleteMediaType), urlHelper), mediaTypes ?? Array.Empty<IMediaType>(), _mediaLibraryViewModelConverter, isMediaLibraryModifier, isMediaLibraryModifier, isMediaLibraryModifier);
         }
 
         private async Task<GenericCategoryCollectionViewModel> GetNationalityCollectionViewModelAsync()

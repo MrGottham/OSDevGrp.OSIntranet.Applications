@@ -208,7 +208,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 	        {
 		        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
                 ErrorCode = null,
-                ErrorMesssage = "Handlingen kan ikke udføres, fordi du ikke har de nødvendige tilladelser."
+                ErrorMesssage = "Handlingen kan ikke udfÃ¸res, fordi du ikke har de nÃ¸dvendige tilladelser."
 	        };
 
 	        return View("Error", errorViewModel);

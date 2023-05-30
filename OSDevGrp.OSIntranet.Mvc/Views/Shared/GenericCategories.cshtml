@@ -14,7 +14,12 @@
                     <tr>
                         <th>Nummer</th>
                         <th>Navn</th>
-                        <th><a asp-area="" asp-controller="@Model.Controller" asp-action="@Model.CreateAction"><i class="fas fa-plus"></i></a></th>
+	                    <th>
+                            @if (Model.AllowCreation)
+                            {
+	                            <a asp-area="" asp-controller="@Model.Controller" asp-action="@Model.CreateAction"><i class="fas fa-plus"></i></a>
+                            }
+	                    </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,8 +30,11 @@
                             <td>@genericCategoryViewModel.Name</td>
 	                        <td>
 		                        <span class="fa-stack">
-			                        <a asp-area="" asp-controller="@Model.Controller" asp-action="@Model.UpdateAction" asp-route-number="@genericCategoryViewModel.Number"><i class="fas fa-pen"></i></a>
-                                    @if (genericCategoryViewModel.Deletable)
+                                    @if (Model.AllowModification)
+                                    {
+	                                    <a asp-area="" asp-controller="@Model.Controller" asp-action="@Model.UpdateAction" asp-route-number="@genericCategoryViewModel.Number"><i class="fas fa-pen"></i></a>
+                                    }
+			                        @if (Model.AllowDeletion && genericCategoryViewModel.Deletable)
 			                        {
 				                        <a href="#" onclick="javascript:$().askForDeletion('Slet @(genericCategoryViewModel.Name.Replace("'", string.Empty))', '@(Model.DeletionUrlGetter(genericCategoryViewModel, Url))', @(genericCategoryViewModel.GetDeletionData(Html)), $(this).parent().parent().parent());"><i class="fas fa-trash"></i></a>
 			                        }

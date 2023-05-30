@@ -33,7 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.UpdateGenericCat
         {
             IUpdateGenericCategoryCommand<IGenericCategory> sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
@@ -42,11 +42,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.UpdateGenericCat
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenHasNecessaryPermissionGetterIsNull_ThrowsArgumentNullException()
+        {
+	        IUpdateGenericCategoryCommand<IGenericCategory> sut = CreateSut();
+
+	        ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
+
+	        // ReSharper disable PossibleNullReferenceException
+	        Assert.That(result.ParamName, Is.EqualTo("hasNecessaryPermissionGetter"));
+	        // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenGenericCategoryGetterIsNull_ThrowsArgumentNullException()
         {
             IUpdateGenericCategoryCommand<IGenericCategory> sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), null));
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("genericCategoryGetter"));
@@ -60,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.UpdateGenericCat
             int number = _fixture.Create<int>();
             IUpdateGenericCategoryCommand<IGenericCategory> sut = CreateSut(number);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
                     It.Is<int>(value => value == number),
@@ -77,7 +90,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.UpdateGenericCat
         {
             IUpdateGenericCategoryCommand<IGenericCategory> sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             Assert.That(result, Is.Not.Null);
         }
@@ -89,7 +102,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.UpdateGenericCat
             IUpdateGenericCategoryCommand<IGenericCategory> sut = CreateSut();
 
             IValidator validator = _validatorMockContext.ValidatorMock.Object;
-            IValidator result = sut.Validate(validator, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            IValidator result = sut.Validate(validator, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             Assert.That(result, Is.SameAs(validator));
         }

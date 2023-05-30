@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc
 {
-    public class Startup
+	public class Startup
     {
         private const string DotnetRunningInContainerEnvironmentVariable = "DOTNET_RUNNING_IN_CONTAINER";
 
@@ -138,50 +138,73 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.AddPolicy(Policies.ContactPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.ContactsClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingAdministratorPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingAdministratorClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingCreatorPolicy, policy =>
                 {
 	                policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+	                policy.RequireAuthenticatedUser();
 	                policy.RequireClaim(ClaimHelper.AccountingClaimType);
 	                policy.RequireClaim(ClaimHelper.AccountingCreatorClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingModifierPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingModifierClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingViewerPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingViewerClaimType);
                 });
                 opt.AddPolicy(Policies.MediaLibraryPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
+                });
+                opt.AddPolicy(Policies.MediaLibraryModifierPolicy, policy =>
+                {
+	                policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+	                policy.RequireAuthenticatedUser();
+	                policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
+	                policy.RequireClaim(ClaimHelper.MediaLibraryModifierClaimType);
+                });
+                opt.AddPolicy(Policies.MediaLibraryLenderPolicy, policy =>
+                {
+	                policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+	                policy.RequireAuthenticatedUser();
+	                policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
+	                policy.RequireClaim(ClaimHelper.MediaLibraryLenderClaimType);
                 });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
                 });
                 opt.AddPolicy(Policies.SecurityAdminPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(Schemas.InternalAuthenticationSchema);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.SecurityAdminClaimType);
                 });
             });

@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
@@ -18,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.C
 		#region Private variables
 
 		private Mock<IValidator> _validatorMock;
+		private Mock<IClaimResolver> _claimResolverMock;
 		private Mock<IMediaLibraryRepository> _mediaLibraryRepositoryMock;
 		private Fixture _fixture;
 
@@ -27,6 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.C
 		public void SetUp()
 		{
 			_validatorMock = new Mock<IValidator>();
+			_claimResolverMock = new Mock<IClaimResolver>();
 			_mediaLibraryRepositoryMock = new Mock<IMediaLibraryRepository>();
 			_fixture = new Fixture();
 		}
@@ -55,6 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.C
 
 			createMediaTypeCommandMock.Verify(m => m.Validate(
 					It.Is<IValidator>(value => value != null && value == _validatorMock.Object),
+					It.IsNotNull<Func<bool>>(),
 					It.IsNotNull<Func<int, Task<IMediaType>>>()),
 				Times.Once());
 		}
@@ -88,7 +92,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.C
 			_mediaLibraryRepositoryMock.Setup(m => m.CreateMediaTypeAsync(It.IsAny<IMediaType>()))
 				.Returns(Task.CompletedTask);
 
-			return new BusinessLogic.MediaLibrary.CommandHandlers.CreateMediaTypeCommandHandler(_validatorMock.Object, _mediaLibraryRepositoryMock.Object);
+			return new BusinessLogic.MediaLibrary.CommandHandlers.CreateMediaTypeCommandHandler(_validatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object);
 		}
 
 		private ICreateMediaTypeCommand BuildCreateMediaTypeCommand(IMediaType mediaType = null)

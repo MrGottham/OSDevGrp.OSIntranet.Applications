@@ -156,9 +156,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             Assert.That(genericCategoryCollectionViewModel.UpdateAction, Is.Not.Empty);
             Assert.That(genericCategoryCollectionViewModel.UpdateAction, Is.EqualTo("UpdateLanguage"));
             Assert.That(genericCategoryCollectionViewModel.DeletionUrlGetter, Is.Not.Null);
+            Assert.That(genericCategoryCollectionViewModel.AllowCreation, Is.True);
+            Assert.That(genericCategoryCollectionViewModel.AllowModification, Is.True);
+            Assert.That(genericCategoryCollectionViewModel.AllowDeletion, Is.True);
         }
 
-        [Test]
+		[Test]
         [Category("UnitTest")]
         public async Task Languages_WhenLanguagesWasReturnedFromQueryBus_ReturnsViewResultWhereModelIsNotEmpty()
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Core.CommandHandlers
 {
-    internal abstract class GenericCategoryIdentificationCommandHandlerBase<TGenericCategoryIdentificationCommand, TGenericCategory> : CommandHandlerTransactionalBase, ICommandHandler<TGenericCategoryIdentificationCommand> where TGenericCategoryIdentificationCommand : IGenericCategoryIdentificationCommand<TGenericCategory> where TGenericCategory : IGenericCategory
+	internal abstract class GenericCategoryIdentificationCommandHandlerBase<TGenericCategoryIdentificationCommand, TGenericCategory> : CommandHandlerTransactionalBase, ICommandHandler<TGenericCategoryIdentificationCommand> where TGenericCategoryIdentificationCommand : IGenericCategoryIdentificationCommand<TGenericCategory> where TGenericCategory : IGenericCategory
     {
         #region Constructor
 
@@ -33,12 +33,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Core.CommandHandlers
         {
             NullGuard.NotNull(command, nameof(command));
 
-            command.Validate(Validator, GetGenericCategoryAsync);
+            command.Validate(Validator, HasNecessaryPermission, GetGenericCategoryAsync);
 
             await ManageRepositoryAsync(command);
         }
 
-        protected abstract Task<TGenericCategory> GetGenericCategoryAsync(int number);
+        protected virtual bool HasNecessaryPermission() => true;
+
+		protected abstract Task<TGenericCategory> GetGenericCategoryAsync(int number);
 
         protected abstract Task ManageRepositoryAsync(TGenericCategoryIdentificationCommand command);
 

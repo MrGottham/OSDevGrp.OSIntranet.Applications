@@ -49,7 +49,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.CommandHandlers.GenericCa
 
             genericCategoryDataCommandMock.Verify(m => m.Validate(
                     It.Is<IValidator>(value => value != null && value == _validatorMock.Object),
-                    It.IsNotNull<Func<int, Task<IGenericCategory>>>()),
+                    It.IsNotNull<Func<bool>>(),
+					It.IsNotNull<Func<int, Task<IGenericCategory>>>()),
                 Times.Once());
         }
 

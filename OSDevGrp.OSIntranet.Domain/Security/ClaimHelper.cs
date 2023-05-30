@@ -8,7 +8,7 @@ using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    public static class ClaimHelper
+	public static class ClaimHelper
     {
         #region Constants
 
@@ -25,6 +25,8 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public const string AccountingModifierClaimType = "urn:osdevgrp:osintranet:claims:accounting:modifier";
         public const string AccountingViewerClaimType = "urn:osdevgrp:osintranet:claims:accounting:viewer";
         public const string MediaLibraryClaimType = "urn:osdevgrp:osintranet:claims:medialibrary";
+        public const string MediaLibraryModifierClaimType = "urn:osdevgrp:osintranet:claims:medialibrary:modifier";
+        public const string MediaLibraryLenderClaimType = "urn:osdevgrp:osintranet:claims:medialibrary:lender";
         public const string CommonDataClaimType = "urn:osdevgrp:osintranet:claims:commondata";
         public const string ContactsClaimType = "urn:osdevgrp:osintranet:claims:contacts";
         public const string CountryCodeClaimType = "urn:osdevgrp:osintranet:claims:countrycode";
@@ -122,6 +124,16 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
             return CreateClaim(MediaLibraryClaimType);
         }
+
+        public static Claim CreateMediaLibraryModifierClaim()
+        {
+	        return CreateClaim(MediaLibraryModifierClaimType);
+        }
+
+		public static Claim CreateMediaLibraryLenderClaim()
+		{
+			return CreateClaim(MediaLibraryLenderClaimType);
+		}
 
         public static Claim CreateCommonDataClaim()
         {

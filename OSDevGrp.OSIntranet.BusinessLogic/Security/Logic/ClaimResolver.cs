@@ -11,7 +11,7 @@ using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
-    internal class ClaimResolver : IClaimResolver
+	internal class ClaimResolver : IClaimResolver
     {
         #region Private variables
 
@@ -80,9 +80,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         public int? GetNumberOfNewsToCollect()
         {
             return GetClaimIntegerValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.CollectNewsClaimType));
-        } 
+        }
 
-        public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
+        public bool IsMediaLibraryModifier()
+        {
+	        return HasClaim(principal => principal.GetClaim(ClaimHelper.MediaLibraryModifierClaimType));
+        }
+
+		public bool IsMediaLibraryLender()
+        {
+	        return HasClaim(principal => principal.GetClaim(ClaimHelper.MediaLibraryLenderClaimType));
+        }
+
+		public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
         {
             NullGuard.NotNull(unprotect, nameof(unprotect));
 

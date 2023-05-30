@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryIdentificationCommandBase
 {
-    [TestFixture]
+	[TestFixture]
     public class ValidateTests
     {
         #region Private variables
@@ -33,7 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryI
         {
             IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
@@ -42,15 +42,60 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryI
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenHasNecessaryPermissionGetterIsNull_ThrowsArgumentNullException()
+        {
+	        IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
+
+	        ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
+
+	        // ReSharper disable PossibleNullReferenceException
+	        Assert.That(result.ParamName, Is.EqualTo("hasNecessaryPermissionGetter"));
+	        // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenGenericCategoryGetterIsNull_ThrowsArgumentNullException()
         {
             IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), null));
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("genericCategoryGetter"));
             // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertHasNecessaryPermissionGetterWasCalled()
+        {
+	        IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
+
+	        bool hasNecessaryPermissionGetterWasCalled = false;
+	        sut.Validate(
+		        _validatorMockContext.ValidatorMock.Object,
+		        () =>
+		        {
+			        hasNecessaryPermissionGetterWasCalled = true;
+			        return _fixture.Create<bool>();
+		        },
+		        _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+
+            Assert.That(hasNecessaryPermissionGetterWasCalled, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Validate_WhenCalled_AssertHasNecessaryPermissionWasCalledOnPermissionValidatorWithResultFromHasNecessaryPermissionGetter(bool hasNecessaryPermission)
+        {
+	        IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
+
+	        sut.Validate(_validatorMockContext.ValidatorMock.Object, () => hasNecessaryPermission, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+
+	        _validatorMockContext.PermissionValidatorMock.Verify(m => m.HasNecessaryPermission(It.Is<bool>(value => value == hasNecessaryPermission)), Times.Once);
         }
 
         [Test]
@@ -60,7 +105,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryI
             int number = _fixture.Create<int>();
             IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut(number);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             _validatorMockContext.IntegerValidatorMock.Verify(m => m.ShouldBeBetween(
                     It.Is<int>(value => value == number),
@@ -77,7 +122,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryI
         {
             IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             Assert.That(result, Is.Not.Null);
         }
@@ -89,7 +134,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryI
             IGenericCategoryIdentificationCommand<IGenericCategory> sut = CreateSut();
 
             IValidator validator = _validatorMockContext.ValidatorMock.Object;
-            IValidator result = sut.Validate(validator, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            IValidator result = sut.Validate(validator, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             Assert.That(result, Is.SameAs(validator));
         }

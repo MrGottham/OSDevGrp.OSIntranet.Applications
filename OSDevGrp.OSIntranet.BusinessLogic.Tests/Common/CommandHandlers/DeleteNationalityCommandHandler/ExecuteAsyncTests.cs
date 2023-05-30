@@ -54,6 +54,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.CommandHandlers.DeleteN
 
 			deleteNationalityCommandMock.Verify(m => m.Validate(
 					It.Is<IValidator>(value => value != null && value == _validatorMock.Object),
+					It.IsNotNull<Func<bool>>(),
 					It.IsNotNull<Func<int, Task<INationality>>>()),
 				Times.Once());
 		}

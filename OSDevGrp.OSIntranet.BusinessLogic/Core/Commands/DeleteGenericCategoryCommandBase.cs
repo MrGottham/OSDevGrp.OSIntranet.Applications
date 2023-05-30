@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Core.Commands
 {
-    internal abstract class DeleteGenericCategoryCommandBase<TGenericCategory> : GenericCategoryIdentificationCommandBase<TGenericCategory>, IDeleteGenericCategoryCommand<TGenericCategory> where TGenericCategory : IGenericCategory
+	internal abstract class DeleteGenericCategoryCommandBase<TGenericCategory> : GenericCategoryIdentificationCommandBase<TGenericCategory>, IDeleteGenericCategoryCommand<TGenericCategory> where TGenericCategory : IGenericCategory
     {
         #region Constructor
 
@@ -20,12 +20,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Core.Commands
 
         #region Methods
 
-        public override IValidator Validate(IValidator validator, Func<int, Task<TGenericCategory>> genericCategoryGetter)
+        public override IValidator Validate(IValidator validator, Func<bool> hasNecessaryPermissionGetter, Func<int, Task<TGenericCategory>> genericCategoryGetter)
         {
             NullGuard.NotNull(validator, nameof(validator))
+	            .NotNull(hasNecessaryPermissionGetter, nameof(hasNecessaryPermissionGetter))
                 .NotNull(genericCategoryGetter, nameof(genericCategoryGetter));
 
-            return base.Validate(validator, genericCategoryGetter)
+            return base.Validate(validator, hasNecessaryPermissionGetter, genericCategoryGetter)
                 .Object.ShouldBeKnownValue(Number, number => IsGenericCategoryKnownAsync(number, genericCategoryGetter), GetType(), nameof(Number))
                 .Object.ShouldBeDeletable(Number, number => GetGenericCategoryAsync(number, genericCategoryGetter), GetType(), nameof(Number));
         }

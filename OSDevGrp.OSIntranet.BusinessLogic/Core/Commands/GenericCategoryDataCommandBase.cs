@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Core.Commands
 {
-    internal abstract class GenericCategoryDataCommandBase<TGenericCategory> : GenericCategoryIdentificationCommandBase<TGenericCategory>, IGenericCategoryDataCommand<TGenericCategory> where TGenericCategory : IGenericCategory
+	internal abstract class GenericCategoryDataCommandBase<TGenericCategory> : GenericCategoryIdentificationCommandBase<TGenericCategory>, IGenericCategoryDataCommand<TGenericCategory> where TGenericCategory : IGenericCategory
     {
         #region Constructor
 
@@ -27,12 +27,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Core.Commands
 
         #region Methods
 
-        public override IValidator Validate(IValidator validator, Func<int, Task<TGenericCategory>> genericCategoryGetter)
+        public override IValidator Validate(IValidator validator, Func<bool> hasNecessaryPermissionGetter, Func<int, Task<TGenericCategory>> genericCategoryGetter)
         {
             NullGuard.NotNull(validator, nameof(validator))
+	            .NotNull(hasNecessaryPermissionGetter, nameof(hasNecessaryPermissionGetter))
                 .NotNull(genericCategoryGetter, nameof(genericCategoryGetter));
 
-            return base.Validate(validator, genericCategoryGetter)
+            return base.Validate(validator, hasNecessaryPermissionGetter, genericCategoryGetter)
                 .String.ShouldNotBeNullOrWhiteSpace(Name, GetType(), nameof(Name))
                 .String.ShouldHaveMinLength(Name, 1, GetType(), nameof(Name))
                 .String.ShouldHaveMaxLength(Name, 256, GetType(), nameof(Name));

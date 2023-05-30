@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
@@ -16,13 +17,14 @@ using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.MediaLibraryController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
 {
-    [TestFixture]
+	[TestFixture]
     public class MediaTypesTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -33,8 +35,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _claimResolverMock = new Mock<IClaimResolver>();
 
-            _fixture = new Fixture();
+			_fixture = new Fixture();
             _fixture.Customize<IMediaType>(builder => builder.FromFactory(() => _fixture.BuildMediaTypeMock().Object));
 
             _random = new Random(_fixture.Create<int>());
@@ -52,6 +55,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
         }
 
         [Test]
+        [Category("UnitTest")]
+        public async Task MediaTypes_WhenCalled_AssertIsMediaLibraryModifierWasCalledOnClaimResolver()
+        {
+	        Controller sut = CreateSut();
+
+	        await sut.MediaTypes();
+
+	        _claimResolverMock.Verify(m => m.IsMediaLibraryModifier(), Times.Once);
+        }
+
+		[Test]
         [Category("UnitTest")]
         [TestCase(true)]
         [TestCase(false)]
@@ -131,11 +145,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task MediaTypes_WhenCalled_ReturnsViewResultWhereModelIsGenericCategoryCollectionViewModel(bool hasMediaTypeCollection)
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public async Task MediaTypes_WhenCalled_ReturnsViewResultWhereModelIsGenericCategoryCollectionViewModel(bool hasMediaTypeCollection, bool isMediaLibraryModifier)
         {
-            Controller sut = CreateSut(hasMediaTypeCollection);
+            Controller sut = CreateSut(hasMediaTypeCollection, isMediaLibraryModifier: isMediaLibraryModifier);
 
             ViewResult result = (ViewResult)await sut.MediaTypes();
 
@@ -156,9 +172,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
             Assert.That(genericCategoryCollectionViewModel.UpdateAction, Is.Not.Empty);
             Assert.That(genericCategoryCollectionViewModel.UpdateAction, Is.EqualTo("UpdateMediaType"));
             Assert.That(genericCategoryCollectionViewModel.DeletionUrlGetter, Is.Not.Null);
+            Assert.That(genericCategoryCollectionViewModel.AllowCreation, Is.EqualTo(isMediaLibraryModifier));
+            Assert.That(genericCategoryCollectionViewModel.AllowModification, Is.EqualTo(isMediaLibraryModifier));
+            Assert.That(genericCategoryCollectionViewModel.AllowDeletion, Is.EqualTo(isMediaLibraryModifier));
         }
 
-        [Test]
+		[Test]
         [Category("UnitTest")]
         public async Task MediaTypes_WhenMediaTypesWasReturnedFromQueryBus_ReturnsViewResultWhereModelIsNotEmpty()
         {
@@ -180,12 +199,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
             Assert.That(result.Model, Is.Empty);
         }
 
-        private Controller CreateSut(bool hasMediaTypeCollection = true, IEnumerable<IMediaType> mediaTypeCollection = null)
+        private Controller CreateSut(bool hasMediaTypeCollection = true, IEnumerable<IMediaType> mediaTypeCollection = null, bool? isMediaLibraryModifier = null)
         {
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<IMediaType>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.FromResult(hasMediaTypeCollection? mediaTypeCollection ?? _fixture.CreateMany<IMediaType>(_random.Next(5, 10)).ToArray() : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            _claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
+	            .Returns(isMediaLibraryModifier ?? _fixture.Create<bool>());
+
+			return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
         }
     }
 }

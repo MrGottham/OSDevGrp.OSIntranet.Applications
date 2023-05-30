@@ -33,7 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
         {
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("validator"));
@@ -42,11 +42,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenHasNecessaryPermissionGetterIsNull_ThrowsArgumentNullException()
+        {
+	        IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut();
+
+	        ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _ => Task.FromResult(new Mock<IGenericCategory>().Object)));
+
+	        // ReSharper disable PossibleNullReferenceException
+	        Assert.That(result.ParamName, Is.EqualTo("hasNecessaryPermissionGetter"));
+	        // ReSharper restore PossibleNullReferenceException
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenGenericCategoryGetterIsNull_ThrowsArgumentNullException()
         {
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), null));
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("genericCategoryGetter"));
@@ -60,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
             string name = _fixture.Create<string>();
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut(name);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.CompareOrdinal(name, value) == 0),
@@ -76,7 +89,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
             string name = _fixture.Create<string>();
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut(name);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.CompareOrdinal(name, value) == 0),
@@ -94,7 +107,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
             string name = _fixture.Create<string>();
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut(name);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMaxLength(
                     It.Is<string>(value => string.CompareOrdinal(name, value) == 0),
@@ -111,7 +124,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
         {
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             Assert.That(result, Is.Not.Null);
         }
@@ -123,7 +136,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.Commands.GenericCategoryD
             IGenericCategoryDataCommand<IGenericCategory> sut = CreateSut();
 
             IValidator validator = _validatorMockContext.ValidatorMock.Object;
-            IValidator result = sut.Validate(validator, _ => Task.FromResult(new Mock<IGenericCategory>().Object));
+            IValidator result = sut.Validate(validator, () => _fixture.Create<bool>(), _ => Task.FromResult(new Mock<IGenericCategory>().Object));
 
             Assert.That(result, Is.SameAs(validator));
         }

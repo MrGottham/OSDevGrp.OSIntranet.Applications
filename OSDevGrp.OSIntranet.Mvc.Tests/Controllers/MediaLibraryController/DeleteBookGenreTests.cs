@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IClaimResolver> _claimResolverMock;
         private Fixture _fixture;
 
         #endregion
@@ -26,6 +28,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _claimResolverMock = new Mock<IClaimResolver>();
             _fixture = new Fixture();
         }
 
@@ -134,7 +137,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
 	        _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteBookGenreCommand>()))
 		        .Returns(Task.CompletedTask);
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
         }
 	}
 }

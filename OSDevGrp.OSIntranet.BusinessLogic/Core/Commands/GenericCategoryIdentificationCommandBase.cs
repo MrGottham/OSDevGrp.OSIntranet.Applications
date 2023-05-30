@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Core.Commands
 {
-    internal abstract class GenericCategoryIdentificationCommandBase<TGenericCategory> : IGenericCategoryIdentificationCommand<TGenericCategory> where TGenericCategory : IGenericCategory
+	internal abstract class GenericCategoryIdentificationCommandBase<TGenericCategory> : IGenericCategoryIdentificationCommand<TGenericCategory> where TGenericCategory : IGenericCategory
     {
         #region Constructor
 
@@ -27,12 +27,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Core.Commands
 
         #region Methods
 
-        public virtual IValidator Validate(IValidator validator, Func<int, Task<TGenericCategory>> genericCategoryGetter)
+        public virtual IValidator Validate(IValidator validator, Func<bool> hasNecessaryPermissionGetter, Func<int, Task<TGenericCategory>> genericCategoryGetter)
         {
-            NullGuard.NotNull(validator, nameof(validator))
-                .NotNull(genericCategoryGetter, nameof(genericCategoryGetter));
+	        NullGuard.NotNull(validator, nameof(validator))
+		        .NotNull(hasNecessaryPermissionGetter, nameof(hasNecessaryPermissionGetter))
+		        .NotNull(genericCategoryGetter, nameof(genericCategoryGetter));
 
-            return validator.ValidateGenericCategoryIdentifier(Number, GetType(), nameof(Number));
+            return validator.Permission.HasNecessaryPermission(hasNecessaryPermissionGetter())
+	            .ValidateGenericCategoryIdentifier(Number, GetType(), nameof(Number));
         }
 
         protected static async Task<bool> IsGenericCategoryKnownAsync(int number, Func<int, Task<TGenericCategory>> genericCategoryGetter)

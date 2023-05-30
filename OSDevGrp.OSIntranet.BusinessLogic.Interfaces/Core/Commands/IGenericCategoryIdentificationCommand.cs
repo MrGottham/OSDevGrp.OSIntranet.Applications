@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Core.Commands
 {
-    public interface IGenericCategoryIdentificationCommand<TGenericCategory> : ICommand where TGenericCategory : IGenericCategory
+	public interface IGenericCategoryIdentificationCommand<TGenericCategory> : ICommand where TGenericCategory : IGenericCategory
     {
         int Number { get; }
 
-        IValidator Validate(IValidator validator, Func<int, Task<TGenericCategory>> genericCategoryGetter);
+        IValidator Validate(IValidator validator, Func<bool> hasNecessaryPermissionGetter, Func<int, Task<TGenericCategory>> genericCategoryGetter);
     }
 }

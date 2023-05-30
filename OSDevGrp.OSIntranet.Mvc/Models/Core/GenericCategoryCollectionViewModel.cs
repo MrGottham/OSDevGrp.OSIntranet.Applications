@@ -13,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Core
     {
         #region Constructor
 
-        private GenericCategoryCollectionViewModel(string header, string controller, string createAction, string updateAction, Func<GenericCategoryViewModel, IUrlHelper, string> deletionUrlGetter, IList<GenericCategoryViewModel> genericCategoryViewModelCollection)
+        private GenericCategoryCollectionViewModel(string header, string controller, string createAction, string updateAction, Func<GenericCategoryViewModel, IUrlHelper, string> deletionUrlGetter, bool allowCreation, bool allowModification, bool allowDeletion, IList<GenericCategoryViewModel> genericCategoryViewModelCollection)
             : base(genericCategoryViewModelCollection)
         {
             NullGuard.NotNullOrWhiteSpace(header, nameof(header))
@@ -27,6 +27,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Core
             CreateAction = createAction;
             UpdateAction = updateAction;
             DeletionUrlGetter = deletionUrlGetter;
+            AllowCreation = allowCreation;
+            AllowModification = allowModification;
+            AllowDeletion = allowDeletion;
         }
 
         #endregion
@@ -43,11 +46,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Core
 
         public Func<GenericCategoryViewModel, IUrlHelper, string> DeletionUrlGetter { get; }
 
+        public bool AllowCreation { get; }
+
+        public bool AllowModification { get; }
+
+        public bool AllowDeletion { get; }
+
         #endregion
 
-        #region Methods
+		#region Methods
 
-        internal static GenericCategoryCollectionViewModel Create<TGenericCategory>(string header, string controller, string createAction, string updateAction, Func<GenericCategoryViewModel, IUrlHelper, string> deletionUrlGetter, IEnumerable<TGenericCategory> genericCategoryCollection, IConverter converter) where TGenericCategory : IGenericCategory
+		internal static GenericCategoryCollectionViewModel Create<TGenericCategory>(string header, string controller, string createAction, string updateAction, Func<GenericCategoryViewModel, IUrlHelper, string> deletionUrlGetter, IEnumerable<TGenericCategory> genericCategoryCollection, IConverter converter, bool allowCreation = true, bool allowModification = true, bool allowDeletion = true) where TGenericCategory : IGenericCategory
         {
             NullGuard.NotNullOrWhiteSpace(header, nameof(header))
                 .NotNullOrWhiteSpace(controller, nameof(controller))
@@ -57,7 +66,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Core
                 .NotNull(genericCategoryCollection, nameof(genericCategoryCollection))
                 .NotNull(converter, nameof(converter));
 
-            return new GenericCategoryCollectionViewModel(header, controller, createAction, updateAction, deletionUrlGetter, genericCategoryCollection.Select(genericCategory => GenericCategoryViewModel.Create(genericCategory, converter)).ToList());
+            return new GenericCategoryCollectionViewModel(header, controller, createAction, updateAction, deletionUrlGetter, allowCreation, allowModification, allowDeletion, genericCategoryCollection.Select(genericCategory => GenericCategoryViewModel.Create(genericCategory, converter)).ToList());
         }
 
         #endregion
