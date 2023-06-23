@@ -12,6 +12,41 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries
             return new EmptyQuery();
         }
 
+        public static IGetMediaCollectionQuery BuildGetMediaCollectionQuery(string filter)
+        {
+	        return new GetMediaCollectionQuery(filter);
+        }
+
+        public static IGetMovieCollectionQuery BuildGetMovieCollectionQuery(string filter)
+        {
+	        return new GetMovieCollectionQuery(filter);
+        }
+
+        public static IGetMusicCollectionQuery BuildGetMusicCollectionQuery(string filter)
+        {
+	        return new GetMusicCollectionQuery(filter);
+        }
+
+        public static IGetBookCollectionQuery BuildGetBookCollectionQuery(string filter)
+        {
+	        return new GetBookCollectionQuery(filter);
+        }
+
+        public static IGetMediaPersonalityCollectionQuery BuildGetMediaPersonalityCollectionQuery(string filter)
+        {
+	        return new GetMediaPersonalityCollectionQuery(filter);
+        }
+
+        public static IGetBorrowerCollectionQuery BuildGetBorrowerCollectionQuery(string filter)
+        {
+	        return new GetBorrowerCollectionQuery(filter);
+        }
+
+        public static IGetLendingCollectionQuery BuildGetLendingCollectionQuery(bool includeReturned)
+        {
+	        return new GetLendingCollectionQuery(includeReturned);
+        }
+
         public static IGetMovieGenreQuery BuildGetMovieGenreQuery(int number)
         {
             return new GetMovieGenreQuery(number);
