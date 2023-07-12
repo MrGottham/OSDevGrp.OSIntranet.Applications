@@ -1,9 +1,10 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Queries;
 using OSDevGrp.OSIntranet.Core.Queries;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries
 {
-    public static class MediaLibraryQueryFactory
+	public static class MediaLibraryQueryFactory
     {
         #region Methods
 
@@ -22,9 +23,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries
 	        return new GetMovieCollectionQuery(filter);
         }
 
+        public static IGetMovieQuery BuildGetMovieQuery(Guid mediaIdentifier)
+        {
+	        return new GetMovieQuery(mediaIdentifier);
+        }
+
         public static IGetMusicCollectionQuery BuildGetMusicCollectionQuery(string filter)
         {
 	        return new GetMusicCollectionQuery(filter);
+        }
+
+        public static IGetMusicQuery BuildGetMusicQuery(Guid mediaIdentifier)
+        {
+	        return new GetMusicQuery(mediaIdentifier);
         }
 
         public static IGetBookCollectionQuery BuildGetBookCollectionQuery(string filter)
@@ -32,9 +43,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries
 	        return new GetBookCollectionQuery(filter);
         }
 
+        public static IGetBookQuery BuildGetBookQuery(Guid mediaIdentifier)
+        {
+	        return new GetBookQuery(mediaIdentifier);
+        }
+
         public static IGetMediaPersonalityCollectionQuery BuildGetMediaPersonalityCollectionQuery(string filter)
         {
 	        return new GetMediaPersonalityCollectionQuery(filter);
+        }
+
+        public static IGetMediaPersonalityQuery BuildGetMediaPersonalityQuery(Guid mediaPersonalityIdentifier)
+        {
+	        return new GetMediaPersonalityQuery(mediaPersonalityIdentifier);
         }
 
         public static IGetBorrowerCollectionQuery BuildGetBorrowerCollectionQuery(string filter)
@@ -42,9 +63,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Queries
 	        return new GetBorrowerCollectionQuery(filter);
         }
 
+        public static IGetBorrowerQuery BuildGetBorrowerQuery(Guid borrowerIdentifier)
+        {
+	        return new GetBorrowerQuery(borrowerIdentifier);
+        }
+
         public static IGetLendingCollectionQuery BuildGetLendingCollectionQuery(bool includeReturned)
         {
 	        return new GetLendingCollectionQuery(includeReturned);
+        }
+
+        public static IGetLendingQuery BuildGetLendingQuery(Guid lendingIdentifier)
+        {
+	        return new GetLendingQuery(lendingIdentifier);
         }
 
         public static IGetMovieGenreQuery BuildGetMovieGenreQuery(int number)
