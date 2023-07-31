@@ -40,6 +40,64 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                 .Build();
         }
 
-        #endregion
-    }
+        public IValidator ShouldHaveMinItems<T>(IEnumerable<T> value, int minItems, Type validatingType, string validatingField, bool allowNull = false)
+        {
+	        NullGuard.NotNull(validatingType, nameof(validatingType))
+		        .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+	        if (Equals(value, null) && allowNull)
+	        {
+		        return this;
+	        }
+
+	        if (Equals(value, null))
+	        {
+		        throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, validatingField)
+			        .WithValidatingType(validatingType)
+			        .WithValidatingField(validatingField)
+			        .Build();
+	        }
+
+	        if (value.Count() >= minItems)
+	        {
+		        return this;
+	        }
+
+	        throw new IntranetExceptionBuilder(ErrorCode.ValueShouldContainMinItems, validatingField, minItems)
+		        .WithValidatingType(validatingType)
+		        .WithValidatingField(validatingField)
+		        .Build();
+        }
+
+		public IValidator ShouldHaveMaxItems<T>(IEnumerable<T> value, int maxItems, Type validatingType, string validatingField, bool allowNull = false)
+        {
+	        NullGuard.NotNull(validatingType, nameof(validatingType))
+		        .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+	        if (Equals(value, null) && allowNull)
+	        {
+		        return this;
+	        }
+
+	        if (Equals(value, null))
+	        {
+		        throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, validatingField)
+			        .WithValidatingType(validatingType)
+			        .WithValidatingField(validatingField)
+			        .Build();
+	        }
+
+	        if (value.Count() <= maxItems)
+	        {
+		        return this;
+	        }
+
+	        throw new IntranetExceptionBuilder(ErrorCode.ValueShouldContainMaxItems, validatingField, maxItems)
+		        .WithValidatingType(validatingType)
+		        .WithValidatingField(validatingField)
+		        .Build();
+        }
+
+		#endregion
+	}
 }

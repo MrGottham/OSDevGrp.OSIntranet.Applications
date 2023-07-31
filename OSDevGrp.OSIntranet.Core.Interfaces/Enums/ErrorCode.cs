@@ -143,6 +143,12 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         UnableToTranslateValueFor = 1046,
 
         [ErrorCode("The operation can’t be completed because you don’t have the necessary permission.", typeof(IntranetBusinessException))]
-        MissingNecessaryPermission = 1047
+        MissingNecessaryPermission = 1047,
+
+        [ErrorCode("The value for the submitted field '{0}' should minimum have {1} items.", typeof(IntranetValidationException))]
+        ValueShouldContainMinItems = 1048,
+
+        [ErrorCode("The value for the submitted field '{0}' should maximum have {1} items.", typeof(IntranetValidationException))]
+        ValueShouldContainMaxItems = 1049
     }
 }

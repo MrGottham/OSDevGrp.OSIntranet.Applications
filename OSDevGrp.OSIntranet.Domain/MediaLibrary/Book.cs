@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 
 			BookGenre = bookGenre;
 			WrittenLanguage = writtenLanguage;
-			InternationalStandardBookNumber = internationalStandardBookNumber;
+			InternationalStandardBookNumber = string.IsNullOrWhiteSpace(internationalStandardBookNumber) ? null : internationalStandardBookNumber.Trim();
 		}
 
 		#endregion

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
-    internal class ValidatorMockContext
+	internal class ValidatorMockContext
     {
         #region Constructor
 
@@ -211,6 +211,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             NullGuard.NotNull(validatorMock, nameof(validatorMock));
 
             Mock<IEnumerableValidator> enumerableValidatorMock = new Mock<IEnumerableValidator>();
+            SetupGenericEnumerableValidatorMock<byte>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<string>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<IApplyPostingLineCommand>(validatorMock, enumerableValidatorMock);
             return enumerableValidatorMock;
@@ -223,9 +224,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 
             enumerableValidatorMock.Setup(m => m.ShouldContainItems(It.IsAny<IEnumerable<T>>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(validatorMock.Object);
+            enumerableValidatorMock.Setup(m => m.ShouldHaveMinItems(It.IsAny<IEnumerable<T>>(), It.IsAny<int>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
+	            .Returns(validatorMock.Object);
+			enumerableValidatorMock.Setup(m => m.ShouldHaveMaxItems(It.IsAny<IEnumerable<T>>(), It.IsAny<int>(), It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<bool>()))
+				.Returns(validatorMock.Object);
         }
 
-        private static Mock<IPermissionValidator> BuildPermissionValidatorMock(Mock<IValidator> validatorMock)
+		private static Mock<IPermissionValidator> BuildPermissionValidatorMock(Mock<IValidator> validatorMock)
         {
             NullGuard.NotNull(validatorMock, nameof(validatorMock));
 
