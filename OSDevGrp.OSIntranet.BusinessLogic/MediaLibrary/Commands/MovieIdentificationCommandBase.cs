@@ -20,7 +20,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 
 		#region Methods
 
-		protected sealed override Task<bool> IsIdentifierExisting(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
+		protected sealed override Task<bool> IsExistingIdentifier(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
 		{
 			NullGuard.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
 

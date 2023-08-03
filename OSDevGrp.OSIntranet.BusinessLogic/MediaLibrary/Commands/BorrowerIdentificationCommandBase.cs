@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 
 		protected sealed override string GetIdentifierName() => nameof(BorrowerIdentifier);
 
-		protected sealed override Task<bool> IsIdentifierExisting(Guid borrowerIdentifier, IMediaLibraryRepository mediaLibraryRepository)
+		protected sealed override Task<bool> IsExistingIdentifier(Guid borrowerIdentifier, IMediaLibraryRepository mediaLibraryRepository)
 		{
 			NullGuard.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
 

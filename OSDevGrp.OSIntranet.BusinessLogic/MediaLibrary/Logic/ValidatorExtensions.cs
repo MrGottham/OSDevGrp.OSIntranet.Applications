@@ -220,6 +220,67 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 			return validator;
 		}
 
+		internal static IValidator ValidateGivenName(this IValidator validator, string value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.String.ShouldHaveMinLength(value, 1, validatingType, validatingField, true)
+				.String.ShouldHaveMaxLength(value, 32, validatingType, validatingField, true);
+		}
+
+		internal static IValidator ValidateMiddleName(this IValidator validator, string value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.String.ShouldHaveMinLength(value, 1, validatingType, validatingField, true)
+				.String.ShouldHaveMaxLength(value, 32, validatingType, validatingField, true);
+		}
+
+		internal static IValidator ValidateSurname(this IValidator validator, string value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.String.ShouldNotBeNullOrWhiteSpace(value, validatingType, validatingField)
+				.String.ShouldHaveMinLength(value, 1, validatingType, validatingField)
+				.String.ShouldHaveMaxLength(value, 32, validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateBirthdate(this IValidator validator, DateTime? value, DateTime maxValue, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			if (value.HasValue == false)
+			{
+				return validator;
+			}
+
+			return validator.DateTime.ShouldBePastDateOrToday(value.Value, validatingType, validatingField)
+				.DateTime.ShouldBeEarlierThanOffsetDate(value.Value, maxValue, validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateDateOfDead(this IValidator validator, DateTime? value, DateTime minValue, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			if (value.HasValue == false)
+			{
+				return validator;
+			}
+
+			return validator.DateTime.ShouldBePastDateOrToday(value.Value, validatingType, validatingField)
+				.DateTime.ShouldBeLaterThanOffsetDate(value.Value, minValue, validatingType, validatingField);
+		}
+
 		internal static IValidator ValidateMediaData<TMedia>(this IValidator validator, IMediaDataCommand<TMedia> mediaData, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository) where TMedia : IMedia
 		{
 			NullGuard.NotNull(validator, nameof(validator))
@@ -277,7 +338,26 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 				.ValidateLanguageIdentifier(bookData.WrittenLanguageIdentifier, commonRepository, bookData.GetType(), nameof(bookData.WrittenLanguageIdentifier))
 				.ValidateInternationalStandardBookNumber(bookData.InternationalStandardBookNumber, bookData.GetType(), nameof(bookData.InternationalStandardBookNumber))
 				.ValidateMediaPersonalityIdentifierCollection(bookData.Authors, mediaLibraryRepository, bookData.GetType(), nameof(bookData.Authors));
+		}
 
+		internal static IValidator ValidateMediaPersonalityData(this IValidator validator, IMediaPersonalityDataCommand mediaPersonalityData, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(mediaPersonalityData, nameof(mediaPersonalityData))
+				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository))
+				.NotNull(commonRepository, nameof(commonRepository));
+
+			DateTime? birthDate = mediaPersonalityData.BirthDate;
+			DateTime? dateOfDead = mediaPersonalityData.DateOfDead;
+
+			return validator.ValidateGivenName(mediaPersonalityData.GivenName, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.GivenName))
+				.ValidateMiddleName(mediaPersonalityData.MiddleName, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.MiddleName))
+				.ValidateSurname(mediaPersonalityData.Surname, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.Surname))
+				.ValidateNationalityIdentifier(mediaPersonalityData.NationalityIdentifier, commonRepository, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.NationalityIdentifier))
+				.ValidateBirthdate(birthDate, dateOfDead ?? DateTime.Today, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.BirthDate))
+				.ValidateDateOfDead(dateOfDead, birthDate ?? DateTime.MinValue.ToUniversalTime(), mediaPersonalityData.GetType(), nameof(mediaPersonalityData.DateOfDead))
+				.ValidateUrl(mediaPersonalityData.Url, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.Url))
+				.ValidateImage(mediaPersonalityData.Image, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.Image));
 		}
 
 		#endregion

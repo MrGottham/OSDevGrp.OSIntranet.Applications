@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 
 		public MediaPersonality(Guid mediaPersonalityIdentifier, string givenName, string middleName, string surname, INationality nationality, IEnumerable<MediaRole> roles, DateTime? birthDate, DateTime? dateOfDead, Uri url, byte[] image, bool deletable = false)
 		{
-			NullGuard.NotNull(surname, nameof(surname))
+			NullGuard.NotNullOrWhiteSpace(surname, nameof(surname))
 				.NotNull(nationality, nameof(nationality))
 				.NotNull(roles, nameof(roles));
 

@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation
 {
-    public interface IDateTimeValidator
+	public interface IDateTimeValidator
     {
         IValidator ShouldBePastDate(DateTime value, Type validatingType, string validatingField);
 
@@ -21,6 +21,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation
         IValidator ShouldBePastDateWithinDaysFromOffsetDate(DateTime value, int days, DateTime offsetDate, Type validatingType, string validatingField);
 
         IValidator ShouldBeFutureDateWithinDaysFromOffsetDate(DateTime value, int days, DateTime offsetDate, Type validatingType, string validatingField);
+
+        IValidator ShouldBeEarlierThanOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField);
+
+        IValidator ShouldBeEarlierThanOrEqualToOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField);
 
         IValidator ShouldBeLaterThanOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField);
 

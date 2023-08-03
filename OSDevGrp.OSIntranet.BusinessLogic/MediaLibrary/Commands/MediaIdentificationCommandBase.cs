@@ -30,20 +30,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 
 		protected sealed override string GetIdentifierName() => nameof(MediaIdentifier);
 
-		protected override Task<bool> IsIdentifierExisting(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
+		protected sealed override async Task<bool> IsNonExistingIdentifier(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
 		{
 			NullGuard.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
 
-			return IsNonExistingMedia(mediaIdentifier, mediaLibraryRepository);
-		}
-
-		protected static async Task<bool> IsNonExistingMedia(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
-		{
-			NullGuard.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
-
-			return await mediaLibraryRepository.MediaExistsAsync<IMovie>(mediaIdentifier) ||
-			       await mediaLibraryRepository.MediaExistsAsync<IMusic>(mediaIdentifier) ||
-			       await mediaLibraryRepository.MediaExistsAsync<IBook>(mediaIdentifier);
+			return await mediaLibraryRepository.MediaExistsAsync<IMovie>(mediaIdentifier) == false &&
+			       await mediaLibraryRepository.MediaExistsAsync<IMusic>(mediaIdentifier) == false &&
+			       await mediaLibraryRepository.MediaExistsAsync<IBook>(mediaIdentifier) == false;
 		}
 
 		#endregion

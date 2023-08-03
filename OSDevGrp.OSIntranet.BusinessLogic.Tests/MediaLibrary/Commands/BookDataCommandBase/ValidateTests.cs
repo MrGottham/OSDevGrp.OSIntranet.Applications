@@ -89,6 +89,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookData
 
 		[Test]
 		[Category("UnitTest")]
+		public void Validate_WhenCalled_AssertIsMediaLibraryModifierWasCalledOnClaimResolver()
+		{
+			IBookDataCommand sut = CreateSut();
+
+			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
+
+			_claimResolverMock.Verify(m => m.IsMediaLibraryModifier(), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasCalledOnStringValidatorWithTitle()
 		{
 			string title = _fixture.Create<string>();

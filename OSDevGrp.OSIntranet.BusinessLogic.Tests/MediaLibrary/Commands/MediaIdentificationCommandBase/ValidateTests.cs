@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaIdentificationCommandBase
 {
@@ -130,6 +131,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaIde
 				: base(mediaIdentifier)
 			{
 			}
+
+			#endregion
+
+			#region Methods
+
+			protected sealed override Task<bool> IsExistingIdentifier(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository) => throw new NotSupportedException();
 
 			#endregion
 		}

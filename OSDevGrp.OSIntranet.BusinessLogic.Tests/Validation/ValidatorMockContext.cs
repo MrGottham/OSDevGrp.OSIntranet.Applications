@@ -143,6 +143,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
                 .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBeFutureDateWithinDaysFromOffsetDate(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
+            dateTimeValidatorMock.Setup(m => m.ShouldBeEarlierThanOffsetDate(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
+	            .Returns(validatorMock.Object);
+            dateTimeValidatorMock.Setup(m => m.ShouldBeEarlierThanOrEqualToOffsetDate(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
+	            .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBeLaterThanOffsetDate(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))
                 .Returns(validatorMock.Object);
             dateTimeValidatorMock.Setup(m => m.ShouldBeLaterThanOrEqualToOffsetDate(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Type>(), It.IsAny<string>()))

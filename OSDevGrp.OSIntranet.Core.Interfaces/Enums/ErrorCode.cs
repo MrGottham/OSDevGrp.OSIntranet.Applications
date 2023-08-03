@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
 {
-    public enum ErrorCode
+	public enum ErrorCode
     {
         [ErrorCode("Unable to find a command handler which supports the command type '{0}'.", typeof(IntranetCommandBusException))]
         NoCommandHandlerSupportingCommandWithoutResultType = 1001,
@@ -149,6 +149,12 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         ValueShouldContainMinItems = 1048,
 
         [ErrorCode("The value for the submitted field '{0}' should maximum have {1} items.", typeof(IntranetValidationException))]
-        ValueShouldContainMaxItems = 1049
-    }
+        ValueShouldContainMaxItems = 1049,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a date earlier than {1}.", typeof(IntranetValidationException))]
+		ValueShouldBeEarlierThanOffsetDate = 1050,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a date earlier than or equal to {1}.", typeof(IntranetValidationException))]
+		ValueShouldBeEarlierThanOrEqualToOffsetDate = 1051
+	}
 }

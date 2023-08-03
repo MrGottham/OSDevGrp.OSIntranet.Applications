@@ -5,13 +5,13 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.CommandHandlers;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.MediaDataCommandHandlerBase
 {
@@ -95,14 +95,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.M
 
 		[Test]
 		[Category("UnitTest")]
-		public async Task ExecuteAsync_WhenCalled_AssertManageAsyncWasCalledOnMediaDataCommandHandlerBaseWithSameMediaFromToDomainAsyncOnMediaDataCommand()
+		public async Task ExecuteAsync_WhenCalled_AssertManageAsyncWasCalledOnMediaDataCommandHandlerBaseWithMediaFromToDomainAsyncOnMediaDataCommand()
 		{
 			ICommandHandler<IMediaDataCommand<IMedia>> sut = CreateSut();
 
 			IMedia media = _fixture.BuildMediaMock().Object;
 			await sut.ExecuteAsync(CreateMediaDataCommand(media));
 
-			Assert.That(((MyMediaDataCommandHandler) sut).ManageAsyncCalledWithMedia, Is.SameAs(media));
+			Assert.That(((MyMediaDataCommandHandler) sut).ManageAsyncCalledWithMedia, Is.EqualTo(media));
 		}
 
 		private ICommandHandler<IMediaDataCommand<IMedia>> CreateSut()

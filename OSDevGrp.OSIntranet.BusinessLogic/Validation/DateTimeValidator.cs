@@ -5,7 +5,7 @@ using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
 {
-    internal class DateTimeValidator : Validator, IDateTimeValidator
+	internal class DateTimeValidator : Validator, IDateTimeValidator
     {
         #region Methods
 
@@ -155,7 +155,39 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Validation
                 .Build();
         }
 
-        public IValidator ShouldBeLaterThanOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField)
+        public IValidator ShouldBeEarlierThanOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField)
+        {
+	        NullGuard.NotNull(validatingType, nameof(validatingType))
+		        .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+	        if (UtcDate(value) < UtcDate(offsetDate))
+	        {
+		        return this;
+	        }
+
+	        throw new IntranetExceptionBuilder(ErrorCode.ValueShouldBeEarlierThanOffsetDate, validatingField, offsetDate.Date == System.DateTime.Today ? "today" : offsetDate.ToLongDateString())
+		        .WithValidatingType(validatingType)
+		        .WithValidatingField(validatingField)
+		        .Build();
+        }
+
+		public IValidator ShouldBeEarlierThanOrEqualToOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField)
+        {
+	        NullGuard.NotNull(validatingType, nameof(validatingType))
+		        .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+	        if (UtcDate(value) <= UtcDate(offsetDate))
+	        {
+		        return this;
+	        }
+
+	        throw new IntranetExceptionBuilder(ErrorCode.ValueShouldBeEarlierThanOrEqualToOffsetDate, validatingField, offsetDate.Date == System.DateTime.Today ? "today" : offsetDate.ToLongDateString())
+		        .WithValidatingType(validatingType)
+		        .WithValidatingField(validatingField)
+		        .Build();
+        }
+
+		public IValidator ShouldBeLaterThanOffsetDate(DateTime value, DateTime offsetDate, Type validatingType, string validatingField)
         {
             NullGuard.NotNull(validatingType, nameof(validatingType))
                 .NotNullOrWhiteSpace(validatingField, nameof(validatingField));
