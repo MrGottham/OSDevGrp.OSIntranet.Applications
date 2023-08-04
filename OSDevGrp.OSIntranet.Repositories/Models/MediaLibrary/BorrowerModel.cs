@@ -16,8 +16,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		public virtual string ExternalBorrowerIdentifier { get; set; }
 
-		public virtual string ExternalIdentifier { get; set; } 
-
 		public virtual string FullName { get; set; }
 
 		public virtual string MailAddress { get; set; }
@@ -54,7 +52,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 				IBorrower borrower = new Borrower(
 					externalBorrowerIdentifier,
-					borrowerModel.ExternalIdentifier,
 					borrowerModel.FullName,
 					borrowerModel.MailAddress,
 					borrowerModel.PrimaryPhone,
@@ -89,7 +86,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				entity.HasKey(e => e.BorrowerIdentifier);
 				entity.Property(e => e.BorrowerIdentifier).IsRequired().ValueGeneratedOnAdd();
 				entity.Property(e => e.ExternalBorrowerIdentifier).IsRequired().HasMaxLength(36);
-				entity.Property(e => e.ExternalIdentifier).IsRequired(false).IsUnicode().HasMaxLength(256);
 				entity.Property(e => e.FullName).IsRequired().IsUnicode().HasMaxLength(256);
 				entity.Property(e => e.MailAddress).IsRequired(false).IsUnicode().HasMaxLength(256);
 				entity.Property(e => e.PrimaryPhone).IsRequired(false).IsUnicode().HasMaxLength(32);
@@ -101,7 +97,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
 				entity.Ignore(e => e.Deletable);
 				entity.HasIndex(e => e.ExternalBorrowerIdentifier).IsUnique();
-				entity.HasIndex(e => new { e.ExternalIdentifier, e.BorrowerIdentifier }).IsUnique();
 				entity.HasIndex(e => new { e.FullName, e.BorrowerIdentifier }).IsUnique();
 			});
 		}

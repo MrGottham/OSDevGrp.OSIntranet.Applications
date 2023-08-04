@@ -281,6 +281,44 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 				.DateTime.ShouldBeLaterThanOffsetDate(value.Value, minValue, validatingType, validatingField);
 		}
 
+		internal static IValidator ValidateFullName(this IValidator validator, string value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.String.ShouldNotBeNullOrWhiteSpace(value, validatingType, validatingField)
+				.String.ShouldHaveMinLength(value, 1, validatingType, validatingField)
+				.String.ShouldHaveMaxLength(value, 256, validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateMailAddress(this IValidator validator, string value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.ValidateMailAddress(value, validatingType, validatingField, true);
+		}
+
+		internal static IValidator ValidatePhoneNumber(this IValidator validator, string value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.ValidatePhoneNumber(value, validatingType, validatingField, true);
+		}
+
+		internal static IValidator ValidateLendingLimit(this IValidator validator, int value, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.Integer.ShouldBeBetween(value, 1, 365, validatingType, validatingField);
+		}
+
 		internal static IValidator ValidateMediaData<TMedia>(this IValidator validator, IMediaDataCommand<TMedia> mediaData, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository) where TMedia : IMedia
 		{
 			NullGuard.NotNull(validator, nameof(validator))
@@ -358,6 +396,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 				.ValidateDateOfDead(dateOfDead, birthDate ?? DateTime.MinValue.ToUniversalTime(), mediaPersonalityData.GetType(), nameof(mediaPersonalityData.DateOfDead))
 				.ValidateUrl(mediaPersonalityData.Url, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.Url))
 				.ValidateImage(mediaPersonalityData.Image, mediaPersonalityData.GetType(), nameof(mediaPersonalityData.Image));
+		}
+
+		internal static IValidator ValidateBorrowerData(this IValidator validator, IBorrowerDataCommand borrowerData, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(borrowerData, nameof(borrowerData))
+				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository))
+				.NotNull(commonRepository, nameof(commonRepository));
+
+			return validator.ValidateFullName(borrowerData.FullName, borrowerData.GetType(), nameof(borrowerData.FullName))
+				.ValidateMailAddress(borrowerData.MailAddress, borrowerData.GetType(), nameof(borrowerData.MailAddress))
+				.ValidatePhoneNumber(borrowerData.PrimaryPhone, borrowerData.GetType(), nameof(borrowerData.PrimaryPhone))
+				.ValidatePhoneNumber(borrowerData.SecondaryPhone, borrowerData.GetType(), nameof(borrowerData.SecondaryPhone))
+				.ValidateLendingLimit(borrowerData.LendingLimit, borrowerData.GetType(), nameof(borrowerData.LendingLimit));
 		}
 
 		#endregion

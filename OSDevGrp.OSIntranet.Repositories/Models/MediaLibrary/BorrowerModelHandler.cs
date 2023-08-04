@@ -77,7 +77,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 			NullGuard.NotNull(borrower, nameof(borrower))
 				.NotNull(borrowerModel, nameof(borrowerModel));
 
-			borrowerModel.ExternalIdentifier = borrower.ExternalIdentifier;
 			borrowerModel.FullName = borrower.FullName;
 			borrowerModel.MailAddress = borrower.MailAddress;
 			borrowerModel.PrimaryPhone = borrower.PrimaryPhone;

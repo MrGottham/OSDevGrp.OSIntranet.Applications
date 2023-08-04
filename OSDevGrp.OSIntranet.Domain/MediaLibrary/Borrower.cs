@@ -10,13 +10,12 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 	{
 		#region Constructor
 
-		public Borrower(Guid borrowerIdentifier, string externalIdentifier, string fullName, string mailAddress, string primaryPhone, string secondaryPhone, int lendingLimit, Func<IBorrower, IEnumerable<ILending>> lendingsBuilder, bool deletable = false)
+		public Borrower(Guid borrowerIdentifier, string fullName, string mailAddress, string primaryPhone, string secondaryPhone, int lendingLimit, Func<IBorrower, IEnumerable<ILending>> lendingsBuilder, bool deletable = false)
 		{
 			NullGuard.NotNullOrWhiteSpace(fullName, nameof(fullName))
 				.NotNull(lendingsBuilder, nameof(lendingsBuilder));
 
 			BorrowerIdentifier = borrowerIdentifier;
-			ExternalIdentifier = string.IsNullOrWhiteSpace(externalIdentifier) == false ? externalIdentifier.Trim() : null;
 			FullName = fullName.Trim();
 			MailAddress = string.IsNullOrWhiteSpace(mailAddress) == false ? mailAddress.Trim() : null;
 			PrimaryPhone = string.IsNullOrWhiteSpace(primaryPhone) == false ? primaryPhone.Trim() : null;
@@ -31,8 +30,6 @@ namespace OSDevGrp.OSIntranet.Domain.MediaLibrary
 		#region Properties
 
 		public Guid BorrowerIdentifier { get; }
-
-		public string ExternalIdentifier { get; }
 
 		public string FullName { get; }
 

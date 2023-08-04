@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.Borrower
 
 		private IDeletable CreateSut(bool deletable)
 		{
-			return new Domain.MediaLibrary.Borrower(Guid.NewGuid(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(1, 3) * 7, _ => Array.Empty<ILending>(), deletable);
+			return new Domain.MediaLibrary.Borrower(Guid.NewGuid(), _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(1, 3) * 7, _ => Array.Empty<ILending>(), deletable);
 		}
 	}
 }

@@ -8,8 +8,6 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary
 	{
 		Guid BorrowerIdentifier { get; }
 
-		string ExternalIdentifier { get; }
-
 		string FullName { get; }
 
 		string MailAddress { get; }

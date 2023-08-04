@@ -168,7 +168,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 			return mediaBindingMock;
 		}
 
-		public static Mock<IBorrower> BuildBorrowerMock(this Fixture fixture, Guid? borrowerIdentifier = null, string externalIdentifier = null, string fullName = null, string mailAddress = null, string primaryPhone = null, string secondaryPhone = null, int? lendingLimit = null, IEnumerable<ILending> lendings = null, bool? deletable = false, string toString = null, bool? equals = null, int? hashCode = null)
+		public static Mock<IBorrower> BuildBorrowerMock(this Fixture fixture, Guid? borrowerIdentifier = null, string fullName = null, string mailAddress = null, string primaryPhone = null, string secondaryPhone = null, int? lendingLimit = null, IEnumerable<ILending> lendings = null, bool? deletable = false, string toString = null, bool? equals = null, int? hashCode = null)
 		{
 			NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -177,8 +177,6 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 			Mock<IBorrower> borrowerMock = new Mock<IBorrower>();
 			borrowerMock.Setup(m => m.BorrowerIdentifier)
 				.Returns(borrowerIdentifier ?? Guid.NewGuid());
-			borrowerMock.Setup(m => m.ExternalIdentifier)
-				.Returns(externalIdentifier ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
 			borrowerMock.Setup(m => m.FullName)
 				.Returns(fullName ?? fixture.Create<string>());
 			borrowerMock.Setup(m => m.MailAddress)

@@ -119,7 +119,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.Borrower
 
 		private IBorrower CreateSut(string fullName = null, bool hasMailAddress = true, string mailAddress = null, bool hasPrimaryPhone = true, string primaryPhone = null, bool hasSecondaryPhone = true, string secondaryPhone = null)
 		{
-			return new Domain.MediaLibrary.Borrower(Guid.NewGuid(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, fullName ?? _fixture.Create<string>(), hasMailAddress ? mailAddress ?? _fixture.Create<string>() : null, hasPrimaryPhone ? primaryPhone ?? _fixture.Create<string>() : null, hasSecondaryPhone ? secondaryPhone ?? _fixture.Create<string>() : null, _random.Next(1, 3) * 7, _ => Array.Empty<ILending>());
+			return new Domain.MediaLibrary.Borrower(Guid.NewGuid(), fullName ?? _fixture.Create<string>(), hasMailAddress ? mailAddress ?? _fixture.Create<string>() : null, hasPrimaryPhone ? primaryPhone ?? _fixture.Create<string>() : null, hasSecondaryPhone ? secondaryPhone ?? _fixture.Create<string>() : null, _random.Next(1, 3) * 7, _ => Array.Empty<ILending>());
 		}
 	}
 }

@@ -85,7 +85,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.Borrower
 
 		private IBorrower CreateSut(Guid? borrowerIdentifier = null)
 		{
-			return new Domain.MediaLibrary.Borrower(borrowerIdentifier ?? Guid.NewGuid(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(1, 3) * 7, _ => Array.Empty<ILending>());
+			return new Domain.MediaLibrary.Borrower(borrowerIdentifier ?? Guid.NewGuid(), _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(1, 3) * 7, _ => Array.Empty<ILending>());
 		}
 	}
 }
