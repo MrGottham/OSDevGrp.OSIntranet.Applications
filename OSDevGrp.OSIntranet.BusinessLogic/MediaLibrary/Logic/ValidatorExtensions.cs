@@ -319,6 +319,60 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 			return validator.Integer.ShouldBeBetween(value, 1, 365, validatingType, validatingField);
 		}
 
+		internal static IValidator ValidateBorrowerIdentifier(this IValidator validator, Guid value, IMediaLibraryRepository mediaLibraryRepository, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.Object.ShouldBeKnownValue(value, mediaLibraryRepository.BorrowerExistsAsync, validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateMediaIdentifier(this IValidator validator, Guid value, IMediaLibraryRepository mediaLibraryRepository, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.Object.ShouldBeKnownValue(value, mediaIdentifier => mediaIdentifier.IsExistingMediaIdentifierAsync(mediaLibraryRepository), validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateLendingDate(this IValidator validator, DateTime value, DateTime recallDate, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.DateTime.ShouldBePastDateOrToday(value, validatingType, validatingField)
+				.DateTime.ShouldBeEarlierThanOffsetDate(value, recallDate, validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateRecallDate(this IValidator validator, DateTime value, DateTime lendingDate, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			return validator.DateTime.ShouldBeLaterThanOffsetDate(value, lendingDate, validatingType, validatingField);
+		}
+
+		internal static IValidator ValidateReturnedDate(this IValidator validator, DateTime? value, DateTime lendingDate, Type validatingType, string validatingField)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(validatingType, nameof(validatingType))
+				.NotNullOrWhiteSpace(validatingField, nameof(validatingField));
+
+			if (value.HasValue == false)
+			{
+				return validator;
+			}
+
+			return validator.DateTime.ShouldBePastDateOrToday(value.Value, validatingType, validatingField)
+				.DateTime.ShouldBeLaterThanOrEqualToOffsetDate(value.Value, lendingDate, validatingType, validatingField);
+		}
+
 		internal static IValidator ValidateMediaData<TMedia>(this IValidator validator, IMediaDataCommand<TMedia> mediaData, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository) where TMedia : IMedia
 		{
 			NullGuard.NotNull(validator, nameof(validator))
@@ -410,6 +464,23 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 				.ValidatePhoneNumber(borrowerData.PrimaryPhone, borrowerData.GetType(), nameof(borrowerData.PrimaryPhone))
 				.ValidatePhoneNumber(borrowerData.SecondaryPhone, borrowerData.GetType(), nameof(borrowerData.SecondaryPhone))
 				.ValidateLendingLimit(borrowerData.LendingLimit, borrowerData.GetType(), nameof(borrowerData.LendingLimit));
+		}
+
+		internal static IValidator ValidateLendingData(this IValidator validator, ILendingDataCommand lendingData, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(lendingData, nameof(lendingData))
+				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository))
+				.NotNull(commonRepository, nameof(commonRepository));
+
+			DateTime lendingDate = lendingData.LendingDate;
+			DateTime recallDate = lendingData.RecallDate;
+
+			return validator.ValidateBorrowerIdentifier(lendingData.BorrowerIdentifier, mediaLibraryRepository, lendingData.GetType(), nameof(lendingData.BorrowerIdentifier))
+				.ValidateMediaIdentifier(lendingData.MediaIdentifier, mediaLibraryRepository, lendingData.GetType(), nameof(lendingData.MediaIdentifier))
+				.ValidateLendingDate(lendingDate, recallDate, lendingData.GetType(), nameof(lendingData.LendingDate))
+				.ValidateRecallDate(recallDate, lendingDate, lendingData.GetType(), nameof(lendingData.RecallDate))
+				.ValidateReturnedDate(lendingData.ReturnedDate, lendingDate, lendingData.GetType(), nameof(lendingData.ReturnedDate));
 		}
 
 		#endregion

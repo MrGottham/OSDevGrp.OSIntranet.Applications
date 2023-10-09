@@ -30,12 +30,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 
 			if (ShouldBeKnownValue)
 			{
-				validator.Object.ShouldBeKnownValue(GetIdentifier(), identifier => IsExistingIdentifier(identifier, mediaLibraryRepository), GetType(), GetIdentifierName());
+				validator.Object.ShouldBeKnownValue(GetIdentifier(), identifier => IsExistingIdentifierAsync(identifier, mediaLibraryRepository), GetType(), GetIdentifierName());
 			}
 
 			if (ShouldBeUnknownValue)
 			{
-				validator.Object.ShouldBeUnknownValue(GetIdentifier(), identifier => IsNonExistingIdentifier(identifier, mediaLibraryRepository), GetType(), GetIdentifierName());
+				validator.Object.ShouldBeUnknownValue(GetIdentifier(), identifier => IsNonExistingIdentifierAsync(identifier, mediaLibraryRepository), GetType(), GetIdentifierName());
 			}
 
 			return validator;
@@ -45,13 +45,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 
 		protected abstract string GetIdentifierName();
 
-		protected abstract Task<bool> IsExistingIdentifier(Guid identifier, IMediaLibraryRepository mediaLibraryRepository);
+		protected abstract Task<bool> IsExistingIdentifierAsync(Guid identifier, IMediaLibraryRepository mediaLibraryRepository);
 
-		protected virtual async Task<bool> IsNonExistingIdentifier(Guid identifier, IMediaLibraryRepository mediaLibraryRepository)
+		protected virtual async Task<bool> IsNonExistingIdentifierAsync(Guid identifier, IMediaLibraryRepository mediaLibraryRepository)
 		{
 			NullGuard.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
 
-			return await IsExistingIdentifier(identifier, mediaLibraryRepository) == false;
+			return await IsExistingIdentifierAsync(identifier, mediaLibraryRepository) == false;
 		}
 
 		#endregion

@@ -382,7 +382,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaLib
 				return _identifierName;
 			}
 
-			protected sealed override Task<bool> IsExistingIdentifier(Guid identifier, IMediaLibraryRepository mediaLibraryRepository) => throw new NotSupportedException();
+			protected sealed override Task<bool> IsExistingIdentifierAsync(Guid identifier, IMediaLibraryRepository mediaLibraryRepository) => throw new NotSupportedException();
 
 			#endregion
 		}

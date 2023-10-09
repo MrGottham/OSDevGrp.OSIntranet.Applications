@@ -163,6 +163,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<decimal?>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<Guid>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<BalanceBelowZeroType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);

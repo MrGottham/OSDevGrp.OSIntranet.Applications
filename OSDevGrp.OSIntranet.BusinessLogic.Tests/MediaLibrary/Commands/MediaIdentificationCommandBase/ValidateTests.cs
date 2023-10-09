@@ -136,7 +136,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaIde
 
 			#region Methods
 
-			protected sealed override Task<bool> IsExistingIdentifier(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository) => throw new NotSupportedException();
+			protected sealed override Task<bool> IsExistingIdentifierAsync(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository) => throw new NotSupportedException();
 
 			#endregion
 		}

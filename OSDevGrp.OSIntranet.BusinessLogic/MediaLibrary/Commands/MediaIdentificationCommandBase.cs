@@ -1,6 +1,6 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -30,13 +30,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 
 		protected sealed override string GetIdentifierName() => nameof(MediaIdentifier);
 
-		protected sealed override async Task<bool> IsNonExistingIdentifier(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
+		protected sealed override Task<bool> IsNonExistingIdentifierAsync(Guid mediaIdentifier, IMediaLibraryRepository mediaLibraryRepository)
 		{
 			NullGuard.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
 
-			return await mediaLibraryRepository.MediaExistsAsync<IMovie>(mediaIdentifier) == false &&
-			       await mediaLibraryRepository.MediaExistsAsync<IMusic>(mediaIdentifier) == false &&
-			       await mediaLibraryRepository.MediaExistsAsync<IBook>(mediaIdentifier) == false;
+			return mediaIdentifier.IsNonExistingMediaIdentifierAsync(mediaLibraryRepository);
 		}
 
 		#endregion
