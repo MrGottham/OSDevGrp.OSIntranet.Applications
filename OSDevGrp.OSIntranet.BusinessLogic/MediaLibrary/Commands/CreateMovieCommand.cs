@@ -1,0 +1,47 @@
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+
+namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
+{
+	internal sealed class CreateMovieCommand : MovieDataCommandBase, ICreateMovieCommand
+	{
+		#region Constructor
+
+		public CreateMovieCommand(Guid mediaIdentifier, string title, string subtitle, string description, string details, int movieGenreIdentifier, int? spokenLanguageIdentifier, int mediaTypeIdentifier, short? published, short? length, string url, byte[] image, IEnumerable<Guid> directors, IEnumerable<Guid> actors) 
+			: base(mediaIdentifier, title, subtitle, description, details, movieGenreIdentifier, spokenLanguageIdentifier, mediaTypeIdentifier, published, length, url, image, directors, actors)
+		{
+		}
+
+		#endregion
+
+		#region Properties
+
+		protected override bool ShouldBeKnownValue => false;
+
+		protected override bool ShouldBeUnknownValue => true;
+
+		#endregion
+
+		#region Methods
+
+		public override IValidator Validate(IValidator validator, IClaimResolver claimResolver, IMediaLibraryRepository mediaLibraryRepository, ICommonRepository commonRepository)
+		{
+			NullGuard.NotNull(validator, nameof(validator))
+				.NotNull(claimResolver, nameof(claimResolver))
+				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository))
+				.NotNull(commonRepository, nameof(commonRepository));
+
+			return base.Validate(validator, claimResolver, mediaLibraryRepository, commonRepository)
+				.Object.ShouldBeUnknownValue<ICreateMovieCommand>(this, createMovieCommand => createMovieCommand.IsNonExistingTitleAsync<ICreateMovieCommand, IMovie>(mediaLibraryRepository), GetType(), $"{nameof(Title)},{nameof(Subtitle)}");
+		}
+
+		#endregion
+	}
+}

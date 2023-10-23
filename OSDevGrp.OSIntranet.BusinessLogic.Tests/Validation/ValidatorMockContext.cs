@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
@@ -172,6 +173,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericObjectValidatorMock<IEnumerable<ICreditInfoCommand>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<IBudgetInfoCommand>>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<IApplyPostingLineCommand>>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<ICreateMovieCommand>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<ICreateMusicCommand>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<ICreateBookCommand>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<ICreateMediaPersonalityCommand>(validatorMock, objectValidatorMock);
             return objectValidatorMock;
         }
 
