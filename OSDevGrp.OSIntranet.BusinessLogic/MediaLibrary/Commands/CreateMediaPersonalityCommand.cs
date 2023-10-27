@@ -12,8 +12,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 	{
 		#region Constructor
 
-		public CreateMediaPersonalityCommand(Guid mediaIdentifier, string givenName, string middleName, string surname, int nationalityIdentifier, DateTime? birthDate, DateTime? dateOfDead, string url, byte[] image) 
-			: base(mediaIdentifier, givenName, middleName, surname, nationalityIdentifier, birthDate, dateOfDead, url, image)
+		public CreateMediaPersonalityCommand(Guid mediaPersonalityIdentifier, string givenName, string middleName, string surname, int nationalityIdentifier, DateTime? birthDate, DateTime? dateOfDead, string url, byte[] image) 
+			: base(mediaPersonalityIdentifier, givenName, middleName, surname, nationalityIdentifier, birthDate, dateOfDead, url, image)
 		{
 		}
 
