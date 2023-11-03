@@ -1,6 +1,7 @@
 ﻿using Moq;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
@@ -8,12 +9,12 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
@@ -202,7 +203,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupShouldBeDeletable<T, IAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IBudgetAccountGroup>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IPaymentTerm>(validatorMock, objectValidatorMock);
-            SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IMovie>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IMusic>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IBook>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IMediaPersonality>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, IBorrower>(validatorMock, objectValidatorMock);
+            SetupShouldBeDeletable<T, ILending>(validatorMock, objectValidatorMock);
+			SetupShouldBeDeletable<T, ILetterHead>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IGenericCategory>(validatorMock, objectValidatorMock);
             SetupShouldBeDeletable<T, IKeyValueEntry>(validatorMock, objectValidatorMock);
         }
