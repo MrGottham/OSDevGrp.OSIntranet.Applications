@@ -3,7 +3,7 @@ using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 {
-    public interface IClaimResolver
+	public interface IClaimResolver
     {
         string GetCountryCode();
 
@@ -24,6 +24,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
         string GetMailAddress();
 
         int? GetNumberOfNewsToCollect();
+
+        bool IsMediaLibraryModifier();
+
+        bool IsMediaLibraryLender();
 
         TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken;
     }

@@ -31,7 +31,7 @@ using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
-    public class Startup
+	public class Startup
     {
         private const string WebApiVersion = "v1";
         private const string WebApiName = "OS Development Group Web API";
@@ -113,23 +113,27 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingModifierPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingModifierClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingViewerPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingViewerClaimType);
                 });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
                 });
             });

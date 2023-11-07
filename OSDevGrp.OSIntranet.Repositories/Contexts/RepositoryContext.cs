@@ -1,14 +1,11 @@
-using System;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MySql.Data.MySqlClient;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -16,11 +13,17 @@ using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
+using System;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
-    public class RepositoryContext : DbContext
+	public class RepositoryContext : DbContext
     {
         #region Constructors
 
@@ -51,6 +54,10 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         internal DbSet<LetterHeadModel> LetterHeads { get; set; }
 
         internal DbSet<KeyValueEntryModel> KeyValueEntries { get; set; }
+
+        internal DbSet<NationalityModel> Nationalities { get; set; }
+
+        internal DbSet<LanguageModel> Languages { get; set; }
 
         #endregion
 
@@ -93,6 +100,38 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         internal DbSet<BudgetAccountGroupModel> BudgetAccountGroups { get; set; }
 
         internal DbSet<PaymentTermModel> PaymentTerms { get; set; }
+
+        #endregion
+
+        #region DbSets for Media Library
+
+        internal DbSet<MovieModel> Movies { get; set; }
+
+        internal DbSet<MovieBindingModel> MovieBindings { get; set; }
+
+        internal DbSet<MusicModel> Music { get; set; }
+
+        internal DbSet<MusicBindingModel> MusicBindings { get; set; }
+
+        internal DbSet<BookModel> Books { get; set; }
+
+        internal DbSet<BookBindingModel> BookBindings { get; set; }
+
+        internal DbSet<MediaCoreDataModel> MediaCoreData { get; set; }
+
+        internal DbSet<MediaPersonalityModel> MediaPersonalities { get; set; }
+
+        internal DbSet<BorrowerModel> Borrowers { get; set; }
+
+        internal DbSet<LendingModel> Lendings { get; set; }
+
+		internal DbSet<MovieGenreModel> MovieGenres { get; set; }
+
+        internal DbSet<MusicGenreModel> MusicGenres { get; set; }
+
+        internal DbSet<BookGenreModel> BookGenres { get; set; }
+
+        internal DbSet<MediaTypeModel> MediaTypes { get; set; }
 
         #endregion
 
@@ -140,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
@@ -149,7 +188,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
             string identityIdentifier = GetIdentityIdentifier(PrincipalResolver.GetCurrentPrincipal());
 
@@ -162,8 +201,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
         {
             NullGuard.NotNull(optionsBuilder, nameof(optionsBuilder));
 
+            string connectionString = Configuration.GetConnectionString(ConnectionStringNames.IntranetName);
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.MissingConnectionString, ConnectionStringNames.IntranetName).Build();
+            }
+
+            MySqlConnectionStringBuilder connectionStringBuilder;
+			try
+            {
+	            connectionStringBuilder = new MySqlConnectionStringBuilder(connectionString);
+			}
+			catch (ArgumentException)
+			{
+				LoggerFactory.CreateLogger(GetType()).LogWarning($"Unable to parse the following connection string: {connectionString}");
+				throw;
+            }
+
             optionsBuilder.UseLoggerFactory(LoggerFactory)
-                .UseMySQL(Configuration.GetConnectionString(ConnectionStringNames.IntranetName));
+                .UseMySQL(connectionStringBuilder.ConnectionString);
 
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
             optionsBuilder.EnableDetailedErrors();
@@ -176,6 +232,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             CreateModelsForCommonData(modelBuilder);
             CreateModelsForContactData(modelBuilder);
             CreateModelsForAccountingData(modelBuilder);
+            CreateModelsForMediaLibrary(modelBuilder);
             CreateModelsForSecurityData(modelBuilder);
         }
 
@@ -249,15 +306,26 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             }
         }
 
-        private void CreateModelsForCommonData(ModelBuilder modelBuilder)
+        internal static RepositoryContext Create(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration))
+                .NotNull(principalResolver, nameof(principalResolver))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new RepositoryContext(configuration, principalResolver, loggerFactory);
+        }
+
+        private static void CreateModelsForCommonData(ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
             modelBuilder.CreateLetterHeadModel();
             modelBuilder.CreateKeyValueEntryModel();
+            modelBuilder.CreateNationalityModel();
+            modelBuilder.CreateLanguageModel();
         }
 
-        private void CreateModelsForContactData(ModelBuilder modelBuilder)
+        private static void CreateModelsForContactData(ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
@@ -268,7 +336,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreatePostalCodeModel();
         }
 
-        private void CreateModelsForAccountingData(ModelBuilder modelBuilder)
+        private static void CreateModelsForAccountingData(ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
@@ -286,7 +354,27 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreatePaymentTermModel();
         }
 
-        private void CreateModelsForSecurityData(ModelBuilder modelBuilder)
+        private static void CreateModelsForMediaLibrary(ModelBuilder modelBuilder)
+        {
+            NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
+
+            modelBuilder.CreateMovieModel();
+            modelBuilder.CreateMovieBindingModel();
+            modelBuilder.CreateMusicModel();
+            modelBuilder.CreateMusicBindingModel();
+            modelBuilder.CreateBookModel();
+            modelBuilder.CreateBookBindingModel();
+            modelBuilder.CreateMediaCoreDataModel();
+            modelBuilder.CreateMediaPersonalityModel();
+            modelBuilder.CreateBorrowerModel();
+            modelBuilder.CreateLendingModel();
+            modelBuilder.CreateMovieGenreModel();
+            modelBuilder.CreateMusicGenreModel();
+            modelBuilder.CreateBookGenreModel();
+            modelBuilder.CreateMediaTypeModel();
+        }
+
+        private static void CreateModelsForSecurityData(ModelBuilder modelBuilder)
         {
             NullGuard.NotNull(modelBuilder, nameof(modelBuilder));
 
@@ -295,15 +383,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
             modelBuilder.CreateClientSecretIdentityModel();
             modelBuilder.CreateClientSecretIdentityClaimModel();
             modelBuilder.CreateClaimModel();
-        }
-
-        internal static RepositoryContext Create(IConfiguration configuration, IPrincipalResolver principalResolver, ILoggerFactory loggerFactory)
-        {
-            NullGuard.NotNull(configuration, nameof(configuration))
-                .NotNull(principalResolver, nameof(principalResolver))
-                .NotNull(loggerFactory, nameof(loggerFactory));
-
-            return new RepositoryContext(configuration, principalResolver, loggerFactory);
         }
 
         #endregion

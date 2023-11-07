@@ -1,0 +1,26 @@
+@using Microsoft.AspNetCore.Authorization
+@using OSDevGrp.OSIntranet.Mvc.Security
+@inject IAuthorizationService AuthorizationService
+@if (User.Identity is {IsAuthenticated: true } && (await AuthorizationService.AuthorizeAsync(User, Policies.MediaLibraryPolicy)).Succeeded)
+{
+    <div class="dropdown dropright dropdown-submenu">
+        <button class="text-dark dropdown-item dropdown-toggle" type="button" data-toggle="dropdown">Mediebibliotek</button>
+        <ul class="dropdown-menu">
+	        <li class="nav-item">
+		        <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="MediaLibrary" asp-action="MovieGenres">Filmgenre</a>
+	        </li>
+	        <li class="nav-item">
+		        <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="MediaLibrary" asp-action="MusicGenres">Musikgenre</a>
+	        </li>
+	        <li class="nav-item">
+				<a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="MediaLibrary" asp-action="BookGenres">Litterære genre</a>
+	        </li>
+	        <li class="nav-item">
+		        <div class="dropdown-divider"></div>
+	        </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="MediaLibrary" asp-action="MediaTypes">Medietyper</a>
+            </li>
+        </ul>
+    </div>
+}

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
@@ -9,6 +6,9 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -111,6 +111,114 @@ namespace OSDevGrp.OSIntranet.Repositories
                 {
                     using KeyValueEntryModelHandler keyValueEntryModelHandler = new KeyValueEntryModelHandler(DbContext, CommonModelConverter.Create());
                     return await keyValueEntryModelHandler.DeleteAsync(key);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IEnumerable<INationality>> GetNationalitiesAsync()
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using NationalityModelHandler handler = new NationalityModelHandler(DbContext, CommonModelConverter.Create());
+                    return await handler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<INationality> GetNationalityAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using NationalityModelHandler handler = new NationalityModelHandler(DbContext, CommonModelConverter.Create());
+                    return await handler.ReadAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task CreateNationalityAsync(INationality nationality)
+        {
+            NullGuard.NotNull(nationality, nameof(nationality));
+
+            return ExecuteAsync(async () =>
+                {
+                    using NationalityModelHandler handler = new NationalityModelHandler(DbContext, CommonModelConverter.Create());
+                    await handler.CreateAsync(nationality);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task UpdateNationalityAsync(INationality nationality)
+        {
+            NullGuard.NotNull(nationality, nameof(nationality));
+
+            return ExecuteAsync(async () =>
+                {
+                    using NationalityModelHandler handler = new NationalityModelHandler(DbContext, CommonModelConverter.Create());
+                    await handler.UpdateAsync(nationality);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task DeleteNationalityAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using NationalityModelHandler handler = new NationalityModelHandler(DbContext, CommonModelConverter.Create());
+                    await handler.DeleteAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<IEnumerable<ILanguage>> GetLanguagesAsync()
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using LanguageModelHandler handler = new LanguageModelHandler(DbContext, CommonModelConverter.Create());
+                    return await handler.ReadAsync();
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task<ILanguage> GetLanguageAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using LanguageModelHandler handler = new LanguageModelHandler(DbContext, CommonModelConverter.Create());
+                    return await handler.ReadAsync(number);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task CreateLanguageAsync(ILanguage language)
+        {
+            NullGuard.NotNull(language, nameof(language));
+
+            return ExecuteAsync(async () =>
+                {
+                    using LanguageModelHandler handler = new LanguageModelHandler(DbContext, CommonModelConverter.Create());
+                    await handler.CreateAsync(language);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task UpdateLanguageAsync(ILanguage language)
+        {
+            NullGuard.NotNull(language, nameof(language));
+
+            return ExecuteAsync(async () =>
+                {
+                    using LanguageModelHandler handler = new LanguageModelHandler(DbContext, CommonModelConverter.Create());
+                    await handler.UpdateAsync(language);
+                },
+                MethodBase.GetCurrentMethod());
+        }
+
+        public Task DeleteLanguageAsync(int number)
+        {
+            return ExecuteAsync(async () =>
+                {
+                    using LanguageModelHandler handler = new LanguageModelHandler(DbContext, CommonModelConverter.Create());
+                    await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
         }

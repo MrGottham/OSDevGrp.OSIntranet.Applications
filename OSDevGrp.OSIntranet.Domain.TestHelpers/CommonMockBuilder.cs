@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using System;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
@@ -74,6 +74,20 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             keyValueEntryMock.Setup(m => m.ToBase64())
                 .Returns(Convert.ToBase64String(value));
             return keyValueEntryMock;
+        }
+
+        public static Mock<INationality> BuildNationalityMock(this Fixture fixture, int? number = null, string name = null, bool? deletable = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            return fixture.BuildGenericCategoryMock<INationality>(number, name, deletable);
+        }
+
+        public static Mock<ILanguage> BuildLanguageMock(this Fixture fixture, int? number = null, string name = null, bool? deletable = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            return fixture.BuildGenericCategoryMock<ILanguage>(number, name, deletable);
         }
     }
 }

@@ -10,6 +10,9 @@
         public const string AccountingCreatorPolicy = "AccountingCreator";
         public const string AccountingModifierPolicy = "AccountingModifier";
         public const string AccountingViewerPolicy = "AccountingViewer";
+        public const string MediaLibraryPolicy = "MediaLibrary";
+        public const string MediaLibraryModifierPolicy = "MediaLibraryModifier";
+		public const string MediaLibraryLenderPolicy = "MediaLibraryLender";
         public const string CommonDataPolicy = "CommonData";
         public const string SecurityAdminPolicy = "SecurityAdmin";
 

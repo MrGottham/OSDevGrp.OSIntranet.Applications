@@ -6,7 +6,7 @@ using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
 namespace OSDevGrp.OSIntranet.Repositories.Converters
 {
-    internal class CommonModelConverter : ConverterBase
+	internal class CommonModelConverter : ConverterBase
     {
         #region Methods
 
@@ -30,6 +30,25 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.ToBase64()))
                 .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
+
+            mapperConfiguration.CreateMap<NationalityModel, INationality>()
+                .ConvertUsing(src => src.ToDomain());
+
+            mapperConfiguration.CreateMap<INationality, NationalityModel>()
+	            .ForMember(dest => dest.NationalityIdentifier, opt => opt.MapFrom(src => src.Number))
+	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.MediaPersonalities, opt => opt.Ignore());
+
+            mapperConfiguration.CreateMap<LanguageModel, ILanguage>()
+                .ConvertUsing(src => src.ToDomain());
+
+            mapperConfiguration.CreateMap<ILanguage, LanguageModel>()
+	            .ForMember(dest => dest.LanguageIdentifier, opt => opt.MapFrom(src => src.Number))
+	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
+	            .ForMember(dest => dest.Movies, opt => opt.Ignore())
+	            .ForMember(dest => dest.Books, opt => opt.Ignore());
         }
 
         internal static IConverter Create()

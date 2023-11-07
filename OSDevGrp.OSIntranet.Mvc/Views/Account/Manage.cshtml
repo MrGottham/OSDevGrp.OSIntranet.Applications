@@ -19,7 +19,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (Claim claim in @Model.Claims)
+                    @foreach (Claim claim in @Model.Claims.OrderBy(claim => claim.Type))
                     {
                         <tr>
                             <td>@claim.Type</td>

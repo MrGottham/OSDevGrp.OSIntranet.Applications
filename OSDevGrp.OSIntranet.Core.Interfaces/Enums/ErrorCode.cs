@@ -2,7 +2,7 @@
 
 namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
 {
-    public enum ErrorCode
+	public enum ErrorCode
     {
         [ErrorCode("Unable to find a command handler which supports the command type '{0}'.", typeof(IntranetCommandBusException))]
         NoCommandHandlerSupportingCommandWithoutResultType = 1001,
@@ -143,6 +143,18 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         UnableToTranslateValueFor = 1046,
 
         [ErrorCode("The operation can’t be completed because you don’t have the necessary permission.", typeof(IntranetBusinessException))]
-        MissingNecessaryPermission = 1047
-    }
+        MissingNecessaryPermission = 1047,
+
+        [ErrorCode("The value for the submitted field '{0}' should minimum have {1} items.", typeof(IntranetValidationException))]
+        ValueShouldContainMinItems = 1048,
+
+        [ErrorCode("The value for the submitted field '{0}' should maximum have {1} items.", typeof(IntranetValidationException))]
+        ValueShouldContainMaxItems = 1049,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a date earlier than {1}.", typeof(IntranetValidationException))]
+		ValueShouldBeEarlierThanOffsetDate = 1050,
+
+        [ErrorCode("The date value for the submitted field '{0}' should be a date earlier than or equal to {1}.", typeof(IntranetValidationException))]
+		ValueShouldBeEarlierThanOrEqualToOffsetDate = 1051
+	}
 }
