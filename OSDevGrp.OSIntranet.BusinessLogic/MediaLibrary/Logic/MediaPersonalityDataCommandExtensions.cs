@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic
 			NullGuard.NotNull(mediaPersonalityDataCommand, nameof(mediaPersonalityDataCommand))
 				.NotNull(mediaLibraryRepository, nameof(mediaLibraryRepository));
 
-			return mediaLibraryRepository.MediaPersonalityExistsAsync(mediaPersonalityDataCommand.GivenName, mediaPersonalityDataCommand.MiddleName, mediaPersonalityDataCommand.Surname);
+			return mediaLibraryRepository.MediaPersonalityExistsAsync(mediaPersonalityDataCommand.GivenName, mediaPersonalityDataCommand.MiddleName, mediaPersonalityDataCommand.Surname, mediaPersonalityDataCommand.BirthDate);
 		}
 
 		internal static async Task<bool> IsNonExistingFullNameAsync(this IMediaPersonalityDataCommand mediaPersonalityDataCommand, IMediaLibraryRepository mediaLibraryRepository)

@@ -39,7 +39,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 				.NotNull(commonRepository, nameof(commonRepository));
 
 			return base.Validate(validator, claimResolver, mediaLibraryRepository, commonRepository)
-				.Object.ShouldBeUnknownValue<ICreateBookCommand>(this, createBookCommand => createBookCommand.IsNonExistingTitleAsync<ICreateBookCommand, IBook>(mediaLibraryRepository), GetType(), $"{nameof(Title)},{nameof(Subtitle)}");
+				.Object.ShouldBeUnknownValue<ICreateBookCommand>(this, createBookCommand => createBookCommand.IsNonExistingTitleAsync<ICreateBookCommand, IBook>(mediaLibraryRepository), GetType(), $"{nameof(Title)},{nameof(Subtitle)},{nameof(MediaTypeIdentifier)}");
 		}
 
 		#endregion

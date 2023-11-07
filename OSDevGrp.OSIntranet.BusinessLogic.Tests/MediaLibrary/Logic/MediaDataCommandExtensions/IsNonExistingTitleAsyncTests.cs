@@ -16,7 +16,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 		private Mock<IMediaLibraryRepository> _mediaLibraryRepositoryMock;
 		private Fixture _fixture;
-		private Random _random;
 
 		#endregion
 
@@ -25,7 +24,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 		{
 			_mediaLibraryRepositoryMock = new Mock<IMediaLibraryRepository>();
 			_fixture = new Fixture();
-			_random = new Random(_fixture.Create<int>());
 		}
 
 		[Test]
@@ -72,20 +70,33 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 		[Test]
 		[Category("UnitTest")]
+		public async Task IsNonExistingTitleAsync_WhenCalled_AssertMediaTypeIdentifierWasCalledOnMediaDataCommand()
+		{
+			Mock<IMediaDataCommand<IMedia>> mediaDataCommandMock = CreateMediaDataCommandMock<IMedia>();
+
+			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommandMock.Object, CreateMediaLibraryRepository());
+
+			mediaDataCommandMock.Verify(m => m.MediaTypeIdentifier, Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
 		[TestCase(true)]
 		[TestCase(false)]
 		public async Task IsNonExistingTitleAsync_WhenCalled_AssertMediaExistsAsyncWasCalledOnMediaLibraryRepositoryForMovie(bool hasSubtitle)
 		{
 			string title = _fixture.Create<string>().ToUpper();
 			string subtitle = _fixture.Create<string>().ToUpper();
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle);
+			int mediaTypeIdentifier = _fixture.Create<int>();
+			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier);
 			IMediaLibraryRepository mediaLibraryRepository = CreateMediaLibraryRepository();
 
 			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommand, mediaLibraryRepository);
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IMovie>(
 					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, title) == 0),
-					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null)),
+					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null),
+					It.Is<int>(value => value == mediaTypeIdentifier)),
 				Times.Once);
 		}
 
@@ -100,7 +111,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IMusic>(
 					It.IsAny<string>(),
-					It.IsAny<string>()),
+					It.IsAny<string>(),
+					It.IsAny<int>()),
 				Times.Never);
 		}
 
@@ -115,7 +127,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IBook>(
 					It.IsAny<string>(),
-					It.IsAny<string>()),
+					It.IsAny<string>(),
+					It.IsAny<int>()),
 				Times.Never);
 		}
 
@@ -127,14 +140,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 		{
 			string title = _fixture.Create<string>().ToUpper();
 			string subtitle = _fixture.Create<string>().ToUpper();
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle);
+			int mediaTypeIdentifier = _fixture.Create<int>();
+			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier);
 			IMediaLibraryRepository mediaLibraryRepository = CreateMediaLibraryRepository(titleExistsForMovie: false);
 
 			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommand, mediaLibraryRepository);
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IMovie>(
 					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, title) == 0),
-					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null)),
+					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null),
+					It.Is<int>(value => value == mediaTypeIdentifier)),
 				Times.Once);
 		}
 
@@ -146,14 +161,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 		{
 			string title = _fixture.Create<string>().ToUpper();
 			string subtitle = _fixture.Create<string>().ToUpper();
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle);
+			int mediaTypeIdentifier = _fixture.Create<int>();
+			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier);
 			IMediaLibraryRepository mediaLibraryRepository = CreateMediaLibraryRepository(titleExistsForMovie: false);
 
 			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommand, mediaLibraryRepository);
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IMusic>(
 					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, title) == 0),
-					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null)),
+					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null),
+					It.Is<int>(value => value == mediaTypeIdentifier)),
 				Times.Once);
 		}
 
@@ -168,7 +185,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IBook>(
 					It.IsAny<string>(),
-					It.IsAny<string>()),
+					It.IsAny<string>(),
+					It.IsAny<int>()),
 				Times.Never);
 		}
 
@@ -180,14 +198,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 		{
 			string title = _fixture.Create<string>().ToUpper();
 			string subtitle = _fixture.Create<string>().ToUpper();
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle);
+			int mediaTypeIdentifier = _fixture.Create<int>();
+			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier);
 			IMediaLibraryRepository mediaLibraryRepository = CreateMediaLibraryRepository(titleExistsForMovie: false, titleExistsForMusic: false);
 
 			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommand, mediaLibraryRepository);
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IMovie>(
 					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, title) == 0),
-					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null)),
+					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null),
+					It.Is<int>(value => value == mediaTypeIdentifier)),
 				Times.Once);
 		}
 
@@ -199,14 +219,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 		{
 			string title = _fixture.Create<string>().ToUpper();
 			string subtitle = _fixture.Create<string>().ToUpper();
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle);
+			int mediaTypeIdentifier = _fixture.Create<int>();
+			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier);
 			IMediaLibraryRepository mediaLibraryRepository = CreateMediaLibraryRepository(titleExistsForMovie: false, titleExistsForMusic: false);
 
 			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommand, mediaLibraryRepository);
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IMusic>(
 					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, title) == 0),
-					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null)),
+					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null),
+					It.Is<int>(value => value == mediaTypeIdentifier)),
 				Times.Once);
 		}
 
@@ -218,14 +240,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 		{
 			string title = _fixture.Create<string>().ToUpper();
 			string subtitle = _fixture.Create<string>().ToUpper();
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle);
+			int mediaTypeIdentifier = _fixture.Create<int>();
+			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand<IMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier);
 			IMediaLibraryRepository mediaLibraryRepository = CreateMediaLibraryRepository(titleExistsForMovie: false, titleExistsForMusic: false);
 
 			await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsNonExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(mediaDataCommand, mediaLibraryRepository);
 
 			_mediaLibraryRepositoryMock.Verify(m => m.MediaExistsAsync<IBook>(
 					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, title) == 0),
-					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null)),
+					It.Is<string>(value => hasSubtitle ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, subtitle) == 0 : value == null),
+					It.Is<int>(value => value == mediaTypeIdentifier)),
 				Times.Once);
 		}
 
@@ -277,28 +301,30 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 			Assert.That(result, Is.True);
 		}
 
-		private IMediaDataCommand<TMedia> CreateMediaDataCommand<TMedia>(string title = null, bool hasSubtitle = false, string subtitle = null) where TMedia : IMedia
+		private IMediaDataCommand<TMedia> CreateMediaDataCommand<TMedia>(string title = null, bool hasSubtitle = false, string subtitle = null, int? mediaTypeIdentifier = null) where TMedia : IMedia
 		{
-			return CreateMediaDataCommandMock<TMedia>(title, hasSubtitle, subtitle).Object;
+			return CreateMediaDataCommandMock<TMedia>(title, hasSubtitle, subtitle, mediaTypeIdentifier).Object;
 		}
 
-		private Mock<IMediaDataCommand<TMedia>> CreateMediaDataCommandMock<TMedia>(string title = null, bool hasSubtitle = false, string subtitle = null) where TMedia : IMedia
+		private Mock<IMediaDataCommand<TMedia>> CreateMediaDataCommandMock<TMedia>(string title = null, bool hasSubtitle = false, string subtitle = null, int? mediaTypeIdentifier = null) where TMedia : IMedia
 		{
 			Mock<IMediaDataCommand<TMedia>> mediaDataCommandMock = new Mock<IMediaDataCommand<TMedia>>();
 			mediaDataCommandMock.Setup(m => m.Title)
 				.Returns(title ?? _fixture.Create<string>().ToUpper());
 			mediaDataCommandMock.Setup(m => m.Subtitle)
-				.Returns(hasSubtitle ? subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>().ToUpper() : null) : null);
+				.Returns(hasSubtitle ? subtitle ?? _fixture.Create<string>().ToUpper() : null);
+			mediaDataCommandMock.Setup(m => m.MediaTypeIdentifier)
+				.Returns(mediaTypeIdentifier ?? _fixture.Create<int>());
 			return mediaDataCommandMock;
 		}
 
 		private IMediaLibraryRepository CreateMediaLibraryRepository(bool? titleExistsForMovie = null, bool? titleExistsForMusic = null, bool? titleExistsForBook = null)
 		{
-			_mediaLibraryRepositoryMock.Setup(m => m.MediaExistsAsync<IMovie>(It.IsAny<string>(), It.IsAny<string>()))
+			_mediaLibraryRepositoryMock.Setup(m => m.MediaExistsAsync<IMovie>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
 				.Returns(Task.FromResult(titleExistsForMovie ?? _fixture.Create<bool>()));
-			_mediaLibraryRepositoryMock.Setup(m => m.MediaExistsAsync<IMusic>(It.IsAny<string>(), It.IsAny<string>()))
+			_mediaLibraryRepositoryMock.Setup(m => m.MediaExistsAsync<IMusic>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
 				.Returns(Task.FromResult(titleExistsForMusic ?? _fixture.Create<bool>()));
-			_mediaLibraryRepositoryMock.Setup(m => m.MediaExistsAsync<IBook>(It.IsAny<string>(), It.IsAny<string>()))
+			_mediaLibraryRepositoryMock.Setup(m => m.MediaExistsAsync<IBook>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
 				.Returns(Task.FromResult(titleExistsForBook ?? _fixture.Create<bool>()));
 
 			return _mediaLibraryRepositoryMock.Object;

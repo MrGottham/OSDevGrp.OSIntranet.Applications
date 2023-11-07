@@ -135,7 +135,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.CreateMu
 
 		[Test]
 		[Category("UnitTest")]
-		public void Validate_WhenCalled_AssertShouldBeUnknownValueWasCalledOnObjectValidatorWithTitleAndSubtitle()
+		public void Validate_WhenCalled_AssertShouldBeUnknownValueWasCalledOnObjectValidatorWithTitleAndSubtitleAndMediaTypeIdentifier()
 		{
 			ICreateMusicCommand sut = CreateSut();
 
@@ -145,7 +145,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.CreateMu
 					It.Is<ICreateMusicCommand>(value => value != null && value == sut),
 					It.IsNotNull<Func<ICreateMusicCommand, Task<bool>>>(),
 					It.Is<Type>(value => value != null && value == sut.GetType()),
-					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Title,Subtitle") == 0),
+					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Title,Subtitle,MediaTypeIdentifier") == 0),
 					It.Is<bool>(value => value == false)),
 				Times.Once);
 		}

@@ -39,13 +39,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("IntegrationTest")]
-		public async Task GetBorrowersAsync_WhenFullNameFilterIsNull_ReturnsNonEmptyCollectionOfBorrowers()
+		public async Task GetBorrowersAsync_WhenFullNameFilterIsNull_ReturnsEmptyCollectionOfBorrowers()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
 			IEnumerable<IBorrower> result = await sut.GetBorrowersAsync();
 
-			Assert.That(result, Is.Not.Empty);
+			Assert.That(result, Is.Empty);
 		}
 
 		[Test]
@@ -61,13 +61,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("IntegrationTest")]
-		public async Task GetBorrowersAsync_WhenFullNameFilterIsEmpty_ReturnsNonEmptyCollectionOfBorrowers()
+		public async Task GetBorrowersAsync_WhenFullNameFilterIsEmpty_ReturnsEmptyCollectionOfBorrowers()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
 			IEnumerable<IBorrower> result = await sut.GetBorrowersAsync(string.Empty);
 
-			Assert.That(result, Is.Not.Empty);
+			Assert.That(result, Is.Empty);
 		}
 
 		[Test]
@@ -83,13 +83,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("IntegrationTest")]
-		public async Task GetBorrowersAsync_WhenFullNameFilterIsWhiteSpace_ReturnsNonEmptyCollectionOfBorrowers()
+		public async Task GetBorrowersAsync_WhenFullNameFilterIsWhiteSpace_ReturnsEmptyCollectionOfBorrowers()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
 			IEnumerable<IBorrower> result = await sut.GetBorrowersAsync(" ");
 
-			Assert.That(result, Is.Not.Empty);
+			Assert.That(result, Is.Empty);
 		}
 
 		[Test]

@@ -135,7 +135,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.CreateMe
 
 		[Test]
 		[Category("UnitTest")]
-		public void Validate_WhenCalled_AssertShouldBeUnknownValueWasCalledOnObjectValidatorWithGivenNameAndMiddleNameAndSurname()
+		public void Validate_WhenCalled_AssertShouldBeUnknownValueWasCalledOnObjectValidatorWithGivenNameAndMiddleNameAndSurnameAndBirthDate()
 		{
 			ICreateMediaPersonalityCommand sut = CreateSut();
 
@@ -145,7 +145,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.CreateMe
 					It.Is<ICreateMediaPersonalityCommand>(value => value != null && value == sut),
 					It.IsNotNull<Func<ICreateMediaPersonalityCommand, Task<bool>>>(),
 					It.Is<Type>(value => value != null && value == sut.GetType()),
-					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "GivenName,MiddleName,Surname") == 0),
+					It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "GivenName,MiddleName,Surname,BirthDate") == 0),
 					It.Is<bool>(value => value == false)),
 				Times.Once);
 		}

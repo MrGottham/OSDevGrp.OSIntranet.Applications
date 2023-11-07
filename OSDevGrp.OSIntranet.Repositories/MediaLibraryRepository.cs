@@ -132,7 +132,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 				MethodBase.GetCurrentMethod());
 		}
 
-		public Task<bool> MediaExistsAsync<TMedia>(string title, string subtitle) where TMedia : class, IMedia
+		public Task<bool> MediaExistsAsync<TMedia>(string title, string subtitle, int mediaTypeIdentifier) where TMedia : class, IMedia
 		{
 			NullGuard.NotNullOrWhiteSpace(title, nameof(title));
 
@@ -144,19 +144,19 @@ namespace OSDevGrp.OSIntranet.Repositories
 					if (typeof(TMedia) == typeof(IMovie))
 					{
 						using MovieModelHandler handler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
-						return (await handler.ReadAsync(movieModel => movieModel.CoreData.Title == title && movieModel.CoreData.Subtitle == subtitle)).Any();
+						return (await handler.ReadAsync(movieModel => movieModel.CoreData.Title == title && movieModel.CoreData.Subtitle == subtitle && movieModel.CoreData.MediaTypeIdentifier == mediaTypeIdentifier)).Any();
 					}
 
 					if (typeof(TMedia) == typeof(IMusic))
 					{
 						using MusicModelHandler handler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
-						return (await handler.ReadAsync(musicModel => musicModel.CoreData.Title == title && musicModel.CoreData.Subtitle == subtitle)).Any();
+						return (await handler.ReadAsync(musicModel => musicModel.CoreData.Title == title && musicModel.CoreData.Subtitle == subtitle && musicModel.CoreData.MediaTypeIdentifier == mediaTypeIdentifier)).Any();
 					}
 
 					if (typeof(TMedia) == typeof(IBook))
 					{
 						using BookModelHandler handler = new BookModelHandler(DbContext, mediaLibraryModelConverter, true, false, false);
-						return (await handler.ReadAsync(bookModel => bookModel.CoreData.Title == title && bookModel.CoreData.Subtitle == subtitle)).Any();
+						return (await handler.ReadAsync(bookModel => bookModel.CoreData.Title == title && bookModel.CoreData.Subtitle == subtitle && bookModel.CoreData.MediaTypeIdentifier == mediaTypeIdentifier)).Any();
 					}
 
 					throw new NotSupportedException($"{typeof(TMedia)} is not supported as {nameof(TMedia)}.");
@@ -315,14 +315,14 @@ namespace OSDevGrp.OSIntranet.Repositories
 		        MethodBase.GetCurrentMethod());
         }
 
-        public Task<bool> MediaPersonalityExistsAsync(string givenName, string middleName, string surname)
+        public Task<bool> MediaPersonalityExistsAsync(string givenName, string middleName, string surname, DateTime? birthDate)
         {
 	        NullGuard.NotNullOrWhiteSpace(surname, nameof(surname));
 
 	        return ExecuteAsync(async () =>
 		        {
 			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
-			        return (await handler.ReadAsync(mediaPersonalityModel => mediaPersonalityModel.GivenName == givenName && mediaPersonalityModel.MiddleName == middleName && mediaPersonalityModel.Surname == surname)).Any();
+			        return (await handler.ReadAsync(mediaPersonalityModel => mediaPersonalityModel.GivenName == givenName && mediaPersonalityModel.MiddleName == middleName && mediaPersonalityModel.Surname == surname && mediaPersonalityModel.BirthDate == birthDate)).Any();
 		        },
 		        MethodBase.GetCurrentMethod());
         }

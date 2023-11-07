@@ -125,7 +125,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
 				entity.Ignore(e => e.Deletable);
 				entity.HasIndex(e => e.ExternalMediaPersonalityIdentifier).IsUnique();
-				entity.HasIndex(e => new { e.GivenName, e.MiddleName, e.Surname, e.MediaPersonalityIdentifier }).IsUnique();
+				entity.HasIndex(e => new { e.GivenName, e.MiddleName, e.Surname, e.BirthDate }).IsUnique();
 				entity.HasIndex(e => new { e.NationalityIdentifier, e.MediaPersonalityIdentifier }).IsUnique();
 				entity.HasOne(e => e.Nationality)
 					.WithMany(e => e.MediaPersonalities)

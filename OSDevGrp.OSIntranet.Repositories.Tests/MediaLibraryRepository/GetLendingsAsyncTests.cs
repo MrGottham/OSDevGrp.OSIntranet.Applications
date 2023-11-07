@@ -23,13 +23,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("IntegrationTest")]
-		public async Task GetLendingsAsync_WhenIncludeReturnedIsTrue_ReturnsNonEmptyCollectionOfLendings()
+		public async Task GetLendingsAsync_WhenIncludeReturnedIsTrue_ReturnsEmptyCollectionOfLendings()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
 			IEnumerable<ILending> result = await sut.GetLendingsAsync();
 
-			Assert.That(result, Is.Not.Empty);
+			Assert.That(result, Is.Empty);
 		}
 
 		[Test]
@@ -45,23 +45,24 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("IntegrationTest")]
-		public async Task GetLendingsAsync_WhenIncludeReturnedIsFalse_ReturnsNonEmptyCollectionOfLendings()
+		public async Task GetLendingsAsync_WhenIncludeReturnedIsFalse_ReturnsEmptyCollectionOfLendings()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
 			IEnumerable<ILending> result = await sut.GetLendingsAsync(false);
 
-			Assert.That(result, Is.Not.Empty);
+			Assert.That(result, Is.Empty);
 		}
 
 		[Test]
 		[Category("IntegrationTest")]
-		public async Task GetLendingsAsync_WhenIncludeReturnedIsFalse_ReturnsNonEmptyCollectionOfNonReturnedLendings()
+		public async Task GetLendingsAsync_WhenIncludeReturnedIsFalse_ReturnsEmptyCollectionOfNonReturnedLendings()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IEnumerable<ILending> result = await sut.GetLendingsAsync(false);
+			ILending[] result = (await sut.GetLendingsAsync(false)).ToArray();
 
+			Assert.That(result, Is.Empty);
 			Assert.That(result.All(lending => lending.Returned == false), Is.True);
 		}
 	}

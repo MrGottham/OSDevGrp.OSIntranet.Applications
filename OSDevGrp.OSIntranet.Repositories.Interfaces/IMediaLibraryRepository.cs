@@ -13,7 +13,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
 		Task<bool> MediaExistsAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
 
-		Task<bool> MediaExistsAsync<TMedia>(string title, string subtitle) where TMedia : class, IMedia;
+		Task<bool> MediaExistsAsync<TMedia>(string title, string subtitle, int mediaTypeIdentifier) where TMedia : class, IMedia;
 
 		Task<TMedia> GetMediaAsync<TMedia>(Guid mediaIdentifier) where TMedia : class, IMedia;
 
@@ -27,7 +27,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Interfaces
 
 		Task<bool> MediaPersonalityExistsAsync(Guid mediaPersonalityIdentifier);
 
-		Task<bool> MediaPersonalityExistsAsync(string givenName, string middleName, string fullName);
+		Task<bool> MediaPersonalityExistsAsync(string givenName, string middleName, string fullName, DateTime? birthDate);
 
 		Task<IMediaPersonality> GetMediaPersonalityAsync(Guid mediaPersonalityIdentifier);
 

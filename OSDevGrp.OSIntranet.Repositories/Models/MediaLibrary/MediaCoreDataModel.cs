@@ -66,7 +66,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				entity.Property(e => e.CreatedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
 				entity.Property(e => e.ModifiedUtcDateTime).IsRequired();
 				entity.Property(e => e.ModifiedByIdentifier).IsRequired().IsUnicode().HasMaxLength(256);
-				entity.HasIndex(e => new { e.Title, e.Subtitle, e.MediaCoreDataIdentifier }).IsUnique();
+				entity.HasIndex(e => new { e.Title, e.Subtitle, e.MediaTypeIdentifier }).IsUnique();
 				entity.HasIndex(e => new { e.MediaTypeIdentifier, e.MediaCoreDataIdentifier }).IsUnique();
 				entity.HasIndex(e => new { e.MovieIdentifier, e.MediaCoreDataIdentifier }).IsUnique();
 				entity.HasIndex(e => new { e.MusicIdentifier, e.MediaCoreDataIdentifier }).IsUnique();

@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands
 				.NotNull(commonRepository, nameof(commonRepository));
 
 			return base.Validate(validator, claimResolver, mediaLibraryRepository, commonRepository)
-				.Object.ShouldBeUnknownValue<ICreateMediaPersonalityCommand>(this, createMediaPersonalityCommand => createMediaPersonalityCommand.IsNonExistingFullNameAsync(mediaLibraryRepository), GetType(), $"{nameof(GivenName)},{nameof(MiddleName)},{nameof(Surname)}");
+				.Object.ShouldBeUnknownValue<ICreateMediaPersonalityCommand>(this, createMediaPersonalityCommand => createMediaPersonalityCommand.IsNonExistingFullNameAsync(mediaLibraryRepository), GetType(), $"{nameof(GivenName)},{nameof(MiddleName)},{nameof(Surname)},{nameof(BirthDate)}");
 		}
 
 		#endregion
