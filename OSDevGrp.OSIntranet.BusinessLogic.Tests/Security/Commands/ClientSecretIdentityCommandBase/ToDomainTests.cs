@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Domain.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecretIdentityCommandBase
 {
-    [TestFixture]
+	[TestFixture]
     public class ToDomainTests
     {
         #region Private variables
@@ -31,13 +30,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentity()
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsNotNull()
         {
-            IClientSecretIdentityCommand sut = CreateSut();
+	        IClientSecretIdentityCommand sut = CreateSut();
 
-            IClientSecretIdentity result = sut.ToDomain();
+	        IClientSecretIdentity result = sut.ToDomain();
 
-            Assert.That(result, Is.TypeOf<ClientSecretIdentity>());
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -92,7 +91,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
         [Category("UnitTest")]
         public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();;
+            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
             IClientSecretIdentityCommand sut = CreateSut(claims: claims);
 
             IClientSecretIdentity result = sut.ToDomain();
@@ -112,7 +111,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             string clientSecret = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(null, clientSecret));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -124,7 +125,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             string clientSecret = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(string.Empty, clientSecret));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -136,7 +139,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             string clientSecret = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(" ", clientSecret));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -148,7 +153,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             string clientId = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(clientId, null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientSecret"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -160,7 +167,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             string clientId = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(clientId, string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientSecret"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -172,20 +181,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             string clientId = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(clientId, " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("clientSecret"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentity()
+        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsNotNull()
         {
-            IClientSecretIdentityCommand sut = CreateSut();
+	        IClientSecretIdentityCommand sut = CreateSut();
 
-            string clientId = _fixture.Create<string>();
-            string clientSecret = _fixture.Create<string>();
-            IClientSecretIdentity result = sut.ToDomain(clientId, clientSecret);
+	        string clientId = _fixture.Create<string>();
+	        string clientSecret = _fixture.Create<string>();
+	        IClientSecretIdentity result = sut.ToDomain(clientId, clientSecret);
 
-            Assert.That(result, Is.TypeOf<ClientSecretIdentity>());
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -248,7 +259,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
         [Category("UnitTest")]
         public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();;
+            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
             IClientSecretIdentityCommand sut = CreateSut(claims: claims);
 
             string clientId = _fixture.Create<string>();
@@ -270,7 +281,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
                 .Create();
         }
 
-        private class Sut : OSDevGrp.OSIntranet.BusinessLogic.Security.Commands.ClientSecretIdentityCommandBase
+        private class Sut : BusinessLogic.Security.Commands.ClientSecretIdentityCommandBase
         {
         }
     }

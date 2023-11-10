@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 {
-    public interface IUserIdentityBuilder
+	public interface IUserIdentityBuilder
     {
         IUserIdentityBuilder WithIdentifier(int identifier);
 

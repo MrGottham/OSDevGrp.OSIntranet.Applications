@@ -1,14 +1,14 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    public class ClientSecretIdentityBuilder : IClientSecretIdentityBuilder
+	internal class ClientSecretIdentityBuilder : IClientSecretIdentityBuilder
     {
         #region Private variables
 
@@ -18,15 +18,15 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         private readonly string _friendlyName;
         private readonly List<Claim> _claims = new List<Claim>();
 
-        #endregion
+		#endregion
 
-        #region Constructor
+		#region Constructor
 
-        public ClientSecretIdentityBuilder(string friendlyName, IEnumerable<Claim> claims = null)
+		internal ClientSecretIdentityBuilder(string friendlyName, IEnumerable<Claim> claims = null)
         {
             NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName));
 
-            _identifier = default(int);
+            _identifier = default;
             _friendlyName = friendlyName;
 
             if (claims == null)
@@ -84,18 +84,16 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
             NullGuard.NotNull(friendlyName, nameof(friendlyName));
 
-            using (MD5 md5Hash = MD5.Create())
+            using MD5 md5Hash = MD5.Create();
+            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes($"{Guid.NewGuid():N}:{friendlyName}:{DateTime.UtcNow.Ticks}"));
+
+            StringBuilder resultBuilder = new StringBuilder();
+            foreach (byte b in data)
             {
-                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes($"{Guid.NewGuid():N}:{friendlyName}:{DateTime.UtcNow.Ticks}"));
-
-                StringBuilder resultBuilder = new StringBuilder();
-                foreach (byte b in data)
-                {
-                    resultBuilder.Append(b.ToString("x2"));
-                }
-
-                return resultBuilder.ToString();
+	            resultBuilder.Append(b.ToString("x2"));
             }
+
+            return resultBuilder.ToString();
         }
 
         #endregion

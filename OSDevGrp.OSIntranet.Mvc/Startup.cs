@@ -117,9 +117,15 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Scope.Add("offline_access");
                 opt.Events.OnCreatingTicket += o =>
                 {
+	                //TODO: Handle this
                     double seconds = o.ExpiresIn?.TotalSeconds ?? 0;
-                    IRefreshableToken refreshableToken = new RefreshableToken(o.TokenType, o.AccessToken, o.RefreshToken, DateTime.UtcNow.AddSeconds(seconds));
-                    o.Properties.Items.Add($".{TokenType.MicrosoftGraphToken}", refreshableToken.ToBase64());
+                    IRefreshableToken refreshableToken = RefreshableTokenFactory.Create()
+	                    .WithTokenType(o.TokenType)
+	                    .WithAccessToken(o.AccessToken)
+	                    .WithRefreshToken(o.RefreshToken)
+	                    .WithExpires(DateTime.UtcNow.AddSeconds(seconds))
+	                    .Build();
+                    o.Properties.Items.Add($".{TokenType.MicrosoftGraphToken}", refreshableToken.ToBase64String());
                     return Task.CompletedTask;
                 };
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
@@ -131,6 +137,11 @@ namespace OSDevGrp.OSIntranet.Mvc
 				opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.Events.OnCreatingTicket += o =>
+                {
+	                //TODO: Handle this
+	                return Task.CompletedTask;
+                };
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
             services.AddAuthorization(opt =>

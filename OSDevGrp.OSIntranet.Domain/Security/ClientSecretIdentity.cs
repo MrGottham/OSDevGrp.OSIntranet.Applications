@@ -1,17 +1,17 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    public class ClientSecretIdentity : ClaimsIdentity, IClientSecretIdentity
+	internal class ClientSecretIdentity : ClaimsIdentity, IClientSecretIdentity
     {
         #region Constructor
 
-        public ClientSecretIdentity(int identifier, string friendlyName, string clientId, string clientSecret, IEnumerable<Claim> claims) 
+        internal ClientSecretIdentity(int identifier, string friendlyName, string clientId, string clientSecret, IEnumerable<Claim> claims) 
             : base(claims)
         {
             NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName))
@@ -40,8 +40,6 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public string ClientSecret { get; private set; }
 
-        public IToken Token { get; private set; }
-
         public DateTime CreatedDateTime { get; private set; }
 
         public string CreatedByIdentifier { get; private set; }
@@ -62,13 +60,6 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public void ClearSensitiveData()
         {
             ClientSecret = null;
-        }
-
-        public void AddToken(IToken token)
-        {
-            NullGuard.NotNull(token, nameof(token));
-
-            Token = token;
         }
 
         public void AddAuditInformation(DateTime createdUtcDateTime, string createdByIdentifier, DateTime modifiedUtcDateTime, string modifiedByIdentifier)

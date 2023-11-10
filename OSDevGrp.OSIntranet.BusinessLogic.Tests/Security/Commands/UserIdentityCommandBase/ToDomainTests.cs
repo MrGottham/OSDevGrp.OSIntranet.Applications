@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Domain.Security;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentityCommandBase
 {
-    [TestFixture]
+	[TestFixture]
     public class ToDomainTests
     {
         #region Private variables
@@ -31,13 +30,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentity
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalled_ReturnsUserIdentity()
+        public void ToDomain_WhenCalled_ReturnsNotNull()
         {
-            IUserIdentityCommand sut = CreateSut();
+	        IUserIdentityCommand sut = CreateSut();
 
-            IUserIdentity result = sut.ToDomain();
+	        IUserIdentity result = sut.ToDomain();
 
-            Assert.That(result, Is.TypeOf<UserIdentity>());
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -68,7 +67,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentity
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_ReturnsUserIdentityWithClaimsFromCommand()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();;
+            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
             IUserIdentityCommand sut = CreateSut(claims: claims);
 
             IUserIdentity result = sut.ToDomain();
@@ -88,7 +87,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentity
                 .Create();
         }
 
-        private class Sut : OSDevGrp.OSIntranet.BusinessLogic.Security.Commands.UserIdentityCommandBase
+        private class Sut : BusinessLogic.Security.Commands.UserIdentityCommandBase
         {
         }
     }

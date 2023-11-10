@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
@@ -10,10 +7,13 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 {
-    public abstract class TokenHelperBase<T> : ITokenHelper<T> where T : class, IToken
+	public abstract class TokenHelperBase<T> : ITokenHelper<T> where T : class, IToken
     {
         #region Constructor
 
@@ -221,10 +221,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
             IDataProtector dataProtector = DataProtectionProvider.CreateProtector("TokenProtection");
             byte[] tokenByteArray = dataProtector.Unprotect(Convert.FromBase64String(tokenValue));
 
-            return Token.Create<T>(tokenByteArray);
-        }
+            if (typeof(T) == typeof(IToken))
+            {
+				return TokenFactory.Create().FromByteArray(tokenByteArray) as T;
+            }
 
-        private void DeleteTokenCookie(HttpContext httpContext)
+			if (typeof(T) == typeof(IRefreshableToken))
+            {
+	            return RefreshableTokenFactory.Create().FromByteArray(tokenByteArray) as T;
+            }
+
+			throw new NotSupportedException($"Unhandled token type: {nameof(T)}");
+		}
+
+		private void DeleteTokenCookie(HttpContext httpContext)
         {
             NullGuard.NotNull(httpContext, nameof(httpContext));
 

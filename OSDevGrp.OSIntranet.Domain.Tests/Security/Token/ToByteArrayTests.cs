@@ -1,59 +1,119 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
+using System;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Token
 {
-    [TestFixture]
+	[TestFixture]
     public class ToByteArrayTests
     {
-        #region Private variables
+		#region Private variables
 
-        private Fixture _fixture;
+		private Fixture _fixture;
+		private Random _random;
 
-        #endregion
+		#endregion
 
-        [SetUp]
-        public void SetUp()
-        {
-            _fixture = new Fixture();
-        }
+		[SetUp]
+		public void SetUp()
+		{
+			_fixture = new Fixture();
+			_random = new Random(_fixture.Create<int>());
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public void ToByteArray_WhenCalled_AssertTokenIsSerialized()
-        {
-            string tokenType = _fixture.Create<string>();
-            string accessToken = _fixture.Create<string>();
-            DateTime expires = _fixture.Create<DateTime>().ToUniversalTime();
-            IToken sut = CreateSut(tokenType, accessToken, expires);
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsNotNull()
+		{
+			IToken sut = CreateSut();
 
-            byte[] byteArray = sut.ToByteArray();
+			byte[] result = sut.ToByteArray();
 
-            IToken result = Domain.Security.Token.Create<Domain.Security.Token>(byteArray);
+			Assert.That(result, Is.Not.Null);
+		}
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.TokenType, Is.EqualTo(tokenType));
-            Assert.That(result.AccessToken, Is.EqualTo(accessToken));
-            Assert.That(result.Expires, Is.EqualTo(expires));
-        }
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsNonEmptyByteArray()
+		{
+			IToken sut = CreateSut();
 
-        [Test]
-        [Category("UnitTest")]
-        public void ToByteArray_WhenCalled_ReturnsByteArray()
-        {
-            IToken sut = CreateSut();
+			byte[] result = sut.ToByteArray();
 
-            byte[] result = sut.ToByteArray();
+			Assert.That(result, Is.Not.Empty);
+		}
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.Not.Empty);
-        }
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsByteArrayWhereTokenTypeIsNotNull()
+		{
+			IToken sut = CreateSut();
 
-        private IToken CreateSut(string tokenType = null, string accessToken = null, DateTime? expires = null)
-        {
-            return new Domain.Security.Token(tokenType ?? _fixture.Create<string>(), accessToken ?? _fixture.Create<string>(), expires ?? _fixture.Create<DateTime>().ToUniversalTime());
-        }
-    }
+			byte[] result = sut.ToByteArray();
+
+			Assert.That(Deserialize(result).TokenType, Is.Not.Null);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsByteArrayWhereTokenTypeIsSerialized()
+		{
+			string tokenType = _fixture.Create<string>();
+			IToken sut = CreateSut(tokenType);
+
+			byte[] result = sut.ToByteArray();
+
+			Assert.That(Deserialize(result).TokenType, Is.EqualTo(tokenType));
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsByteArrayWhereAccessTokenIsNotNull()
+		{
+			IToken sut = CreateSut();
+
+			byte[] result = sut.ToByteArray();
+
+			Assert.That(Deserialize(result).AccessToken, Is.Not.Null);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsByteArrayWhereAccessTokenIsSerialized()
+		{
+			string accessToken = _fixture.Create<string>();
+			IToken sut = CreateSut(accessToken: accessToken);
+
+			byte[] result = sut.ToByteArray();
+
+			Assert.That(Deserialize(result).AccessToken, Is.EqualTo(accessToken));
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public void ToByteArray_WhenCalled_ReturnsByteArrayWhereExpiresIsSerialized()
+		{
+			DateTime expires = DateTime.Now.AddSeconds(_random.Next(60, 3600)).ToUniversalTime();
+			IToken sut = CreateSut(expires: expires);
+
+			byte[] result = sut.ToByteArray();
+
+			Assert.That(Deserialize(result).Expires, Is.EqualTo(expires));
+		}
+
+		private IToken CreateSut(string tokenType = null, string accessToken = null, DateTime? expires = null)
+		{
+			return new Domain.Security.Token(tokenType ?? _fixture.Create<string>(), accessToken ?? _fixture.Create<string>(), expires ?? DateTime.Now.AddSeconds(_random.Next(60, 3600)).ToUniversalTime());
+		}
+
+		private static IToken Deserialize(byte[] byteArray)
+		{
+			NullGuard.NotNull(byteArray, nameof(byteArray));
+
+			return TokenFactory.Create().FromByteArray(byteArray);
+		}
+	}
 }

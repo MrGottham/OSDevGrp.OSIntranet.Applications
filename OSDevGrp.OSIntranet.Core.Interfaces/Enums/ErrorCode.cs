@@ -155,6 +155,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
 		ValueShouldBeEarlierThanOffsetDate = 1050,
 
         [ErrorCode("The date value for the submitted field '{0}' should be a date earlier than or equal to {1}.", typeof(IntranetValidationException))]
-		ValueShouldBeEarlierThanOrEqualToOffsetDate = 1051
-	}
+		ValueShouldBeEarlierThanOrEqualToOffsetDate = 1051,
+        
+		[ErrorCode("Value has not been set by the method named '{0}' on an instance of '{1}'.", typeof(IntranetSystemException))]
+		ValueNotSetByNamedMethod = 1052
+    }
 }

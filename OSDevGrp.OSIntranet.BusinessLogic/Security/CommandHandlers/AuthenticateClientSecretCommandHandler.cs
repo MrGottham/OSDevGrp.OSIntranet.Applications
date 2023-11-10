@@ -50,7 +50,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             clientSecretIdentity.AddClaims(command.Claims);
             clientSecretIdentity.ClearSensitiveData();
 
-            clientSecretIdentity.AddToken(_tokenHelper.Generate(clientSecretIdentity));
+            //TODO: Handle this
+            //clientSecretIdentity.AddToken(_tokenHelper.Generate(clientSecretIdentity));
 
             return clientSecretIdentity;
         }

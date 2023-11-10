@@ -29,6 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         bool IsMediaLibraryLender();
 
+        //TODO: Handle this
         TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken;
     }
 }

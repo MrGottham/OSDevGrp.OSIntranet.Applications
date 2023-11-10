@@ -91,7 +91,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Handlers
                 return null;
             }
 
-            clientSecretIdentity.AddClaims(new[] {ClaimHelper.CreateTokenClaim(clientSecretIdentity.Token, ProtectBase64Token)});
+            //TODO: Handle this
+            //clientSecretIdentity.AddClaims(new[] {ClaimHelper.CreateTokenClaim(clientSecretIdentity.Token, ProtectBase64Token)});
 
             ClaimsIdentity authenticatedClaimsIdentity = new ClaimsIdentity(clientSecretIdentity.ToClaimsIdentity().Claims, Scheme.Name);
             return new ClaimsPrincipal(authenticatedClaimsIdentity);

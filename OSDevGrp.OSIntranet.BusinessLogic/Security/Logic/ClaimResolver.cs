@@ -92,6 +92,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 	        return HasClaim(principal => principal.GetClaim(ClaimHelper.MediaLibraryLenderClaimType));
         }
 
+		//TODO: Handle this
 		public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
         {
             NullGuard.NotNull(unprotect, nameof(unprotect));
@@ -102,7 +103,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
                 return null;
             }
 
-            return Token.Create<TToken>(unprotect(tokenValue));
+            if (typeof(TToken) == typeof(IToken))
+            {
+	            return TokenFactory.Create().FromBase64String(unprotect(tokenValue)) as TToken;
+            }
+
+            if (typeof(TToken) == typeof(IRefreshableToken))
+            {
+	            return RefreshableTokenFactory.Create().FromBase64String(unprotect(tokenValue)) as TToken;
+            }
+
+            throw new NotSupportedException($"Unhandled token type: {nameof(TToken)}");
         }
 
         private bool HasClaim(Func<IPrincipal, Claim> claimGetter)

@@ -1,11 +1,11 @@
-﻿using System;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 {
-    public abstract class MicrosoftGraphRepositoryTestBase : RepositoryTestBase
+	public abstract class MicrosoftGraphRepositoryTestBase : RepositoryTestBase
     {
         #region Private constants
 
@@ -24,7 +24,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 
         protected IRefreshableToken CreateToken()
         {
-            return new RefreshableToken(TokenType, AccessToken, RefreshToken, DateTime.Today.AddDays(1));
+            return RefreshableTokenFactory.Create()
+	            .WithTokenType(TokenType)
+	            .WithAccessToken(AccessToken)
+	            .WithRefreshToken(RefreshToken)
+	            .WithExpires(DateTime.UtcNow.AddHours(1))
+	            .Build();
         }
 
         #endregion

@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using OSDevGrp.OSIntranet.Core;
+﻿using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    public class UserIdentityBuilder : IUserIdentityBuilder
+	internal class UserIdentityBuilder : IUserIdentityBuilder
     {
         #region Private variables
 
@@ -17,11 +17,11 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         #region Constructor
 
-        public UserIdentityBuilder(string externalUserIdentifier, IEnumerable<Claim> claims = null)
+        internal UserIdentityBuilder(string externalUserIdentifier, IEnumerable<Claim> claims = null)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
 
-            _identifier = default(int);
+            _identifier = default;
             _externalUserIdentifier = externalUserIdentifier;
 
             if (claims == null)

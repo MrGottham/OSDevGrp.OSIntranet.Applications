@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Principal;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
-    [TestFixture]
+	[TestFixture]
     public class GetTokenTests
     {
         #region Private variables
 
         private Mock<IPrincipalResolver> _principalResolverMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -27,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         {
             _principalResolverMock = new Mock<IPrincipalResolver>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -57,7 +59,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetToken_WhenUnprotectIsNotNullAndPrincipalDoesNotHaveTokenClaim_AssertUnprotectWasNotCalled()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
+	        IPrincipal principal = CreateClaimsPrincipal(false);
             IClaimResolver sut = CreateSut(principal);
 
             bool unprotectCalled = false;
@@ -74,7 +76,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetToken_WhenUnprotectIsNotNullAndPrincipalDoesNotHaveTokenClaim_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
+            IPrincipal principal = CreateClaimsPrincipal(false);
             IClaimResolver sut = CreateSut(principal);
 
             IToken result = sut.GetToken<IToken>(value => value);
@@ -86,8 +88,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetToken_WhenUnprotectIsNotNullAndPrincipalHasTokenClaim_AssertUnprotectWasCalled()
         {
-            IToken token = new Token(_fixture.Create<string>(), _fixture.Create<string>(), DateTime.Now.AddMinutes(5));
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateTokenClaim(token, value => value)});
+            IPrincipal principal = CreateClaimsPrincipal();
             IClaimResolver sut = CreateSut(principal);
 
             bool unprotectCalled = false;
@@ -104,8 +105,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetToken_WhenUnprotectIsNotNullAndPrincipalHasTokenClaim_AssertUnprotectWasCalledWithBase64ForToken()
         {
-            IToken token = new Token(_fixture.Create<string>(), _fixture.Create<string>(), DateTime.Now.AddMinutes(5));
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateTokenClaim(token, value => value)});
+	        IToken token = CreateToken();
+            IPrincipal principal = CreateClaimsPrincipal(token: token);
             IClaimResolver sut = CreateSut(principal);
 
             string unprotectCalledWithValue = null;
@@ -115,33 +116,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
                 return value;
             });
 
-            Assert.That(unprotectCalledWithValue, Is.EqualTo(token.ToBase64()));
+            Assert.That(unprotectCalledWithValue, Is.EqualTo(token.ToBase64String()));
         }
 
         [Test]
         [Category("UnitTest")]
         public void GetToken_WhenUnprotectIsNotNullAndPrincipalHasTokenClaim_ReturnsNotNull()
         {
-            IToken token = new Token(_fixture.Create<string>(), _fixture.Create<string>(), DateTime.Now.AddMinutes(5));
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateTokenClaim(token, value => value)});
+            IPrincipal principal = CreateClaimsPrincipal();
             IClaimResolver sut = CreateSut(principal);
 
             IToken result = sut.GetToken<IToken>(value => value);
 
             Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void GetToken_WhenUnprotectIsNotNullAndPrincipalHasTokenClaim_ReturnsToken()
-        {
-            IToken token = new Token(_fixture.Create<string>(), _fixture.Create<string>(), DateTime.Now.AddMinutes(5));
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateTokenClaim(token, value => value)});
-            IClaimResolver sut = CreateSut(principal);
-
-            IToken result = sut.GetToken<IToken>(value => value);
-
-            Assert.That(result, Is.TypeOf<Token>());
         }
 
         private IClaimResolver CreateSut(IPrincipal principal = null)
@@ -152,9 +139,40 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
             return new BusinessLogic.Security.Logic.ClaimResolver(_principalResolverMock.Object);
         }
 
-        private IPrincipal CreateClaimsPrincipal(IEnumerable<Claim> claimCollection = null)
+        private IPrincipal CreateClaimsPrincipal(bool withTokenClaim = true, IToken token = null)
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(claimCollection ?? new Claim[] { }));
+            return new ClaimsPrincipal(new ClaimsIdentity(CreateClaimCollection(withTokenClaim, token)));
+        }
+
+        private IEnumerable<Claim> CreateClaimCollection(bool withTokenClaim = true, IToken token = null)
+        {
+	        if (withTokenClaim)
+	        {
+		        return new[]
+		        {
+			        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
+			        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
+			        ClaimHelper.CreateTokenClaim(token ?? CreateToken(), value => value),
+			        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
+			        new Claim(_fixture.Create<string>(), _fixture.Create<string>())
+		        };
+	        }
+
+	        return new[]
+	        {
+		        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
+		        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
+		        new Claim(_fixture.Create<string>(), _fixture.Create<string>())
+	        };
+        }
+
+        private IToken CreateToken()
+        {
+	        return TokenFactory.Create()
+		        .WithTokenType(_fixture.Create<string>())
+		        .WithAccessToken(_fixture.Create<string>())
+		        .WithExpires(DateTime.UtcNow.AddSeconds(_random.Next(60, 3600)))
+		        .Build();
         }
     }
 }

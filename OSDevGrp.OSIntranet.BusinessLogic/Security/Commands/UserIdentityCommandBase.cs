@@ -7,7 +7,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-    public abstract class UserIdentityCommandBase : IdentityCommandBase, IUserIdentityCommand
+	public abstract class UserIdentityCommandBase : IdentityCommandBase, IUserIdentityCommand
     {
         #region Properties
 
@@ -30,7 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 
         public IUserIdentity ToDomain()
         {
-            return new UserIdentityBuilder(ExternalUserIdentifier, Claims)
+            return UserIdentityBuilderFactory.Create(ExternalUserIdentifier, Claims)
                 .WithIdentifier(Identifier)
                 .Build();
         }

@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MySql.EntityFrameworkCore.Metadata;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Migrations
 {
-    [DbContext(typeof(RepositoryContext))]
+	[DbContext(typeof(RepositoryContext))]
     [Migration("20190323000_CreateSecurity")]
     internal class CreateSecurity : Migration
     {
@@ -60,13 +60,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             migrationBuilder.DropTable("ClientSecretIdentities");
         }
 
-        private void InsertUserIdentityModels(MigrationBuilder migrationBuilder)
+        private static void InsertUserIdentityModels(MigrationBuilder migrationBuilder)
         {
             NullGuard.NotNull(migrationBuilder, nameof(migrationBuilder));
 
             IEnumerable<IUserIdentity> userIdentityCollection = new List<IUserIdentity>
             {
-                new UserIdentityBuilder("mrgottham@gmail.com").Build(),
+                UserIdentityBuilderFactory.Create("mrgottham@gmail.com").Build(),
             };
             foreach (IUserIdentity userIdentity in userIdentityCollection)
             {
@@ -74,11 +74,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Migrations
             }
         }
 
-        private void InsertClientSecretModels(MigrationBuilder migrationBuilder)
+        private static void InsertClientSecretModels(MigrationBuilder migrationBuilder)
         {
             NullGuard.NotNull(migrationBuilder, nameof(migrationBuilder));
 
-            IClientSecretIdentity clientSecretIdentity = new ClientSecretIdentityBuilder("OSDevGrp.OSIntranet.Test").Build();
+            IClientSecretIdentity clientSecretIdentity = ClientSecretIdentityBuilderFactory.Create("OSDevGrp.OSIntranet.Test").Build();
 
             migrationBuilder.InsertData("ClientSecretIdentities", new[] {"FriendlyName", "ClientId", "ClientSecret"}, new object[] {clientSecretIdentity.FriendlyName, clientSecretIdentity.ClientId, clientSecretIdentity.ClientSecret});
         }
