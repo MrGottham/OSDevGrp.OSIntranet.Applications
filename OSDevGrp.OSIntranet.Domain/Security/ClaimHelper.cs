@@ -18,7 +18,9 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public const string FriendlyNameClaimType = "urn:osdevgrp:osintranet:claims:friendlyname";
         //TODO: Handle this
         public const string TokenClaimType = "urn:osdevgrp:osintranet:claims:token";
-        public const string SecurityAdminClaimType = "urn:osdevgrp:osintranet:claims:securityadmin";
+        public const string MicrosoftTokenClaimType = "urn:osdevgrp:osintranet:claims:tokens:external:microsoft";
+        public const string GoogleTokenClaimType = "urn:osdevgrp:osintranet:claims:tokens:external:google";
+		public const string SecurityAdminClaimType = "urn:osdevgrp:osintranet:claims:securityadmin";
         public const string AccountingClaimType = "urn:osdevgrp:osintranet:claims:accounting";
         public const string AccountingAdministratorClaimType = "urn:osdevgrp:osintranet:claims:accounting:administrator";
         public const string AccountingCreatorClaimType = "urn:osdevgrp:osintranet:claims:accounting:creator";
@@ -59,14 +61,23 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return CreateClaim(ClaimTypes.Email, email);
         }
 
-		//TODO: Handle this
-		public static Claim CreateTokenClaim(IToken token, Func<string, string> protect)
-        {
-            NullGuard.NotNull(token, nameof(token))
-                .NotNull(protect, nameof(protect));
+		public static Claim CreateTokenClaim(string claimType, IToken token, Func<string, string> protector)
+		{
+			NullGuard.NotNullOrWhiteSpace(claimType, nameof(claimType))
+				.NotNull(token, nameof(token))
+				.NotNull(protector, nameof(protector));
 
-            return CreateClaim(TokenClaimType, protect(token.ToBase64String()));
-        }
+			return CreateClaim(claimType, protector(token.ToBase64String()), typeof(IToken).FullName);
+		}
+
+		public static Claim CreateTokenClaim(string claimType, IRefreshableToken refreshableToken, Func<string, string> protector)
+		{
+			NullGuard.NotNullOrWhiteSpace(claimType, nameof(claimType))
+				.NotNull(refreshableToken, nameof(refreshableToken))
+				.NotNull(protector, nameof(protector));
+
+			return CreateClaim(claimType, protector(refreshableToken.ToBase64String()), typeof(IRefreshableToken).FullName);
+		}
 
 		public static Claim CreateSecurityAdminClaim()
         {

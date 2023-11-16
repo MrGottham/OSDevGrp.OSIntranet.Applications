@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
@@ -24,7 +25,6 @@ using OSDevGrp.OSIntranet.Mvc.Security;
 using OSDevGrp.OSIntranet.Repositories;
 using System;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc
 {
@@ -115,8 +115,10 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Scope.Add("User.Read");
                 opt.Scope.Add("Contacts.ReadWrite");
                 opt.Scope.Add("offline_access");
-                opt.Events.OnCreatingTicket += o =>
+                opt.Events.OnCreatingTicket += async o =>
                 {
+	                await o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
+	            
 	                //TODO: Handle this
                     double seconds = o.ExpiresIn?.TotalSeconds ?? 0;
                     IRefreshableToken refreshableToken = RefreshableTokenFactory.Create()
@@ -126,7 +128,6 @@ namespace OSDevGrp.OSIntranet.Mvc
 	                    .WithExpires(DateTime.UtcNow.AddSeconds(seconds))
 	                    .Build();
                     o.Properties.Items.Add($".{TokenType.MicrosoftGraphToken}", refreshableToken.ToBase64String());
-                    return Task.CompletedTask;
                 };
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
@@ -137,11 +138,7 @@ namespace OSDevGrp.OSIntranet.Mvc
 				opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                opt.Events.OnCreatingTicket += o =>
-                {
-	                //TODO: Handle this
-	                return Task.CompletedTask;
-                };
+                opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
             services.AddAuthorization(opt =>

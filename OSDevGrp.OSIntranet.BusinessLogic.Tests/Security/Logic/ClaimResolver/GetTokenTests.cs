@@ -152,7 +152,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		        {
 			        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
 			        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-			        ClaimHelper.CreateTokenClaim(token ?? CreateToken(), value => value),
+			        ClaimHelper.CreateTokenClaim(ClaimHelper.TokenClaimType, token ?? CreateToken(), value => value),
 			        new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
 			        new Claim(_fixture.Create<string>(), _fixture.Create<string>())
 		        };

@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return clientSecretIdentityMock;
         }
 
-        public static Mock<IToken> BuildTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null, bool hasExpired = false, byte[] tokenByteArray = null, string base64Token = null, bool willExpireWithin = false)
+        public static Mock<IToken> BuildTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, DateTime? expires = null, bool hasExpired = false, byte[] tokenByteArray = null, string toBase64String = null, bool willExpireWithin = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -79,13 +79,13 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             tokenMock.Setup(m => m.ToByteArray())
                 .Returns(tokenByteArray ?? fixture.CreateMany<byte>(random.Next(512, 1024)).ToArray());
             tokenMock.Setup(m => m.ToBase64String())
-                .Returns(base64Token ?? fixture.Create<string>());
+                .Returns(toBase64String ?? fixture.Create<string>());
             tokenMock.Setup(m => m.WillExpireWithin(It.IsAny<TimeSpan>()))
                 .Returns(willExpireWithin);
             return tokenMock;
         }
 
-        public static Mock<IRefreshableToken> BuildRefreshableTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null, bool hasExpired = false, byte[] tokenByteArray = null, string base64Token = null, bool willExpireWithin = false)
+        public static Mock<IRefreshableToken> BuildRefreshableTokenMock(this Fixture fixture, string tokenType = null, string accessToken = null, string refreshToken = null, DateTime? expires = null, bool hasExpired = false, byte[] tokenByteArray = null, string toBase64String = null, bool willExpireWithin = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -105,7 +105,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             refreshableTokenMock.Setup(m => m.ToByteArray())
                 .Returns(tokenByteArray ?? fixture.CreateMany<byte>(random.Next(512, 1024)).ToArray());
             refreshableTokenMock.Setup(m => m.ToBase64String())
-                .Returns(base64Token ?? fixture.Create<string>());
+                .Returns(toBase64String ?? fixture.Create<string>());
             refreshableTokenMock.Setup(m => m.WillExpireWithin(It.IsAny<TimeSpan>()))
                 .Returns(willExpireWithin);
             return refreshableTokenMock;

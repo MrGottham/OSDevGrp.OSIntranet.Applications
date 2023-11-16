@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
@@ -11,11 +7,15 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AuthenticateClientSecretCommandHandler;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AuthenticateClientSecretCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AuthenticateClientSecretCommandHandler
 {
-    [TestFixture]
+	[TestFixture]
     public class ExecuteAsyncTest : BusinessLogicTestBase
     {
         #region Private variables
@@ -203,7 +203,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
 
             string submittedClientSecret = clientSecret;
-            IEnumerable<Claim> claims = new List<Claim>(0);
+            IReadOnlyCollection<Claim> claims = Array.Empty<Claim>();
             IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret, claims: claims);
             await sut.ExecuteAsync(command);
 
@@ -266,9 +266,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             return new CommandHandler(_securityRepositoryMock.Object, _tokenHelperMock.Object);
         }
 
-        private IAuthenticateClientSecretCommand CreateCommand(string clientId = null, string clientSecret = null, IEnumerable<Claim> claims = null)
+        private IAuthenticateClientSecretCommand CreateCommand(string clientId = null, string clientSecret = null, IReadOnlyCollection<Claim> claims = null)
         {
-            return new AuthenticateClientSecretCommand(clientId ?? _fixture.Create<string>(), clientSecret ?? _fixture.Create<string>(), claims ?? new List<Claim>(0));
+	        return SecurityCommandFactory.BuildAuthenticateClientSecretCommand(clientId ?? _fixture.Create<string>(), clientSecret ?? _fixture.Create<string>(), claims ?? Array.Empty<Claim>(), _fixture.Create<string>(), value => value);
         }
     }
 }

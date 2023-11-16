@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
@@ -10,11 +6,17 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AuthenticateUserCommandHandler;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AuthenticateUserCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AuthenticateUserCommandHandler
 {
-    [TestFixture]
+	[TestFixture]
     public class ExecuteAsyncTests : BusinessLogicTestBase
     {
         #region Private variables
@@ -100,7 +102,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
             CommandHandler sut = CreateSut(userIdentity: userIdentityMock.Object);
 
-            IEnumerable<Claim> claims = new List<Claim>(0);
+            IReadOnlyCollection<Claim> claims = Array.Empty<Claim>();
             IAuthenticateUserCommand command = CreateCommand(claims: claims);
             await sut.ExecuteAsync(command);
 
@@ -141,9 +143,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             return new CommandHandler(_securityRepositoryMock.Object);
         }
 
-        private IAuthenticateUserCommand CreateCommand(string externalUserIdentifier = null, IEnumerable<Claim> claims = null)
+        private IAuthenticateUserCommand CreateCommand(string externalUserIdentifier = null, IReadOnlyCollection<Claim> claims = null)
         {
-            return new AuthenticateUserCommand(externalUserIdentifier ?? _fixture.Create<string>(), claims ?? new List<Claim>(0));
+            return SecurityCommandFactory.BuildAuthenticateUserCommand(externalUserIdentifier ?? _fixture.Create<string>(), claims ?? Array.Empty<Claim>(), _fixture.Create<string>(), new ReadOnlyDictionary<string, string>(new ConcurrentDictionary<string, string>()), value => value);
         }
     }
 }

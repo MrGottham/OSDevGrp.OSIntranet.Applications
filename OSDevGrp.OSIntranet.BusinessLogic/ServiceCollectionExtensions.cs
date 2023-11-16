@@ -13,7 +13,7 @@ using OSDevGrp.OSIntranet.Core;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic
 {
-    public static class ServiceCollectionExtensions
+	public static class ServiceCollectionExtensions
     {
         #region Methods
 
@@ -35,7 +35,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
-            return serviceCollection.AddTransient<ITokenHelper, TokenHelper>()
+            return serviceCollection.AddTransient<IExternalTokenCreator, ExternalTokenCreator>()
+	            .AddTransient<IExternalTokenClaimCreator, ExternalTokenClaimCreator>()
+	            .AddTransient<ITokenHelper, TokenHelper>()
                 .AddTransient<IClaimResolver, ClaimResolver>()
                 .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()
