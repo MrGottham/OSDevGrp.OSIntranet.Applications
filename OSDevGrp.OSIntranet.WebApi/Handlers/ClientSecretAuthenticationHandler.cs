@@ -81,7 +81,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Handlers
             NullGuard.NotNull(clientId, nameof(clientId))
                 .NotNull(clientSecret, nameof(clientSecret));
 
-            IAuthenticateClientSecretCommand command = SecurityCommandFactory.BuildAuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), Scheme.Name, value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
+            IAuthenticateClientSecretCommand command = SecurityCommandFactory.BuildAuthenticateClientSecretCommand(clientId, clientSecret, Scheme.Name, value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
             IClientSecretIdentity clientSecretIdentity = await _commandBus.PublishAsync<IAuthenticateClientSecretCommand, IClientSecretIdentity>(command);
             if (clientSecretIdentity == null)
             {

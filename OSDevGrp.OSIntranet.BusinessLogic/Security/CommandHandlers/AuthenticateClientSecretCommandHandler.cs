@@ -1,67 +1,52 @@
-﻿using System;
-using System.Security.Principal;
-using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-    public class AuthenticateClientSecretCommandHandler : AuthenticateCommandHandlerBase<IAuthenticateClientSecretCommand, IClientSecretIdentity>
+	internal sealed class AuthenticateClientSecretCommandHandler : AuthenticateCommandHandlerBase<IAuthenticateClientSecretCommand, IClientSecretIdentity>
     {
-        #region Private variables
-
-        private readonly ITokenHelper _tokenHelper;
-
-        #endregion
-
         #region Constructor
 
-        public AuthenticateClientSecretCommandHandler(ISecurityRepository securityRepository, ITokenHelper tokenHelper)
-            : base(securityRepository)
+        public AuthenticateClientSecretCommandHandler(ISecurityRepository securityRepository, IExternalTokenClaimCreator externalTokenClaimCreator)
+            : base(securityRepository, externalTokenClaimCreator)
         {
-            NullGuard.NotNull(tokenHelper, nameof(tokenHelper));
-
-            _tokenHelper = tokenHelper;
         }
 
         #endregion
 
         #region Methods
 
-        protected override async Task<IIdentity> GetIdentityAsync(IAuthenticateClientSecretCommand command)
+        protected override Task<IClientSecretIdentity> GetIdentityAsync(IAuthenticateClientSecretCommand authenticateClientSecretCommand)
         {
-            NullGuard.NotNull(command, nameof(command));
+	        NullGuard.NotNull(authenticateClientSecretCommand, nameof(authenticateClientSecretCommand));
 
-            IClientSecretIdentity clientSecretIdentity = await SecurityRepository.GetClientSecretIdentityAsync(command.ClientId);
-
-            return clientSecretIdentity;
+            return SecurityRepository.GetClientSecretIdentityAsync(authenticateClientSecretCommand.ClientId);
         }
 
-        protected override IClientSecretIdentity CreateAuthenticatedIdentity(IAuthenticateClientSecretCommand command, IIdentity identity)
+        protected override ClaimsIdentity CreateAuthenticatedClaimsIdentity(IClientSecretIdentity clientSecretIdentity, IReadOnlyCollection<Claim> claims, string authenticationType)
+		{
+			NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity))
+				.NotNull(claims, nameof(claims))
+				.NotNullOrWhiteSpace(authenticationType, nameof(authenticationType));
+
+			clientSecretIdentity.AddClaims(claims);
+			clientSecretIdentity.ClearSensitiveData();
+
+			return new ClaimsIdentity(clientSecretIdentity.ToClaimsIdentity().Claims, authenticationType);
+		}
+
+        protected override bool IsMatch(IAuthenticateClientSecretCommand authenticateClientSecretCommand, IClientSecretIdentity clientSecretIdentity)
         {
-            NullGuard.NotNull(command, nameof(command))
-                .NotNull(identity, nameof(identity));
+	        NullGuard.NotNull(authenticateClientSecretCommand, nameof(authenticateClientSecretCommand))
+		        .NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
 
-            IClientSecretIdentity clientSecretIdentity = (IClientSecretIdentity) identity;
-
-            clientSecretIdentity.AddClaims(command.Claims);
-            clientSecretIdentity.ClearSensitiveData();
-
-            //TODO: Handle this
-            //clientSecretIdentity.AddToken(_tokenHelper.Generate(clientSecretIdentity));
-
-            return clientSecretIdentity;
-        }
-
-        protected override bool IsMatch(IAuthenticateClientSecretCommand command, IIdentity identity)
-        {
-            NullGuard.NotNull(command, nameof(command))
-                .NotNull(identity, nameof(identity));
-
-            return string.Compare(command.ClientSecret, ((IClientSecretIdentity) identity).ClientSecret, StringComparison.Ordinal) == 0;
+	        return string.CompareOrdinal(authenticateClientSecretCommand.ClientSecret, clientSecretIdentity.ClientSecret) == 0;
         }
 
         #endregion

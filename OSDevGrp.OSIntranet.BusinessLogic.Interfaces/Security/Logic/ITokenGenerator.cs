@@ -1,9 +1,10 @@
 ﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 {
-    public interface ITokenHelper
-    {
-        IToken Generate(IClientSecretIdentity clientSecretIdentity);
+	public interface ITokenGenerator
+	{
+        IToken Generate(ClaimsIdentity claimsIdentity);
     }
 }

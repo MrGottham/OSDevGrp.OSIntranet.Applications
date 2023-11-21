@@ -1,56 +1,100 @@
-﻿using System.Security.Principal;
-using System.Threading.Tasks;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-    public abstract class AuthenticateCommandHandlerBase<TCommand, TResult> : CommandHandlerNonTransactionalBase, ICommandHandler<TCommand, TResult> where TCommand : ICommand where TResult : IIdentity
+	internal abstract class AuthenticateCommandHandlerBase<TAuthenticateCommand, TIdentity> : CommandHandlerNonTransactionalBase, ICommandHandler<TAuthenticateCommand, ClaimsPrincipal> where TAuthenticateCommand : IAuthenticateCommand where TIdentity : IIdentity
     {
-        #region Protected variables
+        #region Private variables
 
-        protected readonly ISecurityRepository SecurityRepository;
+        private readonly IExternalTokenClaimCreator _externalTokenClaimCreator;
 
         #endregion
 
         #region Constructor
 
-        protected AuthenticateCommandHandlerBase(ISecurityRepository securityRepository)
+        protected AuthenticateCommandHandlerBase(ISecurityRepository securityRepository, IExternalTokenClaimCreator externalTokenClaimCreator)
         {
-            NullGuard.NotNull(securityRepository, nameof(securityRepository));
+	        NullGuard.NotNull(securityRepository, nameof(securityRepository))
+		        .NotNull(externalTokenClaimCreator, nameof(externalTokenClaimCreator));
 
             SecurityRepository = securityRepository;
+            _externalTokenClaimCreator = externalTokenClaimCreator;
         }
+
+		#endregion
+
+		#region Properties
+
+		protected ISecurityRepository SecurityRepository { get; }
 
         #endregion
 
         #region Methods
 
-        public async Task<TResult> ExecuteAsync(TCommand command)
+        public async Task<ClaimsPrincipal> ExecuteAsync(TAuthenticateCommand authenticateCommand)
         {
-            NullGuard.NotNull(command, nameof(command));
+	        NullGuard.NotNull(authenticateCommand, nameof(authenticateCommand));
 
-            IIdentity identity = await GetIdentityAsync(command);
-            if (identity == null || IsMatch(command, identity) == false)
-            {
-                return default;
-            }
+	        TIdentity identity = await GetIdentityAsync(authenticateCommand);
+	        if (identity == null || IsMatch(authenticateCommand, identity) == false)
+	        {
+		        return default;
+	        }
 
-            return CreateAuthenticatedIdentity(command, identity);
+	        IReadOnlyCollection<Claim> claims = ResolveClaims(
+		        authenticateCommand.Claims.ToList(),
+		        authenticateCommand.AuthenticationSessionItems.ToDictionary(m => m.Key, m => m.Value),
+		        authenticateCommand.Protector);
+
+	        return new ClaimsPrincipal(CreateAuthenticatedClaimsIdentity(identity, claims, authenticateCommand.AuthenticationType));
         }
 
-        protected abstract Task<IIdentity> GetIdentityAsync(TCommand command);
+        protected abstract Task<TIdentity> GetIdentityAsync(TAuthenticateCommand authenticateCommand);
 
-        protected abstract TResult CreateAuthenticatedIdentity(TCommand command, IIdentity identity);
+        protected abstract ClaimsIdentity CreateAuthenticatedClaimsIdentity(TIdentity identity, IReadOnlyCollection<Claim> claims, string authenticationType);
 
-        protected virtual bool IsMatch(TCommand command, IIdentity identity)
+        protected virtual bool IsMatch(TAuthenticateCommand authenticateCommand, TIdentity identity)
         {
-            NullGuard.NotNull(command, nameof(command))
-                .NotNull(identity, nameof(identity));
+	        NullGuard.NotNull(authenticateCommand, nameof(authenticateCommand))
+		        .NotNull(identity, nameof(identity));
 
-            return true;
+	        return true;
+        }
+
+        private IReadOnlyCollection<Claim> ResolveClaims(IList<Claim> claims, IDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
+        {
+	        NullGuard.NotNull(claims, nameof(claims))
+		        .NotNull(authenticationSessionItems, nameof(authenticationSessionItems))
+		        .NotNull(protector, nameof(protector));
+
+	        Claim externalTokenClaim = ResolveExternalTokenClaim(authenticationSessionItems, protector);
+	        if (externalTokenClaim != null)
+	        {
+		        claims.Add(externalTokenClaim);
+	        }
+
+	        return claims.AsReadOnly();
+        }
+
+        private Claim ResolveExternalTokenClaim(IDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
+        {
+	        NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems))
+		        .NotNull(protector, nameof(protector));
+
+	        return _externalTokenClaimCreator.CanBuild(authenticationSessionItems)
+		        ? _externalTokenClaimCreator.Build(authenticationSessionItems, protector)
+		        : null;
         }
 
         #endregion

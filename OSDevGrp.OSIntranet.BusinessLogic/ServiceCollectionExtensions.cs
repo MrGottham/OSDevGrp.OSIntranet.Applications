@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
 
             return serviceCollection.AddTransient<IExternalTokenCreator, ExternalTokenCreator>()
 	            .AddTransient<IExternalTokenClaimCreator, ExternalTokenClaimCreator>()
-	            .AddTransient<ITokenHelper, TokenHelper>()
+	            .AddTransient<ITokenGenerator, TokenGenerator>()
                 .AddTransient<IClaimResolver, ClaimResolver>()
                 .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()

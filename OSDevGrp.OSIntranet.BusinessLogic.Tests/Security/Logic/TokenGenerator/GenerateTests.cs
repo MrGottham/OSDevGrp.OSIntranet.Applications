@@ -5,11 +5,12 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using OSDevGrp.OSIntranet.Domain.Security;
 using System;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 {
 	[TestFixture]
     public class GenerateTests : BusinessLogicTestBase
@@ -31,14 +32,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
 
         [Test]
         [Category("UnitTest")]
-        public void Generate_WhenClientSecretIdentityIsNull_ThrowsArgumentNullException()
+        public void Generate_WhenClaimsIdentityIsNull_ThrowsArgumentNullException()
         {
-            ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Generate(null));
 
             // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("clientSecretIdentity"));
+            Assert.That(result.ParamName, Is.EqualTo("claimsIdentity"));
             // ReSharper restore PossibleNullReferenceException
         }
 
@@ -46,33 +47,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_AssertSecurityJwtKeyWasCalledOnConfiguration()
         {
-            ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-            sut.Generate(_fixture.BuildClientSecretIdentityMock().Object);
+            sut.Generate(CreateClaimsIdentity());
 
             _configurationMock.Verify(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.JwtKey) == 0)], Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Generate_WhenCalled_AssertToClaimsIdentityWasCalledOnClientSecretIdentity()
-        {
-            ITokenHelper sut = CreateSut();
-
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-            sut.Generate(clientSecretIdentityMock.Object);
-
-            clientSecretIdentityMock.Verify(m => m.ToClaimsIdentity(), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsNotNull()
         {
-            ITokenHelper sut = CreateSut();
+            ITokenGenerator sut = CreateSut();
 
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-            IToken result = sut.Generate(clientSecretIdentityMock.Object);
+            IToken result = sut.Generate(CreateClaimsIdentity());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -81,10 +69,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereTokenTypeIsNotNull()
         {
-	        ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-	        Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-	        IToken result = sut.Generate(clientSecretIdentityMock.Object);
+	        IToken result = sut.Generate(CreateClaimsIdentity());
 
 	        Assert.That(result.TokenType, Is.Not.Null);
         }
@@ -93,10 +80,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereTokenTypeIsNotEmpty()
         {
-	        ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-	        Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-	        IToken result = sut.Generate(clientSecretIdentityMock.Object);
+	        IToken result = sut.Generate(CreateClaimsIdentity());
 
 	        Assert.That(result.TokenType, Is.Not.Empty);
         }
@@ -105,10 +91,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereTokenTypeIsEqualToBearer()
         {
-            ITokenHelper sut = CreateSut();
+            ITokenGenerator sut = CreateSut();
 
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-            IToken result = sut.Generate(clientSecretIdentityMock.Object);
+            IToken result = sut.Generate(CreateClaimsIdentity());
 
             Assert.That(result.TokenType, Is.EqualTo("Bearer"));
         }
@@ -117,10 +102,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereAccessTokenIsNotNull()
         {
-	        ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-	        Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-	        IToken result = sut.Generate(clientSecretIdentityMock.Object);
+	        IToken result = sut.Generate(CreateClaimsIdentity());
 
 	        Assert.That(result.AccessToken, Is.Not.Null);
         }
@@ -129,10 +113,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereAccessTokenIsNotEmpty()
         {
-	        ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-	        Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-	        IToken result = sut.Generate(clientSecretIdentityMock.Object);
+	        IToken result = sut.Generate(CreateClaimsIdentity());
 
 	        Assert.That(result.AccessToken, Is.Not.Empty);
         }
@@ -141,10 +124,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereAccessTokenIsJwtToken()
         {
-	        ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-	        Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-	        IToken result = sut.Generate(clientSecretIdentityMock.Object);
+	        IToken result = sut.Generate(CreateClaimsIdentity());
 
 	        Assert.That(_jwtTokenRegex.IsMatch(result.AccessToken), Is.True);
         }
@@ -153,20 +135,31 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenHelper
         [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereExpiresIsCalculateExpireTime()
         {
-	        ITokenHelper sut = CreateSut();
+	        ITokenGenerator sut = CreateSut();
 
-	        Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-	        IToken result = sut.Generate(clientSecretIdentityMock.Object);
+	        IToken result = sut.Generate(CreateClaimsIdentity());
 
 	        Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
         }
 
-        private ITokenHelper CreateSut()
+        private ITokenGenerator CreateSut()
         {
 	        _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.JwtKey) == 0)])
 		        .Returns(_fixture.Create<string>());
 
-            return new BusinessLogic.Security.Logic.TokenHelper(_configurationMock.Object);
+            return new BusinessLogic.Security.Logic.TokenGenerator(_configurationMock.Object);
+        }
+
+        private ClaimsIdentity CreateClaimsIdentity()
+        {
+	        Claim[] claims =
+	        {
+		        ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
+		        ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
+		        ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
+			};
+
+	        return new ClaimsIdentity(claims, _fixture.Create<string>());
         }
     }
 }

@@ -7,12 +7,13 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
-	public class TokenHelper : ITokenHelper
-    {
+	public class TokenGenerator : ITokenGenerator
+	{
         #region Private variables
 
         private readonly IConfiguration _configuration;
@@ -21,7 +22,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         #region Constructor
 
-        public TokenHelper(IConfiguration configuration)
+        public TokenGenerator(IConfiguration configuration)
         {
             NullGuard.NotNull(configuration, nameof(configuration));
 
@@ -32,9 +33,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         #region Methods
 
-        public IToken Generate(IClientSecretIdentity clientSecretIdentity)
+        public IToken Generate(ClaimsIdentity claimsIdentity)
         {
-            NullGuard.NotNull(clientSecretIdentity, nameof(clientSecretIdentity));
+            NullGuard.NotNull(claimsIdentity, nameof(claimsIdentity));
 
             //TODO: Handle this
             byte[] key = Encoding.Default.GetBytes(_configuration[SecurityConfigurationKeys.JwtKey]);
@@ -46,7 +47,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = clientSecretIdentity.ToClaimsIdentity(),
+                Subject = claimsIdentity,
                 Expires = expires,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

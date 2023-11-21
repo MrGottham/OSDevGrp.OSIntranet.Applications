@@ -1,18 +1,20 @@
-﻿using System.Security.Principal;
-using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-    public class AuthenticateUserCommandHandler : AuthenticateCommandHandlerBase<IAuthenticateUserCommand, IUserIdentity>
+	internal sealed class AuthenticateUserCommandHandler : AuthenticateCommandHandlerBase<IAuthenticateUserCommand, IUserIdentity>
     {
         #region Constructor
 
-        public AuthenticateUserCommandHandler(ISecurityRepository securityRepository)
-            : base(securityRepository)
+        public AuthenticateUserCommandHandler(ISecurityRepository securityRepository, IExternalTokenClaimCreator externalTokenClaimCreator)
+            : base(securityRepository, externalTokenClaimCreator)
         {
         }
 
@@ -20,28 +22,25 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Methods
 
-        protected override async Task<IIdentity> GetIdentityAsync(IAuthenticateUserCommand command)
+        protected override Task<IUserIdentity> GetIdentityAsync(IAuthenticateUserCommand authenticateUserCommand)
         {
-            NullGuard.NotNull(command, nameof(command));
+	        NullGuard.NotNull(authenticateUserCommand, nameof(authenticateUserCommand));
 
-            IUserIdentity userIdentity = await SecurityRepository.GetUserIdentityAsync(command.ExternalUserIdentifier);
-
-            return userIdentity;
+	        return SecurityRepository.GetUserIdentityAsync(authenticateUserCommand.ExternalUserIdentifier);
         }
 
-        protected override IUserIdentity CreateAuthenticatedIdentity(IAuthenticateUserCommand command, IIdentity identity)
+        protected override ClaimsIdentity CreateAuthenticatedClaimsIdentity(IUserIdentity userIdentity, IReadOnlyCollection<Claim> claims, string authenticationType)
         {
-            NullGuard.NotNull(command, nameof(command))
-                .NotNull(identity, nameof(identity));
+	        NullGuard.NotNull(userIdentity, nameof(userIdentity))
+		        .NotNull(claims, nameof(claims))
+		        .NotNullOrWhiteSpace(authenticationType, nameof(authenticationType));
 
-            IUserIdentity userIdentity = (IUserIdentity) identity;
-
-            userIdentity.AddClaims(command.Claims);
+            userIdentity.AddClaims(claims);
             userIdentity.ClearSensitiveData();
 
-            return userIdentity;
+            return new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, authenticationType);
         }
 
         #endregion
-    }
+	}
 }

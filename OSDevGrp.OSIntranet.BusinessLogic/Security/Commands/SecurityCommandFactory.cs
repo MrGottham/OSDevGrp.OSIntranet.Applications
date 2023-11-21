@@ -16,9 +16,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new AuthenticateUserCommand(externalUserIdentifier, claims, authenticationType, authenticationSessionItems, protector);
 		}
 
-		public static IAuthenticateClientSecretCommand BuildAuthenticateClientSecretCommand(string clientId, string clientSecret, IReadOnlyCollection<Claim> claims, string authenticationType, Func<string, string> protector)
+		public static IAuthenticateClientSecretCommand BuildAuthenticateClientSecretCommand(string clientId, string clientSecret, string authenticationType, Func<string, string> protector)
 		{
-			return new AuthenticateClientSecretCommand(clientId, clientSecret, claims, authenticationType, new ReadOnlyDictionary<string, string>(new ConcurrentDictionary<string, string>()), protector);
+			return new AuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), authenticationType, new ReadOnlyDictionary<string, string>(new ConcurrentDictionary<string, string>()), protector);
 		}
 
 		#endregion

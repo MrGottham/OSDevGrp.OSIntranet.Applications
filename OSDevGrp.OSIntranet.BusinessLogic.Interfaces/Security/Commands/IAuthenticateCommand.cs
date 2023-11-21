@@ -9,6 +9,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands
 	{
 		IReadOnlyCollection<Claim> Claims { get; }
 
+		string AuthenticationType { get; }
+
 		IReadOnlyDictionary<string, string> AuthenticationSessionItems { get; }
 
 		Func<string, string> Protector { get; }

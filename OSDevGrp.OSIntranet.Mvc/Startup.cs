@@ -232,8 +232,8 @@ namespace OSDevGrp.OSIntranet.Mvc
                     opt.WithExternalDataDashboardValidation(Configuration);
                 });
 
-            services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
-            services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
+            services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
+            services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
             services.AddResolvers();
             services.AddDomainLogic();

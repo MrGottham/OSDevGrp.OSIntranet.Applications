@@ -142,6 +142,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, Schemas.InternalAuthenticationSchema);
             await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, new ClaimsPrincipal(claimsIdentity));
 
+            //TODO: Handle this
             AuthenticationProperties authenticationProperties = authenticateResult.Ticket.Properties;
             foreach (TokenType tokenType in Enum.GetValues(typeof(TokenType)).Cast<TokenType>())
             {
