@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
@@ -29,6 +32,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         #region Private variables
 
         private readonly ICommandBus _commandBus;
+        private readonly IQueryBus _queryBus;
         private readonly ITrustedDomainHelper _trustedDomainHelper;
         private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IDataProtectionProvider _dataProtectionProvider;
@@ -37,14 +41,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
 		#region Constructor
 
-		public AccountController(ICommandBus commandBus, ITrustedDomainHelper trustedDomainHelper, ITokenHelperFactory tokenHelperFactory, IDataProtectionProvider dataProtectionProvider)
+		public AccountController(ICommandBus commandBus, IQueryBus queryBus, ITrustedDomainHelper trustedDomainHelper, ITokenHelperFactory tokenHelperFactory, IDataProtectionProvider dataProtectionProvider)
 		{
 			NullGuard.NotNull(commandBus, nameof(commandBus))
+				.NotNull(queryBus, nameof(queryBus))
 				.NotNull(trustedDomainHelper, nameof(trustedDomainHelper))
 				.NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
 				.NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
 
             _commandBus = commandBus;
+            _queryBus = queryBus;
             _trustedDomainHelper = trustedDomainHelper;
             _tokenHelperFactory = tokenHelperFactory;
             _dataProtectionProvider = dataProtectionProvider;
@@ -133,27 +139,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailClaim.Value, authenticateResult.Principal.Claims.ToArray(), Schemas.InternalAuthenticationSchema, authenticateResult.Properties.Items.AsReadOnly(), value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
-            IUserIdentity userIdentity = await _commandBus.PublishAsync<IAuthenticateUserCommand, IUserIdentity>(authenticateUserCommand);
-            if (userIdentity == null)
+            ClaimsPrincipal authenticatedClaimsPrincipal = await _commandBus.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(authenticateUserCommand);
+            if (authenticatedClaimsPrincipal == null)
             {
                 return Unauthorized();
             }
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, Schemas.InternalAuthenticationSchema);
-            await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, new ClaimsPrincipal(claimsIdentity));
+            await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, authenticatedClaimsPrincipal);
 
-            //TODO: Handle this
-            AuthenticationProperties authenticationProperties = authenticateResult.Ticket.Properties;
-            foreach (TokenType tokenType in Enum.GetValues(typeof(TokenType)).Cast<TokenType>())
-            {
-                string tokenTypeKey = $".{tokenType}";
-                if (authenticationProperties.Items.ContainsKey(tokenTypeKey) == false)
-                {
-                    continue;
-                }
+            IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
+            await HandleMicrosoftToken(microsoftToken);
 
-                await _tokenHelperFactory.StoreTokenAsync(tokenType, HttpContext, authenticationProperties.Items[tokenTypeKey]);
-            }
+            IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
+            await HandleGoogleToken(googleToken);
 
             if (returnUri != null)
             {
@@ -233,6 +231,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             return ConvertToAbsoluteUri(Url.AbsoluteContent(returnUri.OriginalString));
+        }
+
+        private Task HandleMicrosoftToken(IRefreshableToken microsoftToken)
+        {
+	        return microsoftToken != null
+		        ? _tokenHelperFactory.StoreTokenAsync(TokenType.MicrosoftGraphToken, HttpContext, microsoftToken.ToBase64String())
+		        : Task.CompletedTask;
+        }
+
+		private Task HandleGoogleToken(IToken _)
+        {
+	        return Task.CompletedTask;
         }
 
         #endregion

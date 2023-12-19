@@ -1,4 +1,5 @@
-﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+﻿using AutoMapper.Internal;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
@@ -15,12 +16,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
 	internal abstract class AuthenticateCommandHandlerBase<TAuthenticateCommand, TIdentity> : CommandHandlerNonTransactionalBase, ICommandHandler<TAuthenticateCommand, ClaimsPrincipal> where TAuthenticateCommand : IAuthenticateCommand where TIdentity : IIdentity
     {
-        #region Private variables
-
-        private readonly IExternalTokenClaimCreator _externalTokenClaimCreator;
-
-        #endregion
-
         #region Constructor
 
         protected AuthenticateCommandHandlerBase(ISecurityRepository securityRepository, IExternalTokenClaimCreator externalTokenClaimCreator)
@@ -29,7 +24,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 		        .NotNull(externalTokenClaimCreator, nameof(externalTokenClaimCreator));
 
             SecurityRepository = securityRepository;
-            _externalTokenClaimCreator = externalTokenClaimCreator;
+            ExternalTokenClaimCreator = externalTokenClaimCreator;
         }
 
 		#endregion
@@ -37,6 +32,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 		#region Properties
 
 		protected ISecurityRepository SecurityRepository { get; }
+
+		protected IExternalTokenClaimCreator ExternalTokenClaimCreator { get; }
 
         #endregion
 
@@ -52,17 +49,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 		        return default;
 	        }
 
-	        IReadOnlyCollection<Claim> claims = ResolveClaims(
-		        authenticateCommand.Claims.ToList(),
-		        authenticateCommand.AuthenticationSessionItems.ToDictionary(m => m.Key, m => m.Value),
-		        authenticateCommand.Protector);
+	        IEnumerable<Claim> claims = CombineClaims(authenticateCommand.Claims, ResolveExternalTokenClaim(authenticateCommand.AuthenticationSessionItems,  authenticateCommand.Protector));
 
 	        return new ClaimsPrincipal(CreateAuthenticatedClaimsIdentity(identity, claims, authenticateCommand.AuthenticationType));
         }
 
         protected abstract Task<TIdentity> GetIdentityAsync(TAuthenticateCommand authenticateCommand);
 
-        protected abstract ClaimsIdentity CreateAuthenticatedClaimsIdentity(TIdentity identity, IReadOnlyCollection<Claim> claims, string authenticationType);
+        protected abstract ClaimsIdentity CreateAuthenticatedClaimsIdentity(TIdentity identity, IEnumerable<Claim> claims, string authenticationType);
 
         protected virtual bool IsMatch(TAuthenticateCommand authenticateCommand, TIdentity identity)
         {
@@ -72,29 +66,23 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 	        return true;
         }
 
-        private IReadOnlyCollection<Claim> ResolveClaims(IList<Claim> claims, IDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
-        {
-	        NullGuard.NotNull(claims, nameof(claims))
-		        .NotNull(authenticationSessionItems, nameof(authenticationSessionItems))
-		        .NotNull(protector, nameof(protector));
-
-	        Claim externalTokenClaim = ResolveExternalTokenClaim(authenticationSessionItems, protector);
-	        if (externalTokenClaim != null)
-	        {
-		        claims.Add(externalTokenClaim);
-	        }
-
-	        return claims.AsReadOnly();
-        }
-
-        private Claim ResolveExternalTokenClaim(IDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
+        private Claim ResolveExternalTokenClaim(IReadOnlyDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
         {
 	        NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems))
 		        .NotNull(protector, nameof(protector));
 
-	        return _externalTokenClaimCreator.CanBuild(authenticationSessionItems)
-		        ? _externalTokenClaimCreator.Build(authenticationSessionItems, protector)
+	        return ExternalTokenClaimCreator.CanBuild(authenticationSessionItems)
+		        ? ExternalTokenClaimCreator.Build(authenticationSessionItems, protector)
 		        : null;
+        }
+
+        private static IEnumerable<Claim> CombineClaims(IReadOnlyCollection<Claim> claims, Claim externalTokenClaim)
+        {
+	        NullGuard.NotNull(claims, nameof(claims));
+
+	        return externalTokenClaim == null
+		        ? claims
+		        : claims.Concat(new[] { externalTokenClaim }).ToArray();
         }
 
         #endregion

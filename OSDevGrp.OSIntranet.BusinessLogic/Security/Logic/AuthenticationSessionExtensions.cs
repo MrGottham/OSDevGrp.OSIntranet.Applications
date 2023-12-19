@@ -151,12 +151,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 		{
 			NullGuard.NotNullOrWhiteSpace(value, nameof(value));
 
-			if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime expiresAt) == false)
+			if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out DateTime expiresAt) == false)
 			{
 				return null;
 			}
 
-			return expiresAt.ToUniversalTime();
+			return expiresAt.Kind == DateTimeKind.Local ? expiresAt.ToUniversalTime() : expiresAt;
 		}
 
 		#endregion

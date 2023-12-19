@@ -7,6 +7,6 @@
 		internal const string AccessTokenKey = ".Token.access_token";
 		internal const string RefreshTokenKey = ".Token.refresh_token";
 		internal const string ExpiresInKey = ".Token.expires_in";
-		internal const string ExpiresAtKey = ".expires";
+		internal const string ExpiresAtKey = ".Token.expires_at";
 	}
 }

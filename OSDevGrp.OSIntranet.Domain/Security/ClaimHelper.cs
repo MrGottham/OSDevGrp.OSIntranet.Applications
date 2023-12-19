@@ -16,8 +16,6 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public const string ExternalUserIdentifierClaimType = "urn:osdevgrp:osintranet:claims:externaluseridentifier";
         public const string FriendlyNameClaimType = "urn:osdevgrp:osintranet:claims:friendlyname";
-        //TODO: Handle this
-        public const string TokenClaimType = "urn:osdevgrp:osintranet:claims:token";
         public const string MicrosoftTokenClaimType = "urn:osdevgrp:osintranet:claims:tokens:external:microsoft";
         public const string GoogleTokenClaimType = "urn:osdevgrp:osintranet:claims:tokens:external:google";
 		public const string SecurityAdminClaimType = "urn:osdevgrp:osintranet:claims:securityadmin";

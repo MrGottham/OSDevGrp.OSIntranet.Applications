@@ -15,11 +15,9 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
-using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Filters;
 using OSDevGrp.OSIntranet.Mvc.Security;
 using OSDevGrp.OSIntranet.Repositories;
@@ -115,20 +113,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Scope.Add("User.Read");
                 opt.Scope.Add("Contacts.ReadWrite");
                 opt.Scope.Add("offline_access");
-                opt.Events.OnCreatingTicket += async o =>
-                {
-	                await o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-	            
-	                //TODO: Handle this
-                    double seconds = o.ExpiresIn?.TotalSeconds ?? 0;
-                    IRefreshableToken refreshableToken = RefreshableTokenFactory.Create()
-	                    .WithTokenType(o.TokenType)
-	                    .WithAccessToken(o.AccessToken)
-	                    .WithRefreshToken(o.RefreshToken)
-	                    .WithExpires(DateTime.UtcNow.AddSeconds(seconds))
-	                    .Build();
-                    o.Properties.Items.Add($".{TokenType.MicrosoftGraphToken}", refreshableToken.ToBase64String());
-                };
+                opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddGoogle(opt =>

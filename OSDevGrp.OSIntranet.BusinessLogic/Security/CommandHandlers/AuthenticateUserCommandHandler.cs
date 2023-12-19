@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 	        return SecurityRepository.GetUserIdentityAsync(authenticateUserCommand.ExternalUserIdentifier);
         }
 
-        protected override ClaimsIdentity CreateAuthenticatedClaimsIdentity(IUserIdentity userIdentity, IReadOnlyCollection<Claim> claims, string authenticationType)
+        protected override ClaimsIdentity CreateAuthenticatedClaimsIdentity(IUserIdentity userIdentity, IEnumerable<Claim> claims, string authenticationType)
         {
 	        NullGuard.NotNull(userIdentity, nameof(userIdentity))
 		        .NotNull(claims, nameof(claims))

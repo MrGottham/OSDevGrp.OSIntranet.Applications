@@ -108,7 +108,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetOAuthAuthenticationScheme());
-                    policy.RequireClaim(ClaimHelper.TokenClaimType);
+                    policy.RequireAuthenticatedUser();
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
 using System;
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
@@ -31,6 +33,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
@@ -550,7 +553,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             _urlHelperMock.Setup(_fixture, absolutePath: absolutePath);
 
-            return new Controller(_commandBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
             {
                 Url = _urlHelperMock.Object
             };

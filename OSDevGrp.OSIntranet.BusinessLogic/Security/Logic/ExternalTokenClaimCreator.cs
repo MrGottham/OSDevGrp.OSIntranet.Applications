@@ -4,6 +4,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
@@ -36,6 +37,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 			return authenticationSessionItems.HasExternalTokenClaimType() && _externalTokenCreator.CanBuild(authenticationSessionItems);
 		}
 
+		public bool CanBuild(IReadOnlyDictionary<string, string> authenticationSessionItems)
+		{
+			NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems));
+
+			return CanBuild((IDictionary<string, string>) authenticationSessionItems.ToDictionary(m => m.Key, m => m.Value));
+		}
+
 		public Claim Build(IDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
 		{
 			NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems))
@@ -48,6 +56,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 			return refreshableToken == null
 				? ClaimHelper.CreateTokenClaim(claimType, token, protector)
 				: ClaimHelper.CreateTokenClaim(claimType, refreshableToken, protector);
+		}
+
+		public Claim Build(IReadOnlyDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
+		{
+			NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems))
+				.NotNull(protector, nameof(protector));
+
+			return Build((IDictionary<string, string>) authenticationSessionItems.ToDictionary(m => m.Key, m => m.Value), protector);
 		}
 
 		#endregion

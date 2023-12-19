@@ -3,6 +3,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
@@ -17,6 +18,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 			return authenticationSessionItems.HasTokenType() &&
 			       authenticationSessionItems.HasAccessToken() &&
 			       (authenticationSessionItems.HasExpiresAt() || authenticationSessionItems.HasExpiresIn());
+		}
+
+		public bool CanBuild(IReadOnlyDictionary<string, string> authenticationSessionItems)
+		{
+			NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems));
+
+			return CanBuild((IDictionary<string, string>) authenticationSessionItems.ToDictionary(m => m.Key, m => m.Value));
 		}
 
 		public IToken Build(IDictionary<string, string> authenticationSessionItems)
@@ -38,6 +46,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 				.WithRefreshToken(authenticationSessionItems.ResolveRefreshToken())
 				.WithExpires(authenticationSessionItems.ResolveExpires()!.Value)
 				.Build();
+		}
+
+		public IToken Build(IReadOnlyDictionary<string, string> authenticationSessionItems)
+		{
+			NullGuard.NotNull(authenticationSessionItems, nameof(authenticationSessionItems));
+
+			return Build((IDictionary<string, string>) authenticationSessionItems.ToDictionary(m => m.Key, m => m.Value));
 		}
 
 		#endregion

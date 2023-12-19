@@ -1,24 +1,22 @@
-﻿using System.Text;
-using AutoFixture;
-using Microsoft.AspNetCore.DataProtection;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
-using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
+using System.Text;
+using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 {
-    [TestFixture]
+	[TestFixture]
     public class AcmeChallengeTests
     {
-        #region Private variables
+		#region Private variables
 
-        private Mock<IClaimResolver> _claimResolverMock;
-        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
+		private Mock<ICommandBus> _commandBusMock;
         private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
 
@@ -27,8 +25,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [SetUp]
         public void SetUp()
         {
-            _claimResolverMock = new Mock<IClaimResolver>();
-            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
+	        _commandBusMock = new Mock<ICommandBus>();
             _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _fixture = new Fixture();
         }
@@ -50,6 +47,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
         }
 
@@ -61,6 +59,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
         }
 
@@ -72,6 +71,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
         }
 
@@ -92,6 +92,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
         }
 
@@ -103,6 +104,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
         }
 
@@ -114,6 +116,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(string.Empty));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
         }
 
@@ -134,6 +137,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
         }
 
@@ -145,6 +149,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
         }
 
@@ -156,6 +161,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetValidationException result = Assert.Throws<IntranetValidationException>(() => sut.AcmeChallenge(" "));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
         }
 
@@ -188,6 +194,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.AcmeChallenge(_fixture.Create<string>()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.CannotRetrieveAcmeChallengeForToken));
         }
 
@@ -263,7 +270,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _acmeChallengeResolverMock.Setup(m => m.GetConstructedKeyAuthorization(It.IsAny<string>()))
                 .Returns(hasConstructedKeyAuthorization ? constructedKeyAuthorization ?? _fixture.Create<string>() : null);
 
-            return new Controller(_claimResolverMock.Object, _dataProtectionProviderMock.Object, _acmeChallengeResolverMock.Object);
+            return new Controller(_commandBusMock.Object, _acmeChallengeResolverMock.Object);
         }
     }
 }

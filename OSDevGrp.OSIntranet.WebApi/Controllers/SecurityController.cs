@@ -1,28 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
-    [ApiVersion("1.0")]
+	[ApiVersion("1.0")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]
     public class SecurityController : ControllerBase
     {
-        #region Private variables
+		#region Private variables
 
-        private readonly IClaimResolver _claimResolver;
-        private readonly IDataProtectionProvider _dataProtectionProvider;
+		private readonly ICommandBus _commandBus;
         private readonly IAcmeChallengeResolver _acmeChallengeResolver;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
 
@@ -30,14 +31,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Constructor
 
-        public SecurityController(IClaimResolver claimResolver, IDataProtectionProvider dataProtectionProvider, IAcmeChallengeResolver acmeChallengeResolver)
+        public SecurityController(ICommandBus commandBus, IAcmeChallengeResolver acmeChallengeResolver)
         {
-            NullGuard.NotNull(claimResolver, nameof(claimResolver))
-                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider))
+            NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(acmeChallengeResolver, nameof(acmeChallengeResolver));
 
-            _claimResolver = claimResolver;
-            _dataProtectionProvider = dataProtectionProvider;
+            _commandBus = commandBus;
             _acmeChallengeResolver = acmeChallengeResolver;
         }
 
@@ -47,7 +46,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [Authorize(Policy = Policies.AcquireTokenPolicy)]
         [HttpPost("/api/oauth/token")]
-        public ActionResult<AccessTokenModel> AcquireToken([FromForm(Name = "grant_type")]string grantType)
+        public async Task<ActionResult<AccessTokenModel>> AcquireToken([FromForm(Name = "grant_type")]string grantType)
         {
             if (string.IsNullOrWhiteSpace(grantType))
             {
@@ -57,7 +56,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     .Build();
             }
 
-            IToken token = _claimResolver.GetToken<IToken>(UnprotectBase64Token);
+            IGenerateTokenCommand generateTokenCommand = SecurityCommandFactory.BuildGenerateTokenCommand();
+            IToken token = await _commandBus.PublishAsync<IGenerateTokenCommand, IToken>(generateTokenCommand);
 
             if (string.CompareOrdinal(grantType, "client_credentials") != 0 || token == null)
             {
@@ -88,15 +88,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             }
 
             return File(Encoding.UTF8.GetBytes(constructedKeyAuthorization), "application/octet-stream");
-        }
-
-        private string UnprotectBase64Token(string protectedBase64Token)
-        {
-            NullGuard.NotNullOrWhiteSpace(protectedBase64Token, nameof(protectedBase64Token));
-
-            IDataProtector dataProtector = _dataProtectionProvider.CreateProtector("TokenProtection");
-
-            return dataProtector.Unprotect(protectedBase64Token);
         }
 
         #endregion

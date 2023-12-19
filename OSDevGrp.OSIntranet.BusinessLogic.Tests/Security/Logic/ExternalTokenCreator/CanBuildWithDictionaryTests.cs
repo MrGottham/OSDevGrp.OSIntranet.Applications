@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCreator
 {
 	[TestFixture]
-	public class CanBuildTests : ExternalTokenCreatorTestBase
+	public class CanBuildWithDictionaryTests : ExternalTokenCreatorTestBase
 	{
 		#region Private variables
 
@@ -29,7 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.CanBuild(null));
+			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.CanBuild((IDictionary<string, string>) null));
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("authenticationSessionItems"));

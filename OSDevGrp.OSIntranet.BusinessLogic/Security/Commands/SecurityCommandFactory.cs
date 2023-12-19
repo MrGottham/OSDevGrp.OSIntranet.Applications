@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
@@ -18,7 +17,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 
 		public static IAuthenticateClientSecretCommand BuildAuthenticateClientSecretCommand(string clientId, string clientSecret, string authenticationType, Func<string, string> protector)
 		{
-			return new AuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), authenticationType, new ReadOnlyDictionary<string, string>(new ConcurrentDictionary<string, string>()), protector);
+			return new AuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
+		}
+
+		public static IGenerateTokenCommand BuildGenerateTokenCommand()
+		{
+			return new GenerateTokenCommand();
 		}
 
 		#endregion

@@ -92,31 +92,37 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 	        return HasClaim(principal => principal.GetClaim(ClaimHelper.MediaLibraryLenderClaimType));
         }
 
-		//TODO: Handle this
-		public TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken
-        {
-            NullGuard.NotNull(unprotect, nameof(unprotect));
+		public IRefreshableToken GetMicrosoftToken(Func<string, string> unprotect)
+		{
+			NullGuard.NotNull(unprotect, nameof(unprotect));
 
-            string tokenValue = GetClaimStingValue(currentPrincipal => currentPrincipal.GetClaim(ClaimHelper.TokenClaimType));
-            if (string.IsNullOrWhiteSpace(tokenValue))
-            {
-                return null;
-            }
+			return GetMicrosoftToken(_principalResolver.GetCurrentPrincipal(), unprotect);
+		}
 
-            if (typeof(TToken) == typeof(IToken))
-            {
-	            return TokenFactory.Create().FromBase64String(unprotect(tokenValue)) as TToken;
-            }
+		public IRefreshableToken GetMicrosoftToken(IPrincipal principal, Func<string, string> unprotect)
+		{
+			NullGuard.NotNull(principal, nameof(principal))
+				.NotNull(unprotect, nameof(unprotect));
 
-            if (typeof(TToken) == typeof(IRefreshableToken))
-            {
-	            return RefreshableTokenFactory.Create().FromBase64String(unprotect(tokenValue)) as TToken;
-            }
+			return GetExternalToken(() => principal.GetClaim(ClaimHelper.MicrosoftTokenClaimType), unprotect) as IRefreshableToken;
+		}
 
-            throw new NotSupportedException($"Unhandled token type: {nameof(TToken)}");
-        }
+		public IToken GetGoogleToken(Func<string, string> unprotect)
+		{
+			NullGuard.NotNull(unprotect, nameof(unprotect));
 
-        private bool HasClaim(Func<IPrincipal, Claim> claimGetter)
+			return GetGoogleToken(_principalResolver.GetCurrentPrincipal(), unprotect);
+		}
+
+		public IToken GetGoogleToken(IPrincipal principal, Func<string, string> unprotect)
+		{
+			NullGuard.NotNull(principal, nameof(principal))
+				.NotNull(unprotect, nameof(unprotect));
+
+			return GetExternalToken(() => principal.GetClaim(ClaimHelper.GoogleTokenClaimType), unprotect);
+		}
+
+		private bool HasClaim(Func<IPrincipal, Claim> claimGetter)
         {
             NullGuard.NotNull(claimGetter, nameof(claimGetter));
 
@@ -179,6 +185,30 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             }
 
             return valueCollection.Contains(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        private static IToken GetExternalToken(Func<Claim> claimGetter, Func<string, string> unprotect)
+        {
+	        NullGuard.NotNull(claimGetter, nameof(claimGetter))
+		        .NotNull(unprotect, nameof(unprotect));
+
+	        Claim claim = claimGetter();
+	        if (claim == null || string.IsNullOrWhiteSpace(claim.Value))
+	        {
+		        return null;
+	        }
+
+	        if (claim.ValueType == typeof(IToken).FullName)
+	        {
+		        return TokenFactory.Create().FromBase64String(unprotect(claim.Value));
+	        }
+
+	        if (claim.ValueType == typeof(IRefreshableToken).FullName)
+	        {
+		        return RefreshableTokenFactory.Create().FromBase64String(unprotect(claim.Value));
+	        }
+
+	        throw new NotSupportedException($"Unsupported token type: {claim.ValueType}");
         }
 
         #endregion

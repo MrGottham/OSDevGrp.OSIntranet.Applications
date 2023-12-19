@@ -7,12 +7,13 @@ using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenClaimCreator
 {
 	[TestFixture]
-	public class BuildTests : ExternalTokenClaimCreatorBase
+	public class BuildWithReadOnlyDictionaryTests : ExternalTokenClaimCreatorBase
 	{
 		#region Private variables
 
@@ -34,7 +35,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Build(null, value => value));
+			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Build((IReadOnlyDictionary<string, string>) null, value => value));
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("authenticationSessionItems"));
@@ -47,7 +48,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Build(CreateAuthenticationSessionItems(_fixture), null));
+			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Build((IReadOnlyDictionary<string, string>) CreateAuthenticationSessionItems(_fixture).AsReadOnly(), null));
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("protector"));
@@ -62,10 +63,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			sut.Build(authenticationSessionItems, value => value);
 
-			_externalTokenCreatorMock.Verify(m => m.Build(It.Is<IDictionary<string, string>>(value => value != null && value == authenticationSessionItems)), Times.Once);
+			_externalTokenCreatorMock.Verify(m => m.Build(It.Is<IDictionary<string, string>>(value => value != null && authenticationSessionItems.All(authenticationSessionItem => value.ContainsKey(authenticationSessionItem.Key) && value[authenticationSessionItem.Key] == authenticationSessionItem.Value))), Times.Once);
 		}
 
 		[Test]
@@ -77,7 +78,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 			Mock<IToken> tokenMock = _fixture.BuildTokenMock();
 			IExternalTokenClaimCreator sut = CreateSut(tokenMock.Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			sut.Build(authenticationSessionItems, value => value);
 
 			tokenMock.Verify(m => m.ToBase64String());
@@ -91,7 +92,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut(_fixture.BuildTokenMock().Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			bool protectorWasCalled = false;
 			sut.Build(authenticationSessionItems, value =>
@@ -114,7 +115,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 			IToken token = _fixture.BuildTokenMock(toBase64String: toBase64String).Object;
 			IExternalTokenClaimCreator sut = CreateSut(token);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			string protectorWasCalledWith = null;
 			sut.Build(authenticationSessionItems, value =>
@@ -136,7 +137,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 			Mock<IRefreshableToken> refreshableTokenMock = _fixture.BuildRefreshableTokenMock();
 			IExternalTokenClaimCreator sut = CreateSut(refreshableTokenMock.Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			sut.Build(authenticationSessionItems, value => value);
 
 			refreshableTokenMock.Verify(m => m.ToBase64String());
@@ -150,7 +151,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut(_fixture.BuildRefreshableTokenMock().Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			bool protectorWasCalled = false;
 			sut.Build(authenticationSessionItems, value =>
@@ -173,7 +174,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 			IRefreshableToken refreshableToken = _fixture.BuildRefreshableTokenMock(toBase64String: toBase64String).Object;
 			IExternalTokenClaimCreator sut = CreateSut(refreshableToken);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			string protectorWasCalledWith = null;
 			sut.Build(authenticationSessionItems, value =>
@@ -194,7 +195,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
 			Assert.That(result, Is.Not.Null);
@@ -208,7 +209,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
 			Assert.That(result.Type, Is.Not.Null);
@@ -222,7 +223,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
 			Assert.That(result.Type, Is.EqualTo(externalTokenClaimType));
@@ -236,7 +237,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
 			Assert.That(result.Value, Is.Not.Null);
@@ -250,7 +251,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			string resultOfProtector = _fixture.Create<string>();
 			Claim result = sut.Build(authenticationSessionItems, _ => resultOfProtector);
@@ -266,7 +267,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut(_fixture.BuildTokenMock().Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
 			Assert.That(result.ValueType, Is.Not.Null);
@@ -280,7 +281,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut(_fixture.BuildTokenMock().Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
@@ -295,7 +296,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut(_fixture.BuildRefreshableTokenMock().Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 
 			Assert.That(result.ValueType, Is.Not.Null);
@@ -309,7 +310,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCl
 		{
 			IExternalTokenClaimCreator sut = CreateSut(_fixture.BuildRefreshableTokenMock().Object);
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, hasExternalTokenClaimType: true, externalTokenClaimType: externalTokenClaimType).AsReadOnly();
 
 			Claim result = sut.Build(authenticationSessionItems, value => value);
 

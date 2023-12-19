@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCreator
 {
 	[TestFixture]
-	public class BuildTests : ExternalTokenCreatorTestBase
+	public class BuildWithReadOnlyDictionaryTests : ExternalTokenCreatorTestBase
 	{
 		#region Private variables
 
@@ -30,7 +30,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Build(null));
+			ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Build((IReadOnlyDictionary<string, string>) null));
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("authenticationSessionItems"));
@@ -46,7 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result, Is.Not.Null);
@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result, Is.AssignableTo<IToken>());
@@ -76,7 +76,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result, Is.Not.AssignableTo<IRefreshableToken>());
@@ -88,7 +88,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result.TokenType, Is.Not.Null);
@@ -101,7 +101,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			string tokenType = _fixture.Create<string>();
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, tokenType: tokenType, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, tokenType: tokenType, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result.TokenType, Is.EqualTo(tokenType));
@@ -113,7 +113,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result.AccessToken, Is.Not.Null);
@@ -126,7 +126,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			string accessToken = _fixture.Create<string>();
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, accessToken: accessToken, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, accessToken: accessToken, hasRefreshToken: false, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result.AccessToken, Is.EqualTo(accessToken));
@@ -139,7 +139,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			DateTime expiresAt = DateTime.UtcNow.AddSeconds(_random.Next(60, 3600));
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, expiresAt: expiresAt, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: true, expiresAt: expiresAt, hasExpiresIn: true).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result.Expires, Is.EqualTo(expiresAt).Within(1).Seconds);
@@ -152,7 +152,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			TimeSpan expiresIn = TimeSpan.FromSeconds(_random.Next(60, 3600));
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: false, hasExpiresIn: true, expiresIn: expiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: false, hasExpiresAt: false, hasExpiresIn: true, expiresIn: expiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.Add(expiresIn)).Within(1).Seconds);
@@ -167,7 +167,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result, Is.Not.Null);
@@ -182,7 +182,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result, Is.AssignableTo<IToken>());
@@ -197,7 +197,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: hasExpiresAt, hasExpiresIn: hasExpiresIn).AsReadOnly();
 			IToken result = sut.Build(authenticationSessionItems);
 
 			Assert.That(result, Is.AssignableTo<IRefreshableToken>());
@@ -209,7 +209,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.TokenType, Is.Not.Null);
@@ -222,7 +222,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			string tokenType = _fixture.Create<string>();
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, tokenType: tokenType, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, tokenType: tokenType, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.TokenType, Is.EqualTo(tokenType));
@@ -234,7 +234,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.AccessToken, Is.Not.Null);
@@ -247,7 +247,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			string accessToken = _fixture.Create<string>();
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, accessToken: accessToken, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, accessToken: accessToken, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.AccessToken, Is.EqualTo(accessToken));
@@ -259,7 +259,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		{
 			IExternalTokenCreator sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.RefreshToken, Is.Not.Null);
@@ -272,7 +272,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			string refreshToken = _fixture.Create<string>();
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, refreshToken: refreshToken, hasExpiresAt: true, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, refreshToken: refreshToken, hasExpiresAt: true, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.RefreshToken, Is.EqualTo(refreshToken));
@@ -285,7 +285,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			DateTime expiresAt = DateTime.UtcNow.AddSeconds(_random.Next(60, 3600));
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, expiresAt: expiresAt, hasExpiresIn: true);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: true, expiresAt: expiresAt, hasExpiresIn: true).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.Expires, Is.EqualTo(expiresAt).Within(1).Seconds);
@@ -298,7 +298,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 			IExternalTokenCreator sut = CreateSut();
 
 			TimeSpan expiresIn = TimeSpan.FromSeconds(_random.Next(60, 3600));
-			IDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: false, hasExpiresIn: true, expiresIn: expiresIn);
+			IReadOnlyDictionary<string, string> authenticationSessionItems = CreateAuthenticationSessionItems(_fixture, _random, hasTokenType: true, hasAccessToken: true, hasRefreshToken: true, hasExpiresAt: false, hasExpiresIn: true, expiresIn: expiresIn).AsReadOnly();
 			IRefreshableToken result = (IRefreshableToken) sut.Build(authenticationSessionItems);
 
 			Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.Add(expiresIn)).Within(1).Seconds);

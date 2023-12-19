@@ -1,13 +1,12 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-	internal abstract class AuthenticateCommandBase : CommandHandlerNonTransactionalBase, IAuthenticateCommand
+	internal abstract class AuthenticateCommandBase : IAuthenticateCommand
 	{
 		#region Constructor
 

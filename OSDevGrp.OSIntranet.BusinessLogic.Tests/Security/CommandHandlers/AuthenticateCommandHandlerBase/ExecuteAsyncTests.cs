@@ -5,6 +5,8 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Concurrent;
@@ -24,6 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		private Mock<ISecurityRepository> _securityRepositoryMock;
 		private Mock<IExternalTokenClaimCreator> _externalTokenClaimCreatorMock;
 		private Fixture _fixture;
+		private Random _random;
 
 		#endregion
 
@@ -33,6 +36,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			_securityRepositoryMock = new Mock<ISecurityRepository>();
 			_externalTokenClaimCreatorMock = new Mock<IExternalTokenClaimCreator>();
 			_fixture = new Fixture();
+			_random = new Random(_fixture.Create<int>());
 		}
 
 		[Test]
@@ -128,7 +132,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand();
 			await sut.ExecuteAsync(authenticateCommand);
 
-			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IDictionary<string, string>>()), Times.Never);
+			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
 		}
 
 		[Test]
@@ -141,7 +145,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			await sut.ExecuteAsync(authenticateCommand);
 
 			_externalTokenClaimCreatorMock.Verify(m => m.Build(
-					It.IsAny<IDictionary<string, string>>(),
+					It.IsAny<IReadOnlyDictionary<string, string>>(),
 					It.IsAny<Func<string, string>>()),
 				Times.Never);
 		}
@@ -252,7 +256,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand();
 			await sut.ExecuteAsync(authenticateCommand);
 
-			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IDictionary<string, string>>()), Times.Never);
+			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
 		}
 
 		[Test]
@@ -265,7 +269,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			await sut.ExecuteAsync(authenticateCommand);
 
 			_externalTokenClaimCreatorMock.Verify(m => m.Build(
-					It.IsAny<IDictionary<string, string>>(),
+					It.IsAny<IReadOnlyDictionary<string, string>>(),
 					It.IsAny<Func<string, string>>()),
 				Times.Never);
 		}
@@ -336,14 +340,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(authenticationSessionItems: authenticationSessionItems.AsReadOnly());
+			IReadOnlyDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
+			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(authenticationSessionItems: authenticationSessionItems);
 			await sut.ExecuteAsync(authenticateCommand);
 
-			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.Is<IDictionary<string, string>>(value => value != null && authenticationSessionItems.All(n => value.ContainsKey(n.Key) && value[n.Key] == n.Value))), Times.Once);
+			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value == authenticationSessionItems)), Times.Once);
 		}
 
 		[Test]
@@ -356,7 +357,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			await sut.ExecuteAsync(authenticateCommand);
 
 			_externalTokenClaimCreatorMock.Verify(m => m.Build(
-					It.IsAny<IDictionary<string, string>>(),
+					It.IsAny<IReadOnlyDictionary<string, string>>(),
 					It.IsAny<Func<string, string>>()),
 				Times.Never);
 		}
@@ -367,16 +368,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
+			IReadOnlyDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
 			Func<string, string> protector = value => value;
-			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(authenticationSessionItems: authenticationSessionItems.AsReadOnly(), protector: protector);
+			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(authenticationSessionItems: authenticationSessionItems, protector: protector);
 			await sut.ExecuteAsync(authenticateCommand);
 
 			_externalTokenClaimCreatorMock.Verify(m => m.Build(
-					It.Is<IDictionary<string, string>>(value => value != null && authenticationSessionItems.All(n => value.ContainsKey(n.Key) && value[n.Key] == n.Value)),
+					It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value == authenticationSessionItems),
 					It.Is<Func<string, string>>(value => value != null && value == protector)),
 				Times.Once);
 		}
@@ -426,12 +424,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> sut = CreateSut(canBuildExternalTokenClaim: canBuildExternalTokenClaim);
 
-			IReadOnlyCollection<Claim> claims = new[]
-			{
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>())
-			};
+			IReadOnlyCollection<Claim> claims = BuildClaimCollection();
 			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: claims);
 			await sut.ExecuteAsync(authenticateCommand);
 
@@ -447,7 +440,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> sut = CreateSut(canBuildExternalTokenClaim: false);
 
-			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: Array.Empty<Claim>());
+			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: BuildEmptyClaimCollection());
 			await sut.ExecuteAsync(authenticateCommand);
 
 			Assert.That(((MyAuthenticateCommandHandler) sut).CreateAuthenticatedClaimsIdentityWasCalledWithClaims, Is.Empty);
@@ -459,7 +452,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> sut = CreateSut(hasExternalTokenClaim: false);
 
-			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: Array.Empty<Claim>());
+			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: BuildEmptyClaimCollection());
 			await sut.ExecuteAsync(authenticateCommand);
 
 			Assert.That(((MyAuthenticateCommandHandler)sut).CreateAuthenticatedClaimsIdentityWasCalledWithClaims, Is.Empty);
@@ -469,16 +462,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		[Category("UnitTest")]
 		public async Task ExecuteAsync_WhenMatchingIdentityWasReturnedFromGetIdentityAsyncAndExternalTokenClaimHasBeenBuild_AssertCreateAuthenticatedClaimsIdentityWasCalledOnAuthenticateCommandHandlerBaseWithExternalTokenClaim()
 		{
-			Claim externalTokenClaim = new Claim(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>());
+			Claim externalTokenClaim = BuildExternalTokenClaim();
 			ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> sut = CreateSut(externalTokenClaim: externalTokenClaim);
 
-			IReadOnlyCollection<Claim> claims = new[]
-			{
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>())
-			};
-			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: claims);
+			IAuthenticateCommand authenticateCommand = CreateAuthenticateCommand(claims: BuildClaimCollection());
 			await sut.ExecuteAsync(authenticateCommand);
 
 			Assert.That(((MyAuthenticateCommandHandler) sut).CreateAuthenticatedClaimsIdentityWasCalledWithClaims.Contains(externalTokenClaim), Is.True);
@@ -560,10 +547,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
 		private ICommandHandler<IAuthenticateCommand, ClaimsPrincipal> CreateSut(bool hasIdentity = true, IIdentity identity = null, ClaimsIdentity claimsIdentity = null, bool isMatch = true, bool canBuildExternalTokenClaim = true, bool hasExternalTokenClaim = true, Claim externalTokenClaim = null)
 		{
-			_externalTokenClaimCreatorMock.Setup(m => m.CanBuild(It.IsAny<IDictionary<string, string>>()))
+			_externalTokenClaimCreatorMock.Setup(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()))
 				.Returns(canBuildExternalTokenClaim);
-			_externalTokenClaimCreatorMock.Setup(m => m.Build(It.IsAny<IDictionary<string, string>>(), It.IsAny<Func<string, string>>()))
-				.Returns(hasExternalTokenClaim ? externalTokenClaim ?? new Claim(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) : null);
+			_externalTokenClaimCreatorMock.Setup(m => m.Build(It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<Func<string, string>>()))
+				.Returns(hasExternalTokenClaim ? externalTokenClaim ?? BuildExternalTokenClaim() : null);
 
 			return new MyAuthenticateCommandHandler(hasIdentity, identity ?? new ClaimsIdentity(), claimsIdentity ?? new ClaimsIdentity(), isMatch, _securityRepositoryMock.Object, _externalTokenClaimCreatorMock.Object);
 		}
@@ -577,14 +564,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			Mock<IAuthenticateCommand> authenticateCommandMock = new Mock<IAuthenticateCommand>();
 			authenticateCommandMock.Setup(m => m.Claims)
-				.Returns(claims ?? Array.Empty<Claim>());
+				.Returns(claims ?? BuildClaimCollection());
 			authenticateCommandMock.Setup(m => m.AuthenticationType)
 				.Returns(authenticationType ?? _fixture.Create<string>());
 			authenticateCommandMock.Setup(m => m.AuthenticationSessionItems)
-				.Returns(authenticationSessionItems ?? new ConcurrentDictionary<string, string>().AsReadOnly());
+				.Returns(authenticationSessionItems ?? new ConcurrentDictionary<string, string>());
 			authenticateCommandMock.Setup(m => m.Protector)
 				.Returns(protector ?? (value => value));
 			return authenticateCommandMock;
+		}
+
+		private Claim BuildExternalTokenClaim()
+		{
+			return ClaimHelper.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), typeof(IRefreshableToken).FullName);
+		}
+
+		private IReadOnlyCollection<Claim> BuildClaimCollection()
+		{
+			return new[]
+			{
+				ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
+				ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
+				ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
+			};
+		}
+
+		private IReadOnlyCollection<Claim> BuildEmptyClaimCollection()
+		{
+			return Array.Empty<Claim>();
 		}
 
 		private sealed class MyAuthenticateCommandHandler : BusinessLogic.Security.CommandHandlers.AuthenticateCommandHandlerBase<IAuthenticateCommand, IIdentity>
@@ -624,7 +631,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
 			public IIdentity CreateAuthenticatedClaimsIdentityWasCalledWithIdentity { get; private set; }
 
-			public IReadOnlyCollection<Claim> CreateAuthenticatedClaimsIdentityWasCalledWithClaims { get; private set; }
+			public IEnumerable<Claim> CreateAuthenticatedClaimsIdentityWasCalledWithClaims { get; private set; }
 
 			public string CreateAuthenticatedClaimsIdentityWasCalledWithAuthenticationType { get; private set; }
 
@@ -648,7 +655,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 				return Task.FromResult(_hasIdentity ? _identity : null);
 			}
 
-			protected override ClaimsIdentity CreateAuthenticatedClaimsIdentity(IIdentity identity, IReadOnlyCollection<Claim> claims, string authenticationType)
+			protected override ClaimsIdentity CreateAuthenticatedClaimsIdentity(IIdentity identity, IEnumerable<Claim> claims, string authenticationType)
 			{
 				NullGuard.NotNull(identity, nameof(identity))
 					.NotNull(claims, nameof(claims))

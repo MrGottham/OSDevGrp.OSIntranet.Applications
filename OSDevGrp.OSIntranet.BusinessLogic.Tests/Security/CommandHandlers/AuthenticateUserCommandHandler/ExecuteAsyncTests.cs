@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
@@ -24,6 +25,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 	    private Mock<ISecurityRepository> _securityRepositoryMock;
 	    private Mock<IExternalTokenClaimCreator> _externalTokenClaimCreatorMock;
 	    private Fixture _fixture;
+	    private Random _random;
 
 	    #endregion
 
@@ -33,6 +35,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		    _securityRepositoryMock = new Mock<ISecurityRepository>();
 		    _externalTokenClaimCreatorMock = new Mock<IExternalTokenClaimCreator>();
 		    _fixture = new Fixture();
+		    _random = new Random(_fixture.Create<int>());
 	    }
 
 	    [Test]
@@ -117,7 +120,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		    IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand();
 		    await sut.ExecuteAsync(authenticateUserCommand);
 
-		    _externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IDictionary<string, string>>()), Times.Never);
+		    _externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
 	    }
 
 	    [Test]
@@ -130,7 +133,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		    await sut.ExecuteAsync(authenticateUserCommand);
 
 		    _externalTokenClaimCreatorMock.Verify(m => m.Build(
-				    It.IsAny<IDictionary<string, string>>(),
+				    It.IsAny<IReadOnlyDictionary<string, string>>(),
 				    It.IsAny<Func<string, string>>()),
 			    Times.Never);
 	    }
@@ -189,14 +192,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(authenticationSessionItems: authenticationSessionItems.AsReadOnly());
+			IReadOnlyDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
+			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(authenticationSessionItems: authenticationSessionItems);
 			await sut.ExecuteAsync(authenticateUserCommand);
 
-			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.Is<IDictionary<string, string>>(value => value != null && authenticationSessionItems.All(n => value.ContainsKey(n.Key) && value[n.Key] == n.Value))), Times.Once);
+			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value == authenticationSessionItems)), Times.Once);
 		}
 
 		[Test]
@@ -209,7 +209,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			await sut.ExecuteAsync(authenticateUserCommand);
 
 			_externalTokenClaimCreatorMock.Verify(m => m.Build(
-					It.IsAny<IDictionary<string, string>>(),
+					It.IsAny<IReadOnlyDictionary<string, string>>(),
 					It.IsAny<Func<string, string>>()),
 				Times.Never);
 		}
@@ -220,16 +220,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		{
 			ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut();
 
-			IDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
-			authenticationSessionItems.Add(_fixture.Create<string>(), _fixture.Create<string>());
+			IReadOnlyDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
 			Func<string, string> protector = value => value;
-			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(authenticationSessionItems: authenticationSessionItems.AsReadOnly(), protector: protector);
+			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(authenticationSessionItems: authenticationSessionItems, protector: protector);
 			await sut.ExecuteAsync(authenticateUserCommand);
 
 			_externalTokenClaimCreatorMock.Verify(m => m.Build(
-					It.Is<IDictionary<string, string>>(value => value != null && authenticationSessionItems.All(n => value.ContainsKey(n.Key) && value[n.Key] == n.Value)),
+					It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value == authenticationSessionItems),
 					It.Is<Func<string, string>>(value => value != null && value == protector)),
 				Times.Once);
 		}
@@ -255,12 +252,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
 			ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut(userIdentity: userIdentityMock.Object, canBuildExternalTokenClaim: canBuildExternalTokenClaim);
 
-			Claim[] claims =
-			{
-				new(_fixture.Create<string>(), _fixture.Create<string>()),
-				new(_fixture.Create<string>(), _fixture.Create<string>()),
-				new(_fixture.Create<string>(), _fixture.Create<string>())
-			};
+			IReadOnlyCollection<Claim> claims = BuildClaimCollection();
 			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: claims);
 			await sut.ExecuteAsync(authenticateUserCommand);
 
@@ -274,7 +266,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
 			ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut(userIdentity: userIdentityMock.Object, canBuildExternalTokenClaim: false);
 
-			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: Array.Empty<Claim>());
+			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: BuildEmptyClaimCollection());
 			await sut.ExecuteAsync(authenticateUserCommand);
 
 			userIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && value.Any() == false)), Times.Once);
@@ -287,7 +279,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
 			ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut(userIdentity: userIdentityMock.Object, hasExternalTokenClaim: false);
 
-			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: Array.Empty<Claim>());
+			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: BuildEmptyClaimCollection());
 			await sut.ExecuteAsync(authenticateUserCommand);
 
 			userIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && value.Any() == false)), Times.Once);
@@ -298,16 +290,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 		public async Task ExecuteAsync_WhenUserIdentityWasReturnedForExternalUserIdentifierAndExternalTokenClaimHasBeenBuild_AssertAddClaimsWasCalledOnUserIdentityForExternalUserIdentifierWithExternalTokenClaim()
 		{
 			Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
-			Claim externalTokenClaim = new Claim(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>());
+			Claim externalTokenClaim = BuildExternalTokenClaim();
 			ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut(userIdentity: userIdentityMock.Object, externalTokenClaim: externalTokenClaim);
 
-			Claim[] claims =
-			{
-				new(_fixture.Create<string>(), _fixture.Create<string>()),
-				new(_fixture.Create<string>(), _fixture.Create<string>()),
-				new(_fixture.Create<string>(), _fixture.Create<string>())
-			};
-			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: claims);
+			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: BuildClaimCollection());
 			await sut.ExecuteAsync(authenticateUserCommand);
 
 			userIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && value.Contains(externalTokenClaim))), Times.Once);
@@ -405,10 +391,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             _securityRepositoryMock.Setup(m => m.GetUserIdentityAsync(It.IsAny<string>()))
                 .Returns(Task.FromResult(hasUserIdentityForExternalUserIdentifier ? userIdentity ?? _fixture.BuildUserIdentityMock().Object : null));
 
-			_externalTokenClaimCreatorMock.Setup(m => m.CanBuild(It.IsAny<IDictionary<string, string>>()))
-				.Returns(canBuildExternalTokenClaim);
-			_externalTokenClaimCreatorMock.Setup(m => m.Build(It.IsAny<IDictionary<string, string>>(), It.IsAny<Func<string, string>>()))
-				.Returns(hasExternalTokenClaim ? externalTokenClaim ?? new Claim(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()) : null);
+            _externalTokenClaimCreatorMock.Setup(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()))
+	            .Returns(canBuildExternalTokenClaim);
+            _externalTokenClaimCreatorMock.Setup(m => m.Build(It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<Func<string, string>>()))
+	            .Returns(hasExternalTokenClaim ? externalTokenClaim ?? BuildExternalTokenClaim() : null);
 
 			return new BusinessLogic.Security.CommandHandlers.AuthenticateUserCommandHandler(_securityRepositoryMock.Object, _externalTokenClaimCreatorMock.Object);
         }
@@ -424,14 +410,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 	        authenticateUserCommandMock.Setup(m => m.ExternalUserIdentifier)
 		        .Returns(externalUserIdentifier ?? string.Empty);
 	        authenticateUserCommandMock.Setup(m => m.Claims)
-		        .Returns(claims ?? Array.Empty<Claim>());
+		        .Returns(claims ?? BuildClaimCollection());
 	        authenticateUserCommandMock.Setup(m => m.AuthenticationType)
 		        .Returns(authenticationType ?? _fixture.Create<string>());
 	        authenticateUserCommandMock.Setup(m => m.AuthenticationSessionItems)
-		        .Returns(authenticationSessionItems ?? new ConcurrentDictionary<string, string>().AsReadOnly());
+		        .Returns(authenticationSessionItems ?? new ConcurrentDictionary<string, string>());
 	        authenticateUserCommandMock.Setup(m => m.Protector)
 		        .Returns(protector ?? (value => value));
 	        return authenticateUserCommandMock;
+        }
+
+        private Claim BuildExternalTokenClaim()
+        {
+	        return ClaimHelper.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), typeof(IRefreshableToken).FullName);
+        }
+
+        private IReadOnlyCollection<Claim> BuildClaimCollection()
+        {
+	        return new[]
+	        {
+		        ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
+		        ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
+		        ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
+	        };
+        }
+
+        private IReadOnlyCollection<Claim> BuildEmptyClaimCollection()
+        {
+	        return Array.Empty<Claim>();
         }
     }
 }

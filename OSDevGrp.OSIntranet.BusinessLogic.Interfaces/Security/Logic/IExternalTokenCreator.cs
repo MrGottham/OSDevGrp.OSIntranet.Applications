@@ -7,6 +7,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 	{
 		bool CanBuild(IDictionary<string, string> authenticationSessionItems);
 
+		bool CanBuild(IReadOnlyDictionary<string, string> authenticationSessionItems);
+
 		IToken Build(IDictionary<string, string> authenticationSessionItems);
+
+		IToken Build(IReadOnlyDictionary<string, string> authenticationSessionItems);
 	}
 }
