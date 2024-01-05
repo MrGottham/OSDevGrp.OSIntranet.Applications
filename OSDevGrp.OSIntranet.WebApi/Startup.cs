@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
@@ -91,12 +92,13 @@ namespace OSDevGrp.OSIntranet.WebApi
             })
             .AddJwtBearer(opt =>
             {
+	            TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.JwtSectionName}").Get<TokenGeneratorOptions>();
                 opt.RequireHttpsMetadata = false;
                 opt.SaveToken = true;
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenGeneratorOptions.Key ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -181,6 +183,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddResolvers();
             services.AddDomainLogic();
             services.AddRepositories();
+            services.AddBusinessLogicConfiguration(Configuration);
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
 

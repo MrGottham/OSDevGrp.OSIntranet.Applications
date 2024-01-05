@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
@@ -13,11 +13,11 @@ using System.Text.RegularExpressions;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 {
 	[TestFixture]
-    public class GenerateTests : BusinessLogicTestBase
+    public class GenerateTests
     {
         #region Private variables
 
-        private Mock<IConfiguration> _configurationMock;
+        private Mock<IOptions<TokenGeneratorOptions>> _tokenGeneratorOptionsMock;
         private Fixture _fixture;
         private readonly Regex _jwtTokenRegex = new(RegexTestHelper.JwtTokenPattern, RegexOptions.Compiled);
 
@@ -26,7 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         [SetUp]
         public void SetUp()
         {
-            _configurationMock = new Mock<IConfiguration>();
+            _tokenGeneratorOptionsMock = new Mock<IOptions<TokenGeneratorOptions>>();
             _fixture = new Fixture();
         }
 
@@ -45,13 +45,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void Generate_WhenCalled_AssertSecurityJwtKeyWasCalledOnConfiguration()
+        public void Generate_WhenCalled_AssertValueWasCalledOnTokenGeneratorOptions()
         {
 	        ITokenGenerator sut = CreateSut();
 
             sut.Generate(CreateClaimsIdentity());
 
-            _configurationMock.Verify(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.JwtKey) == 0)], Times.Once);
+            _tokenGeneratorOptionsMock.Verify(m => m.Value, Times.Once);
         }
 
         [Test]
@@ -144,13 +144,21 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 
         private ITokenGenerator CreateSut()
         {
-	        _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.JwtKey) == 0)])
-		        .Returns(_fixture.Create<string>());
+	        _tokenGeneratorOptionsMock.Setup(m => m.Value)
+		        .Returns(CreateTokenGeneratorOptions);
 
-            return new BusinessLogic.Security.Logic.TokenGenerator(_configurationMock.Object);
+            return new BusinessLogic.Security.Logic.TokenGenerator(_tokenGeneratorOptionsMock.Object);
         }
 
-        private ClaimsIdentity CreateClaimsIdentity()
+        private TokenGeneratorOptions CreateTokenGeneratorOptions()
+        {
+	        return new TokenGeneratorOptions
+	        {
+		        Key = _fixture.Create<string>()
+	        };
+        }
+
+		private ClaimsIdentity CreateClaimsIdentity()
         {
 	        Claim[] claims =
 	        {

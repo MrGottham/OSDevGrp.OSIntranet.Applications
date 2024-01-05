@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
@@ -16,17 +16,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 	{
         #region Private variables
 
-        private readonly IConfiguration _configuration;
+        private readonly IOptions<TokenGeneratorOptions> _tokenGeneratorOptions;
 
         #endregion
 
         #region Constructor
 
-        public TokenGenerator(IConfiguration configuration)
+        public TokenGenerator(IOptions<TokenGeneratorOptions> tokenGeneratorOptions)
         {
-            NullGuard.NotNull(configuration, nameof(configuration));
+            NullGuard.NotNull(tokenGeneratorOptions, nameof(tokenGeneratorOptions));
 
-            _configuration = configuration;
+            _tokenGeneratorOptions = tokenGeneratorOptions;
         }
 
         #endregion
@@ -37,8 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         {
             NullGuard.NotNull(claimsIdentity, nameof(claimsIdentity));
 
-            //TODO: Handle this
-            byte[] key = Encoding.Default.GetBytes(_configuration[SecurityConfigurationKeys.JwtKey]);
+            byte[] key = Encoding.Default.GetBytes(_tokenGeneratorOptions.Value.Key);
 
             //TODO: Handle this
             DateTime expires = DateTime.UtcNow.AddHours(1);

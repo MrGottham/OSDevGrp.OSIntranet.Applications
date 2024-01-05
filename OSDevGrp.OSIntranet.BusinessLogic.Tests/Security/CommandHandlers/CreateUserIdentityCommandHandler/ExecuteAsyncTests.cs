@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
@@ -7,12 +6,13 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.CreateUserIdentityCommandHandler;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.CreateUserIdentityCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.CreateUserIdentityCommandHandler
 {
-    [TestFixture]
-    public class ExecuteAsyncTests : BusinessLogicTestBase
+	[TestFixture]
+    public class ExecuteAsyncTests
     {
         #region Private variables
 

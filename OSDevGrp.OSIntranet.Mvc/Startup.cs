@@ -223,6 +223,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddResolvers();
             services.AddDomainLogic();
             services.AddRepositories();
+            services.AddBusinessLogicConfiguration(Configuration);
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
 

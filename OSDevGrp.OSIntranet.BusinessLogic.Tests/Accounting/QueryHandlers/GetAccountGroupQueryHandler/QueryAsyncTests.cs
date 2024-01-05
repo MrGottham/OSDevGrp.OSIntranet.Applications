@@ -14,7 +14,7 @@ using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Accounting.QueryHandlers.
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.GetAccountGroupQueryHandler
 {
     [TestFixture]
-    public class QueryAsyncTests : BusinessLogicTestBase
+    public class QueryAsyncTests
     {
         #region Private variables
 

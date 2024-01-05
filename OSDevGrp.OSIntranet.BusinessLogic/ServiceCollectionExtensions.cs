@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Common.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Logic;
@@ -8,14 +9,24 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic
 {
 	public static class ServiceCollectionExtensions
     {
-        #region Methods
+		#region Methods
+
+		public static IServiceCollection AddBusinessLogicConfiguration(this IServiceCollection serviceCollection, IConfiguration configuration)
+		{
+			NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
+				.NotNull(configuration, nameof(configuration));
+
+			return serviceCollection.Configure<TokenGeneratorOptions>(configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.JwtSectionName}"));
+		}
 
         public static IServiceCollection AddBusinessLogicValidators(this IServiceCollection serviceCollection)
         {

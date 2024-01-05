@@ -1,17 +1,17 @@
-using System;
-using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.IdentityIdentificationCommandHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands.IIdentityIdentificationCommand>;
+using System;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.IdentityIdentificationCommandHandlerBase<OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands.IIdentityIdentificationCommand>;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.IdentityIdentificationCommandHandlerBase
 {
-    [TestFixture]
-    public class ExecuteAsyncTests : BusinessLogicTestBase
+	[TestFixture]
+    public class ExecuteAsyncTests
     {
         #region Private variables
 

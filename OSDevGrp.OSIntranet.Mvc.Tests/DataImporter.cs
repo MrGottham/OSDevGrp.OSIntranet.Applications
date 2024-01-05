@@ -48,9 +48,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
         [SetUp]
         public void SetUp()
         {
+	        IConfiguration configuration = CreateConfiguration();
+
             IServiceCollection serviceCollection = new ServiceCollection();
             // ReSharper disable UnusedParameter.Local
-            serviceCollection.AddTransient(serviceProvider => CreateConfiguration());
+            serviceCollection.AddTransient(serviceProvider => configuration);
             serviceCollection.AddTransient(serviceProvider => CreatePrincipalResolver());
             serviceCollection.AddTransient(serviceProvider => CreateLoggerFactory());
             // ReSharper restore UnusedParameter.Local
@@ -61,6 +63,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             serviceCollection.AddCommandBus();
             serviceCollection.AddCommandHandlers(typeof(CreateLetterHeadCommandHandler).Assembly);
             serviceCollection.AddDomainLogic();
+            serviceCollection.AddBusinessLogicConfiguration(configuration);
             serviceCollection.AddBusinessLogicValidators();
             serviceCollection.AddBusinessLogicHelpers();
             serviceCollection.AddRepositories();

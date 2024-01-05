@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AuthenticateCommandHandlerBase
 {
 	[TestFixture]
-	public class ExecuteAsyncTests : BusinessLogicTestBase
+	public class ExecuteAsyncTests
 	{
 		#region Private variables
 
