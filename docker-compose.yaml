@@ -11,6 +11,8 @@ services:
 
   executor:
     image: executor-osintranet
+    depends_on:
+      - builder
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Executor.Dockerfile
@@ -54,6 +56,7 @@ services:
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
       - ExternalData__Dashboard__EndpointAddress=[TBD]
     depends_on:
+      - executor
       - reverseproxy
     build:
       context: .
@@ -82,6 +85,7 @@ services:
       - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
+      - executor
       - reverseproxy
     build:
       context: .
