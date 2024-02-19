@@ -4,15 +4,15 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class ContactSupplementBindingModel : AuditModelBase
+	internal class ContactSupplementBindingModel : AuditModelBase
     {
         public virtual int ContactSupplementBindingIdentifier { get; set; }
-        
+
         public virtual int ContactSupplementIdentifier { get; set; }
 
         public virtual ContactSupplementModel ContactSupplement { get; set; }
 
-        public virtual string ExternalIdentifier { get; set; }
+        public virtual byte[] ExternalIdentifier { get; set; }
     }
 
     public static class ContactSupplementBindingModelExtensions

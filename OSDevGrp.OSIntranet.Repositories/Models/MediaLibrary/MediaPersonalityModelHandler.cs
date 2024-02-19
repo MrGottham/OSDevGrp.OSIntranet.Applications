@@ -49,7 +49,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		protected sealed override Func<IMediaPersonality, Guid> PrimaryKey => mediaPersonality => mediaPersonality.MediaPersonalityIdentifier;
 
-		protected sealed override Expression<Func<MediaPersonalityModel, bool>> EntitySelector(Guid primaryKey) => mediaPersonalityModel => mediaPersonalityModel.ExternalMediaPersonalityIdentifier == ValueConverter.GuidToString(primaryKey);
+		protected sealed override Expression<Func<MediaPersonalityModel, bool>> EntitySelector(Guid primaryKey) => mediaPersonalityModel => mediaPersonalityModel.ExternalMediaPersonalityIdentifier == primaryKey;
 
 		protected sealed override Task<IEnumerable<IMediaPersonality>> SortAsync(IEnumerable<IMediaPersonality> mediaPersonalityCollection)
 		{

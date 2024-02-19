@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 	{
 		public virtual int BorrowerIdentifier { get; set; }
 
-		public virtual string ExternalBorrowerIdentifier { get; set; }
+		public virtual Guid ExternalBorrowerIdentifier { get; set; }
 
 		public virtual string FullName { get; set; }
 
@@ -44,14 +44,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalBorrowerIdentifier = ValueConverter.StringToGuid(borrowerModel.ExternalBorrowerIdentifier);
-				if (mapperCache.BorrowerDictionary.TryGetValue(externalBorrowerIdentifier, out IBorrower cachedBorrower))
+				if (mapperCache.BorrowerDictionary.TryGetValue(borrowerModel.ExternalBorrowerIdentifier, out IBorrower cachedBorrower))
 				{
 					return cachedBorrower;
 				}
 
 				IBorrower borrower = new Borrower(
-					externalBorrowerIdentifier,
+					borrowerModel.ExternalBorrowerIdentifier,
 					borrowerModel.FullName,
 					borrowerModel.MailAddress,
 					borrowerModel.PrimaryPhone,

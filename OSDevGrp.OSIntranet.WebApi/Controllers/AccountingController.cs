@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
@@ -21,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
-    [Authorize(Policy = Policies.AccountingPolicy)]
+	[Authorize(Policy = Policies.AccountingPolicy)]
     [ApiVersion("0.1")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]

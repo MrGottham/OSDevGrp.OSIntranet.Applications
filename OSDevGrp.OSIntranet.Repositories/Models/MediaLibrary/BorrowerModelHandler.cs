@@ -44,7 +44,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Methods
 
-		protected sealed override Expression<Func<BorrowerModel, bool>> EntitySelector(Guid primaryKey) => borrowerModel => borrowerModel.ExternalBorrowerIdentifier == ValueConverter.GuidToString(primaryKey);
+		protected sealed override Expression<Func<BorrowerModel, bool>> EntitySelector(Guid primaryKey) => borrowerModel => borrowerModel.ExternalBorrowerIdentifier == primaryKey;
 
 		protected sealed override Task<IEnumerable<IBorrower>> SortAsync(IEnumerable<IBorrower> borrowerCollection)
 		{

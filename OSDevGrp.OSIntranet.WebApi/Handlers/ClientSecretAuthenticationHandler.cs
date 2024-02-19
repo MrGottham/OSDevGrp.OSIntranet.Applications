@@ -29,8 +29,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Handlers
 
         #region Constructor
 
-        public ClientSecretAuthenticationHandler(ICommandBus commandBus, IDataProtectionProvider dataProtectionProvider, IOptionsMonitor<ClientSecretAuthenticationOptions> clientSecretAuthenticationOptions, ILoggerFactory loggerFactory, UrlEncoder urlEncoder, ISystemClock systemClock) 
-            : base(clientSecretAuthenticationOptions, loggerFactory, urlEncoder, systemClock)
+        public ClientSecretAuthenticationHandler(ICommandBus commandBus, IDataProtectionProvider dataProtectionProvider, IOptionsMonitor<ClientSecretAuthenticationOptions> clientSecretAuthenticationOptions, ILoggerFactory loggerFactory, UrlEncoder urlEncoder) 
+            : base(clientSecretAuthenticationOptions, loggerFactory, urlEncoder)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(dataProtectionProvider, nameof(dataProtectionProvider));

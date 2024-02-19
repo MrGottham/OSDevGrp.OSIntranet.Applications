@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
@@ -13,10 +7,16 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Events;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class PostingLineModelHandler : ModelHandlerBase<IPostingLine, RepositoryContext, PostingLineModel, string, AccountingIdentificationState>, IEventHandler<AccountModelCollectionLoadedEvent>, IEventHandler<BudgetAccountModelCollectionLoadedEvent>, IEventHandler<ContactAccountModelCollectionLoadedEvent>
+	internal class PostingLineModelHandler : ModelHandlerBase<IPostingLine, RepositoryContext, PostingLineModel, Guid, AccountingIdentificationState>, IEventHandler<AccountModelCollectionLoadedEvent>, IEventHandler<BudgetAccountModelCollectionLoadedEvent>, IEventHandler<ContactAccountModelCollectionLoadedEvent>
     {
         #region Private variables
 
@@ -67,7 +67,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 
         protected override DbSet<PostingLineModel> Entities => DbContext.PostingLines;
 
-        protected override Func<IPostingLine, string> PrimaryKey => postingLine => postingLine.Identifier.ToString("D").ToUpper();
+        protected override Func<IPostingLine, Guid> PrimaryKey => postingLine => postingLine.Identifier;
 
         #endregion
 
@@ -210,7 +210,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 .Build();
         }
 
-        protected override Expression<Func<PostingLineModel, bool>> EntitySelector(string primaryKey) => postingLineModel => postingLineModel.PostingLineIdentification == primaryKey;
+        protected override Expression<Func<PostingLineModel, bool>> EntitySelector(Guid primaryKey) => postingLineModel => postingLineModel.PostingLineIdentification == primaryKey;
 
         protected override Task<IEnumerable<IPostingLine>> SortAsync(IEnumerable<IPostingLine> postingLineCollection)
         {
@@ -270,7 +270,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
             }
         }
 
-        protected override Task PrepareReadAsync(string primaryKey, AccountingIdentificationState accountingIdentificationState)
+        protected override Task PrepareReadAsync(Guid primaryKey, AccountingIdentificationState accountingIdentificationState)
         {
             NullGuard.NotNull(accountingIdentificationState, nameof(accountingIdentificationState));
 

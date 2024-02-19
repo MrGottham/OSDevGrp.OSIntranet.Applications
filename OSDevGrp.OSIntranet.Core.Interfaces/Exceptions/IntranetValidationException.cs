@@ -1,10 +1,9 @@
-﻿using System;
-using System.Runtime.Serialization;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+﻿using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
 
 namespace OSDevGrp.OSIntranet.Core.Interfaces.Exceptions
 {
-    public class IntranetValidationException : IntranetBusinessException
+	public class IntranetValidationException : IntranetBusinessException
     {
         #region Private variables
 
@@ -22,11 +21,6 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Exceptions
 
         public IntranetValidationException(ErrorCode errorCode, string message, Exception innerException)
             : base(errorCode, message, innerException)
-        {
-        }
-
-        protected IntranetValidationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
 

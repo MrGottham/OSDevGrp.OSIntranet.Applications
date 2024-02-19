@@ -4,7 +4,6 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
-using System;
 using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -35,8 +34,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalMediaIdentifier = ValueConverter.StringToGuid(musicModel.ExternalMediaIdentifier);
-				if (mapperCache.MediaDictionary.TryGetValue(externalMediaIdentifier, out IMedia cachedMedia))
+				if (mapperCache.MediaDictionary.TryGetValue(musicModel.ExternalMediaIdentifier, out IMedia cachedMedia))
 				{
 					return (IMusic)cachedMedia;
 				}
@@ -45,7 +43,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				IMediaType mediaType = mediaLibraryModelConverter.Convert<MediaTypeModel, IMediaType>(musicModel.CoreData.MediaType);
 
 				IMusic music = new Music(
-					externalMediaIdentifier,
+					musicModel.ExternalMediaIdentifier,
 					musicModel.CoreData.Title,
 					musicModel.CoreData.Subtitle,
 					musicModel.CoreData.Description,

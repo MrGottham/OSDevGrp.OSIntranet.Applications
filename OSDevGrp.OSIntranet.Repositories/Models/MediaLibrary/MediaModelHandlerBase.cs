@@ -50,7 +50,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		#region Methods
 
-		protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == ValueConverter.GuidToString(primaryKey);
+		protected sealed override Expression<Func<TMediaModel, bool>> EntitySelector(Guid primaryKey) => mediaModel => mediaModel.ExternalMediaIdentifier == primaryKey;
 
 		protected abstract Expression<Func<LendingModel, bool>> LendingModelsSelector(TMediaModel mediaModel);
 
@@ -170,7 +170,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 	                continue;
                 }
 
-                MediaPersonalityModel mediaPersonalityModel = await DbContext.MediaPersonalities.SingleAsync(m => m.ExternalMediaPersonalityIdentifier == ValueConverter.GuidToString(mediaBinding.MediaPersonality.MediaPersonalityIdentifier));
+                MediaPersonalityModel mediaPersonalityModel = await DbContext.MediaPersonalities.SingleAsync(m => m.ExternalMediaPersonalityIdentifier == mediaBinding.MediaPersonality.MediaPersonalityIdentifier);
 
                 TMediaBindingModel mediaBindingModelToCreate = BuildMediaBindingModel(mediaModel, mediaPersonalityModel, (short)mediaBinding.Role);
                 mediaBindingModels.Add(mediaBindingModelToCreate);

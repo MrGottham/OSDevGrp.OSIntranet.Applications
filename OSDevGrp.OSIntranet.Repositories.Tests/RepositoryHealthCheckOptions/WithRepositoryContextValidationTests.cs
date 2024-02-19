@@ -35,7 +35,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.RepositoryHealthCheckOptions
 
             Repositories.RepositoryHealthCheckOptions result = sut.WithRepositoryContextValidation();
 
-            Assert.IsTrue(result.ValidateRepositoryContext);
+            Assert.That(result.ValidateRepositoryContext, Is.True);
         }
 
         private Repositories.RepositoryHealthCheckOptions CreateSut()

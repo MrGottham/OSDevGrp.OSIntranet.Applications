@@ -1,16 +1,16 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Converters
 {
-    internal class AccountingModelConverter : ConverterBase
+	internal class AccountingModelConverter : ConverterBase
     {
         #region Private variables
 
@@ -160,7 +160,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IPostingLine, PostingLineModel>()
                 .ForMember(dest => dest.PostingLineIdentifier, opt => opt.MapFrom(src => default(int)))
-                .ForMember(dest => dest.PostingLineIdentification, opt => opt.MapFrom(src => src.Identifier.ToString("D").ToUpper()))
+                .ForMember(dest => dest.PostingLineIdentification, opt => opt.MapFrom(src => src.Identifier))
                 .ForMember(dest => dest.AccountingIdentifier, opt => opt.MapFrom(src => src.Accounting.Number))
                 .ForMember(dest => dest.PostingDate, opt => opt.MapFrom(src => src.PostingDate.Date))
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(src => string.IsNullOrWhiteSpace(src.Reference) ? null : src.Reference))

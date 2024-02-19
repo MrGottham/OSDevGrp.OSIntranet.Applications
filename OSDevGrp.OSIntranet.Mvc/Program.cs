@@ -1,15 +1,25 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
 
 namespace OSDevGrp.OSIntranet.Mvc
 {
-    public class Program
+	public class Program
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateWebApplication(args).Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
+        private static WebApplication CreateWebApplication(string[] args)
+        {
+	        WebApplicationBuilder applicationBuilder = WebApplication.CreateBuilder(args);
+
+	        Startup startup = new Startup(applicationBuilder.Configuration);
+            startup.ConfigureServices(applicationBuilder.Services);
+
+            WebApplication application = applicationBuilder.Build();
+            startup.Configure(application, application.Environment);
+
+            return application;
+		}
     }
 }

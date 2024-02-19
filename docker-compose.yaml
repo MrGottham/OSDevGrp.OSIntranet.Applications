@@ -42,7 +42,7 @@ services:
     environment: 
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
@@ -77,7 +77,7 @@ services:
     environment: 
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]

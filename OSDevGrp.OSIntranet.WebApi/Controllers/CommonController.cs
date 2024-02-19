@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
-    [Authorize(Policy = Policies.CommonDataPolicy)]
+	[Authorize(Policy = Policies.CommonDataPolicy)]
     [ApiVersion("1.0")]
     [ApiVersionNeutral]
     [Route("api/[controller]")]

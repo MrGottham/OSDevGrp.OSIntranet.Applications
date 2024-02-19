@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 {
-    [TestFixture]
+	[TestFixture]
     public class PublishAsyncWithoutResultTests : QueryBusTestBase
     {
         #region Private variables
@@ -33,7 +33,8 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.QueryAsync<IQuery, object>(null));
 
-            Assert.AreEqual(result.ParamName, "query");
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ParamName, Is.EqualTo("query"));
         }
 
         [Test]
@@ -45,6 +46,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
             Mock<IQuery> commandMock = new Mock<IQuery>();
             IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<IQuery, object>(commandMock.Object));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.NoQueryHandlerSupportingQuery));
         }
 
@@ -57,7 +59,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             TestQuery testQuery = new TestQuery();
             await sut.QueryAsync<TestQuery, object>(testQuery);
-            
+
             queryHandlerMock.Verify(m => m.QueryAsync(It.Is<TestQuery>(cmd => cmd == testQuery)), Times.Once);
         }
 
@@ -72,6 +74,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             object result = await sut.QueryAsync<TestQuery, object>(new TestQuery());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.EqualTo(expectedResult));
         }
 
@@ -86,6 +89,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.EqualTo(intranetException));
         }
 
@@ -101,6 +105,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.EqualTo(innerException));
         }
 
@@ -115,6 +120,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ErrorWhileQueryingQuery));
         }
 
@@ -130,6 +136,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.EqualTo(innerException));
         }
 
@@ -144,6 +151,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ErrorWhileQueryingQuery));
         }
 
@@ -158,6 +166,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
             IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.EqualTo(exception));
         }
     }

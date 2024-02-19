@@ -68,7 +68,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 		internal Expression<Func<LendingModel, bool>> IsDeletable => lendingModel => lendingModel.ReturnedDate != null && lendingModel.ReturnedDate <= DateTime.Today;
 
-		protected sealed override Expression<Func<LendingModel, bool>> EntitySelector(Guid primaryKey) => lendingModel => lendingModel.ExternalLendingIdentifier == ValueConverter.GuidToString(primaryKey);
+		protected sealed override Expression<Func<LendingModel, bool>> EntitySelector(Guid primaryKey) => lendingModel => lendingModel.ExternalLendingIdentifier == primaryKey;
 
 		protected sealed override Task<IEnumerable<ILending>> SortAsync(IEnumerable<ILending> lendingCollection)
 		{
@@ -145,28 +145,28 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 		{
 			NullGuard.NotNull(borrower, nameof(borrower));
 
-			return DbContext.Borrowers.SingleAsync(m => m.ExternalBorrowerIdentifier == ValueConverter.GuidToString(borrower.BorrowerIdentifier));
+			return DbContext.Borrowers.SingleAsync(m => m.ExternalBorrowerIdentifier == borrower.BorrowerIdentifier);
 		}
 
 		private Task<MovieModel> GetMovieModelAsync(IMedia media)
 		{
 			NullGuard.NotNull(media, nameof(media));
 
-			return DbContext.Movies.SingleAsync(m => m.ExternalMediaIdentifier == ValueConverter.GuidToString(media.MediaIdentifier));
+			return DbContext.Movies.SingleAsync(m => m.ExternalMediaIdentifier == media.MediaIdentifier);
 		}
 
 		private Task<MusicModel> GetMusicModelAsync(IMedia media)
 		{
 			NullGuard.NotNull(media, nameof(media));
 
-			return DbContext.Music.SingleAsync(m => m.ExternalMediaIdentifier == ValueConverter.GuidToString(media.MediaIdentifier));
+			return DbContext.Music.SingleAsync(m => m.ExternalMediaIdentifier == media.MediaIdentifier);
 		}
 
 		private Task<BookModel> GetBookModelAsync(IMedia media)
 		{
 			NullGuard.NotNull(media, nameof(media));
 
-			return DbContext.Books.SingleAsync(m => m.ExternalMediaIdentifier == ValueConverter.GuidToString(media.MediaIdentifier));
+			return DbContext.Books.SingleAsync(m => m.ExternalMediaIdentifier == media.MediaIdentifier);
 		}
 
 		private async Task ApplyAsync(LendingModel lendingModel, IBorrower borrower)

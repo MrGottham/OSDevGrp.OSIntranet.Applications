@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -18,11 +14,15 @@ using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.ContactController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 {
-    [TestFixture]
+	[TestFixture]
     public class LoadContactsTests
     {
         #region Private variables
@@ -210,8 +210,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
             List<ContactInfoViewModel> contactInfoViewModelCollection = (List<ContactInfoViewModel>) result.Model;
 
-            Assert.IsNotNull(contactInfoViewModelCollection);
-            Assert.IsTrue(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)));
+            Assert.That(contactInfoViewModelCollection, Is.Not.Null);
+            Assert.That(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)), Is.True);
         }
 
         [Test]
@@ -276,8 +276,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
             List<ContactInfoViewModel> contactInfoViewModelCollection = (List<ContactInfoViewModel>) result.Model;
 
-            Assert.IsNotNull(contactInfoViewModelCollection);
-            Assert.IsTrue(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)));
+            Assert.That(contactInfoViewModelCollection, Is.Not.Null);
+            Assert.That(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)), Is.True);
         }
 
         [Test]
@@ -342,8 +342,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
             List<ContactInfoViewModel> contactInfoViewModelCollection = (List<ContactInfoViewModel>) result.Model;
 
-            Assert.IsNotNull(contactInfoViewModelCollection);
-            Assert.IsTrue(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)));
+            Assert.That(contactInfoViewModelCollection, Is.Not.Null);
+            Assert.That(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)), Is.True);
         }
 
         [Test]
@@ -413,8 +413,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
             List<ContactInfoViewModel> contactInfoViewModelCollection = (List<ContactInfoViewModel>) result.Model;
 
-            Assert.IsNotNull(contactInfoViewModelCollection);
-            Assert.IsTrue(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)));
+            Assert.That(contactInfoViewModelCollection, Is.Not.Null);
+            Assert.That(contactInfoViewModelCollection.All(contactInfoViewModel => contactCollection.Any(contact => string.CompareOrdinal(contact.ExternalIdentifier, contactInfoViewModel.ExternalIdentifier) == 0)), Is.True);
         }
 
         [Test]
