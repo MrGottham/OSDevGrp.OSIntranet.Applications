@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Authorization
+@using OSDevGrp.OSIntranet.Core.Resolvers
 @using OSDevGrp.OSIntranet.Mvc.Security
+@using System.Reflection
 @inject IAuthorizationService AuthorizationService
 <!DOCTYPE html>
 <html>
@@ -104,15 +106,25 @@
 	<footer class="border-top footer text-muted">
 		@if (User.Identity is { IsAuthenticated: true })
 		{
-			<div class="container">
-				OS Development Group &copy; 2023 - OS Intranet
-			</div>
+            <div class="container">
+                <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
+                    <p>OS Intranet - Build @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).ToString("yyyyMMddHHmm")</p>
+                </div>
+                <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
+					<p>OS Development Group &copy; @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).Year - OS Intranet - Build @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).ToString("yyyyMMddHHmm")</p>
+                </div>
+            </div>
 		}
 		else
 		{
-			<div class="container">
-				OS Development Group &copy; 2023 - Mr. Gottham&lsquo;s Homepage
-			</div>
+            <div class="container">
+				<div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
+                    <p>Mr. Gottham&lsquo;s Homepage - Build @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).ToString("yyyyMMddHHmm")</p>
+                </div>
+				<div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
+					<p>OS Development Group &copy; @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).Year - Mr. Gottham&lsquo;s Homepage - Build @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).ToString("yyyyMMddHHmm")</p>
+                </div>
+            </div>
 		}
 	</footer>
 	<environment include="Development">

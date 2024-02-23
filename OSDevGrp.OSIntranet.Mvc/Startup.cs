@@ -279,7 +279,6 @@ namespace OSDevGrp.OSIntranet.Mvc
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapHealthChecks("/health");
             });
-
         }
 
         private static bool RunningInDocker()

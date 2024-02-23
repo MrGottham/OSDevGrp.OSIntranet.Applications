@@ -70,6 +70,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
+            services.AddRazorPages();
             services.AddControllers(opt => 
             {
                 opt.Filters.Add<ErrorHandlerFilter>();
@@ -255,9 +256,11 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SwaggerEndpoint($"/api/swagger/{WebApiVersion}/swagger.json", WebApiName);
             });
 
-            app.UseEndpoints(endpoints => 
+            app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+	            endpoints.MapRazorPages();
+                endpoints.MapHealthChecks("/health");
                 endpoints.MapHealthChecks("/api/health");
             });
         }
