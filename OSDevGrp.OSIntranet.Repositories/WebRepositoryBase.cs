@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization.Json;
+using System.Security.Authentication;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal abstract class WebRepositoryBase : RepositoryBase
+	internal abstract class WebRepositoryBase : RepositoryBase
     {
         #region Constructor
 
@@ -20,6 +21,12 @@ namespace OSDevGrp.OSIntranet.Repositories
             : base(configuration, loggerFactory)
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        protected virtual SslProtocols EnforceSslProtocol => SslProtocols.Tls12;
 
         #endregion
 
@@ -60,8 +67,9 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNull(methodBase, nameof(methodBase));
 
             return ExecuteAsync(async () =>
-                {
-                    using HttpClient httpClient = new HttpClient();
+	            {
+		            using HttpClientHandler httpClientHandler = CreateHttpClientHandler(EnforceSslProtocol);
+                    using HttpClient httpClient = new HttpClient(httpClientHandler);
                     using HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback);
                     using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
 
@@ -83,7 +91,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using HttpClient httpClient = new HttpClient();
+	                using HttpClientHandler httpClientHandler = CreateHttpClientHandler(EnforceSslProtocol);
+                    using HttpClient httpClient = new HttpClient(httpClientHandler);
                     using HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback);
                     using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
 
@@ -98,25 +107,6 @@ namespace OSDevGrp.OSIntranet.Repositories
                     throw await HandleUnsuccessfulResponseAndCreateExceptionAsync(methodBase, httpRequestMessage, httpResponseMessage);
                 },
                 methodBase);
-        }
-
-        private HttpRequestMessage CreateHttpRequestMessage(Uri requestUri, Func<Uri, HttpRequestMessage> httpRequestMessageCreator, Action<HttpRequestMessage> httpRequestMessageCallback = null)
-        {
-            NullGuard.NotNull(requestUri, nameof(requestUri))
-                .NotNull(httpRequestMessageCreator, nameof(httpRequestMessageCreator));
-
-            HttpRequestMessage httpRequestMessage = httpRequestMessageCreator(requestUri);
-            try
-            {
-                httpRequestMessageCallback?.Invoke(httpRequestMessage);
-            }
-            catch (TargetInvocationException ex)
-            {
-                httpRequestMessage.Dispose();
-
-                throw ex.InnerException ?? ex;
-            }
-            return httpRequestMessage;
         }
 
         private async Task<Exception> HandleUnsuccessfulResponseAndCreateExceptionAsync(MethodBase methodBase, HttpRequestMessage httpRequestMessage, HttpResponseMessage httpResponseMessage)
@@ -152,6 +142,56 @@ namespace OSDevGrp.OSIntranet.Repositories
             return await httpContent.ReadAsStringAsync();
         }
 
-        #endregion
-    }
+        private static HttpClientHandler CreateHttpClientHandler(SslProtocols enforceSslProtocol)
+        {
+	        SecurityProtocolType enforceSecurityProtocolType = ConvertSslProtocolsToSecurityProtocolType(enforceSslProtocol);
+
+	        SecurityProtocolType existingSecurityProtocolType = ServicePointManager.SecurityProtocol;
+	        if (existingSecurityProtocolType.HasFlag(enforceSecurityProtocolType) == false)
+	        {
+		        ServicePointManager.SecurityProtocol = existingSecurityProtocolType | enforceSecurityProtocolType;
+	        }
+
+	        return new HttpClientHandler
+	        {
+		        SslProtocols = enforceSslProtocol
+	        };
+        }
+
+        private static SecurityProtocolType ConvertSslProtocolsToSecurityProtocolType(SslProtocols sslProtocol)
+        {
+	        switch (sslProtocol)
+	        {
+		        case SslProtocols.Tls12:
+			        return SecurityProtocolType.Tls12;
+
+		        case SslProtocols.Tls13:
+			        return SecurityProtocolType.Tls13;
+
+		        default:
+			        throw new NotSupportedException($"Unsupported SSL protocol: {sslProtocol}");
+	        }
+        }
+
+        private static HttpRequestMessage CreateHttpRequestMessage(Uri requestUri, Func<Uri, HttpRequestMessage> httpRequestMessageCreator, Action<HttpRequestMessage> httpRequestMessageCallback = null)
+        {
+	        NullGuard.NotNull(requestUri, nameof(requestUri))
+		        .NotNull(httpRequestMessageCreator, nameof(httpRequestMessageCreator));
+
+	        HttpRequestMessage httpRequestMessage = httpRequestMessageCreator(requestUri);
+	        try
+	        {
+		        httpRequestMessageCallback?.Invoke(httpRequestMessage);
+	        }
+	        catch (TargetInvocationException ex)
+	        {
+		        httpRequestMessage.Dispose();
+
+		        throw ex.InnerException ?? ex;
+	        }
+	        return httpRequestMessage;
+        }
+
+		#endregion
+	}
 }
