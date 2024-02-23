@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
-using OSDevGrp.OSIntranet.Core;
+﻿using OSDevGrp.OSIntranet.Core;
+using System.Text.Json;
 
 namespace OSDevGrp.OSIntranet.Domain.Core
 {
-    internal static class DomainHelper
+	internal static class DomainHelper
     {
         internal static byte[] ToByteArray<T>(T value) where T : class
         {

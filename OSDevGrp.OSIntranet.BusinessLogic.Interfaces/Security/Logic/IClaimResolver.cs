@@ -1,5 +1,6 @@
 ﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
+using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 {
@@ -29,6 +30,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         bool IsMediaLibraryLender();
 
-        TToken GetToken<TToken>(Func<string, string> unprotect) where TToken : class, IToken;
+        IRefreshableToken GetMicrosoftToken(Func<string, string> unprotect);
+
+        IRefreshableToken GetMicrosoftToken(IPrincipal principal, Func<string, string> unprotect);
+
+        IToken GetGoogleToken(Func<string, string> unprotect);
+
+        IToken GetGoogleToken(IPrincipal principal, Func<string, string> unprotect);
     }
 }

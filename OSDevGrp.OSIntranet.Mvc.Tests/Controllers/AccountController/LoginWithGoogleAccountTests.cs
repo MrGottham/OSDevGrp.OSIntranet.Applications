@@ -1,26 +1,30 @@
-using System;
 using AutoFixture;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
+using System;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 {
-    [TestFixture]
+	[TestFixture]
     public class LoginWithGoogleAccountTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
-        private Mock<IUrlHelper> _urlHelperMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
+		private Mock<IUrlHelper> _urlHelperMock;
         private Fixture _fixture;
 
         #endregion
@@ -29,8 +33,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _urlHelperMock = new Mock<IUrlHelper>();
             _fixture = new Fixture();
         }
@@ -71,6 +77,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlIsNullAndCalculatedReturnUriIsNonTrustedDomain_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        IActionResult result = sut.LoginWithGoogleAccount();
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlIsNullAndCalculatedReturnUriIsNonTrustedDomain_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -89,6 +106,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.LoginWithGoogleAccount();
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlIsNullAndCalculatedReturnUriIsTrustedDomain_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.LoginWithGoogleAccount();
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -149,6 +177,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlIsEmptyAndCalculatedReturnUriIsNonTrustedDomain_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        IActionResult result = sut.LoginWithGoogleAccount(string.Empty);
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlIsEmptyAndCalculatedReturnUriIsNonTrustedDomain_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -167,6 +206,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.LoginWithGoogleAccount(string.Empty);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlIsEmptyAndCalculatedReturnUriIsTrustedDomain_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.LoginWithGoogleAccount(string.Empty);
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -227,6 +277,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlIsWhiteSpaceAndCalculatedReturnUriIsNonTrustedDomain_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        IActionResult result = sut.LoginWithGoogleAccount(" ");
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlIsWhiteSpaceAndCalculatedReturnUriIsNonTrustedDomain_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -245,6 +306,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.LoginWithGoogleAccount(" ");
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlIsWhiteSpaceAndCalculatedReturnUriIsTrustedDomain_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.LoginWithGoogleAccount(" ");
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -308,6 +380,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreNonTrustedRelativeUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        string returnUrl = $"/{_fixture.Create<string>()}";
+	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreNonTrustedRelativeUrl_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -328,6 +412,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreTrustedRelativeUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        string returnUrl = $"/{_fixture.Create<string>()}";
+	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -380,6 +476,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreNonTrustedAbsoluteUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreNonTrustedAbsoluteUrl_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -400,6 +508,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreTrustedAbsoluteUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -430,9 +550,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             _trustedDomainHelperMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
+
             _urlHelperMock.Setup(_fixture, absolutePath: absolutePath);
 
-            return new Controller(_commandBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
             {
                 Url = _urlHelperMock.Object
             };

@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 {
-    public interface IClientSecretIdentityBuilder
+	public interface IClientSecretIdentityBuilder
     {
         IClientSecretIdentityBuilder WithIdentifier(int identifier);
 

@@ -48,10 +48,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
         {
             ITokenHelper sut = CreateSut();
 
-            IRefreshableToken token = new RefreshableToken(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<DateTime>());
+            IRefreshableToken token = RefreshableTokenFactory.Create()
+	            .WithTokenType(_fixture.Create<string>())
+	            .WithAccessToken(_fixture.Create<string>())
+	            .WithRefreshToken(_fixture.Create<string>())
+	            .WithExpires(_fixture.Create<DateTime>())
+	            .Build();
 
             HttpContext httpContext = CreateHttpContext();
-            string base64Token = token.ToBase64();
+            string base64Token = token.ToBase64String();
             await sut.StoreTokenAsync(httpContext, base64Token);
 
             _dataProtectorMock.Verify(m => m.Protect(It.Is<byte[]>(value => value != null && string.CompareOrdinal(Encoding.UTF8.GetString(value), Encoding.UTF8.GetString(token.ToByteArray())) == 0)), Times.Once);

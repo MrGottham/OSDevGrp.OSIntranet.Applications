@@ -1,28 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-    public class AuthenticateClientSecretCommand : IAuthenticateClientSecretCommand
+	internal class AuthenticateClientSecretCommand : AuthenticateCommandBase, IAuthenticateClientSecretCommand
     {
-        #region Constructors
+        #region Constructor
 
-        public AuthenticateClientSecretCommand(string clientId, string clientSecret)
-            : this(clientId, clientSecret, new List<Claim>(0))
+        public AuthenticateClientSecretCommand(string clientId, string clientSecret, IReadOnlyCollection<Claim> claims, string authenticationType, IReadOnlyDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
+            : base(claims, authenticationType, authenticationSessionItems, protector)
         {
-        }
+	        NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId))
+		        .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret));
 
-        public AuthenticateClientSecretCommand(string clientId, string clientSecret, IEnumerable<Claim> claims)
-        {
-            NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId))
-                .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret))
-                .NotNull(claims, nameof(claims));
-
-            ClientId = clientId;
-            ClientSecret = clientSecret;
-            Claims = claims;
+	        ClientId = clientId;
+	        ClientSecret = clientSecret;
         }
 
         #endregion
@@ -32,8 +27,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
         public string ClientId { get; }
 
         public string ClientSecret { get; }
-
-        public IEnumerable<Claim> Claims { get; }
 
         #endregion
     }

@@ -1,17 +1,17 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-    public class UserIdentity : ClaimsIdentity, IUserIdentity
+	internal class UserIdentity : ClaimsIdentity, IUserIdentity
     {
         #region Constructor
 
-        public UserIdentity(int identifier, string externalUserIdentifier, IEnumerable<Claim> claims)
+        internal UserIdentity(int identifier, string externalUserIdentifier, IEnumerable<Claim> claims)
             : base(claims)
         {
             NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier))
@@ -23,7 +23,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         }
 
         #endregion
-        
+
         #region Properties
 
         public int Identifier { get; }

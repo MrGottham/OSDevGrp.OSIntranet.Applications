@@ -1,24 +1,28 @@
-using System;
 using AutoFixture;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
+using System;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 {
-    [TestFixture]
+	[TestFixture]
     public class LoginTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
-        private Mock<IUrlHelper> _urlHelperMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
+		private Mock<IUrlHelper> _urlHelperMock;
         private Fixture _fixture;
 
         #endregion
@@ -27,8 +31,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _urlHelperMock = new Mock<IUrlHelper>();
             _fixture = new Fixture();
         }
@@ -53,6 +59,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.Login();
 
             _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsNull_ReturnsNotNul()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.Login();
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -112,6 +129,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsEmpty_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.Login(string.Empty);
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Login_WhenReturnUrlIsEmpty_ReturnsViewResult()
         {
             Controller sut = CreateSut();
@@ -163,6 +191,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             sut.Login(" ");
 
             _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsWhiteSpace_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.Login(" ");
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -224,6 +263,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsNonTrustedAbsoluteUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        string absoluteUrl = $"http://localhost//{_fixture.Create<string>()}";
+	        IActionResult result = sut.Login(absoluteUrl);
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Login_WhenReturnUrlIsNonTrustedAbsoluteUrl_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -232,6 +283,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             IActionResult result = sut.Login(absoluteUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        string absoluteUrl = $"http://localhost//{_fixture.Create<string>()}";
+	        IActionResult result = sut.Login(absoluteUrl);
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -279,7 +342,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             string absoluteUrl = $"http://localhost//{_fixture.Create<string>()}";
             Uri result = (Uri) ((ViewResult) sut.Login(absoluteUrl)).Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.AbsoluteUri, Is.EqualTo(absoluteUrl));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -333,6 +398,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsNonTrustedRelativeUrl_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut(false);
+
+	        string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+	        IActionResult result = sut.Login(relativeUrl);
+
+	        Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Login_WhenReturnUrlIsNonTrustedRelativeUrl_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut(false);
@@ -341,6 +418,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             IActionResult result = sut.Login(relativeUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsNotNul()
+        {
+	        Controller sut = CreateSut();
+
+	        string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+	        IActionResult result = sut.Login(relativeUrl);
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -389,16 +478,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
             Uri result = (Uri) ((ViewResult) sut.Login(relativeUrl)).Model;
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.AbsoluteUri.EndsWith(absolutePath), Is.True);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         private Controller CreateSut(bool isTrustedDomain = true, string absolutePath = null)
         {
             _trustedDomainHelperMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
+
             _urlHelperMock.Setup(_fixture, absolutePath: absolutePath);
 
-            return new Controller(_commandBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
             {
                 Url = _urlHelperMock.Object
             };

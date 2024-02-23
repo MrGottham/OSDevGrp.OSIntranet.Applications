@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 {
-    internal class UserIdentityModel : AuditModelBase
+	internal class UserIdentityModel : AuditModelBase
     {
         public virtual int UserIdentityIdentifier { get; set; }
 
@@ -29,9 +29,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
             IEnumerable<Claim> claimCollection = securityModelConverter.Convert<IEnumerable<UserIdentityClaimModel>, IEnumerable<Claim>>(userIdentityModel.UserIdentityClaims);
 
-            UserIdentityClaimModel latestUserIdentityClaimModel = userIdentityModel.UserIdentityClaims.OrderByDescending(model => model.ModifiedUtcDateTime).FirstOrDefault();
+            UserIdentityClaimModel latestUserIdentityClaimModel = userIdentityModel.UserIdentityClaims.MaxBy(model => model.ModifiedUtcDateTime);
 
-            IUserIdentity userIdentity = new UserIdentityBuilder(userIdentityModel.ExternalUserIdentifier)
+            IUserIdentity userIdentity = UserIdentityBuilderFactory.Create(userIdentityModel.ExternalUserIdentifier)
                 .WithIdentifier(userIdentityModel.UserIdentityIdentifier)
                 .AddClaims(claimCollection)
                 .Build();
@@ -46,15 +46,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             }
 
             return userIdentity;
-        }
-
-        internal static UserIdentityModel WithDefaultIdentifier(this UserIdentityModel userIdentityModel)
-        {
-            NullGuard.NotNull(userIdentityModel, nameof(userIdentityModel));
-
-            userIdentityModel.UserIdentityIdentifier = default;
-
-            return userIdentityModel;
         }
 
         internal static UserIdentityModel With(this UserIdentityModel userIdentityModel, IEnumerable<Claim> claimCollection, RepositoryContext context, IConverter securityModelConverter)

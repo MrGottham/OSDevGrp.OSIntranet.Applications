@@ -1,26 +1,30 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
+using System;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 {
-    [TestFixture]
+	[TestFixture]
     public class MicrosoftGraphCallbackTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
-        private Fixture _fixture;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
+		private Fixture _fixture;
 
         #endregion
 
@@ -28,8 +32,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _fixture = new Fixture();
         }
 
@@ -41,7 +47,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(null, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("code"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -52,7 +60,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(string.Empty, _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("code"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -63,7 +73,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(" ", _fixture.Create<string>()));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("code"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -74,7 +86,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(_fixture.Create<string>(), null));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("state"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -85,7 +99,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(_fixture.Create<string>(), string.Empty));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("state"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -96,7 +112,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(_fixture.Create<string>(), " "));
 
+            // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("state"));
+            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -109,6 +127,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             await sut.MicrosoftGraphCallback(_fixture.Create<string>(), state);
 
             _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(It.IsAny<TokenType>(), It.IsAny<HttpContext>(), It.IsAny<object[]>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNotGuid_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        string state = $"{_fixture.Create<string>()} {_fixture.Create<string>()}";
+	        IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), state);
+
+	        Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
         [Test]
@@ -160,7 +190,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             _tokenHelperFactoryMock.Setup(m => m.AcquireTokenAsync(It.IsAny<TokenType>(), It.IsAny<HttpContext>(), It.IsAny<object[]>()))
                 .Returns(Task.Run(() => actionResult ?? new Mock<IActionResult>().Object));
 
-            return new Controller(_commandBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object);
         }
     }
 }

@@ -1,318 +1,663 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AuthenticateClientSecretCommandHandler;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AuthenticateClientSecretCommandHandler
 {
-    [TestFixture]
-    public class ExecuteAsyncTest : BusinessLogicTestBase
+	[TestFixture]
+    public class ExecuteAsyncTest
     {
-        #region Private variables
+	    #region Private variables
 
-        private Mock<ISecurityRepository> _securityRepositoryMock;
-        private Mock<ITokenHelper> _tokenHelperMock;
-        private Fixture _fixture;
+	    private Mock<ISecurityRepository> _securityRepositoryMock;
+	    private Mock<IExternalTokenClaimCreator> _externalTokenClaimCreatorMock;
+	    private Fixture _fixture;
+	    private Random _random;
 
-        #endregion
+	    #endregion
 
-        [SetUp]
-        public void SetUp()
-        {
-            _securityRepositoryMock = new Mock<ISecurityRepository>();
-            _tokenHelperMock = new Mock<ITokenHelper>();
-            _fixture = new Fixture();
-        }
+	    [SetUp]
+	    public void SetUp()
+	    {
+		    _securityRepositoryMock = new Mock<ISecurityRepository>();
+		    _externalTokenClaimCreatorMock = new Mock<IExternalTokenClaimCreator>();
+		    _fixture = new Fixture();
+		    _random = new Random(_fixture.Create<int>());
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public void ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
-        {
-            CommandHandler sut = CreateSut();
+	    [Test]
+	    [Category("UnitTest")]
+	    public void ExecuteAsync_WhenAuthenticateClientSecretCommandIsNull_ThrowsArgumentNullException()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+		    ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
 
-            Assert.That(result.ParamName, Is.EqualTo("command"));
-        }
+		    Assert.That(result, Is.Not.Null);
+		    Assert.That(result.ParamName, Is.EqualTo("authenticateCommand"));
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenCalled_AssertGetClientSecretIdentityAsyncWasCalledOnSecurityRepository()
-        {
-            CommandHandler sut = CreateSut();
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenCalled_AssertClientIdWasCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut();
 
-            string clientId = _fixture.Create<string>();
-            IAuthenticateClientSecretCommand command = CreateCommand(clientId);
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            _securityRepositoryMock.Verify(m => m.GetClientSecretIdentityAsync(It.Is<string>(value => string.Compare(value, clientId, StringComparison.Ordinal) == 0)), Times.Once);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.ClientId, Times.Once);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertClientSecretWasNotCalledOnClientSecretIdentity()
-        {
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
-            CommandHandler sut = CreateSut(false, clientSecretIdentityMock.Object);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenCalled_AssertGetClientSecretIdentityAsyncWasCalledOnSecurityRepository()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut();
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            await sut.ExecuteAsync(command);
+		    string clientId = _fixture.Create<string>();
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientId);
+		    await sut.ExecuteAsync(authenticateClientSecretCommand);
 
-            clientSecretIdentityMock.Verify(m => m.ClientSecret, Times.Never);
-        }
+		    _securityRepositoryMock.Verify(m => m.GetClientSecretIdentityAsync(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, clientId) == 0)), Times.Once);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertAddClaimsWasNotCalledOnClientSecretIdentity()
-        {
-            Mock<IClientSecretIdentity> clientSecretIdentityMock =  _fixture.BuildClientSecretIdentityMock();
-            CommandHandler sut = CreateSut(false, clientSecretIdentityMock.Object);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertClientSecretWasNotCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.AddClaims(It.IsAny<IEnumerable<Claim>>()), Times.Never);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.ClientSecret, Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertClearSensitiveDataWasNotCalledOnClientSecretIdentity()
-        {
-            Mock<IClientSecretIdentity> clientSecretIdentityMock =  _fixture.BuildClientSecretIdentityMock();
-            CommandHandler sut = CreateSut(false, clientSecretIdentityMock.Object);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertClaimsWasNotCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.ClearSensitiveData(), Times.Never);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.Claims, Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertGenerateWasNotCalledOnTokenHelper()
-        {
-            CommandHandler sut = CreateSut(false);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertAuthenticationSessionItemsWasNotCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            _tokenHelperMock.Verify(m => m.Generate(It.IsAny<IClientSecretIdentity>()), Times.Never);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.AuthenticationSessionItems, Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsUnknown_AssertAddTokenWasNotCalledOnClientSecretIdentity()
-        {
-            Mock<IClientSecretIdentity> clientSecretIdentityMock =  _fixture.BuildClientSecretIdentityMock();
-            CommandHandler sut = CreateSut(false, clientSecretIdentityMock.Object);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertProtectorWasNotCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.AddToken(It.IsAny<IToken>()), Times.Never);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.Protector, Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsUnknown_ReturnsNull()
-        {
-            CommandHandler sut = CreateSut(false);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertCanBuildWasNotCalledOnExternalTokenClaimCreator()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            IClientSecretIdentity result = await sut.ExecuteAsync(command);
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand();
+		    await sut.ExecuteAsync(authenticateClientSecretCommand);
 
-            Assert.That(result, Is.Null);
-        }
+		    _externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnown_AssertClientSecretWasCalledOnClientSecretIdentity()
-        {
-            Mock<IClientSecretIdentity> clientSecretIdentityMock =  _fixture.BuildClientSecretIdentityMock();
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertBuildWasNotCalledOnExternalTokenClaimCreator()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            IAuthenticateClientSecretCommand command = CreateCommand();
-            await sut.ExecuteAsync(command);
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand();
+		    await sut.ExecuteAsync(authenticateClientSecretCommand);
 
-            clientSecretIdentityMock.Verify(m => m.ClientSecret, Times.Once);
-        }
+		    _externalTokenClaimCreatorMock.Verify(m => m.Build(
+				    It.IsAny<IReadOnlyDictionary<string, string>>(),
+				    It.IsAny<Func<string, string>>()),
+			    Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_AssertAddClaimsWasNotCalledOnClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock =  _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+		[Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_AssertAuthenticationTypeWasNotCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(false);
 
-            string submittedClientSecret = _fixture.Create<string>();
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.AddClaims(It.IsAny<IEnumerable<Claim>>()), Times.Never);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.AuthenticationType, Times.Never);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_AssertClearSensitiveDataWasNotCalledOnClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock =  _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenClientSecretIdentityWasReturnedForClientId_AssertClientSecretWasCalledOnAuthenticateClientSecretCommand()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut();
 
-            string submittedClientSecret = _fixture.Create<string>();
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+		    Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock();
+		    await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.ClearSensitiveData(), Times.Never);
-        }
+		    authenticateClientSecretCommandMock.Verify(m => m.ClientSecret, Times.Once);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_AssertGenerateWasNotCalledOnTokenHelper()
-        {
-            string clientSecret = _fixture.Create<string>();
-            IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenClientSecretIdentityWasReturnedForClientId_AssertClientSecretWasCalledOnClientSecretIdentityForClientId()
+	    {
+		    Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
 
-            string submittedClientSecret = _fixture.Create<string>();
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand();
+		    await sut.ExecuteAsync(authenticateClientSecretCommand);
 
-            _tokenHelperMock.Verify(m => m.Generate(It.IsAny<IClientSecretIdentity>()), Times.Never);
-        }
+		    clientSecretIdentityMock.Verify(m => m.ClientSecret, Times.Once);
+	    }
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_AssertAddTokenWasNotCalledOnClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertClaimsWasNotCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
 
-            string submittedClientSecret = _fixture.Create<string>();
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.AddToken(It.IsAny<IToken>()), Times.Never);
-        }
+			authenticateClientSecretCommandMock.Verify(m => m.Claims, Times.Never);
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesNotMatch_ReturnNull()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertAuthenticationSessionItemsWasNotCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
 
-            string submittedClientSecret = _fixture.Create<string>();
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            IClientSecretIdentity result = await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            Assert.That(result, Is.Null);
-        }
+			authenticateClientSecretCommandMock.Verify(m => m.AuthenticationSessionItems, Times.Never);
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesMatch_AssertAddClaimsWasCalledOnClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertProtectorWasNotCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
 
-            string submittedClientSecret = clientSecret;
-            IEnumerable<Claim> claims = new List<Claim>(0);
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret, claims: claims);
-            await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => Equals(value, claims))), Times.Once);
-        }
+			authenticateClientSecretCommandMock.Verify(m => m.Protector, Times.Never);
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesMatch_AssertClearSensitiveDataWasCalledOnClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertCanBuildWasNotCalledOnExternalTokenClaimCreator()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
 
-            string submittedClientSecret = clientSecret;
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommand);
 
-            clientSecretIdentityMock.Verify(m => m.ClearSensitiveData(), Times.Once);
-        }
+			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesMatch_AssertGenerateWasCalledOnTokenHelper()
-        {
-            string clientSecret = _fixture.Create<string>();
-            IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertBuildWasNotCalledOnExternalTokenClaimCreator()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
 
-            string submittedClientSecret = clientSecret;
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommand);
 
-            _tokenHelperMock.Verify(m => m.Generate(It.Is<IClientSecretIdentity>(value => value == clientSecretIdentity)), Times.Once);
-        }
+			_externalTokenClaimCreatorMock.Verify(m => m.Build(
+					It.IsAny<IReadOnlyDictionary<string, string>>(),
+					It.IsAny<Func<string, string>>()),
+				Times.Never);
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesMatch_AssertAddTokenWasCalledOnClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
-            IToken token = _fixture.BuildTokenMock().Object;
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object, token: token);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertAuthenticationTypeWasNotCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
 
-            string submittedClientSecret = clientSecret;
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            clientSecretIdentityMock.Verify(m => m.AddToken(It.Is<IToken>(value => value == token)), Times.Once);
-        }
+			authenticateClientSecretCommandMock.Verify(m => m.AuthenticationType, Times.Never);
+		}
 
-        [Test]
-        [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenClientIdIsKnownAndClientSecretDoesMatch_ReturnsClientSecretIdentity()
-        {
-            string clientSecret = _fixture.Create<string>();
-            IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
-            CommandHandler sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertAddClaimsWasNotCalledOnClientSecretIdentityForClientId()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
 
-            string submittedClientSecret = clientSecret;
-            IAuthenticateClientSecretCommand command = CreateCommand(clientSecret: submittedClientSecret);
-            IClientSecretIdentity result = await sut.ExecuteAsync(command);
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
 
-            Assert.That(result, Is.EqualTo(clientSecretIdentity));
-        }
+			clientSecretIdentityMock.Verify(m => m.AddClaims(It.IsAny<IEnumerable<Claim>>()), Times.Never);
+		}
 
-        private CommandHandler CreateSut(bool hasClientSecretIdentityForClientId = true, IClientSecretIdentity clientSecretIdentity = null, IToken token = null)
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertClearSensitiveDataWasNotCalledOnClientSecretIdentityForClientId()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.ClearSensitiveData(), Times.Never);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_AssertToClaimsIdentityWasNotCalledOnClientSecretIdentityForClientId()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+
+			string submittedClientSecret = _fixture.Create<string>();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: submittedClientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.ToClaimsIdentity(), Times.Never);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertClaimsWasCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			authenticateClientSecretCommandMock.Verify(m => m.Claims, Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertAuthenticationSessionItemsWasCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			authenticateClientSecretCommandMock.Verify(m => m.AuthenticationSessionItems, Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertProtectorWasCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			authenticateClientSecretCommandMock.Verify(m => m.Protector, Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertCanBuildWasCalledOnExternalTokenClaimCreator()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+			IReadOnlyDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
+			IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret, authenticationSessionItems: authenticationSessionItems);
+			await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+			_externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value == authenticationSessionItems)), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientIdAndExternalTokenClaimCouldNotBeBuild_AssertBuildWasNotCalledOnExternalTokenClaimCreator()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity, canBuildExternalTokenClaim: false);
+
+			IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+			_externalTokenClaimCreatorMock.Verify(m => m.Build(
+					It.IsAny<IReadOnlyDictionary<string, string>>(),
+					It.IsAny<Func<string, string>>()),
+				Times.Never);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientIdAndExternalTokenClaimCouldBeBuild_AssertBuildWasCalledOnExternalTokenClaimCreator()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+			IReadOnlyDictionary<string, string> authenticationSessionItems = new ConcurrentDictionary<string, string>();
+			Func<string, string> protector = value => value;
+			IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret, authenticationSessionItems: authenticationSessionItems, protector: protector);
+			await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+			_externalTokenClaimCreatorMock.Verify(m => m.Build(
+					It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value == authenticationSessionItems),
+					It.Is<Func<string, string>>(value => value != null && value == protector)),
+				Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertAuthenticationTypeWasCalledOnAuthenticateClientSecretCommand()
+		{
+			string clientSecret = _fixture.Create<string>();
+			IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			authenticateClientSecretCommandMock.Verify(m => m.AuthenticationType, Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		[TestCase(true)]
+		[TestCase(false)]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertAddClaimsWasCalledOnClientSecretIdentityForClientIdWithAllClaimsFromAuthenticateClientSecretCommand(bool canBuildExternalTokenClaim)
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object, canBuildExternalTokenClaim: canBuildExternalTokenClaim);
+
+			IReadOnlyCollection<Claim> claims = BuildClaimCollection();
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret, claims: claims);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && claims.All(claim => value.Any(v => v.Type == claim.Type && v.Value == claim.Value)))), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientIdAndExternalTokenClaimCouldNotBeBuild_AssertAddClaimsWasCalledOnClientSecretIdentityForClientIdWithoutExternalTokenClaim()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object, canBuildExternalTokenClaim: false);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret, claims: BuildEmptyClaimCollection());
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && value.Any() == false)), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientIdAndExternalTokenClaimHasNotBeenBuild_AssertAddClaimsWasCalledOnClientSecretIdentityForClientIdWithoutExternalTokenClaim()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object, hasExternalTokenClaim: false);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret, claims: BuildEmptyClaimCollection());
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && value.Any() == false)), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientIdAndExternalTokenClaimHasBeenBuild_AssertAddClaimsWasCalledOnClientSecretIdentityForClientIdWithExternalTokenClaim()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			Claim externalTokenClaim = BuildExternalTokenClaim();
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object, externalTokenClaim: externalTokenClaim);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret, claims: BuildClaimCollection());
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && value.Contains(externalTokenClaim))), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertClearSensitiveDataWasCalledOnClientSecretIdentityForClientId()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.ClearSensitiveData(), Times.Once);
+		}
+
+		[Test]
+		[Category("UnitTest")]
+		public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_AssertToClaimsIdentityWasCalledOnClientSecretIdentityForClientId()
+		{
+			string clientSecret = _fixture.Create<string>();
+			Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret);
+			ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
+
+			Mock<IAuthenticateClientSecretCommand> authenticateClientSecretCommandMock = CreateAuthenticateClientSecretCommandMock(clientSecret: clientSecret);
+			await sut.ExecuteAsync(authenticateClientSecretCommandMock.Object);
+
+			clientSecretIdentityMock.Verify(m => m.ToClaimsIdentity(), Times.Once);
+		}
+
+		[Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNoClientSecretIdentityWasReturnedForClientId_ReturnsNull()
+	    {
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(hasClientSecretIdentityForClientId: false);
+
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand();
+		    ClaimsPrincipal result = await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+		    Assert.That(result, Is.Null);
+	    }
+
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenNonMatchingClientSecretIdentityWasReturnedForClientId_ReturnsNull()
+	    {
+		    string clientSecret = _fixture.Create<string>();
+		    IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+		    string submittedClientSecret = _fixture.Create<string>();
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: submittedClientSecret);
+		    ClaimsPrincipal result = await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+		    Assert.That(result, Is.Null);
+	    }
+
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_ReturnsNotNull()
+	    {
+		    string clientSecret = _fixture.Create<string>();
+		    IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret);
+		    ClaimsPrincipal result = await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+		    Assert.That(result, Is.Not.Null);
+	    }
+
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_ReturnsClaimsPrincipalWhereIdentityIsNotNull()
+	    {
+		    string clientSecret = _fixture.Create<string>();
+		    IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret);
+		    ClaimsPrincipal result = await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+		    Assert.That(result.Identity, Is.Not.Null);
+	    }
+
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_ReturnsClaimsPrincipalWhereIdentityIsAuthenticated()
+	    {
+		    string clientSecret = _fixture.Create<string>();
+		    IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret);
+		    ClaimsPrincipal result = await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+		    Assert.That(result.Identity!.IsAuthenticated, Is.True);
+	    }
+
+	    [Test]
+	    [Category("UnitTest")]
+	    public async Task ExecuteAsync_WhenMatchingClientSecretIdentityWasReturnedForClientId_ReturnsClaimsPrincipalWhereIdentityIsAuthenticatedWithAuthenticationTypeFromAuthenticateClientSecretCommand()
+	    {
+		    string clientSecret = _fixture.Create<string>();
+		    IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(clientSecret: clientSecret).Object;
+		    ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> sut = CreateSut(clientSecretIdentity: clientSecretIdentity);
+
+		    string authenticationType = _fixture.Create<string>();
+		    IAuthenticateClientSecretCommand authenticateClientSecretCommand = CreateAuthenticateClientSecretCommand(clientSecret: clientSecret, authenticationType: authenticationType);
+		    ClaimsPrincipal result = await sut.ExecuteAsync(authenticateClientSecretCommand);
+
+		    Assert.That(result.Identity!.AuthenticationType, Is.EqualTo(authenticationType));
+	    }
+
+		private ICommandHandler<IAuthenticateClientSecretCommand, ClaimsPrincipal> CreateSut(bool hasClientSecretIdentityForClientId = true, IClientSecretIdentity clientSecretIdentity = null, bool canBuildExternalTokenClaim = true, bool hasExternalTokenClaim = true, Claim externalTokenClaim = null)
         {
             _securityRepositoryMock.Setup(m => m.GetClientSecretIdentityAsync(It.IsAny<string>()))
-                .Returns(Task.Run(() => hasClientSecretIdentityForClientId ? clientSecretIdentity ?? _fixture.BuildClientSecretIdentityMock().Object : null));
+                .Returns(Task.FromResult(hasClientSecretIdentityForClientId ? clientSecretIdentity ?? _fixture.BuildClientSecretIdentityMock().Object : null));
 
-            _tokenHelperMock.Setup(m => m.Generate(It.IsAny<IClientSecretIdentity>()))
-                .Returns(token ?? _fixture.BuildTokenMock().Object);
+            _externalTokenClaimCreatorMock.Setup(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()))
+	            .Returns(canBuildExternalTokenClaim);
+            _externalTokenClaimCreatorMock.Setup(m => m.Build(It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<Func<string, string>>()))
+	            .Returns(hasExternalTokenClaim ? externalTokenClaim ?? BuildExternalTokenClaim() : null);
 
-            return new CommandHandler(_securityRepositoryMock.Object, _tokenHelperMock.Object);
+			return new BusinessLogic.Security.CommandHandlers.AuthenticateClientSecretCommandHandler(_securityRepositoryMock.Object, _externalTokenClaimCreatorMock.Object);
         }
 
-        private IAuthenticateClientSecretCommand CreateCommand(string clientId = null, string clientSecret = null, IEnumerable<Claim> claims = null)
+        private IAuthenticateClientSecretCommand CreateAuthenticateClientSecretCommand(string clientId = null, string clientSecret = null, IReadOnlyCollection<Claim> claims = null, string authenticationType = null, IReadOnlyDictionary<string, string> authenticationSessionItems = null, Func<string, string> protector = null)
         {
-            return new AuthenticateClientSecretCommand(clientId ?? _fixture.Create<string>(), clientSecret ?? _fixture.Create<string>(), claims ?? new List<Claim>(0));
+	        return CreateAuthenticateClientSecretCommandMock(clientId, clientSecret, claims, authenticationType, authenticationSessionItems, protector).Object;
+        }
+
+        private Mock<IAuthenticateClientSecretCommand> CreateAuthenticateClientSecretCommandMock(string clientId = null, string clientSecret = null, IReadOnlyCollection<Claim> claims = null, string authenticationType = null, IReadOnlyDictionary<string, string> authenticationSessionItems = null, Func<string, string> protector = null)
+        {
+	        Mock<IAuthenticateClientSecretCommand> authenticateUserCommandMock = new Mock<IAuthenticateClientSecretCommand>();
+	        authenticateUserCommandMock.Setup(m => m.ClientId)
+		        .Returns(clientId ?? string.Empty);
+	        authenticateUserCommandMock.Setup(m => m.ClientSecret)
+		        .Returns(clientSecret ?? string.Empty);
+	        authenticateUserCommandMock.Setup(m => m.Claims)
+		        .Returns(claims ?? BuildClaimCollection());
+	        authenticateUserCommandMock.Setup(m => m.AuthenticationType)
+		        .Returns(authenticationType ?? _fixture.Create<string>());
+	        authenticateUserCommandMock.Setup(m => m.AuthenticationSessionItems)
+		        .Returns(authenticationSessionItems ?? new ConcurrentDictionary<string, string>());
+	        authenticateUserCommandMock.Setup(m => m.Protector)
+		        .Returns(protector ?? (value => value));
+	        return authenticateUserCommandMock;
+        }
+
+        private Claim BuildExternalTokenClaim()
+        {
+	        return ClaimHelper.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), typeof(IRefreshableToken).FullName);
+        }
+
+        private IReadOnlyCollection<Claim> BuildClaimCollection()
+        {
+	        return new[]
+	        {
+		        ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
+		        ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
+		        ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
+	        };
+        }
+
+        private IReadOnlyCollection<Claim> BuildEmptyClaimCollection()
+        {
+	        return Array.Empty<Claim>();
         }
     }
 }

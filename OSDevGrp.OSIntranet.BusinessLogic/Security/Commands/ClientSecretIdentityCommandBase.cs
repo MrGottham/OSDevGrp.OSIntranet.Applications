@@ -7,7 +7,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-    public abstract class ClientSecretIdentityCommandBase : IdentityCommandBase, IClientSecretIdentityCommand
+	public abstract class ClientSecretIdentityCommandBase : IdentityCommandBase, IClientSecretIdentityCommand
     {
         #region Properties
 
@@ -30,7 +30,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 
         public IClientSecretIdentity ToDomain()
         {
-            return CreateClientSecretIdentityBuilder().Build();
+            return CreateClientSecretIdentityBuilder()
+	            .Build();
         }
 
         public IClientSecretIdentity ToDomain(string clientId, string clientSecret)
@@ -43,7 +44,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 
         private IClientSecretIdentityBuilder CreateClientSecretIdentityBuilder()
         {
-            return new ClientSecretIdentityBuilder(FriendlyName, Claims).WithIdentifier(Identifier);
+            return ClientSecretIdentityBuilderFactory.Create(FriendlyName, Claims)
+	            .WithIdentifier(Identifier);
         }
 
         #endregion

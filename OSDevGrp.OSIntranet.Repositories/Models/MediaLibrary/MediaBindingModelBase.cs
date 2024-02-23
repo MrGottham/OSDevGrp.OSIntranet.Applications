@@ -3,7 +3,6 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -43,7 +42,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				.NotNull(mediaBinding, nameof(mediaBinding));
 
 			return mediaBindingModel.MediaPersonality != null &&
-			       string.Compare(mediaBindingModel.MediaPersonality.ExternalMediaPersonalityIdentifier, ValueConverter.GuidToString(mediaBinding.MediaPersonality.MediaPersonalityIdentifier), CultureInfo.InvariantCulture, CompareOptions.IgnoreCase) == 0 &&
+			       mediaBindingModel.MediaPersonality.ExternalMediaPersonalityIdentifier == mediaBinding.MediaPersonality.MediaPersonalityIdentifier &&
 			       mediaBindingModel.AsMediaRole() == mediaBinding.Role;
 		}
 

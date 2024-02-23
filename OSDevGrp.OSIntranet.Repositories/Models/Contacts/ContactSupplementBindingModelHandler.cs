@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class ContactSupplementBindingModelHandler : ModelHandlerBase<IContact, RepositoryContext, ContactSupplementBindingModel, int>
+	internal class ContactSupplementBindingModelHandler : ModelHandlerBase<IContact, RepositoryContext, ContactSupplementBindingModel, int>
     {
         #region Constructor
 
@@ -44,7 +44,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 
             foreach (string externalIdentifier in GetExternalIdentifierCollection(contact, existingExternalIdentifier))
             {
-                ContactSupplementBindingModel contactSupplementBindingModel = await Reader.SingleOrDefaultAsync(m => m.ExternalIdentifier == externalIdentifier);
+                ContactSupplementBindingModel contactSupplementBindingModel = await Reader.SingleOrDefaultAsync(m => m.ExternalIdentifier == ValueConverter.ExternalIdentifierToByteArray(externalIdentifier));
                 if (contactSupplementBindingModel != null)
                 {
                     return contactSupplementBindingModel.ContactSupplement;

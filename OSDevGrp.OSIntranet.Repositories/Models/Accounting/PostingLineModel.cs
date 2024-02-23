@@ -1,19 +1,19 @@
-﻿using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
 {
-    internal class PostingLineModel : AuditModelBase
+	internal class PostingLineModel : AuditModelBase
     {
         public virtual int PostingLineIdentifier { get; set; }
 
-        public virtual string PostingLineIdentification { get; set; }
+        public virtual Guid PostingLineIdentification { get; set; }
 
         public virtual int AccountingIdentifier { get; set; }
 
@@ -140,10 +140,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                 .NotNull(account, nameof(account))
                 .NotNull(mapperCache, nameof(mapperCache));
 
-            Guid postingLineIdentification = Guid.Parse(postingLineModel.PostingLineIdentification);
             lock (mapperCache.SyncRoot)
             {
-                if (mapperCache.PostingLineDictionary.TryGetValue(postingLineIdentification, out IPostingLine postingLine))
+                if (mapperCache.PostingLineDictionary.TryGetValue(postingLineModel.PostingLineIdentification, out IPostingLine postingLine))
                 {
                     return postingLine;
                 }
@@ -164,12 +163,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Accounting
                     contactAccountValuesAtPostingDate = new ContactInfoValues(postingLineModel.PostingValueForContactAccount ?? 0M);
                 }
 
-                postingLine = new PostingLine(postingLineIdentification, postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier, accountValuesAtPostingDate, budgetAccountValuesAtPostingDate, contactAccountValuesAtPostingDate);
+                postingLine = new PostingLine(postingLineModel.PostingLineIdentification, postingLineModel.PostingDate, postingLineModel.Reference, account, postingLineModel.Details, budgetAccount, postingLineModel.Debit ?? 0M, postingLineModel.Credit ?? 0M, contactAccount, postingLineModel.PostingLineIdentifier, accountValuesAtPostingDate, budgetAccountValuesAtPostingDate, contactAccountValuesAtPostingDate);
                 postingLine.AddAuditInformation(postingLineModel.CreatedUtcDateTime, postingLineModel.CreatedByIdentifier, postingLineModel.ModifiedUtcDateTime, postingLineModel.ModifiedByIdentifier);
 
                 if (postingLineModel.StoreInMemoryCache)
                 {
-                    mapperCache.PostingLineDictionary.Add(postingLineIdentification, postingLine);
+                    mapperCache.PostingLineDictionary.Add(postingLineModel.PostingLineIdentification, postingLine);
                 }
 
                 if (account.PostingLineCollection.Contains(postingLine) == false)

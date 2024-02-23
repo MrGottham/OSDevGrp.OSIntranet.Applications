@@ -18,7 +18,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 	{
 		public virtual int MediaPersonalityIdentifier { get; set; }
 
-		public virtual string ExternalMediaPersonalityIdentifier { get; set; }
+		public virtual Guid ExternalMediaPersonalityIdentifier { get; set; }
 
 		public virtual string GivenName { get; set;  }
 
@@ -60,8 +60,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalMediaPersonalityIdentifier = ValueConverter.StringToGuid(mediaPersonalityModel.ExternalMediaPersonalityIdentifier);
-				if (mapperCache.MediaPersonalityDictionary.TryGetValue(externalMediaPersonalityIdentifier, out IMediaPersonality cachedMediaPersonality))
+				if (mapperCache.MediaPersonalityDictionary.TryGetValue(mediaPersonalityModel.ExternalMediaPersonalityIdentifier, out IMediaPersonality cachedMediaPersonality))
 				{
 					return cachedMediaPersonality;
 				}
@@ -69,7 +68,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				INationality nationality = commonModelConverter.Convert<NationalityModel, INationality>(mediaPersonalityModel.Nationality);
 
 				IMediaPersonality mediaPersonality = new MediaPersonality(
-					externalMediaPersonalityIdentifier,
+					mediaPersonalityModel.ExternalMediaPersonalityIdentifier,
 					mediaPersonalityModel.GivenName,
 					mediaPersonalityModel.MiddleName,
 					mediaPersonalityModel.Surname,

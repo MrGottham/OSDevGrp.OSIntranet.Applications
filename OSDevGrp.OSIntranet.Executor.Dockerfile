@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get install -y supervisor openssh-server sudo
@@ -36,4 +36,4 @@ RUN chmod 750 /usr/local/bin/askpw && chgrp ${appUserGroup} /usr/local/bin/askpw
 ENV SUDO_ASKPASS=/usr/local/bin/askpw
 
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV ASPNETCORE_URLS http://+:8080
+ENV ASPNETCORE_HTTP_PORTS=8080

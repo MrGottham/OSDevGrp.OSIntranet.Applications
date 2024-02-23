@@ -1,11 +1,10 @@
-﻿using System;
+﻿using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
 using System.Reflection;
-using System.Runtime.Serialization;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 
 namespace OSDevGrp.OSIntranet.Core.Interfaces.Exceptions
 {
-    [Serializable]
+	[Serializable]
     public class IntranetRepositoryException : IntranetExceptionBase
     {
         #region Private variables
@@ -23,11 +22,6 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Exceptions
 
         public IntranetRepositoryException(ErrorCode errorCode, string message, Exception innerException)
             : base(errorCode, message, innerException)
-        {
-        }
-
-        protected IntranetRepositoryException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
 

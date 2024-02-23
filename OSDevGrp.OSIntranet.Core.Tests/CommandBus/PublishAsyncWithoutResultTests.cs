@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 {
-    [TestFixture]
+	[TestFixture]
     public class PublishAsyncWithoutResultTests : CommandBusTestBase
     {
         #region Private variables
@@ -33,7 +33,8 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.PublishAsync((ICommand) null));
 
-            Assert.AreEqual(result.ParamName, "command");
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ParamName, Is.EqualTo("command"));
         }
 
         [Test]
@@ -45,6 +46,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
             Mock<ICommand> commandMock = new Mock<ICommand>();
             IntranetCommandBusException result = Assert.ThrowsAsync<IntranetCommandBusException>(async () => await sut.PublishAsync(commandMock.Object));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.NoCommandHandlerSupportingCommandWithoutResultType));
         }
 
@@ -57,7 +59,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 
             TestCommand testCommand = new TestCommand();
             await sut.PublishAsync(testCommand);
-            
+
             commandHandlerMock.Verify(m => m.ExecuteAsync(It.Is<TestCommand>(cmd => cmd == testCommand)), Times.Once);
         }
 
@@ -101,6 +103,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 
             IntranetCommandBusException result = Assert.ThrowsAsync<IntranetCommandBusException>(async () => await sut.PublishAsync(new TestCommand()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ErrorWhilePublishingCommandWithoutResultType));
         }
 
@@ -116,6 +119,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 
             IntranetCommandBusException result = Assert.ThrowsAsync<IntranetCommandBusException>(async () => await sut.PublishAsync(new TestCommand()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.EqualTo(innerException));
         }
 
@@ -130,6 +134,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 
             IntranetCommandBusException result = Assert.ThrowsAsync<IntranetCommandBusException>(async () => await sut.PublishAsync(new TestCommand()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ErrorWhilePublishingCommandWithoutResultType));
         }
 
@@ -144,6 +149,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.CommandBus
 
             IntranetCommandBusException result = Assert.ThrowsAsync<IntranetCommandBusException>(async () => await sut.PublishAsync(new TestCommand()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.EqualTo(exception));
         }
     }

@@ -1,10 +1,9 @@
-using System;
-using System.Runtime.Serialization;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
 
 namespace OSDevGrp.OSIntranet.Core.Interfaces.Exceptions
 {
-    [Serializable]
+	[Serializable]
     public class IntranetQueryBusException : IntranetSystemException
     {
         #region Constructors
@@ -16,11 +15,6 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Exceptions
 
         public IntranetQueryBusException(ErrorCode errorCode, string message, Exception innerException)
             : base(errorCode, message, innerException)
-        {
-        }
-
-        protected IntranetQueryBusException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
 

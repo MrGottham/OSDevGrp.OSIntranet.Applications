@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
@@ -12,10 +10,12 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 {
-    public class MicrosoftGraphTokenHelper : TokenHelperBase<IRefreshableToken>
+	public class MicrosoftGraphTokenHelper : TokenHelperBase<IRefreshableToken>
     {
         #region Constructor
 
@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
             NullGuard.NotNull(httpContext, nameof(httpContext))
                 .NotNullOrWhiteSpace(base64Token, nameof(base64Token));
 
-            return Task.Run(() => Token.Create<IRefreshableToken>(base64Token));
+            return Task.Run(() => RefreshableTokenFactory.Create().FromBase64String(base64Token));
         }
 
         private Uri GetRedirectUriForMicrosoftGraph(HttpRequest httpRequest)

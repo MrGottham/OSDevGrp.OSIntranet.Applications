@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
@@ -6,12 +5,13 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.DeleteClientSecretIdentityCommandHandler;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.DeleteClientSecretIdentityCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.DeleteClientSecretIdentityCommandHandler
 {
-    [TestFixture]
-    public class ExecuteAsyncTests : BusinessLogicTestBase
+	[TestFixture]
+    public class ExecuteAsyncTests
     {
         #region Private variables
 

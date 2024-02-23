@@ -1,20 +1,26 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
+using System.Security.Claims;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 {
-    [TestFixture]
+	[TestFixture]
     public class ManageTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
 
         #endregion
 
@@ -22,8 +28,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         public void SetUp()
         {
             _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Manage_WhenCalled_ReturnsNotNull()
+        {
+	        Controller sut = CreateSut();
+
+	        IActionResult result = sut.Manage();
+
+	        Assert.That(result, Is.Not.Null);
         }
 
         [Test]
@@ -50,18 +69,50 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void Manage_WhenCalled_ReturnsViewResultWhereModelIsNull()
+        public void Manage_WhenCalled_ReturnsViewResultWhereModelIsNotNull()
         {
             Controller sut = CreateSut();
 
             ViewResult result = (ViewResult) sut.Manage();
 
-            Assert.That(result.Model, Is.Null);
+            Assert.That(result.Model, Is.Not.Null);
         }
 
-        private Controller CreateSut()
+        [Test]
+        [Category("UnitTest")]
+        public void Manage_WhenCalled_ReturnsViewResultWhereModelIsClaimsPrincipal()
         {
-            return new Controller(_commandBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object);
+	        Controller sut = CreateSut();
+
+	        ViewResult result = (ViewResult)sut.Manage();
+
+	        Assert.That(result.Model, Is.TypeOf<ClaimsPrincipal>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Manage_WhenCalled_ReturnsViewResultWhereModelIsClaimsPrincipalFromHttpContext()
+        {
+	        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal();
+	        Controller sut = CreateSut(claimsPrincipal);
+
+	        ViewResult result = (ViewResult)sut.Manage();
+
+	        Assert.That(result.Model, Is.EqualTo(claimsPrincipal));
+        }
+
+        private Controller CreateSut(ClaimsPrincipal claimsPrincipal = null)
+        {
+	        return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
+	        {
+		        ControllerContext = new ControllerContext
+		        {
+			        HttpContext = new DefaultHttpContext
+			        {
+				        User = claimsPrincipal ?? new ClaimsPrincipal()
+			        }
+		        }
+	        };
         }
      }
 }

@@ -9,7 +9,7 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
 {
-    public abstract class ContactCommandBase : RefreshableTokenBasedCommand, IContactCommand
+	public abstract class ContactCommandBase : RefreshableTokenBasedCommand, IContactCommand
     {
         #region Methods
 
@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands
 
         public IRefreshableToken ToToken()
         {
-            return new RefreshableToken(TokenType, AccessToken, RefreshToken, Expires);
+	        return RefreshableTokenFactory.Create().FromTokenBasedCommand(this);
         }
 
         #endregion

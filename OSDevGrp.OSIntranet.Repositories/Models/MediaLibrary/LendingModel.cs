@@ -15,7 +15,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 	{
 		public virtual int LendingIdentifier { get; set; }
 
-		public virtual string ExternalLendingIdentifier { get; set; }
+		public virtual Guid ExternalLendingIdentifier { get; set; }
 
 		public virtual int BorrowerIdentifier { get; set; }
 
@@ -176,7 +176,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				.NotNull(media, nameof(media));
 
 			ILending lending = new Lending(
-				ValueConverter.StringToGuid(lendingModel.ExternalLendingIdentifier),
+				lendingModel.ExternalLendingIdentifier,
 				borrower,
 				media,
 				lendingModel.LendingDate,

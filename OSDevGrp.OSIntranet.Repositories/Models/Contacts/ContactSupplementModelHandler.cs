@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
 {
-    internal class ContactSupplementModelHandler : ModelHandlerBase<IContact, RepositoryContext, ContactSupplementModel, int>
+	internal class ContactSupplementModelHandler : ModelHandlerBase<IContact, RepositoryContext, ContactSupplementModel, int>
     {
         #region Private variables
 
@@ -161,17 +161,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Contacts
             contactSupplementModel.PaymentTerm = await DbContext.PaymentTerms.SingleAsync(paymentTermModel => paymentTermModel.PaymentTermIdentifier == contact.PaymentTerm.Number);
 
             string[] externalIdentifierCollection = _contactSupplementBindingModelHandler.GetExternalIdentifierCollection(contact);
-            foreach (ContactSupplementBindingModel contactSupplementBindingModel in contactSupplementModel.ContactSupplementBindings.Where(m => externalIdentifierCollection.Any(externalIdentifier => externalIdentifier == m.ExternalIdentifier) == false).ToArray())
+            foreach (ContactSupplementBindingModel contactSupplementBindingModel in contactSupplementModel.ContactSupplementBindings.Where(m => externalIdentifierCollection.Any(externalIdentifier => externalIdentifier == ValueConverter.ByteArrayToExternalIdentifier(m.ExternalIdentifier)) == false).ToArray())
             {
                 contactSupplementModel.ContactSupplementBindings.Remove(contactSupplementBindingModel);
             }
-            foreach (string externalIdentifier in externalIdentifierCollection.Where(m => contactSupplementModel.ContactSupplementBindings.Any(contactSupplementBindingModel => contactSupplementBindingModel.ExternalIdentifier == m) == false))
+            foreach (string externalIdentifier in externalIdentifierCollection.Where(m => contactSupplementModel.ContactSupplementBindings.Any(contactSupplementBindingModel => ValueConverter.ByteArrayToExternalIdentifier(contactSupplementBindingModel.ExternalIdentifier) == m) == false))
             {
                 ContactSupplementBindingModel contactSupplementBindingModel = new ContactSupplementBindingModel
                 {
                     ContactSupplementIdentifier = contactSupplementModel.ContactSupplementIdentifier,
                     ContactSupplement = contactSupplementModel,
-                    ExternalIdentifier = externalIdentifier
+                    ExternalIdentifier = ValueConverter.ExternalIdentifierToByteArray(externalIdentifier)
                 };
                 contactSupplementModel.ContactSupplementBindings.Add(contactSupplementBindingModel);
             }

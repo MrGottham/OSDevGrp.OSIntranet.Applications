@@ -1,23 +1,10 @@
-﻿using OSDevGrp.OSIntranet.Core;
-using System;
+﻿using System;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 {
 	internal static class ValueConverter
 	{
 		#region Methods
-
-		internal static string GuidToString(Guid value)
-		{
-			return value.ToString("D").ToUpper();
-		}
-
-		internal static Guid StringToGuid(string value)
-		{
-			NullGuard.NotNullOrWhiteSpace(value, nameof(value));
-
-			return Guid.Parse(value);
-		}
 
 		internal static string UriToString(Uri value)
 		{

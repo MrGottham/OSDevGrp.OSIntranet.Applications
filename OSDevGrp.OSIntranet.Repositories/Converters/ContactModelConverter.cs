@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Models.Contacts;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Converters
 {
-    internal class ContactModelConverter : ConverterBase
+	internal class ContactModelConverter : ConverterBase
     {
         #region Private variables
 
@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
                     if (string.IsNullOrWhiteSpace(src.ExternalIdentifier) == false)
                     {
-                        dest.ContactSupplementBindings.Add(new ContactSupplementBindingModel {ContactSupplement = dest, ExternalIdentifier = src.ExternalIdentifier});
+	                    dest.ContactSupplementBindings.Add(new ContactSupplementBindingModel {ContactSupplement = dest, ExternalIdentifier = ValueConverter.ExternalIdentifierToByteArray(src.ExternalIdentifier)});
                     }
 
                     string calculatedIdentifier = src.CalculateIdentifier();
@@ -47,7 +47,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                         return;
                     }
 
-                    dest.ContactSupplementBindings.Add(new ContactSupplementBindingModel {ContactSupplement = dest, ExternalIdentifier = calculatedIdentifier});
+                    dest.ContactSupplementBindings.Add(new ContactSupplementBindingModel {ContactSupplement = dest, ExternalIdentifier = ValueConverter.ExternalIdentifierToByteArray(calculatedIdentifier)});
                 });
 
             mapperConfiguration.CreateMap<ContactGroupModel, IContactGroup>()

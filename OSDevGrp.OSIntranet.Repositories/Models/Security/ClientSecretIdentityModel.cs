@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Models.Core;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 {
-    internal class ClientSecretIdentityModel : AuditModelBase
+	internal class ClientSecretIdentityModel : AuditModelBase
     {
         public virtual int ClientSecretIdentityIdentifier { get; set; }
 
@@ -33,9 +33,9 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
 
             IEnumerable<Claim> claimCollection = securityModelConverter.Convert<IEnumerable<ClientSecretIdentityClaimModel>, IEnumerable<Claim>>(clientSecretIdentityModel.ClientSecretIdentityClaims);
 
-            ClientSecretIdentityClaimModel latestClientSecretIdentityClaimModel = clientSecretIdentityModel.ClientSecretIdentityClaims.OrderByDescending(model => model.ModifiedUtcDateTime).FirstOrDefault();
+            ClientSecretIdentityClaimModel latestClientSecretIdentityClaimModel = clientSecretIdentityModel.ClientSecretIdentityClaims.MaxBy(model => model.ModifiedUtcDateTime);
 
-            IClientSecretIdentity clientSecretIdentity = new ClientSecretIdentityBuilder(clientSecretIdentityModel.FriendlyName)
+            IClientSecretIdentity clientSecretIdentity = ClientSecretIdentityBuilderFactory.Create(clientSecretIdentityModel.FriendlyName)
                 .WithIdentifier(clientSecretIdentityModel.ClientSecretIdentityIdentifier)
                 .WithClientId(clientSecretIdentityModel.ClientId)
                 .WithClientSecret(clientSecretIdentityModel.ClientSecret)
@@ -52,15 +52,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.Security
             }
 
             return clientSecretIdentity;
-        }
-
-        internal static ClientSecretIdentityModel WithDefaultIdentifier(this ClientSecretIdentityModel clientSecretIdentityModel)
-        {
-            NullGuard.NotNull(clientSecretIdentityModel, nameof(clientSecretIdentityModel));
-
-            clientSecretIdentityModel.ClientSecretIdentityIdentifier = default;
-
-            return clientSecretIdentityModel;
         }
 
         internal static ClientSecretIdentityModel With(this ClientSecretIdentityModel clientSecretIdentityModel, IEnumerable<Claim> claimCollection, RepositoryContext context, IConverter securityModelConverter)

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Runtime.Serialization;
-using OSDevGrp.OSIntranet.Core;
+﻿using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using System;
+using System.Runtime.Serialization;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
 {
-    [DataContract]
+	[DataContract]
     internal class TokenModel
     {
         #region Properties
@@ -50,7 +50,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph
         {
             NullGuard.NotNull(tokenModel, nameof(tokenModel));
 
-            return new RefreshableToken(tokenModel.TokenType, tokenModel.AccessToken, tokenModel.RefreshToken, tokenModel.Expires);
+            return RefreshableTokenFactory.Create()
+	            .WithTokenType(tokenModel.TokenType)
+	            .WithAccessToken(tokenModel.AccessToken)
+	            .WithRefreshToken(tokenModel.RefreshToken)
+	            .WithExpires(tokenModel.Expires)
+	            .Build();
         }
     }
 }

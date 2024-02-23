@@ -1,30 +1,28 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-    public class AuthenticateUserCommand : IAuthenticateUserCommand
+	internal class AuthenticateUserCommand : AuthenticateCommandBase, IAuthenticateUserCommand
     {
-        #region Constructors
+        #region Constructor
 
-        public AuthenticateUserCommand(string externalUserIdentifier, IEnumerable<Claim> claims)
+        public AuthenticateUserCommand(string externalUserIdentifier, IReadOnlyCollection<Claim> claims, string authenticationType, IReadOnlyDictionary<string, string> authenticationSessionItems, Func<string, string> protector)
+	        : base(claims, authenticationType, authenticationSessionItems, protector)
         {
-            NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier))
-                .NotNull(claims, nameof(claims));
+	        NullGuard.NotNullOrWhiteSpace(externalUserIdentifier, nameof(externalUserIdentifier));
 
-            ExternalUserIdentifier = externalUserIdentifier;
-            Claims = claims;
+	        ExternalUserIdentifier = externalUserIdentifier;
         }
 
         #endregion
-        
+
         #region Properties
 
         public string ExternalUserIdentifier { get; }
-
-        public IEnumerable<Claim> Claims { get; }
 
         #endregion
     }

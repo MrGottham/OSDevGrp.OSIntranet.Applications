@@ -2,11 +2,17 @@
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Configuration
 {
-    public abstract class ConfigurationTestBase : BusinessLogicTestBase
+    public abstract class ConfigurationTestBase
     {
-        protected IConfiguration CreateSut()
-        {
-            return CreateTestConfiguration();
-        }
-    }
+		#region Methods
+
+		protected IConfiguration CreateSut()
+		{
+			return new ConfigurationBuilder()
+				.AddUserSecrets<ConfigurationTestBase>()
+				.Build();
+		}
+
+		#endregion
+	}
 }

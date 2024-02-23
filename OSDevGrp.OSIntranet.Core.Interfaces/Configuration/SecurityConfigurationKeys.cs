@@ -2,18 +2,24 @@
 {
     public static class SecurityConfigurationKeys
     {
-        public const string JwtKey = "Security:JWT:Key";
+	    public const string SecuritySectionName = "Security";
+	    public const string JwtSectionName = "JWT";
+	    public const string MicrosoftSectionName = "Microsoft";
+	    public const string GoogleSectionName = "Google";
+	    public const string AcmeChallengeSectionName = "AcmeChallenge";
 
-        public const string MicrosoftClientId = "Security:Microsoft:ClientId";
-        public const string MicrosoftClientSecret = "Security:Microsoft:ClientSecret";
-        public const string MicrosoftTenant = "Security:Microsoft:Tenant";
+		public static readonly string JwtKey = $"{SecuritySectionName}:{JwtSectionName}:Key";
 
-        public const string GoogleClientId = "Security:Google:ClientId";
-        public const string GoogleClientSecret = "Security:Google:ClientSecret";
+        public static readonly string MicrosoftClientId = $"{SecuritySectionName}:{MicrosoftSectionName}:ClientId";
+        public static readonly string MicrosoftClientSecret = $"{SecuritySectionName}:{MicrosoftSectionName}:ClientSecret";
+        public static readonly string MicrosoftTenant = $"{SecuritySectionName}:{MicrosoftSectionName}:Tenant";
 
-        public const string TrustedDomainCollection = "Security:TrustedDomainCollection";
+        public static readonly string GoogleClientId = $"{SecuritySectionName}:{GoogleSectionName}:ClientId";
+        public static readonly string GoogleClientSecret = $"{SecuritySectionName}:{GoogleSectionName}:ClientSecret";
 
-        public const string AcmeChallengeWellKnownChallengeToken = "Security:AcmeChallenge:WellKnownChallengeToken";
-        public const string AcmeChallengeConstructedKeyAuthorization = "Security:AcmeChallenge:ConstructedKeyAuthorization";
+        public static readonly string TrustedDomainCollection = $"{SecuritySectionName}:TrustedDomainCollection";
+
+        public static readonly string AcmeChallengeWellKnownChallengeToken = $"{SecuritySectionName}:{AcmeChallengeSectionName}:WellKnownChallengeToken";
+        public static readonly string AcmeChallengeConstructedKeyAuthorization = $"{SecuritySectionName}:{AcmeChallengeSectionName}:ConstructedKeyAuthorization";
     }
 }

@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
 using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
@@ -69,6 +70,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
+            services.AddRazorPages();
             services.AddControllers(opt => 
             {
                 opt.Filters.Add<ErrorHandlerFilter>();
@@ -91,12 +93,13 @@ namespace OSDevGrp.OSIntranet.WebApi
             })
             .AddJwtBearer(opt =>
             {
+	            TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.JwtSectionName}").Get<TokenGeneratorOptions>();
                 opt.RequireHttpsMetadata = false;
                 opt.SaveToken = true;
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(Configuration[SecurityConfigurationKeys.JwtKey] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenGeneratorOptions.Key ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -108,7 +111,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetOAuthAuthenticationScheme());
-                    policy.RequireClaim(ClaimHelper.TokenClaimType);
+                    policy.RequireAuthenticatedUser();
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
@@ -175,12 +178,13 @@ namespace OSDevGrp.OSIntranet.WebApi
                     opt.WithConnectionStringsValidation(Configuration);
                 });
 
-            services.AddCommandBus().AddCommandHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
-            services.AddQueryBus().AddQueryHandlers(typeof(AuthenticateCommandHandlerBase<,>).Assembly);
+            services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
+            services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
             services.AddResolvers();
             services.AddDomainLogic();
             services.AddRepositories();
+            services.AddBusinessLogicConfiguration(Configuration);
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
 
@@ -252,9 +256,11 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SwaggerEndpoint($"/api/swagger/{WebApiVersion}/swagger.json", WebApiName);
             });
 
-            app.UseEndpoints(endpoints => 
+            app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+	            endpoints.MapRazorPages();
+                endpoints.MapHealthChecks("/health");
                 endpoints.MapHealthChecks("/api/health");
             });
         }

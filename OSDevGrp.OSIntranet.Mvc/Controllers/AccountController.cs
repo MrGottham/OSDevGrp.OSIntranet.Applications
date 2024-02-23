@@ -2,48 +2,59 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Security;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-    [Authorize]
+	[Authorize]
     public class AccountController : Controller
     {
         #region Private variables
 
         private readonly ICommandBus _commandBus;
+        private readonly IQueryBus _queryBus;
         private readonly ITrustedDomainHelper _trustedDomainHelper;
         private readonly ITokenHelperFactory _tokenHelperFactory;
+        private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        #endregion
+		#endregion
 
-        #region Constructor
+		#region Constructor
 
-        public AccountController(ICommandBus commandBus, ITrustedDomainHelper trustedDomainHelper, ITokenHelperFactory tokenHelperFactory)
-        {
-            NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(trustedDomainHelper, nameof(trustedDomainHelper))
-                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
+		public AccountController(ICommandBus commandBus, IQueryBus queryBus, ITrustedDomainHelper trustedDomainHelper, ITokenHelperFactory tokenHelperFactory, IDataProtectionProvider dataProtectionProvider)
+		{
+			NullGuard.NotNull(commandBus, nameof(commandBus))
+				.NotNull(queryBus, nameof(queryBus))
+				.NotNull(trustedDomainHelper, nameof(trustedDomainHelper))
+				.NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
+				.NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
 
             _commandBus = commandBus;
+            _queryBus = queryBus;
             _trustedDomainHelper = trustedDomainHelper;
             _tokenHelperFactory = tokenHelperFactory;
-        }
+            _dataProtectionProvider = dataProtectionProvider;
+		}
 
         #endregion
 
@@ -78,11 +89,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            return new ChallengeResult(MicrosoftAccountDefaults.AuthenticationScheme,
-                new AuthenticationProperties
-                {
-                    RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
-                });
+            return new ChallengeResult(MicrosoftAccountDefaults.AuthenticationScheme, new AuthenticationProperties
+            {
+	            RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
+            });
         }
 
         [HttpPost]
@@ -96,11 +106,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return BadRequest();
             }
 
-            return new ChallengeResult(GoogleDefaults.AuthenticationScheme,
-                new AuthenticationProperties
-                {
-                    RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
-                });
+            return new ChallengeResult(GoogleDefaults.AuthenticationScheme, new AuthenticationProperties
+            {
+	            RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
+            });
         }
 
         [HttpGet]
@@ -129,27 +138,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return Unauthorized();
             }
 
-            IAuthenticateUserCommand authenticateUserCommand = new AuthenticateUserCommand(mailClaim.Value, authenticateResult.Principal.Claims);
-            IUserIdentity userIdentity = await _commandBus.PublishAsync<IAuthenticateUserCommand, IUserIdentity>(authenticateUserCommand);
-            if (userIdentity == null)
+            IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailClaim.Value, authenticateResult.Principal.Claims.ToArray(), Schemas.InternalAuthenticationSchema, authenticateResult.Properties.Items.AsReadOnly(), value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
+            ClaimsPrincipal authenticatedClaimsPrincipal = await _commandBus.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(authenticateUserCommand);
+            if (authenticatedClaimsPrincipal == null)
             {
                 return Unauthorized();
             }
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(userIdentity.ToClaimsIdentity().Claims, Schemas.InternalAuthenticationSchema);
-            await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, new ClaimsPrincipal(claimsIdentity));
+            await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, authenticatedClaimsPrincipal);
 
-            AuthenticationProperties authenticationProperties = authenticateResult.Ticket.Properties;
-            foreach (TokenType tokenType in Enum.GetValues(typeof(TokenType)).Cast<TokenType>())
-            {
-                string tokenTypeKey = $".{tokenType}";
-                if (authenticationProperties.Items.ContainsKey(tokenTypeKey) == false)
-                {
-                    continue;
-                }
+            IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
+            await HandleMicrosoftToken(microsoftToken);
 
-                await _tokenHelperFactory.StoreTokenAsync(tokenType, HttpContext, authenticationProperties.Items[tokenTypeKey]);
-            }
+            IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
+            await HandleGoogleToken(googleToken);
 
             if (returnUri != null)
             {
@@ -162,7 +164,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public IActionResult Manage()
         {
-            return View("Manage", HttpContext?.User);
+            return View("Manage", HttpContext.User);
         }
 
         [HttpGet]
@@ -229,6 +231,18 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             return ConvertToAbsoluteUri(Url.AbsoluteContent(returnUri.OriginalString));
+        }
+
+        private Task HandleMicrosoftToken(IRefreshableToken microsoftToken)
+        {
+	        return microsoftToken != null
+		        ? _tokenHelperFactory.StoreTokenAsync(TokenType.MicrosoftGraphToken, HttpContext, microsoftToken.ToBase64String())
+		        : Task.CompletedTask;
+        }
+
+		private Task HandleGoogleToken(IToken _)
+        {
+	        return Task.CompletedTask;
         }
 
         #endregion

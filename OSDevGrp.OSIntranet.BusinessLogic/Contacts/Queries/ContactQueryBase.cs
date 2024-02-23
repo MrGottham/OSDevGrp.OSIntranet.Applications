@@ -8,7 +8,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries
 {
-    public abstract class ContactQueryBase : RefreshableTokenBasedQuery, IContactQuery
+	public abstract class ContactQueryBase : RefreshableTokenBasedQuery, IContactQuery
     {
         #region Methods
 
@@ -24,7 +24,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Contacts.Queries
 
         public IRefreshableToken ToToken()
         {
-            return new RefreshableToken(TokenType, AccessToken, RefreshToken, Expires);
+	        return RefreshableTokenFactory.Create().FromTokenBasedQuery(this);
         }
 
         #endregion

@@ -48,7 +48,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IMovie, MovieModel>()
 	            .ForMember(dest => dest.MovieIdentifier, opt => opt.MapFrom(src => default(int)))
-	            .ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.MediaIdentifier)))
+	            .ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => src.MediaIdentifier))
 	            .ForMember(dest => dest.CoreData, opt => opt.MapFrom(src => (IMedia)src))
 	            .ForMember(dest => dest.MovieGenreIdentifier, opt => opt.MapFrom(src => src.MovieGenre.Number))
 	            .ForMember(dest => dest.SpokenLanguageIdentifier, opt => opt.MapFrom(src => src.SpokenLanguage != null ? src.SpokenLanguage.Number : (int?)null))
@@ -63,7 +63,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IMusic, MusicModel>()
 	            .ForMember(dest => dest.MusicIdentifier, opt => opt.MapFrom(src => default(int)))
-	            .ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.MediaIdentifier)))
+	            .ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => src.MediaIdentifier))
 	            .ForMember(dest => dest.CoreData, opt => opt.MapFrom(src => (IMedia)src))
 	            .ForMember(dest => dest.MusicGenreIdentifier, opt => opt.MapFrom(src => src.MusicGenre.Number))
 	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
@@ -76,7 +76,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
 			mapperConfiguration.CreateMap<IBook, BookModel>()
 				.ForMember(dest => dest.BookIdentifier, opt => opt.MapFrom(src => default(int)))
-				.ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.MediaIdentifier)))
+				.ForMember(dest => dest.ExternalMediaIdentifier, opt => opt.MapFrom(src => src.MediaIdentifier))
 				.ForMember(dest => dest.CoreData, opt => opt.MapFrom(src => (IMedia)src))
 				.ForMember(dest => dest.BookGenreIdentifier, opt => opt.MapFrom(src => src.BookGenre.Number))
 				.ForMember(dest => dest.WrittenLanguageIdentifier, opt => opt.MapFrom(src => src.WrittenLanguage != null ? src.WrittenLanguage.Number : (int?)null))
@@ -105,7 +105,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IMediaPersonality, MediaPersonalityModel>()
 	            .ForMember(dest => dest.MediaPersonalityIdentifier, opt => opt.MapFrom(src => default(int)))
-	            .ForMember(dest => dest.ExternalMediaPersonalityIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.MediaPersonalityIdentifier)))
+	            .ForMember(dest => dest.ExternalMediaPersonalityIdentifier, opt => opt.MapFrom(src => src.MediaPersonalityIdentifier))
 	            .ForMember(dest => dest.NationalityIdentifier, opt => opt.MapFrom(src => src.Nationality.Number))
 	            .ForMember(dest => dest.Nationality, opt => opt.MapFrom(src => _commonModelConverter.Convert<INationality, NationalityModel>(src.Nationality)))
 	            .ForMember(dest => dest.Url, opt => opt.MapFrom(src => ValueConverter.UriToString(src.Url)))
@@ -121,7 +121,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
             mapperConfiguration.CreateMap<IBorrower, BorrowerModel>()
 	            .ForMember(dest => dest.BorrowerIdentifier, opt => opt.MapFrom(src => default(int)))
-	            .ForMember(dest => dest.ExternalBorrowerIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.BorrowerIdentifier)))
+	            .ForMember(dest => dest.ExternalBorrowerIdentifier, opt => opt.MapFrom(src => src.BorrowerIdentifier))
 	            .ForMember(dest => dest.CreatedUtcDateTime, opt => opt.MapFrom(src => src.CreatedDateTime.ToUniversalTime()))
 	            .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()))
 	            .ForMember(dest => dest.Lendings, opt => opt.MapFrom(src => new List<LendingModel>()));
@@ -131,7 +131,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 
 			mapperConfiguration.CreateMap<ILending, LendingModel>()
 	            .ForMember(dest => dest.LendingIdentifier, opt => opt.MapFrom(src => default(int)))
-	            .ForMember(dest => dest.ExternalLendingIdentifier, opt => opt.MapFrom(src => ValueConverter.GuidToString(src.LendingIdentifier)))
+	            .ForMember(dest => dest.ExternalLendingIdentifier, opt => opt.MapFrom(src => src.LendingIdentifier))
 	            .ForMember(dest => dest.BorrowerIdentifier, opt => opt.MapFrom(src => default(int)))
 	            .ForMember(dest => dest.MovieIdentifier, opt => opt.MapFrom(src => default(int?)))
 	            .ForMember(dest => dest.Movie, opt => opt.ConvertUsing(_mediaToMovieModelConverter, src => src.Media))

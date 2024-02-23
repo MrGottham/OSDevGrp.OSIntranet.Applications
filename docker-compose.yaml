@@ -11,6 +11,8 @@ services:
 
   executor:
     image: executor-osintranet
+    depends_on:
+      - builder
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Executor.Dockerfile
@@ -40,7 +42,7 @@ services:
     environment: 
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
@@ -54,6 +56,7 @@ services:
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
       - ExternalData__Dashboard__EndpointAddress=[TBD]
     depends_on:
+      - executor
       - reverseproxy
     build:
       context: .
@@ -74,7 +77,7 @@ services:
     environment: 
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
@@ -82,6 +85,7 @@ services:
       - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
+      - executor
       - reverseproxy
     build:
       context: .

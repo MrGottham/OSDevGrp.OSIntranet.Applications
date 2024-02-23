@@ -6,7 +6,6 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
-using System;
 using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
@@ -41,8 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 
 			lock (mapperCache.SyncRoot)
 			{
-				Guid externalMediaIdentifier = ValueConverter.StringToGuid(bookModel.ExternalMediaIdentifier);
-				if (mapperCache.MediaDictionary.TryGetValue(externalMediaIdentifier, out IMedia cachedMedia))
+				if (mapperCache.MediaDictionary.TryGetValue(bookModel.ExternalMediaIdentifier, out IMedia cachedMedia))
 				{
 					return (IBook)cachedMedia;
 				}
@@ -52,7 +50,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary
 				IMediaType mediaType = mediaLibraryModelConverter.Convert<MediaTypeModel, IMediaType>(bookModel.CoreData.MediaType);
 
 				IBook book = new Book(
-					externalMediaIdentifier,
+					bookModel.ExternalMediaIdentifier,
 					bookModel.CoreData.Title,
 					bookModel.CoreData.Subtitle,
 					bookModel.CoreData.Description,
