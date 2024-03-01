@@ -4,7 +4,7 @@ using System;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 {
-	public class MediaLibraryRepositoryTestBase : DatabaseRepositoryTestBase
+    public class MediaLibraryRepositoryTestBase : DatabaseRepositoryTestBase
     {
 	    #region Private variables
 
@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		protected IMediaLibraryRepository CreateSut()
         {
-            return new Repositories.MediaLibraryRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory());
+            return new Repositories.MediaLibraryRepository(CreateTestRepositoryContext(), CreateLoggerFactory());
         }
 
 		protected Guid WithExistingMediaPersonalityIdentifier()

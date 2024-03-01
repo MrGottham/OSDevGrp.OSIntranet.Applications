@@ -1,4 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Repositories.Converters;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph;
+using OSDevGrp.OSIntranet.Repositories.Options;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,16 +18,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Repositories.Converters;
-using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -34,37 +34,27 @@ namespace OSDevGrp.OSIntranet.Repositories
         #region Private variables
 
         private IRefreshableToken _currentToken;
+        private readonly IOptions<MicrosoftSecurityOptions> _microsoftSecurityOptions;
 
         #endregion
 
         #region Constructor
 
-        public MicrosoftGraphRepository(IConfiguration configuration, ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
+        public MicrosoftGraphRepository(IOptions<MicrosoftSecurityOptions> microsoftSecurityOptions, ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
+            NullGuard.NotNull(microsoftSecurityOptions, nameof(microsoftSecurityOptions));
+
+            _microsoftSecurityOptions = microsoftSecurityOptions;
         }
 
         #endregion
 
         #region Properties
 
-        protected override string AuthorizeUrl
-        {
-            get
-            {
-                string tenant = Configuration[SecurityConfigurationKeys.MicrosoftTenant];
-                return $"{MicrosoftLoginUrl}/{tenant}/oauth2/v2.0/authorize";
-            }
-        }
+        protected override string AuthorizeUrl => $"{MicrosoftLoginUrl}/{_microsoftSecurityOptions.Value.Tenant}/oauth2/v2.0/authorize";
 
-        protected override string TokenUrl
-        {
-            get
-            {
-                string tenant = Configuration[SecurityConfigurationKeys.MicrosoftTenant];
-                return $"{MicrosoftLoginUrl}/{tenant}/oauth2/v2.0/token";
-            }
-        }
+        protected override string TokenUrl => $"{MicrosoftLoginUrl}/{_microsoftSecurityOptions.Value.Tenant}/oauth2/v2.0/token";
 
         protected override IRefreshableToken Token
         {
@@ -221,7 +211,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 .NotNullOrWhiteSpace(state, nameof(state));
 
             IDictionary<string, string> parametersToAuthorize = base.GetParametersToAuthorize(redirectUri, scope, state);
-            parametersToAuthorize.Add("client_id", Configuration[SecurityConfigurationKeys.MicrosoftClientId]);
+            parametersToAuthorize.Add("client_id", _microsoftSecurityOptions.Value.ClientId);
             parametersToAuthorize.Add("response_type", "code");
             parametersToAuthorize.Add("redirect_uri", redirectUri.AbsoluteUri);
             parametersToAuthorize.Add("scope", scope);
@@ -238,12 +228,12 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             IDictionary<string, string> parameters = new Dictionary<string, string>
             {
-                {"client_id", Configuration[SecurityConfigurationKeys.MicrosoftClientId]},
+                {"client_id", _microsoftSecurityOptions.Value.ClientId},
                 {"grant_type", "authorization_code"},
                 {"scope", scope},
                 {"code", code},
                 {"redirect_uri", redirectUri.AbsoluteUri},
-                {"client_secret", Configuration[SecurityConfigurationKeys.MicrosoftClientSecret]},
+                {"client_secret", _microsoftSecurityOptions.Value.ClientSecret},
             };
 
             httpRequestMessage.Content = new FormUrlEncodedContent(parameters);
@@ -258,12 +248,12 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             IDictionary<string, string> parameters = new Dictionary<string, string>
             {
-                {"client_id", Configuration[SecurityConfigurationKeys.MicrosoftClientId]},
+                {"client_id", _microsoftSecurityOptions.Value.ClientId},
                 {"grant_type", "refresh_token"},
                 {"scope", scope},
                 {"refresh_token", refreshableToken.RefreshToken},
                 {"redirect_uri", redirectUri.AbsoluteUri},
-                {"client_secret", Configuration[SecurityConfigurationKeys.MicrosoftClientSecret]},
+                {"client_secret", _microsoftSecurityOptions.Value.ClientSecret},
             };
 
             httpRequestMessage.Content = new FormUrlEncodedContent(parameters);

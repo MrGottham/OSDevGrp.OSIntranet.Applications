@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using System;
@@ -13,17 +12,8 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-	internal abstract class WebRepositoryBase : RepositoryBase
+    internal abstract class WebRepositoryBase(ILoggerFactory loggerFactory) : RepositoryBase(loggerFactory)
     {
-        #region Constructor
-
-        protected WebRepositoryBase(IConfiguration configuration, ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
-        {
-        }
-
-        #endregion
-
         #region Properties
 
         protected virtual SslProtocols EnforceSslProtocol => SslProtocols.Tls12;

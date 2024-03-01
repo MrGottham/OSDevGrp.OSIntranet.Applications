@@ -1,35 +1,45 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
+using OSDevGrp.OSIntranet.Repositories.Converters;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using OSDevGrp.OSIntranet.Repositories.Models.ExternalDashboard;
+using OSDevGrp.OSIntranet.Repositories.Options;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using OSDevGrp.OSIntranet.Core.Interfaces;
-using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
-using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
-using OSDevGrp.OSIntranet.Repositories.Converters;
-using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using OSDevGrp.OSIntranet.Repositories.Interfaces.Configuration;
-using OSDevGrp.OSIntranet.Repositories.Models.ExternalDashboard;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
     internal class ExternalDashboardRepository : WebRepositoryBase, IExternalDashboardRepository
     {
+        #region Private variables
+
+        private readonly IOptions<ExternalDashboardOptions> _externalDashboardOptions;
+
+        #endregion
+
         #region Constructor
 
-        public ExternalDashboardRepository(IConfiguration configuration, ILoggerFactory loggerFactory)
-            : base(configuration,  loggerFactory)
+        public ExternalDashboardRepository(IOptions<ExternalDashboardOptions> externalDashboardOptions, ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
+            NullGuard.NotNull(externalDashboardOptions, nameof(externalDashboardOptions));
+
+            _externalDashboardOptions = externalDashboardOptions;
         }
 
         #endregion
 
         #region Properties
 
-        private string ExternalDashboardUrl => Configuration[ExternalDataConfigurationKeys.DashboardEndpointAddress];
+        private string ExternalDashboardUrl => _externalDashboardOptions.Value.EndpointAddress;
 
         private string GetNewsUrl => $"{ExternalDashboardUrl}/api/export?numberOfNews={{numberOfNews}}";
 

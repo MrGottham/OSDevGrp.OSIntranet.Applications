@@ -1,11 +1,13 @@
-﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+﻿using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using OSDevGrp.OSIntranet.Repositories.Options;
 using System;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 {
-	public abstract class MicrosoftGraphRepositoryTestBase : RepositoryTestBase
+    public abstract class MicrosoftGraphRepositoryTestBase : RepositoryTestBase
     {
         #region Private constants
 
@@ -19,10 +21,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 
         protected IMicrosoftGraphRepository CreateSut()
         {
-            return new Repositories.MicrosoftGraphRepository(CreateTestConfiguration(), CreateLoggerFactory());
+            return new Repositories.MicrosoftGraphRepository(CreateMicrosoftSecurityOptions(), CreateLoggerFactory());
         }
 
-        protected IRefreshableToken CreateToken()
+        private IOptions<MicrosoftSecurityOptions> CreateMicrosoftSecurityOptions()
+        {
+            return Microsoft.Extensions.Options.Options.Create(CreateTestConfiguration().GetMicrosoftSecurityOptions());
+        }
+
+        protected static IRefreshableToken CreateToken()
         {
             return RefreshableTokenFactory.Create()
 	            .WithTokenType(TokenType)

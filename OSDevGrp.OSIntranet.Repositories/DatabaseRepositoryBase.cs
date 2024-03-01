@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 
@@ -9,8 +8,8 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected DatabaseRepositoryBase(TDbContext dbContext, IConfiguration configuration, ILoggerFactory loggerFactory) 
-            : base(configuration, loggerFactory)
+        protected DatabaseRepositoryBase(TDbContext dbContext, ILoggerFactory loggerFactory) 
+            : base(loggerFactory)
         {
             NullGuard.NotNull(dbContext, nameof(dbContext));
 

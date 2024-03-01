@@ -2,6 +2,9 @@
 {
     public static class ExternalDataConfigurationKeys
     {
-        public const string DashboardEndpointAddress = "ExternalData:Dashboard:EndpointAddress";
+        public const string ExternalDataSectionName = "ExternalData";
+        public const string DashboardSectionName = "Dashboard";
+
+        public static readonly string DashboardEndpointAddress = $"{ExternalDataSectionName}:{DashboardSectionName}:EndpointAddress";
     }
 }

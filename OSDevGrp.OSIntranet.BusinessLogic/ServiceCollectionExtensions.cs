@@ -12,11 +12,10 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic
 {
-	public static class ServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
 		#region Methods
 
@@ -25,8 +24,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
 			NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
 				.NotNull(configuration, nameof(configuration));
 
-			return serviceCollection.Configure<TokenGeneratorOptions>(configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.JwtSectionName}"));
-		}
+            return serviceCollection.Configure<TokenGeneratorOptions>(configuration.GetTokenGeneratorSection());
+        }
 
         public static IServiceCollection AddBusinessLogicValidators(this IServiceCollection serviceCollection)
         {

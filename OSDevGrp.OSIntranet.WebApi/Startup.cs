@@ -32,7 +32,7 @@ using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
-	public class Startup
+    public class Startup
     {
         private const string WebApiVersion = "v1";
         private const string WebApiName = "OS Development Group Web API";
@@ -93,7 +93,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             })
             .AddJwtBearer(opt =>
             {
-	            TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.JwtSectionName}").Get<TokenGeneratorOptions>();
+	            TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetTokenGeneratorOptions();
                 opt.RequireHttpsMetadata = false;
                 opt.SaveToken = true;
                 opt.TokenValidationParameters = new TokenValidationParameters
@@ -183,7 +183,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddEventPublisher();
             services.AddResolvers();
             services.AddDomainLogic();
-            services.AddRepositories();
+            services.AddRepositories(Configuration);
             services.AddBusinessLogicConfiguration(Configuration);
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
@@ -265,7 +265,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
         }
 
-        private OpenApiSecurityScheme CreateOAuthSecurityScheme(Uri tokenUri)
+        private static OpenApiSecurityScheme CreateOAuthSecurityScheme(Uri tokenUri)
         {
             NullGuard.NotNull(tokenUri, nameof(tokenUri));
 
@@ -292,12 +292,12 @@ namespace OSDevGrp.OSIntranet.WebApi
             };
         }
 
-        private string GetOAuthAuthenticationScheme()
+        private static string GetOAuthAuthenticationScheme()
         {
             return "Basic";
         }
 
-        private OpenApiSecurityScheme CreateBearerSecurityScheme()
+        private static OpenApiSecurityScheme CreateBearerSecurityScheme()
         {
             return new OpenApiSecurityScheme
             {
@@ -315,7 +315,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             };
         }
 
-        private string GetJwtBearerAuthenticationScheme()
+        private static string GetJwtBearerAuthenticationScheme()
         {
             return JwtBearerDefaults.AuthenticationScheme;
         }

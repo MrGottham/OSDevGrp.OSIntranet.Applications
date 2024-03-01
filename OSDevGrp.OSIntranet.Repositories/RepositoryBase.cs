@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using System;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -13,20 +12,16 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected RepositoryBase(IConfiguration configuration, ILoggerFactory loggerFactory)
+        protected RepositoryBase(ILoggerFactory loggerFactory)
         {
-            NullGuard.NotNull(configuration, nameof(configuration))
-                .NotNull(loggerFactory, nameof(loggerFactory));
+            NullGuard.NotNull(loggerFactory, nameof(loggerFactory));
 
-            Configuration = configuration;
             LoggerFactory = loggerFactory;
         }
 
         #endregion
 
         #region Properties
-
-        protected IConfiguration Configuration { get; }
 
         protected ILoggerFactory LoggerFactory { get; }
 

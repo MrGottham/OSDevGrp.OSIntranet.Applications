@@ -1,7 +1,7 @@
-﻿using System;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 {
@@ -19,7 +19,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         protected IAccountingRepository CreateSut()
         {
-            return new Repositories.AccountingRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory(), CreateEventPublisher());
+            return new Repositories.AccountingRepository(CreateTestRepositoryContext(), CreateLoggerFactory(), CreateEventPublisher());
         }
 
         protected int WithExistingAccountingNumber()
@@ -33,20 +33,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
                 IConfiguration configuration = CreateTestConfiguration();
                 return (_existingAccountingNumber = int.Parse(configuration["TestData:Accounting:ExistingAccountingNumber"])).Value;
-            }
-        }
-
-        protected int WithNonExistingAccountingNumber()
-        {
-            lock (SyncRoot)
-            {
-                if (_random == null)
-                {
-                    Fixture fixture = new Fixture();
-                    _random = new Random(fixture.Create<int>());
-                }
-
-                return _random.Next(100, 256);
             }
         }
 
@@ -92,7 +78,21 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
             }
         }
 
-        protected string WithNonExistingAccountNumber()
+        protected static int WithNonExistingAccountingNumber()
+        {
+            lock (SyncRoot)
+            {
+                if (_random == null)
+                {
+                    Fixture fixture = new Fixture();
+                    _random = new Random(fixture.Create<int>());
+                }
+
+                return _random.Next(100, 256);
+            }
+        }
+
+        protected static string WithNonExistingAccountNumber()
         {
             return Guid.NewGuid().ToString("N").ToUpper();
         }

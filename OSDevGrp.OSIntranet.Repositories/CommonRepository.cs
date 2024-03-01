@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
@@ -12,17 +11,8 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal class CommonRepository : DatabaseRepositoryBase<RepositoryContext>, ICommonRepository
+    internal class CommonRepository(RepositoryContext repositoryContext, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(repositoryContext, loggerFactory), ICommonRepository
     {
-        #region Constructor
-
-        public CommonRepository(RepositoryContext repositoryContext, IConfiguration configuration, ILoggerFactory loggerFactory)
-            : base(repositoryContext, configuration, loggerFactory)
-        {
-        }
-
-        #endregion
-
         #region Methods
 
         public Task<IEnumerable<ILetterHead>> GetLetterHeadsAsync()
