@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.Options;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 {
@@ -12,7 +12,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
     {
         #region Private variables
 
-        private Mock<IConfiguration> _configurationMock;
+        private Mock<IOptions<AcmeChallengeOptions>> _acmeChallengeOptionsMock;
         private Fixture _fixture;
 
         #endregion
@@ -20,24 +20,24 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
         [SetUp]
         public void SetUp()
         {
-            _configurationMock = new Mock<IConfiguration>();
+            _acmeChallengeOptionsMock = new Mock<IOptions<AcmeChallengeOptions>>();
             _fixture = new Fixture();
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetWellKnownChallengeToken_WhenCalled_AssertGetterWasCalledOnConfigurationWithSecurityAcmeChallengeWellKnownChallengeToken()
+        public void GetWellKnownChallengeToken_WhenCalled_AssertValueWasCalledOnOptionsForAcmeChallengeOptions()
         {
             IAcmeChallengeResolver sut = CreateSut();
 
             sut.GetWellKnownChallengeToken();
 
-            _configurationMock.Verify(m => m[SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken], Times.Once);
+            _acmeChallengeOptionsMock.Verify(m => m.Value, Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetWellKnownChallengeToken_WhenNullWasReturnedFromConfiguration_ReturnsNull()
+        public void GetWellKnownChallengeToken_WhenNullWasReturnedFromWellKnownChallengeTokenOnAcmeChallengeOptions_ReturnsNull()
         {
             IAcmeChallengeResolver sut = CreateSut(false);
 
@@ -48,7 +48,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetWellKnownChallengeToken_WhenEmptyWasReturnedFromConfiguration_ReturnsNull()
+        public void GetWellKnownChallengeToken_WhenEmptyWasReturnedFromWellKnownChallengeTokenOnAcmeChallengeOptions_ReturnsNull()
         {
             IAcmeChallengeResolver sut = CreateSut(wellKnownChallengeToken: string.Empty);
 
@@ -59,7 +59,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetWellKnownChallengeToken_WhenWhiteSpaceWasReturnedFromConfiguration_ReturnsNull()
+        public void GetWellKnownChallengeToken_WhenWhiteSpaceWasReturnedFromWellKnownChallengeTokenOnAcmeChallengeOptions_ReturnsNull()
         {
             IAcmeChallengeResolver sut = CreateSut(wellKnownChallengeToken: " ");
 
@@ -70,7 +70,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
         [Test]
         [Category("UnitTest")]
-        public void GetWellKnownChallengeToken_WhenNonNullEmptyOrWhiteSpaceWasReturnedFromConfiguration_ReturnsValueFromConfiguration()
+        public void GetWellKnownChallengeToken_WhenNonNullEmptyOrWhiteSpaceWasReturnedFromWellKnownChallengeTokenOnAcmeChallengeOptions_ReturnsValueFromWellKnownChallengeTokenOnAcmeChallengeOptions()
         {
             string wellKnownChallengeToken = _fixture.Create<string>();
             IAcmeChallengeResolver sut = CreateSut(wellKnownChallengeToken: wellKnownChallengeToken);
@@ -82,10 +82,21 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.AcmeChallengeResolver
 
         private IAcmeChallengeResolver CreateSut(bool hasWellKnownChallengeToken = true, string wellKnownChallengeToken = null)
         {
-            _configurationMock.Setup(m => m[It.Is<string>(value => string.CompareOrdinal(value, SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken) == 0)])
-                .Returns(hasWellKnownChallengeToken ? wellKnownChallengeToken ?? _fixture.Create<string>() : null);
+            _acmeChallengeOptionsMock.Setup(m => m.Value)
+                .Returns(CreateAcmeChallengeOptions(hasWellKnownChallengeToken, wellKnownChallengeToken));
 
-            return new Core.Resolvers.AcmeChallengeResolver(_configurationMock.Object);
+            return new Core.Resolvers.AcmeChallengeResolver(_acmeChallengeOptionsMock.Object);
+        }
+
+        private AcmeChallengeOptions CreateAcmeChallengeOptions(bool hasWellKnownChallengeToken = true, string wellKnownChallengeToken = null)
+        {
+            return new AcmeChallengeOptions
+            {
+                WellKnownChallengeToken = hasWellKnownChallengeToken
+                    ? wellKnownChallengeToken ?? _fixture.Create<string>()
+                    : null,
+                ConstructedKeyAuthorization = _fixture.Create<string>()
+            };
         }
     }
 }
