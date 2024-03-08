@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 
@@ -8,120 +9,60 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
     {
 	    #region Private variables
 
-	    private static Guid? _existingMediaPersonalityIdentifier;
-	    private static Guid? _existingMovieIdentifier;
-	    private static Guid? _existingMusicIdentifier;
-	    private static Guid? _existingBookIdentifier;
-	    private static Guid? _existingBorrowerIdentifier;
-	    private static Guid? _existingLendingIdentifier;
+        private static IOptions<MediaLibraryRepositoryTestOptions> _mediaLibraryRepositoryTestOptions;
 
-		#endregion
+        #endregion
 
-		#region Methods
+        #region Methods
 
-		protected IMediaLibraryRepository CreateSut()
+        protected IMediaLibraryRepository CreateSut()
         {
             return new Repositories.MediaLibraryRepository(CreateTestRepositoryContext(), CreateLoggerFactory());
         }
 
 		protected Guid WithExistingMediaPersonalityIdentifier()
-		{
-			lock (SyncRoot)
-			{
-				if (_existingMediaPersonalityIdentifier.HasValue)
-				{
-					return _existingMediaPersonalityIdentifier.Value;
-				}
-
-				IConfiguration configuration = CreateTestConfiguration();
-				// ReSharper disable AssignNullToNotNullAttribute
-				return (_existingMediaPersonalityIdentifier = Guid.Parse(configuration["TestData:MediaLibrary:ExistingMediaPersonalityIdentifier"])).Value;
-				// ReSharper restore AssignNullToNotNullAttribute
-			}
+        {
+            return GetMediaLibraryRepositoryTestOptions().Value.ExistingMediaPersonalityIdentifier;
 		}
 
 		protected Guid WithExistingMovieIdentifier()
 		{
-			lock (SyncRoot)
-			{
-				if (_existingMovieIdentifier.HasValue)
-				{
-					return _existingMovieIdentifier.Value;
-				}
-
-				IConfiguration configuration = CreateTestConfiguration();
-				// ReSharper disable AssignNullToNotNullAttribute
-				return (_existingMovieIdentifier = Guid.Parse(configuration["TestData:MediaLibrary:ExistingMovieIdentifier"])).Value;
-				// ReSharper restore AssignNullToNotNullAttribute
-			}
+            return GetMediaLibraryRepositoryTestOptions().Value.ExistingMovieIdentifier;
 		}
 
-		protected Guid WithExistingMusicIdentifier()
+        protected Guid WithExistingMusicIdentifier()
 		{
-			lock (SyncRoot)
-			{
-				if (_existingMusicIdentifier.HasValue)
-				{
-					return _existingMusicIdentifier.Value;
-				}
-
-				IConfiguration configuration = CreateTestConfiguration();
-				// ReSharper disable AssignNullToNotNullAttribute
-				return (_existingMusicIdentifier = Guid.Parse(configuration["TestData:MediaLibrary:ExistingMusicIdentifier"])).Value;
-				// ReSharper restore AssignNullToNotNullAttribute
-			}
+            return GetMediaLibraryRepositoryTestOptions().Value.ExistingMusicIdentifier;
 		}
 
-		protected Guid WithExistingBookIdentifier()
+        protected Guid WithExistingBookIdentifier()
 		{
-			lock (SyncRoot)
-			{
-				if (_existingBookIdentifier.HasValue)
-				{
-					return _existingBookIdentifier.Value;
-				}
-
-				IConfiguration configuration = CreateTestConfiguration();
-				// ReSharper disable AssignNullToNotNullAttribute
-				return (_existingBookIdentifier = Guid.Parse(configuration["TestData:MediaLibrary:ExistingBookIdentifier"])).Value;
-				// ReSharper restore AssignNullToNotNullAttribute
-			}
+            return GetMediaLibraryRepositoryTestOptions().Value.ExistingBookIdentifier;
 		}
 
-		protected Guid? WithExistingBorrowerIdentifier()
+        protected Guid? WithExistingBorrowerIdentifier()
 		{
-			lock (SyncRoot)
-			{
-				if (_existingBorrowerIdentifier.HasValue)
-				{
-					return _existingBorrowerIdentifier.Value;
-				}
-
-				IConfiguration configuration = CreateTestConfiguration();
-				string value = configuration["TestData:MediaLibrary:ExistingBorrowerIdentifier"];
-				return string.IsNullOrWhiteSpace(value) == false
-					? (_existingBorrowerIdentifier = Guid.Parse(value)).Value
-					: _existingBorrowerIdentifier;
-			}
+            return GetMediaLibraryRepositoryTestOptions().Value.ExistingBorrowerIdentifier;
 		}
 
-		protected Guid? WithExistingLendingIdentifier()
+        protected Guid? WithExistingLendingIdentifier()
 		{
-			lock (SyncRoot)
-			{
-				if (_existingLendingIdentifier.HasValue)
-				{
-					return _existingLendingIdentifier.Value;
-				}
-
-				IConfiguration configuration = CreateTestConfiguration();
-				string value = configuration["TestData:MediaLibrary:ExistingLendingIdentifier"];
-				return string.IsNullOrWhiteSpace(value) == false
-					? (_existingLendingIdentifier = Guid.Parse(value)).Value
-					: _existingLendingIdentifier;
-			}
+            return GetMediaLibraryRepositoryTestOptions().Value.ExistingLendingIdentifier;
 		}
+
+        private IOptions<MediaLibraryRepositoryTestOptions> GetMediaLibraryRepositoryTestOptions()
+        {
+            lock (SyncRoot)
+            {
+                if (_mediaLibraryRepositoryTestOptions != null)
+                {
+                    return _mediaLibraryRepositoryTestOptions;
+                }
+
+                return _mediaLibraryRepositoryTestOptions = Microsoft.Extensions.Options.Options.Create(CreateTestConfiguration().GetSection("TestData:MediaLibrary").Get<MediaLibraryRepositoryTestOptions>());
+            }
+        }
 
         #endregion
-	}
+    }
 }
