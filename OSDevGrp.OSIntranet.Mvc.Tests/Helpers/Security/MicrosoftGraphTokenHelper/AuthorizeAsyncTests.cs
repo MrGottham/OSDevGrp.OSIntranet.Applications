@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +7,11 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelper
 {
@@ -21,7 +22,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
 
         private Mock<IQueryBus> _queryBusMock;
         private Mock<ICommandBus> _commandBusMock;
-        private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
+        private Mock<ITrustedDomainResolver> _trustedDomainResolverMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Mock<IDataProtector> _dataProtectorMock;
         private Fixture _fixture;
@@ -34,7 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
         {
             _queryBusMock = new Mock<IQueryBus>();
             _commandBusMock = new Mock<ICommandBus>();
-            _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
+            _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _dataProtectorMock = new Mock<IDataProtector>();
             _fixture = new Fixture();
@@ -83,7 +84,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
 
         private ITokenHelper CreateSut(Uri authorizeUri = null)
         {
-            _trustedDomainHelperMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
+            _trustedDomainResolverMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(true);
             _dataProtectionProviderMock.Setup(m => m.CreateProtector(It.IsAny<string>()))
                 .Returns(_dataProtectorMock.Object);
@@ -92,7 +93,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
             _queryBusMock.Setup(m => m.QueryAsync<IGetAuthorizeUriForMicrosoftGraphQuery, Uri>(It.IsAny<IGetAuthorizeUriForMicrosoftGraphQuery>()))
                 .Returns(Task.Run(() => authorizeUri ?? new Uri("http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}")));
 
-            return new Mvc.Helpers.Security.MicrosoftGraphTokenHelper(_queryBusMock.Object, _commandBusMock.Object, _trustedDomainHelperMock.Object, _dataProtectionProviderMock.Object);
+            return new Mvc.Helpers.Security.MicrosoftGraphTokenHelper(_queryBusMock.Object, _commandBusMock.Object, _trustedDomainResolverMock.Object, _dataProtectionProviderMock.Object);
         }
 
         private HttpContext CreateHttpContext()

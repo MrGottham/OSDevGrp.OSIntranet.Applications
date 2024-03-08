@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
@@ -26,14 +27,14 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
 {
-	[Authorize]
+    [Authorize]
     public class AccountController : Controller
     {
         #region Private variables
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
-        private readonly ITrustedDomainHelper _trustedDomainHelper;
+        private readonly ITrustedDomainResolver _trustedDomainResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
@@ -41,17 +42,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
 		#region Constructor
 
-		public AccountController(ICommandBus commandBus, IQueryBus queryBus, ITrustedDomainHelper trustedDomainHelper, ITokenHelperFactory tokenHelperFactory, IDataProtectionProvider dataProtectionProvider)
+		public AccountController(ICommandBus commandBus, IQueryBus queryBus, ITrustedDomainResolver trustedDomainResolver, ITokenHelperFactory tokenHelperFactory, IDataProtectionProvider dataProtectionProvider)
 		{
 			NullGuard.NotNull(commandBus, nameof(commandBus))
 				.NotNull(queryBus, nameof(queryBus))
-				.NotNull(trustedDomainHelper, nameof(trustedDomainHelper))
+				.NotNull(trustedDomainResolver, nameof(trustedDomainResolver))
 				.NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
 				.NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
-            _trustedDomainHelper = trustedDomainHelper;
+            _trustedDomainResolver = trustedDomainResolver;
             _tokenHelperFactory = tokenHelperFactory;
             _dataProtectionProvider = dataProtectionProvider;
 		}
@@ -70,7 +71,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             Uri returnUri = ConvertToAbsoluteUri(returnUrl);
-            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
             {
                 return BadRequest();
             }
@@ -84,7 +85,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         public IActionResult LoginWithMicrosoftAccount(string returnUrl = null)
         {
             Uri returnUri = ConvertToAbsoluteUri(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl);
-            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
             {
                 return BadRequest();
             }
@@ -101,7 +102,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         public IActionResult LoginWithGoogleAccount(string returnUrl = null)
         {
             Uri returnUri = ConvertToAbsoluteUri(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl);
-            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
             {
                 return BadRequest();
             }
@@ -120,7 +121,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             if (string.IsNullOrWhiteSpace(returnUrl) == false)
             {
                 returnUri = ConvertToAbsoluteUri(returnUrl);
-                if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+                if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
                 {
                     return Unauthorized();
                 }
@@ -180,7 +181,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             }
 
             Uri returnUri = ConvertToAbsoluteUri(returnUrl);
-            if (returnUri == null || _trustedDomainHelper.IsTrustedDomain(returnUri) == false)
+            if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
             {
                 return BadRequest();
             }
@@ -240,7 +241,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 		        : Task.CompletedTask;
         }
 
-		private Task HandleGoogleToken(IToken _)
+		private static Task HandleGoogleToken(IToken _)
         {
 	        return Task.CompletedTask;
         }

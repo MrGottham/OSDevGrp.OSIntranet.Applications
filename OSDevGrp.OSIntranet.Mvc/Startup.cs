@@ -21,10 +21,9 @@ using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Filters;
 using OSDevGrp.OSIntranet.Mvc.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using OSDevGrp.OSIntranet.Repositories.Options;
 using System;
 using System.Text.Json.Serialization;
-using Org.BouncyCastle.Math.EC;
-using OSDevGrp.OSIntranet.Repositories.Options;
 
 namespace OSDevGrp.OSIntranet.Mvc
 {
@@ -224,7 +223,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
-            services.AddResolvers();
+            services.AddResolvers(Configuration);
             services.AddDomainLogic();
             services.AddRepositories(Configuration);
             services.AddBusinessLogicConfiguration(Configuration);
@@ -233,7 +232,6 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
-            services.AddTransient<ITrustedDomainHelper, TrustedDomainHelper>();
             services.AddTransient<ITokenHelperFactory, TokenHelperFactory>();
             services.AddTransient<ITokenHelper, MicrosoftGraphTokenHelper>();
         }

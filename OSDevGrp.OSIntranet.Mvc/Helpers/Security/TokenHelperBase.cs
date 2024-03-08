@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
@@ -13,20 +14,20 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 {
-	public abstract class TokenHelperBase<T> : ITokenHelper<T> where T : class, IToken
+    public abstract class TokenHelperBase<T> : ITokenHelper<T> where T : class, IToken
     {
         #region Constructor
 
-        protected TokenHelperBase(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainHelper trustedDomainHelper, IDataProtectionProvider dataProtectionProvider)
+        protected TokenHelperBase(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainResolver trustedDomainResolver, IDataProtectionProvider dataProtectionProvider)
         {
             NullGuard.NotNull(queryBus, nameof(queryBus))
                 .NotNull(commandBus, nameof(commandBus))
-                .NotNull(trustedDomainHelper, nameof(trustedDomainHelper))
+                .NotNull(trustedDomainResolver, nameof(trustedDomainResolver))
                 .NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
 
             QueryBus = queryBus;
             CommandBus = commandBus;
-            TrustedDomainHelper = trustedDomainHelper;
+            TrustedDomainResolver = trustedDomainResolver;
             DataProtectionProvider = dataProtectionProvider;
         }
 
@@ -40,7 +41,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 
         protected ICommandBus CommandBus { get; }
 
-        protected ITrustedDomainHelper TrustedDomainHelper { get; }
+        protected ITrustedDomainResolver TrustedDomainResolver { get; }
 
         protected IDataProtectionProvider DataProtectionProvider { get; }
 
@@ -189,7 +190,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
                 return null;
             }
 
-            return TrustedDomainHelper.IsTrustedDomain(returnUri) == false ? null : returnUri;
+            return TrustedDomainResolver.IsTrustedDomain(returnUri) == false ? null : returnUri;
         }
 
         private void StoreTokenCookie(HttpContext httpContext, T token)

@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
@@ -15,17 +16,8 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 {
-	public class MicrosoftGraphTokenHelper : TokenHelperBase<IRefreshableToken>
+    public class MicrosoftGraphTokenHelper(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainResolver trustedDomainResolver, IDataProtectionProvider dataProtectionProvider) : TokenHelperBase<IRefreshableToken>(queryBus, commandBus, trustedDomainResolver, dataProtectionProvider)
     {
-        #region Constructor
-
-        public MicrosoftGraphTokenHelper(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainHelper trustedDomainHelper, IDataProtectionProvider dataProtectionProvider) 
-            : base(queryBus, commandBus, trustedDomainHelper, dataProtectionProvider)
-        {
-        }
-
-        #endregion
-
         #region Properties
 
         public override TokenType TokenType => TokenType.MicrosoftGraphToken;

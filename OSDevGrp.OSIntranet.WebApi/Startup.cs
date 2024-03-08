@@ -181,7 +181,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
-            services.AddResolvers();
+            services.AddResolvers(Configuration);
             services.AddDomainLogic();
             services.AddRepositories(Configuration);
             services.AddBusinessLogicConfiguration(Configuration);
