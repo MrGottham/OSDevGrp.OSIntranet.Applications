@@ -14,6 +14,13 @@ namespace OSDevGrp.OSIntranet.Core.Options
             return configuration.GetSecuritySection();
         }
 
+        internal static IConfigurationSection GetAcmeChallengeSection(this IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.AcmeChallengeSectionName}");
+        }
+
         private static IConfigurationSection GetSecuritySection(this IConfiguration configuration)
         {
             NullGuard.NotNull(configuration, nameof(configuration));

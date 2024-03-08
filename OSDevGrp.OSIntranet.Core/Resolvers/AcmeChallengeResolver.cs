@@ -1,24 +1,24 @@
-﻿using Microsoft.Extensions.Configuration;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+﻿using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.Options;
 
 namespace OSDevGrp.OSIntranet.Core.Resolvers
 {
-    public class AcmeChallengeResolver : IAcmeChallengeResolver
+    internal class AcmeChallengeResolver : IAcmeChallengeResolver
     {
         #region Private varibales
 
-        private readonly IConfiguration _configuration;
+        private readonly IOptions<AcmeChallengeOptions> _acmeChallengeOptions;
 
         #endregion
 
         #region Constructor
 
-        public AcmeChallengeResolver(IConfiguration configuration)
+        public AcmeChallengeResolver(IOptions<AcmeChallengeOptions> acmeChallengeOptions)
         {
-            NullGuard.NotNull(configuration, nameof(configuration));
+            NullGuard.NotNull(acmeChallengeOptions, nameof(acmeChallengeOptions));
 
-            _configuration = configuration;
+            _acmeChallengeOptions = acmeChallengeOptions;
         }
 
         #endregion
@@ -27,7 +27,7 @@ namespace OSDevGrp.OSIntranet.Core.Resolvers
 
         public string GetWellKnownChallengeToken()
         {
-            string wellKnownChallengeToken = _configuration[SecurityConfigurationKeys.AcmeChallengeWellKnownChallengeToken];
+            string wellKnownChallengeToken = _acmeChallengeOptions.Value.WellKnownChallengeToken;
             return string.IsNullOrWhiteSpace(wellKnownChallengeToken) ? null : wellKnownChallengeToken;
         }
 
@@ -41,7 +41,7 @@ namespace OSDevGrp.OSIntranet.Core.Resolvers
                 return null;
             }
 
-            string constructedKeyAuthorization = _configuration[SecurityConfigurationKeys.AcmeChallengeConstructedKeyAuthorization];
+            string constructedKeyAuthorization = _acmeChallengeOptions.Value.ConstructedKeyAuthorization;
             return string.IsNullOrWhiteSpace(constructedKeyAuthorization) ? null : constructedKeyAuthorization;
         }
 

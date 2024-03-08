@@ -56,7 +56,8 @@ namespace OSDevGrp.OSIntranet.Core
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
                 .NotNull(configuration, nameof(configuration));
 
-            serviceCollection.Configure<TrustedDomainOptions>(configuration.GetTrustedDomainSection());
+            serviceCollection.Configure<TrustedDomainOptions>(configuration.GetTrustedDomainSection())
+                .Configure<AcmeChallengeOptions>(configuration.GetAcmeChallengeSection());
 
             return serviceCollection.AddSingleton<IAcmeChallengeResolver, AcmeChallengeResolver>()
                 .AddSingleton<ITrustedDomainResolver, TrustedDomainResolver>();
