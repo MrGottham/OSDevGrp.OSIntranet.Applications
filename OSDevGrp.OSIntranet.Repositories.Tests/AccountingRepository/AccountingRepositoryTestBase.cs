@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 
@@ -9,10 +10,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         #region Private variables
 
-        private static int? _existingAccountingNumber;
-        private static string _existingAccountNumberForAccount;
-        private static string _existingAccountNumberForBudgetAccount;
-        private static string _existingAccountNumberForContactAccount;
+        private static IOptions<AccountingRepositoryTestOptions> _accountingRepositoryTestOptions;
         private static Random _random;
 
         #endregion
@@ -24,77 +22,61 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         protected int WithExistingAccountingNumber()
         {
-            lock (SyncRoot)
-            {
-                if (_existingAccountingNumber.HasValue)
-                {
-                    return _existingAccountingNumber.Value;
-                }
-
-                IConfiguration configuration = CreateTestConfiguration();
-                return (_existingAccountingNumber = int.Parse(configuration["TestData:Accounting:ExistingAccountingNumber"])).Value;
-            }
+            return GetAccountingRepositoryTestOptions().Value.ExistingAccountingNumber;
         }
 
         protected string WithExistingAccountNumberForAccount()
         {
-            lock (SyncRoot)
-            {
-                if (string.IsNullOrWhiteSpace(_existingAccountNumberForAccount) == false)
-                {
-                    return _existingAccountNumberForAccount;
-                }
-
-                IConfiguration configuration = CreateTestConfiguration();
-                return _existingAccountNumberForAccount = configuration["TestData:Accounting:ExistingAccountNumberForAccount"];
-            }
+            return GetAccountingRepositoryTestOptions().Value.ExistingAccountNumberForAccount;
         }
 
         protected string WithExistingAccountNumberForBudgetAccount()
         {
-            lock (SyncRoot)
-            {
-                if (string.IsNullOrWhiteSpace(_existingAccountNumberForBudgetAccount) == false)
-                {
-                    return _existingAccountNumberForBudgetAccount;
-                }
-
-                IConfiguration configuration = CreateTestConfiguration();
-                return _existingAccountNumberForBudgetAccount = configuration["TestData:Accounting:ExistingAccountNumberForBudgetAccount"];
-            }
+            return GetAccountingRepositoryTestOptions().Value.ExistingAccountNumberForBudgetAccount;
         }
 
         protected string WithExistingAccountNumberForContactAccount()
         {
-            lock (SyncRoot)
-            {
-                if (string.IsNullOrWhiteSpace(_existingAccountNumberForContactAccount) == false)
-                {
-                    return _existingAccountNumberForContactAccount;
-                }
-
-                IConfiguration configuration = CreateTestConfiguration();
-                return _existingAccountNumberForContactAccount = configuration["TestData:Accounting:ExistingAccountNumberForContactAccount"];
-            }
+            return GetAccountingRepositoryTestOptions().Value.ExistingAccountNumberForContactAccount;
         }
 
         protected static int WithNonExistingAccountingNumber()
         {
-            lock (SyncRoot)
-            {
-                if (_random == null)
-                {
-                    Fixture fixture = new Fixture();
-                    _random = new Random(fixture.Create<int>());
-                }
-
-                return _random.Next(100, 256);
-            }
+            return GetRandomizer().Next(100, 256);
         }
 
         protected static string WithNonExistingAccountNumber()
         {
             return Guid.NewGuid().ToString("N").ToUpper();
+        }
+
+        private IOptions<AccountingRepositoryTestOptions> GetAccountingRepositoryTestOptions()
+        {
+            lock (SyncRoot)
+            {
+                if (_accountingRepositoryTestOptions != null)
+                {
+                    return _accountingRepositoryTestOptions;
+                }
+
+                return _accountingRepositoryTestOptions = Microsoft.Extensions.Options.Options.Create(CreateTestConfiguration().GetSection("TestData:Accounting").Get<AccountingRepositoryTestOptions>());
+            }
+        }
+
+        private static Random GetRandomizer()
+        {
+            lock (SyncRoot)
+            {
+                if (_random != null)
+                {
+                    return _random;
+                }
+
+                Fixture fixture = new Fixture();
+                _random = new Random(fixture.Create<int>());
+
+                return _random;
+            }
         }
     }
 }
