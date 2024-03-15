@@ -8,15 +8,12 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
-using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -27,7 +24,6 @@ using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -94,15 +90,10 @@ namespace OSDevGrp.OSIntranet.WebApi
             .AddJwtBearer(opt =>
             {
 	            TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetTokenGeneratorOptions();
-                opt.RequireHttpsMetadata = false;
+                opt.IncludeErrorDetails = false;
+                opt.RequireHttpsMetadata = true;
                 opt.SaveToken = true;
-                opt.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenGeneratorOptions.Key ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.JwtKey).Build())),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
+                opt.TokenValidationParameters = tokenGeneratorOptions.ToTokenValidationParameters();
             })
             .AddClientSecret(GetOAuthAuthenticationScheme());
 

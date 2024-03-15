@@ -4,16 +4,18 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
+using OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.SecurityKeyBuilder;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 {
-	[TestFixture]
-    public class GenerateTests
+    [TestFixture]
+    public class GenerateTests : SecurityKeyBuilderTestBase
     {
         #region Private variables
 
@@ -133,6 +135,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 
         [Test]
         [Category("UnitTest")]
+        public void Generate_WhenCalled_ReturnsTokenWhereAccessTokenIsValidJwtToken()
+        {
+            TokenGeneratorOptions tokenGeneratorOptions = CreateTokenGeneratorOptions();
+            ITokenGenerator sut = CreateSut(tokenGeneratorOptions);
+
+            IToken result = sut.Generate(CreateClaimsIdentity());
+
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            jwtSecurityTokenHandler.ValidateToken(result.AccessToken, tokenGeneratorOptions.ToTokenValidationParameters(), out _);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Generate_WhenCalled_ReturnsTokenWhereExpiresIsCalculateExpireTime()
         {
 	        ITokenGenerator sut = CreateSut();
@@ -142,30 +157,32 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 	        Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
         }
 
-        private ITokenGenerator CreateSut()
+        private ITokenGenerator CreateSut(TokenGeneratorOptions tokenGeneratorOptions = null)
         {
 	        _tokenGeneratorOptionsMock.Setup(m => m.Value)
-		        .Returns(CreateTokenGeneratorOptions);
+		        .Returns(tokenGeneratorOptions ?? CreateTokenGeneratorOptions());
 
             return new BusinessLogic.Security.Logic.TokenGenerator(_tokenGeneratorOptionsMock.Object);
         }
 
         private TokenGeneratorOptions CreateTokenGeneratorOptions()
         {
-	        return new TokenGeneratorOptions
-	        {
-		        Key = _fixture.Create<string>()
-	        };
+            return new TokenGeneratorOptions
+            {
+                Key = CreateJsonWebKey(),
+                Issuer = $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local",
+                Audience = $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>()}"
+            };
         }
 
-		private ClaimsIdentity CreateClaimsIdentity()
+        private ClaimsIdentity CreateClaimsIdentity()
         {
 	        Claim[] claims =
-	        {
-		        ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
+            [
+                ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
 		        ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
 		        ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
-			};
+            ];
 
 	        return new ClaimsIdentity(claims, _fixture.Create<string>());
         }
