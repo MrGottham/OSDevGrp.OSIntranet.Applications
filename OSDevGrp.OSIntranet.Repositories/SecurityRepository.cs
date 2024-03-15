@@ -1,29 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal class SecurityRepository : DatabaseRepositoryBase<RepositoryContext>, ISecurityRepository
+    internal class SecurityRepository(RepositoryContext repositoryContext, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(repositoryContext, loggerFactory), ISecurityRepository
     {
-        #region Constructor
-
-        public SecurityRepository(RepositoryContext repositoryContext, IConfiguration configuration, ILoggerFactory loggerFactory)
-            : base(repositoryContext, configuration, loggerFactory)
-        {
-        }
-
-        #endregion
-
         #region Methods
 
         public Task<IEnumerable<IUserIdentity>> GetUserIdentitiesAsync()

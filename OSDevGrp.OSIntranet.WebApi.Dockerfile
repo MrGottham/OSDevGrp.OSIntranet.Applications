@@ -10,7 +10,17 @@ ARG nonRootUser=[TBD]
 RUN chmod g+rwx /app && chgrp ${appUserGroup} /app
 
 ENV connectionStrings__OSIntranet=[TBD]
-ENV Security__JWT__Key=[TBD]
+ENV Security__JWT__Key__kty=[TBD]
+ENV Security__JWT__Key__n=[TBD]
+ENV Security__JWT__Key__e=[TBD]
+ENV Security__JWT__Key__d=[TBD]
+ENV Security__JWT__Key__dp=[TBD]
+ENV Security__JWT__Key__dq=[TBD]
+ENV Security__JWT__Key__p=[TBD]
+ENV Security__JWT__Key__q=[TBD]
+ENV Security__JWT__Key__qi=[TBD]
+ENV Security__JWT__Issuer=[TBD]
+ENV Security__JWT__Audience=[TBD]
 ENV Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
 ENV Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
 

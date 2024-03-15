@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Accounting;
@@ -13,6 +7,11 @@ using OSDevGrp.OSIntranet.Repositories.Contexts;
 using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
@@ -26,8 +25,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public AccountingRepository(RepositoryContext repositoryContext, IConfiguration configuration, ILoggerFactory loggerFactory, IEventPublisher eventPublisher)
-            : base(repositoryContext, configuration, loggerFactory)
+        public AccountingRepository(RepositoryContext repositoryContext, ILoggerFactory loggerFactory, IEventPublisher eventPublisher)
+            : base(repositoryContext, loggerFactory)
         {
             NullGuard.NotNull(eventPublisher, nameof(eventPublisher));
 

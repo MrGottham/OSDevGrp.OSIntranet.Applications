@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
 using System;
@@ -14,14 +15,14 @@ using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.AccountController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 {
-	[TestFixture]
+    [TestFixture]
     public class LoginWithMicrosoftAccountTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
-        private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
+        private Mock<ITrustedDomainResolver> _trustedDomainResolverMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
 		private Mock<IUrlHelper> _urlHelperMock;
@@ -34,7 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
-            _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
+            _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _urlHelperMock = new Mock<IUrlHelper>();
@@ -54,14 +55,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void LoginWithMicrosoftAccount_WhenReturnUrlIsNull_AssertIsTrustedDomainWasCalledOnTrustedDomainHelper()
+        public void LoginWithMicrosoftAccount_WhenReturnUrlIsNull_AssertIsTrustedDomainWasCalledOnTrustedDomainResolver()
         {
             string absolutePath = $"/{_fixture.Create<string>()}";
             Controller sut = CreateSut(absolutePath: absolutePath);
 
             sut.LoginWithMicrosoftAccount();
 
-            _trustedDomainHelperMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
         }
 
         [Test]
@@ -154,14 +155,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void LoginWithMicrosoftAccount_WhenReturnUrlIsEmpty_AssertIsTrustedDomainWasCalledOnTrustedDomainHelper()
+        public void LoginWithMicrosoftAccount_WhenReturnUrlIsEmpty_AssertIsTrustedDomainWasCalledOnTrustedDomainResolver()
         {
             string absolutePath = $"/{_fixture.Create<string>()}";
             Controller sut = CreateSut(absolutePath: absolutePath);
 
             sut.LoginWithMicrosoftAccount(string.Empty);
 
-            _trustedDomainHelperMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
         }
 
         [Test]
@@ -254,14 +255,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void LoginWithMicrosoftAccount_WhenReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasCalledOnTrustedDomainHelper()
+        public void LoginWithMicrosoftAccount_WhenReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasCalledOnTrustedDomainResolver()
         {
             string absolutePath = $"/{_fixture.Create<string>()}";
             Controller sut = CreateSut(absolutePath: absolutePath);
 
             sut.LoginWithMicrosoftAccount(" ");
 
-            _trustedDomainHelperMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
         }
 
         [Test]
@@ -355,7 +356,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void LoginWithMicrosoftAccount_WhenReturnUrlHasValueWhichAreRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainHelperWithAbsoluteUriForReturnUrl()
+        public void LoginWithMicrosoftAccount_WhenReturnUrlHasValueWhichAreRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUriForReturnUrl()
         {
             string absolutePath = _fixture.Create<string>();
             Controller sut = CreateSut(absolutePath: absolutePath);
@@ -363,7 +364,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             string returnUrl = $"/{_fixture.Create<string>()}";
             sut.LoginWithMicrosoftAccount(returnUrl);
 
-            _trustedDomainHelperMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
         }
 
         [Test]
@@ -452,14 +453,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void LoginWithMicrosoftAccount_WhenReturnUrlHasValueWhichAreAbsoluteUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainHelperWithReturnUrl()
+        public void LoginWithMicrosoftAccount_WhenReturnUrlHasValueWhichAreAbsoluteUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithReturnUrl()
         {
             Controller sut = CreateSut();
 
             string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
             sut.LoginWithMicrosoftAccount(returnUrl);
 
-            _trustedDomainHelperMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, returnUrl) == 0)), Times.Once());
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, returnUrl) == 0)), Times.Once());
         }
 
         [Test]
@@ -548,12 +549,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         private Controller CreateSut(bool isTrustedDomain = true, string absolutePath = null)
         {
-            _trustedDomainHelperMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
+            _trustedDomainResolverMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
 
             _urlHelperMock.Setup(_fixture, absolutePath: absolutePath);
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainHelperMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainResolverMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
             {
                 Url = _urlHelperMock.Object
             };

@@ -36,7 +36,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests
 {
-	[TestFixture]
+    [TestFixture]
     public class DataImporter
     {
         #region Private variables
@@ -66,7 +66,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             serviceCollection.AddBusinessLogicConfiguration(configuration);
             serviceCollection.AddBusinessLogicValidators();
             serviceCollection.AddBusinessLogicHelpers();
-            serviceCollection.AddRepositories();
+            serviceCollection.AddRepositories(configuration);
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }

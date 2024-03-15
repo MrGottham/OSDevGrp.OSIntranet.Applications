@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -8,9 +6,12 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 {
@@ -21,7 +22,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         private Mock<IQueryBus> _queryBusMock;
         private Mock<ICommandBus> _commandBusMock;
-        private Mock<ITrustedDomainHelper> _trustedDomainHelperMock;
+        private Mock<ITrustedDomainResolver> _trustedDomainResolverMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Fixture _fixture;
 
@@ -32,7 +33,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
         {
             _queryBusMock = new Mock<IQueryBus>();
             _commandBusMock = new Mock<ICommandBus>();
-            _trustedDomainHelperMock = new Mock<ITrustedDomainHelper>();
+            _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _fixture = new Fixture();
         }
@@ -45,6 +46,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.HandleLogoutAsync(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
         }
 
@@ -62,7 +64,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         private ITokenHelper CreateSut()
         {
-            return new Sut(_queryBusMock.Object, _commandBusMock.Object, _trustedDomainHelperMock.Object, _dataProtectionProviderMock.Object, _fixture);
+            return new Sut(_queryBusMock.Object, _commandBusMock.Object, _trustedDomainResolverMock.Object, _dataProtectionProviderMock.Object, _fixture);
         }
 
         private HttpContext CreateHttpContext()
@@ -80,8 +82,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
             #region Constructor
 
-            public Sut(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainHelper trustedDomainHelper, IDataProtectionProvider dataProtectionProvider, Fixture fixture)
-                : base(queryBus, commandBus, trustedDomainHelper, dataProtectionProvider)
+            public Sut(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainResolver trustedDomainResolver, IDataProtectionProvider dataProtectionProvider, Fixture fixture)
+                : base(queryBus, commandBus, trustedDomainResolver, dataProtectionProvider)
             {
                 NullGuard.NotNull(fixture, nameof(fixture));
 

@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Domain.Interfaces\OSDevGrp.OSIntranet.Domain.Interfaces.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Core.Interfaces\OSDevGrp.OSIntranet.Core.Interfaces.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories.Interfaces\OSDevGrp.OSIntranet.Repositories.Interfaces.csproj" />

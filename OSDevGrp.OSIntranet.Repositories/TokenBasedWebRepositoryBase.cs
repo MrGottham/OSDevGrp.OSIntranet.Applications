@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -6,25 +10,11 @@ using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal abstract class TokenBasedWebRepositoryBase<TToken> : WebRepositoryBase where TToken : IToken
+    internal abstract class TokenBasedWebRepositoryBase<TToken>(ILoggerFactory loggerFactory) : WebRepositoryBase(loggerFactory) where TToken : IToken
     {
-        #region Constructor
-
-        protected TokenBasedWebRepositoryBase(IConfiguration configuration, ILoggerFactory loggerFactory)
-            : base(configuration, loggerFactory)
-        {
-        }
-
-        #endregion
-
         #region Properties
 
         protected abstract string AuthorizeUrl { get; }

@@ -81,7 +81,17 @@ services:
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
-      - Security__JWT__Key=[TBD]
+      - Security__JWT__Key__kty=[TBD]
+      - Security__JWT__Key__n=[TBD]
+      - Security__JWT__Key__e=[TBD]
+      - Security__JWT__Key__d=[TBD]
+      - Security__JWT__Key__dp=[TBD]
+      - Security__JWT__Key__dq=[TBD]
+      - Security__JWT__Key__p=[TBD]
+      - Security__JWT__Key__q=[TBD]
+      - Security__JWT__Key__qi=[TBD]
+      - Security__JWT__Issuer=[TBD]
+      - Security__JWT__Audience=[TBD]
       - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:

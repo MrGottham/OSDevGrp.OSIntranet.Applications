@@ -6,7 +6,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
     {
         protected ICommonRepository CreateSut()
         {
-            return new Repositories.CommonRepository(CreateTestRepositoryContext(), CreateTestConfiguration(), CreateLoggerFactory());
+            return new Repositories.CommonRepository(CreateTestRepositoryContext(), CreateLoggerFactory());
         }
     }
 }

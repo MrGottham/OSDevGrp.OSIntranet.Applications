@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
@@ -15,17 +14,8 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-	internal class MediaLibraryRepository : DatabaseRepositoryBase<RepositoryContext>, IMediaLibraryRepository
+    internal class MediaLibraryRepository(RepositoryContext dbContext, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(dbContext, loggerFactory), IMediaLibraryRepository
     {
-        #region Constructors
-
-        public MediaLibraryRepository(RepositoryContext dbContext, IConfiguration configuration, ILoggerFactory loggerFactory) 
-            : base(dbContext, configuration, loggerFactory)
-        {
-        }
-
-		#endregion
-
 		#region Methods
 
 		public Task<IEnumerable<IMedia>> GetMediasAsync(string titleFilter = null)
@@ -138,7 +128,6 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-
 					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
 
 					if (typeof(TMedia) == typeof(IMovie))

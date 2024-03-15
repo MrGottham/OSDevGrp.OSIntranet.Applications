@@ -21,12 +21,13 @@ using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Filters;
 using OSDevGrp.OSIntranet.Mvc.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using OSDevGrp.OSIntranet.Repositories.Options;
 using System;
 using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.Mvc
 {
-	public class Startup
+    public class Startup
     {
         private const string DotnetRunningInContainerEnvironmentVariable = "DOTNET_RUNNING_IN_CONTAINER";
 
@@ -101,10 +102,11 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
-            .AddMicrosoftAccount(opt => 
+            .AddMicrosoftAccount(opt =>
             {
-                opt.ClientId = Configuration[SecurityConfigurationKeys.MicrosoftClientId] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
-                opt.ClientSecret = Configuration[SecurityConfigurationKeys.MicrosoftClientSecret] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
+                MicrosoftSecurityOptions microsoftSecurityOptions = Configuration.GetMicrosoftSecurityOptions();
+                opt.ClientId = microsoftSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
+                opt.ClientSecret = microsoftSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
                 opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -118,8 +120,9 @@ namespace OSDevGrp.OSIntranet.Mvc
             })
             .AddGoogle(opt =>
             {
-                opt.ClientId = Configuration[SecurityConfigurationKeys.GoogleClientId] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
-				opt.ClientSecret = Configuration[SecurityConfigurationKeys.GoogleClientSecret] ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
+                GoogleSecurityOptions googleSecurityOptions = Configuration.GetGoogleSecurityOptions();
+                opt.ClientId = googleSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
+				opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
 				opt.SignInScheme = Schemas.ExternalAuthenticationSchema;
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -220,16 +223,15 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
-            services.AddResolvers();
+            services.AddResolvers(Configuration);
             services.AddDomainLogic();
-            services.AddRepositories();
+            services.AddRepositories(Configuration);
             services.AddBusinessLogicConfiguration(Configuration);
             services.AddBusinessLogicValidators();
             services.AddBusinessLogicHelpers();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
-            services.AddTransient<ITrustedDomainHelper, TrustedDomainHelper>();
             services.AddTransient<ITokenHelperFactory, TokenHelperFactory>();
             services.AddTransient<ITokenHelper, MicrosoftGraphTokenHelper>();
         }

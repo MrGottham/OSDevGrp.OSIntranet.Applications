@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Core.Resolvers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace OSDevGrp.OSIntranet.Core
 {
@@ -49,11 +51,16 @@ namespace OSDevGrp.OSIntranet.Core
             return serviceCollection.AddScoped<IEventPublisher, EventPublisher>();
         }
 
-        public static IServiceCollection AddResolvers(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddResolvers(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
-            NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
+            NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
+                .NotNull(configuration, nameof(configuration));
 
-            return serviceCollection.AddSingleton<IAcmeChallengeResolver, AcmeChallengeResolver>();
+            serviceCollection.Configure<TrustedDomainOptions>(configuration.GetTrustedDomainSection())
+                .Configure<AcmeChallengeOptions>(configuration.GetAcmeChallengeSection());
+
+            return serviceCollection.AddSingleton<IAcmeChallengeResolver, AcmeChallengeResolver>()
+                .AddSingleton<ITrustedDomainResolver, TrustedDomainResolver>();
         }
 
         private static IServiceCollection AddHandlers(this IServiceCollection serviceCollection, Assembly assembly, TypeInfo handlerInterfaceTypeInfo)

@@ -8,11 +8,10 @@ using OSDevGrp.OSIntranet.Domain.Security;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
-	public class TokenGenerator : ITokenGenerator
+    public class TokenGenerator : ITokenGenerator
 	{
         #region Private variables
 
@@ -37,20 +36,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         {
             NullGuard.NotNull(claimsIdentity, nameof(claimsIdentity));
 
-            byte[] key = Encoding.Default.GetBytes(_tokenGeneratorOptions.Value.Key);
-
-            //TODO: Handle this
+            TokenGeneratorOptions tokenGeneratorOptions = _tokenGeneratorOptions.Value;
+            using ISecurityKeyBuilder securityKeyBuilder = new SecurityKeyBuilder(tokenGeneratorOptions.Key);
             DateTime expires = DateTime.UtcNow.AddHours(1);
 
-            //TODO: Handle this
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = claimsIdentity,
-                Expires = expires,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Issuer = tokenGeneratorOptions.Issuer,
+                SigningCredentials = new SigningCredentials(securityKeyBuilder.Build(), SecurityAlgorithms.RsaSha256Signature),
+                Audience = tokenGeneratorOptions.Audience,
+                Expires = expires
             };
-
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);
 
             return TokenFactory.Create()

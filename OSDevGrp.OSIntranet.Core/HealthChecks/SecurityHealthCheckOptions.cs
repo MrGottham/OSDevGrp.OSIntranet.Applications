@@ -17,7 +17,17 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
         {
             NullGuard.NotNull(configuration, nameof(configuration));
 
-            return AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKey, ConfigurationValueRegularExpressions.JwtKeyRegularExpression);
+            return AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyKty, ConfigurationValueRegularExpressions.JwtKeyTypeRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyN, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyE, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyD, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyDp, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyDq, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyP, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyQ, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddRegularExpressionConfigurationValidation(configuration, SecurityConfigurationKeys.JwtKeyQi, ConfigurationValueRegularExpressions.JwtKeyBase64UrlRegularExpression)
+                .AddEndpointConfigurationValidation(configuration, SecurityConfigurationKeys.JwtIssuer)
+                .AddEndpointConfigurationValidation(configuration, SecurityConfigurationKeys.JwtAudience);
         }
 
         public SecurityHealthCheckOptions WithMicrosoftValidation(IConfiguration configuration)
