@@ -51,6 +51,20 @@
     <script src="/lib/swagger-ui/dist/js/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
     <script>
         window.onload = function() {
+            // Create plugin for logout
+            const logoutPlugin = () => ({
+                statePlugins: {
+                    auth: {
+                        wrapActions: {
+                            logout: (oriAction) => (keys) => {
+                                console.log("Logout from following securities:", keys);
+                                return oriAction(keys); // don't forget! otherwise, Swagger UI won't logout
+                            }
+                        }
+                    }
+                }
+            });
+
             // Begin Swagger UI call region
             const ui = SwaggerUIBundle({
                 url: '/api/swagger/v1/swagger.json',
@@ -61,7 +75,8 @@
                     SwaggerUIStandalonePreset
                 ],
                 plugins: [
-                    SwaggerUIBundle.plugins.DownloadUrl
+                    SwaggerUIBundle.plugins.DownloadUrl,
+                    logoutPlugin
                 ],
                 layout: "BaseLayout",
                 responseInterceptor: function (response) {
