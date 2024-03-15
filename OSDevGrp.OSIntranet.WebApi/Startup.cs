@@ -84,8 +84,8 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthentication(opt => 
             {
-                opt.DefaultAuthenticateScheme = GetJwtBearerAuthenticationScheme();
-                opt.DefaultChallengeScheme = GetJwtBearerAuthenticationScheme();
+                opt.DefaultAuthenticateScheme = GetBearerAuthenticationScheme();
+                opt.DefaultChallengeScheme = GetBearerAuthenticationScheme();
             })
             .AddJwtBearer(opt =>
             {
@@ -95,38 +95,38 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.SaveToken = true;
                 opt.TokenValidationParameters = tokenGeneratorOptions.ToTokenValidationParameters();
             })
-            .AddClientSecret(GetOAuthAuthenticationScheme());
+            .AddClientSecret(GetBasicAuthenticationScheme());
 
             services.AddAuthorization(opt =>
             {
                 opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(GetOAuthAuthenticationScheme());
+                    policy.AddAuthenticationSchemes(GetBasicAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingModifierPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingModifierClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingViewerPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingViewerClaimType);
                 });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(GetJwtBearerAuthenticationScheme());
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
                 });
@@ -146,13 +146,13 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SchemaFilter<EnumToStringSchemeFilterDescriptor>();
                 options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>();
 
-                OpenApiSecurityScheme oAuthSecurityScheme = CreateOAuthSecurityScheme(new Uri("/api/oauth/token", UriKind.Relative));
+                OpenApiSecurityScheme oAuthWithClientCredentialsFlowSecurityScheme = CreateOAuthWithClientCredentialsFlowSecurityScheme(new Uri("/api/oauth/token", UriKind.Relative));
                 OpenApiSecurityScheme bearerSecurityScheme = CreateBearerSecurityScheme();
 
-                options.AddSecurityDefinition(oAuthSecurityScheme.Reference.Id, oAuthSecurityScheme);
+                options.AddSecurityDefinition(oAuthWithClientCredentialsFlowSecurityScheme.Reference.Id, oAuthWithClientCredentialsFlowSecurityScheme);
                 options.AddSecurityDefinition(bearerSecurityScheme.Reference.Id, bearerSecurityScheme);
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuthSecurityScheme, Array.Empty<string>()}});
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{ oAuthWithClientCredentialsFlowSecurityScheme, Array.Empty<string>()}});
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {{bearerSecurityScheme, Array.Empty<string>()}});
             });
             services.AddSwaggerGenNewtonsoftSupport();
@@ -256,20 +256,20 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
         }
 
-        private static OpenApiSecurityScheme CreateOAuthSecurityScheme(Uri tokenUri)
+        private static OpenApiSecurityScheme CreateOAuthWithClientCredentialsFlowSecurityScheme(Uri tokenUri)
         {
             NullGuard.NotNull(tokenUri, nameof(tokenUri));
 
             return new OpenApiSecurityScheme
             {
-                Name = "OAuth Authorization",
-                Description = $"OAuth Authorization 2.0 with the client credentials grant flow.{Environment.NewLine}{Environment.NewLine}Example: '{GetOAuthAuthenticationScheme()} YzQwMGUxY2UtNzQyOC00NjBmLTg5ZTYtOGFmMTZkMWFiN2Ni'.",
+                Name = "OAuth Authorization with client credentials grant flow",
+                Description = $"OAuth Authorization 2.0 with the client credentials grant flow.{Environment.NewLine}{Environment.NewLine}Example: '{GetBasicAuthenticationScheme()} YzQwMGUxY2UtNzQyOC00NjBmLTg5ZTYtOGFmMTZkMWFiN2Ni'.",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.OAuth2,
-                Scheme = GetOAuthAuthenticationScheme(),
+                Scheme = GetBasicAuthenticationScheme(),
                 Reference = new OpenApiReference
                 {
-                    Id = GetOAuthAuthenticationScheme(),
+                    Id = GetBasicAuthenticationScheme(),
                     Type = ReferenceType.SecurityScheme
                 },
                 Flows = new OpenApiOAuthFlows
@@ -283,7 +283,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             };
         }
 
-        private static string GetOAuthAuthenticationScheme()
+        private static string GetBasicAuthenticationScheme()
         {
             return "Basic";
         }
@@ -293,20 +293,20 @@ namespace OSDevGrp.OSIntranet.WebApi
             return new OpenApiSecurityScheme
             {
                 Name = "JWT Authorization header",
-                Description = $"JWT Authorization header using the Bearer scheme.{Environment.NewLine}{Environment.NewLine}Example: '{GetJwtBearerAuthenticationScheme()} NGI4YTg0MWEtMzNiZi00MTYyLTk5MGMtY2M5OTFjOWU2MmRi'.",
+                Description = $"JWT Authorization header using the Bearer scheme.{Environment.NewLine}{Environment.NewLine}Example: '{GetBearerAuthenticationScheme()} NGI4YTg0MWEtMzNiZi00MTYyLTk5MGMtY2M5OTFjOWU2MmRi'.",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = GetJwtBearerAuthenticationScheme().ToLower(),
+                Scheme = GetBearerAuthenticationScheme().ToLower(),
                 BearerFormat = "JWT",
                 Reference = new OpenApiReference
                 {
-                    Id = GetJwtBearerAuthenticationScheme(),
+                    Id = GetBearerAuthenticationScheme(),
                     Type = ReferenceType.SecurityScheme
                 }
             };
         }
 
-        private static string GetJwtBearerAuthenticationScheme()
+        private static string GetBearerAuthenticationScheme()
         {
             return JwtBearerDefaults.AuthenticationScheme;
         }
