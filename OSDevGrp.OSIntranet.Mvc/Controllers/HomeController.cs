@@ -7,12 +7,14 @@ using OSDevGrp.OSIntranet.BusinessLogic.ExternalData.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.ExternalData.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
@@ -28,7 +30,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
@@ -38,27 +39,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
     {
         #region Private variables
 
+        private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
         private readonly IClaimResolver _claimResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
-        private readonly IAcmeChallengeResolver _acmeChallengeResolver;
         private readonly IConverter _homeViewModelConverter = new HomeViewModelConverter();
 
         #endregion
 
         #region Constructor
 
-        public HomeController(IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory, IAcmeChallengeResolver acmeChallengeResolver)
+        public HomeController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory)
         {
-            NullGuard.NotNull(queryBus, nameof(queryBus))
+            NullGuard.NotNull(commandBus, nameof(commandBus))
+                .NotNull(queryBus, nameof(queryBus))
                 .NotNull(claimResolver, nameof(claimResolver))
-                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
-                .NotNull(acmeChallengeResolver, nameof(acmeChallengeResolver));
+                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
 
+            _commandBus = commandBus;
             _queryBus = queryBus;
             _claimResolver = claimResolver;
             _tokenHelperFactory = tokenHelperFactory;
-            _acmeChallengeResolver = acmeChallengeResolver;
         }
 
         #endregion
@@ -160,17 +161,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         [AllowAnonymous]
         [Route("/.well-known/acme-challenge/{challengeToken}")]
-        public IActionResult AcmeChallenge(string challengeToken)
+        public async Task<IActionResult> AcmeChallenge(string challengeToken)
         {
-            NullGuard.NotNullOrWhiteSpace(challengeToken, nameof(challengeToken));
-
-            string constructedKeyAuthorization = _acmeChallengeResolver.GetConstructedKeyAuthorization(challengeToken);
-            if (string.IsNullOrWhiteSpace(constructedKeyAuthorization))
+            if (string.IsNullOrWhiteSpace(challengeToken))
             {
                 return BadRequest();
             }
 
-            return File(Encoding.UTF8.GetBytes(constructedKeyAuthorization), "application/octet-stream");
+            try
+            {
+                byte[] constructedKeyAuthorization = await _commandBus.PublishAsync<IAcmeChallengeCommand, byte[]>(SecurityCommandFactory.BuildAcmeChallengeCommand(challengeToken));
+                if (constructedKeyAuthorization == null || constructedKeyAuthorization.Length == 0)
+                {
+                    return BadRequest();
+                }
+
+                return File(constructedKeyAuthorization, "application/octet-stream");
+            }
+            catch (IntranetBusinessException)
+            {
+                return BadRequest();
+            }
         }
 
         private HomeOperationsViewModel BuildHomeOperationsViewModelForUnauthenticatedUser()

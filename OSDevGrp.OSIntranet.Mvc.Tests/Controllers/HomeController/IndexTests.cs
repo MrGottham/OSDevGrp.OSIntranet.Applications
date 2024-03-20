@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Home;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.HomeController;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.HomeController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 {
@@ -25,10 +25,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
     {
         #region Private variables
 
+        private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IClaimResolver> _claimResolverMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
-        private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -37,10 +37,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
         [SetUp]
         public void SetUp()
         {
+            _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
             _claimResolverMock = new Mock<IClaimResolver>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
-            _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
@@ -179,6 +179,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.CanAccessContacts, Is.False);
         }
 
@@ -193,6 +194,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.HasAcquiredMicrosoftGraphToken, Is.False);
         }
 
@@ -207,6 +209,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.UpcomingBirthdaysWithinDays, Is.EqualTo(default(int)));
         }
 
@@ -221,6 +224,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.CanAccessAccountings, Is.False);
         }
 
@@ -235,6 +239,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.AccountingNumber, Is.Null);
         }
 
@@ -249,6 +254,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Not.Null);
         }
 
@@ -263,6 +269,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.EqualTo(10));
         }
 
@@ -445,6 +452,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.CanAccessContacts, Is.True);
         }
 
@@ -460,6 +468,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.HasAcquiredMicrosoftGraphToken, Is.True);
         }
 
@@ -475,6 +484,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.UpcomingBirthdaysWithinDays, Is.EqualTo(14));
         }
 
@@ -490,6 +500,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.HasAcquiredMicrosoftGraphToken, Is.False);
         }
 
@@ -505,6 +516,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.UpcomingBirthdaysWithinDays, Is.EqualTo(default(int)));
         }
 
@@ -519,6 +531,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.HasAcquiredMicrosoftGraphToken, Is.False);
         }
 
@@ -533,6 +546,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.UpcomingBirthdaysWithinDays, Is.EqualTo(default(int)));
         }
 
@@ -547,6 +561,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.CanAccessContacts, Is.False);
         }
 
@@ -561,6 +576,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.HasAcquiredMicrosoftGraphToken, Is.False);
         }
 
@@ -575,6 +591,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.UpcomingBirthdaysWithinDays, Is.EqualTo(default(int)));
         }
 
@@ -589,6 +606,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.CanAccessAccountings, Is.True);
         }
 
@@ -603,6 +621,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.AccountingNumber, Is.Not.Null);
         }
 
@@ -618,6 +637,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.AccountingNumber, Is.EqualTo(accountingNumber));
         }
 
@@ -632,6 +652,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.AccountingNumber, Is.Null);
         }
 
@@ -646,6 +667,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.CanAccessAccountings, Is.False);
         }
 
@@ -660,6 +682,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.AccountingNumber, Is.Null);
         }
 
@@ -674,6 +697,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Not.Null);
         }
 
@@ -689,6 +713,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.EqualTo(numberOfNewsToCollect));
         }
 
@@ -703,6 +728,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Null);
         }
 
@@ -717,6 +743,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
             HomeOperationsViewModel homeOperationsViewModel = (HomeOperationsViewModel) result.Model;
 
+            Assert.That(homeOperationsViewModel, Is.Not.Null);
             Assert.That(homeOperationsViewModel.NumberOfNewsToCollect, Is.Null);
         }
 
@@ -730,7 +757,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _claimResolverMock.Setup(m => m.GetNumberOfNewsToCollect())
                 .Returns(hasNumberOfNewsToCollect ?? _random.Next(100) > 50 ? numberOfNewsToCollect ?? (int?) _fixture.Create<int>() : null);
 
-            Controller controller = new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, _acmeChallengeResolverMock.Object)
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object)
             {
                 ControllerContext = new ControllerContext
                 {

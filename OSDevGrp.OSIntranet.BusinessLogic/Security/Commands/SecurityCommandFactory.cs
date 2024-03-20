@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-	public static class SecurityCommandFactory
+    public static class SecurityCommandFactory
 	{
 		#region Methods
 
@@ -24,6 +24,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 		{
 			return new GenerateTokenCommand();
 		}
+
+        public static IAcmeChallengeCommand BuildAcmeChallengeCommand(string challengeToken)
+        {
+            return new AcmeChallengeCommand(challengeToken);
+        }
 
 		#endregion
 	}
