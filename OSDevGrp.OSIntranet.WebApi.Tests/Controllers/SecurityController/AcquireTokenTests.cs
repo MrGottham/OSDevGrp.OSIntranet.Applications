@@ -6,7 +6,6 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
@@ -16,13 +15,12 @@ using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 {
-	[TestFixture]
+    [TestFixture]
     public class AcquireTokenTests
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
-        private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
 
         #endregion
@@ -31,7 +29,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         public void SetUp()
         {
 	        _commandBusMock = new Mock<ICommandBus>();
-            _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _fixture = new Fixture();
         }
 
@@ -311,7 +308,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsAny<IGenerateTokenCommand>()))
                 .Returns(Task.FromResult(hasToken ? token ?? _fixture.BuildTokenMock().Object : null));
 
-            return new Controller(_commandBusMock.Object, _acmeChallengeResolverMock.Object);
+            return new Controller(_commandBusMock.Object);
         }
 
         private string GetLegalGrantType() => "client_credentials";

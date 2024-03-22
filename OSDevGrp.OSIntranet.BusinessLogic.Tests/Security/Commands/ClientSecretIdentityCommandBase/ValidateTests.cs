@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Security.Claims;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
@@ -8,6 +5,9 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecretIdentityCommandBase
 {
@@ -30,13 +30,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             _fixture = new Fixture();
         }
 
+        [Test]
         [Category("UnitTest")]
         public void Validate_WhenValidatorIsNull_ThrowsArgumentNullException()
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _securityRepositoryMock.Object));
-            
+
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("validator"));
         }
 
@@ -47,7 +49,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             IClientSecretIdentityCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
-            
+
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("securityRepository"));
         }
 
@@ -63,7 +66,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.CompareOrdinal(value, friendlyName) == 0),
                     It.Is<Type>(type => type == sut.GetType()),
-                    It.Is<string>(field => string.Compare(field, "FriendlyName", false) == 0)),
+                    It.Is<string>(field => string.CompareOrdinal(field, "FriendlyName") == 0)),
                 Times.Once());
         }
 
@@ -80,7 +83,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
                     It.Is<string>(value => string.CompareOrdinal(value, friendlyName) == 0),
                     It.Is<int>(value => value == 1),
                     It.Is<Type>(type => type == sut.GetType()),
-                    It.Is<string>(field => string.Compare(field, "FriendlyName", false) == 0),
+                    It.Is<string>(field => string.CompareOrdinal(field, "FriendlyName") == 0),
                     It.Is<bool>(value => value == false)),
                 Times.Once());
         }
@@ -98,7 +101,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
                     It.Is<string>(value => string.CompareOrdinal(value, friendlyName) == 0),
                     It.Is<int>(value => value == 256),
                     It.Is<Type>(type => type == sut.GetType()),
-                    It.Is<string>(field => string.Compare(field, "FriendlyName", false) == 0),
+                    It.Is<string>(field => string.CompareOrdinal(field, "FriendlyName") == 0),
                     It.Is<bool>(value => value == false)),
                 Times.Once());
         }
