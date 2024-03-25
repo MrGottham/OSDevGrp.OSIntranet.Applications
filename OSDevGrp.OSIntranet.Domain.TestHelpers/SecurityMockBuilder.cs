@@ -170,5 +170,107 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(expires ?? fixture.Create<DateTime>());
             return refreshableTokenBasedCommandMock;
         }
+
+        public static Mock<IOpenIdProviderConfiguration> BuildOpenIdProviderConfigurationMock(this Fixture fixture)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Random random = new Random(fixture.Create<int>());
+
+            Mock<IOpenIdProviderConfiguration> openIdProviderConfigurationMock = new Mock<IOpenIdProviderConfiguration>();
+            openIdProviderConfigurationMock.Setup(m => m.Issuer)
+                .Returns(new Uri($"https://{fixture.CreateDomainName()}", UriKind.Absolute));
+            openIdProviderConfigurationMock.Setup(m => m.AuthorizationEndpoint)
+                .Returns(fixture.CreateEndpoint());
+            openIdProviderConfigurationMock.Setup(m => m.TokenEndpoint)
+                .Returns(fixture.CreateEndpoint());
+            openIdProviderConfigurationMock.Setup(m => m.UserInfoEndpoint)
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
+            openIdProviderConfigurationMock.Setup(m => m.JsonWebKeySetEndpoint)
+                .Returns(fixture.CreateEndpoint());
+            openIdProviderConfigurationMock.Setup(m => m.RegistrationEndpoint)
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
+            openIdProviderConfigurationMock.Setup(m => m.ScopesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.ResponseTypesSupported)
+                .Returns(fixture.CreateStringArray(random));
+            openIdProviderConfigurationMock.Setup(m => m.ResponseModesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.GrantTypesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.AuthenticationContextClassReferencesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.SubjectTypesSupported)
+                .Returns(fixture.CreateStringArray(random));
+            openIdProviderConfigurationMock.Setup(m => m.IdTokenSigningAlgValuesSupported)
+                .Returns(fixture.CreateStringArray(random));
+            openIdProviderConfigurationMock.Setup(m => m.IdTokenEncryptionAlgValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.IdTokenEncryptionEncValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.UserInfoSigningAlgValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.UserInfoEncryptionAlgValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.UserInfoEncryptionEncValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.RequestObjectSigningAlgValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.RequestObjectEncryptionAlgValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.RequestObjectEncryptionEncValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.TokenEndpointAuthenticationMethodsSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.TokenEndpointAuthenticationSigningAlgValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.DisplayValuesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.ClaimTypesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.ClaimsSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.ServiceDocumentationEndpoint)
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
+            openIdProviderConfigurationMock.Setup(m => m.ClaimsLocalesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.UiLocalesSupported)
+                .Returns(random.Next(100) > 50 ? fixture.CreateStringArray(random) : null);
+            openIdProviderConfigurationMock.Setup(m => m.ClaimsParameterSupported)
+                .Returns(random.Next(100) > 50 ? fixture.Create<bool>() : null);
+            openIdProviderConfigurationMock.Setup(m => m.RequestParameterSupported)
+                .Returns(random.Next(100) > 50 ? fixture.Create<bool>() : null);
+            openIdProviderConfigurationMock.Setup(m => m.RequestUriParameterSupported)
+                .Returns(random.Next(100) > 50 ? fixture.Create<bool>() : null);
+            openIdProviderConfigurationMock.Setup(m => m.RequireRequestUriRegistration)
+                .Returns(random.Next(100) > 50 ? fixture.Create<bool>() : null);
+            openIdProviderConfigurationMock.Setup(m => m.RegistrationPolicyEndpoint)
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
+            openIdProviderConfigurationMock.Setup(m => m.RegistrationTermsOfServiceEndpoint)
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
+            return openIdProviderConfigurationMock;
+        }
+
+        private static string CreateDomainName(this Fixture fixture)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            return $"{fixture.Create<string>().Replace("/", string.Empty)}.local";
+        }
+
+        private static Uri CreateEndpoint(this Fixture fixture)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            return new Uri($"https://{CreateDomainName(fixture)}/{fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+        }
+
+        private static string[] CreateStringArray(this Fixture fixture, Random random)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture))
+                .NotNull(random, nameof(random));
+
+            return fixture.CreateMany<string>(random.Next(1, 10)).ToArray();
+        }
     }
 }
