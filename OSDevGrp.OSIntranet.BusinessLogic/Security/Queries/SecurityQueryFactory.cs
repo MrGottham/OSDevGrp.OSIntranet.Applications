@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Queries
 {
-	public static class SecurityQueryFactory
+    public static class SecurityQueryFactory
 	{
 		#region Methods
 
@@ -28,6 +28,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Queries
 			return new GetGoogleTokenQuery(claimsPrincipal, unprotect);
 		}
 
+        public static IGetOpenIdProviderConfigurationQuery BuildGetOpenIdProviderConfigurationQuery(Uri authorizationEndpoint, Uri tokenEndpoint, Uri jsonWebKeySetEndpoint, Uri userInfoEndpoint = null, Uri registrationEndpoint = null, Uri serviceDocumentationEndpoint = null, Uri registrationPolicyEndpoint = null, Uri registrationTermsOfServiceEndpoint = null)
+        {
+            return new GetOpenIdProviderConfigurationQuery(authorizationEndpoint, tokenEndpoint, jsonWebKeySetEndpoint, userInfoEndpoint, registrationEndpoint, serviceDocumentationEndpoint, registrationPolicyEndpoint, registrationTermsOfServiceEndpoint);
+        }
+
 		#endregion
-	}
+    }
 }

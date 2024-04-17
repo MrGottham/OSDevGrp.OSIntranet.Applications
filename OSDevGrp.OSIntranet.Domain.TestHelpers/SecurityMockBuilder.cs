@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
-	public static class SecurityMockBuilder
+    public static class SecurityMockBuilder
     {
         public static Mock<IUserIdentity> BuildUserIdentityMock(this Fixture fixture, IEnumerable<Claim> claims = null)
         {
@@ -249,6 +249,22 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             openIdProviderConfigurationMock.Setup(m => m.RegistrationTermsOfServiceEndpoint)
                 .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
             return openIdProviderConfigurationMock;
+        }
+
+        public static Mock<IScope> BuildScopeMock(this Fixture fixture, IEnumerable<string> relatedClaims = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Random random = new Random(fixture.Create<int>());
+
+            Mock<IScope> scopeMock = new Mock<IScope>();
+            scopeMock.Setup(m => m.Name)
+                .Returns(fixture.Create<string>());
+            scopeMock.Setup(m => m.Description)
+                .Returns(fixture.Create<string>());
+            scopeMock.Setup(m => m.RelatedClaims)
+                .Returns(relatedClaims ?? fixture.CreateMany<string>(random.Next(1, 10)).ToArray());
+            return scopeMock;
         }
 
         private static string CreateDomainName(this Fixture fixture)

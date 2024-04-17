@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
-	internal class ValidatorMockContext
+    internal class ValidatorMockContext
     {
         #region Constructor
 
@@ -166,6 +166,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericObjectValidatorMock<decimal?>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<Guid>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<Uri>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<BalanceBelowZeroType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
