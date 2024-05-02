@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
@@ -21,6 +22,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Fixture _fixture;
 
         #endregion
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         public void SetUp()
         {
 	        _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _fixture = new Fixture();
         }
 
@@ -308,7 +311,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsAny<IGenerateTokenCommand>()))
                 .Returns(Task.FromResult(hasToken ? token ?? _fixture.BuildTokenMock().Object : null));
 
-            return new Controller(_commandBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
         }
 
         private string GetLegalGrantType() => "client_credentials";

@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 		#region Private variables
 
 		private Mock<ICommandBus> _commandBusMock;
+        private Mock<IQueryBus> _queryBusMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -28,6 +30,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         public void SetUp()
         {
 	        _commandBusMock = new Mock<ICommandBus>();
+            _queryBusMock = new Mock<IQueryBus>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
@@ -251,7 +254,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IAcmeChallengeCommand, byte[]>(It.IsAny<IAcmeChallengeCommand>()))
                 .Returns(Task.FromResult(constructedKeyAuthorization ?? _fixture.CreateMany<byte>(_random.Next(32, 64)).ToArray()));
 
-            return new Controller(_commandBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
         }
     }
 }
