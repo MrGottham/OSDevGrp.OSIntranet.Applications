@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
-    public class TokenGenerator : ITokenGenerator
+    internal class TokenGenerator : ITokenGenerator
 	{
         #region Private variables
 
@@ -30,6 +30,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         #endregion
 
+        #region Properties
+
+        public string SigningAlgorithm => SecurityAlgorithms.RsaSha256;
+
+        #endregion
+
         #region Methods
 
         public IToken Generate(ClaimsIdentity claimsIdentity)
@@ -45,7 +51,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             {
                 Subject = claimsIdentity,
                 Issuer = tokenGeneratorOptions.Issuer,
-                SigningCredentials = new SigningCredentials(securityKeyBuilder.Build(), SecurityAlgorithms.RsaSha256Signature),
+                SigningCredentials = new SigningCredentials(securityKeyBuilder.Build(), SigningAlgorithm),
                 Audience = tokenGeneratorOptions.Audience,
                 Expires = expires
             };
