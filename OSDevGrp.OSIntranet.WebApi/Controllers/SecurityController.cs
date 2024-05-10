@@ -17,6 +17,7 @@ using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
@@ -87,9 +88,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("/api/oauth/jwks")]
-        public Task<IActionResult> JsonWebKeys()
+        public async Task<ActionResult<JsonWebKeySetModel>> JsonWebKeys()
         {
-            throw new NotImplementedException();
+            IGetJsonWebKeySetQuery query = SecurityQueryFactory.BuildGetJsonWebKeySetQuery();
+            JsonWebKeySet jsonWebKeySet = await _queryBus.QueryAsync<IGetJsonWebKeySetQuery, JsonWebKeySet>(query);
+
+            return Ok(_securityModelConverter.Convert<JsonWebKeySet, JsonWebKeySetModel>(jsonWebKeySet));
         }
 
         [AllowAnonymous]

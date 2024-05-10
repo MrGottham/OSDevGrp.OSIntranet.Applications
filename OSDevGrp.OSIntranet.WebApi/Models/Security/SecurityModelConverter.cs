@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
@@ -27,6 +28,23 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
                 {
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.AccessToken) == false);
                 });
+
+            mapperConfiguration.CreateMap<JsonWebKeySet, JsonWebKeySetModel>()
+                .ForMember(dest => dest.Keys, opt => opt.Condition(src => src.Keys is {Count: > 0}));
+
+            mapperConfiguration.CreateMap<JsonWebKey, JsonWebKeyModel>()
+                .ForMember(dest => dest.Kty, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.Kty) == false))
+                .ForMember(dest => dest.Use, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.Use) == false))
+                .ForMember(dest => dest.Alg, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.Alg) == false))
+                .ForMember(dest => dest.Kid, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.Kid) == false))
+                .ForMember(dest => dest.N, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.N) == false))
+                .ForMember(dest => dest.E, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.E) == false))
+                .ForMember(dest => dest.D, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.D) == false))
+                .ForMember(dest => dest.DP, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.DP) == false))
+                .ForMember(dest => dest.DQ, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.DQ) == false))
+                .ForMember(dest => dest.P, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.P) == false))
+                .ForMember(dest => dest.Q, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.Q) == false))
+                .ForMember(dest => dest.QI, opt => opt.Condition(src => string.IsNullOrWhiteSpace(src.QI) == false));
 
             mapperConfiguration.CreateMap<IOpenIdProviderConfiguration, OpenIdProviderConfigurationModel>()
                 .ForMember(dest => dest.Issuer, opt => opt.ConvertUsing(_uriToStringConverter, src => src.Issuer))
