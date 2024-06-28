@@ -1,7 +1,9 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
@@ -10,14 +12,16 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Extensions;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Tokens;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
@@ -30,19 +34,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
 		private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
+        private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
 
         #endregion
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, IQueryBus queryBus)
+        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+                .NotNull(queryBus, nameof(queryBus))
+                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
         #endregion
@@ -51,14 +58,75 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("/api/oauth/authorize")]
-        public Task<IActionResult> Authorize()
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Authorize([Required][FromQuery(Name = "response_type")] string responseType, [Required][FromQuery(Name = "client_id")] string clientId, [Required][FromQuery(Name = "redirect_uri")] string redirectUri, [Required][FromQuery(Name = "scope")] string scope, [FromQuery(Name = "state")] string state)
         {
+            if (string.IsNullOrWhiteSpace(responseType))
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve("unsupported_response_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "response_type"), null, state));
+            }
+
+            if (string.CompareOrdinal(responseType, "code") != 0)
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve("unsupported_response_type", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state));
+
+            }
+
+            if (string.IsNullOrWhiteSpace(clientId))
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "client_id"), null, state));
+            }
+
+            if (string.IsNullOrWhiteSpace(redirectUri))
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "redirect_uri"), null, state));
+            }
+
+            if (Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri absoluteRedirectUri) == false)
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state));
+            }
+
+            if (string.IsNullOrWhiteSpace(scope))
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve("invalid_scope", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "scope"), null, state));
+            }
+
+            try
+            {
+                IPrepareAuthorizationCodeFlowCommand command = SecurityCommandFactory.BuildPrepareAuthorizationCodeFlowCommand(responseType, clientId, absoluteRedirectUri, scope.Split(' '), state, _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Protect);
+                string authorizationState = await _commandBus.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(command);
+
+                return RedirectToPage("/Security/Login", new {authorizationState});
+            }
+            catch (IntranetValidationException ex)
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve(ex, state));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorResponseModelResolver.Resolve(ex, state));
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("/api/oauth/authorize/callback")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        // TODO: [ProducesResponseType(StatusCodes.Status308PermanentRedirect)]
+        // TODO: [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        // TODO: [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
+        public Task<IActionResult> AuthorizeCallback()
+        {
+            // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
+
             throw new NotImplementedException();
         }
 
         [Authorize(Policy = Policies.AcquireTokenPolicy)]
         [HttpPost("/api/oauth/token")]
-        public async Task<ActionResult<AccessTokenModel>> AcquireToken([FromForm(Name = "grant_type")]string grantType)
+        public async Task<ActionResult<AccessTokenModel>> AcquireToken([Required][FromForm(Name = "grant_type")]string grantType)
         {
             if (string.IsNullOrWhiteSpace(grantType))
             {

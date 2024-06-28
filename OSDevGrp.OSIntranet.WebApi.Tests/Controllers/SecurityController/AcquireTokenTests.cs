@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -23,6 +24,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Fixture _fixture;
 
         #endregion
@@ -32,6 +34,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
 	        _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _fixture = new Fixture();
         }
 
@@ -311,7 +314,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsAny<IGenerateTokenCommand>()))
                 .Returns(Task.FromResult(hasToken ? token ?? _fixture.BuildTokenMock().Object : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object);
         }
 
         private string GetLegalGrantType() => "client_credentials";

@@ -81,6 +81,12 @@ services:
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
+      - Security__Microsoft__ClientId=[TBD]
+      - Security__Microsoft__ClientSecret=[TBD]
+      - Security__Microsoft__Tenant=[TBD]
+      - Security__Google__ClientId=[TBD]
+      - Security__Google__ClientSecret=[TBD]
+      - Security__TrustedDomainCollection=[TBD]
       - Security__JWT__Key__kty=[TBD]
       - Security__JWT__Key__n=[TBD]
       - Security__JWT__Key__e=[TBD]

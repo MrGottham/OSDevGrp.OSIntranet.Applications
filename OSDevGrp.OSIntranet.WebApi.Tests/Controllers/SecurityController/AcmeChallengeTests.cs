@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -21,6 +22,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
 		private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -31,6 +33,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
 	        _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
@@ -254,7 +257,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IAcmeChallengeCommand, byte[]>(It.IsAny<IAcmeChallengeCommand>()))
                 .Returns(Task.FromResult(constructedKeyAuthorization ?? _fixture.CreateMany<byte>(_random.Next(32, 64)).ToArray()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object);
         }
     }
 }

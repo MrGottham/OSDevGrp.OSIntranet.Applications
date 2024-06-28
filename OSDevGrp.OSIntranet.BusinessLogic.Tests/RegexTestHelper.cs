@@ -11,5 +11,6 @@
         internal const string AccountNumberPattern = @"[0-9A-Z\-+]{1,16}";
         internal const string InternationalStandardBookNumberPattern = @"^(?:ISBN(?:-1[03])?:?\s)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-\s]){3})[-\s0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[-\s]){4})[-\s0-9]{17}$)(?:97[89][-\s]?)?[0-9]{1,5}[-\s]?[0-9]+[-\s]?[0-9]+[-\s]?[0-9X]$";
         internal const string JwtTokenPattern = @"^[A-Za-z0-9_-]{2,}(?:\.[A-Za-z0-9_-]{2,}){2}$";
+        internal const string ResponseTypePattern = "^(code){1}$";
     }
 }

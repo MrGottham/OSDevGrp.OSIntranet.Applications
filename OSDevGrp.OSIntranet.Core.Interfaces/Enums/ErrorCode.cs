@@ -158,6 +158,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
 		ValueShouldBeEarlierThanOrEqualToOffsetDate = 1051,
         
 		[ErrorCode("Value has not been set by the method named '{0}' on an instance of '{1}'.", typeof(IntranetSystemException))]
-		ValueNotSetByNamedMethod = 1052
+		ValueNotSetByNamedMethod = 1052,
+
+        [ErrorCode("Unable to authorize user.", typeof(IntranetBusinessException))]
+        UnableToAuthorizeUser = 1053
     }
 }

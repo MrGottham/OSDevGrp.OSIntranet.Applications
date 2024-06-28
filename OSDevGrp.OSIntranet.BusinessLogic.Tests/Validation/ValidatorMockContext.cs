@@ -163,6 +163,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<string[]>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<decimal?>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<Guid>(validatorMock, objectValidatorMock);

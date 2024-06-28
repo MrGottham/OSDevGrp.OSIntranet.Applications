@@ -267,6 +267,31 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return scopeMock;
         }
 
+        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, string toStringValue = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Random random = new Random(fixture.Create<int>());
+            toStringValue ??= Convert.ToBase64String(fixture.CreateMany<byte>(random.Next(1024, 4096)).ToArray());
+
+            Mock<IAuthorizationState> authorizationStateMock = new Mock<IAuthorizationState>();
+            authorizationStateMock.Setup(m => m.ResponseType)
+                .Returns(responseType ?? fixture.Create<string>());
+            authorizationStateMock.Setup(m => m.ClientId)
+                .Returns(clientId ?? fixture.Create<string>());
+            authorizationStateMock.Setup(m => m.RedirectUri)
+                .Returns(redirectUri ?? fixture.CreateEndpoint());
+            authorizationStateMock.Setup(m => m.Scopes)
+                .Returns(scopes ?? fixture.CreateStringArray(random));
+            authorizationStateMock.Setup(m => m.ExternalState)
+                .Returns(hasExternalState ? externalState ?? fixture.Create<string>() : null);
+            authorizationStateMock.Setup(m => m.ToString())
+                .Returns(toStringValue);
+            authorizationStateMock.Setup(m => m.ToString(It.IsAny<Func<byte[], byte[]>>()))
+                .Returns(toStringValue);
+            return authorizationStateMock;
+        }
+
         private static string CreateDomainName(this Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));

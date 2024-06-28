@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NUnit.Framework;
@@ -21,6 +22,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
 
         #endregion
 
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
         }
 
         [Test]
@@ -130,7 +133,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _queryBusMock.Setup(m => m.QueryAsync<IGetJsonWebKeySetQuery, JsonWebKeySet>(It.IsAny<IGetJsonWebKeySetQuery>()))
                 .Returns(Task.FromResult(jsonWebKeySet));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object);
         }
 
         private static JsonWebKey CreateJsonWebKey(Guid keyId)

@@ -17,14 +17,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
             if (allowNull)
             {
-                return validator.Object.ShouldBeKnownValue(endpoint, IsIsAbsoluteUri, validatingType, validatingField, true);
+                return validator.Object.ShouldBeKnownValue(endpoint, IsAbsoluteUri, validatingType, validatingField, true);
             }
 
             return validator.Object.ShouldNotBeNull(endpoint, validatingType, validatingField)
-                .Object.ShouldBeKnownValue(endpoint, IsIsAbsoluteUri, validatingType, validatingField);
+                .Object.ShouldBeKnownValue(endpoint, IsAbsoluteUri, validatingType, validatingField);
         }
 
-        private static Task<bool> IsIsAbsoluteUri(Uri endpoint)
+        private static Task<bool> IsAbsoluteUri(Uri endpoint)
         {
             NullGuard.NotNull(endpoint, nameof(endpoint));
 

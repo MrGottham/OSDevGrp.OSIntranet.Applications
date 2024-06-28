@@ -30,6 +30,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
             return new AcmeChallengeCommand(challengeToken);
         }
 
-		#endregion
-	}
+        public static IPrepareAuthorizationCodeFlowCommand BuildPrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, Func<byte[], byte[]> protector)
+        {
+            return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, protector);
+        }
+
+        #endregion
+    }
 }

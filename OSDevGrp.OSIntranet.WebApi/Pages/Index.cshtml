@@ -1,52 +1,9 @@
 ﻿@page
-@using OSDevGrp.OSIntranet.Core.Resolvers
-@using System.Reflection
-@{
-    Layout = null;
-}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Start - OS Development Group Web API</title>
-    <link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+<div id="swagger-ui"></div>
+@section Stylesheets {
     <link rel="stylesheet" type="text/css" href="/lib/swagger-ui/dist/css/swagger-ui.css" />
-    <link rel="stylesheet" type="text/css" href="/css/site.min.css" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3 fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="/">OS Development Group Web API</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="/">Start</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            <div id="swagger-ui"></div>
-        </main>
-    </div>
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
-                <p>OS Development Group Web API - Build @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).ToString("yyyyMMddHHmm")</p>
-            </div>
-            <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
-                <p>OS Development Group &copy; @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).Year - OS Development Group Web API - Build @LinkerTimestampResolver.GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()).ToString("yyyyMMddHHmm")</p>
-            </div>
-        </div>
-    </footer>
+}
+@section Scripts {
     <script src="/lib/swagger-ui/dist/js/swagger-ui-bundle.js" charset="UTF-8"></script>
     <script src="/lib/swagger-ui/dist/js/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
     <script>
@@ -97,5 +54,4 @@
             window.ui = ui;
         }
     </script>
-</body>
-</html>
+}

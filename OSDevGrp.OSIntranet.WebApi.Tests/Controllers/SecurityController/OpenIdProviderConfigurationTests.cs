@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -23,6 +24,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
+        private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Mock<IUrlHelper> _urlHelperMock;
         private Fixture _fixture;
 
@@ -33,6 +35,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
+            _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _urlHelperMock = new Mock<IUrlHelper>();
             _fixture = new Fixture();
         }
@@ -241,7 +244,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _urlHelperMock.Setup(m => m.Action(It.IsNotNull<UrlActionContext>()))
                 .Returns<UrlActionContext>(urlActionContext => $"/{urlActionContext.Controller}/{urlActionContext.Action}".ToLower());
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object)
             {
                 Url = _urlHelperMock.Object
             };
