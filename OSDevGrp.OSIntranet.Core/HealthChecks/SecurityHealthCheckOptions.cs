@@ -30,13 +30,16 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
                 .AddEndpointConfigurationValidation(configuration, SecurityConfigurationKeys.JwtAudience);
         }
 
-        public SecurityHealthCheckOptions WithMicrosoftValidation(IConfiguration configuration)
+        public SecurityHealthCheckOptions WithMicrosoftValidation(IConfiguration configuration, bool requireTenant)
         {
             NullGuard.NotNull(configuration, nameof(configuration));
 
-            return AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftClientId)
-                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftClientSecret)
-                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftTenant);
+            SecurityHealthCheckOptions options = AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftClientId)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftClientSecret);
+
+            return requireTenant
+                ? options.AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.MicrosoftTenant)
+                : options;
         }
 
         public SecurityHealthCheckOptions WithGoogleValidation(IConfiguration configuration)

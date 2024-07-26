@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using Sut = OSDevGrp.OSIntranet.Domain.Security.AuthorizationState;
 
@@ -172,6 +173,44 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void FromBase64String_WhenClientSecretIsSetInBase64String_ReturnsAuthorizationStateWhereClientSecretIsNotNull()
+        {
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasClientSecret: true), Unprotect);
+
+            Assert.That(result.ClientSecret, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenClientSecretIsSetInBase64String_ReturnsAuthorizationStateWhereClientSecretIsNotEmpty()
+        {
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasClientSecret: true), Unprotect);
+
+            Assert.That(result.ClientSecret, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenClientSecretIsSetInBase64String_ReturnsAuthorizationStateWhereClientSecretIsEqualToClientSecretFromBase64String()
+        {
+            string clientSecret = _fixture.Create<string>();
+            string base64String = CreateBase64String(hasClientSecret: true, clientSecret: clientSecret);
+            IAuthorizationState result = Sut.FromBase64String(base64String, Unprotect);
+
+            Assert.That(result.ClientSecret, Is.EqualTo(clientSecret));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenClientSecretIsNotSetInBase64String_ReturnsAuthorizationStateWhereClientSecretIsNull()
+        {
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasClientSecret: false), Unprotect);
+
+            Assert.That(result.ClientSecret, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void FromBase64String_WhenCalled_ReturnsAuthorizationStateWhereRedirectUriIsNotNull()
         {
             IAuthorizationState result = Sut.FromBase64String(CreateBase64String(), Unprotect);
@@ -257,9 +296,69 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             Assert.That(result.ExternalState, Is.Null);
         }
 
-        private string CreateBase64String(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null)
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenAuthorizationCodeIsSetInBase64String_ReturnsAuthorizationStateWhereAuthorizationCodeIsNotNull()
         {
-            return CreateSut(_fixture, _random, responseType, clientId, redirectUri, scopes, hasExternalState, externalState).ToString();
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasAuthorizationCode: true), Unprotect);
+
+            Assert.That(result.AuthorizationCode, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenAuthorizationCodeIsSetInBase64String_ReturnsAuthorizationStateWhereValueOnAuthorizationCodeIsNotNull()
+        {
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasAuthorizationCode: true), Unprotect);
+
+            Assert.That(result.AuthorizationCode.Value, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenAuthorizationCodeIsSetInBase64String_ReturnsAuthorizationStateWhereValueOnAuthorizationCodeIsNotEmpty()
+        {
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasAuthorizationCode: true), Unprotect);
+
+            Assert.That(result.AuthorizationCode.Value, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenAuthorizationCodeIsSetInBase64String_ReturnsAuthorizationStateWhereValueOnAuthorizationCodeIsEqualToValueOnAuthorizationCodeFromBase64String()
+        {
+            string value = _fixture.Create<string>();
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
+            string base64String = CreateBase64String(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+            IAuthorizationState result = Sut.FromBase64String(base64String, Unprotect);
+
+            Assert.That(result.AuthorizationCode.Value, Is.EqualTo(value));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenAuthorizationCodeIsSetInBase64String_ReturnsAuthorizationStateWhereExpiresOnAuthorizationCodeIsEqualToExpiresOnAuthorizationCodeFromBase64String()
+        {
+            DateTimeOffset expires = DateTimeOffset.Now.AddSeconds(_random.Next(5, 10));
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expires: expires).Object;
+            string base64String = CreateBase64String(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+            IAuthorizationState result = Sut.FromBase64String(base64String, Unprotect);
+
+            Assert.That(result.AuthorizationCode.Expires, Is.EqualTo(expires.UtcDateTime));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenAuthorizationCodeIsNotSetInBase64String_ReturnsAuthorizationStateWhereAuthorizationCodeIsNull()
+        {
+            IAuthorizationState result = Sut.FromBase64String(CreateBase64String(hasAuthorizationCode: false), Unprotect);
+
+            Assert.That(result.AuthorizationCode, Is.Null);
+        }
+
+        private string CreateBase64String(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
+        {
+            return CreateSut(_fixture, _random, responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasAuthorizationCode, authorizationCode).ToString();
         }
 
         private static byte[] Unprotect(byte[] bytes)

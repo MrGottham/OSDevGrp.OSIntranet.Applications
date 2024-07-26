@@ -233,6 +233,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericEnumerableValidatorMock<byte>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<string>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<IApplyPostingLineCommand>(validatorMock, enumerableValidatorMock);
+            SetupGenericEnumerableValidatorMock<Claim>(validatorMock, enumerableValidatorMock);
             return enumerableValidatorMock;
         }
 

@@ -67,7 +67,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
                 .AddTransient<IKeyGenerator, KeyGenerator>()
                 .AddSingleton<IOpenIdProviderConfigurationStaticValuesProvider, OpenIdProviderConfigurationStaticValuesProvider>()
-                .AddSingleton<ISupportedScopesProvider, SupportedScopesProvider>();
+                .AddSingleton<ISupportedScopesProvider, SupportedScopesProvider>()
+                .AddTransient<IClaimsSelector, ClaimsSelector>();
         }
 
         #endregion

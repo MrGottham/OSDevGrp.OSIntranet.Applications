@@ -12,7 +12,9 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         private readonly string _clientId;
         private readonly Uri _redirectUri;
         private readonly string[] _scopes;
+        private string _clientSecret;
         private string _externalState;
+        private IAuthorizationCode _authorizationCode;
 
         #endregion
 
@@ -35,6 +37,15 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         #region Methods
 
+        public IAuthorizationStateBuilder WithClientSecret(string clientSecret)
+        {
+            NullGuard.NotNullOrWhiteSpace(clientSecret, nameof(clientSecret));
+
+            _clientSecret = clientSecret;
+
+            return this;
+        }
+
         public IAuthorizationStateBuilder WithExternalState(string externalState)
         {
             NullGuard.NotNullOrWhiteSpace(externalState, nameof(externalState));
@@ -44,9 +55,25 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return this;
         }
 
+        public IAuthorizationStateBuilder WithAuthorizationCode(IAuthorizationCode authorizationCode)
+        {
+            NullGuard.NotNull(authorizationCode, nameof(authorizationCode));
+
+            return WithAuthorizationCode(authorizationCode.Value, authorizationCode.Expires);
+        }
+
+        public IAuthorizationStateBuilder WithAuthorizationCode(string value, DateTimeOffset expires)
+        {
+            NullGuard.NotNullOrWhiteSpace(value, nameof(value));
+
+            _authorizationCode = new AuthorizationCode(value, expires);
+
+            return this;
+        }
+
         public IAuthorizationState Build()
         {
-            return new AuthorizationState(_responseType, _clientId, _redirectUri, _scopes, _externalState);
+            return new AuthorizationState(_responseType, _clientId, _clientSecret, _redirectUri, _scopes, _externalState, _authorizationCode);
         }
 
         #endregion

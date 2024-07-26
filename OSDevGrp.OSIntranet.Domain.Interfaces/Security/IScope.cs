@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 {
@@ -9,5 +10,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
         string Description { get; }
 
         IEnumerable<string> RelatedClaims { get; }
+
+        IEnumerable<Claim> Filter(IEnumerable<Claim> clams);
     }
 }

@@ -208,7 +208,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddHealthChecks()
                 .AddSecurityHealthChecks(opt =>
                 {
-                    opt.WithMicrosoftValidation(Configuration);
+                    opt.WithMicrosoftValidation(Configuration, true);
                     opt.WithGoogleValidation(Configuration);
                     opt.WithTrustedDomainCollectionValidation(Configuration);
                     opt.WithAcmeChallengeValidation(Configuration);

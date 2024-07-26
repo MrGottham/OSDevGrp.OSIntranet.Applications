@@ -58,7 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
                 .NotNull(trustedDomainResolver, nameof(trustedDomainResolver))
                 .NotNull(supportedScopesProvider, nameof(supportedScopesProvider));
 
-            return validator.ValidateResponseType(ResponseType, GetType(), nameof(ResponseType))
+            return validator.ValidateResponseType(ResponseType, ResponseTypeHelper.ResponseTypeForAuthorizationCodeFlowRegex, GetType(), nameof(ResponseType))
                 .ValidateClientId(ClientId, securityRepository, GetType(), nameof(ClientId))
                 .ValidateRedirectUri(RedirectUri, trustedDomainResolver, GetType(), nameof(RedirectUri))
                 .ValidateScopes(Scopes, supportedScopesProvider, GetType(), nameof(Scopes))

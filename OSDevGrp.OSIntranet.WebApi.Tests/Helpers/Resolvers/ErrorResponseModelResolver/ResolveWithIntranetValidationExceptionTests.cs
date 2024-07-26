@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false)]
         public void Resolve_WhenIntranetValidationExceptionIsNull_ThrowsArgumentNullException(bool withState)
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(null, withState ? _fixture.Create<string>() : null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve((IntranetValidationException) null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("intranetValidationException"));

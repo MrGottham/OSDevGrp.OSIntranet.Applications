@@ -1,6 +1,6 @@
 ﻿namespace OSDevGrp.OSIntranet.WebApi.Security
 {
-    internal static class Schemas
+    internal static class Schemes
     {
         #region Constants
 

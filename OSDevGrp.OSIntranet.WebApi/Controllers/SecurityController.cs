@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,10 @@ using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
@@ -115,13 +119,74 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpGet("/api/oauth/authorize/callback")]
         [ApiExplorerSettings(IgnoreApi = true)]
         // TODO: [ProducesResponseType(StatusCodes.Status308PermanentRedirect)]
-        // TODO: [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
-        // TODO: [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
-        public Task<IActionResult> AuthorizeCallback()
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AuthorizeCallback()
         {
             // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
+            try
+            {
+                AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemes.Internal);
+                try
+                {
+                    if (authenticateResult.Succeeded == false || authenticateResult.Principal?.Identity == null)
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve(authenticateResult, null));
+                    }
 
-            throw new NotImplementedException();
+                    ClaimsIdentity externalClaimsIdentity = (ClaimsIdentity) authenticateResult.Principal.Identity;
+                    if (externalClaimsIdentity.IsAuthenticated == false)
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve(externalClaimsIdentity, null));
+                    }
+
+                    string mailAddress = externalClaimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
+                    if (string.IsNullOrWhiteSpace(mailAddress))
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve(externalClaimsIdentity, null));
+                    }
+
+                    if (authenticateResult.Properties.Items.Count == 0 || authenticateResult.Properties.Items.TryGetValue(KeyNames.AuthorizationStateKey, out string authorizationState) == false)
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve(authenticateResult.Properties, null));
+                    }
+                    if (string.IsNullOrWhiteSpace(authorizationState))
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve(authenticateResult.Properties, null));
+                    }
+
+                    IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailAddress, authenticateResult.Principal.Claims.ToArray(), Schemes.Internal, authenticateResult.Properties.Items.AsReadOnly(), value => value);
+                    ClaimsPrincipal internalClaimsPrincipal = await _commandBus.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(authenticateUserCommand);
+                    if (internalClaimsPrincipal == null)
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, null));
+                    }
+
+                    await HttpContext.SignInAsync(Schemes.Internal, internalClaimsPrincipal, authenticateResult.Properties);
+
+                    IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = SecurityCommandFactory.BuildGenerateAuthorizationCodeCommand(authorizationState, internalClaimsPrincipal.Claims.ToArray(), _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Unprotect);
+                    IAuthorizationState authorizationStateWithAuthorizationCode = await _commandBus.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(generateAuthorizationCodeCommand);
+
+                    return null;
+                }
+                finally
+                {
+                    await HttpContext.SignOutAsync(Schemes.Internal, authenticateResult.Properties);
+                }
+            }
+            catch (IntranetValidationException ex)
+            {
+                return BadRequest(ErrorResponseModelResolver.Resolve(ex, null));
+            }
+            catch (IntranetBusinessException ex)
+            {
+                return Unauthorized(ErrorResponseModelResolver.Resolve("access_denied", ex.Message, null, null));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ErrorResponseModelResolver.Resolve("server_error", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, null));
+            }
         }
 
         [Authorize(Policy = Policies.AcquireTokenPolicy)]

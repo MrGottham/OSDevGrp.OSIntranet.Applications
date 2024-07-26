@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false)]
         public void Resolve_WhenCalledWithException_ReturnsNotNull(bool withState)
         {
-            Exception exception = CreateIntranetValidationException();
+            Exception exception = CreateException();
             ErrorResponseModel result = WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(exception, withState ? _fixture.Create<string>() : null);
 
             Assert.That(result, Is.Not.Null);
@@ -51,14 +51,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         public void Resolve_WhenCalledWithException_ReturnsExpectedErrorResponseModel(bool withState)
         {
             string message = _fixture.Create<string>();
-            Exception exception = CreateIntranetValidationException(message);
+            Exception exception = CreateException(message);
             string state = withState ? _fixture.Create<string>() : null;
             ErrorResponseModel result = WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(exception, state);
 
             result.AssertExpectedValues("server_error", message, null, state);
         }
 
-        private Exception CreateIntranetValidationException(string message = null)
+        private Exception CreateException(string message = null)
         {
             return new Exception(message ?? _fixture.Create<string>());
         }

@@ -251,23 +251,28 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return openIdProviderConfigurationMock;
         }
 
-        public static Mock<IScope> BuildScopeMock(this Fixture fixture, IEnumerable<string> relatedClaims = null)
+        public static Mock<IScope> BuildScopeMock(this Fixture fixture, string name = null, string description = null, IEnumerable<string> relatedClaims = null, IEnumerable<Claim> filteredClaims = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
             Random random = new Random(fixture.Create<int>());
 
+            string[] claimTypes = (relatedClaims ?? fixture.CreateMany<string>(random.Next(1, 10))).ToArray();
+            filteredClaims ??= claimTypes.Take(random.Next(0, claimTypes.Length - 1)).Select(claimType => new Claim(claimType, string.Empty)).ToArray();
+
             Mock<IScope> scopeMock = new Mock<IScope>();
             scopeMock.Setup(m => m.Name)
-                .Returns(fixture.Create<string>());
+                .Returns(name ?? fixture.Create<string>());
             scopeMock.Setup(m => m.Description)
-                .Returns(fixture.Create<string>());
+                .Returns(description ?? fixture.Create<string>());
             scopeMock.Setup(m => m.RelatedClaims)
-                .Returns(relatedClaims ?? fixture.CreateMany<string>(random.Next(1, 10)).ToArray());
+                .Returns(claimTypes);
+            scopeMock.Setup(m => m.Filter(It.IsAny<IEnumerable<Claim>>()))
+                .Returns(filteredClaims);
             return scopeMock;
         }
 
-        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, string toStringValue = null)
+        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -279,17 +284,55 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(responseType ?? fixture.Create<string>());
             authorizationStateMock.Setup(m => m.ClientId)
                 .Returns(clientId ?? fixture.Create<string>());
+            authorizationStateMock.Setup(m => m.ClientSecret)
+                .Returns(hasClientSecret ? clientSecret ?? fixture.Create<string>() : null);
             authorizationStateMock.Setup(m => m.RedirectUri)
                 .Returns(redirectUri ?? fixture.CreateEndpoint());
             authorizationStateMock.Setup(m => m.Scopes)
                 .Returns(scopes ?? fixture.CreateStringArray(random));
             authorizationStateMock.Setup(m => m.ExternalState)
                 .Returns(hasExternalState ? externalState ?? fixture.Create<string>() : null);
+            authorizationStateMock.Setup(m => m.AuthorizationCode)
+                .Returns(hasAuthorizationCode ? authorizationCode ?? fixture.BuildAuthorizationCodeMock().Object : null);
             authorizationStateMock.Setup(m => m.ToString())
                 .Returns(toStringValue);
             authorizationStateMock.Setup(m => m.ToString(It.IsAny<Func<byte[], byte[]>>()))
                 .Returns(toStringValue);
+            authorizationStateMock.Setup(m => m.ToBuilder())
+                .Returns(toAuthorizationStateBuilder ?? fixture.BuildAuthorizationStateBuilderMock(authorizationState: authorizationStateMock.Object).Object);
             return authorizationStateMock;
+        }
+
+        public static Mock<IAuthorizationCode> BuildAuthorizationCodeMock(this Fixture fixture, string value = null, DateTimeOffset? expires = null, bool expired = false)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            Random random = new Random(fixture.Create<int>());
+
+            Mock<IAuthorizationCode> authorizationCodeMock = new Mock<IAuthorizationCode>();
+            authorizationCodeMock.Setup(m => m.Value)
+                .Returns(value ?? fixture.Create<string>());
+            authorizationCodeMock.Setup(m => m.Expires)
+                .Returns(expires?.UtcDateTime ?? DateTime.UtcNow.AddSeconds(random.Next(5, 10)));
+            authorizationCodeMock.Setup(m => m.Expired)
+                .Returns(expired);
+            return authorizationCodeMock;
+        }
+
+        private static Mock<IAuthorizationStateBuilder> BuildAuthorizationStateBuilderMock(this Fixture fixture, IAuthorizationState authorizationState = null)
+        {
+            Mock<IAuthorizationStateBuilder> authorizationStateBuilderMock = new Mock<IAuthorizationStateBuilder>();
+            authorizationStateBuilderMock.Setup(m => m.WithClientSecret(It.IsAny<string>()))
+                .Returns(authorizationStateBuilderMock.Object);
+            authorizationStateBuilderMock.Setup(m => m.WithExternalState(It.IsAny<string>()))
+                .Returns(authorizationStateBuilderMock.Object);
+            authorizationStateBuilderMock.Setup(m => m.WithAuthorizationCode(It.IsAny<IAuthorizationCode>()))
+                .Returns(authorizationStateBuilderMock.Object);
+            authorizationStateBuilderMock.Setup(m => m.WithAuthorizationCode(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
+                .Returns(authorizationStateBuilderMock.Object);
+            authorizationStateBuilderMock.Setup(m => m.Build())
+                .Returns(authorizationState ?? fixture.BuildAuthorizationStateMock(toAuthorizationStateBuilder: authorizationStateBuilderMock.Object).Object);
+            return authorizationStateBuilderMock;
         }
 
         private static string CreateDomainName(this Fixture fixture)

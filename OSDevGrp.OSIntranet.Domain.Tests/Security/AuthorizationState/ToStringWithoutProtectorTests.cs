@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
@@ -81,6 +82,29 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void ToString_WhenClientSecretIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForClientSecret()
+        {
+            string clientSecret = _fixture.Create<string>();
+            IAuthorizationState sut = CreateSut(hasClientSecret: true, clientSecret: clientSecret);
+
+            string result = sut.ToString();
+
+            Assert.That(HasMatchingClientSecret(result, clientSecret), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenClientSecretIsNotSet_ReturnsBase64StringContainingMatchingJsonPropertyForClientSecret()
+        {
+            IAuthorizationState sut = CreateSut(hasClientSecret: false);
+
+            string result = sut.ToString();
+
+            Assert.That(HasClientSecretWithoutValue(result), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void ToString_WhenCalled_ReturnsBase64StringContainingMatchingJsonPropertyForRedirectUri()
         {
             Uri redirectUri = CreateRedirectUri(_fixture);
@@ -126,9 +150,46 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             Assert.That(HasExternalStateWithoutValue(result), Is.True);
         }
 
-        private IAuthorizationState CreateSut(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null)
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForValueOnAuthorizationCode()
         {
-            return CreateSut(_fixture, _random, responseType, clientId, redirectUri, scopes, hasExternalState, externalState);
+            string value = _fixture.Create<string>();
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+
+            string result = sut.ToString();
+
+            Assert.That(HasMatchingValueForAuthorizationCode(result, value), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForExpiresOnAuthorizationCode()
+        {
+            DateTime expires = DateTime.Now.AddSeconds(_random.Next(5, 10));
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expires: expires).Object;
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+
+            string result = sut.ToString();
+
+            Assert.That(HasMatchingExpiresForAuthorizationCode(result, expires), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsNotSet_ReturnsBase64StringContainingMatchingJsonPropertyForAuthorizationCode()
+        {
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: false);
+
+            string result = sut.ToString();
+
+            Assert.That(HasAuthorizationCodeWithoutValue(result), Is.True);
+        }
+
+        private IAuthorizationState CreateSut(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
+        {
+            return CreateSut(_fixture, _random, responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasAuthorizationCode, authorizationCode);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
@@ -28,6 +30,13 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public string Description { get; }
 
         public IEnumerable<string> RelatedClaims { get; }
+
+        public IEnumerable<Claim> Filter(IEnumerable<Claim> claims)
+        {
+            NullGuard.NotNull(claims, nameof(claims));
+
+            return claims.Where(claim => string.IsNullOrWhiteSpace(claim.Type) == false && RelatedClaims.Any(relatedClaim => string.IsNullOrWhiteSpace(relatedClaim) == false && claim.Type == relatedClaim)).ToArray();
+        }
 
         #endregion
     }

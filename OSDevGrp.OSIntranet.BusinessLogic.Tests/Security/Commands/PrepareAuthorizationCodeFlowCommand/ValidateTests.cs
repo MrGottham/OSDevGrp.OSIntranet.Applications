@@ -25,7 +25,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
 
         private ValidatorMockContext _validatorMockContext;
         private Mock<ISecurityRepository> _securityRepositoryMock;
-        private Mock<ITrustedDomainResolver> _trustedDomainResolver;
+        private Mock<ITrustedDomainResolver> _trustedDomainResolverMock;
         private Mock<ISupportedScopesProvider> _supportedScopesProviderMock;
         private Fixture _fixture;
         private Random _random;
@@ -37,10 +37,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             _validatorMockContext = new ValidatorMockContext();
             _securityRepositoryMock = new Mock<ISecurityRepository>();
-            _trustedDomainResolver = new Mock<ITrustedDomainResolver>();
+            _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
             _supportedScopesProviderMock = new Mock<ISupportedScopesProvider>();
             _fixture = new Fixture();
-            _random = new Random();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("validator"));
@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("securityRepository"));
@@ -85,7 +85,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("supportedScopesProvider"));
@@ -97,7 +97,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _supportedScopesProviderMock.Verify(m => m.SupportedScopes, Times.Once);
         }
@@ -108,7 +108,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ValidatorMock.Verify(m => m.String, Times.Exactly(6));
         }
@@ -119,7 +119,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ValidatorMock.Verify(m => m.Object, Times.Exactly(7));
         }
@@ -130,7 +130,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ValidatorMock.Verify(m => m.Enumerable, Times.Exactly(3));
         }
@@ -142,7 +142,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string responseType = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(responseType: responseType);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, responseType) == 0),
@@ -158,7 +158,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string responseType = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(responseType: responseType);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, responseType) == 0),
@@ -176,11 +176,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string responseType = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(responseType: responseType);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, responseType) == 0),
-                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), RegexTestHelper.ResponseTypePattern) == 0),
+                    It.Is<Regex>(value => value != null && string.CompareOrdinal(value.ToString(), RegexTestHelper.ResponseTypeForAuthorizationCodeFlowPattern) == 0),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "ResponseType") == 0),
                     It.Is<bool>(value => value == false)),
@@ -194,7 +194,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string clientId = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(clientId: clientId);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, clientId) == 0),
@@ -210,7 +210,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string clientId = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(clientId: clientId);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, clientId) == 0),
@@ -228,7 +228,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string clientId = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(clientId: clientId);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, clientId) == 0),
@@ -246,7 +246,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             Uri redirectUri = new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(redirectUri: redirectUri);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
                     It.Is<Uri>(value => value != null && value == redirectUri),
@@ -262,7 +262,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             Uri redirectUri = new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(redirectUri: redirectUri);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
                     It.Is<Uri>(value => value != null && value == redirectUri),
@@ -280,10 +280,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(scopes: scopes);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
-                    It.Is<string[]>(value => value != null && value.All(scope => scopes.Contains(scope))),
+                    It.Is<string[]>(value => value != null && scopes.All(value.Contains)),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Scopes") == 0)),
                 Times.Once);
@@ -296,10 +296,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(scopes: scopes);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.EnumerableValidatorMock.Verify(m => m.ShouldContainItems(
-                    It.Is<string[]>(value => value != null && value.All(scope => scopes.Contains(scope))),
+                    It.Is<string[]>(value => value != null && scopes.All(value.Contains)),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Scopes") == 0),
                     It.Is<bool>(value => value == false)),
@@ -313,10 +313,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(scopes: scopes);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.EnumerableValidatorMock.Verify(m => m.ShouldHaveMinItems(
-                    It.Is<string[]>(value => value != null && value.All(scope => scopes.Contains(scope))),
+                    It.Is<string[]>(value => value != null && scopes.All(value.Contains)),
                     It.Is<int>(value => value == 1),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Scopes") == 0),
@@ -338,10 +338,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(scopes: scopes, supportedScopes: supportedScopes);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.EnumerableValidatorMock.Verify(m => m.ShouldHaveMaxItems(
-                    It.Is<string[]>(value => value != null && value.All(scope => scopes.Contains(scope))),
+                    It.Is<string[]>(value => value != null && scopes.All(value.Contains)),
                     It.Is<int>(value => value == supportedScopes.Count),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Scopes") == 0),
@@ -356,10 +356,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(scopes: scopes);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldBeKnownValue(
-                    It.Is<string[]>(value => value != null && value.All(scope => scopes.Contains(scope))),
+                    It.Is<string[]>(value => value != null && scopes.All(value.Contains)),
                     It.IsNotNull<Func<string[], Task<bool>>>(),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Scopes") == 0),
@@ -373,7 +373,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
                     It.IsAny<string>(),
@@ -389,7 +389,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             string state = _fixture.Create<string>();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(state: state);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, state) == 0),
@@ -406,7 +406,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
                     It.IsAny<string>(),
@@ -424,7 +424,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             Func<byte[], byte[]> protector = bytes => bytes;
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(protector: protector);
 
-            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
                     It.Is<Func<byte[], byte[]>>(value => value != null && value == protector),
@@ -439,7 +439,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             Assert.That(result, Is.Not.Null);
         }
@@ -450,7 +450,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
-            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolver.Object, _supportedScopesProviderMock.Object);
+            IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }

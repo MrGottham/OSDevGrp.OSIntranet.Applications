@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Domain.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +43,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ScopeBuilder
 
             IScope result = sut.Build();
 
-            Assert.That(result, Is.TypeOf<Scope>());
+            Assert.That(result, Is.TypeOf<Domain.Security.Scope>());
         }
 
         [Test]

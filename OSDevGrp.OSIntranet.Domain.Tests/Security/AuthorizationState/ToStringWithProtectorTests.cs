@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Linq;
 
@@ -68,6 +69,39 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             });
 
             Assert.That(HasMatchingClientId(Convert.ToBase64String(protectorCalledWithBytes), clientId), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenClientSecretIsSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForClientSecret()
+        {
+            string clientSecret = _fixture.Create<string>();
+            IAuthorizationState sut = CreateSut(hasClientSecret: true, clientSecret: clientSecret);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasMatchingClientSecret(Convert.ToBase64String(protectorCalledWithBytes), clientSecret), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenClientSecretIsNotSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForClientSecret()
+        {
+            IAuthorizationState sut = CreateSut(hasClientSecret: false);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasClientSecretWithoutValue(Convert.ToBase64String(protectorCalledWithBytes)), Is.True);
         }
 
         [Test]
@@ -139,6 +173,58 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForValueOnAuthorizationCode()
+        {
+            string value = _fixture.Create<string>();
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasMatchingValueForAuthorizationCode(Convert.ToBase64String(protectorCalledWithBytes), value), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForExpiresOnAuthorizationCode()
+        {
+            DateTime expires = DateTime.Now.AddSeconds(_random.Next(5, 10));
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expires: expires).Object;
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasMatchingExpiresForAuthorizationCode(Convert.ToBase64String(protectorCalledWithBytes), expires), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsNotSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForAuthorizationCode()
+        {
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: false);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasAuthorizationCodeWithoutValue(Convert.ToBase64String(protectorCalledWithBytes)), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void ToString_WhenCalled_ReturnsNotNull()
         {
             IAuthorizationState sut = CreateSut();
@@ -196,6 +282,29 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void ToString_WhenClientSecretIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForClientSecret()
+        {
+            string clientSecret = _fixture.Create<string>();
+            IAuthorizationState sut = CreateSut(hasClientSecret: true, clientSecret: clientSecret);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasMatchingClientSecret(result, clientSecret), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenClientSecretIsNotSet_ReturnsBase64StringContainingMatchingJsonPropertyForClientSecret()
+        {
+            IAuthorizationState sut = CreateSut(hasClientSecret: false);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasClientSecretWithoutValue(result), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void ToString_WhenCalled_ReturnsBase64StringContainingMatchingJsonPropertyForRedirectUri()
         {
             Uri redirectUri = CreateRedirectUri(_fixture);
@@ -243,6 +352,43 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForValueOnAuthorizationCode()
+        {
+            string value = _fixture.Create<string>();
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasMatchingValueForAuthorizationCode(result, value), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForExpiresOnAuthorizationCode()
+        {
+            DateTime expires = DateTime.Now.AddSeconds(_random.Next(5, 10));
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expires: expires).Object;
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: true, authorizationCode: authorizationCode);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasMatchingExpiresForAuthorizationCode(result, expires), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenAuthorizationCodeIsNotSet_ReturnsBase64StringContainingMatchingJsonPropertyForAuthorizationCode()
+        {
+            IAuthorizationState sut = CreateSut(hasAuthorizationCode: false);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasAuthorizationCodeWithoutValue(result), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void ToString_Called_ReturnsBase64StringMatchingByteArrayFromProtect()
         {
             IAuthorizationState sut = CreateSut(hasExternalState: false);
@@ -253,9 +399,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             Assert.That(result, Is.EqualTo(Convert.ToBase64String(bytes)));
         }
 
-        private IAuthorizationState CreateSut(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null)
+        private IAuthorizationState CreateSut(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
         {
-            return CreateSut(_fixture, _random, responseType, clientId, redirectUri, scopes, hasExternalState, externalState);
+            return CreateSut(_fixture, _random, responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasAuthorizationCode, authorizationCode);
         }
 
         private static byte[] Protect(byte[] bytes)

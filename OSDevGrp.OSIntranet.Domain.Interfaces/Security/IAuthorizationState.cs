@@ -9,12 +9,18 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 
         string ClientId { get; }
 
+        string ClientSecret { get; }
+
         Uri RedirectUri { get; }
 
         IEnumerable<string> Scopes { get; }
 
         string ExternalState { get; }
 
+        IAuthorizationCode AuthorizationCode { get; }
+
         string ToString(Func<byte[], byte[]> protector);
+
+        IAuthorizationStateBuilder ToBuilder();
     }
 }

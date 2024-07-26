@@ -83,7 +83,6 @@ services:
       - connectionStrings__OSIntranet=[TBD]
       - Security__Microsoft__ClientId=[TBD]
       - Security__Microsoft__ClientSecret=[TBD]
-      - Security__Microsoft__Tenant=[TBD]
       - Security__Google__ClientId=[TBD]
       - Security__Google__ClientSecret=[TBD]
       - Security__TrustedDomainCollection=[TBD]

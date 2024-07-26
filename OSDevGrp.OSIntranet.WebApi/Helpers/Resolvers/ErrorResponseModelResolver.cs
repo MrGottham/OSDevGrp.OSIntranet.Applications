@@ -1,9 +1,13 @@
-﻿using OSDevGrp.OSIntranet.Core;
+﻿using Microsoft.AspNetCore.Authentication;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers
 {
@@ -53,6 +57,58 @@ namespace OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers
             NullGuard.NotNull(exception, nameof(exception));
 
             return Resolve("server_error", exception.Message, null, state);
+        }
+
+        internal static ErrorResponseModel Resolve(AuthenticateResult authenticateResult, string state)
+        {
+            NullGuard.NotNull(authenticateResult, nameof(authenticateResult));
+
+            if (authenticateResult.None)
+            {
+                return Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
+            }
+
+            if (authenticateResult.Failure != null)
+            {
+                return Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
+            }
+
+            if (authenticateResult.Succeeded && authenticateResult.Principal?.Identity == null)
+            {
+                return Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
+            }
+
+            throw new NotSupportedException();
+        }
+
+        internal static ErrorResponseModel Resolve(AuthenticationProperties authenticationProperties, string state)
+        {
+            NullGuard.NotNull(authenticationProperties, nameof(authenticationProperties));
+
+            if (authenticationProperties.Items.Count == 0 || authenticationProperties.Items.ContainsKey(KeyNames.AuthorizationStateKey) == false || string.IsNullOrWhiteSpace(authenticationProperties.Items[KeyNames.AuthorizationStateKey]))
+            {
+                return Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
+            }
+
+            throw new NotSupportedException();
+        }
+
+        internal static ErrorResponseModel Resolve(ClaimsIdentity claimsIdentity, string state)
+        {
+            NullGuard.NotNull(claimsIdentity, nameof(claimsIdentity));
+
+            if (claimsIdentity.IsAuthenticated == false)
+            {
+                return Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
+            }
+
+            string emailAddress = claimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrWhiteSpace(emailAddress))
+            {
+                return Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
+            }
+
+            throw new NotSupportedException();
         }
 
         internal static ErrorResponseModel Resolve(string error, string errorDescription, Uri errorUri, string state)

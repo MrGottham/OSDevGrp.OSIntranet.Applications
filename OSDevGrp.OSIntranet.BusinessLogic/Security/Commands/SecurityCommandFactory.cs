@@ -35,6 +35,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
             return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, protector);
         }
 
+        public static IGenerateAuthorizationCodeCommand BuildGenerateAuthorizationCodeCommand(string authorizationState, IReadOnlyCollection<Claim> claims, Func<byte[], byte[]> unprotect)
+        {
+            return new GenerateAuthorizationCodeCommand(authorizationState, claims, unprotect);
+        }
+
         #endregion
     }
 }

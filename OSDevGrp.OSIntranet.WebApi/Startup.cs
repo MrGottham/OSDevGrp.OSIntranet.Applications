@@ -90,13 +90,16 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthentication(opt => 
             {
+                opt.DefaultScheme = GetInternalScheme();
+                opt.DefaultSignInScheme = GetInternalScheme();
+                opt.DefaultSignOutScheme = GetInternalScheme();
                 opt.DefaultAuthenticateScheme = GetBearerAuthenticationScheme();
                 opt.DefaultChallengeScheme = GetBearerAuthenticationScheme();
             })
-            .AddCookie(Schemas.Internal, opt =>
+            .AddCookie(GetInternalScheme(), opt =>
             {
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
-                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SameSite = SameSiteMode.None;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
             })
@@ -105,12 +108,13 @@ namespace OSDevGrp.OSIntranet.WebApi
                 MicrosoftSecurityOptions microsoftSecurityOptions = Configuration.GetMicrosoftSecurityOptions();
                 opt.ClientId = microsoftSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
                 opt.ClientSecret = microsoftSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
-                opt.SignInScheme = Schemas.Internal;
+                opt.SignInScheme = GetInternalScheme();
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
+                opt.Scope.Add("Contacts.ReadWrite");
                 opt.Scope.Add("offline_access");
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
@@ -120,7 +124,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 GoogleSecurityOptions googleSecurityOptions = Configuration.GetGoogleSecurityOptions();
                 opt.ClientId = googleSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
                 opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
-                opt.SignInScheme = Schemas.Internal;
+                opt.SignInScheme = GetInternalScheme();
                 opt.CorrelationCookie.SameSite = SameSiteMode.None;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 opt.SaveTokens = true;
@@ -220,7 +224,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddHealthChecks()
                 .AddSecurityHealthChecks(opt =>
                 {
-                    opt.WithMicrosoftValidation(Configuration);
+                    opt.WithMicrosoftValidation(Configuration, false);
                     opt.WithGoogleValidation(Configuration);
                     opt.WithTrustedDomainCollectionValidation(Configuration);
                     opt.WithJwtValidation(Configuration);
@@ -327,6 +331,11 @@ namespace OSDevGrp.OSIntranet.WebApi
         private static Uri GetTokenUrl()
         {
             return new Uri("/api/oauth/token", UriKind.Relative);
+        }
+
+        private static string GetInternalScheme()
+        {
+            return Schemes.Internal;
         }
 
         private static OpenApiSecurityScheme CreateOAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme(Uri authorizationUrl, Uri tokenUrl, IDictionary<string, string> scopes)
