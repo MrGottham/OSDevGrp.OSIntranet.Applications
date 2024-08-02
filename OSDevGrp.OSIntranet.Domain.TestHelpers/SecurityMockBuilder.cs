@@ -272,7 +272,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return scopeMock;
         }
 
-        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null)
+        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null, Uri redirectUriWithAuthorizationCode = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -300,10 +300,12 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(toStringValue);
             authorizationStateMock.Setup(m => m.ToBuilder())
                 .Returns(toAuthorizationStateBuilder ?? fixture.BuildAuthorizationStateBuilderMock(authorizationState: authorizationStateMock.Object).Object);
+            authorizationStateMock.Setup(m => m.GenerateRedirectUriWithAuthorizationCode())
+                .Returns(redirectUriWithAuthorizationCode ?? fixture.CreateEndpoint());
             return authorizationStateMock;
         }
 
-        public static Mock<IAuthorizationCode> BuildAuthorizationCodeMock(this Fixture fixture, string value = null, DateTimeOffset? expires = null, bool expired = false)
+        public static Mock<IAuthorizationCode> BuildAuthorizationCodeMock(this Fixture fixture, bool hasValue = true, string value = null, DateTimeOffset? expires = null, bool expired = false)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -311,15 +313,15 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 
             Mock<IAuthorizationCode> authorizationCodeMock = new Mock<IAuthorizationCode>();
             authorizationCodeMock.Setup(m => m.Value)
-                .Returns(value ?? fixture.Create<string>());
+                .Returns(hasValue ? value ?? fixture.Create<string>() : null);
             authorizationCodeMock.Setup(m => m.Expires)
-                .Returns(expires?.UtcDateTime ?? DateTime.UtcNow.AddSeconds(random.Next(5, 10)));
+                .Returns(expires?.UtcDateTime ?? DateTime.UtcNow.AddSeconds(random.Next(60, 600)));
             authorizationCodeMock.Setup(m => m.Expired)
                 .Returns(expired);
             return authorizationCodeMock;
         }
 
-        private static Mock<IAuthorizationStateBuilder> BuildAuthorizationStateBuilderMock(this Fixture fixture, IAuthorizationState authorizationState = null)
+        public static Mock<IAuthorizationStateBuilder> BuildAuthorizationStateBuilderMock(this Fixture fixture, IAuthorizationState authorizationState = null)
         {
             Mock<IAuthorizationStateBuilder> authorizationStateBuilderMock = new Mock<IAuthorizationStateBuilder>();
             authorizationStateBuilderMock.Setup(m => m.WithClientSecret(It.IsAny<string>()))

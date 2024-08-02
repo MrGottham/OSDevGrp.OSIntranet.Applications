@@ -1,9 +1,14 @@
 ﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Domain.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Web;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
@@ -89,6 +94,47 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return authorizationStateBuilder;
         }
 
+        public Uri GenerateRedirectUriWithAuthorizationCode()
+        {
+            UriBuilder uriBuilder = new UriBuilder(RedirectUri);
+
+            NameValueCollection existingQueryParameters = HttpUtility.ParseQueryString(uriBuilder.Query, Encoding.UTF8);
+            if (HasQueryParameter(existingQueryParameters, "code") || HasQueryParameter(existingQueryParameters, "state"))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.UnableToGenerateRedirectUri).Build();
+            }
+
+            string authorizationCode = AuthorizationCode?.Value;
+            if (string.IsNullOrWhiteSpace(authorizationCode))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.UnableToGenerateRedirectUri).Build();
+            }
+
+            IDictionary<string, string> queryParameters = new Dictionary<string, string>
+            {
+                {HttpUtility.UrlEncode("code", Encoding.UTF8), HttpUtility.UrlEncode(authorizationCode, Encoding.UTF8)}
+            };
+
+            if (string.IsNullOrWhiteSpace(ExternalState) == false)
+            {
+                queryParameters.Add(HttpUtility.UrlEncode("state", Encoding.UTF8), HttpUtility.UrlEncode(ExternalState, Encoding.UTF8));
+            }
+
+            foreach (string existingQueryParameter in existingQueryParameters.AllKeys)
+            {
+                if (string.IsNullOrWhiteSpace(existingQueryParameter))
+                {
+                    continue;
+                }
+
+                queryParameters.Add(existingQueryParameter, existingQueryParameters[existingQueryParameter]);
+            }
+
+            uriBuilder.Query = $"?{string.Join("&", queryParameters.Select(queryParameter => $"{queryParameter.Key}={queryParameter.Value}").ToArray())}";
+
+            return new Uri(uriBuilder.ToString(), UriKind.Absolute);
+        }
+
         internal static IAuthorizationState FromBase64String(string base64String, Func<byte[], byte[]> unprotect)
         {
             NullGuard.NotNullOrWhiteSpace(base64String, nameof(base64String))
@@ -139,6 +185,14 @@ namespace OSDevGrp.OSIntranet.Domain.Security
                 authorizationStateBuilder.WithAuthorizationCode(localAuthorizationState.AuthorizationCode.Value, localAuthorizationState.AuthorizationCode.Expires);
             }
             return authorizationStateBuilder.Build();
+        }
+
+        private static bool HasQueryParameter(NameValueCollection nameValueCollection, string namedQueryParameter)
+        {
+            NullGuard.NotNull(nameValueCollection, nameof(nameValueCollection))
+                .NotNullOrWhiteSpace(namedQueryParameter, nameof(namedQueryParameter));
+
+            return nameValueCollection.AllKeys.Any(name => string.IsNullOrWhiteSpace(name) == false && string.Compare(name, namedQueryParameter, CultureInfo.InvariantCulture, CompareOptions.IgnoreCase) == 0);
         }
 
         #endregion

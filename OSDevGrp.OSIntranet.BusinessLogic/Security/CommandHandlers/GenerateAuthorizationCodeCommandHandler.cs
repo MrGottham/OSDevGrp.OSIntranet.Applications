@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System.Collections.Generic;
@@ -24,12 +25,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
         private readonly ITrustedDomainResolver _trustedDomainResolver;
         private readonly ISupportedScopesProvider _supportedScopesProvider;
         private readonly IClaimsSelector _claimsSelector;
+        private readonly IAuthorizationCodeGenerator _authorizationCodeGenerator;
+        private readonly IAuthorizationDataConverter _authorizationDataConverter;
 
         #endregion
 
         #region Constructor
 
-        public GenerateAuthorizationCodeCommandHandler(IValidator validator, IAuthorizationStateFactory authorizationStateFactory, ISecurityRepository securityRepository, ICommonRepository commonRepository, ITrustedDomainResolver trustedDomainResolver, ISupportedScopesProvider supportedScopesProvider, IClaimsSelector claimsSelector)
+        public GenerateAuthorizationCodeCommandHandler(IValidator validator, IAuthorizationStateFactory authorizationStateFactory, ISecurityRepository securityRepository, ICommonRepository commonRepository, ITrustedDomainResolver trustedDomainResolver, ISupportedScopesProvider supportedScopesProvider, IClaimsSelector claimsSelector, IAuthorizationCodeGenerator authorizationCodeGenerator, IAuthorizationDataConverter authorizationDataConverter)
         {
             NullGuard.NotNull(validator, nameof(validator))
                 .NotNull(authorizationStateFactory, nameof(authorizationStateFactory))
@@ -37,7 +40,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 .NotNull(commonRepository, nameof(commonRepository))
                 .NotNull(trustedDomainResolver, nameof(trustedDomainResolver))
                 .NotNull(supportedScopesProvider, nameof(supportedScopesProvider))
-                .NotNull(claimsSelector, nameof(claimsSelector));
+                .NotNull(claimsSelector, nameof(claimsSelector))
+                .NotNull(authorizationCodeGenerator, nameof(authorizationCodeGenerator))
+                .NotNull(authorizationDataConverter, nameof(authorizationDataConverter));
 
             _validator = validator;
             _authorizationStateFactory = authorizationStateFactory;
@@ -46,6 +51,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             _trustedDomainResolver = trustedDomainResolver;
             _supportedScopesProvider = supportedScopesProvider;
             _claimsSelector = claimsSelector;
+            _authorizationCodeGenerator = authorizationCodeGenerator;
+            _authorizationDataConverter = authorizationDataConverter;
         }
 
         #endregion
@@ -72,11 +79,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 return null;
             }
 
-            // TODO: Generate and store code with selected claims
+            IAuthorizationCode authorizationCode = await _authorizationCodeGenerator.GenerateAsync();
+            IKeyValueEntry keyValueEntry = await _authorizationDataConverter.ToKeyValueEntryAsync(authorizationCode, selectedClaims);
+            await _commonRepository.PushKeyValueEntryAsync(keyValueEntry);
 
-            var x = PopulateAuthorizationState(authorizationState, clientSecret);
-
-            return null;
+            return PopulateAuthorizationState(authorizationState, clientSecret, authorizationCode);
         }
 
         private async Task<string> ResolveClientSecretAsync(string clientId)
@@ -101,14 +108,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             return Task.FromResult(_claimsSelector.Select(supportedScopes, scopes, claims));
         }
 
-        private IAuthorizationState PopulateAuthorizationState(IAuthorizationState authorizationState, string clientSecret)
+        private IAuthorizationState PopulateAuthorizationState(IAuthorizationState authorizationState, string clientSecret, IAuthorizationCode authorizationCode)
         {
             NullGuard.NotNull(authorizationState, nameof(authorizationState))
-                .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret));
+                .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret))
+                .NotNull(authorizationCode, nameof(authorizationCode));
 
-            IAuthorizationStateBuilder authorizationStateBuilder = authorizationState.ToBuilder();
-
-            return null;
+            return authorizationState.ToBuilder()
+                .WithClientSecret(clientSecret)
+                .WithAuthorizationCode(authorizationCode)
+                .Build();
         }
 
         #endregion

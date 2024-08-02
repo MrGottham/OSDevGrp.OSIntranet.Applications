@@ -22,5 +22,7 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
         string ToString(Func<byte[], byte[]> protector);
 
         IAuthorizationStateBuilder ToBuilder();
+
+        Uri GenerateRedirectUriWithAuthorizationCode();
     }
 }

@@ -3,10 +3,12 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 {
@@ -35,11 +37,41 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
                 hasAuthorizationCode ? authorizationCode ?? fixture.BuildAuthorizationCodeMock().Object : null);
         }
 
-        protected static Uri CreateRedirectUri(Fixture fixture)
+        protected static Uri CreateRedirectUri(Fixture fixture, IReadOnlyDictionary<string, string> queryParameters = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return new Uri($"https://{fixture.Create<string>().Replace("/", string.Empty)}.local/{fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+            string path = $"https://{fixture.Create<string>().Replace("/", string.Empty)}.local/{fixture.Create<string>().Replace("/", string.Empty)}";
+
+            return queryParameters == null || queryParameters.Count == 0
+                ? new Uri(path, UriKind.Absolute)
+                : new Uri($"{path}?{string.Join("&", queryParameters.Select(queryParameter => $"{HttpUtility.UrlEncode(queryParameter.Key)}={HttpUtility.UrlEncode(queryParameter.Value)}").ToArray())}", UriKind.Absolute);
+        }
+
+        protected IReadOnlyDictionary<string, string> CreateQueryParameters(Fixture fixture, Random random)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture))
+                .NotNull(random, nameof(random));
+
+            KeyValuePair<string, string>[] queryParameters = fixture.CreateMany<string>(random.Next(5, 10))
+                .Select(name => CreateQueryParameter(fixture, name))
+                .ToArray();
+
+            return CreateQueryParameters(queryParameters);
+        }
+
+        protected IReadOnlyDictionary<string, string> CreateQueryParameters(params KeyValuePair<string, string>[] queryParameters)
+        {
+            NullGuard.NotNull(queryParameters, nameof(queryParameters));
+
+            return queryParameters.ToDictionary().AsReadOnly();
+        }
+
+        protected KeyValuePair<string, string> CreateQueryParameter(Fixture fixture, string name = null, bool hasValue = true, string value = null)
+        {
+            NullGuard.NotNull(fixture, nameof(fixture));
+
+            return new KeyValuePair<string, string>(name ?? fixture.Create<string>(), hasValue ? value ?? fixture.Create<string>() : null);
         }
 
         protected static string[] CreateScopes(Fixture fixture, Random random)

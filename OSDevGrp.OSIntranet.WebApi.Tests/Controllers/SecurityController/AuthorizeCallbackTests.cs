@@ -1436,11 +1436,98 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                 Times.Once);
         }
 
-        // TODO: Continue testing
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_AssertSignOutAsyncWasCalledOnAuthenticationService()
+        {
+            HttpContext httpContext = CreateHttpContext();
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(httpContext: httpContext, authenticateResult: authenticateResult, hasAuthorizationStateWithAuthorizationCode: false);
+
+            await sut.AuthorizeCallback();
+
+            _authenticationServiceMock.Verify(m => m.SignOutAsync(
+                    It.Is<HttpContext>(value => value != null && value == httpContext),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, Schemes.Internal) == 0),
+                    It.Is<AuthenticationProperties>(value => value != null && value == authenticationProperties)),
+                Times.Once);
+        }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertSignOutAsyncWasCalledOnAuthenticationService()
+        public async Task AuthorizeCallback_WhenNoAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsNotNull()
+        {
+            Controller sut = CreateSut(hasAuthorizationStateWithAuthorizationCode: false);
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsUnauthorizedObjectResult()
+        {
+            Controller sut = CreateSut(hasAuthorizationStateWithAuthorizationCode: false);
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            Assert.That(result, Is.TypeOf<UnauthorizedObjectResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsUnauthorizedObjectResultWithExpectedErrorResponseModel()
+        {
+            Controller sut = CreateSut(hasAuthorizationStateWithAuthorizationCode: false);
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            ((UnauthorizedObjectResult) result).AssertExpectedErrorResponseModel("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_AssertAuthorizationCodeWasCalledOnAuthorizationStateGeneratedByCommandBus()
+        {
+            Mock<IAuthorizationState> authorizationStateWithAuthorizationCodeMock = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: true);
+            Controller sut = CreateSut(authorizationStateWithAuthorizationCode: authorizationStateWithAuthorizationCodeMock.Object);
+
+            await sut.AuthorizeCallback();
+
+            authorizationStateWithAuthorizationCodeMock.Verify(m => m.AuthorizationCode, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_AssertValueWasCalledOnAuthorizationCodeInAuthorizationStateGeneratedByCommandBus()
+        {
+            Mock<IAuthorizationCode> authorizationCodeMock = _fixture.BuildAuthorizationCodeMock();
+            IAuthorizationState authorizationStateWithAuthorizationCode = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: true, authorizationCode: authorizationCodeMock.Object).Object;
+            Controller sut = CreateSut(authorizationStateWithAuthorizationCode: authorizationStateWithAuthorizationCode);
+
+            await sut.AuthorizeCallback();
+
+            authorizationCodeMock.Verify(m => m.Value, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_AssertGenerateRedirectUriWithAuthorizationCodeWasCalledOnAuthorizationStateGeneratedByCommandBus()
+        {
+            Mock<IAuthorizationState> authorizationStateWithAuthorizationCodeMock = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: true);
+            Controller sut = CreateSut(authorizationStateWithAuthorizationCode: authorizationStateWithAuthorizationCodeMock.Object);
+
+            await sut.AuthorizeCallback();
+
+            authorizationStateWithAuthorizationCodeMock.Verify(m => m.GenerateRedirectUriWithAuthorizationCode(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_AssertSignOutAsyncWasCalledOnAuthenticationService()
         {
             HttpContext httpContext = CreateHttpContext();
             AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
@@ -1455,6 +1542,85 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, Schemes.Internal) == 0),
                     It.Is<AuthenticationProperties>(value => value != null && value == authenticationProperties)),
                 Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            Assert.That(result, Is.TypeOf<RedirectResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWhereUrlIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            RedirectResult result = (RedirectResult) await sut.AuthorizeCallback();
+
+            Assert.That(result.Url, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWhereUrlIsNotEmpty()
+        {
+            Controller sut = CreateSut();
+
+            RedirectResult result = (RedirectResult) await sut.AuthorizeCallback();
+
+            Assert.That(result.Url, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWhereUrlIsEqualToRedirectUriWithAuthorizationCode()
+        {
+            Uri redirectUriWithAuthorizationCode = new Uri($"http://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>().Replace("/", string.Empty)}?code={_fixture.Create<string>().Replace("&", string.Empty).Replace("=", string.Empty)}&state={_fixture.Create<string>().Replace("&", string.Empty).Replace("=", string.Empty)}", UriKind.Absolute);
+            IAuthorizationState authorizationStateWithAuthorizationCode = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: true, redirectUriWithAuthorizationCode: redirectUriWithAuthorizationCode).Object;
+            Controller sut = CreateSut(authorizationStateWithAuthorizationCode: authorizationStateWithAuthorizationCode);
+
+            RedirectResult result = (RedirectResult) await sut.AuthorizeCallback();
+
+            Assert.That(result.Url, Is.EqualTo(redirectUriWithAuthorizationCode.ToString()));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWherePermanentIsTrue()
+        {
+            Controller sut = CreateSut();
+
+            RedirectResult result = (RedirectResult) await sut.AuthorizeCallback();
+
+            Assert.That(result.Permanent, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWherePreserveMethodIsFalse()
+        {
+            Controller sut = CreateSut();
+
+            RedirectResult result = (RedirectResult) await sut.AuthorizeCallback();
+
+            Assert.That(result.PreserveMethod, Is.False);
         }
 
         [Test]
@@ -1802,14 +1968,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     .Throws(exception);
             }
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object)
             {
                 ControllerContext =
                 {
                     HttpContext = httpContext ?? CreateHttpContext()
                 }
             };
-            return controller;
         }
 
         private HttpContext CreateHttpContext()

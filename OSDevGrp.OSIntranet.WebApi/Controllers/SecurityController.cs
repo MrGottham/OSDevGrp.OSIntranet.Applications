@@ -118,15 +118,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [AllowAnonymous]
         [HttpGet("/api/oauth/authorize/callback")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        // TODO: [ProducesResponseType(StatusCodes.Status308PermanentRedirect)]
+        [ProducesResponseType(StatusCodes.Status308PermanentRedirect)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AuthorizeCallback()
         {
-            // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
             try
             {
+                ClaimsPrincipal currentPrincipal = HttpContext.User;
                 AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemes.Internal);
                 try
                 {
@@ -164,15 +164,21 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     }
 
                     await HttpContext.SignInAsync(Schemes.Internal, internalClaimsPrincipal, authenticateResult.Properties);
+                    HttpContext.User = internalClaimsPrincipal;
 
                     IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = SecurityCommandFactory.BuildGenerateAuthorizationCodeCommand(authorizationState, internalClaimsPrincipal.Claims.ToArray(), _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Unprotect);
                     IAuthorizationState authorizationStateWithAuthorizationCode = await _commandBus.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(generateAuthorizationCodeCommand);
+                    if (string.IsNullOrWhiteSpace(authorizationStateWithAuthorizationCode?.AuthorizationCode.Value))
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, null));
+                    }
 
-                    return null;
+                    return RedirectPermanent(authorizationStateWithAuthorizationCode.GenerateRedirectUriWithAuthorizationCode().ToString());
                 }
                 finally
                 {
                     await HttpContext.SignOutAsync(Schemes.Internal, authenticateResult.Properties);
+                    HttpContext.User = currentPrincipal;
                 }
             }
             catch (IntranetValidationException ex)
@@ -193,6 +199,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpPost("/api/oauth/token")]
         public async Task<ActionResult<AccessTokenModel>> AcquireToken([Required][FromForm(Name = "grant_type")]string grantType)
         {
+            // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
+
             if (string.IsNullOrWhiteSpace(grantType))
             {
                 throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, nameof(grantType))
