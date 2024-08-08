@@ -18,10 +18,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers
         private static readonly IReadOnlyCollection<string> ValidErrors = new[]
         {
             "invalid_request",
+            "invalid_client",
+            "invalid_grant",
+            "invalid_scope",
             "unauthorized_client",
             "access_denied",
             "unsupported_response_type",
-            "invalid_scope",
+            "unsupported_grant_type",
             "server_error",
             "temporarily_unavailable"
         };
@@ -49,6 +52,27 @@ namespace OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers
 
                 default:
                     return Resolve("invalid_request", intranetValidationException.Message, null, state);
+            }
+        }
+
+        internal static ErrorResponseModel Resolve(IntranetBusinessException intranetBusinessException, string state)
+        {
+            NullGuard.NotNull(intranetBusinessException, nameof(intranetBusinessException));
+
+            switch (intranetBusinessException.ErrorCode)
+            {
+                case ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedClient:
+                case ErrorCode.MissingNecessaryPermission:
+                    return Resolve("unauthorized_client", intranetBusinessException.Message, null, state);
+
+                case ErrorCode.UnableToAuthorizeUser:
+                    return Resolve("access_denied", intranetBusinessException.Message, null, state);
+
+                case ErrorCode.UnableAuthenticateClient:
+                    return Resolve("invalid_client", intranetBusinessException.Message, null, state);
+
+                default:
+                    throw new NotSupportedException($"Unsupported {intranetBusinessException.GetType().Name}: {intranetBusinessException.ErrorCode}");
             }
         }
 

@@ -51,7 +51,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             {
                 Subject = claimsIdentity,
                 Issuer = tokenGeneratorOptions.Issuer,
-                SigningCredentials = new SigningCredentials(securityKeyBuilder.Build(), SigningAlgorithm),
+                SigningCredentials = new SigningCredentials(securityKeyBuilder.Build(), SigningAlgorithm)
+                {
+                    CryptoProviderFactory = new CryptoProviderFactory
+                    {
+                        CacheSignatureProviders = false
+                    }
+                },
                 Audience = tokenGeneratorOptions.Audience,
                 Expires = expires
             };

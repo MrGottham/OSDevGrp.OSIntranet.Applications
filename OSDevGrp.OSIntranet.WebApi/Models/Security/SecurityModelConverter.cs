@@ -12,6 +12,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
     {
         #region Private variables
 
+        private readonly IValueConverter<DateTimeOffset, int> _totalSecondsCalculator = new TotalSecondsCalculator(() => DateTimeOffset.Now);
         private readonly IValueConverter<Uri, string> _uriToStringConverter = new UriToStringConverter();
         private readonly IValueConverter<IEnumerable<string>, IEnumerable<string>> _stringCollectionConverter = new StringCollectionConverter();
 
@@ -24,10 +25,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
             mapperConfiguration.CreateMap<IToken, AccessTokenModel>()
+                .ForMember(dest => dest.TokenType, opt =>
+                {
+                    opt.Condition(src => string.IsNullOrWhiteSpace(src.TokenType) == false);
+                })
                 .ForMember(dest => dest.AccessToken, opt =>
                 {
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.AccessToken) == false);
-                });
+                })
+                .ForMember(dest => dest.ExpiresIn, opt => opt.ConvertUsing(_totalSecondsCalculator, src => src.Expires));
 
             mapperConfiguration.CreateMap<JsonWebKeySet, JsonWebKeySetModel>()
                 .ForMember(dest => dest.Keys, opt => opt.Condition(src => src.Keys is {Count: > 0}));
@@ -78,6 +84,37 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
                 .ForMember(dest => dest.UiLocalesSupported, opt => opt.ConvertUsing(_stringCollectionConverter, src => src.UiLocalesSupported))
                 .ForMember(dest => dest.RegistrationPolicyEndpoint, opt => opt.ConvertUsing(_uriToStringConverter, src => src.RegistrationPolicyEndpoint))
                 .ForMember(dest => dest.RegistrationTermsOfServiceEndpoint, opt => opt.ConvertUsing(_uriToStringConverter, src => src.RegistrationTermsOfServiceEndpoint));
+        }
+
+        public class TotalSecondsCalculator : IValueConverter<DateTimeOffset, int>
+        {
+            #region Private variables
+
+            private readonly Func<DateTimeOffset> _fromDateResolver;
+
+            #endregion
+
+            #region Constructor
+
+            public TotalSecondsCalculator(Func<DateTimeOffset> fromDateResolver)
+            {
+                NullGuard.NotNull(fromDateResolver, nameof(fromDateResolver));
+
+                _fromDateResolver = fromDateResolver;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public int Convert(DateTimeOffset toDateTime, ResolutionContext resolutionContext)
+            {
+                NullGuard.NotNull(resolutionContext, nameof(resolutionContext));
+
+                return (int) toDateTime.UtcDateTime.Subtract(_fromDateResolver().UtcDateTime).TotalSeconds;
+            }
+
+            #endregion
         }
 
         private class UriToStringConverter : IValueConverter<Uri, string>

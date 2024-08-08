@@ -7,7 +7,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
     public class ErrorResponseModel
     {
         [Required]
-        [RegularExpression("^(invalid_request|unauthorized_client|access_denied|unsupported_response_type|invalid_scope|server_error|temporarily_unavailable)$")]
+        [RegularExpression("^(invalid_request|invalid_client|invalid_grant|invalid_scope|unauthorized_client|access_denied|unsupported_response_type|unsupported_grant_type|server_error|temporarily_unavailable){1}$")]
         [JsonPropertyName("error")]
         [JsonProperty("error", Required = Required.Always)]
         public string Error { get; set; }

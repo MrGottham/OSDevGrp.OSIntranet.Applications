@@ -1701,7 +1701,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenIntranetBusinessExceptionIsThrown_AssertSignInAsyncWasNotCalledOnAuthenticationService()
         {
-            IntranetBusinessException exception = CreateIntranetBusinessException();
+            IntranetBusinessException exception = CreateIntranetBusinessException(errorCode: ErrorCode.UnableToAuthorizeUser);
             Controller sut = CreateSut(exception: exception);
 
             await sut.AuthorizeCallback();
@@ -1722,7 +1722,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
             AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
             AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
-            IntranetBusinessException exception = CreateIntranetBusinessException();
+            IntranetBusinessException exception = CreateIntranetBusinessException(errorCode: ErrorCode.UnableToAuthorizeUser);
             Controller sut = CreateSut(httpContext: httpContext, authenticateResult: authenticateResult, exception: exception);
 
             await sut.AuthorizeCallback();
@@ -1738,7 +1738,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenIntranetBusinessExceptionIsThrown_ReturnsNotNull()
         {
-            IntranetBusinessException exception = CreateIntranetBusinessException();
+            IntranetBusinessException exception = CreateIntranetBusinessException(errorCode: ErrorCode.UnableToAuthorizeUser);
             Controller sut = CreateSut(exception: exception);
 
             IActionResult result = await sut.AuthorizeCallback();
@@ -1750,7 +1750,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenIntranetBusinessExceptionIsThrown_ReturnsUnauthorizedObjectResult()
         {
-            IntranetBusinessException exception = CreateIntranetBusinessException();
+            IntranetBusinessException exception = CreateIntranetBusinessException(errorCode: ErrorCode.UnableToAuthorizeUser);
             Controller sut = CreateSut(exception: exception);
 
             IActionResult result = await sut.AuthorizeCallback();
@@ -1763,7 +1763,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         public async Task AuthorizeCallback_WhenIntranetBusinessExceptionIsThrown_ReturnsUnauthorizedObjectResultWithExpectedErrorResponseModel()
         {
             string errorDescription = _fixture.Create<string>();
-            IntranetBusinessException exception = CreateIntranetBusinessException(message: errorDescription);
+            IntranetBusinessException exception = CreateIntranetBusinessException(errorCode: ErrorCode.UnableToAuthorizeUser, message: errorDescription);
             Controller sut = CreateSut(exception: exception);
 
             IActionResult result = await sut.AuthorizeCallback();
@@ -2079,9 +2079,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             };
         }
 
-        private IntranetBusinessException CreateIntranetBusinessException(string message = null)
+        private IntranetBusinessException CreateIntranetBusinessException(ErrorCode? errorCode = null, string message = null)
         {
-            return new IntranetBusinessException(_fixture.Create<ErrorCode>(), message ?? _fixture.Create<string>());
+            return new IntranetBusinessException(errorCode ?? _fixture.Create<ErrorCode>(), message ?? _fixture.Create<string>());
         }
 
         private IntranetExceptionBase CreateIntranetExceptionBase()

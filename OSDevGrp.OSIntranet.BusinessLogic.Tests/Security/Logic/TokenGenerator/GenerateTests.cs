@@ -157,6 +157,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 	        Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public void Generate_WhenCalledMultipleTimes_ExpectNoExceptionToBeThrown()
+        {
+            ITokenGenerator sut = CreateSut();
+
+            try
+            {
+                sut.Generate(CreateClaimsIdentity());
+                sut.Generate(CreateClaimsIdentity());
+                sut.Generate(CreateClaimsIdentity());
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            }
+        }
+
         private ITokenGenerator CreateSut(TokenGeneratorOptions tokenGeneratorOptions = null)
         {
 	        _tokenGeneratorOptionsMock.Setup(m => m.Value)

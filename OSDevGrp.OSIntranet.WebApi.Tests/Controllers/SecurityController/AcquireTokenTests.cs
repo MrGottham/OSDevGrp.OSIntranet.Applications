@@ -1,322 +1,364 @@
 ﻿using AutoFixture;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
-using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Domain.TestHelpers;
-using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 {
     [TestFixture]
-    public class AcquireTokenTests
+    public class AcquireTokenTests : AcquireTokenTestBase
     {
         #region Private variables
 
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
+        private Mock<IDataProtector> _dataProtectorMock;
+        private Mock<IAuthenticationService> _authenticationServiceMock;
         private Fixture _fixture;
+        private Random _random;
+
+        #endregion
+
+        #region Properties
+
+        protected override Mock<ICommandBus> CommandBusMock => _commandBusMock;
+
+        protected override Mock<IQueryBus> QueryBusMock => _queryBusMock;
+
+        protected override Mock<IDataProtectionProvider> DataProtectionProviderMock => _dataProtectionProviderMock;
+
+        protected override Mock<IDataProtector> DataProtectorMock => _dataProtectorMock;
+
+        protected override Mock<IAuthenticationService> AuthenticationServiceMock => _authenticationServiceMock;
+
+        protected override Fixture Fixture => _fixture;
+
+        protected override Random Random => _random;
 
         #endregion
 
         [SetUp]
         public void SetUp()
         {
-	        _commandBusMock = new Mock<ICommandBus>();
+            _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
+            _dataProtectorMock = new Mock<IDataProtector>();
+            _authenticationServiceMock = new Mock<IAuthenticationService>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsNull_ThrowsIntranetValidationException()
+        public async Task AcquireToken_WhenGrantTypeIsNull_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(null));
+            await sut.AcquireToken(null);
+
+            _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async Task AcquireToken_WhenGrantTypeIsNull_AssertSignInAsyncWasNotCalledOnAuthenticationService()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(null));
+            await sut.AcquireToken(null);
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
+            _authenticationServiceMock.Verify(m => m.SignInAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ClaimsPrincipal>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async Task AcquireToken_WhenGrantTypeIsNull_AssertSignOutAsyncWasNotCalledOnAuthenticationService()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(null));
+            await sut.AcquireToken(null);
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
+            _authenticationServiceMock.Verify(m => m.SignOutAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToGrantType()
+        public async Task AcquireToken_WhenGrantTypeIsNull_ReturnsNotNull()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(null));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ValidatingField, Is.EqualTo("grantType"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsEmpty_ThrowsIntranetValidationException()
-        {
-            Controller sut = CreateSut();
-
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(string.Empty));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
-        {
-            Controller sut = CreateSut();
-
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(string.Empty));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
-        {
-            Controller sut = CreateSut();
-
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(string.Empty));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToGrantType()
-        {
-            Controller sut = CreateSut();
-
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(string.Empty));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ValidatingField, Is.EqualTo("grantType"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsWhiteSpace_ThrowsIntranetValidationException()
-        {
-            Controller sut = CreateSut();
-
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(" "));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsWhiteSpace_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
-        {
-            Controller sut = CreateSut();
-
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(" "));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
-        {
-            Controller sut = CreateSut();
-
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(" "));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToGrantType()
-        {
-            Controller sut = CreateSut();
-
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcquireToken(" "));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ValidatingField, Is.EqualTo("grantType"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AcquireToken_WhenGrantTypeIsNotNullEmptyOrWhiteSpace_AssertPublishAsyncWasCalledOnCommandBus()
-        {
-            Controller sut = CreateSut();
-
-            await sut.AcquireToken(GetLegalGrantType());
-
-            _commandBusMock.Verify(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsNotNull<IGenerateTokenCommand>()));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsNotEqualToClientCredentials_ThrowsIntranetBusinessException()
-        {
-            Controller sut = CreateSut();
-
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.AcquireToken(_fixture.Create<string>()));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenGrantTypeIsNotEqualToClientCredentials_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToCannotRetrieveJwtBearerTokenForAuthenticatedUser()
-        {
-            Controller sut = CreateSut();
-
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.AcquireToken(_fixture.Create<string>()));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenTokenWasNotGenerated_ThrowsIntranetBusinessException()
-        {
-            Controller sut = CreateSut(false);
-
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.AcquireToken(GetLegalGrantType()));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcquireToken_WhenTokenWasNotGenerated_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToCannotRetrieveJwtBearerTokenForAuthenticatedUser()
-        {
-            Controller sut = CreateSut(false);
-
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.AcquireToken(GetLegalGrantType()));
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsNotNull()
-        {
-            Controller sut = CreateSut();
-
-            ActionResult<AccessTokenModel> result = await sut.AcquireToken(GetLegalGrantType());
+            IActionResult result = await sut.AcquireToken(null);
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsOkObjectResult()
+        public async Task AcquireToken_WhenGrantTypeIsNull_ReturnsBadRequestObjectResult()
         {
             Controller sut = CreateSut();
 
-            ActionResult<AccessTokenModel> result = await sut.AcquireToken(GetLegalGrantType());
+            IActionResult result = await sut.AcquireToken(null);
 
-            Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
+            Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsOkObjectResultWhereValueIsNotNull()
+        public async Task AcquireToken_WhenGrantTypeIsNull_ReturnsBadRequestObjectResultWithExpectedErrorResponseModel()
         {
             Controller sut = CreateSut();
 
-            OkObjectResult result = (OkObjectResult) (await sut.AcquireToken(GetLegalGrantType())).Result;
+            BadRequestObjectResult result = (BadRequestObjectResult) await sut.AcquireToken(null);
 
-            Assert.That(result!.Value, Is.Not.Null);
+            result.AssertExpectedErrorResponseModel("unsupported_grant_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "grant_type"), null, null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsOkObjectResultWhereValueIsAccessTokenModel()
+        public async Task AcquireToken_WhenGrantTypeIsEmpty_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
-	        Controller sut = CreateSut();
+            Controller sut = CreateSut();
 
-	        OkObjectResult result = (OkObjectResult) (await sut.AcquireToken(GetLegalGrantType())).Result;
+            await sut.AcquireToken(string.Empty);
 
-	        Assert.That(result!.Value, Is.TypeOf<AccessTokenModel>());
+            _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsOkObjectResultWithAccessTokenModelWhereTokenTypeIsEqualToTokenTypeFromToken()
+        public async Task AcquireToken_WhenGrantTypeIsEmpty_AssertSignInAsyncWasNotCalledOnAuthenticationService()
         {
-            string tokenType = _fixture.Create<string>();
-            IToken token = _fixture.BuildTokenMock(tokenType).Object;
-            Controller sut = CreateSut(token: token);
+            Controller sut = CreateSut();
 
-            AccessTokenModel result = (AccessTokenModel) ((OkObjectResult) (await sut.AcquireToken(GetLegalGrantType())).Result)!.Value;
+            await sut.AcquireToken(string.Empty);
 
-            Assert.That(result!.TokenType, Is.EqualTo(tokenType));
+            _authenticationServiceMock.Verify(m => m.SignInAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ClaimsPrincipal>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsOkObjectResultWithAccessTokenModelWhereAccessTokenIsEqualToAccessTokenFromToken()
+        public async Task AcquireToken_WhenGrantTypeIsEmpty_AssertSignOutAsyncWasNotCalledOnAuthenticationService()
         {
-            string accessToken = _fixture.Create<string>();
-            IToken token = _fixture.BuildTokenMock(accessToken: accessToken).Object;
-            Controller sut = CreateSut(token: token);
+            Controller sut = CreateSut();
 
-            AccessTokenModel result = (AccessTokenModel) ((OkObjectResult) (await sut.AcquireToken(GetLegalGrantType())).Result)!.Value;
+            await sut.AcquireToken(string.Empty);
 
-            Assert.That(result!.AccessToken, Is.EqualTo(accessToken));
+            _authenticationServiceMock.Verify(m => m.SignOutAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task AcquireToken_WhenTokenWasGenerated_ReturnsOkObjectResultWithAccessTokenModelWhereExpiresIsEqualToExpiresFromToken()
+        public async Task AcquireToken_WhenGrantTypeIsEmpty_ReturnsNotNull()
         {
-            DateTimeOffset expires = DateTime.Today.AddMinutes(5);
-            IToken token = _fixture.BuildTokenMock(expires: expires.DateTime).Object;
-            Controller sut = CreateSut(token: token);
+            Controller sut = CreateSut();
 
-            AccessTokenModel result = (AccessTokenModel) ((OkObjectResult) (await sut.AcquireToken(GetLegalGrantType())).Result)!.Value;
+            IActionResult result = await sut.AcquireToken(string.Empty);
 
-            Assert.That(result!.Expires, Is.EqualTo(expires));
+            Assert.That(result, Is.Not.Null);
         }
 
-        private Controller CreateSut(bool hasToken = true, IToken token = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsEmpty_ReturnsBadRequestObjectResult()
         {
-            _commandBusMock.Setup(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsAny<IGenerateTokenCommand>()))
-                .Returns(Task.FromResult(hasToken ? token ?? _fixture.BuildTokenMock().Object : null));
+            Controller sut = CreateSut();
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object);
+            IActionResult result = await sut.AcquireToken(string.Empty);
+
+            Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
 
-        private string GetLegalGrantType() => "client_credentials";
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsEmpty_ReturnsBadRequestObjectResultWithExpectedErrorResponseModel()
+        {
+            Controller sut = CreateSut();
+
+            BadRequestObjectResult result = (BadRequestObjectResult) await sut.AcquireToken(string.Empty);
+
+            result.AssertExpectedErrorResponseModel("unsupported_grant_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "grant_type"), null, null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsWhiteSpace_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(" ");
+
+            _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsWhiteSpace_AssertSignInAsyncWasNotCalledOnAuthenticationService()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(" ");
+
+            _authenticationServiceMock.Verify(m => m.SignInAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ClaimsPrincipal>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsWhiteSpace_AssertSignOutAsyncWasNotCalledOnAuthenticationService()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(" ");
+
+            _authenticationServiceMock.Verify(m => m.SignOutAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsWhiteSpace_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcquireToken(" ");
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsWhiteSpace_ReturnsBadRequestObjectResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcquireToken(" ");
+
+            Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeIsWhiteSpace_ReturnsBadRequestObjectResultWithExpectedErrorResponseModel()
+        {
+            Controller sut = CreateSut();
+
+            BadRequestObjectResult result = (BadRequestObjectResult) await sut.AcquireToken(" ");
+
+            result.AssertExpectedErrorResponseModel("unsupported_grant_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "grant_type"), null, null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeDoesNotMatchPatternForGrantType_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(_fixture.Create<string>());
+
+            _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeDoesNotMatchPatternForGrantType_AssertSignInAsyncWasNotCalledOnAuthenticationService()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(_fixture.Create<string>());
+
+            _authenticationServiceMock.Verify(m => m.SignInAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ClaimsPrincipal>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeDoesNotMatchPatternForGrantType_AssertSignOutAsyncWasNotCalledOnAuthenticationService()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(_fixture.Create<string>());
+
+            _authenticationServiceMock.Verify(m => m.SignOutAsync(
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<string>(),
+                    It.IsAny<AuthenticationProperties>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeDoesNotMatchPatternForGrantType_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcquireToken(_fixture.Create<string>());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeDoesNotMatchPatternForGrantType_ReturnsBadRequestObjectResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcquireToken(_fixture.Create<string>());
+
+            Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcquireToken_WhenGrantTypeDoesNotMatchPatternForGrantType_ReturnsBadRequestObjectResultWithExpectedErrorResponseModel()
+        {
+            Controller sut = CreateSut();
+
+            BadRequestObjectResult result = (BadRequestObjectResult) await sut.AcquireToken(_fixture.Create<string>());
+            result.AssertExpectedErrorResponseModel("unsupported_grant_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueShouldMatchPattern, "grant_type", GrantTypePattern), null, null);
+        }
     }
 }

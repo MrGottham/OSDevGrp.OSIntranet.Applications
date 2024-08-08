@@ -37,16 +37,19 @@
                 ],
                 layout: "BaseLayout",
                 responseInterceptor: function (response) {
+                    if (response.status === undefined || response.status === null || response.status != 200) {
+                        return response;
+                    }
                     if (response.obj === undefined || response.obj === null) {
                         return response;
                     }
-                    if (response.obj.tokenType === undefined || response.obj.tokenType === null || response.obj.tokenType !== "Bearer") {
+                    if (response.obj.token_type === undefined || response.obj.token_type === null || response.obj.token_type !== "Bearer") {
                         return response;
                     }
-                    if (response.obj.accessToken === undefined || response.obj.accessToken === null) {
+                    if (response.obj.access_token === undefined || response.obj.access_token === null) {
                         return response;
                     }
-                    ui.preauthorizeApiKey(response.obj.tokenType, response.obj.accessToken);
+                    ui.preauthorizeApiKey(response.obj.token_type, response.obj.access_token);
                     return response;
                 }
             });

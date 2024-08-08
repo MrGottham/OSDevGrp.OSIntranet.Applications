@@ -24,7 +24,6 @@ using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.Repositories.Options;
 using OSDevGrp.OSIntranet.WebApi.Filters;
-using OSDevGrp.OSIntranet.WebApi.Handlers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
@@ -135,7 +134,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
             })
-            .AddClientSecret(GetOAuth2AuthenticationWithClientCredentialsFlowScheme())
             .AddJwtBearer(opt =>
             {
                 TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetTokenGeneratorOptions();
@@ -147,11 +145,6 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
-                {
-                    policy.AddAuthenticationSchemes(GetOAuth2AuthenticationWithClientCredentialsFlowScheme());
-                    policy.RequireAuthenticatedUser();
-                });
                 opt.AddPolicy(Policies.UserInfoPolity, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
