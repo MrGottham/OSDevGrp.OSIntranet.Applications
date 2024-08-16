@@ -8,6 +8,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
 using System;
@@ -57,7 +58,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlIsNull_AssertIsTrustedDomainWasCalledOnTrustedDomainResolver()
         {
-            string absolutePath = $"/{_fixture.Create<string>()}";
+            string absolutePath = _fixture.CreateRelativeEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
             sut.LoginWithGoogleAccount();
@@ -157,7 +158,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlIsEmpty_AssertIsTrustedDomainWasCalledOnTrustedDomainResolver()
         {
-            string absolutePath = $"/{_fixture.Create<string>()}";
+            string absolutePath = _fixture.CreateRelativeEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
             sut.LoginWithGoogleAccount(string.Empty);
@@ -257,7 +258,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasCalledOnTrustedDomainResolver()
         {
-            string absolutePath = $"/{_fixture.Create<string>()}";
+            string absolutePath = _fixture.CreateRelativeEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
             sut.LoginWithGoogleAccount(" ");
@@ -348,7 +349,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "Index") == 0 && string.CompareOrdinal(value.Controller, "Home") == 0)), Times.Never);
@@ -358,10 +359,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public void LoginWithGoogleAccount_WhenReturnUrlHasValueWhichAreRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUriForReturnUrl()
         {
-            string absolutePath = _fixture.Create<string>();
+            string absolutePath = _fixture.CreateRelativeEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
@@ -373,7 +374,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut(false);
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Never);
@@ -385,7 +386,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut(false);
 
-	        string returnUrl = $"/{_fixture.Create<string>()}";
+	        string returnUrl = _fixture.CreateRelativeEndpointString();
 	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -397,7 +398,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut(false);
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
@@ -409,7 +410,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
@@ -421,7 +422,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut();
 
-	        string returnUrl = $"/{_fixture.Create<string>()}";
+	        string returnUrl = _fixture.CreateRelativeEndpointString();
 	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -433,7 +434,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
             Assert.That(result, Is.TypeOf<ChallengeResult>());
@@ -445,7 +446,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateRelativeEndpointString();
             ChallengeResult result = (ChallengeResult) sut.LoginWithGoogleAccount(returnUrl);
 
             Assert.That(result.AuthenticationSchemes.Contains(GoogleDefaults.AuthenticationScheme), Is.True);
@@ -457,7 +458,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, returnUrl) == 0)), Times.Once());
@@ -469,7 +470,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut(false);
 
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Never);
@@ -481,7 +482,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut(false);
 
-	        string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
 	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -493,7 +494,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut(false);
 
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
@@ -505,7 +506,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             sut.LoginWithGoogleAccount(returnUrl);
 
             _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && string.CompareOrdinal(value.Action, "LoginCallback") == 0 && string.CompareOrdinal(value.Controller, "Account") == 0)), Times.Once);
@@ -517,7 +518,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut();
 
-	        string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
 	        IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -529,7 +530,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             IActionResult result = sut.LoginWithGoogleAccount(returnUrl);
 
             Assert.That(result, Is.TypeOf<ChallengeResult>());
@@ -541,7 +542,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             ChallengeResult result = (ChallengeResult) sut.LoginWithGoogleAccount(returnUrl);
 
             Assert.That(result.AuthenticationSchemes.Contains(GoogleDefaults.AuthenticationScheme), Is.True);

@@ -20,6 +20,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new AuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
 		}
 
+        public static IAuthenticateAuthorizationCodeCommand BuildAuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, string authenticationType, Func<string, string> protector)
+        {
+            return new AuthenticateAuthorizationCodeCommand(authorizationCode, clientId, clientSecret, redirectUri, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
+        }
+
 		public static IGenerateTokenCommand BuildGenerateTokenCommand()
 		{
 			return new GenerateTokenCommand();

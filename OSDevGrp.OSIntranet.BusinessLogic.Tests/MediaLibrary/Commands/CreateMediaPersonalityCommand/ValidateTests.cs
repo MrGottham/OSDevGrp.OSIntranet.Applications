@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Linq;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.CreateMediaPersonalityCommand
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateTests
 	{
 		#region Private variables
@@ -177,7 +178,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.CreateMe
 			_claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 				.Returns(_fixture.Create<bool>());
 
-			return MediaLibraryCommandFactory.BuildCreateMediaPersonalityCommand(mediaPersonalityIdentifier ?? Guid.NewGuid(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.Create<string>(), _fixture.Create<int>(), _random.Next(100) > 50 ? DateTime.Today.AddDays(_random.Next(1, 365) * -1) : null, _random.Next(100) > 50 ? DateTime.Today.AddDays(_random.Next(1, 365) * -1) : null, _random.Next(100) > 50 ? $"https://localhost/api/mediaPersonality/{_fixture.Create<string>()}" : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>());
+			return MediaLibraryCommandFactory.BuildCreateMediaPersonalityCommand(mediaPersonalityIdentifier ?? Guid.NewGuid(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.Create<string>(), _fixture.Create<int>(), _random.Next(100) > 50 ? DateTime.Today.AddDays(_random.Next(1, 365) * -1) : null, _random.Next(100) > 50 ? DateTime.Today.AddDays(_random.Next(1, 365) * -1) : null, _random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/mediaPersonality/{_fixture.Create<string>()}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>());
 		}
 	}
 }

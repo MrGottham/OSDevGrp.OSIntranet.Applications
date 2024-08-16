@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Linq;
@@ -26,42 +27,42 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationB
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return new Uri($"https://{CreateDomainName(fixture)}", UriKind.Absolute);
+            return fixture.CreateEndpoint(withoutPathAndQuery: true);
         }
 
         protected static Uri CreateAuthorizationEndpoint(Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static Uri CreateTokenEndpoint(Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static Uri CreateUserInfoEndpoint(Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static Uri CreateJsonWebKeySetEndpoint(Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static Uri CreateRegistrationEndpoint(Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static string[] CreateScopesSupported(Fixture fixture)
@@ -208,7 +209,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationB
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static string[] CreateClaimsLocalesSupported(Fixture fixture)
@@ -257,28 +258,14 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationB
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
+            return fixture.CreateEndpoint();
         }
 
         protected static Uri CreateRegistrationTermsOfServiceEndpoint(Fixture fixture)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
-            return CreateEndpoint(fixture);
-        }
-
-        private static string CreateDomainName(Fixture fixture)
-        {
-            NullGuard.NotNull(fixture, nameof(fixture));
-
-            return $"{fixture.Create<string>().Replace("/", string.Empty)}.local";
-        }
-
-        private static Uri CreateEndpoint(Fixture fixture)
-        {
-            NullGuard.NotNull(fixture, nameof(fixture));
-
-            return new Uri($"https://{CreateDomainName(fixture)}/{fixture.Create<string>().Replace("/", string.Empty)}");
+            return fixture.CreateEndpoint();
         }
 
         private static string[] CreateStringArray(Fixture fixture)

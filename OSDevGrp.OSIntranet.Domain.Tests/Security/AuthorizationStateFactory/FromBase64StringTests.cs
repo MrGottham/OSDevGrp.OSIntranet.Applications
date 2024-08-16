@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -264,7 +265,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            Uri redirectUri = CreateRedirectUri();
+            Uri redirectUri = _fixture.CreateEndpoint();
             string base64String = CreateBase64StringForAuthorizationState(redirectUri: redirectUri);
             IAuthorizationState result = sut.FromBase64String(base64String, bytes => bytes);
 
@@ -452,16 +453,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
                 responseType ?? _fixture.Create<string>(),
                 clientId ?? _fixture.Create<string>(),
                 hasClientSecret ? clientSecret ?? _fixture.Create<string>() : null,
-                redirectUri ?? CreateRedirectUri(),
+                redirectUri ?? _fixture.CreateEndpoint(),
                 scopes ?? CreateScopes(),
                 hasExternalState ? externalState ?? _fixture.Create<string>() : null,
                 hasAuthorizationCode ? authorizationCode ?? _fixture.BuildAuthorizationCodeMock().Object : null);
             return Convert.FromBase64String(authorizationState.ToString() ?? string.Empty);
-        }
-
-        private Uri CreateRedirectUri()
-        {
-            return new Uri($"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
         }
 
         private string[] CreateScopes()

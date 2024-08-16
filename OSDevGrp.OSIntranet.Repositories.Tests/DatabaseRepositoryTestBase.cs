@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using System.Security.Principal;
-using Moq;
+﻿using Moq;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests
 {

@@ -8,8 +8,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 {
     public interface IAuthorizationDataConverter
     {
-        Task<IKeyValueEntry> ToKeyValueEntryAsync(IAuthorizationCode authorizationCode, IEnumerable<Claim> claims);
+        Task<IKeyValueEntry> ToKeyValueEntryAsync(IAuthorizationCode authorizationCode, IReadOnlyCollection<Claim> claims, IReadOnlyDictionary<string, string> authorizationData);
 
-        Task<IAuthorizationCode> ToAuthorizationCodeAsync(IKeyValueEntry keyValueEntry, out IEnumerable<Claim> claims);
+        Task<IAuthorizationCode> ToAuthorizationCodeAsync(IKeyValueEntry keyValueEntry, out IReadOnlyCollection<Claim> claims, out IReadOnlyDictionary<string, string> authorizationData);
     }
 }

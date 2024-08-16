@@ -25,6 +25,9 @@ services:
 
   reverseproxy:
     image: reverseproxy-osintranet
+    depends_on:
+      - mvc
+      - webapi
     build:
       context: .
       dockerfile: Nginx.Dockerfile
@@ -57,7 +60,6 @@ services:
       - ExternalData__Dashboard__EndpointAddress=[TBD]
     depends_on:
       - executor
-      - reverseproxy
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
@@ -101,7 +103,6 @@ services:
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
       - executor
-      - reverseproxy
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile

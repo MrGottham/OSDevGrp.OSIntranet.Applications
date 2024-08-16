@@ -197,9 +197,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SchemaFilter<EnumToStringSchemeFilterDescriptor>();
                 options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>();
 
-                // TODO: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
-                // TODO: https://www.rfc-editor.org/rfc/rfc8414.html
-
                 OpenApiSecurityScheme oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme = CreateOAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme(GetAuthorizationUrl(), GetTokenUrl(), GetScopes(serviceScope.ServiceProvider.GetRequiredService<ISupportedScopesProvider>()));
                 OpenApiSecurityScheme oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme = CreateOAuth2AuthenticationWithClientCredentialsFlowSecurityScheme(GetTokenUrl());
                 OpenApiSecurityScheme bearerSecurityScheme = CreateBearerSecurityScheme();

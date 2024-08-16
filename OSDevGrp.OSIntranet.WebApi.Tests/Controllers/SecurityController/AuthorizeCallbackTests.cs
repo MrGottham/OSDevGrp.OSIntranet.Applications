@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
@@ -36,6 +37,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private Mock<IDataProtector> _dataProtectorMock;
         private Mock<IAuthenticationService> _authenticationServiceMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -48,6 +50,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _dataProtectorMock = new Mock<IDataProtector>();
             _authenticationServiceMock = new Mock<IAuthenticationService>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -1592,7 +1595,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWhereUrlIsEqualToRedirectUriWithAuthorizationCode()
         {
-            Uri redirectUriWithAuthorizationCode = new Uri($"http://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>().Replace("/", string.Empty)}?code={_fixture.Create<string>().Replace("&", string.Empty).Replace("=", string.Empty)}&state={_fixture.Create<string>().Replace("&", string.Empty).Replace("=", string.Empty)}", UriKind.Absolute);
+            KeyValuePair<string, string>[] queryParameters =
+            {
+                _fixture.CreateQueryParameter("code"),
+                _fixture.CreateQueryParameter("state")
+            };
+            Uri redirectUriWithAuthorizationCode = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState authorizationStateWithAuthorizationCode = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: true, redirectUriWithAuthorizationCode: redirectUriWithAuthorizationCode).Object;
             Controller sut = CreateSut(authorizationStateWithAuthorizationCode: authorizationStateWithAuthorizationCode);
 
@@ -2034,16 +2042,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                 return new ClaimsIdentity();
             }
 
-            IList<Claim> claims = new List<Claim>
-            {
-                new(_fixture.Create<string>(), _fixture.Create<string>()),
-                new(_fixture.Create<string>(), _fixture.Create<string>()),
-                new(_fixture.Create<string>(), _fixture.Create<string>())
-            };
-
+            Claim[] claims = _fixture.CreateClaims(_random);
             if (hasEmailClaim)
             {
-                claims.Add(new Claim(ClaimTypes.Email, hasValueInEmailClaim ? valueInEmailClaim ?? _fixture.Create<string>() : string.Empty));
+                claims = claims.Concat(_fixture.CreateClaim(ClaimTypes.Email, hasValue: hasValueInEmailClaim, value: valueInEmailClaim));
             }
 
             return new ClaimsIdentity(claims, _fixture.Create<string>());

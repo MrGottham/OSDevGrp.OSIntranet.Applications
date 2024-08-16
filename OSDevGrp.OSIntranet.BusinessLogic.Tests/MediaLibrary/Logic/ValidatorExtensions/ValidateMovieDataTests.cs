@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorExtensions
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateMovieDataTests
 	{
 		#region Private variables
@@ -638,7 +639,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/movie/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
 			IMovieDataCommand movieDataCommand = CreateMovieDataCommand(url: url);
 			sut.ValidateMovieData(movieDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -657,7 +658,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/movie/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
 			IMovieDataCommand movieDataCommand = CreateMovieDataCommand(url: url);
 			sut.ValidateMovieData(movieDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -676,7 +677,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/movie/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
 			IMovieDataCommand movieDataCommand = CreateMovieDataCommand(url: url);
 			sut.ValidateMovieData(movieDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -895,7 +896,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 			movieDataCommandMock.Setup(m => m.Length)
 				.Returns(hasLength ? length ?? _fixture.Create<short>() : null);
 			movieDataCommandMock.Setup(m => m.Url)
-				.Returns(url ?? (_random.Next(100) > 50 ? $"https://localhost/api/movie/{_fixture.Create<string>()}" : null));
+				.Returns(url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}") : null));
 			movieDataCommandMock.Setup(m => m.Image)
 				.Returns(image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 			movieDataCommandMock.Setup(m => m.Directors)

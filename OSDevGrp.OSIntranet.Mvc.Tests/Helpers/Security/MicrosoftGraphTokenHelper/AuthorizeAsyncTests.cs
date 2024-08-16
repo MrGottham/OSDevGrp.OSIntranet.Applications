@@ -8,6 +8,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using System;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _queryBusMock.Verify(m => m.QueryAsync<IGetAuthorizeUriForMicrosoftGraphQuery, Uri>(It.Is<IGetAuthorizeUriForMicrosoftGraphQuery>(value => value.RedirectUri != null && value.RedirectUri.AbsoluteUri.EndsWith("/Account/MicrosoftGraphCallback".ToLower()))), Times.Once);
@@ -62,7 +63,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             IActionResult result = await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(result, Is.TypeOf<RedirectResult>());
@@ -72,11 +73,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
         [Category("UnitTest")]
         public async Task AuthorizeAsync_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsRedirectResultWithUrlEqualToAbsoluteUriFromAuthorizeUri()
         {
-            Uri authorizeUri = new Uri("http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}");
+            Uri authorizeUri = _fixture.CreateEndpoint();
             ITokenHelper sut = CreateSut(authorizeUri: authorizeUri);
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             RedirectResult result = (RedirectResult) await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(result.Url, Is.EqualTo(authorizeUri.AbsoluteUri));
@@ -91,17 +92,19 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.MicrosoftGraphTokenHelp
             _dataProtectorMock.Setup(m => m.Protect(It.IsAny<byte[]>()))
                 .Returns(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray());
             _queryBusMock.Setup(m => m.QueryAsync<IGetAuthorizeUriForMicrosoftGraphQuery, Uri>(It.IsAny<IGetAuthorizeUriForMicrosoftGraphQuery>()))
-                .Returns(Task.Run(() => authorizeUri ?? new Uri("http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}")));
+                .Returns(Task.Run(() => authorizeUri ?? _fixture.CreateEndpoint()));
 
             return new Mvc.Helpers.Security.MicrosoftGraphTokenHelper(_queryBusMock.Object, _commandBusMock.Object, _trustedDomainResolverMock.Object, _dataProtectionProviderMock.Object);
         }
 
         private HttpContext CreateHttpContext()
         {
+            Uri endpoint = _fixture.CreateEndpoint();
+
             DefaultHttpContext defaultHttpContext = new DefaultHttpContext();
             defaultHttpContext.Request.Method = HttpMethods.Get;
-            defaultHttpContext.Request.Scheme = "http";
-            defaultHttpContext.Request.Host = new HostString("localhost");
+            defaultHttpContext.Request.Scheme = endpoint.Scheme;
+            defaultHttpContext.Request.Host = new HostString(endpoint.Host);
             defaultHttpContext.Request.PathBase = new PathString($"/{_fixture.Create<string>()}");
             return defaultHttpContext;
         }

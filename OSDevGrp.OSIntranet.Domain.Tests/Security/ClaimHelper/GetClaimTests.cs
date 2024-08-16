@@ -1,9 +1,10 @@
-﻿using System;
+﻿using AutoFixture;
+using NUnit.Framework;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
-using AutoFixture;
-using NUnit.Framework;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 {
@@ -13,6 +14,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
         #region Private variables
 
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -20,6 +22,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
         public void SetUp()
         {
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -30,6 +33,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(principal, _fixture.Create<string>()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("principal"));
         }
 
@@ -41,6 +45,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(principal, null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("type"));
         }
 
@@ -52,6 +57,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(principal, string.Empty));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("type"));
         }
 
@@ -63,6 +69,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(principal, " "));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("type"));
         }
 
@@ -85,6 +92,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(claimsPrincipal, _fixture.Create<string>()));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("claimsPrincipal"));
         }
 
@@ -96,6 +104,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(claimsPrincipal, null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("type"));
         }
 
@@ -107,6 +116,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(claimsPrincipal, string.Empty));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("type"));
         }
 
@@ -118,6 +128,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.ClaimHelper.GetClaim(claimsPrincipal, " "));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("type"));
         }
 
@@ -126,7 +137,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
         public void GetClaim_WhenCalledWithClaimsPrincipalAndNonExistingClaimType_ReturnsNull()
         {
             string type = _fixture.Create<string>();
-            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(_fixture.CreateClaims(_random));
 
             Claim result = Domain.Security.ClaimHelper.GetClaim(claimsPrincipal, type);
 
@@ -138,8 +149,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClaimHelper
         public void GetClaim_WhenCalledWithClaimsPrincipalAndExistingClaimType_ReturnsClaim()
         {
             string type = _fixture.Create<string>();
-            Claim claim = new Claim(type, _fixture.Create<string>());
-            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), claim});
+            Claim claim = _fixture.CreateClaim(type: type);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(claim));
 
             Claim result = Domain.Security.ClaimHelper.GetClaim(claimsPrincipal, type);
 

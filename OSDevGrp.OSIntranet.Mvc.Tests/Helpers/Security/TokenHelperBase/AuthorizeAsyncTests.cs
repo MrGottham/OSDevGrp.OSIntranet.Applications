@@ -8,6 +8,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
@@ -165,7 +166,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, returnUrl) == 0)), Times.Once);
@@ -178,7 +179,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut(false);
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
@@ -191,7 +192,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut(false);
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _dataProtectorMock.Verify(m => m.Protect(It.IsAny<byte[]>()), Times.Never);
@@ -204,7 +205,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut(false);
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(((Sut) sut).GenerateAuthorizeUriAsyncWasCalled, Is.False);
@@ -217,7 +218,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut(false);
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             IActionResult result = await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
@@ -230,7 +231,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext(HttpMethods.Post);
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
@@ -243,7 +244,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext(HttpMethods.Post);
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _dataProtectorMock.Verify(m => m.Protect(It.IsAny<byte[]>()), Times.Never);
@@ -256,7 +257,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext(HttpMethods.Post);
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(((Sut)sut).GenerateAuthorizeUriAsyncWasCalled, Is.False);
@@ -269,7 +270,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext(HttpMethods.Post);
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             IActionResult result = await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
@@ -282,7 +283,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.Is<string>(value => string.CompareOrdinal(value, "StateProtection") == 0)), Times.Once);
@@ -295,7 +296,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             _dataProtectorMock.Verify(m => m.Protect(It.Is<byte[]>(value => value != null && string.CompareOrdinal(Encoding.UTF8.GetString(value), returnUrl) == 0)), Times.Once);
@@ -308,7 +309,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(((Sut) sut).GenerateAuthorizeUriAsyncWasCalled, Is.True);
@@ -321,7 +322,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             ITokenHelper sut = CreateSut();
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             IActionResult result = await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(result, Is.TypeOf<RedirectResult>());
@@ -331,11 +332,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
         [Category("UnitTest")]
         public async Task AuthorizeAsync_WhenReturnUrlIsTrustedAbsoluteUrlAndHttpRequestOnHttpContextIsGet_ReturnsRedirectResultWithUrlEqualToAbsoluteUriFromAuthorizeUri()
         {
-            Uri authorizeUri = new Uri("http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}");
+            Uri authorizeUri = _fixture.CreateEndpoint();
             ITokenHelper sut = CreateSut(authorizeUri: authorizeUri);
 
             HttpContext httpContext = CreateHttpContext();
-            string returnUrl = $"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string returnUrl = _fixture.CreateEndpointString();
             RedirectResult result = (RedirectResult) await sut.AuthorizeAsync(httpContext, returnUrl);
 
             Assert.That(result.Url, Is.EqualTo(authorizeUri.AbsoluteUri));
@@ -350,7 +351,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
             _dataProtectorMock.Setup(m => m.Protect(It.IsAny<byte[]>()))
                 .Returns(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray());
 
-            return new Sut(_queryBusMock.Object, _commandBusMock.Object, _trustedDomainResolverMock.Object, _dataProtectionProviderMock.Object, authorizeUri);
+            return new Sut(_fixture, _queryBusMock.Object, _commandBusMock.Object, _trustedDomainResolverMock.Object, _dataProtectionProviderMock.Object, authorizeUri);
         }
 
         private HttpContext CreateHttpContext(string httpMethod = null)
@@ -370,10 +371,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
             #region Constructor
 
-            public Sut(IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainResolver trustedDomainResolver, IDataProtectionProvider dataProtectionProvider, Uri authorizeUri) 
+            public Sut(Fixture fixture, IQueryBus queryBus, ICommandBus commandBus, ITrustedDomainResolver trustedDomainResolver, IDataProtectionProvider dataProtectionProvider, Uri authorizeUri) 
                 : base(queryBus, commandBus, trustedDomainResolver, dataProtectionProvider)
             {
-                _authorizeUri = authorizeUri ?? new Uri("http://localhost");
+                NullGuard.NotNull(fixture, nameof(fixture));
+
+                _authorizeUri = authorizeUri ?? fixture.CreateEndpoint();
             }
 
             #endregion

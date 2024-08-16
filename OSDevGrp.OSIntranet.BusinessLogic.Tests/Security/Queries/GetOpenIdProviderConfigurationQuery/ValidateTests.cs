@@ -4,6 +4,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using System;
 using System.Threading.Tasks;
 
@@ -55,7 +56,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorForAuthorizationEndpoint()
         {
-            Uri authorizationEndpoint = CreateEndpoint();
+            Uri authorizationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(authorizationEndpoint: authorizationEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -71,7 +72,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldBeKnownValueWasCalledOnObjectValidatorForAuthorizationEndpoint()
         {
-            Uri authorizationEndpoint = CreateEndpoint();
+            Uri authorizationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(authorizationEndpoint: authorizationEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -89,7 +90,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorForTokenEndpoint()
         {
-            Uri tokenEndpoint = CreateEndpoint();
+            Uri tokenEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(tokenEndpoint: tokenEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -105,7 +106,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldBeKnownValueWasCalledOnObjectValidatorForTokenEndpoint()
         {
-            Uri tokenEndpoint = CreateEndpoint();
+            Uri tokenEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(tokenEndpoint: tokenEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -123,7 +124,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorForJsonWebKeySetEndpoint()
         {
-            Uri jsonWebKeySetEndpoint = CreateEndpoint();
+            Uri jsonWebKeySetEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(jsonWebKeySetEndpoint: jsonWebKeySetEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -139,7 +140,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldBeKnownValueWasCalledOnObjectValidatorForJsonWebKeySetEndpoint()
         {
-            Uri jsonWebKeySetEndpoint = CreateEndpoint();
+            Uri jsonWebKeySetEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(jsonWebKeySetEndpoint: jsonWebKeySetEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -157,7 +158,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenUserInfoEndpointIsSet_AssertShouldBeKnownValueWasCalledOnObjectValidatorForUserInfoEndpoint()
         {
-            Uri userInfoEndpoint = CreateEndpoint();
+            Uri userInfoEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(hasUserInfoEndpoint: true, userInfoEndpoint: userInfoEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -192,7 +193,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenRegistrationEndpointIsSet_AssertShouldBeKnownValueWasCalledOnObjectValidatorForRegistrationEndpoint()
         {
-            Uri registrationEndpoint = CreateEndpoint();
+            Uri registrationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(hasRegistrationEndpoint: true, registrationEndpoint: registrationEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -227,7 +228,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenServiceDocumentationEndpointIsSet_AssertShouldBeKnownValueWasCalledOnObjectValidatorForServiceDocumentationEndpoint()
         {
-            Uri serviceDocumentationEndpoint = CreateEndpoint();
+            Uri serviceDocumentationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(hasServiceDocumentationEndpoint: true, serviceDocumentationEndpoint: serviceDocumentationEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -262,7 +263,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenRegistrationPolicyEndpointEndpointIsSet_AssertShouldBeKnownValueWasCalledOnObjectValidatorForRegistrationPolicyEndpoint()
         {
-            Uri registrationPolicyEndpoint = CreateEndpoint();
+            Uri registrationPolicyEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(hasRegistrationPolicyEndpoint: true, registrationPolicyEndpoint: registrationPolicyEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -297,7 +298,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         [Category("UnitTest")]
         public void Validate_WhenRegistrationTermsOfServiceEndpointIsSet_AssertShouldBeKnownValueWasCalledOnObjectValidatorForRegistrationTermsOfServiceEndpoint()
         {
-            Uri registrationTermsOfServiceEndpoint = CreateEndpoint();
+            Uri registrationTermsOfServiceEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery sut = CreateSut(hasRegistrationTermsOfServiceEndpoint: true, registrationTermsOfServiceEndpoint: registrationTermsOfServiceEndpoint);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
@@ -353,19 +354,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Queries.GetOpenIdProv
         private IGetOpenIdProviderConfigurationQuery CreateSut(Uri authorizationEndpoint = null, Uri tokenEndpoint = null, Uri jsonWebKeySetEndpoint = null, bool? hasUserInfoEndpoint = null, Uri userInfoEndpoint = null, bool? hasRegistrationEndpoint = null, Uri registrationEndpoint = null, bool? hasServiceDocumentationEndpoint = null, Uri serviceDocumentationEndpoint = null, bool? hasRegistrationPolicyEndpoint = null, Uri registrationPolicyEndpoint = null, bool? hasRegistrationTermsOfServiceEndpoint = null, Uri registrationTermsOfServiceEndpoint = null)
         {
             return new BusinessLogic.Security.Queries.GetOpenIdProviderConfigurationQuery(
-                authorizationEndpoint ?? CreateEndpoint(),
-                tokenEndpoint ?? CreateEndpoint(),
-                jsonWebKeySetEndpoint ?? CreateEndpoint(),
-                hasUserInfoEndpoint ?? _random.Next(100) > 50 ? userInfoEndpoint ?? CreateEndpoint() : null,
-                hasRegistrationEndpoint ?? _random.Next(100) > 50 ? registrationEndpoint ?? CreateEndpoint() : null,
-                hasServiceDocumentationEndpoint ?? _random.Next(100) > 50 ? serviceDocumentationEndpoint ?? CreateEndpoint() : null,
-                hasRegistrationPolicyEndpoint ?? _random.Next(100) > 50 ? registrationPolicyEndpoint ?? CreateEndpoint() : null,
-                hasRegistrationTermsOfServiceEndpoint ?? _random.Next(100) > 50 ? registrationTermsOfServiceEndpoint ?? CreateEndpoint() : null);
-        }
-
-        private Uri CreateEndpoint()
-        {
-            return new Uri($"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>().Replace("/", string.Empty)}");
+                authorizationEndpoint ?? _fixture.CreateEndpoint(),
+                tokenEndpoint ?? _fixture.CreateEndpoint(),
+                jsonWebKeySetEndpoint ?? _fixture.CreateEndpoint(),
+                hasUserInfoEndpoint ?? _random.Next(100) > 50 ? userInfoEndpoint ?? _fixture.CreateEndpoint() : null,
+                hasRegistrationEndpoint ?? _random.Next(100) > 50 ? registrationEndpoint ?? _fixture.CreateEndpoint() : null,
+                hasServiceDocumentationEndpoint ?? _random.Next(100) > 50 ? serviceDocumentationEndpoint ?? _fixture.CreateEndpoint() : null,
+                hasRegistrationPolicyEndpoint ?? _random.Next(100) > 50 ? registrationPolicyEndpoint ?? _fixture.CreateEndpoint() : null,
+                hasRegistrationTermsOfServiceEndpoint ?? _random.Next(100) > 50 ? registrationTermsOfServiceEndpoint ?? _fixture.CreateEndpoint() : null);
         }
     }
 }

@@ -13,6 +13,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 {
     internal class AuthorizationDataConverter : IAuthorizationDataConverter
     {
+        #region Internal constants
+
+        internal const string ClientIdKey = "urn:osdevgrp:osintranet:authorizationdata:client:id";
+        internal const string ClientSecretKey = "urn:osdevgrp:osintranet:authorizationdata:client:secret";
+        internal const string RedirectUriKey = "urn:osdevgrp:osintranet:authorizationdata:redirecturi";
+
+        #endregion
+
         #region Private variables
 
         private readonly IAuthorizationCodeFactory _authorizationCodeFactory;
@@ -32,54 +40,67 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         #region Methods
 
-        public Task<IKeyValueEntry> ToKeyValueEntryAsync(IAuthorizationCode authorizationCode, IEnumerable<Claim> claims)
+        public Task<IKeyValueEntry> ToKeyValueEntryAsync(IAuthorizationCode authorizationCode, IReadOnlyCollection<Claim> claims, IReadOnlyDictionary<string, string> authorizationData)
         {
             NullGuard.NotNull(authorizationCode, nameof(authorizationCode))
-                .NotNull(claims, nameof(claims));
+                .NotNull(claims, nameof(claims))
+                .NotNull(authorizationData, nameof(authorizationData));
 
-            return Task.FromResult(KeyValueEntry.Create(authorizationCode.Value, AuthorizationData.Create(authorizationCode, claims)));
+            return Task.FromResult(KeyValueEntry.Create(authorizationCode.Value, InternalAuthorizationData.Create(authorizationCode, claims, authorizationData)));
         }
 
-        public Task<IAuthorizationCode> ToAuthorizationCodeAsync(IKeyValueEntry keyValueEntry, out IEnumerable<Claim> claims)
+        public Task<IAuthorizationCode> ToAuthorizationCodeAsync(IKeyValueEntry keyValueEntry, out IReadOnlyCollection<Claim> claims, out IReadOnlyDictionary<string, string> authorizationData)
         {
             NullGuard.NotNull(keyValueEntry, nameof(keyValueEntry));
 
-            AuthorizationData authorizationData = keyValueEntry.ToObject<AuthorizationData>();
-            IAuthorizationCode authorizationCode = _authorizationCodeFactory.Create(keyValueEntry.Key, authorizationData.Expires).Build();
+            InternalAuthorizationData internalAuthorizationData = keyValueEntry.ToObject<InternalAuthorizationData>();
+            IAuthorizationCode authorizationCode = _authorizationCodeFactory.Create(keyValueEntry.Key, internalAuthorizationData.Expires).Build();
 
-            claims = authorizationData.ToClaims();
+            claims = internalAuthorizationData.ToClaims();
+            authorizationData = internalAuthorizationData.ToAuthorizationData();
 
             return Task.FromResult(authorizationCode);
         }
 
         // ReSharper disable MemberCanBePrivate.Local
-        private class AuthorizationData
+        private class InternalAuthorizationData
         {
             public DateTimeOffset Expires { get; init; }
 
-            public IReadOnlyCollection<AuthorizationDataClaim> Claims { get; init; }
+            public IReadOnlyCollection<InternalAuthorizationDataClaim> Claims { get; init; }
 
-            public IEnumerable<Claim> ToClaims()
+            public IReadOnlyCollection<InternalAuthorizationDataEntry> Entries { get; init; } 
+
+            public IReadOnlyCollection<Claim> ToClaims()
             {
-                return (Claims ?? Array.Empty<AuthorizationDataClaim>())
-                    .Select(authorizationDataClaim => authorizationDataClaim.ToClaim())
+                return (Claims ?? Array.Empty<InternalAuthorizationDataClaim>())
+                    .Select(internalAuthorizationDataClaim => internalAuthorizationDataClaim.ToClaim())
                     .ToArray();
             }
 
-            public static AuthorizationData Create(IAuthorizationCode authorizationCode, IEnumerable<Claim> claims)
+            public IReadOnlyDictionary<string, string> ToAuthorizationData()
+            {
+                return (Entries ?? Array.Empty<InternalAuthorizationDataEntry>())
+                    .Select(internalAuthorizationDataEntry => internalAuthorizationDataEntry.ToKeyValuePair())
+                    .ToDictionary();
+            }
+
+            public static InternalAuthorizationData Create(IAuthorizationCode authorizationCode, IEnumerable<Claim> claims, IReadOnlyDictionary<string, string> authorizationData)
             {
                 NullGuard.NotNull(authorizationCode, nameof(authorizationCode))
-                    .NotNull(claims, nameof(claims));
+                    .NotNull(claims, nameof(claims))
+                    .NotNull(authorizationData, nameof(authorizationData));
 
-                return new AuthorizationData
+                return new InternalAuthorizationData
                 {
                     Expires = authorizationCode.Expires,
-                    Claims = claims.Select(AuthorizationDataClaim.Create).ToArray()
+                    Claims = claims.Select(InternalAuthorizationDataClaim.Create).ToArray(),
+                    Entries = authorizationData.Select(InternalAuthorizationDataEntry.Create).ToArray()
                 };
             }
         }
 
-        private class AuthorizationDataClaim
+        private class InternalAuthorizationDataClaim
         {
             public string Type { get; init; }
 
@@ -94,16 +115,39 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
                 return new Claim(Type, Value, ValueType, Issuer);
             }
 
-            public static AuthorizationDataClaim Create(Claim claim)
+            public static InternalAuthorizationDataClaim Create(Claim claim)
             {
                 NullGuard.NotNull(claim, nameof(claim));
 
-                return new AuthorizationDataClaim
+                return new InternalAuthorizationDataClaim
                 {
                     Type = claim.Type,
                     Value = claim.Value,
                     ValueType = claim.ValueType,
                     Issuer = claim.Issuer
+                };
+            }
+        }
+
+        private class InternalAuthorizationDataEntry
+        {
+            public string Key { get; init; }
+
+            public string Value { get; init; }
+
+            public KeyValuePair<string, string> ToKeyValuePair()
+            {
+                return new KeyValuePair<string, string>(Key, Value);
+            }
+
+            public static InternalAuthorizationDataEntry Create(KeyValuePair<string, string> keyValuePair)
+            {
+                NullGuard.NotNull(keyValuePair, nameof(keyValuePair));
+
+                return new InternalAuthorizationDataEntry
+                {
+                    Key = keyValuePair.Key,
+                    Value = keyValuePair.Value
                 };
             }
         }

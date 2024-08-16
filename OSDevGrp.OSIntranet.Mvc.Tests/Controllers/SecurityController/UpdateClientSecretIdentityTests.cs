@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,7 +11,12 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 {
@@ -37,10 +37,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
-
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -80,7 +77,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task UpdateClientSecretIdentity_WhenCalledWithoutModelAndIdentifierIsUnknown_ReturnsRedirectToActionResultWhereContollerNameIsEqualToSecurity()
+        public async Task UpdateClientSecretIdentity_WhenCalledWithoutModelAndIdentifierIsUnknown_ReturnsRedirectToActionResultWhereControllerNameIsEqualToSecurity()
         {
             Controller sut = CreateSut(hasClientSecretIdentity: false);
 
@@ -107,7 +104,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             Mock<IClientSecretIdentity> clientSecretIdentityMock = _fixture.BuildClientSecretIdentityMock();
             Controller sut = CreateSut(clientSecretIdentity: clientSecretIdentityMock.Object);
 
-            IActionResult result = await sut.UpdateClientSecretIdentity(_fixture.Create<int>());
+            await sut.UpdateClientSecretIdentity(_fixture.Create<int>());
 
             clientSecretIdentityMock.Verify(m => m.ToClaimsIdentity(), Times.Once);
         }
@@ -138,8 +135,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task UpdateClientSecretIdentity_WhenCalledWithoutModelAndIdentifierIsKnown_ReturnsViewResultWhereModelIsClientSecretIdentityViewModel()
         {
-            IList<Claim> claimCollection = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
-            IList<Claim> clientSecretIdentityClaimCollection = claimCollection.Take(2).ToList();
+            IList<Claim> claimCollection = _fixture.CreateClaims(_random);
+            IList<Claim> clientSecretIdentityClaimCollection = claimCollection.Take(Math.Min(claimCollection.Count, 2)).ToList();
             IClientSecretIdentity clientSecretIdentity = _fixture.BuildClientSecretIdentityMock(claims: clientSecretIdentityClaimCollection).Object;
             Controller sut = CreateSut(claimCollection, clientSecretIdentity: clientSecretIdentity);
 
@@ -166,7 +163,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             Assert.That(clientSecretIdentityViewModel.Claims.Count(m => m.IsSelected), Is.EqualTo(clientSecretIdentityClaimCollection.Count));
             foreach (Claim claim in clientSecretIdentityClaimCollection)
             {
-                Assert.That(clientSecretIdentityViewModel.Claims.SingleOrDefault(m => m.IsSelected && string.CompareOrdinal(m.ClaimType, claim.Type) == 0 && string.Compare(m.ActualValue, claim.Value) == 0), Is.Not.Null);
+                Assert.That(clientSecretIdentityViewModel.Claims.SingleOrDefault(m => m.IsSelected && string.CompareOrdinal(m.ClaimType, claim.Type) == 0 && string.CompareOrdinal(m.ActualValue, claim.Value) == 0), Is.Not.Null);
             }
         }
 
@@ -178,6 +175,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateClientSecretIdentity(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientSecretIdentityViewModel"));
         }
 
@@ -284,7 +282,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         private Controller CreateSut(IEnumerable<Claim> claimCollection = null, bool hasClientSecretIdentity = true, IClientSecretIdentity clientSecretIdentity = null, bool modelIsValid = true)
         {
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<Claim>>(It.IsAny<EmptyQuery>()))
-                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList()));
+                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateClaims(_random)));
             _queryBusMock.Setup(m => m.QueryAsync<IGetClientSecretIdentityQuery, IClientSecretIdentity>(It.IsAny<IGetClientSecretIdentityQuery>()))
                 .Returns(Task.Run(() => hasClientSecretIdentity ? clientSecretIdentity ?? _fixture.BuildClientSecretIdentityMock().Object : null));
 

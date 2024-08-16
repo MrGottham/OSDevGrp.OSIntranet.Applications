@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateTests
 	{
 		#region Private variables
@@ -473,9 +474,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDat
 		[Test]
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithUrl()
-		{
-			string url = $"https://localhost/api/movie/{_fixture.Create<string>()}";
-			IMovieDataCommand sut = CreateSut(url: url);
+        {
+            string url = _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
+            IMovieDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -492,7 +493,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDat
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/movie/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
 			IMovieDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -510,7 +511,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDat
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/movie/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
 			IMovieDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -661,7 +662,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDat
 			_claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 				.Returns(_fixture.Create<bool>());
 
-			return new MyMovieDataCommand(Guid.NewGuid(), title ?? _fixture.Create<string>().ToUpper(), subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>().ToUpper() : null), description ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), details ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), movieGenreIdentifier ?? _fixture.Create<int>(), hasSpokenLanguageIdentifier ? spokenLanguageIdentifier ?? _fixture.Create<int>() : null, mediaTypeIdentifier ?? _fixture.Create<int>(), hasPublished ? published ?? _fixture.Create<short>() : null, hasLength ? length ?? _fixture.Create<short>() : null, url ?? (_random.Next(100) > 50 ? $"https://localhost/api/movie/{_fixture.Create<string>()}" : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()), directors ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray(), actors ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
+			return new MyMovieDataCommand(Guid.NewGuid(), title ?? _fixture.Create<string>().ToUpper(), subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>().ToUpper() : null), description ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), details ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), movieGenreIdentifier ?? _fixture.Create<int>(), hasSpokenLanguageIdentifier ? spokenLanguageIdentifier ?? _fixture.Create<int>() : null, mediaTypeIdentifier ?? _fixture.Create<int>(), hasPublished ? published ?? _fixture.Create<short>() : null, hasLength ? length ?? _fixture.Create<short>() : null, url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}") : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()), directors ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray(), actors ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
 		}
 
 		private class MyMovieDataCommand : BusinessLogic.MediaLibrary.Commands.MovieDataCommandBase

@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Linq;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.UpdateMovieCommand
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateTests
 	{
 		#region Private variables
@@ -160,7 +161,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.UpdateMo
 			_claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 				.Returns(_fixture.Create<bool>());
 
-			return MediaLibraryCommandFactory.BuildUpdateMovieCommand(mediaIdentifier ?? Guid.NewGuid(), _fixture.Create<string>().ToUpper(), _random.Next(100) > 50 ? _fixture.Create<string>().ToUpper() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.Create<int>(), _random.Next(100) > 50 ? _fixture.Create<int>() : null, _fixture.Create<int>(), _random.Next(100) > 50 ? _fixture.Create<short>() : null, _random.Next(100) > 50 ? _fixture.Create<short>() : null, _random.Next(100) > 50 ? $"https://localhost/api/movie/{_fixture.Create<string>()}" : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>(), _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray(), _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
+			return MediaLibraryCommandFactory.BuildUpdateMovieCommand(mediaIdentifier ?? Guid.NewGuid(), _fixture.Create<string>().ToUpper(), _random.Next(100) > 50 ? _fixture.Create<string>().ToUpper() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.Create<int>(), _random.Next(100) > 50 ? _fixture.Create<int>() : null, _fixture.Create<int>(), _random.Next(100) > 50 ? _fixture.Create<short>() : null, _random.Next(100) > 50 ? _fixture.Create<short>() : null, _random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>(), _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray(), _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
@@ -10,7 +11,7 @@ using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
-	public static class MediaLibraryMockBuilder
+    public static class MediaLibraryMockBuilder
     {
 	    public static Mock<IMovie> BuildMovieMock(this Fixture fixture, Guid? mediaIdentifier = null, string title = null, string subtitle = null, string description = null, string details = null, IMovieGenre movieGenre = null, ILanguage spokenLanguage = null, IMediaType mediaType = null, short? published = null, short? length = null, Uri url = null, byte[] image = null, IEnumerable<IMediaPersonality> directors = null, IEnumerable<IMediaPersonality> actors = null, IEnumerable<ILending> lendings = null, bool? deletable = false, string toString = null, bool? equals = null, int? hashCode = null, IEnumerable<IMediaBinding> mediaBindings = null)
 	    {
@@ -116,7 +117,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 		    mediaPersonalityMock.Setup(m => m.DateOfDead)
 			    .Returns(dateOfDead?.Date ?? (random.Next(100) > 50 ? fixture.Create<DateTime>().Date : (DateTime?)null));
 		    mediaPersonalityMock.Setup(m => m.Url)
-			    .Returns(url ?? (random.Next(100) > 50 ? new Uri($"https://localhost/api/mediapersonalities/{Guid.NewGuid():D}") : null));
+			    .Returns(url ?? (random.Next(100) > 50 ? fixture.CreateEndpoint(path: $"api/mediapersonalities/{Guid.NewGuid():D}") : null));
 		    mediaPersonalityMock.Setup(m => m.Image)
 			    .Returns(image ?? (random.Next(100) > 50 ? fixture.CreateMany<byte>(random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 			mediaPersonalityMock.Setup(m => m.Deletable)
@@ -303,7 +304,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 			mediaMock.Setup(m => m.Published)
 				.Returns(published ?? (random.Next(100) > 50 ? fixture.Create<short>() : (short?)null));
 			mediaMock.Setup(m => m.Url)
-				.Returns(url ?? (random.Next(100) > 50 ? new Uri($"https://localhost/api/mediapersonalities/{Guid.NewGuid():D}") : null));
+				.Returns(url ?? (random.Next(100) > 50 ? fixture.CreateEndpoint(path: $"api/medias/{Guid.NewGuid():D}") : null));
 			mediaMock.Setup(m => m.Image)
 				.Returns(image ?? (random.Next(100) > 50 ? fixture.CreateMany<byte>(random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 			mediaMock.Setup(m => m.Lendings)

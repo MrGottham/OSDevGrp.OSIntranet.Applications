@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using System;
 
@@ -32,7 +33,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false, false, false)]
         public void Resolve_WhenErrorIsNull_ThrowsArgumentNullException(bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(null, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(null, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("error"));
@@ -50,7 +51,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false, false, false)]
         public void Resolve_WhenErrorIsEmpty_ThrowsArgumentNullException(bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(string.Empty, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(string.Empty, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("error"));
@@ -68,7 +69,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false, false, false)]
         public void Resolve_WhenErrorIsWhiteSpace_ThrowsArgumentNullException(bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(" ", withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(" ", withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("error"));
@@ -86,7 +87,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false, false, false)]
         public void Resolve_WhenErrorIsInvalid_ThrowsNotSupportedException(bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(_fixture.Create<string>(), withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(_fixture.Create<string>(), withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
         }
@@ -103,7 +104,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false, false, false)]
         public void Resolve_WhenErrorIsInvalid_ThrowsNotSupportedExceptionWhereMessageIsNotNull(bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(_fixture.Create<string>(), withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(_fixture.Create<string>(), withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -121,7 +122,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase(false, false, false)]
         public void Resolve_WhenErrorIsInvalid_ThrowsNotSupportedExceptionWhereMessageIsNotEmpty(bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(_fixture.Create<string>(), withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(_fixture.Create<string>(), withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
@@ -140,7 +141,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         public void Resolve_WhenErrorIsInvalid_ThrowsNotSupportedExceptionWhereMessageIsEqualToUnsupportedError(bool withErrorDescription, bool withErrorUri, bool withState)
         {
             string error = _fixture.Create<string>();
-            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.EqualTo($"Unsupported error: {error}"));
@@ -159,7 +160,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         public void Resolve_WhenErrorIsInvalid_ThrowsNotSupportedExceptionWhereInnerExceptionIsNull(bool withErrorDescription, bool withErrorUri, bool withState)
         {
             string error = _fixture.Create<string>();
-            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);
@@ -249,7 +250,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         [TestCase("temporarily_unavailable", false, false, false)]
         public void Resolve_WhenErrorIsValid_ReturnsNotNull(string error, bool withErrorDescription, bool withErrorUri, bool withState)
         {
-            ErrorResponseModel result = WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null, withState ? _fixture.Create<string>() : null);
+            ErrorResponseModel result = WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, withErrorDescription ? _fixture.Create<string>() : null, withErrorUri ? _fixture.CreateEndpoint() : null, withState ? _fixture.Create<string>() : null);
 
             Assert.That(result, Is.Not.Null);
         }
@@ -339,7 +340,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         public void Resolve_WhenErrorIsValid_ReturnsExpectedErrorResponseModel(string error, bool withErrorDescription, bool withErrorUri, bool withState)
         {
             string errorDescription = withErrorDescription ? _fixture.Create<string>() : null;
-            Uri errorUri = withErrorUri ? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute) : null;
+            Uri errorUri = withErrorUri ? _fixture.CreateEndpoint() : null;
             string state = withState ? _fixture.Create<string>() : null;
             ErrorResponseModel result = WebApi.Helpers.Resolvers.ErrorResponseModelResolver.Resolve(error, errorDescription, errorUri, state);
 

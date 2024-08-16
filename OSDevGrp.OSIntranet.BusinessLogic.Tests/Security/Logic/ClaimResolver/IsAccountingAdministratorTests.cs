@@ -4,6 +4,8 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -17,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         private Mock<IPrincipalResolver> _principalResolverMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -25,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         {
             _principalResolverMock = new Mock<IPrincipalResolver>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -42,7 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void IsAccountingAdministrator_WhenCalledAndPrincipalDoesNotHaveAccountingAdministratorClaim_ReturnsFalse()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()) });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.IsAccountingAdministrator();
@@ -54,7 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void IsAccountingAdministrator_WhenCalledAndPrincipalHasAccountingAdministratorClaim_ReturnsTrue()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingAdministratorClaim() });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateAccountingAdministratorClaim()));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.IsAccountingAdministrator();

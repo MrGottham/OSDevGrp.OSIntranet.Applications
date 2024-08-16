@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenIssuerIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(null, CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(null, _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("issuer"));
@@ -37,7 +38,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenAuthorizationEndpointIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), null, CreateEndpoint(), CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), null, _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("authorizationEndpoint"));
@@ -47,7 +48,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenTokenEndpointIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), null, CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), null, _fixture.CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("tokenEndpoint"));
@@ -58,7 +59,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         public void Create_WhenJsonWebKeySetEndpointIsNull_ThrowsArgumentNullException()
         {
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() =>
-                Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), null, CreateStringArray(), CreateStringArray(), CreateStringArray()));
+                Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), null, CreateStringArray(), CreateStringArray(), CreateStringArray()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("jsonWebKeySetEndpoint"));
@@ -68,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenResponseTypesSupportedIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), null, CreateStringArray(), CreateStringArray()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), null, CreateStringArray(), CreateStringArray()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("responseTypesSupported"));
@@ -78,7 +79,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenSubjectTypesSupported_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateStringArray(), null, CreateStringArray()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), CreateStringArray(), null, CreateStringArray()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("subjectTypesSupported"));
@@ -88,7 +89,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenIdTokenSigningAlgValuesSupported_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateStringArray(), CreateStringArray(), null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), CreateStringArray(), CreateStringArray(), null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("idTokenSigningAlgValuesSupported"));
@@ -98,7 +99,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenCalled_ReturnsNotNull()
         {
-            IOpenIdProviderConfigurationBuilder result = Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray());
+            IOpenIdProviderConfigurationBuilder result = Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -107,19 +108,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.OpenIdProviderConfigurationF
         [Category("UnitTest")]
         public void Create_WhenCalled_ReturnsOpenIdProviderConfigurationBuilder()
         {
-            IOpenIdProviderConfigurationBuilder result = Domain.Security.OpenIdProviderConfigurationFactory.Create(CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray());
+            IOpenIdProviderConfigurationBuilder result = Domain.Security.OpenIdProviderConfigurationFactory.Create(_fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), _fixture.CreateEndpoint(), CreateStringArray(), CreateStringArray(), CreateStringArray());
 
             Assert.That(result, Is.TypeOf<Domain.Security.OpenIdProviderConfigurationBuilder>());
-        }
-
-        private string CreateDomainName()
-        {
-            return $"{_fixture.Create<string>().Replace("/", string.Empty)}.local";
-        }
-
-        private Uri CreateEndpoint()
-        {
-            return new Uri($"https://{CreateDomainName()}/{_fixture.Create<string>().Replace("/", string.Empty)}");
         }
 
         private string[] CreateStringArray()

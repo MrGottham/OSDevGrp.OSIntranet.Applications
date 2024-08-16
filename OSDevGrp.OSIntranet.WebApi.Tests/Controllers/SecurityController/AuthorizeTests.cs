@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Tests.Helpers;
 using System;
@@ -420,7 +421,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            Uri relativeUri = new Uri($"/{_fixture.Create<string>().Replace("/", string.Empty)}/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Relative);
+            Uri relativeUri = _fixture.CreateRelativeEndpoint();
             IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), GetLegalState());
 
             Assert.That(result, Is.Not.Null);
@@ -432,7 +433,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            Uri relativeUri = new Uri($"/{_fixture.Create<string>().Replace("/", string.Empty)}/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Relative);
+            Uri relativeUri = _fixture.CreateRelativeEndpoint();
             IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), GetLegalState());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
@@ -444,7 +445,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            Uri relativeUri = new Uri($"/{_fixture.Create<string>().Replace("/", string.Empty)}/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Relative);
+            Uri relativeUri = _fixture.CreateRelativeEndpoint();
             string state = GetLegalState();
             IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), state);
 
@@ -780,7 +781,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private string GetLegalClientId() => _fixture.Create<string>();
 
-        private string GetLegalRedirectUri() => new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}").AbsoluteUri;
+        private string GetLegalRedirectUri() => _fixture.CreateEndpointString();
 
         private string GetLegalScope() => string.Join(' ', _fixture.CreateMany<string>(_random.Next(1, 5)));
 

@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -222,7 +223,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void FromBase64String_WhenCalled_ReturnsAuthorizationStateWhereRedirectUriIsEqualToRedirectUriFromBase64String()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             string base64String = CreateBase64String(redirectUri: redirectUri);
             IAuthorizationState result = Sut.FromBase64String(base64String, Unprotect);
 

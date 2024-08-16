@@ -5,6 +5,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.SecurityKeyBuilder;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
@@ -188,8 +189,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
             return new TokenGeneratorOptions
             {
                 Key = CreateJsonWebKey(),
-                Issuer = $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local",
-                Audience = $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>()}"
+                Issuer = _fixture.CreateEndpointString(withoutPathAndQuery: true),
+                Audience = _fixture.CreateEndpointString(withoutPathAndQuery: true)
             };
         }
 

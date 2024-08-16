@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -421,7 +422,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri authorizationEndpoint = CreateEndpoint();
+            Uri authorizationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(authorizationEndpoint: authorizationEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -445,7 +446,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri tokenEndpoint = CreateEndpoint();
+            Uri tokenEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(tokenEndpoint: tokenEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -470,7 +471,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri userInfoEndpoint = CreateEndpoint();
+            Uri userInfoEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(hasUserInfoEndpoint: true, userInfoEndpoint: userInfoEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -506,7 +507,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri jsonWebKeySetEndpoint = CreateEndpoint();
+            Uri jsonWebKeySetEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(jsonWebKeySetEndpoint: jsonWebKeySetEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -531,7 +532,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri registrationEndpoint = CreateEndpoint();
+            Uri registrationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(hasRegistrationEndpoint: true, registrationEndpoint: registrationEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -1069,7 +1070,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri serviceDocumentationEndpoint = CreateEndpoint();
+            Uri serviceDocumentationEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(hasServiceDocumentationEndpoint: true, serviceDocumentationEndpoint: serviceDocumentationEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -1270,7 +1271,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri registrationPolicyEndpoint = CreateEndpoint();
+            Uri registrationPolicyEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(hasRegistrationPolicyEndpoint: true, registrationPolicyEndpoint: registrationPolicyEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -1307,7 +1308,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             IQueryHandler<IGetOpenIdProviderConfigurationQuery, IOpenIdProviderConfiguration> sut = CreateSut();
 
-            Uri registrationTermsOfServiceEndpoint = CreateEndpoint();
+            Uri registrationTermsOfServiceEndpoint = _fixture.CreateEndpoint();
             IGetOpenIdProviderConfigurationQuery getOpenIdProviderConfiguration = CreateGetOpenIdProviderConfigurationQuery(hasRegistrationTermsOfServiceEndpoint: true, registrationTermsOfServiceEndpoint: registrationTermsOfServiceEndpoint);
             IOpenIdProviderConfiguration result = await sut.QueryAsync(getOpenIdProviderConfiguration);
 
@@ -1408,32 +1409,27 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetOpen
         {
             Mock<IGetOpenIdProviderConfigurationQuery> getOpenIdProviderConfigurationQueryMock = new Mock<IGetOpenIdProviderConfigurationQuery>();
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.AuthorizationEndpoint)
-                .Returns(authorizationEndpoint ?? CreateEndpoint());
+                .Returns(authorizationEndpoint ?? _fixture.CreateEndpoint());
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.TokenEndpoint)
-                .Returns(tokenEndpoint ?? CreateEndpoint());
+                .Returns(tokenEndpoint ?? _fixture.CreateEndpoint());
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.JsonWebKeySetEndpoint)
-                .Returns(jsonWebKeySetEndpoint ?? CreateEndpoint());
+                .Returns(jsonWebKeySetEndpoint ?? _fixture.CreateEndpoint());
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.UserInfoEndpoint)
-                .Returns(hasUserInfoEndpoint ?? _random.Next(100) > 50 ? userInfoEndpoint ?? CreateEndpoint() : null);
+                .Returns(hasUserInfoEndpoint ?? _random.Next(100) > 50 ? userInfoEndpoint ?? _fixture.CreateEndpoint() : null);
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.RegistrationEndpoint)
-                .Returns(hasRegistrationEndpoint ?? _random.Next(100) > 50 ? registrationEndpoint ?? CreateEndpoint() : null);
+                .Returns(hasRegistrationEndpoint ?? _random.Next(100) > 50 ? registrationEndpoint ?? _fixture.CreateEndpoint() : null);
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.ServiceDocumentationEndpoint)
-                .Returns(hasServiceDocumentationEndpoint ?? _random.Next(100) > 50 ? serviceDocumentationEndpoint ?? CreateEndpoint() : null);
+                .Returns(hasServiceDocumentationEndpoint ?? _random.Next(100) > 50 ? serviceDocumentationEndpoint ?? _fixture.CreateEndpoint() : null);
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.RegistrationPolicyEndpoint)
-                .Returns(hasRegistrationPolicyEndpoint ?? _random.Next(100) > 50 ? registrationPolicyEndpoint ?? CreateEndpoint() : null);
+                .Returns(hasRegistrationPolicyEndpoint ?? _random.Next(100) > 50 ? registrationPolicyEndpoint ?? _fixture.CreateEndpoint() : null);
             getOpenIdProviderConfigurationQueryMock.Setup(m => m.RegistrationTermsOfServiceEndpoint)
-                .Returns(hasRegistrationTermsOfServiceEndpoint ?? _random.Next(100) > 50 ? registrationTermsOfServiceEndpoint ?? CreateEndpoint() : null);
+                .Returns(hasRegistrationTermsOfServiceEndpoint ?? _random.Next(100) > 50 ? registrationTermsOfServiceEndpoint ?? _fixture.CreateEndpoint() : null);
             return getOpenIdProviderConfigurationQueryMock;
         }
 
         private string CreateIssuer()
         {
-            return $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local";
-        }
-
-        private Uri CreateEndpoint()
-        {
-            return new Uri($"{CreateIssuer()}/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+            return _fixture.CreateEndpointString(withoutPathAndQuery: true);
         }
     }
 }

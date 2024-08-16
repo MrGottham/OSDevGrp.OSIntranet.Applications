@@ -4,19 +4,22 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
-	[TestFixture]
+    [TestFixture]
 	public class IsMediaLibraryModifierTests
 	{
 		#region Private variables
 
 		private Mock<IPrincipalResolver> _principalResolverMock;
 		private Fixture _fixture;
+        private Random _random;
 
 		#endregion
 
@@ -25,7 +28,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		{
 			_principalResolverMock = new Mock<IPrincipalResolver>();
 			_fixture = new Fixture();
-		}
+            _random = new Random(_fixture.Create<int>());
+        }
 
 		[Test]
 		[Category("UnitTest")]
@@ -42,7 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void IsMediaLibraryModifier_WhenCalledAndPrincipalDoesNotHaveMediaLibraryModifierClaim_ReturnsFalse()
 		{
-			IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()) });
+			IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random));
 			IClaimResolver sut = CreateSut(principal);
 
 			bool result = sut.IsMediaLibraryModifier();
@@ -54,7 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void IsMediaLibraryModifier_WhenCalledAndPrincipalHasMediaLibraryModifierClaim_ReturnsTrue()
 		{
-			IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateMediaLibraryModifierClaim() });
+			IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateMediaLibraryModifierClaim()));
 			IClaimResolver sut = CreateSut(principal);
 
 			bool result = sut.IsMediaLibraryModifier();

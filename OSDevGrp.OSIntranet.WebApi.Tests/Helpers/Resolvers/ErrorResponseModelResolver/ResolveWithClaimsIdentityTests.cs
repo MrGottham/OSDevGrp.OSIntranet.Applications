@@ -1,9 +1,9 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelResolver
@@ -14,6 +14,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         #region Private variables
 
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -21,6 +22,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
         public void SetUp()
         {
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -168,16 +170,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Resolvers.ErrorResponseModelR
                 return new ClaimsIdentity();
             }
 
-            IList<Claim> claims = new List<Claim>
-            {
-                new(_fixture.Create<string>(), _fixture.Create<string>()),
-                new(_fixture.Create<string>(), _fixture.Create<string>()),
-                new(_fixture.Create<string>(), _fixture.Create<string>())
-            };
-
+            Claim[] claims = _fixture.CreateClaims(_random);
             if (hasEmailClaim)
             {
-                claims.Add(new Claim(ClaimTypes.Email, hasValueInEmailClaim ? _fixture.Create<string>() : string.Empty));
+                claims = claims.Concat(_fixture.CreateClaim(ClaimTypes.Email, hasValue: hasValueInEmailClaim));
             }
 
             return new ClaimsIdentity(claims, _fixture.Create<string>());

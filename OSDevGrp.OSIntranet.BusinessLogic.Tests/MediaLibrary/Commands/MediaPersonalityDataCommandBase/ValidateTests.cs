@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPersonalityDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateTests
 	{
 		#region Private variables
@@ -89,7 +90,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithGivenName()
+		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithGivenName()
 		{
 			string givenName = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(givenName: givenName);
@@ -107,7 +108,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithGivenName()
+		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithGivenName()
 		{
 			string givenName = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(givenName: givenName);
@@ -125,7 +126,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithMiddleName()
+		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithMiddleName()
 		{
 			string middleName = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(middleName: middleName);
@@ -143,7 +144,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithMiddleName()
+		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithMiddleName()
 		{
 			string middleName = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(middleName: middleName);
@@ -161,7 +162,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasCalledOnStringValidatorWithSurname()
+		public void Validate_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasCalledOnStringValidatorWithSurname()
 		{
 			string surname = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(surname: surname);
@@ -177,7 +178,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithSurname()
+		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithSurname()
 		{
 			string surname = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(surname: surname);
@@ -195,7 +196,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithSurname()
+		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithSurname()
 		{
 			string surname = _fixture.Create<string>();
 			IMediaPersonalityDataCommand sut = CreateSut(surname: surname);
@@ -213,7 +214,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldBeBetweenWasCalledOnIntegerValidatorWithNationalityIdentifier()
+		public void Validate_WhenCalled_AssertShouldBeBetweenWasCalledOnIntegerValidatorWithNationalityIdentifier()
 		{
 			int nationalityIdentifier = _fixture.Create<int>();
 			IMediaPersonalityDataCommand sut = CreateSut(nationalityIdentifier: nationalityIdentifier);
@@ -231,7 +232,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldBeKnownValueWasCalledOnObjectValidatorWithNationalityIdentifier()
+		public void Validate_WhenCalled_AssertShouldBeKnownValueWasCalledOnObjectValidatorWithNationalityIdentifier()
 		{
 			int nationalityIdentifier = _fixture.Create<int>();
 			IMediaPersonalityDataCommand sut = CreateSut(nationalityIdentifier: nationalityIdentifier);
@@ -249,7 +250,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenBirthDateIsSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasCalledOnDateTimeValidatorWithBirthDate()
+		public void Validate_WhenBirthDateIsSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasCalledOnDateTimeValidatorWithBirthDate()
 		{
 			DateTime birthDate = DateTime.Today.AddYears(_random.Next(25, 75) * -1).AddDays(_random.Next(0, 365));
 			IMediaPersonalityDataCommand sut = CreateSut(hasBirthDate: true, birthDate: birthDate);
@@ -267,7 +268,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 		[Category("UnitTest")]
 		[TestCase(true)]
 		[TestCase(false)]
-		public void ValidateMediaPersonalityData_WhenBirthDateIsSetOnMediaPersonalityDataCommand_AssertShouldBeEarlierThanOffsetDateWasCalledOnDateTimeValidatorWithBirthDate(bool hasDateOfDead)
+		public void Validate_WhenBirthDateIsSetOnMediaPersonalityDataCommand_AssertShouldBeEarlierThanOffsetDateWasCalledOnDateTimeValidatorWithBirthDate(bool hasDateOfDead)
 		{
 			DateTime birthDate = DateTime.Today.AddYears(_random.Next(25, 75) * -1).AddDays(_random.Next(0, 365));
 			DateTime dateOfDead = DateTime.Today.AddYears(_random.Next(5, 10) * -1).AddDays(_random.Next(0, 365));
@@ -285,7 +286,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenBirthDateIsNotSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasNotCalledOnDateTimeValidatorWithBirthDate()
+		public void Validate_WhenBirthDateIsNotSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasNotCalledOnDateTimeValidatorWithBirthDate()
 		{
 			IMediaPersonalityDataCommand sut = CreateSut(hasBirthDate: false);
 
@@ -300,7 +301,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenBirthDateIsNotSetOnMediaPersonalityDataCommand_AssertShouldBeEarlierThanOffsetDateWasNotCalledOnDateTimeValidatorWithBirthDate()
+		public void Validate_WhenBirthDateIsNotSetOnMediaPersonalityDataCommand_AssertShouldBeEarlierThanOffsetDateWasNotCalledOnDateTimeValidatorWithBirthDate()
 		{
 			IMediaPersonalityDataCommand sut = CreateSut(hasBirthDate: false);
 
@@ -316,7 +317,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenDateOfDeadIsSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasCalledOnDateTimeValidatorWithDateOfDead()
+		public void Validate_WhenDateOfDeadIsSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasCalledOnDateTimeValidatorWithDateOfDead()
 		{
 			DateTime dateOfDead = DateTime.Today.AddYears(_random.Next(5, 10) * -1).AddDays(_random.Next(0, 365));
 			IMediaPersonalityDataCommand sut = CreateSut(hasDateOfDead: true, dateOfDead: dateOfDead);
@@ -334,7 +335,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 		[Category("UnitTest")]
 		[TestCase(true)]
 		[TestCase(false)]
-		public void ValidateMediaPersonalityData_WhenDateOfDeadIsSetOnMediaPersonalityDataCommand_AssertShouldBeLaterThanOffsetDateWasCalledOnDateTimeValidatorWithDateOfDead(bool hasBirthdate)
+		public void Validate_WhenDateOfDeadIsSetOnMediaPersonalityDataCommand_AssertShouldBeLaterThanOffsetDateWasCalledOnDateTimeValidatorWithDateOfDead(bool hasBirthdate)
 		{
 			DateTime birthDate = DateTime.Today.AddYears(_random.Next(25, 75) * -1).AddDays(_random.Next(0, 365));
 			DateTime dateOfDead = DateTime.Today.AddYears(_random.Next(5, 10) * -1).AddDays(_random.Next(0, 365));
@@ -352,7 +353,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenDateOfDeadIsNotSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasNotCalledOnDateTimeValidatorWithDateOfDead()
+		public void Validate_WhenDateOfDeadIsNotSetOnMediaPersonalityDataCommand_AssertShouldBePastDateOrTodayWasNotCalledOnDateTimeValidatorWithDateOfDead()
 		{
 			IMediaPersonalityDataCommand sut = CreateSut(hasDateOfDead: false);
 
@@ -367,7 +368,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenDateOfDeadIsNotSetOnMediaPersonalityDataCommand_AssertShouldBeLaterThanOffsetDateWasNotCalledOnDateTimeValidatorWithDateOfDead()
+		public void Validate_WhenDateOfDeadIsNotSetOnMediaPersonalityDataCommand_AssertShouldBeLaterThanOffsetDateWasNotCalledOnDateTimeValidatorWithDateOfDead()
 		{
 			IMediaPersonalityDataCommand sut = CreateSut(hasDateOfDead: false);
 
@@ -383,9 +384,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithUrl()
+		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 			IMediaPersonalityDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -401,9 +402,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithUrl()
+		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 			IMediaPersonalityDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -419,9 +420,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorWithUrl()
+		public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 			IMediaPersonalityDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -437,7 +438,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMinItemsWasCalledOnEnumerableValidatorWithImage()
+		public void Validate_WhenCalled_AssertShouldHaveMinItemsWasCalledOnEnumerableValidatorWithImage()
 		{
 			byte[] image = _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray();
 			IMediaPersonalityDataCommand sut = CreateSut(image: image);
@@ -455,7 +456,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		[Test]
 		[Category("UnitTest")]
-		public void ValidateMediaPersonalityData_WhenCalled_AssertShouldHaveMaxItemsWasCalledOnEnumerableValidatorWithImage()
+		public void Validate_WhenCalled_AssertShouldHaveMaxItemsWasCalledOnEnumerableValidatorWithImage()
 		{
 			byte[] image = _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray();
 			IMediaPersonalityDataCommand sut = CreateSut(image: image);
@@ -498,7 +499,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 			_claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 				.Returns(_fixture.Create<bool>());
 
-			return new MyMediaPersonalityDataCommand(Guid.NewGuid(), givenName ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), middleName ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), surname ?? _fixture.Create<string>(), nationalityIdentifier ?? _fixture.Create<int>(), hasBirthDate ? birthDate ?? DateTime.Today.AddYears(_random.Next(25, 75) * -1).AddDays(_random.Next(0, 365)) : null, hasDateOfDead ? dateOfDead ?? DateTime.Today.AddYears(_random.Next(5, 10) * -1).AddDays(_random.Next(0, 365)) : null, url ?? (_random.Next(100) > 50 ? $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}" : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
+			return new MyMediaPersonalityDataCommand(Guid.NewGuid(), givenName ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), middleName ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), surname ?? _fixture.Create<string>(), nationalityIdentifier ?? _fixture.Create<int>(), hasBirthDate ? birthDate ?? DateTime.Today.AddYears(_random.Next(25, 75) * -1).AddDays(_random.Next(0, 365)) : null, hasDateOfDead ? dateOfDead ?? DateTime.Today.AddYears(_random.Next(5, 10) * -1).AddDays(_random.Next(0, 365)) : null, url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}") : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 		}
 
 		private class MyMediaPersonalityDataCommand : BusinessLogic.MediaLibrary.Commands.MediaPersonalityDataCommandBase

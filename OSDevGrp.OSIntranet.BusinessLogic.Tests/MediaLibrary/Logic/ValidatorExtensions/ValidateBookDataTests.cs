@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorExtensions
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateBookDataTests
 	{
 		#region Private variables
@@ -646,7 +647,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/book/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
 			IBookDataCommand bookDataCommand = CreateBookDataCommand(url: url);
 			sut.ValidateBookData(bookDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -665,7 +666,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/book/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
 			IBookDataCommand bookDataCommand = CreateBookDataCommand(url: url);
 			sut.ValidateBookData(bookDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -684,8 +685,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/book/{_fixture.Create<string>()}";
-			IBookDataCommand bookDataCommand = CreateBookDataCommand(url: url);
+            string url = _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
+            IBookDataCommand bookDataCommand = CreateBookDataCommand(url: url);
 			sut.ValidateBookData(bookDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
 			_validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
@@ -852,7 +853,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 			bookDataCommandMock.Setup(m => m.Published)
 				.Returns(hasPublished ? published ?? _fixture.Create<short>() : null);
 			bookDataCommandMock.Setup(m => m.Url)
-				.Returns(url ?? (_random.Next(100) > 50 ? $"https://localhost/api/book/{_fixture.Create<string>()}" : null));
+				.Returns(url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}") : null));
 			bookDataCommandMock.Setup(m => m.Image)
 				.Returns(image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 			bookDataCommandMock.Setup(m => m.Authors)

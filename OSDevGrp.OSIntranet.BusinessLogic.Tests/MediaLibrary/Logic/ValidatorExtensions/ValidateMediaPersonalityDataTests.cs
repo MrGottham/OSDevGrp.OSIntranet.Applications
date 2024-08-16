@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorExtensions
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateMediaPersonalityDataTests
 	{
 		#region Private variables
@@ -508,7 +509,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 			IMediaPersonalityDataCommand mediaPersonalityDataCommand = CreateMediaPersonalityDataCommand(url: url);
 			sut.ValidateMediaPersonalityData(mediaPersonalityDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -527,7 +528,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 			IMediaPersonalityDataCommand mediaPersonalityDataCommand = CreateMediaPersonalityDataCommand(url: url);
 			sut.ValidateMediaPersonalityData(mediaPersonalityDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -546,7 +547,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 			IMediaPersonalityDataCommand mediaPersonalityDataCommand = CreateMediaPersonalityDataCommand(url: url);
 			sut.ValidateMediaPersonalityData(mediaPersonalityDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -657,7 +658,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 			mediaPersonalityDataCommandMock.Setup(m => m.DateOfDead)
 				.Returns(hasDateOfDead ? dateOfDead ?? DateTime.Today.AddYears(_random.Next(5, 10) * -1).AddDays(_random.Next(0, 365)) : null);
 			mediaPersonalityDataCommandMock.Setup(m => m.Url)
-				.Returns(url ?? (_random.Next(100) > 50 ? $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}" : null));
+				.Returns(url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}") : null));
 			mediaPersonalityDataCommandMock.Setup(m => m.Image)
 				.Returns(image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 			return mediaPersonalityDataCommandMock;

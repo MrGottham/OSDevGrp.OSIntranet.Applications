@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -177,12 +178,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.Scope
 
         private IEnumerable<Claim> CreateClaims(params string[] claimTypes)
         {
-            if (claimTypes == null || claimTypes.Length == 0)
-            {
-                claimTypes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
-            }
-
-            return claimTypes.Select(claimType => new Claim(claimType, string.Empty)).ToArray();
+            return _fixture.CreateClaims(_random)
+                .Concat(claimTypes.Select(claimType => _fixture.CreateClaim(claimType)))
+                .ToArray();
         }
     }
 }

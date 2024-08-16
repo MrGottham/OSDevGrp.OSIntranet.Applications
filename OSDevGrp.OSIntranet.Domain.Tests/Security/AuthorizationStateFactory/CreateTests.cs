@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(null, _fixture.Create<string>(), CreateRedirectUri(), CreateScopes()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(null, _fixture.Create<string>(), _fixture.CreateEndpoint(), CreateScopes()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("responseType"));
@@ -41,7 +42,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(string.Empty, _fixture.Create<string>(), CreateRedirectUri(), CreateScopes()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(string.Empty, _fixture.Create<string>(), _fixture.CreateEndpoint(), CreateScopes()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("responseType"));
@@ -53,7 +54,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(" ", _fixture.Create<string>(), CreateRedirectUri(), CreateScopes()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(" ", _fixture.Create<string>(), _fixture.CreateEndpoint(), CreateScopes()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("responseType"));
@@ -65,7 +66,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), null, CreateRedirectUri(), CreateScopes()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), null, _fixture.CreateEndpoint(), CreateScopes()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
@@ -77,7 +78,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), string.Empty, CreateRedirectUri(), CreateScopes()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), string.Empty, _fixture.CreateEndpoint(), CreateScopes()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
@@ -89,7 +90,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), " ", CreateRedirectUri(), CreateScopes()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), " ", _fixture.CreateEndpoint(), CreateScopes()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
@@ -113,7 +114,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), _fixture.Create<string>(), CreateRedirectUri(), null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Create(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.CreateEndpoint(), null));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("scopes"));
@@ -125,7 +126,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            IAuthorizationStateBuilder result = sut.Create(_fixture.Create<string>(), _fixture.Create<string>(), CreateRedirectUri(), CreateScopes());
+            IAuthorizationStateBuilder result = sut.Create(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.CreateEndpoint(), CreateScopes());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -136,7 +137,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         {
             IAuthorizationStateFactory sut = CreateSut();
 
-            IAuthorizationStateBuilder result = sut.Create(_fixture.Create<string>(), _fixture.Create<string>(), CreateRedirectUri(), CreateScopes());
+            IAuthorizationStateBuilder result = sut.Create(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.CreateEndpoint(), CreateScopes());
 
             Assert.That(result, Is.TypeOf<Domain.Security.AuthorizationStateBuilder>());
         }
@@ -144,11 +145,6 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
         private IAuthorizationStateFactory CreateSut()
         {
             return new Domain.Security.AuthorizationStateFactory();
-        }
-
-        private Uri CreateRedirectUri()
-        {
-            return new Uri($"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
         }
 
         private string[] CreateScopes()

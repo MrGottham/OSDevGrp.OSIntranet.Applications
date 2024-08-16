@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -37,8 +38,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("CODE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForCode_ThrowsIntranetSystemException(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -53,8 +53,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("CODE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForCode_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToUnableToGenerateRedirectUri(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -70,8 +69,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("CODE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForCode_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -87,8 +85,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("CODE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForCode_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -104,8 +101,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("CODE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForCode_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -121,8 +117,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("STATE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForState_ThrowsIntranetSystemException(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -137,8 +132,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("STATE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForState_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToUnableToGenerateRedirectUri(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -154,8 +148,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("STATE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForState_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -171,8 +164,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("STATE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForState_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -188,8 +180,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [TestCase("STATE")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriContainsQueryParameterForState_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value)
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(CreateQueryParameter(_fixture, name: value));
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameter(name: value));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             IntranetSystemException result = Assert.Throws<IntranetSystemException>(() => sut.GenerateRedirectUriWithAuthorizationCode());
@@ -337,8 +328,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsNotNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -350,8 +340,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWherePathIsNotNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -363,8 +352,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWherePathIsNotEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -376,8 +364,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWherePathIsEqualToPathFromRedirectUri()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -389,8 +376,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryIsNotNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -402,8 +388,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryIsNotEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -415,8 +400,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCode()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -428,8 +412,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -441,8 +424,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -454,8 +436,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueEqualToValueFromAuthorizationCode()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             string value = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true, authorizationCode: authorizationCode);
@@ -469,8 +450,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForState()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -482,8 +462,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForStateWithValueNotEqualToNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -495,8 +474,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForStateWithValueNotEqualToEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -508,8 +486,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForStateWithValueEqualToExternalState()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             string externalState = _fixture.Create<string>();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true, externalState: externalState);
 
@@ -522,8 +499,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUri()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -538,8 +515,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUriWithValueNotEqualToNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -554,8 +531,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUriWithValueNotEqualToEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -570,8 +547,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUriWithMatchingValue()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             string externalState = _fixture.Create<string>();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true, externalState: externalState);
 
@@ -587,8 +564,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsNotNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -600,8 +577,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWherePathIsNotNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -613,8 +589,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWherePathIsNotEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -626,8 +601,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWherePathIsEqualToPathFromRedirectUri()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -639,8 +613,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryIsNotNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -652,8 +625,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryIsNotEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -665,8 +637,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCode()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -678,8 +649,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -691,8 +661,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -704,8 +673,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueEqualToValueFromAuthorizationCode()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             string value = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false, authorizationCode: authorizationCode);
@@ -719,8 +687,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryDoesNotHaveQueryParameterForState()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: _fixture.CreateQueryParameters(_random));
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -732,8 +699,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUri()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -748,8 +715,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUriWithValueNotEqualToNull()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -764,8 +731,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUriWithValueNotEqualToEmpty()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -780,8 +747,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriHasQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForEachQueryParameterDefinedByRedirectUriWithMatchingValue()
         {
-            IReadOnlyDictionary<string, string> queryParameters = CreateQueryParameters(_fixture, _random);
-            Uri redirectUri = CreateRedirectUri(_fixture, queryParameters);
+            KeyValuePair<string, string>[] queryParameters = _fixture.CreateQueryParameters(_random);
+            Uri redirectUri = _fixture.CreateEndpoint(queryParameters: queryParameters);
             string externalState = _fixture.Create<string>();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false, externalState: externalState);
 
@@ -797,7 +764,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsNotNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -809,7 +776,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWherePathIsNotNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -821,7 +788,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWherePathIsNotEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -833,7 +800,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWherePathIsEqualToPathFromRedirectUri()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -845,7 +812,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryIsNotNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -857,7 +824,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryIsNotEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -869,7 +836,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCode()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -881,7 +848,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -893,7 +860,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -905,7 +872,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueEqualToValueFromAuthorizationCode()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             string value = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true, authorizationCode: authorizationCode);
@@ -919,7 +886,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForState()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -931,7 +898,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForStateWithValueNotEqualToNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -943,7 +910,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForStateWithValueNotEqualToEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -955,7 +922,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasQueryParameterForStateWithValueEqualToExternalState()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             string externalState = _fixture.Create<string>();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true, externalState: externalState);
 
@@ -968,7 +935,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsSet_ReturnsUriWhereQueryHasOnlyQueryParametersForCodeAndState()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: true);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -980,7 +947,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsNotNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -992,7 +959,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWherePathIsNotNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1004,7 +971,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWherePathIsNotEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1016,7 +983,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWherePathIsEqualToPathFromRedirectUri()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1028,7 +995,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryIsNotNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1040,7 +1007,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryIsNotEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1052,7 +1019,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCode()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1064,7 +1031,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToNull()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1076,7 +1043,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueNotEqualToEmpty()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1088,7 +1055,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasQueryParameterForCodeWithValueEqualToValueFromAuthorizationCode()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             string value = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false, authorizationCode: authorizationCode);
@@ -1102,7 +1069,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryDoesNotHaveQueryParameterForState()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();
@@ -1114,7 +1081,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void GenerateRedirectUriWithAuthorizationCode_WhenRedirectUriDoesNotHaveAnyQueryParametersAndExternalStateIsNotSet_ReturnsUriWhereQueryHasOnlyQueryParametersForCodeOnly()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri, hasExternalState: false);
 
             Uri result = sut.GenerateRedirectUriWithAuthorizationCode();

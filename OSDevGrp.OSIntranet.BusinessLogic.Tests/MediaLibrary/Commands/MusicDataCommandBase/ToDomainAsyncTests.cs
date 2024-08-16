@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ToDomainAsyncTests
 	{
 		#region Private variables
@@ -596,7 +597,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDat
 
 		private string CreateValidUrl()
 		{
-			return $"https://localhost/api/music/{_fixture.Create<string>()}";
+			return _fixture.CreateEndpointString(path: $"api/music/{_fixture.Create<string>()}");
 		}
 
 		private class MyMusicDataCommand : BusinessLogic.MediaLibrary.Commands.MusicDataCommandBase

@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Linq;
@@ -17,15 +18,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateBuilder
 
             return new Domain.Security.AuthorizationStateBuilder(
                 responseType ?? fixture.Create<string>(),
-                clientId ?? fixture.Create<string>(), redirectUri ?? CreateRedirectUri(fixture),
+                clientId ?? fixture.Create<string>(), 
+                redirectUri ?? fixture.CreateEndpoint(),
                 scopes ?? CreateScopes(fixture, random));
-        }
-
-        protected static Uri CreateRedirectUri(Fixture fixture)
-        {
-            NullGuard.NotNull(fixture, nameof(fixture));
-
-            return new Uri($"https://{fixture.Create<string>().Replace("/", string.Empty)}.local/{fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
         }
 
         protected static string[] CreateScopes(Fixture fixture, Random random)

@@ -215,8 +215,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AcquireToken([Required][FromForm(Name = "grant_type")]string grantType, [FromHeader(Name = "Authorization")]string authorization = null, [FromForm(Name = "code")]string code = null, [FromForm(Name = "client_id")]string clientId = null, [FromForm(Name = "client_secret")]string clientSecret = null, [FromForm(Name = "redirect_uri")]string redirectUri = null)
         {
-            // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
-
             if (string.IsNullOrWhiteSpace(grantType))
             {
                 return BadRequest(ErrorResponseModelResolver.Resolve("unsupported_grant_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "grant_type"), null, null));
@@ -234,7 +232,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 switch (grantType)
                 {
                     case "authorization_code":
-                        throw new NotImplementedException();
+                        principal = await ResolvePrincipalAsync(code, nameof(code), clientId, "client_id", clientSecret, "client_secret", redirectUri, "redirect_uri");
+                        break;
 
                     case "client_credentials":
                         principal = await ResolvePrincipalAsync(authorization, nameof(authorization));
@@ -274,6 +273,9 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [HttpGet("/api/oauth/userinfo")]
         public Task<IActionResult> UserInfo()
         {
+            // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
+            // TODO: https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+
             throw new NotImplementedException();
         }
 
@@ -345,6 +347,63 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
             IAuthenticateClientSecretCommand command = SecurityCommandFactory.BuildAuthenticateClientSecretCommand(clientId, clientSecret, Schemes.Internal, value => value);
             ClaimsPrincipal principal = await _commandBus.PublishAsync<IAuthenticateClientSecretCommand, ClaimsPrincipal>(command);
+            if (principal?.Identity == null || principal.Identity.IsAuthenticated == false)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.UnableAuthenticateClient).Build();
+            }
+
+            return principal;
+        }
+
+        private async Task<ClaimsPrincipal> ResolvePrincipalAsync(string code, string codeParameterName, string clientId, string clientIdParameterName, string clientSecret, string clientSecretParameterName, string redirectUri, string redirectUriParameterName)
+        {
+            NullGuard.NotNullOrWhiteSpace(codeParameterName, nameof(codeParameterName))
+                .NotNullOrWhiteSpace(clientIdParameterName, nameof(clientIdParameterName))
+                .NotNullOrWhiteSpace(clientSecretParameterName, nameof(clientSecretParameterName))
+                .NotNullOrWhiteSpace(redirectUriParameterName, nameof(redirectUriParameterName));
+
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, codeParameterName)
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(codeParameterName)
+                    .Build();
+            }
+
+            if (string.IsNullOrWhiteSpace(clientId))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, clientIdParameterName)
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(clientIdParameterName)
+                    .Build();
+            }
+
+            if (string.IsNullOrWhiteSpace(clientSecret))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, clientSecretParameterName)
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(clientSecretParameterName)
+                    .Build();
+            }
+
+            if (string.IsNullOrWhiteSpace(redirectUri))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNullOrWhiteSpace, redirectUriParameterName)
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(redirectUriParameterName)
+                    .Build();
+            }
+
+            if (Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri redirect) == false)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueShouldBeKnown, redirectUriParameterName)
+                    .WithValidatingType(typeof(string))
+                    .WithValidatingField(redirectUriParameterName)
+                    .Build();
+            }
+
+            IAuthenticateAuthorizationCodeCommand command = SecurityCommandFactory.BuildAuthenticateAuthorizationCodeCommand(code, clientId, clientSecret, redirect, Schemes.Internal, value => value);
+            ClaimsPrincipal principal = await _commandBus.PublishAsync<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal>(command);
             if (principal?.Identity == null || principal.Identity.IsAuthenticated == false)
             {
                 throw new IntranetExceptionBuilder(ErrorCode.UnableAuthenticateClient).Build();

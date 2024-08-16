@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.IdentityCommandBase
 {
@@ -29,10 +29,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.IdentityComm
         {
             _validatorMockContext = new ValidatorMockContext();
             _securityRepositoryMock = new Mock<ISecurityRepository>();
-
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -44,6 +41,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.IdentityComm
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _securityRepositoryMock.Object));
             
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("validator"));
         }
 
@@ -54,7 +52,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.IdentityComm
             IIdentityCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(_validatorMockContext.ValidatorMock.Object, null));
-            
+
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("securityRepository"));
         }
 
@@ -62,7 +61,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.IdentityComm
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidator()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IIdentityCommand sut = CreateSut(claims);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object);
@@ -88,7 +87,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.IdentityComm
         private IIdentityCommand CreateSut(IEnumerable<Claim> claims = null)
         {
             return _fixture.Build<Sut>()
-                .With(m => m.Claims, claims ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList())
+                .With(m => m.Claims, claims ?? _fixture.CreateClaims(_random))
                 .Create();
         }
 

@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -243,7 +244,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithRedirectUri()
         {
-            Uri redirectUri = new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(redirectUri: redirectUri);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
@@ -259,7 +260,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldBeKnownValueWasCalledTwoTimesOnObjectValidatorWithRedirectUri()
         {
-            Uri redirectUri = new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(redirectUri: redirectUri);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
@@ -472,7 +473,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             return new BusinessLogic.Security.Commands.PrepareAuthorizationCodeFlowCommand(
                 responseType ?? _fixture.Create<string>(),
                 clientId ?? _fixture.Create<string>(),
-                redirectUri ?? new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute),
+                redirectUri ?? _fixture.CreateEndpoint(),
                 scopes ?? _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray(),
                 hasState ? state ?? _fixture.Create<string>() : state,
                 protector ?? (bytes => bytes));

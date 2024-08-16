@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -9,7 +10,7 @@ using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.MediaBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class EqualsTests
 	{
 		#region Private variables
@@ -87,7 +88,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.MediaBase
 
 		private IMedia CreateSut(Guid? mediaIdentifier = null)
 		{
-			return new MyMedia(mediaIdentifier ??Guid.NewGuid(), _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.BuildMediaTypeMock().Object, _random.Next(100) > 50 ? null : _fixture.Create<short>(), _random.Next(100) > 50 ? new Uri($"https://localhost/api/medias/{Guid.NewGuid():D}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : null, _ => Array.Empty<IMediaBinding>(), _ => Array.Empty<ILending>());
+			return new MyMedia(mediaIdentifier ??Guid.NewGuid(), _fixture.Create<string>(), _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _random.Next(100) > 50 ? _fixture.Create<string>() : null, _fixture.BuildMediaTypeMock().Object, _random.Next(100) > 50 ? null : _fixture.Create<short>(), _random.Next(100) > 50 ? _fixture.CreateEndpoint(path: $"api/medias/{Guid.NewGuid():D}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : null, _ => Array.Empty<IMediaBinding>(), _ => Array.Empty<ILending>());
 		}
 
 		private class MyMedia : Domain.MediaLibrary.MediaBase

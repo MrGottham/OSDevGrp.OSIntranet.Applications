@@ -40,7 +40,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(null, CreateClaims()));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(null, Fixture.CreateClaims(Random), CreateAuthorizationData()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("authorizationCode"));
@@ -52,10 +52,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, null));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, null, CreateAuthorizationData()));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("claims"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToKeyValueEntryAsync_WhenAuthorizationDataIsNull_ThrowsArgumentNullException()
+        {
+            IAuthorizationDataConverter sut = CreateSut();
+
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, Fixture.CreateClaims(Random), null));
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ParamName, Is.EqualTo("authorizationData"));
         }
 
         [Test]
@@ -65,7 +77,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             Mock<IAuthorizationCode> authorizationCodeMock = _fixture.BuildAuthorizationCodeMock();
-            await sut.ToKeyValueEntryAsync(authorizationCodeMock.Object, CreateClaims());
+            await sut.ToKeyValueEntryAsync(authorizationCodeMock.Object, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             authorizationCodeMock.Verify(m => m.Value, Times.Once);
         }
@@ -77,7 +89,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             Mock<IAuthorizationCode> authorizationCodeMock = _fixture.BuildAuthorizationCodeMock();
-            await sut.ToKeyValueEntryAsync(authorizationCodeMock.Object, CreateClaims());
+            await sut.ToKeyValueEntryAsync(authorizationCodeMock.Object, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             authorizationCodeMock.Verify(m => m.Expires, Times.Once);
         }
@@ -89,7 +101,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry, Is.Not.Null);
         }
@@ -101,7 +113,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry, Is.TypeOf<KeyValueEntry>());
         }
@@ -113,7 +125,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry.Key, Is.Not.Null);
         }
@@ -125,7 +137,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry.Key, Is.Not.Empty);
         }
@@ -138,7 +150,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
 
             string value = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry.Key, Is.EqualTo(value));
         }
@@ -150,7 +162,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry.Value, Is.Not.Null);
         }
@@ -162,7 +174,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;
-            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, CreateClaims());
+            IKeyValueEntry keyValueEntry = await sut.ToKeyValueEntryAsync(authorizationCode, Fixture.CreateClaims(Random), CreateAuthorizationData());
 
             Assert.That(keyValueEntry.Value, Is.Not.Empty);
         }

@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -80,7 +81,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             string responseType = _fixture.Create<string>();
             string clientId = _fixture.Create<string>();
             string clientSecret = _fixture.Create<string>();
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             string[] scopes = CreateScopes(_fixture, _random);
             string externalState = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock().Object;

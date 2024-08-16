@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -107,7 +108,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
         [Category("UnitTest")]
         public void ToString_WhenCalled_ReturnsBase64StringContainingMatchingJsonPropertyForRedirectUri()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState sut = CreateSut(redirectUri: redirectUri);
 
             string result = sut.ToString();

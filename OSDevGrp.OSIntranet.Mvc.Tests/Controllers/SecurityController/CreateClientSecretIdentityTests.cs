@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -11,9 +6,15 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 {
@@ -34,10 +35,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
-
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -78,7 +76,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task CreateClientSecretIdentity_WhenCalledWithoutModel_ReturnsViewResultWhereModelIsClientSecretIdentityViewModel()
         {
-            IList<Claim> claimCollection = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IList<Claim> claimCollection = _fixture.CreateClaims(_random);
             Controller sut = CreateSut(claimCollection);
 
             ViewResult result = (ViewResult) await sut.CreateClientSecretIdentity();
@@ -96,7 +94,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             
             Assert.That(clientSecretIdentityViewModel.Claims, Is.Not.Null);
             Assert.That(clientSecretIdentityViewModel.Claims, Is.Not.Empty);
-            Assert.That(clientSecretIdentityViewModel.Claims.Count(), Is.EqualTo(claimCollection.Count));
+            Assert.That(clientSecretIdentityViewModel.Claims.Count, Is.EqualTo(claimCollection.Count));
             foreach (Claim claim in claimCollection)
             {
                 Assert.That(clientSecretIdentityViewModel.Claims.SingleOrDefault(m => string.CompareOrdinal(m.ClaimType, claim.Type) == 0), Is.Not.Null);
@@ -111,6 +109,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateClientSecretIdentity(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientSecretIdentityViewModel"));
         }
 
@@ -192,7 +191,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task CreateClientSecretIdentity_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereContollerNameIsEqualToSecurity()
+        public async Task CreateClientSecretIdentity_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereControllerNameIsEqualToSecurity()
         {
             Controller sut = CreateSut();
 
@@ -217,7 +216,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         private Controller CreateSut(IEnumerable<Claim> claimCollection = null, bool modelIsValid = true)
         {
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<Claim>>(It.IsAny<EmptyQuery>()))
-                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList()));
+                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateClaims(_random)));
 
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateClientSecretIdentityCommand>()))
                 .Returns(Task.Run(() => { }));

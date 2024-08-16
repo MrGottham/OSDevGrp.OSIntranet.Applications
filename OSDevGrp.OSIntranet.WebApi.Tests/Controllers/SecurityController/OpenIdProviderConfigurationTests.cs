@@ -8,6 +8,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
@@ -269,7 +270,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private Uri CreateRequestUrl(string domainName = null)
         {
-            return new Uri($"https://{domainName ?? CreateDomainName()}/.well-known/openid-configuration", UriKind.Absolute);
+            return _fixture.CreateEndpoint(domainName, path: ".well-known/openid-configuration");
         }
 
         private string CreateDomainName()

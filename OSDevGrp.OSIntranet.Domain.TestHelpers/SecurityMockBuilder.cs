@@ -3,6 +3,7 @@ using Moq;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.Queries;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Generic;
@@ -179,7 +180,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 
             Mock<IOpenIdProviderConfiguration> openIdProviderConfigurationMock = new Mock<IOpenIdProviderConfiguration>();
             openIdProviderConfigurationMock.Setup(m => m.Issuer)
-                .Returns(new Uri($"https://{fixture.CreateDomainName()}", UriKind.Absolute));
+                .Returns(fixture.CreateEndpoint(withoutPathAndQuery: true));
             openIdProviderConfigurationMock.Setup(m => m.AuthorizationEndpoint)
                 .Returns(fixture.CreateEndpoint());
             openIdProviderConfigurationMock.Setup(m => m.TokenEndpoint)
@@ -258,7 +259,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             Random random = new Random(fixture.Create<int>());
 
             string[] claimTypes = (relatedClaims ?? fixture.CreateMany<string>(random.Next(1, 10))).ToArray();
-            filteredClaims ??= claimTypes.Take(random.Next(0, claimTypes.Length - 1)).Select(claimType => new Claim(claimType, string.Empty)).ToArray();
+            filteredClaims ??= claimTypes.Take(random.Next(0, claimTypes.Length - 1)).Select(claimType => fixture.CreateClaim(claimType)).ToArray();
 
             Mock<IScope> scopeMock = new Mock<IScope>();
             scopeMock.Setup(m => m.Name)
@@ -335,20 +336,6 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             authorizationStateBuilderMock.Setup(m => m.Build())
                 .Returns(authorizationState ?? fixture.BuildAuthorizationStateMock(toAuthorizationStateBuilder: authorizationStateBuilderMock.Object).Object);
             return authorizationStateBuilderMock;
-        }
-
-        private static string CreateDomainName(this Fixture fixture)
-        {
-            NullGuard.NotNull(fixture, nameof(fixture));
-
-            return $"{fixture.Create<string>().Replace("/", string.Empty)}.local";
-        }
-
-        private static Uri CreateEndpoint(this Fixture fixture)
-        {
-            NullGuard.NotNull(fixture, nameof(fixture));
-
-            return new Uri($"https://{CreateDomainName(fixture)}/{fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
         }
 
         private static string[] CreateStringArray(this Fixture fixture, Random random)

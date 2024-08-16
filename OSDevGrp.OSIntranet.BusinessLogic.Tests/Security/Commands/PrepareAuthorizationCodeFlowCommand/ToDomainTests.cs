@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -81,7 +82,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertCreateWasCalledOnAuthorizationStateFactoryWithRedirectUriFromPrepareAuthorizationCodeFlowCommand()
         {
-            Uri redirectUri = CreateRedirectUri();
+            Uri redirectUri = _fixture.CreateEndpoint();
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut(redirectUri: redirectUri);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object);
@@ -196,15 +197,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             return new BusinessLogic.Security.Commands.PrepareAuthorizationCodeFlowCommand(
                 responseType ?? _fixture.Create<string>(),
                 clientId ?? _fixture.Create<string>(),
-                redirectUri ?? CreateRedirectUri(),
+                redirectUri ?? _fixture.CreateEndpoint(),
                 scopes ?? CreateScopes(),
                 hasState ? state ?? _fixture.Create<string>() : state,
                 bytes => bytes);
-        }
-
-        private Uri CreateRedirectUri()
-        {
-            return new Uri($"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
         }
 
         private string[] CreateScopes()

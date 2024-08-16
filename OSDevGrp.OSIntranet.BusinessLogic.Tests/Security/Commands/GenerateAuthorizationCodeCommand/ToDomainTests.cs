@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
@@ -379,7 +380,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithRedirectUriFromAuthorizationStateCreatedByAuthorizationStateFactory()
         {
-            Uri redirectUri = new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(redirectUri: redirectUri).Object;
             IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
@@ -396,7 +397,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertShouldBeKnownValueWasCalledTwoTimesOnObjectValidatorWithRedirectUriFromAuthorizationStateCreatedByAuthorizationStateFactory()
         {
-            Uri redirectUri = new Uri($"https://localhost/{_fixture.Create<string>().Replace("/", string.Empty)}", UriKind.Absolute);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(redirectUri: redirectUri).Object;
             IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 

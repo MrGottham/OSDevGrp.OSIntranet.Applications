@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using OSDevGrp.OSIntranet.WebApi.Security;
@@ -241,8 +242,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Models.Security.LoginPageModel
         [Category("UnitTest")]
         public async Task OnPostAsync_WhenExternalLoginProviderModelIsValid_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToSecurityAuthorizeCallback()
         {
-            string domainName = CreateDomainName();
-            Uri requestUrl = CreateRequestUrl(domainName);
+            string domainName = _fixture.CreateDomainName();
+            Uri requestUrl = _fixture.CreateEndpoint(domainName: domainName);
             WebApi.Models.Security.LoginPageModel sut = CreateSut(requestUrl: requestUrl);
 
             ChallengeResult result = (ChallengeResult) await sut.OnPostAsync(CreateExternalLoginProviderModel());
@@ -354,7 +355,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Models.Security.LoginPageModel
 
         private ActionContext CreateActionContext(Uri requestUrl = null)
         {
-            requestUrl ??= CreateRequestUrl();
+            requestUrl ??= _fixture.CreateEndpoint();
 
             HttpContext httpContext = new DefaultHttpContext();
             httpContext.Request.IsHttps = string.CompareOrdinal(requestUrl.Scheme, "https") == 0;
@@ -367,16 +368,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Models.Security.LoginPageModel
             {
                 HttpContext = httpContext
             };
-        }
-
-        private Uri CreateRequestUrl(string domainName = null)
-        {
-            return new Uri($"https://{domainName ?? CreateDomainName()}/{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}", UriKind.Absolute);
-        }
-
-        private string CreateDomainName()
-        {
-            return $"{_fixture.Create<string>().Replace("/", string.Empty).ToLower()}.local";
         }
     }
 }

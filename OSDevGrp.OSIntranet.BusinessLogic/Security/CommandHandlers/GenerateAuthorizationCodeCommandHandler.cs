@@ -1,6 +1,7 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -8,6 +9,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -67,7 +69,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
             IAuthorizationState authorizationState = generateAuthorizationCodeCommand.ToDomain(_authorizationStateFactory, _validator, _securityRepository, _trustedDomainResolver, _supportedScopesProvider);
 
-            string clientSecret = await ResolveClientSecretAsync(authorizationState.ClientId);
+            string clientId = authorizationState.ClientId;
+            string clientSecret = await ResolveClientSecretAsync(clientId);
             if (string.IsNullOrWhiteSpace(clientSecret))
             {
                 return null;
@@ -79,8 +82,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 return null;
             }
 
+            IReadOnlyDictionary<string, string> authorizationData = await ResolveAuthorizationData(clientId, clientSecret, authorizationState.RedirectUri);
+
             IAuthorizationCode authorizationCode = await _authorizationCodeGenerator.GenerateAsync();
-            IKeyValueEntry keyValueEntry = await _authorizationDataConverter.ToKeyValueEntryAsync(authorizationCode, selectedClaims);
+            IKeyValueEntry keyValueEntry = await _authorizationDataConverter.ToKeyValueEntryAsync(authorizationCode, selectedClaims, authorizationData);
             await _commonRepository.PushKeyValueEntryAsync(keyValueEntry);
 
             return PopulateAuthorizationState(authorizationState, clientSecret, authorizationCode);
@@ -106,6 +111,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 .NotNull(claims, nameof(claims));
 
             return Task.FromResult(_claimsSelector.Select(supportedScopes, scopes, claims));
+        }
+
+        private Task<IReadOnlyDictionary<string, string>> ResolveAuthorizationData(string clientId, string clientSecret, Uri redirectUri)
+        {
+            NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId))
+                .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret))
+                .NotNull(redirectUri, nameof(redirectUri));
+
+            IDictionary<string, string> authorizationData = new Dictionary<string, string>
+            {
+                {AuthorizationDataConverter.ClientIdKey, clientId},
+                {AuthorizationDataConverter.ClientSecretKey, clientSecret},
+                {AuthorizationDataConverter.RedirectUriKey, redirectUri.AbsoluteUri}
+            };
+
+            return Task.FromResult<IReadOnlyDictionary<string, string>>(authorizationData.AsReadOnly());
         }
 
         private IAuthorizationState PopulateAuthorizationState(IAuthorizationState authorizationState, string clientSecret, IAuthorizationCode authorizationCode)

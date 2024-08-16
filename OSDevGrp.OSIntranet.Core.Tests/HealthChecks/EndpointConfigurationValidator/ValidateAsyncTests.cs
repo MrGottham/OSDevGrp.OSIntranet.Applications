@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -6,6 +5,8 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.HealthChecks;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValidator
 {
@@ -57,6 +58,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
         }
 
@@ -68,6 +70,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
         }
 
@@ -80,6 +83,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
 
@@ -91,6 +95,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConfiguration));
         }
 
@@ -102,6 +107,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);
         }
 
@@ -132,6 +138,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
         }
 
@@ -147,6 +154,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
         }
 
@@ -163,6 +171,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
 
@@ -178,6 +187,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConfiguration));
         }
 
@@ -193,6 +203,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);
         }
 
@@ -217,6 +228,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
         }
 
@@ -229,6 +241,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
         }
 
@@ -242,6 +255,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
 
@@ -254,6 +268,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.InvalidConfigurationValue));
         }
 
@@ -266,6 +281,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
 
             IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);
         }
 
@@ -273,8 +289,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
         [Category("UnitTest")]
         public async Task ValidateAsync_WhenConfigurationContainsKeyWithEndpointValue_ExpectNoError()
         {
-            string value = $"http://localhost/{_fixture.Create<string>()}";
-            IConfigurationValueValidator sut = CreateSut(value: value);
+            IConfigurationValueValidator sut = CreateSut(value: _fixture.CreateEndpointString());
 
             await sut.ValidateAsync();
         }
@@ -282,9 +297,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.EndpointConfigurationValid
         private IConfigurationValueValidator CreateSut(string key = null, bool hasKey = true, string value = null)
         {
             _configurationMock.Setup(m => m[It.IsAny<string>()])
-                .Returns(hasKey ? value ?? $"http://localhost/{_fixture.Create<string>()}" : null);
+                .Returns(hasKey ? value ?? _fixture.CreateEndpointString() : null);
 
-            return new OSDevGrp.OSIntranet.Core.HealthChecks.EndpointConfigurationValidator(_configurationMock.Object, key ?? _fixture.Create<string>());
+            return new Core.HealthChecks.EndpointConfigurationValidator(_configurationMock.Object, key ?? _fixture.Create<string>());
         }
     }
 }

@@ -35,7 +35,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
         {
             IClaimsSelector sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Select(null, CreateScopes(), CreateClaims()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Select(null, CreateScopes(), _fixture.CreateClaims(_random)));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("supportedScopes"));
@@ -47,7 +47,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
         {
             IClaimsSelector sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Select(CreateSupportedScopes(), null, CreateClaims()));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Select(CreateSupportedScopes(), null, _fixture.CreateClaims(_random)));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("scopes"));
@@ -75,7 +75,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
                 .Select(scope => CreateScopeMock(scope))
                 .ToArray();
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(supportedScopeMocks.Select(supportedScopeMock => supportedScopeMock.Object).ToArray());
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
 
             sut.Select(supportedScopes, Array.Empty<string>(), claims);
 
@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
             IClaimsSelector sut = CreateSut();
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes();
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
 
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, Array.Empty<string>(), claims);
 
@@ -106,7 +106,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
             IClaimsSelector sut = CreateSut();
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes();
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
 
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, Array.Empty<string>(), claims);
 
@@ -174,7 +174,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(openIdScopeMock.Object, profileScopeMock.Object, emailScopeMock.Object, webApiScopeMock.Object);
             IEnumerable<string> scopes = CreateScopes(ScopeHelper.OpenIdScope, ScopeHelper.ProfileScope);
-            Claim[] claims = CreateClaims().ToArray();
+            Claim[] claims = _fixture.CreateClaims(_random);
 
             sut.Select(supportedScopes, scopes, claims);
 
@@ -195,7 +195,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(openIdScopeMock.Object, profileScopeMock.Object, emailScopeMock.Object, webApiScopeMock.Object);
             IEnumerable<string> scopes = CreateScopes(ScopeHelper.OpenIdScope, ScopeHelper.ProfileScope);
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
 
             sut.Select(supportedScopes, scopes, claims);
 
@@ -209,14 +209,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
         {
             IClaimsSelector sut = CreateSut();
 
-            IScope openIdScope = CreateScope(ScopeHelper.OpenIdScope, filteredClaims: CreateClaims());
-            IScope profileScope = CreateScope(ScopeHelper.ProfileScope, filteredClaims: CreateClaims());
-            IScope emailScope = CreateScope(ScopeHelper.EmailScope, filteredClaims: CreateClaims());
-            IScope webApiScope = CreateScope(ScopeHelper.WebApiScope, filteredClaims: CreateClaims());
+            IScope openIdScope = CreateScope(ScopeHelper.OpenIdScope, filteredClaims: _fixture.CreateClaims(_random));
+            IScope profileScope = CreateScope(ScopeHelper.ProfileScope, filteredClaims: _fixture.CreateClaims(_random));
+            IScope emailScope = CreateScope(ScopeHelper.EmailScope, filteredClaims: _fixture.CreateClaims(_random));
+            IScope webApiScope = CreateScope(ScopeHelper.WebApiScope, filteredClaims: _fixture.CreateClaims(_random));
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(openIdScope, profileScope, emailScope, webApiScope);
             IEnumerable<string> scopes = CreateScopes(ScopeHelper.OpenIdScope, ScopeHelper.ProfileScope);
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, scopes, claims);
 
             Assert.That(result, Is.Not.Null);
@@ -228,14 +228,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
         {
             IClaimsSelector sut = CreateSut();
 
-            IScope openIdScope = CreateScope(ScopeHelper.OpenIdScope, filteredClaims: CreateClaims());
-            IScope profileScope = CreateScope(ScopeHelper.ProfileScope, filteredClaims: CreateClaims());
-            IScope emailScope = CreateScope(ScopeHelper.EmailScope, filteredClaims: CreateClaims());
-            IScope webApiScope = CreateScope(ScopeHelper.WebApiScope, filteredClaims: CreateClaims());
+            IScope openIdScope = CreateScope(ScopeHelper.OpenIdScope, filteredClaims: _fixture.CreateClaims(_random));
+            IScope profileScope = CreateScope(ScopeHelper.ProfileScope, filteredClaims: _fixture.CreateClaims(_random));
+            IScope emailScope = CreateScope(ScopeHelper.EmailScope, filteredClaims: _fixture.CreateClaims(_random));
+            IScope webApiScope = CreateScope(ScopeHelper.WebApiScope, filteredClaims: _fixture.CreateClaims(_random));
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(openIdScope, profileScope, emailScope, webApiScope);
             IEnumerable<string> scopes = CreateScopes(ScopeHelper.OpenIdScope, ScopeHelper.ProfileScope);
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, scopes, claims);
 
             Assert.That(result, Is.Not.Empty);
@@ -247,10 +247,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
         {
             IClaimsSelector sut = CreateSut();
 
-            Claim[] openIdClaims = CreateClaims().ToArray();
-            Claim[] profileClaims = CreateClaims().ToArray();
-            Claim[] emailClaims = CreateClaims().ToArray();
-            Claim[] webApiClaims = CreateClaims().ToArray();
+            Claim[] openIdClaims = _fixture.CreateClaims(_random);
+            Claim[] profileClaims = _fixture.CreateClaims(_random);
+            Claim[] emailClaims = _fixture.CreateClaims(_random);
+            Claim[] webApiClaims = _fixture.CreateClaims(_random);
 
             IScope openIdScope = CreateScope(ScopeHelper.OpenIdScope, filteredClaims: openIdClaims);
             IScope profileScope = CreateScope(ScopeHelper.ProfileScope, filteredClaims: profileClaims);
@@ -259,7 +259,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(openIdScope, profileScope, emailScope, webApiScope);
             IEnumerable<string> scopes = CreateScopes(ScopeHelper.OpenIdScope, ScopeHelper.ProfileScope);
-            IEnumerable<Claim> claims = CreateClaims();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, scopes, claims);
 
             Assert.That(openIdClaims.All(claim => result.Contains(claim)), Is.True);
@@ -278,7 +278,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes();
             IEnumerable<string> scopes = CreateScopes();
-            IEnumerable<Claim> claims = CreateClaims(protectedClaimType, _fixture.Create<string>(), _fixture.Create<string>());
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(protectedClaimType));
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, scopes, claims);
 
             Assert.That(result, Is.Not.Null);
@@ -294,7 +294,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes();
             IEnumerable<string> scopes = CreateScopes();
-            IEnumerable<Claim> claims = CreateClaims(protectedClaimType, _fixture.Create<string>(), _fixture.Create<string>());
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(protectedClaimType));
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, scopes, claims);
 
             Assert.That(result, Is.Not.Empty);
@@ -310,7 +310,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
 
             IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes();
             IEnumerable<string> scopes = CreateScopes();
-            IEnumerable<Claim> claims = CreateClaims(protectedClaimType, _fixture.Create<string>(), _fixture.Create<string>());
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(protectedClaimType));
             IReadOnlyCollection<Claim> result = sut.Select(supportedScopes, scopes, claims);
 
             Assert.That(result.Any(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && claim.Type == protectedClaimType), Is.True);
@@ -349,16 +349,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimsSelector
             }
 
             return scopes;
-        }
-
-        private IEnumerable<Claim> CreateClaims(params string[] claimTypes)
-        {
-            if (claimTypes == null || claimTypes.Length == 0)
-            {
-                claimTypes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
-            }
-
-            return claimTypes.Select(claimType => new Claim(claimType, string.Empty)).ToArray();
         }
     }
 }

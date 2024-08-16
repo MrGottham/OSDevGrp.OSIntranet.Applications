@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Queries;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetClaimCollectionQueryHandler;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetClaimCollectionQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClaimCollectionQueryHandler
 {
@@ -28,8 +28,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClai
             _securityRepositoryMock = new Mock<ISecurityRepository>();
 
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -41,6 +39,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClai
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("query"));
         }
 
@@ -59,7 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClai
         [Category("UnitTest")]
         public async Task QueryAsync_WhenCalled_ReturnsClaimsFromSecurityRepository()
         {
-            IEnumerable<Claim> claimCollection = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IEnumerable<Claim> claimCollection = _fixture.CreateClaims(_random);
             QueryHandler sut = CreateSut(claimCollection);
 
             IEnumerable<Claim> result = await sut.QueryAsync(new EmptyQuery());
@@ -70,7 +69,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetClai
         private QueryHandler CreateSut(IEnumerable<Claim> claimCollection = null)
         {
             _securityRepositoryMock.Setup(m => m.GetClaimsAsync())
-                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList()));
+                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateClaims(_random)));
 
             return new QueryHandler(_securityRepositoryMock.Object);
         }

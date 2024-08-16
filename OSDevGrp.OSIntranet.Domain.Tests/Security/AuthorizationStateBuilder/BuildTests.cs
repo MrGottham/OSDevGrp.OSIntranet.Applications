@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -173,7 +174,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateBuilder
         [Category("UnitTest")]
         public void Build_WhenCalled_ReturnsAuthorizationStateWhereRedirectUriIsEqualToRedirectUriFromConstructor()
         {
-            Uri redirectUri = CreateRedirectUri(_fixture);
+            Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationStateBuilder sut = CreateSut(redirectUri: redirectUri);
 
             IAuthorizationState result = sut.Build();

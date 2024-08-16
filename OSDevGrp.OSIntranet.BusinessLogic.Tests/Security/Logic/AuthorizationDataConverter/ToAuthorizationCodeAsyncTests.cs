@@ -45,7 +45,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToAuthorizationCodeAsync(null, out IEnumerable<Claim> _));
+            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToAuthorizationCodeAsync(null, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _));
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("keyValueEntry"));
@@ -60,7 +60,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             string value = _fixture.Create<string>();
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(value: value).Object;
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut, authorizationCode: authorizationCode);
-            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> _);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _);
 
             _authorizationCodeFactoryMock.Verify(m => m.Create(
                     It.Is<string>(val => string.IsNullOrWhiteSpace(val) == false && string.CompareOrdinal(val, value) == 0), 
@@ -77,7 +77,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             DateTimeOffset expires = DateTimeOffset.UtcNow.AddSeconds(_random.Next(60, 600));
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expires: expires).Object;
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut, authorizationCode: authorizationCode);
-            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> _);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _);
 
             _authorizationCodeFactoryMock.Verify(m => m.Create(
                     It.IsAny<string>(),
@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
-            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> _);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _);
 
             _authorizationCodeBuilderMock.Verify(m => m.Build(), Times.Once);
         }
@@ -104,7 +104,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
-            IAuthorizationCode result = await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> _);
+            IAuthorizationCode result = await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _);
 
             Assert.That(result, Is.Not.Null);
         }
@@ -117,7 +117,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut(authorizationCode: authorizationCode);
 
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
-            IAuthorizationCode result = await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> _);
+            IAuthorizationCode result = await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _);
 
             Assert.That(result, Is.EqualTo(authorizationCode));
         }
@@ -129,7 +129,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
-            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> claims);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> claims, out IReadOnlyDictionary<string, string> _);
 
             Assert.That(claims, Is.Not.Null);
         }
@@ -141,7 +141,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             IAuthorizationDataConverter sut = CreateSut();
 
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
-            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> claims);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> claims, out IReadOnlyDictionary<string, string> _);
 
             Assert.That(claims, Is.Not.Empty);
         }
@@ -152,11 +152,48 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            Claim[] claimsCollection = CreateClaims().ToArray();
+            Claim[] claimsCollection = Fixture.CreateClaims(Random);
             IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut, claims: claimsCollection);
-            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IEnumerable<Claim> claims);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> claims, out IReadOnlyDictionary<string, string> _);
 
             Assert.That(claimsCollection.All(claim => claims.Any(c => c.Type == claim.Type && c.Value == claim.Value && c.ValueType == claim.ValueType && c.Issuer == claim.Issuer)), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ToAuthorizationCodeAsync_WhenCalled_ReturnsAuthorizationDataDictionaryNotEqualToNullInOutValue()
+        {
+            IAuthorizationDataConverter sut = CreateSut();
+
+            IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> authorizationData);
+
+            Assert.That(authorizationData, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ToAuthorizationCodeAsync_WhenCalled_ReturnsNonEmptyAuthorizationDataDictionaryInOutValue()
+        {
+            IAuthorizationDataConverter sut = CreateSut();
+
+            IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> authorizationData);
+
+            Assert.That(authorizationData, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ToAuthorizationCodeAsync_WhenCalled_ReturnsNonEmptyAuthorizationDataDictionaryMatchingAuthorizationDataDictionaryFromKeyValueEntryInOutValue()
+        {
+            IAuthorizationDataConverter sut = CreateSut();
+
+            IReadOnlyDictionary<string, string> authorizationDataDictionary = CreateAuthorizationData();
+            IKeyValueEntry keyValueEntry = await CreateKeyValueEntryAsync(sut, authorizationData: authorizationDataDictionary);
+            await sut.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> authorizationData);
+
+            Assert.That(authorizationDataDictionary.All(data => authorizationData.Any(d => string.IsNullOrWhiteSpace(d.Key) == false && string.CompareOrdinal(d.Key, data.Key) == 0 && string.IsNullOrWhiteSpace(d.Value) == false && string.CompareOrdinal(d.Value, data.Value) == 0)), Is.True);
         }
 
         private IAuthorizationDataConverter CreateSut(IAuthorizationCode authorizationCode = null)
@@ -170,11 +207,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
             return new BusinessLogic.Security.Logic.AuthorizationDataConverter(_authorizationCodeFactoryMock.Object);
         }
 
-        protected Task<IKeyValueEntry> CreateKeyValueEntryAsync(IAuthorizationDataConverter authorizationDataConverter, IAuthorizationCode authorizationCode = null, IEnumerable<Claim> claims = null)
+        protected Task<IKeyValueEntry> CreateKeyValueEntryAsync(IAuthorizationDataConverter authorizationDataConverter, IAuthorizationCode authorizationCode = null, IReadOnlyCollection<Claim> claims = null, IReadOnlyDictionary<string, string> authorizationData = null)
         {
             NullGuard.NotNull(authorizationDataConverter, nameof(authorizationDataConverter));
 
-            return authorizationDataConverter.ToKeyValueEntryAsync(authorizationCode ?? Fixture.BuildAuthorizationCodeMock().Object, claims ?? CreateClaims());
+            return authorizationDataConverter.ToKeyValueEntryAsync(authorizationCode ?? Fixture.BuildAuthorizationCodeMock().Object, claims ?? Fixture.CreateClaims(Random), authorizationData ?? CreateAuthorizationData());
         }
     }
 }
