@@ -38,6 +38,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Queries
             return new GetOpenIdProviderConfigurationQuery(authorizationEndpoint, tokenEndpoint, jsonWebKeySetEndpoint, userInfoEndpoint, registrationEndpoint, serviceDocumentationEndpoint, registrationPolicyEndpoint, registrationTermsOfServiceEndpoint);
         }
 
-		#endregion
+        public static IGetUserInfoAsTokenQuery BuildGetUserInfoAsTokenQuery()
+        {
+            return new GetUserInfoAsTokenQuery();
+        }
+
+        #endregion
     }
 }
