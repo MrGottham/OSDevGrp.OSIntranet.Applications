@@ -29,7 +29,8 @@ namespace OSDevGrp.OSIntranet.Domain
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
             return serviceCollection.AddTransient<IAuthorizationStateFactory, AuthorizationStateFactory>()
-                .AddTransient<IAuthorizationCodeFactory, AuthorizationCodeFactory>();
+                .AddTransient<IAuthorizationCodeFactory, AuthorizationCodeFactory>()
+                .AddTransient<IUserInfoFactory, UserInfoFactory>();
         }
     }
 }

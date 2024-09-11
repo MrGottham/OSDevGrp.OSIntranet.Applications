@@ -29,6 +29,7 @@ using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -145,10 +146,11 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy(Policies.UserInfoPolity, policy =>
+                opt.AddPolicy(Policies.UserInfoPolicy, policy =>
                 {
                     policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimTypes.NameIdentifier);
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {

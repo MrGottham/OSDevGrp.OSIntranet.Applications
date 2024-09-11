@@ -269,7 +269,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             }
         }
 
-        [Authorize(Policy = Policies.UserInfoPolity)]
+        [Authorize(Policy = Policies.UserInfoPolicy)]
         [HttpGet("/api/oauth/userinfo")]
         public Task<IActionResult> UserInfo()
         {

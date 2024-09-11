@@ -338,6 +338,82 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return authorizationStateBuilderMock;
         }
 
+        public static Mock<IUserInfo> BuildUserInfoMock(this Fixture fixture, string subject = null, string fullName = null, string givenName = null, string surname = null, string middleName = null, string nickName = null, string preferredUsername = null, Uri profile = null, Uri picture = null, Uri webpage = null, string email = null, bool? emailVerified = null, string gender = null, DateTimeOffset? birthdate = null, string timeZone = null, string locale = null, string phoneNumber = null, bool? phoneNumberVerified = null, IUserAddress userAddress = null, DateTimeOffset? updatedAt = null, string toJson = null, IEnumerable<Claim> toClaims = null)
+        {
+            Random random = new Random(fixture.Create<int>());
+
+            Mock<IUserInfo> userInfoMock = new Mock<IUserInfo>();
+            userInfoMock.Setup(m => m.Subject)
+                .Returns(subject ?? fixture.Create<string>());
+            userInfoMock.Setup(m => m.FullName)
+                .Returns(fullName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.GivenName)
+                .Returns(givenName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.Surname)
+                .Returns(surname ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.MiddleName)
+                .Returns(middleName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.NickName)
+                .Returns(nickName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.PreferredUsername)
+                .Returns(preferredUsername ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.Profile)
+                .Returns(profile ?? (random.Next(100) > 50 ? fixture.CreateEndpoint() : null));
+            userInfoMock.Setup(m => m.Picture)
+                .Returns(picture ?? (random.Next(100) > 50 ? fixture.CreateEndpoint() : null));
+            userInfoMock.Setup(m => m.Webpage)
+                .Returns(webpage ?? (random.Next(100) > 50 ? fixture.CreateEndpoint() : null));
+            userInfoMock.Setup(m => m.Email)
+                .Returns(email ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.EmailVerified)
+                .Returns(emailVerified ?? (random.Next(100) > 50 ? fixture.Create<bool>() : null));
+            userInfoMock.Setup(m => m.Gender)
+                .Returns(gender ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.Birthdate)
+                .Returns(birthdate ?? (random.Next(100) > 50 ? DateTimeOffset.UtcNow.AddYears(random.Next(25, 50) * -1).AddDays(random.Next(0, 365) * -1) : null));
+            userInfoMock.Setup(m => m.TimeZone)
+                .Returns(timeZone ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.Locale)
+                .Returns(locale ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.PhoneNumber)
+                .Returns(phoneNumber ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.PhoneNumberVerified)
+                .Returns(phoneNumberVerified ?? (random.Next(100) > 50 ? fixture.Create<bool>() : null));
+            userInfoMock.Setup(m => m.Address)
+                .Returns(userAddress ?? (random.Next(100) > 50 ? fixture.BuildUserAddressMock().Object : null));
+            userInfoMock.Setup(m => m.UpdatedAt)
+                .Returns(updatedAt ?? (random.Next(100) > 50 ? DateTimeOffset.UtcNow.AddDays(random.Next(0, 365) * -1) : null));
+            userInfoMock.Setup(m => m.ToJson())
+                .Returns(toJson ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userInfoMock.Setup(m => m.ToClaims())
+                .Returns(toClaims ?? fixture.CreateClaims(random));
+            return userInfoMock;
+        }
+
+        public static Mock<IUserAddress> BuildUserAddressMock(this Fixture fixture, string mailingAddress = null, string streetAddress = null, string city = null, string region = null, string postalCode = null, string country = null, bool? isEmpty = null, string toJson = null)
+        {
+            Random random = new Random(fixture.Create<int>());
+
+            Mock<IUserAddress> userAddressMock = new Mock<IUserAddress>();
+            userAddressMock.Setup(m => m.MailingAddress)
+                .Returns(mailingAddress ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userAddressMock.Setup(m => m.StreetAddress)
+                .Returns(streetAddress ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userAddressMock.Setup(m => m.City)
+                .Returns(city ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userAddressMock.Setup(m => m.Region)
+                .Returns(region ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userAddressMock.Setup(m => m.PostalCode)
+                .Returns(postalCode ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userAddressMock.Setup(m => m.Country)
+                .Returns(country ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            userAddressMock.Setup(m => m.IsEmpty())
+                .Returns(isEmpty ?? fixture.Create<bool>());
+            userAddressMock.Setup(m => m.ToJson())
+                .Returns(toJson ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+            return userAddressMock;
+        }
+
         private static string[] CreateStringArray(this Fixture fixture, Random random)
         {
             NullGuard.NotNull(fixture, nameof(fixture))
