@@ -25,6 +25,9 @@ services:
 
   reverseproxy:
     image: reverseproxy-osintranet
+    depends_on:
+      - mvc
+      - webapi
     build:
       context: .
       dockerfile: Nginx.Dockerfile
@@ -57,7 +60,6 @@ services:
       - ExternalData__Dashboard__EndpointAddress=[TBD]
     depends_on:
       - executor
-      - reverseproxy
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
@@ -81,6 +83,11 @@ services:
       - NON_ROOT_USER=[TBD]
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=[TBD]
+      - Security__Microsoft__ClientId=[TBD]
+      - Security__Microsoft__ClientSecret=[TBD]
+      - Security__Google__ClientId=[TBD]
+      - Security__Google__ClientSecret=[TBD]
+      - Security__TrustedDomainCollection=[TBD]
       - Security__JWT__Key__kty=[TBD]
       - Security__JWT__Key__n=[TBD]
       - Security__JWT__Key__e=[TBD]
@@ -96,7 +103,6 @@ services:
       - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
     depends_on:
       - executor
-      - reverseproxy
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile

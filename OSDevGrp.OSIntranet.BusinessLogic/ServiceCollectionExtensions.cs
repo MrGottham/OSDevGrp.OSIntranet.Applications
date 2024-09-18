@@ -46,15 +46,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
             return serviceCollection.AddTransient<IExternalTokenCreator, ExternalTokenCreator>()
-	            .AddTransient<IExternalTokenClaimCreator, ExternalTokenClaimCreator>()
-	            .AddTransient<ITokenGenerator, TokenGenerator>()
+                .AddTransient<IExternalTokenClaimCreator, ExternalTokenClaimCreator>()
+                .AddTransient<ITokenGenerator, TokenGenerator>()
                 .AddTransient<IClaimResolver, ClaimResolver>()
-	            .AddTransient<IClaimsIdentityResolver, ClaimsIdentityResolver>()
+                .AddTransient<IClaimsIdentityResolver, ClaimsIdentityResolver>()
                 .AddTransient<IContactToCsvConverter, ContactToCsvConverter>()
                 .AddTransient<ICountryHelper, CountryHelper>()
                 .AddTransient<IAccountingHelper, AccountingHelper>()
                 .AddScoped<IStatusDateProvider, StatusDateProvider>()
-                .AddScoped(serviceProvider => (IStatusDateSetter)serviceProvider.GetRequiredService<IStatusDateProvider>())
+                .AddScoped(serviceProvider => (IStatusDateSetter) serviceProvider.GetRequiredService<IStatusDateProvider>())
                 .AddTransient<IAccountToCsvConverter, AccountToCsvConverter>()
                 .AddTransient<IBudgetAccountToCsvConverter, BudgetAccountToCsvConverter>()
                 .AddTransient<IContactAccountToCsvConverter, ContactAccountToCsvConverter>()
@@ -65,7 +65,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddTransient<IBalanceSheetToMarkdownConverter, BalanceSheetToMarkdownConverter>()
                 .AddTransient<IContactAccountStatementToMarkdownConverter, ContactAccountStatementToMarkdownConverter>()
                 .AddTransient<IHashKeyGenerator, HashKeyGenerator>()
-                .AddTransient<IKeyGenerator, KeyGenerator>();
+                .AddTransient<IKeyGenerator, KeyGenerator>()
+                .AddSingleton<IOpenIdProviderConfigurationStaticValuesProvider, OpenIdProviderConfigurationStaticValuesProvider>()
+                .AddSingleton<ISupportedScopesProvider, SupportedScopesProvider>()
+                .AddTransient<IClaimsSelector, ClaimsSelector>()
+                .AddTransient<IAuthorizationCodeGenerator, AuthorizationCodeGenerator>()
+                .AddTransient<IAuthorizationDataConverter, AuthorizationDataConverter>();
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ToDomainAsyncTests
 	{
 		#region Private variables
@@ -667,8 +668,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookData
 		}
 
 		private string CreateValidUrl()
-		{
-			return $"https://localhost/api/book/{_fixture.Create<string>()}";
+        {
+            return _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
 		}
 
 		private class MyBookDataCommand : BusinessLogic.MediaLibrary.Commands.BookDataCommandBase

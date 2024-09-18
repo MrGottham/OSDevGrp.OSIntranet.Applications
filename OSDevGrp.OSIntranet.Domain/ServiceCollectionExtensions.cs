@@ -2,6 +2,8 @@
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 
 namespace OSDevGrp.OSIntranet.Domain
 {
@@ -11,7 +13,8 @@ namespace OSDevGrp.OSIntranet.Domain
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
-            return AddAccountingLogic(serviceCollection);
+            return AddAccountingLogic(serviceCollection)
+                .AddSecurityLogic();
         }
 
         private static IServiceCollection AddAccountingLogic(this IServiceCollection serviceCollection)
@@ -19,6 +22,15 @@ namespace OSDevGrp.OSIntranet.Domain
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
 
             return serviceCollection.AddTransient<IPostingWarningCalculator, PostingWarningCalculator>();
+        }
+
+        private static IServiceCollection AddSecurityLogic(this IServiceCollection serviceCollection)
+        {
+            NullGuard.NotNull(serviceCollection, nameof(serviceCollection));
+
+            return serviceCollection.AddTransient<IAuthorizationStateFactory, AuthorizationStateFactory>()
+                .AddTransient<IAuthorizationCodeFactory, AuthorizationCodeFactory>()
+                .AddTransient<IUserInfoFactory, UserInfoFactory>();
         }
     }
 }

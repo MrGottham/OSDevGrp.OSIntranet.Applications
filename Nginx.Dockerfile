@@ -9,6 +9,8 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -o
 RUN openssl pkcs12 -export -out localhost.pfx -inkey localhost.key -in localhost.crt -password pass:${certificatePassword}
 
 FROM nginx:latest AS webserver
-COPY Nginx/nginx.conf /etc/nginx/nginx.conf
+COPY Nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=certificatebuilder /certificate/localhost.crt /etc/ssl/certs/localhost.crt
 COPY --from=certificatebuilder /certificate/localhost.key /etc/ssl/private/localhost.key
+
+EXPOSE 80 443 8443

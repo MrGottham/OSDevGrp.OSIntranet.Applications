@@ -10,6 +10,9 @@ ARG nonRootUser=[TBD]
 RUN chmod g+rwx /app && chgrp ${appUserGroup} /app
 
 ENV connectionStrings__OSIntranet=[TBD]
+ENV Security__Microsoft__ClientId=[TBD] Security__Microsoft__ClientSecret=[TBD]
+ENV Security__Google__ClientId=[TBD] Security__Google__ClientSecret=[TBD]
+ENV Security__TrustedDomainCollection=[TBD]
 ENV Security__JWT__Key__kty=[TBD]
 ENV Security__JWT__Key__n=[TBD]
 ENV Security__JWT__Key__e=[TBD]

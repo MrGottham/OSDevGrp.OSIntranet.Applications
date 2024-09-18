@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -12,11 +8,16 @@ using Microsoft.AspNetCore.Routing;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Attributes;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.Filters.AcquireTokenActionFilter
 {
@@ -45,6 +46,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.Filters.AcquireTokenAct
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.OnActionExecuting(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("context"));
         }
 
@@ -190,16 +192,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.Filters.AcquireTokenAct
         {
             IActionFilter sut = CreateSut(hasRefreshableToken: false);
 
-            string pathBase = $"/{_fixture.Create<string>()}";
-            string path = $"/{_fixture.Create<string>()}";
-            HttpContext httpContext = CreateHttpContext(pathBase, path);
+            Uri endpoint = _fixture.CreateEndpoint();
+            HttpContext httpContext = CreateHttpContext(endpoint);
             ActionExecutingContext context = CreateActionExecutingContext(httpContext: httpContext);
             sut.OnActionExecuting(context);
 
             _tokenHelperFactoryMock.Verify(m => m.AuthorizeAsync(
                     It.Is<TokenType>(value => value == TokenType.MicrosoftGraphToken),
                     It.Is<HttpContext>(value => value == httpContext),
-                    It.Is<string>(value => string.CompareOrdinal(value, $"http://localhost{pathBase}{path}") == 0)),
+                    It.Is<string>(value => string.CompareOrdinal(value, endpoint.AbsoluteUri) == 0)),
                 Times.Once());
         }
 
@@ -236,16 +237,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.Filters.AcquireTokenAct
             IRefreshableToken refreshableToken = _fixture.BuildRefreshableTokenMock(hasExpired: true).Object;
             IActionFilter sut = CreateSut(refreshableToken: refreshableToken);
 
-            string pathBase = $"/{_fixture.Create<string>()}";
-            string path = $"/{_fixture.Create<string>()}";
-            HttpContext httpContext = CreateHttpContext(pathBase, path);
+            Uri endpoint = _fixture.CreateEndpoint();
+            HttpContext httpContext = CreateHttpContext(endpoint);
             ActionExecutingContext context = CreateActionExecutingContext(httpContext: httpContext);
             sut.OnActionExecuting(context);
 
             _tokenHelperFactoryMock.Verify(m => m.RefreshTokenAsync(
                     It.Is<TokenType>(value => value == TokenType.MicrosoftGraphToken),
                     It.Is<HttpContext>(value => value == httpContext),
-                    It.Is<string>(value => string.CompareOrdinal(value, $"http://localhost{pathBase}{path}") == 0)),
+                    It.Is<string>(value => string.CompareOrdinal(value, endpoint.AbsoluteUri) == 0)),
                 Times.Once());
         }
 
@@ -364,13 +364,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.Filters.AcquireTokenAct
             return (MethodInfo) MethodBase.GetCurrentMethod();
         }
 
-        private HttpContext CreateHttpContext(string pathBase = null, string path = null)
+        private HttpContext CreateHttpContext(Uri endpoint = null)
         {
+            endpoint ??= _fixture.CreateEndpoint();
+
             DefaultHttpContext defaultHttpContext = new DefaultHttpContext();
-            defaultHttpContext.Request.Scheme = "http";
-            defaultHttpContext.Request.Host = new HostString("localhost");
-            defaultHttpContext.Request.PathBase = new PathString(pathBase ?? $"/{_fixture.Create<string>()}");
-            defaultHttpContext.Request.Path = new PathString(path ?? $"/{_fixture.Create<string>()}");
+            defaultHttpContext.Request.Scheme = endpoint.Scheme;
+            defaultHttpContext.Request.Host = new HostString(endpoint.Host);
+            defaultHttpContext.Request.Path = new PathString(endpoint.AbsolutePath);
             return defaultHttpContext;
         }
     }

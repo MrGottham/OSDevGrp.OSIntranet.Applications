@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary.Enums;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
@@ -8,7 +9,7 @@ using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.MediaPersonality
 {
-	[TestFixture]
+    [TestFixture]
 	public class ToStringTests
 	{
 		#region Private variables
@@ -109,7 +110,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.MediaLibrary.MediaPersonality
 
 		private IMediaPersonality CreateSut(bool hasGivenName = true, string givenName = null, bool hasMiddleName = true, string middleName = null, string surname = null)
 		{
-			return new Domain.MediaLibrary.MediaPersonality(Guid.NewGuid(), hasGivenName ? givenName ?? _fixture.Create<string>() : null, hasMiddleName ? middleName ?? _fixture.Create<string>() : null, surname ?? _fixture.Create<string>(), _fixture.BuildNationalityMock().Object, _fixture.CreateMany<MediaRole>(1).ToArray(), _random.Next(100) > 50 ? _fixture.Create<DateTime>() : null, _random.Next(100) > 50 ? _fixture.Create<DateTime>() : null, _random.Next(100) > 50 ? new Uri($"https://localhost/api/mediapersonalities/{Guid.NewGuid():D}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : null);
+			return new Domain.MediaLibrary.MediaPersonality(Guid.NewGuid(), hasGivenName ? givenName ?? _fixture.Create<string>() : null, hasMiddleName ? middleName ?? _fixture.Create<string>() : null, surname ?? _fixture.Create<string>(), _fixture.BuildNationalityMock().Object, _fixture.CreateMany<MediaRole>(1).ToArray(), _random.Next(100) > 50 ? _fixture.Create<DateTime>() : null, _random.Next(100) > 50 ? _fixture.Create<DateTime>() : null, _random.Next(100) > 50 ? _fixture.CreateEndpoint(path: $"api/mediapersonalities/{Guid.NewGuid():D}") : null, _random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : null);
 		}
 	}
 }

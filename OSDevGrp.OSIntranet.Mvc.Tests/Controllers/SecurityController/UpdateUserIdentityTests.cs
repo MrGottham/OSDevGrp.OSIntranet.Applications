@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,7 +11,12 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 {
@@ -37,10 +37,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         {
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
-
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -80,7 +77,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task UpdateUserIdentity_WhenCalledWithoutModelAndIdentifierIsUnknown_ReturnsRedirectToActionResultWhereContollerNameIsEqualToSecurity()
+        public async Task UpdateUserIdentity_WhenCalledWithoutModelAndIdentifierIsUnknown_ReturnsRedirectToActionResultWhereControllerNameIsEqualToSecurity()
         {
             Controller sut = CreateSut(hasUserIdentity: false);
 
@@ -107,7 +104,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             Mock<IUserIdentity> userIdentityMock = _fixture.BuildUserIdentityMock();
             Controller sut = CreateSut(userIdentity: userIdentityMock.Object);
 
-            IActionResult result = await sut.UpdateUserIdentity(_fixture.Create<int>());
+            await sut.UpdateUserIdentity(_fixture.Create<int>());
 
             userIdentityMock.Verify(m => m.ToClaimsIdentity(), Times.Once);
         }
@@ -138,8 +135,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task UpdateUserIdentity_WhenCalledWithoutModelAndIdentifierIsKnown_ReturnsViewResultWhereModelIsUserIdentityViewModel()
         {
-            IList<Claim> claimCollection = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
-            IList<Claim> userIdentityClaimCollection = claimCollection.Take(2).ToList();
+            IList<Claim> claimCollection = _fixture.CreateClaims(_random);
+            IList<Claim> userIdentityClaimCollection = claimCollection.Take(Math.Min(claimCollection.Count, 2)).ToList();
             IUserIdentity userIdentity = _fixture.BuildUserIdentityMock(claims: userIdentityClaimCollection).Object;
             Controller sut = CreateSut(claimCollection, userIdentity: userIdentity);
 
@@ -156,7 +153,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             
             Assert.That(userIdentityViewModel.Claims, Is.Not.Null);
             Assert.That(userIdentityViewModel.Claims, Is.Not.Empty);
-            Assert.That(userIdentityViewModel.Claims.Count(), Is.EqualTo(claimCollection.Count));
+            Assert.That(userIdentityViewModel.Claims.Count, Is.EqualTo(claimCollection.Count));
             foreach (Claim claim in claimCollection)
             {
                 Assert.That(userIdentityViewModel.Claims.SingleOrDefault(m => string.CompareOrdinal(m.ClaimType, claim.Type) == 0), Is.Not.Null);
@@ -164,7 +161,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             Assert.That(userIdentityViewModel.Claims.Count(m => m.IsSelected), Is.EqualTo(userIdentityClaimCollection.Count));
             foreach (Claim claim in userIdentityClaimCollection)
             {
-                Assert.That(userIdentityViewModel.Claims.SingleOrDefault(m => m.IsSelected && string.CompareOrdinal(m.ClaimType, claim.Type) == 0 && string.Compare(m.ActualValue, claim.Value) == 0), Is.Not.Null);
+                Assert.That(userIdentityViewModel.Claims.SingleOrDefault(m => m.IsSelected && string.CompareOrdinal(m.ClaimType, claim.Type) == 0 && string.CompareOrdinal(m.ActualValue, claim.Value) == 0), Is.Not.Null);
             }
         }
 
@@ -176,6 +173,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateUserIdentity(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("userIdentityViewModel"));
         }
 
@@ -257,7 +255,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task UpdateUserIdentity_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereContollerNameIsEqualToSecurity()
+        public async Task UpdateUserIdentity_WhenCalledWithValidModel_ReturnsRedirectToActionResultWhereControllerNameIsEqualToSecurity()
         {
             Controller sut = CreateSut();
 
@@ -282,7 +280,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
         private Controller CreateSut(IEnumerable<Claim> claimCollection = null, bool hasUserIdentity = true, IUserIdentity userIdentity = null, bool modelIsValid = true)
         {
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<Claim>>(It.IsAny<EmptyQuery>()))
-                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList()));
+                .Returns(Task.Run(() => claimCollection ?? _fixture.CreateClaims(_random)));
             _queryBusMock.Setup(m => m.QueryAsync<IGetUserIdentityQuery, IUserIdentity>(It.IsAny<IGetUserIdentityQuery>()))
                 .Returns(Task.Run(() => hasUserIdentity ? userIdentity ?? _fixture.BuildUserIdentityMock().Object : null));
 

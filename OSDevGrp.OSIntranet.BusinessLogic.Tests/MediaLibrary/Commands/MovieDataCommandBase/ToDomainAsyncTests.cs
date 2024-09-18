@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ToDomainAsyncTests
 	{
 		#region Private variables
@@ -728,7 +729,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MovieDat
 
 		private string CreateValidUrl()
 		{
-			return $"https://localhost/api/movie/{_fixture.Create<string>()}";
+			return _fixture.CreateEndpointString(path: $"api/movie/{_fixture.Create<string>()}");
 		}
 
 		private class MyMovieDataCommand : BusinessLogic.MediaLibrary.Commands.MovieDataCommandBase

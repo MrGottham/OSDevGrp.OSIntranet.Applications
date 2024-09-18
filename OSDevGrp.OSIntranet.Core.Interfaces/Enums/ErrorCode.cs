@@ -115,8 +115,8 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         [ErrorCode("Cannot retrieve the ACME challenge for token.", typeof(IntranetBusinessException))]
         CannotRetrieveAcmeChallengeForToken = 1037,
 
-        [ErrorCode("Cannot retrieve a JWT token for the authenticated user.", typeof(IntranetBusinessException))]
-        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1038,
+        [ErrorCode("Cannot retrieve a JWT token for the authenticated client.", typeof(IntranetBusinessException))]
+        CannotRetrieveJwtBearerTokenForAuthenticatedClient = 1038,
 
         [ErrorCode("The value for the submitted field '{0}' should contain some items.", typeof(IntranetValidationException))]
         ValueShouldContainSomeItems = 1039,
@@ -156,8 +156,20 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
 
         [ErrorCode("The date value for the submitted field '{0}' should be a date earlier than or equal to {1}.", typeof(IntranetValidationException))]
 		ValueShouldBeEarlierThanOrEqualToOffsetDate = 1051,
-        
-		[ErrorCode("Value has not been set by the method named '{0}' on an instance of '{1}'.", typeof(IntranetSystemException))]
-		ValueNotSetByNamedMethod = 1052
+
+        [ErrorCode("Value has not been set by the method named '{0}' on an instance of '{1}'.", typeof(IntranetSystemException))]
+		ValueNotSetByNamedMethod = 1052,
+
+        [ErrorCode("Unable to authorize user.", typeof(IntranetBusinessException))]
+        UnableToAuthorizeUser = 1053,
+
+        [ErrorCode("Unable to generate the redirect uri.", typeof(IntranetSystemException))]
+        UnableToGenerateRedirectUri = 1054,
+
+        [ErrorCode("Unable authenticate the client.", typeof(IntranetBusinessException))]
+        UnableAuthenticateClient = 1055,
+
+        [ErrorCode("Cannot retrieve a JWT token for the authenticated user.", typeof(IntranetBusinessException))]
+        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1056
     }
 }

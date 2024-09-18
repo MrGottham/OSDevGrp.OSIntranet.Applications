@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
 {
-	internal class ValidatorMockContext
+    internal class ValidatorMockContext
     {
         #region Constructor
 
@@ -163,9 +163,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             Mock<IObjectValidator> objectValidatorMock = new Mock<IObjectValidator>();
             SetupGenericObjectValidatorMock<int>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<string>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<string[]>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<decimal?>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<object>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<Guid>(validatorMock, objectValidatorMock);
+            SetupGenericObjectValidatorMock<Uri>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<BalanceBelowZeroType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<AccountGroupType>(validatorMock, objectValidatorMock);
             SetupGenericObjectValidatorMock<IEnumerable<Claim>>(validatorMock, objectValidatorMock);
@@ -231,6 +233,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation
             SetupGenericEnumerableValidatorMock<byte>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<string>(validatorMock, enumerableValidatorMock);
             SetupGenericEnumerableValidatorMock<IApplyPostingLineCommand>(validatorMock, enumerableValidatorMock);
+            SetupGenericEnumerableValidatorMock<Claim>(validatorMock, enumerableValidatorMock);
             return enumerableValidatorMock;
         }
 

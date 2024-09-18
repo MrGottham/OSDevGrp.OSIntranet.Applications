@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ using System.Text.Json;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
-	[TestFixture]
+    [TestFixture]
 	public class GetMicrosoftTokenWithoutPrincipalTests
 	{
 		#region Private variables
@@ -76,7 +77,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueIsEmpty_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, string.Empty, typeof(IRefreshableToken).FullName)});
+			IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, hasValue: false, valueType: typeof(IRefreshableToken).FullName)));
 
 			bool unprotectWasCalled = false;
 			sut.GetMicrosoftToken(value =>
@@ -92,9 +93,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueIsWhiteSpace_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, " ", typeof(IRefreshableToken).FullName)});
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: " ", valueType: typeof(IRefreshableToken).FullName)));
 
-			bool unprotectWasCalled = false;
+            bool unprotectWasCalled = false;
 			sut.GetMicrosoftToken(value =>
 			{
 				unprotectWasCalled = true;
@@ -108,7 +109,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsNull_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), null)});
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: null)));
 
 			bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value =>
@@ -124,7 +125,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsEmpty_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), string.Empty)});
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: string.Empty)));
 
 			bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value =>
@@ -140,7 +141,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsWhiteSpace_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), " ")});
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: " ")));
 
 			bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value =>
@@ -156,7 +157,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsUnsupported_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), _fixture.Create<string>())});
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: _fixture.Create<string>())));
 
 			bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value =>
@@ -215,8 +216,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Test]
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueIsEmpty_ReturnsNull()
-		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, string.Empty, typeof(IRefreshableToken).FullName)});
+        {
+			IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, hasValue: false, valueType: typeof(IRefreshableToken).FullName)));
 
 			IRefreshableToken result = sut.GetMicrosoftToken(value => value);
 
@@ -227,7 +228,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueIsWhiteSpace_ReturnsNull()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.MicrosoftTokenClaimType, " ", typeof(IRefreshableToken).FullName)});
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: " ", valueType: typeof(IRefreshableToken).FullName)));
 
 			IRefreshableToken result = sut.GetMicrosoftToken(value => value);
 
@@ -237,9 +238,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Test]
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsNull_ThrowsNotSupportedException()
-		{
-			Claim invalidClaim = new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), null);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+        {
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: null);
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(invalidClaim));
 
 			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
 
@@ -250,11 +251,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Test]
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsEmpty_ThrowsNotSupportedException()
-		{
-			Claim invalidClaim = new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), string.Empty);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+        {
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: string.Empty);
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(invalidClaim));
 
-			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.Message, Is.EqualTo($"Unsupported token type: {invalidClaim.ValueType}"));
@@ -264,10 +265,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsWhiteSpace_ThrowsNotSupportedException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), " ");
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: " ");
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(invalidClaim));
 
-			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.Message, Is.EqualTo($"Unsupported token type: {invalidClaim.ValueType}"));
@@ -277,10 +278,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsUnsupported_ThrowsNotSupportedException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.MicrosoftTokenClaimType, CreateMicrosoftToken().ToBase64String(), _fixture.Create<string>());
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: CreateMicrosoftToken().ToBase64String(), valueType: _fixture.Create<string>());
+            IClaimResolver sut = CreateSut(_fixture.CreateClaims(_random).Concat(invalidClaim));
 
-			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetMicrosoftToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.Message, Is.EqualTo($"Unsupported token type: {invalidClaim.ValueType}"));
@@ -349,7 +350,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsSupportedButClaimValueNotBase64_ThrowsFormatException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.MicrosoftTokenClaimType, _fixture.Create<string>(), typeof(IRefreshableToken).FullName);
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: _fixture.Create<string>(), valueType: typeof(IRefreshableToken).FullName);
 			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
 
 			FormatException result = Assert.Throws<FormatException>(() => sut.GetMicrosoftToken(value => value));
@@ -361,10 +362,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetMicrosoftToken_WhenCurrentPrincipalHasMicrosoftTokenClaimWhereValueTypeIsSupportedButClaimValueNotDeserializable_ThrowsJsonException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.MicrosoftTokenClaimType, Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), typeof(IRefreshableToken).FullName);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.MicrosoftTokenClaimType, value: Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), valueType: typeof(IRefreshableToken).FullName);
+            IClaimResolver sut = CreateSut(claims: new[] { invalidClaim });
 
-			JsonException result = Assert.Throws<JsonException>(() => sut.GetMicrosoftToken(value => value));
+            JsonException result = Assert.Throws<JsonException>(() => sut.GetMicrosoftToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 		}
@@ -372,7 +373,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		private IClaimResolver CreateSut(IEnumerable<Claim> claims = null)
 		{
 			_principalResolverMock.Setup(m => m.GetCurrentPrincipal())
-				.Returns(CreateClaimsPrincipal(claims ?? CreateClaimCollection()));
+				.Returns(CreateClaimsPrincipal(claims));
 
 			return new BusinessLogic.Security.Logic.ClaimResolver(_principalResolverMock.Object);
 		}
@@ -383,26 +384,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		}
 
 		private IEnumerable<Claim> CreateClaimCollection(bool withMicrosoftTokenClaim = true, IRefreshableToken microsoftToken = null)
-		{
-			if (withMicrosoftTokenClaim)
-			{
-				return new[]
-				{
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-					ClaimHelper.CreateTokenClaim(ClaimHelper.MicrosoftTokenClaimType, microsoftToken ?? CreateMicrosoftToken(), value => value),
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>())
-				};
-			}
-
-			return new[]
-			{
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>())
-			};
-		}
+        {
+            Claim[] claims = _fixture.CreateClaims(_random);
+            if (withMicrosoftTokenClaim)
+            {
+                claims = claims.Concat(ClaimHelper.CreateTokenClaim(ClaimHelper.MicrosoftTokenClaimType, microsoftToken ?? CreateMicrosoftToken(), value => value));
+            }
+            return claims;
+        }
 
 		private IRefreshableToken CreateMicrosoftToken()
 		{

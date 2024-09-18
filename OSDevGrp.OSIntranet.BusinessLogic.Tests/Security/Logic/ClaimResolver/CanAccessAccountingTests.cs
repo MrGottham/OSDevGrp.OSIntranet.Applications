@@ -4,6 +4,8 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -17,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         private Mock<IPrincipalResolver> _principalResolverMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -25,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         {
             _principalResolverMock = new Mock<IPrincipalResolver>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -42,7 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void CanAccessAccounting_WhenCalledAndPrincipalDoesNotHaveAccountingViewerClaim_ReturnsFalse()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()) });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.CanAccessAccounting(_fixture.Create<int>());
@@ -54,7 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void CanAccessAccounting_WhenCalledAndPrincipalHasAccountingViewerClaimWhereValueIsEmpty_ReturnsFalse()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), new Claim(ClaimHelper.AccountingViewerClaimType, string.Empty) });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.AccountingViewerClaimType, hasValue: false)));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.CanAccessAccounting(_fixture.Create<int>());
@@ -66,7 +70,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void CanAccessAccounting_WhenCalledAndPrincipalHasAccountingViewerClaimWhereValueIsWhiteSpace_ReturnsFalse()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), new Claim(ClaimHelper.AccountingViewerClaimType, " ") });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.AccountingViewerClaimType, value: " ")));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.CanAccessAccounting(_fixture.Create<int>());
@@ -81,7 +85,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [TestCase("XXX,YYY,ZZZ")]
         public void CanAccessAccounting_WhenCalledAndPrincipalHasAccountingViewerClaimWhereValueIsNoneIntegerCollection_ReturnsFalse(string claimValue)
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), new Claim(ClaimHelper.AccountingViewerClaimType, claimValue) });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.AccountingViewerClaimType, value: claimValue)));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.CanAccessAccounting(_fixture.Create<int>());
@@ -98,7 +102,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [TestCase(5, true)]
         public void CanAccessAccounting_WhenCalledAndPrincipalHasAccountingViewerClaimWhereValueIsIntegerCollectionWithoutWildcard_ReturnsExpectedResult(int accountingNumber, bool expectedResult)
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingViewerClaim(false, 1, 3, 5) });
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateAccountingViewerClaim(false, 1, 3, 5)));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.CanAccessAccounting(accountingNumber);
@@ -115,7 +119,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [TestCase(5, true)]
         public void CanAccessAccounting_WhenCalledAndPrincipalHasAccountingViewerClaimWhereValueIsIntegerCollectionWithWildcard_ReturnsExpectedResult(int accountingNumber, bool expectedResult)
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] { new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateAccountingViewerClaim(true, 1, 3, 5) });
+            
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateAccountingViewerClaim(true, 1, 3, 5)));
             IClaimResolver sut = CreateSut(principal);
 
             bool result = sut.CanAccessAccounting(accountingNumber);

@@ -2,6 +2,7 @@ using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentityCommandBase
 {
-	[TestFixture]
+    [TestFixture]
     public class ToDomainTests
     {
         #region Private variables
@@ -23,8 +24,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentity
         public void SetUp()
         {
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -67,7 +66,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentity
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_ReturnsUserIdentityWithClaimsFromCommand()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IUserIdentityCommand sut = CreateSut(claims: claims);
 
             IUserIdentity result = sut.ToDomain();
@@ -83,7 +82,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.UserIdentity
             return _fixture.Build<Sut>()
                 .With(m => m.Identifier, identifier ?? _fixture.Create<int>())
                 .With(m => m.ExternalUserIdentifier, externalUserIdentifier ?? _fixture.Create<string>())
-                .With(m => m.Claims, claims ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList())
+                .With(m => m.Claims, claims ?? _fixture.CreateClaims(_random))
                 .Create();
         }
 

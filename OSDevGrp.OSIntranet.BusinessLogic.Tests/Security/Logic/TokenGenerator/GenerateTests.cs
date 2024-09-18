@@ -5,6 +5,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.SecurityKeyBuilder;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
 using System;
@@ -157,6 +158,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 	        Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public void Generate_WhenCalledMultipleTimes_ExpectNoExceptionToBeThrown()
+        {
+            ITokenGenerator sut = CreateSut();
+
+            try
+            {
+                sut.Generate(CreateClaimsIdentity());
+                sut.Generate(CreateClaimsIdentity());
+                sut.Generate(CreateClaimsIdentity());
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
+            }
+        }
+
         private ITokenGenerator CreateSut(TokenGeneratorOptions tokenGeneratorOptions = null)
         {
 	        _tokenGeneratorOptionsMock.Setup(m => m.Value)
@@ -170,8 +189,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
             return new TokenGeneratorOptions
             {
                 Key = CreateJsonWebKey(),
-                Issuer = $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local",
-                Audience = $"https://{_fixture.Create<string>().Replace("/", string.Empty)}.local/{_fixture.Create<string>()}"
+                Issuer = _fixture.CreateEndpointString(withoutPathAndQuery: true),
+                Audience = _fixture.CreateEndpointString(withoutPathAndQuery: true)
             };
         }
 

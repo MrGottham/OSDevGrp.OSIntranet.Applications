@@ -127,7 +127,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 }
             }
 
-            AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemas.ExternalAuthenticationSchema);
+            AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemes.ExternalAuthenticationScheme);
             if (authenticateResult.Succeeded == false || authenticateResult.Ticket == null || authenticateResult.Principal == null)
             {
                 return Unauthorized();
@@ -139,27 +139,34 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 return Unauthorized();
             }
 
-            IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailClaim.Value, authenticateResult.Principal.Claims.ToArray(), Schemas.InternalAuthenticationSchema, authenticateResult.Properties.Items.AsReadOnly(), value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
+            IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailClaim.Value, authenticateResult.Principal.Claims.ToArray(), Schemes.InternalAuthenticationScheme, authenticateResult.Properties.Items.AsReadOnly(), value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
             ClaimsPrincipal authenticatedClaimsPrincipal = await _commandBus.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(authenticateUserCommand);
             if (authenticatedClaimsPrincipal == null)
             {
                 return Unauthorized();
             }
 
-            await HttpContext.SignInAsync(Schemas.InternalAuthenticationSchema, authenticatedClaimsPrincipal);
-
-            IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
-            await HandleMicrosoftToken(microsoftToken);
-
-            IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
-            await HandleGoogleToken(googleToken);
-
-            if (returnUri != null)
+            await HttpContext.SignInAsync(Schemes.InternalAuthenticationScheme, authenticatedClaimsPrincipal);
+            try
             {
-                return Redirect(returnUri.AbsoluteUri);
-            }
+                IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
+                await HandleMicrosoftToken(microsoftToken);
 
-            return LocalRedirect("/Home/Index");
+                IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
+                await HandleGoogleToken(googleToken);
+
+                if (returnUri != null)
+                {
+                    return Redirect(returnUri.AbsoluteUri);
+                }
+
+                return LocalRedirect("/Home/Index");
+            }
+            catch
+            {
+                await HttpContext.SignOutAsync(Schemes.InternalAuthenticationScheme);
+                throw;
+            }
         }
 
         [HttpGet]
@@ -173,7 +180,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             await _tokenHelperFactory.HandleLogoutAsync(HttpContext);
 
-            await HttpContext.SignOutAsync(Schemas.InternalAuthenticationSchema);
+            await HttpContext.SignOutAsync(Schemes.InternalAuthenticationScheme);
 
             if (string.IsNullOrWhiteSpace(returnUrl))
             {

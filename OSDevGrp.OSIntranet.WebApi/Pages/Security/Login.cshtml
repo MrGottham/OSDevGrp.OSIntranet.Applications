@@ -1,0 +1,16 @@
+@page
+@model LoginPageModel
+@using OSDevGrp.OSIntranet.WebApi.Models.Security;
+<div>
+    <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
+        <h1>Login</h1>
+    </div>
+    <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
+        <h1>Login using an external login provider</h1>
+    </div>
+    <hr />
+    @await Html.PartialAsync("_LoginUsingMicrosoft", Model.Microsoft)
+    <hr />
+    @await Html.PartialAsync("_LoginUsingGoogle", Model.Google)
+    <hr />
+</div>

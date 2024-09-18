@@ -1,0 +1,33 @@
+@page
+@model ExternalLoginProviderModel
+@using OSDevGrp.OSIntranet.WebApi.Models.Security;
+<form method="post">
+    @Html.HiddenFor(m => m.AuthenticationScheme)
+    @Html.HiddenFor(m => m.AuthenticationState)
+    <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
+        <h2>Google</h2>
+        <div class="row">
+            <div class="col-12 col-sm-12">
+                <p>Login using your Google account.</p>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
+        <h2>Login using Google</h2>
+        <div class="row">
+            <div class="col-md-8 col-lg-8 col-xm-9">
+                <p>Login using your Google account.</p>
+            </div>
+            <div class="col-md-4 col-lg-4 col-xm-3">
+                <div class="text-right">
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

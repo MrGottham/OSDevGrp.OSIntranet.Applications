@@ -1,20 +1,25 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
 {
     [TestFixture]
     public class AddClaimsTests : ClientSecretIdentityBuilderTestBase
     {
+        #region Private variables
+
+        private Random _random;
+
+        #endregion
+
         [SetUp]
         public void SetUp()
         {
             Fixture = new Fixture();
-            Fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(Fixture.Create<string>(), Fixture.Create<string>())));
+            _random = new Random(Fixture.Create<int>());
         }
 
         [Test]
@@ -25,6 +30,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AddClaims(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("claims"));
         }
 
@@ -34,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
         {
             IClientSecretIdentityBuilder sut = CreateSut();
 
-            IClientSecretIdentityBuilder result = sut.AddClaims(Fixture.CreateMany<Claim>().ToList());
+            IClientSecretIdentityBuilder result = sut.AddClaims(Fixture.CreateClaims(_random));
 
             Assert.That(result, Is.EqualTo(sut));
         }

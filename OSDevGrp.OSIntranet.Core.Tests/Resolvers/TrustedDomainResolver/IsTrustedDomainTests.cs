@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Core.Options;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using System;
 using System.Linq;
 
@@ -46,7 +47,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.TrustedDomainResolver
         {
             ITrustedDomainResolver sut = CreateSut();
 
-            sut.IsTrustedDomain(CreateUriToValidate());
+            sut.IsTrustedDomain(_fixture.CreateEndpoint());
 
             _trustedDomainOptionsMock.Verify(m => m.Value, Times.Once);
         }
@@ -58,7 +59,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.TrustedDomainResolver
             string[] trustedDomainCollection = CreateTrustedDomainCollection();
             ITrustedDomainResolver sut = CreateSut(trustedDomainCollection);
 
-            bool result = sut.IsTrustedDomain(CreateUriToValidate(trustedDomainCollection[_random.Next(0, trustedDomainCollection.Length - 1)]));
+            bool result = sut.IsTrustedDomain(_fixture.CreateEndpoint(domainName: trustedDomainCollection[_random.Next(0, trustedDomainCollection.Length - 1)]));
 
             Assert.That(result, Is.True);
         }
@@ -70,7 +71,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.TrustedDomainResolver
             string[] trustedDomainCollection = CreateTrustedDomainCollection();
             ITrustedDomainResolver sut = CreateSut(trustedDomainCollection);
 
-            bool result = sut.IsTrustedDomain(CreateUriToValidate(CreateDomainName()));
+            bool result = sut.IsTrustedDomain(_fixture.CreateEndpoint(domainName: _fixture.CreateDomainName()));
 
             Assert.That(result, Is.False);
         }
@@ -97,22 +98,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Resolvers.TrustedDomainResolver
         {
             return
             [
-                CreateDomainName(),
-                CreateDomainName(),
-                CreateDomainName(),
-                CreateDomainName(),
-                CreateDomainName()
+                _fixture.CreateDomainName(),
+                _fixture.CreateDomainName(),
+                _fixture.CreateDomainName(),
+                _fixture.CreateDomainName(),
+                _fixture.CreateDomainName()
             ];
-        }
-
-        private string CreateDomainName()
-        {
-            return _fixture.Create<string>().Replace(";", string.Empty);
-        }
-
-        private Uri CreateUriToValidate(string domainName = null)
-        {
-            return new Uri($"https://{domainName ?? CreateDomainName()}/{_fixture.Create<string>()}");
         }
     }
 }

@@ -16,6 +16,8 @@ using OSDevGrp.OSIntranet.Repositories.Models.Core;
 using OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
@@ -23,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Contexts
 {
-	public class RepositoryContext : DbContext
+    public class RepositoryContext : DbContext
     {
         #region Constructors
 
@@ -278,9 +280,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Contexts
 
         private void AddAuditInformation(string identityIdentifier)
         {
-            NullGuard.NotNullOrWhiteSpace(identityIdentifier, nameof(identityIdentifier));
+            IReadOnlyCollection<EntityEntry> entries = ChangeTracker.Entries().ToArray();
+            if (entries.Any(entry => entry.State == EntityState.Added || entry.State == EntityState.Modified))
+            {
+                NullGuard.NotNullOrWhiteSpace(identityIdentifier, nameof(identityIdentifier));
+            }
 
-            foreach (EntityEntry entityEntry in ChangeTracker.Entries())
+            foreach (EntityEntry entityEntry in entries)
             {
                 AuditModelBase auditModel = entityEntry.Entity as AuditModelBase;
                 if (auditModel == null)

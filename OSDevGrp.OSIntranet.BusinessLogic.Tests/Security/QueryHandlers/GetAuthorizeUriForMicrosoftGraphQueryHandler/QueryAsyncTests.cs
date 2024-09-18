@@ -1,11 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using QueryHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetAuthorizeUriForMicrosoftGraphQueryHandler;
+using System;
+using System.Threading.Tasks;
+using QueryHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers.GetAuthorizeUriForMicrosoftGraphQueryHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetAuthorizeUriForMicrosoftGraphQueryHandler
 {
@@ -34,6 +35,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetAuth
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("query"));
         }
 
@@ -67,7 +69,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetAuth
         {
             QueryHandler sut = CreateSut();
 
-            Uri redirectUri = CreateUri();
+            Uri redirectUri = _fixture.CreateEndpoint();
             Guid stateIdentifier = Guid.NewGuid();
             IGetAuthorizeUriForMicrosoftGraphQuery query= CreateQueryMock(redirectUri, stateIdentifier).Object;
             await sut.QueryAsync(query);
@@ -79,7 +81,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetAuth
         [Category("UnitTest")]
         public async Task QueryAsync_WhenCalled_ReturnAuthorizeUriFromMicrosoftGraphRepository()
         {
-            Uri authorizeUri = CreateUri();
+            Uri authorizeUri = _fixture.CreateEndpoint();
             QueryHandler sut = CreateSut(authorizeUri);
 
             IGetAuthorizeUriForMicrosoftGraphQuery query = CreateQueryMock().Object;
@@ -91,7 +93,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetAuth
         private QueryHandler CreateSut(Uri authorizeUri = null)
         {
             _microsoftGraphRepositoryMock.Setup(m => m.GetAuthorizeUriAsync(It.IsAny<Uri>(), It.IsAny<Guid>()))
-                .Returns(Task.Run(() => authorizeUri ?? CreateUri()));
+                .Returns(Task.Run(() => authorizeUri ?? _fixture.CreateEndpoint()));
 
             return new QueryHandler(_microsoftGraphRepositoryMock.Object);
         }
@@ -100,15 +102,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetAuth
         {
             Mock<IGetAuthorizeUriForMicrosoftGraphQuery> queryMock = new Mock<IGetAuthorizeUriForMicrosoftGraphQuery>();
             queryMock.Setup(m => m.RedirectUri)
-                .Returns(redirectUri ?? CreateUri());
+                .Returns(redirectUri ?? _fixture.CreateEndpoint());
             queryMock.Setup(m => m.StateIdentifier)
                 .Returns(stateIdentifier ?? Guid.NewGuid());
             return queryMock;
-        }
-
-        private Uri CreateUri()
-        {
-            return new Uri($"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}");
         }
     }
 }

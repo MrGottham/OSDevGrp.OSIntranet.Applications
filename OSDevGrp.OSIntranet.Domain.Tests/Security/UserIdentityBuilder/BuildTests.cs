@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AutoFixture;
+using NUnit.Framework;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using AutoFixture;
-using NUnit.Framework;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.Domain.Tests.Security.UserIdentityBuilder
 {
@@ -20,10 +21,8 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.UserIdentityBuilder
         [SetUp]
         public void SetUp()
         {
-            _random = new Random();
-
             Fixture = new Fixture();
-            Fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(Fixture.Create<string>(), Fixture.Create<string>())));
+            _random = new Random(Fixture.Create<int>());
         }
 
         [Test]
@@ -78,7 +77,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.UserIdentityBuilder
         {
             IUserIdentityBuilder sut = CreateSut();
 
-            IEnumerable<Claim> claimCollection = Fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IEnumerable<Claim> claimCollection = Fixture.CreateClaims(_random);
             IUserIdentity result = sut.AddClaims(claimCollection).Build();
 
             Assert.That(result.ToClaimsIdentity().Claims.Count(), Is.EqualTo(1 + claimCollection.Count()));

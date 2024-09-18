@@ -6,6 +6,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Tests.Helpers;
 using System;
@@ -244,7 +245,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             sut.Login(absoluteUrl);
 
             _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absoluteUrl) == 0)), Times.Once);
@@ -256,7 +257,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             sut.Login(absoluteUrl);
 
             _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
@@ -268,7 +269,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut(false);
 
-	        string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+	        string absoluteUrl = _fixture.CreateEndpointString();
 	        IActionResult result = sut.Login(absoluteUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -280,7 +281,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut(false);
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             IActionResult result = sut.Login(absoluteUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
@@ -292,7 +293,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut();
 
-	        string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+	        string absoluteUrl = _fixture.CreateEndpointString();
 	        IActionResult result = sut.Login(absoluteUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -304,7 +305,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             IActionResult result = sut.Login(absoluteUrl);
 
             Assert.That(result, Is.TypeOf<ViewResult>());
@@ -316,7 +317,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             ViewResult result = (ViewResult) sut.Login(absoluteUrl);
 
             Assert.That(result.ViewName, Is.EqualTo("Login"));
@@ -328,7 +329,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             ViewResult result = (ViewResult) sut.Login(absoluteUrl);
 
             Assert.That(result.Model, Is.TypeOf<Uri>());
@@ -340,7 +341,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = $"http://localhost/{_fixture.Create<string>()}";
+            string absoluteUrl = _fixture.CreateEndpointString();
             Uri result = (Uri) ((ViewResult) sut.Login(absoluteUrl)).Model;
 
             // ReSharper disable PossibleNullReferenceException
@@ -354,7 +355,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = $"{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
+            if (relativeUrl.StartsWith('/'))
+            {
+                relativeUrl = relativeUrl.Substring(2);
+            }
             sut.Login(relativeUrl);
 
             _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.Compare(value, $"~/{relativeUrl}", StringComparison.Ordinal) == 0)), Times.Once);
@@ -366,7 +371,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
+            if (relativeUrl.StartsWith('/') == false)
+            {
+                relativeUrl = $"/{relativeUrl}";
+            }
             sut.Login(relativeUrl);
 
             _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.Compare(value, $"~{relativeUrl}", StringComparison.Ordinal) == 0)), Times.Once);
@@ -378,7 +387,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = $"~/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
+            if (relativeUrl.StartsWith("~") == false && relativeUrl.StartsWith('/'))
+            {
+                relativeUrl = $"~{relativeUrl}";
+            }
+            else if (relativeUrl.StartsWith("~") == false)
+            {
+                relativeUrl = $"~/{relativeUrl}";
+            }
             sut.Login(relativeUrl);
 
             _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.Compare(value, $"{relativeUrl}", StringComparison.Ordinal) == 0)), Times.Once);
@@ -388,10 +405,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public void Login_WhenReturnUrlIsRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUriForRelativeUrl()
         {
-            string absolutePath = $"/{_fixture.Create<string>()}";
+            string absolutePath = _fixture.CreateEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
             sut.Login(relativeUrl);
 
             _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
@@ -403,7 +420,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut(false);
 
-	        string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+	        string relativeUrl = _fixture.CreateRelativeEndpointString();
 	        IActionResult result = sut.Login(relativeUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -415,7 +432,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut(false);
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
             IActionResult result = sut.Login(relativeUrl);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
@@ -427,7 +444,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
 	        Controller sut = CreateSut();
 
-	        string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+	        string relativeUrl = _fixture.CreateRelativeEndpointString();
 	        IActionResult result = sut.Login(relativeUrl);
 
 	        Assert.That(result, Is.Not.Null);
@@ -439,7 +456,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
             IActionResult result = sut.Login(relativeUrl);
 
             Assert.That(result, Is.TypeOf<ViewResult>());
@@ -451,7 +468,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
             ViewResult result = (ViewResult) sut.Login(relativeUrl);
 
             Assert.That(result.ViewName, Is.EqualTo("Login"));
@@ -463,7 +480,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
             ViewResult result = (ViewResult) sut.Login(relativeUrl);
 
             Assert.That(result.Model, Is.TypeOf<Uri>());
@@ -473,10 +490,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsViewResultWhereModelIsUriWithAbsoluteUriForInput()
         {
-            string absolutePath = $"/{_fixture.Create<string>()}";
+            string absolutePath = _fixture.CreateEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
-            string relativeUrl = $"/{_fixture.Create<string>()}/{_fixture.Create<string>()}";
+            string relativeUrl = _fixture.CreateRelativeEndpointString();
             Uri result = (Uri) ((ViewResult) sut.Login(relativeUrl)).Model;
 
             // ReSharper disable PossibleNullReferenceException

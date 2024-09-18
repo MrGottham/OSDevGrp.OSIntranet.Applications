@@ -1,13 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
-using CommandHandler=OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AcquireTokenForMicrosoftGraphCommandHandler;
+using System;
+using System.Threading.Tasks;
+using CommandHandler = OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers.AcquireTokenForMicrosoftGraphCommandHandler;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AcquireTokenForMicrosoftGraphCommandHandler
 {
@@ -36,6 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Acqui
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
 
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("command"));
         }
 
@@ -69,7 +71,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Acqui
         {
             CommandHandler sut = CreateSut();
 
-            Uri redirectUri = CreateUri();
+            Uri redirectUri = _fixture.CreateEndpoint();
             string code = _fixture.Create<string>();
             IAcquireTokenForMicrosoftGraphCommand command = CreateCommandMock(redirectUri, code).Object;
             await sut.ExecuteAsync(command);
@@ -102,15 +104,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Acqui
         {
             Mock<IAcquireTokenForMicrosoftGraphCommand> commandMock = new Mock<IAcquireTokenForMicrosoftGraphCommand>();
             commandMock.Setup(m => m.RedirectUri)
-                .Returns(redirectUri ?? CreateUri());
+                .Returns(redirectUri ?? _fixture.CreateEndpoint());
             commandMock.Setup(m => m.Code)
                 .Returns(code ?? _fixture.Create<string>());
             return commandMock;
-        }
-
-        private Uri CreateUri()
-        {
-            return new Uri($"http://localhost/{_fixture.Create<string>()}/{_fixture.Create<string>()}");
         }
     }
 }

@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateTests
 	{
 		#region Private variables
@@ -404,7 +405,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDat
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/music/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/music/{_fixture.Create<string>()}");
 			IMusicDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -422,7 +423,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDat
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/music/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/music/{_fixture.Create<string>()}");
 			IMusicDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -440,7 +441,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDat
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/music/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/music/{_fixture.Create<string>()}");
 			IMusicDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -554,7 +555,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MusicDat
 			_claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 				.Returns(_fixture.Create<bool>());
 
-			return new MyMusicDataCommand(Guid.NewGuid(), title ?? _fixture.Create<string>(), subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), description ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), details ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), musicGenreIdentifier ?? _fixture.Create<int>(), mediaTypeIdentifier ?? _fixture.Create<int>(), hasPublished ? published ?? _fixture.Create<short>() : null, hasTracks ? tracks ?? _fixture.Create<short>() : null, url ?? (_random.Next(100) > 50 ? $"https://localhost/api/music/{_fixture.Create<string>()}" : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()), artists ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
+			return new MyMusicDataCommand(Guid.NewGuid(), title ?? _fixture.Create<string>(), subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), description ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), details ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), musicGenreIdentifier ?? _fixture.Create<int>(), mediaTypeIdentifier ?? _fixture.Create<int>(), hasPublished ? published ?? _fixture.Create<short>() : null, hasTracks ? tracks ?? _fixture.Create<short>() : null, url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/music/{_fixture.Create<string>()}") : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()), artists ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
 		}
 
 		private class MyMusicDataCommand : BusinessLogic.MediaLibrary.Commands.MusicDataCommandBase

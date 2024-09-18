@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.MediaLibrary;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPersonalityDataCommandBase
 {
-	public class ToDomainAsyncTests
+    public class ToDomainAsyncTests
 	{
 		#region Private variables
 
@@ -440,7 +441,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.MediaPer
 
 		private string CreateValidUrl()
 		{
-			return $"https://localhost/api/mediapersonality/{_fixture.Create<string>()}";
+			return _fixture.CreateEndpointString(path: $"api/mediapersonality/{_fixture.Create<string>()}");
 		}
 
 		private class MyMediaPersonalityDataCommand : BusinessLogic.MediaLibrary.Commands.MediaPersonalityDataCommandBase

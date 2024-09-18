@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-	internal abstract class AuthenticateCommandHandlerBase<TAuthenticateCommand, TIdentity> : CommandHandlerNonTransactionalBase, ICommandHandler<TAuthenticateCommand, ClaimsPrincipal> where TAuthenticateCommand : IAuthenticateCommand where TIdentity : IIdentity
+    internal abstract class AuthenticateCommandHandlerBase<TAuthenticateCommand, TIdentity> : CommandHandlerTransactionalBase, ICommandHandler<TAuthenticateCommand, ClaimsPrincipal> where TAuthenticateCommand : IAuthenticateCommand where TIdentity : IIdentity
     {
         #region Constructor
 

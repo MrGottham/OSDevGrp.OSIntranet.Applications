@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using System.Security.Principal;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
@@ -17,6 +19,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 
         private Mock<IPrincipalResolver> _principalResolverMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -25,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         {
             _principalResolverMock = new Mock<IPrincipalResolver>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -42,7 +46,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalDoesNotHaveCollectNewsClaim_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>())});
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random));
             IClaimResolver sut = CreateSut(principal);
 
             int? result = sut.GetNumberOfNewsToCollect();
@@ -54,7 +58,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithoutClaimValue_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCollectNewsClaim(null)});
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateCollectNewsClaim()));
             IClaimResolver sut = CreateSut(principal);
 
             int? result = sut.GetNumberOfNewsToCollect();
@@ -66,7 +70,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithNonIntegerClaimValue_ReturnsNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateClaim(ClaimHelper.CollectNewsClaimType, _fixture.Create<string>())});
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateClaim(ClaimHelper.CollectNewsClaimType, _fixture.Create<string>())));
             IClaimResolver sut = CreateSut(principal);
 
             int? result = sut.GetNumberOfNewsToCollect();
@@ -78,7 +82,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         [Category("UnitTest")]
         public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithIntegerClaimValue_ReturnsNotNull()
         {
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCollectNewsClaim(_fixture.Create<int>())});
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateCollectNewsClaim(_fixture.Create<int>())));
             IClaimResolver sut = CreateSut(principal);
 
             int? result = sut.GetNumberOfNewsToCollect();
@@ -91,7 +95,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
         public void GetNumberOfNewsToCollect_WhenCalledAndPrincipalHasCollectNewsClaimWithIntegerClaimValue_ReturnsNumberOfNewsToCollect()
         {
             int numberOfNewsToCollect = _fixture.Create<int>();
-            IPrincipal principal = CreateClaimsPrincipal(new[] {new Claim(_fixture.Create<string>(), _fixture.Create<string>()), ClaimHelper.CreateCollectNewsClaim(numberOfNewsToCollect)});
+            IPrincipal principal = CreateClaimsPrincipal(_fixture.CreateClaims(_random).Concat(ClaimHelper.CreateCollectNewsClaim(numberOfNewsToCollect)));
             IClaimResolver sut = CreateSut(principal);
 
             int? result = sut.GetNumberOfNewsToCollect();

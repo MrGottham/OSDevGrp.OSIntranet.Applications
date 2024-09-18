@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -8,6 +6,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core.HealthChecks;
+using System;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
 {
@@ -16,7 +16,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
     {
         [Test]
         [Category("IntegrationTest")]
-        public async Task AddSecurityHealthChecks_WhenCalled_ExpectConfigurationHealthCheckReturnsHealthStatusWhereStatusIsEqualToHealthy()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AddSecurityHealthChecks_WhenCalled_ExpectConfigurationHealthCheckReturnsHealthStatusWhereStatusIsEqualToHealthy(bool requireTenant)
         {
             IConfiguration sut = CreateSut();
 
@@ -28,7 +30,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
                 .AddSecurityHealthChecks(opt =>
                 {
                     opt.WithJwtValidation(sut);
-                    opt.WithMicrosoftValidation(sut);
+                    opt.WithMicrosoftValidation(sut, requireTenant);
                     opt.WithGoogleValidation(sut);
                     opt.WithTrustedDomainCollectionValidation(sut);
                     opt.WithAcmeChallengeValidation(sut);

@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.MediaLibrary.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorExtensions
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateMediaDataTests
 	{
 		#region Private variables
@@ -430,7 +431,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/media/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/media/{_fixture.Create<string>()}");
 			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand(url: url);
 			sut.ValidateMediaData(mediaDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -449,7 +450,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/media/{_fixture.Create<string>()}";
+            string url = _fixture.CreateEndpointString(path: $"api/media/{_fixture.Create<string>()}");
 			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand(url: url);
 			sut.ValidateMediaData(mediaDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
@@ -468,8 +469,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 		{
 			IValidator sut = CreateSut();
 
-			string url = $"https://localhost/api/media/{_fixture.Create<string>()}";
-			IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand(url: url);
+            string url = _fixture.CreateEndpointString(path: $"api/media/{_fixture.Create<string>()}");
+            IMediaDataCommand<IMedia> mediaDataCommand = CreateMediaDataCommand(url: url);
 			sut.ValidateMediaData(mediaDataCommand, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
 
 			_validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
@@ -579,7 +580,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.ValidatorEx
 			mediaDataCommandMock.Setup(m => m.Published)
 				.Returns(hasPublished ? published ?? _fixture.Create<short>() : null);
 			mediaDataCommandMock.Setup(m => m.Url)
-				.Returns(url ?? (_random.Next(100) > 50 ? $"https://localhost/api/media/{_fixture.Create<string>()}" : null));
+				.Returns(url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/media/{_fixture.Create<string>()}") : null));
 			mediaDataCommandMock.Setup(m => m.Image)
 				.Returns(image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()));
 			return mediaDataCommandMock;

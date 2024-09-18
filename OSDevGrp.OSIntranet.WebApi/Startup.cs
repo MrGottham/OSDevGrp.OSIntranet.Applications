@@ -10,20 +10,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using OSDevGrp.OSIntranet.BusinessLogic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Converters;
+using OSDevGrp.OSIntranet.Core.Interfaces.Configuration;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
+using OSDevGrp.OSIntranet.Repositories.Options;
 using OSDevGrp.OSIntranet.WebApi.Filters;
-using OSDevGrp.OSIntranet.WebApi.Handlers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -42,7 +48,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -84,25 +90,67 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddAuthentication(opt => 
             {
+                opt.DefaultScheme = GetInternalScheme();
+                opt.DefaultSignInScheme = GetInternalScheme();
+                opt.DefaultSignOutScheme = GetInternalScheme();
                 opt.DefaultAuthenticateScheme = GetBearerAuthenticationScheme();
                 opt.DefaultChallengeScheme = GetBearerAuthenticationScheme();
             })
+            .AddCookie(GetInternalScheme(), opt =>
+            {
+                opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
+                opt.Cookie.SameSite = SameSiteMode.None;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+            })
+            .AddMicrosoftAccount(opt =>
+            {
+                MicrosoftSecurityOptions microsoftSecurityOptions = Configuration.GetMicrosoftSecurityOptions();
+                opt.ClientId = microsoftSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
+                opt.ClientSecret = microsoftSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
+                opt.SignInScheme = GetInternalScheme();
+                opt.CorrelationCookie.SameSite = SameSiteMode.None;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.SaveTokens = true;
+                opt.Scope.Clear();
+                opt.Scope.Add("User.Read");
+                opt.Scope.Add("Contacts.ReadWrite");
+                opt.Scope.Add("offline_access");
+                opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+            })
+            .AddGoogle(opt =>
+            {
+                GoogleSecurityOptions googleSecurityOptions = Configuration.GetGoogleSecurityOptions();
+                opt.ClientId = googleSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
+                opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
+                opt.SignInScheme = GetInternalScheme();
+                opt.CorrelationCookie.SameSite = SameSiteMode.None;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.SaveTokens = true;
+                opt.Scope.Clear();
+                opt.Scope.Add("openid");
+                opt.Scope.Add("profile");
+                opt.Scope.Add("email");
+                opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+            })
             .AddJwtBearer(opt =>
             {
-	            TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetTokenGeneratorOptions();
+                TokenGeneratorOptions tokenGeneratorOptions = Configuration.GetTokenGeneratorOptions();
                 opt.IncludeErrorDetails = false;
                 opt.RequireHttpsMetadata = true;
                 opt.SaveToken = true;
                 opt.TokenValidationParameters = tokenGeneratorOptions.ToTokenValidationParameters();
-            })
-            .AddClientSecret(GetBasicAuthenticationScheme());
+            });
 
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy(Policies.AcquireTokenPolicy, policy =>
+                opt.AddPolicy(Policies.UserInfoPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(GetBasicAuthenticationScheme());
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
                     policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimTypes.NameIdentifier);
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
@@ -134,6 +182,11 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddSwaggerGen(options =>
             {
+#pragma warning disable ASP0000
+                using ServiceProvider serviceProvider = services.BuildServiceProvider();
+                using IServiceScope serviceScope = serviceProvider.CreateScope();
+#pragma warning restore ASP0000
+
                 options.SwaggerDoc(WebApiVersion, new OpenApiInfo
                 {
                     Version = WebApiVersion,
@@ -146,13 +199,16 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SchemaFilter<EnumToStringSchemeFilterDescriptor>();
                 options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>();
 
-                OpenApiSecurityScheme oAuthWithClientCredentialsFlowSecurityScheme = CreateOAuthWithClientCredentialsFlowSecurityScheme(new Uri("/api/oauth/token", UriKind.Relative));
+                OpenApiSecurityScheme oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme = CreateOAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme(GetAuthorizationUrl(), GetTokenUrl(), GetScopes(serviceScope.ServiceProvider.GetRequiredService<ISupportedScopesProvider>()));
+                OpenApiSecurityScheme oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme = CreateOAuth2AuthenticationWithClientCredentialsFlowSecurityScheme(GetTokenUrl());
                 OpenApiSecurityScheme bearerSecurityScheme = CreateBearerSecurityScheme();
 
-                options.AddSecurityDefinition(oAuthWithClientCredentialsFlowSecurityScheme.Reference.Id, oAuthWithClientCredentialsFlowSecurityScheme);
+                options.AddSecurityDefinition(oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme.Reference.Id, oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme);
+                options.AddSecurityDefinition(oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme.Reference.Id, oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme);
                 options.AddSecurityDefinition(bearerSecurityScheme.Reference.Id, bearerSecurityScheme);
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{ oAuthWithClientCredentialsFlowSecurityScheme, Array.Empty<string>()}});
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme, Array.Empty<string>()}});
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme, Array.Empty<string>()}});
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {{bearerSecurityScheme, Array.Empty<string>()}});
             });
             services.AddSwaggerGenNewtonsoftSupport();
@@ -160,6 +216,9 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddHealthChecks()
                 .AddSecurityHealthChecks(opt =>
                 {
+                    opt.WithMicrosoftValidation(Configuration, false);
+                    opt.WithGoogleValidation(Configuration);
+                    opt.WithTrustedDomainCollectionValidation(Configuration);
                     opt.WithJwtValidation(Configuration);
                     opt.WithAcmeChallengeValidation(Configuration);
                 })
@@ -256,20 +315,70 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
         }
 
-        private static OpenApiSecurityScheme CreateOAuthWithClientCredentialsFlowSecurityScheme(Uri tokenUri)
+        private static Uri GetAuthorizationUrl()
+        {
+            return new Uri("/api/oauth/authorize", UriKind.Relative);
+        }
+
+        private static Uri GetTokenUrl()
+        {
+            return new Uri("/api/oauth/token", UriKind.Relative);
+        }
+
+        private static string GetInternalScheme()
+        {
+            return Schemes.Internal;
+        }
+
+        private static OpenApiSecurityScheme CreateOAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme(Uri authorizationUrl, Uri tokenUrl, IDictionary<string, string> scopes)
+        {
+            NullGuard.NotNull(authorizationUrl, nameof(authorizationUrl))
+                .NotNull(tokenUrl, nameof(tokenUrl))
+                .NotNull(scopes, nameof(scopes));
+
+            return new OpenApiSecurityScheme
+            {
+                Name = "OAuth Authorization with Authorization Code Flow",
+                Description = "OAuth Authorization 2.0 with the Authorization Code Flow.",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.OAuth2,
+                Scheme = GetOAuth2AuthenticationWithAuthorizationCodeFlowScheme(),
+                Reference = new OpenApiReference
+                {
+                    Id = GetOAuth2AuthenticationWithAuthorizationCodeFlowScheme(),
+                    Type = ReferenceType.SecurityScheme
+                },
+                Flows = new OpenApiOAuthFlows
+                {
+                    AuthorizationCode = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = authorizationUrl,
+                        TokenUrl = tokenUrl,
+                        Scopes = scopes
+                    }
+                }
+            };
+        }
+
+        private static string GetOAuth2AuthenticationWithAuthorizationCodeFlowScheme()
+        {
+            return "OIDC";
+        }
+
+        private static OpenApiSecurityScheme CreateOAuth2AuthenticationWithClientCredentialsFlowSecurityScheme(Uri tokenUri)
         {
             NullGuard.NotNull(tokenUri, nameof(tokenUri));
 
             return new OpenApiSecurityScheme
             {
-                Name = "OAuth Authorization with client credentials grant flow",
-                Description = $"OAuth Authorization 2.0 with the client credentials grant flow.{Environment.NewLine}{Environment.NewLine}Example: '{GetBasicAuthenticationScheme()} YzQwMGUxY2UtNzQyOC00NjBmLTg5ZTYtOGFmMTZkMWFiN2Ni'.",
+                Name = "OAuth Authorization with Client Credentials Flow",
+                Description = $"OAuth Authorization 2.0 with the Client Credentials Flow.{Environment.NewLine}{Environment.NewLine}Example: 'Basic YzQwMGUxY2UtNzQyOC00NjBmLTg5ZTYtOGFmMTZkMWFiN2Ni'.",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.OAuth2,
-                Scheme = GetBasicAuthenticationScheme(),
+                Scheme = GetOAuth2AuthenticationWithClientCredentialsFlowScheme(),
                 Reference = new OpenApiReference
                 {
-                    Id = GetBasicAuthenticationScheme(),
+                    Id = GetOAuth2AuthenticationWithClientCredentialsFlowScheme(),
                     Type = ReferenceType.SecurityScheme
                 },
                 Flows = new OpenApiOAuthFlows
@@ -283,7 +392,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             };
         }
 
-        private static string GetBasicAuthenticationScheme()
+        private static string GetOAuth2AuthenticationWithClientCredentialsFlowScheme()
         {
             return "Basic";
         }
@@ -309,6 +418,13 @@ namespace OSDevGrp.OSIntranet.WebApi
         private static string GetBearerAuthenticationScheme()
         {
             return JwtBearerDefaults.AuthenticationScheme;
+        }
+
+        private static IDictionary<string, string> GetScopes(ISupportedScopesProvider supportedScopesProvider)
+        {
+            NullGuard.NotNull(supportedScopesProvider, nameof(supportedScopesProvider));
+
+            return supportedScopesProvider.SupportedScopes.ToDictionary(supportedScope => supportedScope.Value.Name, supportedScope => supportedScope.Value.Description);
         }
 
         private static bool RunningInDocker()

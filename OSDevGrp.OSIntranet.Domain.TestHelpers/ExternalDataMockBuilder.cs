@@ -1,8 +1,9 @@
-using System;
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
+using System;
 
 namespace OSDevGrp.OSIntranet.Domain.TestHelpers
 {
@@ -28,9 +29,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             newsMock.Setup(m => m.Author)
                 .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
             newsMock.Setup(m => m.SourceUrl)
-                .Returns(random.Next(100) > 50 ? new Uri($"https://localhost/{fixture.Create<string>()}") : null);
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint() : null);
             newsMock.Setup(m => m.ImageUrl)
-                .Returns(random.Next(100) > 50 ? new Uri($"https://localhost/{fixture.Create<string>()}.png") : null);
+                .Returns(random.Next(100) > 50 ? fixture.CreateEndpoint(path: $"{fixture.Create<string>()}/{fixture.Create<string>()}.png") : null);
             return newsMock;
         }
     }

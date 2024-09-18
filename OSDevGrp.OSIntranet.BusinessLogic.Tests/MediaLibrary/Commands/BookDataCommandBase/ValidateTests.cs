@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.MediaLibrary.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookDataCommandBase
 {
-	[TestFixture]
+    [TestFixture]
 	public class ValidateTests
 	{
 		#region Private variables
@@ -493,7 +494,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookData
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/book/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
 			IBookDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -511,7 +512,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookData
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldHaveMaxLengthWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/book/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
 			IBookDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -529,7 +530,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookData
 		[Category("UnitTest")]
 		public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorWithUrl()
 		{
-			string url = $"https://localhost/api/book/{_fixture.Create<string>()}";
+			string url = _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}");
 			IBookDataCommand sut = CreateSut(url: url);
 
 			sut.Validate(_validatorMockContext.ValidatorMock.Object, _claimResolverMock.Object, _mediaLibraryRepositoryMock.Object, _commonRepositoryMock.Object);
@@ -643,7 +644,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.BookData
 			_claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 				.Returns(_fixture.Create<bool>());
 
-			return new MyBookDataCommand(Guid.NewGuid(), title ?? _fixture.Create<string>(), subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), description ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), details ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), bookGenreIdentifier ?? _fixture.Create<int>(), hasWrittenLanguageIdentifier ? writtenLanguageIdentifier ?? _fixture.Create<int>() : null, mediaTypeIdentifier ?? _fixture.Create<int>(), internationalStandardBookNumber ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), hasPublished ? published ?? _fixture.Create<short>() : null, url ?? (_random.Next(100) > 50 ? $"https://localhost/api/book/{_fixture.Create<string>()}" : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()), authors ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
+			return new MyBookDataCommand(Guid.NewGuid(), title ?? _fixture.Create<string>(), subtitle ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), description ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), details ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), bookGenreIdentifier ?? _fixture.Create<int>(), hasWrittenLanguageIdentifier ? writtenLanguageIdentifier ?? _fixture.Create<int>() : null, mediaTypeIdentifier ?? _fixture.Create<int>(), internationalStandardBookNumber ?? (_random.Next(100) > 50 ? _fixture.Create<string>() : null), hasPublished ? published ?? _fixture.Create<short>() : null, url ?? (_random.Next(100) > 50 ? _fixture.CreateEndpointString(path: $"api/book/{_fixture.Create<string>()}") : null), image ?? (_random.Next(100) > 50 ? _fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray() : Array.Empty<byte>()), authors ?? _fixture.CreateMany<Guid>(_random.Next(1, 7)).ToArray());
 		}
 
 		private class MyBookDataCommand : BusinessLogic.MediaLibrary.Commands.BookDataCommandBase

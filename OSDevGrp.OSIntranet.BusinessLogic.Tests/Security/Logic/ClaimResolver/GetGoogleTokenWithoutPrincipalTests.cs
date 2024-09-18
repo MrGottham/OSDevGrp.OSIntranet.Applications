@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ using System.Text.Json;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 {
-	[TestFixture]
+    [TestFixture]
 	public class GetGoogleTokenWithoutPrincipalTests
 	{
 		#region Private variables
@@ -75,8 +76,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Test]
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueIsEmpty_AssertUnprotectWasNotCalled()
-		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, string.Empty, typeof(IRefreshableToken).FullName)});
+        {
+			IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, hasValue: false, valueType: typeof(IRefreshableToken).FullName)));
 
 			bool unprotectWasCalled = false;
 			sut.GetGoogleToken(value =>
@@ -92,9 +93,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueIsWhiteSpace_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, " ", typeof(IRefreshableToken).FullName)});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: " ", valueType: typeof(IRefreshableToken).FullName)));
 
-			bool unprotectWasCalled = false;
+            bool unprotectWasCalled = false;
 			sut.GetGoogleToken(value =>
 			{
 				unprotectWasCalled = true;
@@ -108,9 +109,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsNull_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), null)});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: null)));
 
-			bool unprotectWasCalled = false;
+            bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value =>
 			{
 				unprotectWasCalled = true;
@@ -124,7 +125,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsEmpty_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), string.Empty)});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: string.Empty)));
 
 			bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value =>
@@ -140,9 +141,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsWhiteSpace_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), " ")});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: " ")));
 
-			bool unprotectWasCalled = false;
+            bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value =>
 			{
 				unprotectWasCalled = true;
@@ -156,9 +157,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsUnsupported_AssertUnprotectWasNotCalled()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), _fixture.Create<string>())});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: _fixture.Create<string>())));
 
-			bool unprotectWasCalled = false;
+            bool unprotectWasCalled = false;
 			Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value =>
 			{
 				unprotectWasCalled = true;
@@ -216,9 +217,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueIsEmpty_ReturnsNull()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, string.Empty, typeof(IRefreshableToken).FullName)});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, hasValue: false, valueType: typeof(IRefreshableToken).FullName)));
 
-			IToken result = sut.GetGoogleToken(value => value);
+            IToken result = sut.GetGoogleToken(value => value);
 
 			Assert.That(result, Is.Null);
 		}
@@ -227,9 +228,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueIsWhiteSpace_ReturnsNull()
 		{
-			IClaimResolver sut = CreateSut(claims: new[] {new Claim(ClaimHelper.GoogleTokenClaimType, " ", typeof(IRefreshableToken).FullName)});
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: " ", valueType: typeof(IRefreshableToken).FullName)));
 
-			IToken result = sut.GetGoogleToken(value => value);
+            IToken result = sut.GetGoogleToken(value => value);
 
 			Assert.That(result, Is.Null);
 		}
@@ -238,8 +239,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsNull_ThrowsNotSupportedException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), null);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+			Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: null);
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(invalidClaim));
 
 			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value => value));
 
@@ -251,10 +252,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsEmpty_ThrowsNotSupportedException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), string.Empty);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: string.Empty);
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(invalidClaim));
 
-			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value => value));
+            NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.Message, Is.EqualTo($"Unsupported token type: {invalidClaim.ValueType}"));
@@ -264,8 +265,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsWhiteSpace_ThrowsNotSupportedException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), " ");
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: " ");
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(invalidClaim));
 
 			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value => value));
 
@@ -277,8 +278,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsUnsupported_ThrowsNotSupportedException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.GoogleTokenClaimType, CreateGoogleToken().ToBase64String(), _fixture.Create<string>());
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: CreateGoogleToken().ToBase64String(), valueType: _fixture.Create<string>());
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(invalidClaim));
 
 			NotSupportedException result = Assert.Throws<NotSupportedException>(() => sut.GetGoogleToken(value => value));
 
@@ -337,10 +338,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsSupportedButClaimValueNotBase64_ThrowsFormatException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.GoogleTokenClaimType, _fixture.Create<string>(), typeof(IToken).FullName);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: _fixture.Create<string>(), valueType: typeof(IToken).FullName);
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(invalidClaim));
 
-			FormatException result = Assert.Throws<FormatException>(() => sut.GetGoogleToken(value => value));
+            FormatException result = Assert.Throws<FormatException>(() => sut.GetGoogleToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 		}
@@ -349,10 +350,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		[Category("UnitTest")]
 		public void GetGoogleToken_WhenCurrentPrincipalHasGoogleTokenClaimWhereValueTypeIsSupportedButClaimValueNotDeserializable_ThrowsJsonException()
 		{
-			Claim invalidClaim = new Claim(ClaimHelper.GoogleTokenClaimType, Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), typeof(IToken).FullName);
-			IClaimResolver sut = CreateSut(claims: new[] {invalidClaim});
+            Claim invalidClaim = _fixture.CreateClaim(ClaimHelper.GoogleTokenClaimType, value: Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(256, 512)).ToArray()), valueType: typeof(IToken).FullName);
+            IClaimResolver sut = CreateSut(claims: _fixture.CreateClaims(_random).Concat(invalidClaim));
 
-			JsonException result = Assert.Throws<JsonException>(() => sut.GetGoogleToken(value => value));
+
+            JsonException result = Assert.Throws<JsonException>(() => sut.GetGoogleToken(value => value));
 
 			Assert.That(result, Is.Not.Null);
 		}
@@ -360,7 +362,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		private IClaimResolver CreateSut(IEnumerable<Claim> claims = null)
 		{
 			_principalResolverMock.Setup(m => m.GetCurrentPrincipal())
-				.Returns(CreateClaimsPrincipal(claims ?? CreateClaimCollection()));
+				.Returns(CreateClaimsPrincipal(claims));
 
 			return new BusinessLogic.Security.Logic.ClaimResolver(_principalResolverMock.Object);
 		}
@@ -371,25 +373,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ClaimResolver
 		}
 
 		private IEnumerable<Claim> CreateClaimCollection(bool withGoogleTokenClaim = true, IToken googleToken = null)
-		{
-			if (withGoogleTokenClaim)
-			{
-				return new[]
-				{
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-					ClaimHelper.CreateTokenClaim(ClaimHelper.GoogleTokenClaimType, googleToken ?? CreateGoogleToken(), value => value),
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-					new Claim(_fixture.Create<string>(), _fixture.Create<string>())
-				};
-			}
-
-			return new[]
-			{
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>()),
-				new Claim(_fixture.Create<string>(), _fixture.Create<string>())
-			};
+        {
+            Claim[] claims = _fixture.CreateClaims(_random);
+            if (withGoogleTokenClaim)
+            {
+                claims = claims.Concat(ClaimHelper.CreateTokenClaim(ClaimHelper.GoogleTokenClaimType, googleToken ?? CreateGoogleToken(), value => value));
+            }
+            return claims;
 		}
 
 		private IToken CreateGoogleToken()

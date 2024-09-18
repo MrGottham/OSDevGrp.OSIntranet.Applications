@@ -2,6 +2,7 @@ using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecretIdentityCommandBase
 {
-	[TestFixture]
+    [TestFixture]
     public class ToDomainTests
     {
         #region Private variables
@@ -23,8 +24,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
         public void SetUp()
         {
             _fixture = new Fixture();
-            _fixture.Customize<Claim>(builder => builder.FromFactory(() => new Claim(_fixture.Create<string>(), _fixture.Create<string>())));
-
             _random = new Random(_fixture.Create<int>());
         }
 
@@ -91,7 +90,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
         [Category("UnitTest")]
         public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IClientSecretIdentityCommand sut = CreateSut(claims: claims);
 
             IClientSecretIdentity result = sut.ToDomain();
@@ -259,7 +258,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
         [Category("UnitTest")]
         public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand()
         {
-            IEnumerable<Claim> claims = _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList();
+            IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IClientSecretIdentityCommand sut = CreateSut(claims: claims);
 
             string clientId = _fixture.Create<string>();
@@ -277,7 +276,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             return _fixture.Build<Sut>()
                 .With(m => m.Identifier, identifier ?? _fixture.Create<int>())
                 .With(m => m.FriendlyName, friendlyName ?? _fixture.Create<string>())
-                .With(m => m.Claims, claims ?? _fixture.CreateMany<Claim>(_random.Next(5, 10)).ToList())
+                .With(m => m.Claims, claims ?? _fixture.CreateClaims(_random))
                 .Create();
         }
 

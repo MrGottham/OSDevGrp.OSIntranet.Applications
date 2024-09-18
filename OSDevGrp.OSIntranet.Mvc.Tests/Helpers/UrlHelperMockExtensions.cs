@@ -1,10 +1,11 @@
-using System;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.TestHelpers;
+using System;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers
 {
@@ -16,8 +17,8 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers
                 .NotNull(fixture, nameof(fixture));
 
             HttpContext httpContext = new DefaultHttpContext();
-            httpContext.Request.Scheme = scheme ?? "http";
-            httpContext.Request.Host = new HostString(host ?? "localhost");
+            httpContext.Request.Scheme = scheme ?? "https";
+            httpContext.Request.Host = new HostString(host ?? fixture.CreateDomainName());
             httpContext.Request.PathBase = $"/{pathBase ?? fixture.Create<string>()}";
 
             ActionContext actionContext = new ActionContext

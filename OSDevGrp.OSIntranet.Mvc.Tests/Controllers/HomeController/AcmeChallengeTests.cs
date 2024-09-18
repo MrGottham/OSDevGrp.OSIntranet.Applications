@@ -1,14 +1,17 @@
-﻿using System;
-using System.Text;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
-using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
-using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.HomeController;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.HomeController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 {
@@ -17,142 +20,252 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
     {
         #region Private variables
 
+        private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IClaimResolver> _claimResolverMock;
         private Mock<ITokenHelperFactory> _tokenHelperFactoryMock;
-        private Mock<IAcmeChallengeResolver> _acmeChallengeResolverMock;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
         [SetUp]
         public void SetUp()
         {
+            _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
             _claimResolverMock = new Mock<IClaimResolver>();
             _tokenHelperFactoryMock = new Mock<ITokenHelperFactory>();
-            _acmeChallengeResolverMock = new Mock<IAcmeChallengeResolver>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsArgumentNullException()
+        public async Task AcmeChallenge_WhenChallengeTokenIsNull_ReturnsNotNull()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AcmeChallenge(null));
+            IActionResult result = await sut.AcmeChallenge(null);
 
-            Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsArgumentNullException()
+        public async Task AcmeChallenge_WhenChallengeTokenIsNull_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AcmeChallenge(string.Empty));
-
-            Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsArgumentNullException()
-        {
-            Controller sut = CreateSut();
-
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.AcmeChallenge(" "));
-
-            Assert.That(result.ParamName, Is.EqualTo("challengeToken"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNotNullEmptyOrWhiteSpace_AssertGetConstructedKeyAuthorizationWasCalledOnAcmeChallengeResolver()
-        {
-            Controller sut = CreateSut();
-
-            string challengeToken = _fixture.Create<string>();
-            sut.AcmeChallenge(challengeToken);
-
-            _acmeChallengeResolverMock.Verify(m => m.GetConstructedKeyAuthorization(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, challengeToken) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void AcmeChallenge_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsBadRequestResult()
-        {
-            Controller sut = CreateSut(false);
-
-            IActionResult result = sut.AcmeChallenge(_fixture.Create<string>());
+            IActionResult result = await sut.AcmeChallenge(null);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsFileContentResult()
+        public async Task AcmeChallenge_WhenChallengeTokenIsEmpty_ReturnsNotNull()
         {
             Controller sut = CreateSut();
 
-            IActionResult result = sut.AcmeChallenge(_fixture.Create<string>());
+            IActionResult result = await sut.AcmeChallenge(string.Empty);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenChallengeTokenIsEmpty_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcmeChallenge(string.Empty);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcmeChallenge(string.Empty);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcmeChallenge(string.Empty);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenChallengeTokenIsNotNullEmptyOrWhiteSpace_AssertPublishAsyncWasCalledOnCommandBusWithAcmeChallengeCommand()
+        {
+            Controller sut = CreateSut();
+
+            string challengeToken = _fixture.Create<string>();
+            await sut.AcmeChallenge(challengeToken);
+
+            _commandBusMock.Verify(m => m.PublishAsync<IAcmeChallengeCommand, byte[]>(It.Is<IAcmeChallengeCommand>(value => value != null && string.IsNullOrWhiteSpace(value.ChallengeToken) == false && string.CompareOrdinal(value.ChallengeToken, challengeToken) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcmeChallenge(_fixture.Create<string>());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsFileContentResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.AcmeChallenge(_fixture.Create<string>());
 
             Assert.That(result, Is.TypeOf<FileContentResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsFileContentResultWhereFileContentsIsNotNull()
+        public async Task AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsFileContentResultWhereFileContentsIsNotNull()
         {
             Controller sut = CreateSut();
 
-            FileContentResult result = (FileContentResult) sut.AcmeChallenge(_fixture.Create<string>());
+            FileContentResult result = (FileContentResult) await sut.AcmeChallenge(_fixture.Create<string>());
 
             Assert.That(result.FileContents, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsFileContentResultWhereFileContentsIsNotEmpty()
+        public async Task AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsFileContentResultWhereFileContentsIsNotEmpty()
         {
             Controller sut = CreateSut();
 
-            FileContentResult result = (FileContentResult) sut.AcmeChallenge(_fixture.Create<string>());
+            FileContentResult result = (FileContentResult) await sut.AcmeChallenge(_fixture.Create<string>());
 
             Assert.That(result.FileContents, Is.Not.Empty);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsFileContentResultWhereFileContentsIsEqualToConstructedKeyAuthorization()
+        public async Task AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsFileContentResultWhereFileContentsIsEqualToConstructedKeyAuthorizationFromAcmeChallengeCommand()
         {
-            string constructedKeyAuthorization = _fixture.Create<string>();
+            byte[] constructedKeyAuthorization = _fixture.CreateMany<byte>(_random.Next(32, 64)).ToArray();
             Controller sut = CreateSut(constructedKeyAuthorization: constructedKeyAuthorization);
 
-            FileContentResult result = (FileContentResult) sut.AcmeChallenge(_fixture.Create<string>());
+            FileContentResult result = (FileContentResult) await sut.AcmeChallenge(_fixture.Create<string>());
 
-            Assert.That(Encoding.UTF8.GetString(result.FileContents), Is.EqualTo(constructedKeyAuthorization));
+            Assert.That(result.FileContents, Is.EqualTo(constructedKeyAuthorization));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolver_ReturnsFileContentResultWhereContentTypeIsEqualToApplicationOctetStream()
+        public async Task AcmeChallenge_WhenConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsFileContentResultWhereContentTypeIsEqualToApplicationOctetStream()
         {
             Controller sut = CreateSut();
 
-            FileContentResult result = (FileContentResult) sut.AcmeChallenge(_fixture.Create<string>());
+            FileContentResult result = (FileContentResult) await sut.AcmeChallenge(_fixture.Create<string>());
 
             Assert.That(result.ContentType, Is.EqualTo("application/octet-stream"));
         }
 
-        private Controller CreateSut(bool hasConstructedKeyAuthorization = true, string constructedKeyAuthorization = null)
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsNotNull()
         {
-            _acmeChallengeResolverMock.Setup(m => m.GetConstructedKeyAuthorization(It.IsAny<string>()))
-                .Returns(hasConstructedKeyAuthorization ? constructedKeyAuthorization ?? _fixture.Create<string>() : null);
+            Controller sut = CreateSut(false);
 
-            return new Controller(_queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, _acmeChallengeResolverMock.Object);
+            IActionResult result = await sut.AcmeChallenge(_fixture.Create<string>());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeCommand_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut(false);
+
+            IActionResult result = await sut.AcmeChallenge(_fixture.Create<string>());
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenFromAcmeChallengeCommandThrowsIntranetBusinessException_ReturnsNotNull()
+        {
+            Controller sut = CreateSut(exception: _fixture.Create<IntranetBusinessException>());
+
+            IActionResult result = await sut.AcmeChallenge(_fixture.Create<string>());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AcmeChallenge_WhenFromAcmeChallengeCommandThrowsIntranetBusinessException_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut(exception: _fixture.Create<IntranetBusinessException>());
+
+            IActionResult result = await sut.AcmeChallenge(_fixture.Create<string>());
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenFromAcmeChallengeCommandThrowsException_ThrowsException()
+        {
+            Controller sut = CreateSut(exception: _fixture.Create<Exception>());
+
+            Exception result = Assert.ThrowsAsync<Exception>(async () => await sut.AcmeChallenge(_fixture.Create<string>()));
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void AcmeChallenge_WhenFromAcmeChallengeCommandThrowsException_ThrowsSameException()
+        {
+            Exception exception = _fixture.Create<Exception>();
+            Controller sut = CreateSut(exception: exception);
+
+            Exception result = Assert.ThrowsAsync<Exception>(async () => await sut.AcmeChallenge(_fixture.Create<string>()));
+
+            Assert.That(result, Is.SameAs(exception));
+        }
+
+        private Controller CreateSut(bool hasConstructedKeyAuthorization = true, byte[] constructedKeyAuthorization = null, Exception exception = null)
+        {
+            if (exception == null)
+            {
+                _commandBusMock.Setup(m => m.PublishAsync<IAcmeChallengeCommand, byte[]>(It.IsAny<IAcmeChallengeCommand>()))
+                    .Returns(Task.FromResult(hasConstructedKeyAuthorization ? constructedKeyAuthorization ?? _fixture.CreateMany<byte>(_random.Next(32, 64)).ToArray() : null));
+            }
+            else
+            {
+                _commandBusMock.Setup(m => m.PublishAsync<IAcmeChallengeCommand, byte[]>(It.IsAny<IAcmeChallengeCommand>()))
+                    .Throws(exception);
+            }
+
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object);
         }
     }
 }
