@@ -167,6 +167,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         UnableToGenerateRedirectUri = 1054,
 
         [ErrorCode("Unable authenticate the client.", typeof(IntranetBusinessException))]
-        UnableAuthenticateClient = 1055
+        UnableAuthenticateClient = 1055,
+
+        [ErrorCode("Cannot retrieve a JWT token for the authenticated user.", typeof(IntranetBusinessException))]
+        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1056
     }
 }

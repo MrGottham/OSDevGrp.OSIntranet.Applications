@@ -51,7 +51,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
         private static readonly Regex GrantTypeRegex = new("^(authorization_code|client_credentials){1}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
         private static readonly Regex AuthorizationRegex = new($"^(Basic){{1}}\\s+({Base64Pattern}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
-        private static readonly Regex AuthorizationParameterForClientIdAndClientSecretRegex = new($"^([a-f0-9]{{32}}){{1}}:([a-f0-9]{{32}}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
+        private static readonly Regex AuthorizationParameterForClientIdAndClientSecretRegex = new("^([a-f0-9]{32}){1}:([a-f0-9]{32}){1}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
 
         #endregion
 
@@ -271,12 +271,16 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [Authorize(Policy = Policies.UserInfoPolicy)]
         [HttpGet("/api/oauth/userinfo")]
-        public Task<IActionResult> UserInfo()
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "application/jwt")]
+        public async Task<IActionResult> UserInfo()
         {
-            // TODO: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
-            // TODO: https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+            IToken token = await _queryBus.QueryAsync<IGetUserInfoAsTokenQuery, IToken>(SecurityQueryFactory.BuildGetUserInfoAsTokenQuery());
+            if (token == null || string.IsNullOrWhiteSpace(token.AccessToken))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser).Build();
+            }
 
-            throw new NotImplementedException();
+            return Ok(token.AccessToken);
         }
 
         [AllowAnonymous]
