@@ -99,8 +99,8 @@ namespace OSDevGrp.OSIntranet.WebApi
             .AddCookie(GetInternalScheme(), opt =>
             {
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
-                opt.Cookie.SameSite = SameSiteMode.None;
-                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.Cookie.SameSite = SameSiteMode.Lax;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
             })
             .AddMicrosoftAccount(opt =>
@@ -109,8 +109,8 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.ClientId = microsoftSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
                 opt.ClientSecret = microsoftSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
                 opt.SignInScheme = GetInternalScheme();
-                opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -125,8 +125,8 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.ClientId = googleSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
                 opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
                 opt.SignInScheme = GetInternalScheme();
-                opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("openid");

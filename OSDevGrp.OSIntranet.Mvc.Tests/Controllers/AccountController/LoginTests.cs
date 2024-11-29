@@ -1,8 +1,12 @@
 using AutoFixture;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
@@ -43,475 +47,1504 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNull_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNull_AssertContentWasNotCalledOnUrlHelper(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            sut.Login();
+            sut.Login(null, withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNull_AssertActionWasNotCalledOnUrlHelper(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(null, withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNull_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(null, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
             _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNull_AssertContentWasNotCalledOnUrlHelper()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNull_ReturnsNotNull(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            sut.Login();
+            IActionResult result = sut.Login(null, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNull_ReturnsNotNul()
-        {
-	        Controller sut = CreateSut();
-
-	        IActionResult result = sut.Login();
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNull_ReturnsViewResult()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNull_ReturnsBadRequestResult(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            IActionResult result = sut.Login();
-
-            Assert.That(result, Is.TypeOf<ViewResult>());
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNull_ReturnsViewResultWhereViewNameIsEqualToLogin()
-        {
-            Controller sut = CreateSut();
-
-            ViewResult result = (ViewResult) sut.Login();
-
-            Assert.That(result.ViewName, Is.EqualTo("Login"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNull_ReturnsViewResultWhereModelIsNull()
-        {
-            Controller sut = CreateSut();
-
-            ViewResult result = (ViewResult) sut.Login();
-
-            Assert.That(result.Model, Is.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsEmpty_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver()
-        {
-            Controller sut = CreateSut();
-
-            sut.Login(string.Empty);
-
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsEmpty_AssertContentWasNotCalledOnUrlHelper()
-        {
-            Controller sut = CreateSut();
-
-            sut.Login(string.Empty);
-
-            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsEmpty_ReturnsNotNull()
-        {
-	        Controller sut = CreateSut();
-
-	        IActionResult result = sut.Login(string.Empty);
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsEmpty_ReturnsViewResult()
-        {
-            Controller sut = CreateSut();
-
-            IActionResult result = sut.Login(string.Empty);
-
-            Assert.That(result, Is.TypeOf<ViewResult>());
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsEmpty_ReturnsViewResultWhereViewNameIsEqualToLogin()
-        {
-            Controller sut = CreateSut();
-
-            ViewResult result = (ViewResult) sut.Login(string.Empty);
-
-            Assert.That(result.ViewName, Is.EqualTo("Login"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsEmpty_ReturnsViewResultWhereModelIsNull()
-        {
-            Controller sut = CreateSut();
-
-            ViewResult result = (ViewResult) sut.Login(string.Empty);
-
-            Assert.That(result.Model, Is.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver()
-        {
-            Controller sut = CreateSut();
-
-            sut.Login(" ");
-
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsWhiteSpace_AssertContentWasNotCalledOnUrlHelper()
-        {
-            Controller sut = CreateSut();
-
-            sut.Login(" ");
-
-            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsWhiteSpace_ReturnsNotNull()
-        {
-	        Controller sut = CreateSut();
-
-	        IActionResult result = sut.Login(" ");
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsWhiteSpace_ReturnsViewResult()
-        {
-            Controller sut = CreateSut();
-
-            IActionResult result = sut.Login(" ");
-
-            Assert.That(result, Is.TypeOf<ViewResult>());
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsWhiteSpace_ReturnsViewResultWhereViewNameIsEqualToLogin()
-        {
-            Controller sut = CreateSut();
-
-            ViewResult result = (ViewResult) sut.Login(" ");
-
-            Assert.That(result.ViewName, Is.EqualTo("Login"));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsWhiteSpace_ReturnsViewResultWhereModelIsNull()
-        {
-            Controller sut = CreateSut();
-
-            ViewResult result = (ViewResult) sut.Login(" ");
-
-            Assert.That(result.Model, Is.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsAbsoluteUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrl()
-        {
-            Controller sut = CreateSut();
-
-            string absoluteUrl = _fixture.CreateEndpointString();
-            sut.Login(absoluteUrl);
-
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absoluteUrl) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsAbsoluteUrl_AssertContentWasNotCalledOnUrlHelper()
-        {
-            Controller sut = CreateSut();
-
-            string absoluteUrl = _fixture.CreateEndpointString();
-            sut.Login(absoluteUrl);
-
-            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNonTrustedAbsoluteUrl_ReturnsNotNull()
-        {
-	        Controller sut = CreateSut(false);
-
-	        string absoluteUrl = _fixture.CreateEndpointString();
-	        IActionResult result = sut.Login(absoluteUrl);
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNonTrustedAbsoluteUrl_ReturnsBadRequestResult()
-        {
-            Controller sut = CreateSut(false);
-
-            string absoluteUrl = _fixture.CreateEndpointString();
-            IActionResult result = sut.Login(absoluteUrl);
+            IActionResult result = sut.Login(null, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsNotNull()
-        {
-	        Controller sut = CreateSut();
-
-	        string absoluteUrl = _fixture.CreateEndpointString();
-	        IActionResult result = sut.Login(absoluteUrl);
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsViewResult()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsEmpty_AssertContentWasNotCalledOnUrlHelper(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = _fixture.CreateEndpointString();
-            IActionResult result = sut.Login(absoluteUrl);
+            sut.Login(string.Empty, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            Assert.That(result, Is.TypeOf<ViewResult>());
+            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsViewResultWhereViewNameIsEqualToLogin()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsEmpty_AssertActionWasNotCalledOnUrlHelper(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = _fixture.CreateEndpointString();
-            ViewResult result = (ViewResult) sut.Login(absoluteUrl);
+            sut.Login(string.Empty, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            Assert.That(result.ViewName, Is.EqualTo("Login"));
+            _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsViewResultWhereModelIsUri()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsEmpty_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = _fixture.CreateEndpointString();
-            ViewResult result = (ViewResult) sut.Login(absoluteUrl);
+            sut.Login(string.Empty, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            Assert.That(result.Model, Is.TypeOf<Uri>());
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedAbsoluteUrl_ReturnsViewResultWhereModelIsUriWithAbsoluteUriEqualToInput()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsEmpty_ReturnsNotNull(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string absoluteUrl = _fixture.CreateEndpointString();
-            Uri result = (Uri) ((ViewResult) sut.Login(absoluteUrl)).Model;
+            IActionResult result = sut.Login(string.Empty, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.AbsoluteUri, Is.EqualTo(absoluteUrl));
-            // ReSharper restore PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsRelativeUrlNotStartingWithTildeAndSlash_AssertContentWasCalledOnUrlHelper()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsEmpty_ReturnsBadRequestResult(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            if (relativeUrl.StartsWith('/'))
-            {
-                relativeUrl = relativeUrl.Substring(2);
-            }
-            sut.Login(relativeUrl);
-
-            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.Compare(value, $"~/{relativeUrl}", StringComparison.Ordinal) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsRelativeUrlStartingWithSlash_AssertContentWasCalledOnUrlHelper()
-        {
-            Controller sut = CreateSut();
-
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            if (relativeUrl.StartsWith('/') == false)
-            {
-                relativeUrl = $"/{relativeUrl}";
-            }
-            sut.Login(relativeUrl);
-
-            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.Compare(value, $"~{relativeUrl}", StringComparison.Ordinal) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsRelativeUrlStartingWithTildeAndSlash_AssertContentWasCalledOnUrlHelper()
-        {
-            Controller sut = CreateSut();
-
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            if (relativeUrl.StartsWith("~") == false && relativeUrl.StartsWith('/'))
-            {
-                relativeUrl = $"~{relativeUrl}";
-            }
-            else if (relativeUrl.StartsWith("~") == false)
-            {
-                relativeUrl = $"~/{relativeUrl}";
-            }
-            sut.Login(relativeUrl);
-
-            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.Compare(value, $"{relativeUrl}", StringComparison.Ordinal) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUriForRelativeUrl()
-        {
-            string absolutePath = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: absolutePath);
-
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            sut.Login(relativeUrl);
-
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && value.AbsoluteUri.EndsWith(absolutePath))), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNonTrustedRelativeUrl_ReturnsNotNull()
-        {
-	        Controller sut = CreateSut(false);
-
-	        string relativeUrl = _fixture.CreateRelativeEndpointString();
-	        IActionResult result = sut.Login(relativeUrl);
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsNonTrustedRelativeUrl_ReturnsBadRequestResult()
-        {
-            Controller sut = CreateSut(false);
-
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            IActionResult result = sut.Login(relativeUrl);
+            IActionResult result = sut.Login(string.Empty, withReturnUrl ? _fixture.CreateEndpointString() : null);
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsNotNul()
-        {
-	        Controller sut = CreateSut();
-
-	        string relativeUrl = _fixture.CreateRelativeEndpointString();
-	        IActionResult result = sut.Login(relativeUrl);
-
-	        Assert.That(result, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsViewResult()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsWhiteSpace_AssertContentWasNotCalledOnUrlHelper(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            IActionResult result = sut.Login(relativeUrl);
+            sut.Login(" ", withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            Assert.That(result, Is.TypeOf<ViewResult>());
+            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsViewResultWhereViewNameIsEqualToLogin()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsWhiteSpace_AssertActionWasNotCalledOnUrlHelper(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            ViewResult result = (ViewResult) sut.Login(relativeUrl);
+            sut.Login(" ", withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            Assert.That(result.ViewName, Is.EqualTo("Login"));
+            _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsViewResultWhereModelIsUri()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsWhiteSpace_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver(bool withReturnUrl)
         {
             Controller sut = CreateSut();
 
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            ViewResult result = (ViewResult) sut.Login(relativeUrl);
+            sut.Login(" ", withReturnUrl ? _fixture.CreateEndpointString() : null);
 
-            Assert.That(result.Model, Is.TypeOf<Uri>());
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Login_WhenReturnUrlIsTrustedRelativeUrl_ReturnsViewResultWhereModelIsUriWithAbsoluteUriForInput()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsWhiteSpace_ReturnsNotNull(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(" ", withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsWhiteSpace_ReturnsBadRequestResult(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(" ", withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNotSupported_AssertContentWasNotCalledOnUrlHelper(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(_fixture.Create<string>(), withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNotSupported_AssertActionWasNotCalledOnUrlHelper(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(_fixture.Create<string>(), withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNotSupported_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(_fixture.Create<string>(), withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNotSupported_ReturnsNotNull(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(_fixture.Create<string>(), withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Login_WhenSchemeIsNotSupported_ReturnsBadRequestResult(bool withReturnUrl)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(_fixture.Create<string>(), withReturnUrl ? _fixture.CreateEndpointString() : null);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
+        {
+            string pathBase = "home/index";
+            Controller sut = CreateSut(pathBase: pathBase);
+
+            sut.Login(scheme);
+
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/{pathBase}") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledTwiceOnUrlHelper(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme);
+
+            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledOnUrlHelperWithControllerEqualToHomeAndActionEqualToIndex(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Home", "Index", null))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString();
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            sut.Login(scheme);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
+        {
+            string absolutePath = _fixture.CreateEndpointString(path: "home/index");
+            Controller sut = CreateSut(absolutePath: absolutePath);
+
+            sut.Login(scheme);
+
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResult(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme);
+
+            Assert.That(result, Is.TypeOf<ChallengeResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.AuthenticationSchemes.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.AuthenticationSchemes.Contains(scheme), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.Properties, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullButCalculatedReturnUrlIsNonTrusted_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullButCalculatedReturnUrlIsNonTrusted_ReturnsBadRequestResult(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
+        {
+            string pathBase = "home/index";
+            Controller sut = CreateSut(pathBase: pathBase);
+
+            sut.Login(scheme, string.Empty);
+
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/{pathBase}") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledTwiceOnUrlHelper(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, string.Empty);
+
+            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledOnUrlHelperWithControllerEqualToHomeAndActionEqualToIndex(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, string.Empty);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Home", "Index", null))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString();
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            sut.Login(scheme, string.Empty);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
+        {
+            string absolutePath = _fixture.CreateEndpointString(path: "home/index");
+            Controller sut = CreateSut(absolutePath: absolutePath);
+
+            sut.Login(scheme, string.Empty);
+
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, string.Empty);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResult(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, string.Empty);
+
+            Assert.That(result, Is.TypeOf<ChallengeResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.AuthenticationSchemes.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.AuthenticationSchemes.Contains(scheme), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.Properties, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyButCalculatedReturnUrlIsNonTrusted_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, string.Empty);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyButCalculatedReturnUrlIsNonTrusted_ReturnsBadRequestResult(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, string.Empty);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
+        {
+            string pathBase = "home/index";
+            Controller sut = CreateSut(pathBase: pathBase);
+
+            sut.Login(scheme, " ");
+
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/{pathBase}") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledTwiceOnUrlHelper(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, " ");
+
+            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(2));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledOnUrlHelperWithControllerEqualToHomeAndActionEqualToIndex(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, " ");
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Home", "Index", null))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString();
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            sut.Login(scheme, " ");
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
+        {
+            string absolutePath = _fixture.CreateEndpointString(path: "home/index");
+            Controller sut = CreateSut(absolutePath: absolutePath);
+
+            sut.Login(scheme, " ");
+
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, " ");
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResult(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, " ");
+
+            Assert.That(result, Is.TypeOf<ChallengeResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.AuthenticationSchemes.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.AuthenticationSchemes.Contains(scheme), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.Properties, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceButCalculatedReturnUrlIsNonTrusted_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, " ");
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceButCalculatedReturnUrlIsNonTrusted_ReturnsBadRequestResult(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, " ");
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me", "user/me", "~/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me", "user/me", "~/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me", "user/me", "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me", "user/me", "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me", "user/me", "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me", "user/me", "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertContentWasCalledOnUrlHelperWithRelativeUrlForReturnUrl(string scheme, string returnUrl, string pathBase, string expected)
+        {
+            Controller sut = CreateSut(pathBase: pathBase);
+
+            sut.Login(scheme, returnUrl);
+
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, expected) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme, string returnUrl)
+        {
+            string absoluteReturnUrl = _fixture.CreateEndpointString();
+            Controller sut = CreateSut(absolutePath: absoluteReturnUrl);
+
+            sut.Login(scheme, returnUrl);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {absoluteReturnUrl} }}") == 0))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlForReturnUrl(string scheme, string returnUrl)
         {
             string absolutePath = _fixture.CreateEndpointString();
             Controller sut = CreateSut(absolutePath: absolutePath);
 
-            string relativeUrl = _fixture.CreateRelativeEndpointString();
-            Uri result = (Uri) ((ViewResult) sut.Login(relativeUrl)).Model;
+            sut.Login(scheme, returnUrl);
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.AbsoluteUri.EndsWith(absolutePath), Is.True);
-            // ReSharper restore PossibleNullReferenceException
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
         }
 
-        private Controller CreateSut(bool isTrustedDomain = true, string absolutePath = null)
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsNotNull(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, returnUrl);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResult(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, returnUrl);
+
+            Assert.That(result, Is.TypeOf<ChallengeResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.AuthenticationSchemes.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.AuthenticationSchemes.Contains(scheme), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.Properties, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme, string returnUrl)
+        {
+            string absoluteReturnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
+            Controller sut = CreateSut(absolutePath: absoluteReturnUrl);
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo(absoluteReturnUrl));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonTrustedRelativeUri_ReturnsNotNull(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, returnUrl);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonTrustedRelativeUri_ReturnsBadRequestResult(string scheme, string returnUrl)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, returnUrl);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertContentWasNotCalledOnUrlHelper(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            string returnUrl = _fixture.CreateEndpointString(domainName: "localhost");
+            sut.Login(scheme, returnUrl);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlForReturnUrl(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            string returnUrl = _fixture.CreateEndpointString(domainName: "localhost");
+            sut.Login(scheme, returnUrl);
+
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, returnUrl) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResult(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result, Is.TypeOf<ChallengeResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.AuthenticationSchemes, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.AuthenticationSchemes.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.AuthenticationSchemes.Contains(scheme), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.Properties, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        {
+            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
+            Controller sut = CreateSut(absolutePath: returnUrl);
+
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result.Properties, Is.Not.Null);
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonTrustedAbsoluteUri_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonTrustedAbsoluteUri_ReturnsBadRequestResult(string scheme)
+        {
+            Controller sut = CreateSut(isTrustedDomain: false);
+
+            IActionResult result = sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_AssertContentWasNotCalledOnUrlHelper(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, GetNonAbsoluteNorRelativeUrl());
+
+            _urlHelperMock.Verify(m => m.Content(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_AssertActionWasNotCalledOnUrlHelper(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, GetNonAbsoluteNorRelativeUrl());
+
+            _urlHelperMock.Verify(m => m.Action(It.IsAny<UrlActionContext>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            sut.Login(scheme, GetNonAbsoluteNorRelativeUrl());
+
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.IsAny<Uri>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_ReturnsNotNull(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, GetNonAbsoluteNorRelativeUrl());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
+        [TestCase(GoogleDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_ReturnsBadRequestResult(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = sut.Login(scheme, GetNonAbsoluteNorRelativeUrl());
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        private Controller CreateSut(bool isTrustedDomain = true, string pathBase = null, string absolutePath = null)
         {
             _trustedDomainResolverMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
 
-            _urlHelperMock.Setup(_fixture, absolutePath: absolutePath);
+            _urlHelperMock.Setup(_fixture, pathBase: pathBase, absolutePath: absolutePath);
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainResolverMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
             {
                 Url = _urlHelperMock.Object
             };
+        }
+
+        private string GetNonAbsoluteNorRelativeUrl()
+        {
+            return $"https://localhost:xyz/{_fixture.Create<string>()}";
+        }
+
+        private static bool Matches(UrlActionContext urlActionContext, string expectedController, string expectedAction, Func<string, bool> valuesMatcher = null)
+        {
+            NullGuard.NotNull(urlActionContext, nameof(urlActionContext))
+                .NotNullOrWhiteSpace(expectedController, nameof(expectedController))
+                .NotNullOrWhiteSpace(expectedAction, nameof(expectedAction));
+
+            return string.IsNullOrWhiteSpace(urlActionContext.Controller) == false &&
+                   string.CompareOrdinal(urlActionContext.Controller, expectedController) == 0 &&
+                   string.IsNullOrWhiteSpace(urlActionContext.Action) == false &&
+                   string.CompareOrdinal(urlActionContext.Action, expectedAction) == 0 &&
+                   (valuesMatcher == null || (urlActionContext.Values != null && valuesMatcher(urlActionContext.Values.ToString())));
         }
     }
 }

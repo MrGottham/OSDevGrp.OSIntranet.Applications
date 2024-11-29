@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Controllers
@@ -37,6 +38,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly ITrustedDomainResolver _trustedDomainResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IDataProtectionProvider _dataProtectionProvider;
+        private readonly Regex _supportedSchemeRegex = new($"^({MicrosoftAccountDefaults.AuthenticationScheme}|{GoogleDefaults.AuthenticationScheme}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
 
 		#endregion
 
@@ -63,54 +65,24 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string scheme, string returnUrl = null)
         {
-            if (string.IsNullOrWhiteSpace(returnUrl))
-            {
-                return View("Login");
-            }
-
-            Uri returnUri = ConvertToAbsoluteUri(returnUrl);
-            if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
+            if (string.IsNullOrWhiteSpace(scheme) || _supportedSchemeRegex.IsMatch(scheme) == false)
             {
                 return BadRequest();
             }
 
-            return View("Login", returnUri);
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public IActionResult LoginWithMicrosoftAccount(string returnUrl = null)
-        {
             Uri returnUri = ConvertToAbsoluteUri(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl);
             if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
             {
                 return BadRequest();
             }
 
-            return new ChallengeResult(MicrosoftAccountDefaults.AuthenticationScheme, new AuthenticationProperties
+            AuthenticationProperties authenticationProperties = new AuthenticationProperties
             {
-	            RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
-            });
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public IActionResult LoginWithGoogleAccount(string returnUrl = null)
-        {
-            Uri returnUri = ConvertToAbsoluteUri(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("Index", "Home") : returnUrl);
-            if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
-            {
-                return BadRequest();
-            }
-
-            return new ChallengeResult(GoogleDefaults.AuthenticationScheme, new AuthenticationProperties
-            {
-	            RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
-            });
+                RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
+            };
+            return Challenge(authenticationProperties, scheme);
         }
 
         [HttpGet]
@@ -123,49 +95,66 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 returnUri = ConvertToAbsoluteUri(returnUrl);
                 if (returnUri == null || _trustedDomainResolver.IsTrustedDomain(returnUri) == false)
                 {
+                    return BadRequest();
+                }
+            }
+
+            AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemes.External);
+            try
+            {
+                if (authenticateResult.Succeeded == false || authenticateResult.Ticket == null || authenticateResult.Principal?.Identity == null)
+                {
+                    return Unauthorized();
+                }
+
+                ClaimsIdentity externalClaimsIdentity = (ClaimsIdentity)authenticateResult.Principal.Identity;
+                if (externalClaimsIdentity.IsAuthenticated == false)
+                {
+                    return Unauthorized();
+                }
+
+                string mailAddress = externalClaimsIdentity.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrWhiteSpace(mailAddress))
+                {
+                    return Unauthorized();
+                }
+
+                IDataProtector dataProtector = _dataProtectionProvider.CreateProtector("TokenProtection");
+                IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailAddress, authenticateResult.Principal.Claims.ToArray(), Schemes.Internal, authenticateResult.Properties.Items.AsReadOnly(), dataProtector.Protect);
+                ClaimsPrincipal authenticatedClaimsPrincipal = await _commandBus.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(authenticateUserCommand);
+                if (authenticatedClaimsPrincipal == null)
+                {
+                    return Unauthorized();
+                }
+
+                await HttpContext.SignInAsync(Schemes.Internal, authenticatedClaimsPrincipal);
+                try
+                {
+                    IGetMicrosoftTokenQuery getMicrosoftTokenQuery = SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, dataProtector.Unprotect);
+                    IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(getMicrosoftTokenQuery);
+                    await HandleMicrosoftToken(microsoftToken);
+
+                    IGetGoogleTokenQuery getGoogleTokenQuery = SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, dataProtector.Unprotect);
+                    IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(getGoogleTokenQuery);
+                    await HandleGoogleToken(googleToken);
+
+                    if (returnUri != null)
+                    {
+                        return Redirect(returnUri.AbsoluteUri);
+                    }
+
+                    return RedirectToAction("Index", "Home");
+                }
+                catch
+                {
+                    await _tokenHelperFactory.HandleLogoutAsync(HttpContext);
+                    await HttpContext.SignOutAsync(Schemes.Internal);
                     return Unauthorized();
                 }
             }
-
-            AuthenticateResult authenticateResult = await HttpContext.AuthenticateAsync(Schemes.ExternalAuthenticationScheme);
-            if (authenticateResult.Succeeded == false || authenticateResult.Ticket == null || authenticateResult.Principal == null)
+            finally
             {
-                return Unauthorized();
-            }
-
-            Claim mailClaim = authenticateResult.Principal.FindFirst(ClaimTypes.Email);
-            if (mailClaim == null || string.IsNullOrWhiteSpace(mailClaim.Value))
-            {
-                return Unauthorized();
-            }
-
-            IAuthenticateUserCommand authenticateUserCommand = SecurityCommandFactory.BuildAuthenticateUserCommand(mailClaim.Value, authenticateResult.Principal.Claims.ToArray(), Schemes.InternalAuthenticationScheme, authenticateResult.Properties.Items.AsReadOnly(), value => _dataProtectionProvider.CreateProtector("TokenProtection").Protect(value));
-            ClaimsPrincipal authenticatedClaimsPrincipal = await _commandBus.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(authenticateUserCommand);
-            if (authenticatedClaimsPrincipal == null)
-            {
-                return Unauthorized();
-            }
-
-            await HttpContext.SignInAsync(Schemes.InternalAuthenticationScheme, authenticatedClaimsPrincipal);
-            try
-            {
-                IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
-                await HandleMicrosoftToken(microsoftToken);
-
-                IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, value => _dataProtectionProvider.CreateProtector("TokenProtection").Unprotect(value)));
-                await HandleGoogleToken(googleToken);
-
-                if (returnUri != null)
-                {
-                    return Redirect(returnUri.AbsoluteUri);
-                }
-
-                return LocalRedirect("/Home/Index");
-            }
-            catch
-            {
-                await HttpContext.SignOutAsync(Schemes.InternalAuthenticationScheme);
-                throw;
+                await HttpContext.SignOutAsync(Schemes.External, authenticateResult.Properties);
             }
         }
 
@@ -180,11 +169,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         {
             await _tokenHelperFactory.HandleLogoutAsync(HttpContext);
 
-            await HttpContext.SignOutAsync(Schemes.InternalAuthenticationScheme);
+            await HttpContext.SignOutAsync(Schemes.Internal);
+            await HttpContext.SignOutAsync(Schemes.External);
 
             if (string.IsNullOrWhiteSpace(returnUrl))
             {
-                return LocalRedirect("/Home/Index");
+                return RedirectToAction("Index", "Home");
             }
 
             Uri returnUri = ConvertToAbsoluteUri(returnUrl);
@@ -199,6 +189,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> MicrosoftGraphCallback(string code, string state)
         {
+            // TODO: Rewrite this
             NullGuard.NotNullOrWhiteSpace(code, nameof(code))
                 .NotNullOrWhiteSpace(state, nameof(state));
 
@@ -214,6 +205,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {
+            // TODO: Rewrite this
 	        ErrorViewModel errorViewModel = new ErrorViewModel
 	        {
 		        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,

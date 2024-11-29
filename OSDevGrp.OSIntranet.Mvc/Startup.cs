@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -79,40 +80,46 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.AddAuthentication(opt => 
             {
-                opt.DefaultScheme = Schemes.InternalAuthenticationScheme;
-                opt.DefaultSignInScheme = Schemes.InternalAuthenticationScheme;
-                opt.DefaultSignOutScheme = Schemes.InternalAuthenticationScheme;
-                opt.DefaultAuthenticateScheme = Schemes.InternalAuthenticationScheme;
-                opt.DefaultChallengeScheme = Schemes.ExternalAuthenticationScheme;
+                opt.DefaultScheme = Schemes.Internal;
+                opt.DefaultSignInScheme = Schemes.Internal;
+                opt.DefaultSignOutScheme = Schemes.Internal;
+                opt.DefaultAuthenticateScheme = Schemes.Internal;
+                opt.DefaultChallengeScheme = MicrosoftAccountDefaults.AuthenticationScheme;
             })
-            .AddCookie(Schemes.InternalAuthenticationScheme, opt => 
+            .AddCookie(Schemes.Internal, opt =>
             {
-                opt.LoginPath = "/Account/Login";
+                opt.LoginPath = $"/Account/Login&scheme={MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.LogoutPath = "/Account/Logoff";
-                opt.AccessDeniedPath = "/Account/AccessDenied";
-				opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
-                opt.Cookie.SameSite = SameSiteMode.None;
-                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+                opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
+                opt.Cookie.SameSite = SameSiteMode.Lax;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                
+                // TODO: Initialize values
+                //opt.AccessDeniedPath = "/Account/AccessDenied";
             })
-            .AddCookie(Schemes.ExternalAuthenticationScheme, opt =>
+            .AddCookie(Schemes.External, opt =>
             {
-                opt.LoginPath = "/Account/Login";
+                opt.LoginPath = $"/Account/Login&scheme={MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.LogoutPath = "/Account/Logoff";
-                opt.AccessDeniedPath = "/Account/AccessDenied";
+
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
-                opt.Cookie.SameSite = SameSiteMode.None;
-                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.Cookie.SameSite = SameSiteMode.Lax;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+
+                // TODO: Initialize values
+                //opt.AccessDeniedPath = "/Account/AccessDenied";
             })
             .AddMicrosoftAccount(opt =>
             {
                 MicrosoftSecurityOptions microsoftSecurityOptions = Configuration.GetMicrosoftSecurityOptions();
                 opt.ClientId = microsoftSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
                 opt.ClientSecret = microsoftSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
-                opt.SignInScheme = Schemes.ExternalAuthenticationScheme;
-                opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.SignInScheme = Schemes.External;
+                opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -125,10 +132,10 @@ namespace OSDevGrp.OSIntranet.Mvc
             {
                 GoogleSecurityOptions googleSecurityOptions = Configuration.GetGoogleSecurityOptions();
                 opt.ClientId = googleSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
-				opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
-				opt.SignInScheme = Schemes.ExternalAuthenticationScheme;
-                opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
+                opt.SignInScheme = Schemes.External;
+                opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
@@ -136,73 +143,73 @@ namespace OSDevGrp.OSIntranet.Mvc
             {
                 opt.AddPolicy(Policies.ContactPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.ContactsClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingAdministratorPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingAdministratorClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingCreatorPolicy, policy =>
                 {
-	                policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+	                policy.AddAuthenticationSchemes(Schemes.Internal);
 	                policy.RequireAuthenticatedUser();
 	                policy.RequireClaim(ClaimHelper.AccountingClaimType);
 	                policy.RequireClaim(ClaimHelper.AccountingCreatorClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingModifierPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingModifierClaimType);
                 });
                 opt.AddPolicy(Policies.AccountingViewerPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.AccountingClaimType);
                     policy.RequireClaim(ClaimHelper.AccountingViewerClaimType);
                 });
                 opt.AddPolicy(Policies.MediaLibraryPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
                 });
                 opt.AddPolicy(Policies.MediaLibraryModifierPolicy, policy =>
                 {
-	                policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+	                policy.AddAuthenticationSchemes(Schemes.Internal);
 	                policy.RequireAuthenticatedUser();
 	                policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
 	                policy.RequireClaim(ClaimHelper.MediaLibraryModifierClaimType);
                 });
                 opt.AddPolicy(Policies.MediaLibraryLenderPolicy, policy =>
                 {
-	                policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+	                policy.AddAuthenticationSchemes(Schemes.Internal);
 	                policy.RequireAuthenticatedUser();
 	                policy.RequireClaim(ClaimHelper.MediaLibraryClaimType);
 	                policy.RequireClaim(ClaimHelper.MediaLibraryLenderClaimType);
                 });
                 opt.AddPolicy(Policies.CommonDataPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
                 });
                 opt.AddPolicy(Policies.SecurityAdminPolicy, policy =>
                 {
-                    policy.AddAuthenticationSchemes(Schemes.InternalAuthenticationScheme);
+                    policy.AddAuthenticationSchemes(Schemes.Internal);
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.SecurityAdminClaimType);
                 });
