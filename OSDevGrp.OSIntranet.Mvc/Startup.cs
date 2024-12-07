@@ -90,27 +90,21 @@ namespace OSDevGrp.OSIntranet.Mvc
             {
                 opt.LoginPath = $"/Account/Login&scheme={MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.LogoutPath = "/Account/Logoff";
-
+                opt.AccessDeniedPath = "/Account/AccessDenied";
                 opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
-                
-                // TODO: Initialize values
-                //opt.AccessDeniedPath = "/Account/AccessDenied";
             })
             .AddCookie(Schemes.External, opt =>
             {
                 opt.LoginPath = $"/Account/Login&scheme={MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.LogoutPath = "/Account/Logoff";
-
+                opt.AccessDeniedPath = "/Account/AccessDenied";
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
-
-                // TODO: Initialize values
-                //opt.AccessDeniedPath = "/Account/AccessDenied";
             })
             .AddMicrosoftAccount(opt =>
             {

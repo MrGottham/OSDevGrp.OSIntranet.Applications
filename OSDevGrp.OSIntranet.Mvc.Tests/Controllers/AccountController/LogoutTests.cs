@@ -512,12 +512,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase("~/users/me")]
         public async Task Logout_WhenReturnUrlIsRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlForReturnUrl(string returnUrl)
         {
-            string absolutePath = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: absolutePath);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             await sut.Logout(returnUrl);
 
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, $"https://{domainName}/{pathBase}/users/me") == 0)), Times.Once);
         }
 
         [Test]
@@ -611,12 +612,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase("~/users/me")]
         public async Task Logout_WhenReturnUrlIsTrustedRelativeUrl_ReturnsRedirectResultWhereUrIsEqualToAbsolutePathForRelativeUrl(string returnUrl)
         {
-            string absolutePath = _fixture.CreateEndpointString(domainName: "localhost");
-            Controller sut = CreateSut(absolutePath: absolutePath, isTrustedDomain: true);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase, isTrustedDomain: true);
 
             RedirectResult result = (RedirectResult) await sut.Logout(returnUrl);
 
-            Assert.That(result.Url, Is.EqualTo(absolutePath));
+            Assert.That(result.Url, Is.EqualTo($"https://{domainName}/{pathBase}/users/me"));
         }
 
         [Test]
@@ -786,12 +788,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
-        private Controller CreateSut(HttpContext httpContext = null, string pathBase = null, string absolutePath = null, bool isTrustedDomain = true)
+        private Controller CreateSut(HttpContext httpContext = null, string domainName = null, string pathBase = null, bool isTrustedDomain = true)
         {
             _trustedDomainResolverMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
 
-            _urlHelperMock.Setup(_fixture, pathBase: pathBase, absolutePath: absolutePath);
+            _urlHelperMock.Setup(_fixture, host: domainName, pathBase: pathBase);
 
             _authenticationServiceMock.Setup(m => m.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
                 .Returns(Task.CompletedTask);

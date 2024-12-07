@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using OSDevGrp.OSIntranet.Core;
-using System;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers
 {
@@ -10,11 +9,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
         {
             NullGuard.NotNull(request, nameof(request))
                 .NotNullOrWhiteSpace(path, nameof(path));
-
-            if (Uri.TryCreate(path, UriKind.Absolute, out Uri _))
-            {
-                return path;
-            }
 
             string scheme = request.Scheme;
             if (request.IsHttps && scheme.ToLower().EndsWith("s") == false)

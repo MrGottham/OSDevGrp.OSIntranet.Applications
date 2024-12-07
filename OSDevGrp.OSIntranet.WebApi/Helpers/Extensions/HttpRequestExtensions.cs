@@ -13,11 +13,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Helpers.Extensions
             NullGuard.NotNull(request, nameof(request))
                 .NotNullOrWhiteSpace(path, nameof(path));
 
-            if (Uri.TryCreate(path, UriKind.Absolute, out Uri uri))
-            {
-                return uri;
-            }
-
             string scheme = request.Scheme;
             if (request.IsHttps && scheme.ToLower().EndsWith("s") == false)
             {

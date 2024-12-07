@@ -12,9 +12,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Core
 
         public bool ShowErrorCode => ErrorCode.HasValue;
 
-        public string ErrorMesssage { get; set; }
+        public string ErrorMessage { get; set; }
 
-        public bool ShowErrorMessage => string.IsNullOrWhiteSpace(ErrorMesssage) == false;
+        public bool ShowErrorMessage => string.IsNullOrWhiteSpace(ErrorMessage) == false;
 
         #endregion
     }

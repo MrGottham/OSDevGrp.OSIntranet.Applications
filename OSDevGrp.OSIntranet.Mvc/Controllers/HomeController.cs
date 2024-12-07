@@ -260,7 +260,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             if (intranetException is IntranetBusinessException intranetBusinessException)
             {
-                return View(new ErrorViewModel {RequestId = requestId, ErrorCode = (int) intranetBusinessException.ErrorCode, ErrorMesssage = intranetBusinessException.Message});
+                return View(new ErrorViewModel {RequestId = requestId, ErrorCode = (int) intranetBusinessException.ErrorCode, ErrorMessage = intranetBusinessException.Message});
             }
 
             return View(new ErrorViewModel {RequestId = requestId});

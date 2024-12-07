@@ -189,11 +189,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [HttpGet]
         public async Task<IActionResult> MicrosoftGraphCallback(string code, string state)
         {
-            // TODO: Rewrite this
-            NullGuard.NotNullOrWhiteSpace(code, nameof(code))
-                .NotNullOrWhiteSpace(state, nameof(state));
-
-            if (Guid.TryParse(state, out Guid stateIdentifier) == false)
+            if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(state) || Guid.TryParse(state, out Guid stateIdentifier) == false)
             {
                 return BadRequest();
             }
@@ -205,15 +201,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {
-            // TODO: Rewrite this
-	        ErrorViewModel errorViewModel = new ErrorViewModel
-	        {
-		        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            ErrorViewModel errorViewModel = new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
                 ErrorCode = null,
-                ErrorMesssage = "Handlingen kan ikke udføres, fordi du ikke har de nødvendige tilladelser."
-	        };
+                ErrorMessage = "Handlingen kan ikke udføres, fordi du ikke har de nødvendige tilladelser."
+            };
 
-	        return View("Error", errorViewModel);
+            return View("Error", errorViewModel);
         }
 
 		private Uri ConvertToAbsoluteUri(string returnUrl)

@@ -311,12 +311,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
         {
-            string pathBase = "home/index";
-            Controller sut = CreateSut(pathBase: pathBase);
+            Controller sut = CreateSut();
 
             sut.Login(scheme);
 
-            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/{pathBase}") == 0)), Times.Once);
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "~/Home/Index") == 0)), Times.Once);
         }
 
         [Test]
@@ -351,12 +350,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme);
 
-            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = https://{domainName}/{pathBase}/Home/Index }}") == 0))), Times.Once);
         }
 
         [Test]
@@ -365,12 +365,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
         {
-            string absolutePath = _fixture.CreateEndpointString(path: "home/index");
-            Controller sut = CreateSut(absolutePath: absolutePath);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme);
 
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, $"https://{domainName}/{pathBase}/Home/Index") == 0)), Times.Once);
         }
 
         [Test]
@@ -498,13 +499,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             ChallengeResult result = (ChallengeResult) sut.Login(scheme);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
         }
 
         [Test]
@@ -539,12 +541,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
         {
-            string pathBase = "home/index";
-            Controller sut = CreateSut(pathBase: pathBase);
+            Controller sut = CreateSut();
 
             sut.Login(scheme, string.Empty);
 
-            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/{pathBase}") == 0)), Times.Once);
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/Home/Index") == 0)), Times.Once);
         }
 
         [Test]
@@ -579,12 +580,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme, string.Empty);
 
-            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = https://{domainName}/{pathBase}/Home/Index }}") == 0))), Times.Once);
         }
 
         [Test]
@@ -593,12 +595,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
         {
-            string absolutePath = _fixture.CreateEndpointString(path: "home/index");
-            Controller sut = CreateSut(absolutePath: absolutePath);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme, string.Empty);
 
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, $"https://{domainName}/{pathBase}/Home/Index") == 0)), Times.Once);
         }
 
         [Test]
@@ -726,13 +729,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
         }
 
         [Test]
@@ -767,12 +771,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
         {
-            string pathBase = "home/index";
-            Controller sut = CreateSut(pathBase: pathBase);
+            Controller sut = CreateSut();
 
             sut.Login(scheme, " ");
 
-            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, $"~/{pathBase}") == 0)), Times.Once);
+            _urlHelperMock.Verify(m => m.Content(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "~/Home/Index") == 0)), Times.Once);
         }
 
         [Test]
@@ -807,12 +810,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme, " ");
 
-            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {returnUrl} }}") == 0))), Times.Once);
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = https://{domainName}/{pathBase}/Home/Index }}") == 0))), Times.Once);
         }
 
         [Test]
@@ -821,12 +825,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
         {
-            string absolutePath = _fixture.CreateEndpointString(path: "home/index");
-            Controller sut = CreateSut(absolutePath: absolutePath);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme, " ");
 
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, $"https://{domainName}/{pathBase}/Home/Index") == 0)), Times.Once);
         }
 
         [Test]
@@ -954,13 +959,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
         }
 
         [Test]
@@ -1016,12 +1022,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme, string returnUrl)
         {
-            string absoluteReturnUrl = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: absoluteReturnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme, returnUrl);
 
-            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = {absoluteReturnUrl} }}") == 0))), Times.Once);
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", values => string.IsNullOrWhiteSpace(values) == false && string.CompareOrdinal(values, $"{{ returnUrl = https://{domainName}/{pathBase}/users/me }}") == 0))), Times.Once);
         }
 
         [Test]
@@ -1034,12 +1041,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlForReturnUrl(string scheme, string returnUrl)
         {
-            string absolutePath = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: absolutePath);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             sut.Login(scheme, returnUrl);
 
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, $"https://{domainName}/{pathBase}/users/me") == 0)), Times.Once);
         }
 
         [Test]
@@ -1207,13 +1215,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme, string returnUrl)
         {
-            string absoluteReturnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
-            Controller sut = CreateSut(absolutePath: absoluteReturnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo(absoluteReturnUrl));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
         }
 
         [Test]
@@ -1416,13 +1425,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
         {
-            string returnUrl = _fixture.CreateEndpointString(path: "account/login/callback");
-            Controller sut = CreateSut(absolutePath: returnUrl);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo(returnUrl));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
         }
 
         [Test]
@@ -1516,12 +1526,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
-        private Controller CreateSut(bool isTrustedDomain = true, string pathBase = null, string absolutePath = null)
+        private Controller CreateSut(bool isTrustedDomain = true, string domainName = null, string pathBase = null)
         {
             _trustedDomainResolverMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
 
-            _urlHelperMock.Setup(_fixture, pathBase: pathBase, absolutePath: absolutePath);
+            _urlHelperMock.Setup(_fixture, host: domainName, pathBase: pathBase);
 
             return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainResolverMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
             {

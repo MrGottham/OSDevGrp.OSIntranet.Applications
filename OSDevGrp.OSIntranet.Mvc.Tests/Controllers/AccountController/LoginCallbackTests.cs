@@ -297,12 +297,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase("~/users/me")]
         public async Task LoginCallback_WhenReturnUrlIsRelativeUrl_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlForReturnUrl(string returnUrl)
         {
-            string absolutePath = _fixture.CreateEndpointString();
-            Controller sut = CreateSut(absolutePath: absolutePath);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
             await sut.LoginCallback(returnUrl);
 
-            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, absolutePath) == 0)), Times.Once);
+            _trustedDomainResolverMock.Verify(m => m.IsTrustedDomain(It.Is<Uri>(value => value != null && string.CompareOrdinal(value.AbsoluteUri, $"https://{domainName}/{pathBase}/users/me") == 0)), Times.Once);
         }
 
         [Test]
@@ -2661,12 +2662,13 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase("~/users/me")]
         public async Task LoginCallback_WhenAuthenticatedClaimsPrincipalWasReturnedFromCommandBusAndReturnUrlIsRelativeUrl_ReturnsRedirectResultWhereUrlIsEqualToAbsolutePathForRelativeUrl(string returnUrl)
         {
-            string absolutePath = _fixture.CreateEndpointString(domainName: "localhost");
-            Controller sut = CreateSut(absolutePath: absolutePath, hasAuthenticatedClaimsPrincipal: true);
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase, hasAuthenticatedClaimsPrincipal: true);
 
             RedirectResult result = (RedirectResult) await sut.LoginCallback(returnUrl);
 
-            Assert.That(result.Url, Is.EqualTo(absolutePath));
+            Assert.That(result.Url, Is.EqualTo($"https://{domainName}/{pathBase}/users/me"));
         }
 
         [Test]
@@ -2725,12 +2727,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             Assert.That(result.Url, Is.EqualTo(returnUrl));
         }
 
-        private Controller CreateSut(HttpContext httpContext = null, string pathBase = null, string absolutePath = null, bool isTrustedDomain = true, AuthenticateResult authenticateResult = null, bool hasAuthenticatedClaimsPrincipal = true, ClaimsPrincipal authenticatedClaimsPrincipal = null, bool hasMicrosoftToken = true, IRefreshableToken microsoftToken = null, Exception getMicrosoftTokenFailure = null, bool hasGoogleToken = true, IToken googleToken = null, Exception getGoogleTokenFailure = null)
+        private Controller CreateSut(HttpContext httpContext = null, string domainName = null, string pathBase = null, bool isTrustedDomain = true, AuthenticateResult authenticateResult = null, bool hasAuthenticatedClaimsPrincipal = true, ClaimsPrincipal authenticatedClaimsPrincipal = null, bool hasMicrosoftToken = true, IRefreshableToken microsoftToken = null, Exception getMicrosoftTokenFailure = null, bool hasGoogleToken = true, IToken googleToken = null, Exception getGoogleTokenFailure = null)
         {
             _trustedDomainResolverMock.Setup(m => m.IsTrustedDomain(It.IsAny<Uri>()))
                 .Returns(isTrustedDomain);
 
-            _urlHelperMock.Setup(_fixture, pathBase: pathBase, absolutePath: absolutePath);
+            _urlHelperMock.Setup(_fixture, host: domainName, pathBase: pathBase);
 
             _dataProtectionProviderMock.Setup(m => m.CreateProtector(It.IsAny<string>()))
                 .Returns(_dataProtectorMock.Object);
