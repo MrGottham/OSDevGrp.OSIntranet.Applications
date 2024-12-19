@@ -23,23 +23,24 @@
 		<link rel="stylesheet" href="~/lib/fontawesome/dist/css/all.css" />
 		<link rel="stylesheet" href="~/css/site.css" />
 	</environment>
-	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css"
-			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-			  asp-fallback-test-class="sr-only"
-			  asp-fallback-test-property="position"
-			  asp-fallback-test-value="absolute"
-			  crossorigin="anonymous"
-			  referrerpolicy="no-referrer"
-			  integrity="sha512-rt/SrQ4UNIaGfDyEXZtNcyWvQeOq0QLygHluFQcSjaGB04IxWhal71tKuzP6K8eYXYB6vJV4pHkXcmFGGQ1/0w==" />
-		<link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only"
+              asp-fallback-test-property="position"
+              asp-fallback-test-value="absolute"
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer"
+              integrity="sha512-rt/SrQ4UNIaGfDyEXZtNcyWvQeOq0QLygHluFQcSjaGB04IxWhal71tKuzP6K8eYXYB6vJV4pHkXcmFGGQ1/0w==" />
+        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css" />
         <link rel="stylesheet" href="~/lib/bootstrap-submenu/dist/css/bootstrap-submenu.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
-			  crossorigin="anonymous"
+              crossorigin="anonymous"
               referrerpolicy="no-referrer"
               integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" />
-		<link rel="stylesheet" href="~/css/site.min.css" />
-	</environment>
+        <link rel="stylesheet" href="~/css/site.min.css" />
+    </environment>
+    <script type="importmap"></script>
 </head>
 <body>
 	<header>
@@ -161,6 +162,6 @@
 		</script>
 		<script src="~/js/site.min.js" asp-append-version="true"></script>
 	</environment>
-	@RenderSection("Scripts", required: false)
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -242,7 +242,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(WebApplication app, IWebHostEnvironment env)
         {
             NullGuard.NotNull(app, nameof(app))
                 .NotNull(env, nameof(env));
@@ -263,7 +263,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 app.UseHttpsRedirection();
             }
             app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.MapStaticAssets();
 
             app.UseCookiePolicy();
 
@@ -306,13 +306,10 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SwaggerEndpoint($"/api/swagger/{WebApiVersion}/swagger.json", WebApiName);
             });
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapDefaultControllerRoute();
-	            endpoints.MapRazorPages();
-                endpoints.MapHealthChecks("/health");
-                endpoints.MapHealthChecks("/api/health");
-            });
+            app.MapDefaultControllerRoute().WithStaticAssets();
+            app.MapRazorPages().WithStaticAssets();
+            app.MapHealthChecks("/health");
+            app.MapHealthChecks("/api/health");
         }
 
         private static Uri GetAuthorizationUrl()

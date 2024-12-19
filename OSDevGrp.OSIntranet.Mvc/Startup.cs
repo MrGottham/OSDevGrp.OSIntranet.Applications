@@ -54,9 +54,7 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
-                // ReSharper disable UnusedParameter.Local
-                opt.CheckConsentNeeded = context => true;
-                // ReSharper restore UnusedParameter.Local
+                opt.CheckConsentNeeded = _ => true;
                 opt.MinimumSameSitePolicy = SameSiteMode.None;
                 opt.Secure = CookieSecurePolicy.SameAsRequest;
             });
@@ -240,7 +238,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddTransient<ITokenHelper, MicrosoftGraphTokenHelper>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(WebApplication app, IWebHostEnvironment env)
         {
             NullGuard.NotNull(app, nameof(app))
                 .NotNull(env, nameof(env));
@@ -261,7 +259,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             {
                 app.UseHttpsRedirection();
             }
-            app.UseStaticFiles();
+            app.MapStaticAssets();
 
             app.UseRequestLocalization(options => 
             {
@@ -279,12 +277,9 @@ namespace OSDevGrp.OSIntranet.Mvc
 
             app.UseCors("default");
 
-            app.UseEndpoints(endpoints => 
-            {
-                endpoints.MapRazorPages();
-                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapHealthChecks("/health");
-            });
+            app.MapRazorPages().WithStaticAssets();
+            app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}").WithStaticAssets();
+            app.MapHealthChecks("/health");
         }
 
         private static bool RunningInDocker()
