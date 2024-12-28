@@ -14,6 +14,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         private readonly string[] _scopes;
         private string _clientSecret;
         private string _externalState;
+        private string _nonce;
         private IAuthorizationCode _authorizationCode;
 
         #endregion
@@ -55,6 +56,15 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             return this;
         }
 
+        public IAuthorizationStateBuilder WithNonce(string nonce)
+        {
+            NullGuard.NotNullOrWhiteSpace(nonce, nameof(nonce));
+
+            _nonce = nonce;
+
+            return this;
+        }
+
         public IAuthorizationStateBuilder WithAuthorizationCode(IAuthorizationCode authorizationCode)
         {
             NullGuard.NotNull(authorizationCode, nameof(authorizationCode));
@@ -73,7 +83,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
 
         public IAuthorizationState Build()
         {
-            return new AuthorizationState(_responseType, _clientId, _clientSecret, _redirectUri, _scopes, _externalState, _authorizationCode);
+            return new AuthorizationState(_responseType, _clientId, _clientSecret, _redirectUri, _scopes, _externalState, _nonce, _authorizationCode);
         }
 
         #endregion

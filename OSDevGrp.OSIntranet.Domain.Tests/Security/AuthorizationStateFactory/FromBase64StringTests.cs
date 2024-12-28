@@ -358,6 +358,55 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
 
         [Test]
         [Category("UnitTest")]
+        public void FromBase64String_WhenNonceIsSetInBase64String_ReturnsAuthorizationStateWhereNonceIsNotNull()
+        {
+            IAuthorizationStateFactory sut = CreateSut();
+
+            byte[] byteArrayForAuthorizationState = CreateByteArrayForAuthorizationState(hasNonce: true);
+            IAuthorizationState result = sut.FromBase64String(CreateBase64String(), _ => byteArrayForAuthorizationState);
+
+            Assert.That(result.Nonce, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenNonceIsSetInBase64String_ReturnsAuthorizationStateWhereNonceIsNotEmpty()
+        {
+            IAuthorizationStateFactory sut = CreateSut();
+
+            byte[] byteArrayForAuthorizationState = CreateByteArrayForAuthorizationState(hasNonce: true);
+            IAuthorizationState result = sut.FromBase64String(CreateBase64String(), _ => byteArrayForAuthorizationState);
+
+            Assert.That(result.Nonce, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenNonceIsSetInBase64String_ReturnsAuthorizationStateWhereNonceIsEqualToNonceFromBase64String()
+        {
+            IAuthorizationStateFactory sut = CreateSut();
+
+            string nonce = _fixture.Create<string>();
+            string base64String = CreateBase64StringForAuthorizationState(hasNonce: true, nonce: nonce);
+            IAuthorizationState result = sut.FromBase64String(base64String, bytes => bytes);
+
+            Assert.That(result.Nonce, Is.EqualTo(nonce));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void FromBase64String_WhenNonceIsNotSetInBase64String_ReturnsAuthorizationStateWhereNonceIsNull()
+        {
+            IAuthorizationStateFactory sut = CreateSut();
+
+            byte[] byteArrayForAuthorizationState = CreateByteArrayForAuthorizationState(hasNonce: false);
+            IAuthorizationState result = sut.FromBase64String(CreateBase64String(), _ => byteArrayForAuthorizationState);
+
+            Assert.That(result.Nonce, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void FromBase64String_WhenAuthorizationCodeIsSetInBase64String_ReturnsAuthorizationStateWhereAuthorizationCodeIsNotNull()
         {
             IAuthorizationStateFactory sut = CreateSut();
@@ -442,12 +491,12 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
             return Convert.ToBase64String(_fixture.CreateMany<byte>(_random.Next(1024, 4096)).ToArray());
         }
 
-        private string CreateBase64StringForAuthorizationState(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
+        private string CreateBase64StringForAuthorizationState(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasNonce = true, string nonce = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
         {
-            return Convert.ToBase64String(CreateByteArrayForAuthorizationState(responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasAuthorizationCode, authorizationCode));
+            return Convert.ToBase64String(CreateByteArrayForAuthorizationState(responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasNonce, nonce, hasAuthorizationCode, authorizationCode));
         }
 
-        private byte[] CreateByteArrayForAuthorizationState(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
+        private byte[] CreateByteArrayForAuthorizationState(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasNonce = true, string nonce = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
         {
             IAuthorizationState authorizationState = new Domain.Security.AuthorizationState(
                 responseType ?? _fixture.Create<string>(),
@@ -456,6 +505,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateFactory
                 redirectUri ?? _fixture.CreateEndpoint(),
                 scopes ?? CreateScopes(),
                 hasExternalState ? externalState ?? _fixture.Create<string>() : null,
+                hasNonce ? nonce ?? _fixture.Create<string>() : null,
                 hasAuthorizationCode ? authorizationCode ?? _fixture.BuildAuthorizationCodeMock().Object : null);
             return Convert.FromBase64String(authorizationState.ToString() ?? string.Empty);
         }

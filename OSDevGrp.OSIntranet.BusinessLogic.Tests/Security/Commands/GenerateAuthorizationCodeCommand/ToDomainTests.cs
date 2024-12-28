@@ -198,18 +198,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalled_AssertAuthorizationCodeWasNotCalledOnAuthorizationStateCreatedByAuthorizationStateFactory()
-        {
-            Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
-
-            sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
-
-            authorizationStateMock.Verify(m => m.AuthorizationCode, Times.Never);
-        }
-
-        [Test]
-        [Category("UnitTest")]
         [TestCase(true)]
         [TestCase(false)]
         public void ToDomain_WhenCalled_AssertExternalStateWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory(bool hasExternalState)
@@ -220,6 +208,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             authorizationStateMock.Verify(m => m.ExternalState, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalled_AssertNonceWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory(bool hasNonce)
+        {
+            Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock(hasNonce: hasNonce);
+            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            authorizationStateMock.Verify(m => m.Nonce, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalled_AssertAuthorizationCodeWasNotCalledOnAuthorizationStateCreatedByAuthorizationStateFactory(bool hasAuthorizationCode)
+        {
+            Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: hasAuthorizationCode);
+            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            authorizationStateMock.Verify(m => m.AuthorizationCode, Times.Never);
         }
 
         [Test]
@@ -235,13 +251,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalled_AssertStringWasCalledSixTimesOnValidator()
+        public void ToDomain_WhenCalled_AssertStringWasCalledSevenTimesOnValidator()
         {
             IGenerateAuthorizationCodeCommand sut = CreateSut();
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
-            _validatorMockContext.ValidatorMock.Verify(m => m.String, Times.Exactly(6));
+            _validatorMockContext.ValidatorMock.Verify(m => m.String, Times.Exactly(7));
         }
 
         [Test]
@@ -568,6 +584,45 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "ExternalState") == 0),
                     It.IsAny<bool>()),
                 Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithNonceFromAuthorizationStateCreatedByAuthorizationStateFactory(bool hasNonce)
+        {
+            IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasNonce: hasNonce).Object;
+            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
+                    It.IsAny<string>(),
+                    It.Is<Type>(value => value != null && value == authorizationState.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Nonce") == 0)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithNonceAuthorizationStateCreatedByAuthorizationStateFactory(bool hasNonce)
+        {
+            string nonce = hasNonce ? _fixture.Create<string>() : null;
+            IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasNonce: hasNonce, nonce: nonce).Object;
+            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
+                    It.Is<string>(value => hasNonce ? string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, nonce) == 0 : string.IsNullOrWhiteSpace(value) == true),
+                    It.Is<int>(value => value == 1),
+                    It.Is<Type>(value => value != null && value == authorizationState.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Nonce") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
         }
 
         [Test]

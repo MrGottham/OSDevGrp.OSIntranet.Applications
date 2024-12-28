@@ -21,6 +21,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands
 
         string State { get; }
 
+        string Nonce { get; }
+
         Func<byte[], byte[]> Protector { get; }
 
         IValidator Validate(IValidator validator, ISecurityRepository securityRepository, ITrustedDomainResolver trustedDomainResolver, ISupportedScopesProvider supportedScopesProvider);

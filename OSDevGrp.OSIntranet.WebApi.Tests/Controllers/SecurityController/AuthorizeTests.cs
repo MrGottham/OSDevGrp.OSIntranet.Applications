@@ -47,7 +47,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(null, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(null, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -58,7 +58,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(null, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(null, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -70,7 +70,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(null, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(null, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("unsupported_response_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "response_type"), null, state);
         }
@@ -81,7 +81,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(string.Empty, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(string.Empty, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -92,7 +92,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(string.Empty, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(string.Empty, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -104,7 +104,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(string.Empty, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(string.Empty, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("unsupported_response_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "response_type"), null, state);
         }
@@ -115,7 +115,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(" ", GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(" ", GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -126,7 +126,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(" ", GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(" ", GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -138,7 +138,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(" ", GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(" ", GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("unsupported_response_type", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "response_type"), null, state);
         }
@@ -149,7 +149,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(_fixture.Create<string>(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(_fixture.Create<string>(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -160,7 +160,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(_fixture.Create<string>(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(_fixture.Create<string>(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -172,7 +172,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(_fixture.Create<string>(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(_fixture.Create<string>(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("unsupported_response_type", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
         }
@@ -183,7 +183,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), null, GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), null, GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -194,7 +194,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), null, GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), null, GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -206,7 +206,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), null, GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), null, GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "client_id"), null, state);
         }
@@ -217,7 +217,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), string.Empty, GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), string.Empty, GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -228,7 +228,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), string.Empty, GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), string.Empty, GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -240,7 +240,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), string.Empty, GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), string.Empty, GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "client_id"), null, state);
         }
@@ -251,7 +251,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), " ", GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), " ", GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -262,7 +262,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), " ", GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), " ", GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -274,7 +274,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), " ", GetLegalRedirectUri(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), " ", GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "client_id"), null, state);
         }
@@ -285,7 +285,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), null, GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), null, GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -296,7 +296,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), null, GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), null, GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -308,7 +308,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), null, GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), null, GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "redirect_uri"), null, state);
         }
@@ -319,7 +319,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), string.Empty, GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), string.Empty, GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -330,7 +330,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), string.Empty, GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), string.Empty, GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -342,7 +342,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), string.Empty, GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), string.Empty, GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "redirect_uri"), null, state);
         }
@@ -353,7 +353,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), " ", GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), " ", GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -364,7 +364,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), " ", GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), " ", GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -376,7 +376,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), " ", GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), " ", GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "redirect_uri"), null, state);
         }
@@ -387,7 +387,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), _fixture.Create<string>(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), _fixture.Create<string>(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -398,7 +398,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), _fixture.Create<string>(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), _fixture.Create<string>(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -410,7 +410,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), _fixture.Create<string>(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), _fixture.Create<string>(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
         }
@@ -422,7 +422,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             Uri relativeUri = _fixture.CreateRelativeEndpoint();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -434,7 +434,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             Uri relativeUri = _fixture.CreateRelativeEndpoint();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -447,7 +447,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
             Uri relativeUri = _fixture.CreateRelativeEndpoint();
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), relativeUri.ToString(), GetLegalScope(), state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state);
         }
@@ -458,7 +458,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), null, GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), null, GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -469,7 +469,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), null, GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), null, GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -481,7 +481,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), null, state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), null, state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_scope", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "scope"), null, state);
         }
@@ -492,7 +492,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), string.Empty, GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), string.Empty, GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -503,7 +503,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), string.Empty, GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), string.Empty, GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -515,7 +515,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), string.Empty, state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), string.Empty, state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_scope", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "scope"), null, state);
         }
@@ -526,7 +526,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), " ", GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), " ", GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -537,7 +537,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), " ", GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), " ", GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
@@ -549,7 +549,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), " ", state);
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), " ", state, GetLegalNonce());
 
             ((BadRequestObjectResult) result).AssertExpectedErrorResponseModel("invalid_scope", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "scope"), null, state);
         }
@@ -560,7 +560,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "AuthorizationStateProtection") == 0)), Times.Once);
         }
@@ -571,7 +571,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.IsNotNull<IPrepareAuthorizationCodeFlowCommand>()), Times.Once);
         }
@@ -583,7 +583,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string responseType = GetLegalResponseType();
-            await sut.Authorize(responseType, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            await sut.Authorize(responseType, GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && string.IsNullOrWhiteSpace(value.ResponseType) == false && string.CompareOrdinal(value.ResponseType, responseType) == 0)), Times.Once);
         }
@@ -595,7 +595,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string clientId = GetLegalClientId();
-            await sut.Authorize(GetLegalResponseType(), clientId, GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            await sut.Authorize(GetLegalResponseType(), clientId, GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && string.IsNullOrWhiteSpace(value.ClientId) == false && string.CompareOrdinal(value.ClientId, clientId) == 0)), Times.Once);
         }
@@ -607,7 +607,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string redirectUri = GetLegalRedirectUri();
-            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), redirectUri, GetLegalScope(), GetLegalState());
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), redirectUri, GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && value.RedirectUri != null && string.CompareOrdinal(value.RedirectUri.AbsoluteUri, redirectUri) == 0)), Times.Once);
         }
@@ -619,7 +619,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string scopes = GetLegalScope();
-            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), scopes, GetLegalState());
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), scopes, GetLegalState(), GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && value.Scopes != null && string.CompareOrdinal(string.Join(' ', value.Scopes), scopes) == 0)), Times.Once);
         }
@@ -631,20 +631,49 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             Controller sut = CreateSut();
 
             string state = GetLegalState();
-            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state);
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && string.IsNullOrWhiteSpace(value.State) == false && string.CompareOrdinal(value.State, state) == 0)), Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task Authorize_WhenCalledWithoutState_AssertPublishAsyncWasCalledOnCommandBusWithPrepareAuthorizationCodeFlowCommandWithoutState()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public async Task Authorize_WhenCalledWithoutState_AssertPublishAsyncWasCalledOnCommandBusWithPrepareAuthorizationCodeFlowCommandWithoutState(string state)
         {
             Controller sut = CreateSut();
 
-            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), null);
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), state, GetLegalNonce());
 
             _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && value.State == null)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task Authorize_WhenCalledWithNonce_AssertPublishAsyncWasCalledOnCommandBusWithPrepareAuthorizationCodeFlowCommandWithNonce()
+        {
+            Controller sut = CreateSut();
+
+            string nonce = GetLegalNonce();
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), nonce);
+
+            _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && string.IsNullOrWhiteSpace(value.Nonce) == false && string.CompareOrdinal(value.Nonce, nonce) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public async Task Authorize_WhenCalledWithoutNonce_AssertPublishAsyncWasCalledOnCommandBusWithPrepareAuthorizationCodeFlowCommandWithoutNonce(string nonce)
+        {
+            Controller sut = CreateSut();
+
+            await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), nonce);
+
+            _commandBusMock.Verify(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.Is<IPrepareAuthorizationCodeFlowCommand>(value => value != null && value.Nonce == null)), Times.Once);
         }
 
         [Test]
@@ -653,7 +682,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.Not.Null);
         }
@@ -664,7 +693,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            IActionResult result = await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result, Is.TypeOf<RedirectToPageResult>());
         }
@@ -675,7 +704,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.PageName, Is.Not.Null);
         }
@@ -686,7 +715,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.PageName, Is.Not.Null);
         }
@@ -697,7 +726,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.PageName, Is.EqualTo("/Security/Login"));
         }
@@ -708,7 +737,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.RouteValues, Is.Not.Null);
         }
@@ -719,7 +748,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.RouteValues, Is.Not.Empty);
         }
@@ -730,7 +759,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.RouteValues!.ContainsKey("authorizationState"), Is.True);
         }
@@ -741,7 +770,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.RouteValues!["authorizationState"], Is.Not.Null);
         }
@@ -752,7 +781,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         {
             Controller sut = CreateSut();
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.RouteValues!["authorizationState"], Is.Not.Empty);
         }
@@ -763,7 +792,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             string authorizationState = _fixture.Create<string>();
             Controller sut = CreateSut(authorizationState: authorizationState);
 
-            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState());
+            RedirectToPageResult result = (RedirectToPageResult) await sut.Authorize(GetLegalResponseType(), GetLegalClientId(), GetLegalRedirectUri(), GetLegalScope(), GetLegalState(), GetLegalNonce());
 
             Assert.That(result.RouteValues!["authorizationState"], Is.EqualTo(authorizationState));
         }
@@ -786,6 +815,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private string GetLegalScope() => string.Join(' ', _fixture.CreateMany<string>(_random.Next(1, 5)));
 
         private string GetLegalState() => _fixture.Create<string>();
+
+        private string GetLegalNonce() => _fixture.Create<string>();
 
         private static string GetLegalResponseType() => "code";
     }

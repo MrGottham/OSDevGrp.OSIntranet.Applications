@@ -263,6 +263,51 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationStateBuilder
 
         [Test]
         [Category("UnitTest")]
+        public void Build_WhenWithNonceWasCalled_ReturnsAuthorizationStateWhereNonceIsNotNull()
+        {
+            IAuthorizationStateBuilder sut = CreateSut();
+
+            IAuthorizationState result = sut.WithNonce(_fixture.Create<string>()).Build();
+
+            Assert.That(result.Nonce, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithNonceWasCalled_ReturnsAuthorizationStateWhereNonceIsNotEmpty()
+        {
+            IAuthorizationStateBuilder sut = CreateSut();
+
+            IAuthorizationState result = sut.WithNonce(_fixture.Create<string>()).Build();
+
+            Assert.That(result.Nonce, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithNonceWasCalled_ReturnsAuthorizationStateWhereNonceIsEqualToNonceFromWithNonce()
+        {
+            IAuthorizationStateBuilder sut = CreateSut();
+
+            string nonce = _fixture.Create<string>();
+            IAuthorizationState result = sut.WithNonce(nonce).Build();
+
+            Assert.That(result.Nonce, Is.EqualTo(nonce));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithNonceWasNotCalled_ReturnsAuthorizationStateWhereNonceIsNull()
+        {
+            IAuthorizationStateBuilder sut = CreateSut();
+
+            IAuthorizationState result = sut.Build();
+
+            Assert.That(result.Nonce, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Build_WhenWithAuthorizationCodeWasCalledWithAuthorizationCode_ReturnsAuthorizationStateWhereAuthorizationCodeIsNotNull()
         {
             IAuthorizationStateBuilder sut = CreateSut();

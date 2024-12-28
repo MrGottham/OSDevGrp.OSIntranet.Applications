@@ -26,7 +26,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsIsNull_ThrowsArgumentNullException()
+		public void Build_WhenAuthenticationSessionItemsIsNull_ThrowsArgumentNullException()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -42,7 +42,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		[TestCase(true, false)]
 		[TestCase(true, true)]
 		[TestCase(false, true)]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsNotNull(bool hasExpiresAt, bool hasExpiresIn)
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsNotNull(bool hasExpiresAt, bool hasExpiresIn)
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -57,7 +57,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		[TestCase(true, false)]
 		[TestCase(true, true)]
 		[TestCase(false, true)]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsToken(bool hasExpiresAt, bool hasExpiresIn)
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsToken(bool hasExpiresAt, bool hasExpiresIn)
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -72,7 +72,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		[TestCase(true, false)]
 		[TestCase(true, true)]
 		[TestCase(false, true)]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsNotRefreshableToken(bool hasExpiresAt, bool hasExpiresIn)
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsNotRefreshableToken(bool hasExpiresAt, bool hasExpiresIn)
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -84,7 +84,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWhereTokenTypeIsNotNull()
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWhereTokenTypeIsNotNull()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -96,7 +96,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWithTokenTypeFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWithTokenTypeFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -109,7 +109,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWhereAccessTokenIsNotNull()
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWhereAccessTokenIsNotNull()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -121,7 +121,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWithAccessTokenFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshToken_ReturnsTokenWithAccessTokenFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -134,7 +134,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshTokenButKeyForExpiresAt_ReturnsTokenWithExpiresBasedOnExpiresAtFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshTokenButKeyForExpiresAt_ReturnsTokenWithExpiresBasedOnExpiresAtFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -147,7 +147,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshTokenAndNoKeyForExpiresAt_ReturnsTokenWithExpiresBasedOnExpiresInFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionItemsDoesNotContainKeyForRefreshTokenAndNoKeyForExpiresAt_ReturnsTokenWithExpiresBasedOnExpiresInFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -163,7 +163,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		[TestCase(true, false)]
 		[TestCase(true, true)]
 		[TestCase(false, true)]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsNotNull(bool hasExpiresAt, bool hasExpiresIn)
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsNotNull(bool hasExpiresAt, bool hasExpiresIn)
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -178,7 +178,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		[TestCase(true, false)]
 		[TestCase(true, true)]
 		[TestCase(false, true)]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsToken(bool hasExpiresAt, bool hasExpiresIn)
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsToken(bool hasExpiresAt, bool hasExpiresIn)
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -193,7 +193,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 		[TestCase(true, false)]
 		[TestCase(true, true)]
 		[TestCase(false, true)]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableToken(bool hasExpiresAt, bool hasExpiresIn)
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableToken(bool hasExpiresAt, bool hasExpiresIn)
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -205,7 +205,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWhereTokenTypeIsNotNull()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWhereTokenTypeIsNotNull()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -217,7 +217,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWithTokenTypeFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWithTokenTypeFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -230,7 +230,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWhereAccessTokenIsNotNull()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWhereAccessTokenIsNotNull()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -242,7 +242,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWithAccessTokenFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWithAccessTokenFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -255,7 +255,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWhereRefreshTokenIsNotNull()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWhereRefreshTokenIsNotNull()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -267,7 +267,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWithRefreshTokenFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshToken_ReturnsRefreshableTokenWithRefreshTokenFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -280,7 +280,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshTokenButKeyForExpiresAt_ReturnsRefreshableTokenWithExpiresBasedOnExpiresAtFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshTokenButKeyForExpiresAt_ReturnsRefreshableTokenWithExpiresBasedOnExpiresAtFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 
@@ -293,7 +293,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.ExternalTokenCr
 
 		[Test]
 		[Category("UnitTest")]
-		public void BuildTests_WhenAuthenticationSessionContainsKeyForRefreshTokenAndNoKeyForExpiresAt_ReturnsRefreshableTokenWithExpiresBasedOnExpiresInFromAuthenticationSessionItems()
+		public void Build_WhenAuthenticationSessionContainsKeyForRefreshTokenAndNoKeyForExpiresAt_ReturnsRefreshableTokenWithExpiresBasedOnExpiresInFromAuthenticationSessionItems()
 		{
 			IExternalTokenCreator sut = CreateSut();
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.Core.Extensions;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
@@ -13,7 +14,6 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
@@ -38,13 +38,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         protected abstract Random Random { get; }
 
-        protected static string Base64Pattern => @"([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)?";
-
         protected static string GrantTypePattern => "^(authorization_code|client_credentials){1}$";
 
         protected static string AuthorizationPattern => $"^(Basic){{1}}\\s+({Base64Pattern}){{1}}$";
 
-        protected static string AuthorizationParameterForClientIdAndClientSecretPattern = "^([a-f0-9]{32}){1}:([a-f0-9]{32}){1}$";
+        protected static readonly string AuthorizationParameterForClientIdAndClientSecretPattern = "^([a-f0-9]{32}){1}:([a-f0-9]{32}){1}$";
+
+        private static string Base64Pattern => @"([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)?";
 
         #endregion
 
@@ -78,12 +78,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             };
         }
 
-        protected IServiceProvider CreateServiceProvider()
+        private IServiceProvider CreateServiceProvider()
         {
             return CreateServiceCollection().BuildServiceProvider();
         }
 
-        protected IServiceCollection CreateServiceCollection()
+        private IServiceCollection CreateServiceCollection()
         {
             IServiceCollection serviceCollection = new ServiceCollection();
             serviceCollection.AddTransient(_ => AuthenticationServiceMock.Object);
@@ -113,16 +113,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         private string CreateClientValue()
         {
-            using MD5 md5Hash = MD5.Create();
-            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(Fixture.Create<string>()));
-
-            StringBuilder resultBuilder = new StringBuilder();
-            foreach (byte b in data)
-            {
-                resultBuilder.Append(b.ToString("x2"));
-            }
-
-            return resultBuilder.ToString();
+            return Fixture.Create<string>().ComputeMd5Hash();
         }
 
         protected ClaimsPrincipal CreateClaimsPrincipal(bool hasClaimsIdentity = true, ClaimsIdentity claimsIdentity = null)

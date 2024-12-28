@@ -30,14 +30,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new GenerateTokenCommand();
 		}
 
+        public static IGenerateIdTokenCommand BuildGenerateIdTokenCommand(ClaimsIdentity claimsIdentity, DateTimeOffset authenticationTime, string nonce)
+        {
+            return new GenerateIdTokenCommand(claimsIdentity, authenticationTime, nonce);
+        }
+
         public static IAcmeChallengeCommand BuildAcmeChallengeCommand(string challengeToken)
         {
             return new AcmeChallengeCommand(challengeToken);
         }
 
-        public static IPrepareAuthorizationCodeFlowCommand BuildPrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, Func<byte[], byte[]> protector)
+        public static IPrepareAuthorizationCodeFlowCommand BuildPrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, string nonce, Func<byte[], byte[]> protector)
         {
-            return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, protector);
+            return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, nonce, protector);
         }
 
         public static IGenerateAuthorizationCodeCommand BuildGenerateAuthorizationCodeCommand(string authorizationState, IReadOnlyCollection<Claim> claims, Func<byte[], byte[]> unprotect)

@@ -15,7 +15,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
     {
         #region Constructor
 
-        public PrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, Func<byte[], byte[]> protector)
+        public PrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, string nonce, Func<byte[], byte[]> protector)
         {
             NullGuard.NotNullOrWhiteSpace(responseType, nameof(responseType))
                 .NotNullOrWhiteSpace(clientId, nameof(clientId))
@@ -28,6 +28,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
             RedirectUri = redirectUri;
             Scopes = scopes;
             State = string.IsNullOrWhiteSpace(state) ? null : state;
+            Nonce = string.IsNullOrWhiteSpace(nonce) ? null : nonce;
             Protector = protector;
         }
 
@@ -44,6 +45,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
         public IEnumerable<string> Scopes { get; }
 
         public string State { get; }
+
+        public string Nonce { get; }
 
         public Func<byte[], byte[]> Protector { get; }
 
@@ -63,6 +66,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
                 .ValidateRedirectUri(RedirectUri, trustedDomainResolver, GetType(), nameof(RedirectUri))
                 .ValidateScopes(Scopes, supportedScopesProvider, GetType(), nameof(Scopes))
                 .ValidateState(State, GetType(), nameof(State), true)
+                .ValidateNonce(Nonce, GetType(), nameof(Nonce), true)
                 .Object.ShouldNotBeNull(Protector, GetType(), nameof(Protector));
         }
 
@@ -74,6 +78,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
             if (string.IsNullOrWhiteSpace(State) == false)
             {
                 authorizationStateBuilder = authorizationStateBuilder.WithExternalState(State);
+            }
+            if (string.IsNullOrWhiteSpace(Nonce) == false)
+            {
+                authorizationStateBuilder = authorizationStateBuilder.WithNonce(Nonce);
             }
 
             return authorizationStateBuilder.Build();

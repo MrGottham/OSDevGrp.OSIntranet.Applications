@@ -1,14 +1,13 @@
 ﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Extensions;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-	internal class ClientSecretIdentityBuilder : IClientSecretIdentityBuilder
+    internal class ClientSecretIdentityBuilder : IClientSecretIdentityBuilder
     {
         #region Private variables
 
@@ -16,7 +15,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         private string _clientId;
         private string _clientSecret;
         private readonly string _friendlyName;
-        private readonly List<Claim> _claims = new List<Claim>();
+        private readonly List<Claim> _claims = new();
 
 		#endregion
 
@@ -26,7 +25,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
             NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName));
 
-            _identifier = default;
+            _identifier = 0;
             _friendlyName = friendlyName;
 
             if (claims == null)
@@ -84,16 +83,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         {
             NullGuard.NotNull(friendlyName, nameof(friendlyName));
 
-            using MD5 md5Hash = MD5.Create();
-            byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes($"{Guid.NewGuid():N}:{friendlyName}:{DateTime.UtcNow.Ticks}"));
-
-            StringBuilder resultBuilder = new StringBuilder();
-            foreach (byte b in data)
-            {
-	            resultBuilder.Append(b.ToString("x2"));
-            }
-
-            return resultBuilder.ToString();
+            return $"{Guid.NewGuid():N}:{friendlyName}:{DateTime.UtcNow.Ticks}".ComputeMd5Hash();
         }
 
         #endregion

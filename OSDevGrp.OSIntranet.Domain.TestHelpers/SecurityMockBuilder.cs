@@ -273,7 +273,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return scopeMock;
         }
 
-        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null, Uri redirectUriWithAuthorizationCode = null)
+        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasNonce = true, string nonce = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null, Uri redirectUriWithAuthorizationCode = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -293,6 +293,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(scopes ?? fixture.CreateStringArray(random));
             authorizationStateMock.Setup(m => m.ExternalState)
                 .Returns(hasExternalState ? externalState ?? fixture.Create<string>() : null);
+            authorizationStateMock.Setup(m => m.Nonce)
+                .Returns(hasNonce ? nonce ?? fixture.Create<string>() : null);
             authorizationStateMock.Setup(m => m.AuthorizationCode)
                 .Returns(hasAuthorizationCode ? authorizationCode ?? fixture.BuildAuthorizationCodeMock().Object : null);
             authorizationStateMock.Setup(m => m.ToString())
@@ -328,6 +330,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             authorizationStateBuilderMock.Setup(m => m.WithClientSecret(It.IsAny<string>()))
                 .Returns(authorizationStateBuilderMock.Object);
             authorizationStateBuilderMock.Setup(m => m.WithExternalState(It.IsAny<string>()))
+                .Returns(authorizationStateBuilderMock.Object);
+            authorizationStateBuilderMock.Setup(m => m.WithNonce(It.IsAny<string>()))
                 .Returns(authorizationStateBuilderMock.Object);
             authorizationStateBuilderMock.Setup(m => m.WithAuthorizationCode(It.IsAny<IAuthorizationCode>()))
                 .Returns(authorizationStateBuilderMock.Object);

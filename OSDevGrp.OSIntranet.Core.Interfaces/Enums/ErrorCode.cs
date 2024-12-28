@@ -170,6 +170,9 @@ namespace OSDevGrp.OSIntranet.Core.Interfaces.Enums
         UnableAuthenticateClient = 1055,
 
         [ErrorCode("Cannot retrieve a JWT token for the authenticated user.", typeof(IntranetBusinessException))]
-        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1056
+        CannotRetrieveJwtBearerTokenForAuthenticatedUser = 1056,
+
+        [ErrorCode("Unable to generate an id token for the authenticated user.", typeof(IntranetBusinessException))]
+        UnableToGenerateIdTokenForAuthenticatedUser = 1057
     }
 }

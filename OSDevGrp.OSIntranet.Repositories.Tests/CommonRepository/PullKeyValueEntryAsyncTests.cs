@@ -1,13 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Core.Extensions;
 using OSDevGrp.OSIntranet.Domain.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 {
@@ -36,9 +35,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(null));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("key"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -49,9 +47,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(string.Empty));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("key"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -62,9 +59,8 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(" "));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("key"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -105,18 +101,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
         private string BuildKey()
         {
-            string key = $"{_fixture.Create<string>()}|{GetType().Name}|{_fixture.Create<string>()}";
-
-            using MD5 md5Hash = MD5.Create();
-            byte[] keyData = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(key));
-
-            StringBuilder keyBuilder = new StringBuilder();
-            foreach (byte b in keyData)
-            {
-                keyBuilder.Append(b.ToString("x2"));
-            }
-
-            return keyBuilder.ToString();
+            return $"{_fixture.Create<string>()}|{GetType().Name}|{_fixture.Create<string>()}".ComputeMd5Hash();
         }
     }
 }

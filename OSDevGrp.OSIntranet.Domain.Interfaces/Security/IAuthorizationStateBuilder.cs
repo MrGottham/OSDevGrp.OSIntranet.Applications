@@ -8,6 +8,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 
         IAuthorizationStateBuilder WithExternalState(string externalState);
 
+        IAuthorizationStateBuilder WithNonce(string nonce);
+
         IAuthorizationStateBuilder WithAuthorizationCode(IAuthorizationCode authorizationCode);
 
         IAuthorizationStateBuilder WithAuthorizationCode(string value, DateTimeOffset expires);
