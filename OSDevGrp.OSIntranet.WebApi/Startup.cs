@@ -211,8 +211,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme, Array.Empty<string>()}});
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {{bearerSecurityScheme, Array.Empty<string>()}});
             });
-            // TODO: Remove use of Newtonsoft and Swashbuckle.AspNetCore.Newtonsoft
-            services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddHealthChecks()
                 .AddSecurityHealthChecks(opt =>

@@ -1,39 +1,39 @@
+using OSDevGrp.OSIntranet.WebApi.Models.Common;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
-using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class AccountingModel : AccountingIdentificationModel
     {
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public LetterHeadIdentificationModel LetterHead { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BalanceBelowZeroType BalanceBelowZero { get; set; }
 
         [Required]
         [Range(0, 365)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public int BackDating { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public DateTimeOffset StatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public AccountCollectionModel Accounts { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetAccountCollectionModel BudgetAccounts { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public ContactAccountCollectionModel ContactAccounts { get; set; }
     }
 }

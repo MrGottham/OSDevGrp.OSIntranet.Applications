@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class ApplyPostingJournalResultModel
     {
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public PostingLineCollectionModel PostingLines { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public PostingWarningCollectionModel PostingWarnings { get; set; }
     }
 }

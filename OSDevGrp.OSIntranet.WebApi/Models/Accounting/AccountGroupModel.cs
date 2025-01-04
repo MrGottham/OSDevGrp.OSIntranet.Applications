@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class AccountGroupModel : AccountGroupModelBase
     {
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public AccountGroupType AccountGroupType { get; set; }
     }
 }

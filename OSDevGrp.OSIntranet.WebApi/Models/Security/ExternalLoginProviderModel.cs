@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Security
 {
@@ -11,12 +11,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
 
         [Required]
         [RegularExpression($"^({MicrosoftAccountDefaults.AuthenticationScheme}|{GoogleDefaults.AuthenticationScheme})$")]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public string AuthenticationScheme { get; set; }
 
         [Required]
         [MinLength(1)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public string AuthenticationState { get; set; }
 
         #endregion

@@ -1,32 +1,32 @@
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class BudgetAccountModel : AccountCoreDataModel
     {
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetAccountGroupModel BudgetAccountGroup { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetInfoValuesModel ValuesForMonthOfStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetInfoValuesModel ValuesForLastMonthOfStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetInfoValuesModel ValuesForYearToDateOfStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetInfoValuesModel ValuesForLastYearOfStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BudgetInfoCollectionModel BudgetInfos { get; set; }
     }
 }
