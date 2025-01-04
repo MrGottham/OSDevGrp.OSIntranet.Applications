@@ -16,16 +16,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         #region Private variables
 
         private readonly IOptions<TokenGeneratorOptions> _tokenGeneratorOptions;
+        private readonly TimeProvider _timeProvider;
 
         #endregion
 
         #region Constructor
 
-        public TokenGenerator(IOptions<TokenGeneratorOptions> tokenGeneratorOptions)
+        public TokenGenerator(IOptions<TokenGeneratorOptions> tokenGeneratorOptions, TimeProvider timeProvider)
         {
-            NullGuard.NotNull(tokenGeneratorOptions, nameof(tokenGeneratorOptions));
+            NullGuard.NotNull(tokenGeneratorOptions, nameof(tokenGeneratorOptions))
+                .NotNull(timeProvider, nameof(timeProvider));
 
             _tokenGeneratorOptions = tokenGeneratorOptions;
+            _timeProvider = timeProvider;
         }
 
         #endregion
@@ -38,13 +41,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         #region Methods
 
-        public IToken Generate(ClaimsIdentity claimsIdentity)
+        public IToken Generate(ClaimsIdentity claimsIdentity, TimeSpan expiresIn)
         {
             NullGuard.NotNull(claimsIdentity, nameof(claimsIdentity));
 
             TokenGeneratorOptions tokenGeneratorOptions = _tokenGeneratorOptions.Value;
             using ISecurityKeyBuilder securityKeyBuilder = new SecurityKeyBuilder(tokenGeneratorOptions.Key);
-            DateTime expires = DateTime.UtcNow.AddHours(1);
+            DateTime expires = _timeProvider.GetUtcNow().Add(expiresIn).UtcDateTime;
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor

@@ -21,7 +21,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         #region Private variables
 
         private Mock<IOptions<TokenGeneratorOptions>> _tokenGeneratorOptionsMock;
+        private Mock<TimeProvider> _timeProviderMock;
         private Fixture _fixture;
+        private Random _random;
         private readonly Regex _jwtTokenRegex = new(RegexTestHelper.JwtTokenPattern, RegexOptions.Compiled);
 
         #endregion
@@ -30,7 +32,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         public void SetUp()
         {
             _tokenGeneratorOptionsMock = new Mock<IOptions<TokenGeneratorOptions>>();
+            _timeProviderMock = new Mock<TimeProvider>();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
@@ -39,11 +43,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Generate(null));
+            ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Generate(null, TimeSpan.FromMinutes(_random.Next(5, 60))));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("claimsIdentity"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
@@ -52,9 +55,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-            sut.Generate(CreateClaimsIdentity());
+            sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
             _tokenGeneratorOptionsMock.Verify(m => m.Value, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Generate_WhenCalled_AssertGetUtcNowWasCalledOnTimeProvider()
+        {
+            ITokenGenerator sut = CreateSut();
+
+            sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Once);
         }
 
         [Test]
@@ -63,7 +77,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
             ITokenGenerator sut = CreateSut();
 
-            IToken result = sut.Generate(CreateClaimsIdentity());
+            IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
             Assert.That(result, Is.Not.Null);
         }
@@ -74,7 +88,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-	        IToken result = sut.Generate(CreateClaimsIdentity());
+	        IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
 	        Assert.That(result.TokenType, Is.Not.Null);
         }
@@ -85,7 +99,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-	        IToken result = sut.Generate(CreateClaimsIdentity());
+	        IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
 	        Assert.That(result.TokenType, Is.Not.Empty);
         }
@@ -96,7 +110,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
             ITokenGenerator sut = CreateSut();
 
-            IToken result = sut.Generate(CreateClaimsIdentity());
+            IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
             Assert.That(result.TokenType, Is.EqualTo("Bearer"));
         }
@@ -107,7 +121,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-	        IToken result = sut.Generate(CreateClaimsIdentity());
+	        IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
 	        Assert.That(result.AccessToken, Is.Not.Null);
         }
@@ -118,7 +132,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-	        IToken result = sut.Generate(CreateClaimsIdentity());
+	        IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
 	        Assert.That(result.AccessToken, Is.Not.Empty);
         }
@@ -129,7 +143,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         {
 	        ITokenGenerator sut = CreateSut();
 
-	        IToken result = sut.Generate(CreateClaimsIdentity());
+	        IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
 	        Assert.That(_jwtTokenRegex.IsMatch(result.AccessToken), Is.True);
         }
@@ -141,7 +155,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
             TokenGeneratorOptions tokenGeneratorOptions = CreateTokenGeneratorOptions();
             ITokenGenerator sut = CreateSut(tokenGeneratorOptions);
 
-            IToken result = sut.Generate(CreateClaimsIdentity());
+            IToken result = sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
 
             JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
             jwtSecurityTokenHandler.ValidateToken(result.AccessToken, tokenGeneratorOptions.ToTokenValidationParameters(), out _);
@@ -149,13 +163,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void Generate_WhenCalled_ReturnsTokenWhereExpiresIsCalculateExpireTime()
+        public void Generate_WhenCalled_ReturnsTokenWhereExpiresIsEqualCalculatedExpireTimeBasedOnUtcNowAndExpiresIn()
         {
-	        ITokenGenerator sut = CreateSut();
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+	        ITokenGenerator sut = CreateSut(utcNow: utcNow);
 
-	        IToken result = sut.Generate(CreateClaimsIdentity());
+            TimeSpan expiresIn = TimeSpan.FromMinutes(_random.Next(5, 60));
+            IToken result = sut.Generate(CreateClaimsIdentity(), expiresIn);
 
-	        Assert.That(result.Expires, Is.EqualTo(DateTime.UtcNow.AddHours(1)).Within(1).Seconds);
+	        Assert.That(result.Expires, Is.EqualTo(utcNow.Add(expiresIn).UtcDateTime));
         }
 
         [Test]
@@ -166,9 +182,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 
             try
             {
-                sut.Generate(CreateClaimsIdentity());
-                sut.Generate(CreateClaimsIdentity());
-                sut.Generate(CreateClaimsIdentity());
+                sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
+                sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
+                sut.Generate(CreateClaimsIdentity(), TimeSpan.FromMinutes(_random.Next(5, 60)));
             }
             catch (Exception ex)
             {
@@ -176,12 +192,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
             }
         }
 
-        private ITokenGenerator CreateSut(TokenGeneratorOptions tokenGeneratorOptions = null)
+        private ITokenGenerator CreateSut(TokenGeneratorOptions tokenGeneratorOptions = null, DateTimeOffset? utcNow = null)
         {
 	        _tokenGeneratorOptionsMock.Setup(m => m.Value)
 		        .Returns(tokenGeneratorOptions ?? CreateTokenGeneratorOptions());
 
-            return new BusinessLogic.Security.Logic.TokenGenerator(_tokenGeneratorOptionsMock.Object);
+            _timeProviderMock.Setup(m => m.GetUtcNow())
+                .Returns(utcNow ?? DateTimeOffset.UtcNow);
+
+            return new BusinessLogic.Security.Logic.TokenGenerator(_tokenGeneratorOptionsMock.Object, _timeProviderMock.Object);
         }
 
         private TokenGeneratorOptions CreateTokenGeneratorOptions()

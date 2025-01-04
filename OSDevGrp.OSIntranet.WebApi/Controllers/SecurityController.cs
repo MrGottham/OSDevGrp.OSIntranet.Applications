@@ -48,6 +48,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
         private readonly IDataProtectionProvider _dataProtectionProvider;
+        private readonly TimeProvider _timeProvider;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
         private static readonly Regex GrantTypeRegex = new("^(authorization_code|client_credentials){1}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
         private static readonly Regex AuthorizationRegex = new($"^(Basic){{1}}\\s+({Base64Pattern}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
@@ -57,15 +58,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider)
+        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider, TimeProvider timeProvider)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
-                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
+                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider))
+                .NotNull(timeProvider, nameof(timeProvider));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
             _dataProtectionProvider = dataProtectionProvider;
+            _timeProvider = timeProvider;
         }
 
         #endregion
@@ -178,7 +181,16 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     await HttpContext.SignInAsync(Schemes.Internal, internalClaimsPrincipal, authenticateResult.Properties);
                     HttpContext.User = internalClaimsPrincipal;
 
-                    IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = SecurityCommandFactory.BuildGenerateAuthorizationCodeCommand(authorizationState, internalClaimsPrincipal.Claims.ToArray(), _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Unprotect);
+                    IDataProtector dataProtector = _dataProtectionProvider.CreateProtector("AuthorizationStateProtection");
+
+                    IGenerateIdTokenCommand generateIdTokenCommand = SecurityCommandFactory.BuildGenerateIdTokenCommand(internalClaimsPrincipal, _timeProvider.GetUtcNow(), authorizationState, dataProtector.Unprotect);
+                    IToken idToken = await _commandBus.PublishAsync<IGenerateIdTokenCommand, IToken>(generateIdTokenCommand);
+                    if (idToken == null)
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser), null, null));
+                    }
+
+                    IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = SecurityCommandFactory.BuildGenerateAuthorizationCodeCommand(authorizationState, internalClaimsPrincipal.Claims.ToArray(), idToken, dataProtector.Unprotect);
                     IAuthorizationState authorizationStateWithAuthorizationCode = await _commandBus.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(generateAuthorizationCodeCommand);
                     if (string.IsNullOrWhiteSpace(authorizationStateWithAuthorizationCode?.AuthorizationCode.Value))
                     {

@@ -4,15 +4,11 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuthorizationCodeCommand
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateIdTokenCommand
 {
     [TestFixture]
     public class ValidateTests
@@ -21,6 +17,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         private ValidatorMockContext _validatorMockContext;
         private Fixture _fixture;
+        private Random _random;
 
         #endregion
 
@@ -29,13 +26,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             _validatorMockContext = new ValidatorMockContext();
             _fixture = new Fixture();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]
         [Category("UnitTest")]
         public void Validate_WhenValidatorIsNull_ThrowsArgumentNullException()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IGenerateIdTokenCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.Validate(null));
 
@@ -47,7 +45,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void Validate_WhenCalled_AssertStringWasCalledThreeTimesOnValidator()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IGenerateIdTokenCommand sut = CreateSut();
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
@@ -56,24 +54,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertObjectWasCalledTwoThreeOnValidator()
+        public void Validate_WhenCalled_AssertObjectWasCalledTwoTimesOnValidator()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IGenerateIdTokenCommand sut = CreateSut();
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
-            _validatorMockContext.ValidatorMock.Verify(m => m.Object, Times.Exactly(3));
+            _validatorMockContext.ValidatorMock.Verify(m => m.Object, Times.Exactly(2));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertEnumerableWasCalledTwoTimesOnValidator()
+        public void Validate_WhenCalled_AssertDateTimeWasOnceOnValidator()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IGenerateIdTokenCommand sut = CreateSut();
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
-            _validatorMockContext.ValidatorMock.Verify(m => m.Enumerable, Times.Exactly(2));
+            _validatorMockContext.ValidatorMock.Verify(m => m.DateTime, Times.Once);
         }
 
         [Test]
@@ -81,7 +79,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void Validate_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasCalledOnStringValidatorWithAuthorizationState()
         {
             string authorizationState = _fixture.Create<string>();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationState: authorizationState);
+            IGenerateIdTokenCommand sut = CreateSut(authorizationState: authorizationState);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
@@ -97,7 +95,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithAuthorizationState()
         {
             string authorizationState = _fixture.Create<string>();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationState: authorizationState);
+            IGenerateIdTokenCommand sut = CreateSut(authorizationState: authorizationState);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
@@ -115,7 +113,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void Validate_WhenCalled_AssertShouldMatchPatternWasCalledOnStringValidatorWithAuthorizationState()
         {
             string authorizationState = _fixture.Create<string>();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationState: authorizationState);
+            IGenerateIdTokenCommand sut = CreateSut(authorizationState: authorizationState);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
@@ -133,7 +131,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithUnprotect()
         {
             Func<byte[], byte[]> unprotect = bytes => bytes;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(unprotect: unprotect);
+            IGenerateIdTokenCommand sut = CreateSut(unprotect: unprotect);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
@@ -146,68 +144,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithClaims()
+        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithClaimsPrincipal()
         {
-            IReadOnlyCollection<Claim> claims = CreateClaims();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(claims: claims);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal();
+            IGenerateIdTokenCommand sut = CreateSut(claimsPrincipal: claimsPrincipal);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
-                    It.Is<Claim[]>(value => value != null && claims.All(value.Contains)),
+                    It.Is<ClaimsPrincipal>(value => value != null && value == claimsPrincipal),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
-                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Claims") == 0)),
-                Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldContainItemsWasCalledOnEnumerableValidatorWithClaims()
-        {
-            IReadOnlyCollection<Claim> claims = CreateClaims();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(claims: claims);
-
-            sut.Validate(_validatorMockContext.ValidatorMock.Object);
-
-            _validatorMockContext.EnumerableValidatorMock.Verify(m => m.ShouldContainItems(
-                    It.Is<Claim[]>(value => value != null && claims.All(value.Contains)),
-                    It.Is<Type>(value => value != null && value == sut.GetType()),
-                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Claims") == 0),
-                    It.Is<bool>(value => value == false)),
-                Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldHaveMinItemsWasCalledOnEnumerableValidatorWithClaims()
-        {
-            IReadOnlyCollection<Claim> claims = CreateClaims();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(claims: claims);
-
-            sut.Validate(_validatorMockContext.ValidatorMock.Object);
-
-            _validatorMockContext.EnumerableValidatorMock.Verify(m => m.ShouldHaveMinItems(
-                    It.Is<Claim[]>(value => value != null && claims.All(value.Contains)),
-                    It.Is<int>(value => value == 1),
-                    It.Is<Type>(value => value != null && value == sut.GetType()),
-                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Claims") == 0),
-                    It.Is<bool>(value => value == false)),
-                Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithIdToken()
-        {
-            IToken idToken = _fixture.BuildTokenMock().Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(idToken: idToken);
-
-            sut.Validate(_validatorMockContext.ValidatorMock.Object);
-
-            _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
-                    It.Is<IToken>(value => value != null && value == idToken),
-                    It.Is<Type>(value => value != null && value == sut.GetType()),
-                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "IdToken") == 0)),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "ClaimsPrincipal") == 0)),
                 Times.Once);
         }
 
@@ -215,7 +162,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void Validate_WhenCalled_ReturnsNotNull()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IGenerateIdTokenCommand sut = CreateSut();
 
             IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
@@ -224,28 +171,55 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenAuthenticationTimeIsUtcTime_AssertShouldBePastDateTimeWasCalledOnDateTimeValidatorWithUnprotect()
+        {
+            DateTimeOffset authenticationTime = DateTimeOffset.UtcNow;
+            IGenerateIdTokenCommand sut = CreateSut(authenticationTime: authenticationTime);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object);
+
+            _validatorMockContext.DateTimeValidatorMock.Verify(m => m.ShouldBePastDateTime(
+                    It.Is<DateTime>(value => value == authenticationTime.UtcDateTime),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "AuthenticationTime") == 0)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenAuthenticationTimeIsLocalTime_AssertShouldBePastDateTimeWasCalledOnDateTimeValidatorWithUnprotect()
+        {
+            DateTimeOffset authenticationTime = DateTimeOffset.Now;
+            IGenerateIdTokenCommand sut = CreateSut(authenticationTime: authenticationTime);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object);
+
+            _validatorMockContext.DateTimeValidatorMock.Verify(m => m.ShouldBePastDateTime(
+                    It.Is<DateTime>(value => value == authenticationTime.UtcDateTime),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "AuthenticationTime") == 0)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_ReturnsValidatorFromArguments()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IGenerateIdTokenCommand sut = CreateSut();
 
             IValidator result = sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IGenerateAuthorizationCodeCommand CreateSut(string authorizationState = null, IReadOnlyCollection<Claim> claims = null, IToken idToken = null, Func<byte[], byte[]> unprotect = null)
+        private IGenerateIdTokenCommand CreateSut(ClaimsPrincipal claimsPrincipal = null, DateTimeOffset? authenticationTime = null, string authorizationState = null, Func<byte[], byte[]> unprotect = null)
         {
-            return new BusinessLogic.Security.Commands.GenerateAuthorizationCodeCommand(authorizationState ?? _fixture.Create<string>(), claims ?? CreateClaims(), idToken ?? _fixture.BuildTokenMock().Object, unprotect ?? (bytes => bytes));
+            return new BusinessLogic.Security.Commands.GenerateIdTokenCommand(claimsPrincipal ?? CreateClaimsPrincipal(), authenticationTime ?? DateTimeOffset.UtcNow.AddSeconds(_random.Next(300) * -1), authorizationState ?? _fixture.Create<string>(), unprotect ?? (bytes => bytes));
         }
 
-        private IReadOnlyCollection<Claim> CreateClaims()
+        private static ClaimsPrincipal CreateClaimsPrincipal()
         {
-            return
-            [
-                new(_fixture.Create<string>(), _fixture.Create<string>()),
-                new(_fixture.Create<string>(), _fixture.Create<string>()),
-                new(_fixture.Create<string>(), _fixture.Create<string>())
-            ];
+            return new ClaimsPrincipal();
         }
     }
 }

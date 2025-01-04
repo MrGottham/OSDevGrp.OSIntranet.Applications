@@ -25,6 +25,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Mock<IDataProtector> _dataProtectorMock;
+        private Mock<TimeProvider> _timeProviderMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -37,6 +38,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _queryBusMock = new Mock<IQueryBus>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _dataProtectorMock = new Mock<IDataProtector>();
+            _timeProviderMock = new Mock<TimeProvider>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
@@ -805,7 +807,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.IsAny<IPrepareAuthorizationCodeFlowCommand>()))
                 .Returns(Task.FromResult(authorizationState ?? _fixture.Create<string>()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object);
         }
 
         private string GetLegalClientId() => _fixture.Create<string>();

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Claims;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
@@ -30,9 +31,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new GenerateTokenCommand();
 		}
 
-        public static IGenerateIdTokenCommand BuildGenerateIdTokenCommand(ClaimsIdentity claimsIdentity, DateTimeOffset authenticationTime, string nonce)
+        public static IGenerateIdTokenCommand BuildGenerateIdTokenCommand(ClaimsPrincipal claimsPrincipal, DateTimeOffset authenticationTime, string authorizationState, Func<byte[], byte[]> unprotect)
         {
-            return new GenerateIdTokenCommand(claimsIdentity, authenticationTime, nonce);
+            return new GenerateIdTokenCommand(claimsPrincipal, authenticationTime, authorizationState, unprotect);
         }
 
         public static IAcmeChallengeCommand BuildAcmeChallengeCommand(string challengeToken)
@@ -45,9 +46,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
             return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, nonce, protector);
         }
 
-        public static IGenerateAuthorizationCodeCommand BuildGenerateAuthorizationCodeCommand(string authorizationState, IReadOnlyCollection<Claim> claims, Func<byte[], byte[]> unprotect)
+        public static IGenerateAuthorizationCodeCommand BuildGenerateAuthorizationCodeCommand(string authorizationState, IReadOnlyCollection<Claim> claims, IToken idToken, Func<byte[], byte[]> unprotect)
         {
-            return new GenerateAuthorizationCodeCommand(authorizationState, claims, unprotect);
+            return new GenerateAuthorizationCodeCommand(authorizationState, claims, idToken, unprotect);
         }
 
         #endregion

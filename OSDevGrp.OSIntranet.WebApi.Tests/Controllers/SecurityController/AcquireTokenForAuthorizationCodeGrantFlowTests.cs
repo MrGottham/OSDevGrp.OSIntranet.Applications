@@ -33,6 +33,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Mock<IDataProtector> _dataProtectorMock;
+        private Mock<TimeProvider> _timeProviderMock;
         private Mock<IAuthenticationService> _authenticationServiceMock;
         private Fixture _fixture;
         private Random _random;
@@ -49,13 +50,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         protected override Mock<IDataProtector> DataProtectorMock => _dataProtectorMock;
 
+        protected override Mock<TimeProvider> TimeProviderMock => _timeProviderMock;
+
         protected override Mock<IAuthenticationService> AuthenticationServiceMock => _authenticationServiceMock;
 
         protected override Fixture Fixture => _fixture;
 
-        protected override Random Random => _random;
-
-        protected string GrantType => "authorization_code";
+        private string GrantType => "authorization_code";
 
         #endregion
 
@@ -66,6 +67,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _queryBusMock = new Mock<IQueryBus>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _dataProtectorMock = new Mock<IDataProtector>();
+            _timeProviderMock = new Mock<TimeProvider>();
             _authenticationServiceMock = new Mock<IAuthenticationService>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());

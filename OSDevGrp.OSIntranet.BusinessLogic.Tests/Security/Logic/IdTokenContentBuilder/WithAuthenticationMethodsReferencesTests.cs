@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Linq;
 
@@ -81,7 +82,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         private IIdTokenContentBuilder CreateSut()
         {
-            return new BusinessLogic.Security.Logic.IdTokenContentBuilder(_fixture.Create<string>(), DateTimeOffset.UtcNow.AddSeconds(_random.Next(300) * -1));
+            return new BusinessLogic.Security.Logic.IdTokenContentBuilder(_fixture.Create<string>(), _fixture.BuildUserInfoMock().Object, DateTimeOffset.UtcNow.AddSeconds(_random.Next(300) * -1));
         }
     }
 }

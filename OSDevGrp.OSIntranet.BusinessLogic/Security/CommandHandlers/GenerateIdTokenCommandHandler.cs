@@ -1,20 +1,25 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Extensions;
-using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-    internal class GenerateIdTokenCommandHandler : CommandHandlerNonTransactionalBase, ICommandHandler<IGenerateIdTokenCommand, IToken>
+    internal class GenerateIdTokenCommandHandler : AuthorizationStateCommandHandlerBase<IGenerateIdTokenCommand, IToken>
     {
         #region Private variables
 
+        private readonly IUserInfoFactory _userInfoFactory;
         private readonly IIdTokenContentFactory _idTokenContentFactory;
         private readonly ITokenGenerator _tokenGenerator;
 
@@ -22,11 +27,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Constructor
 
-        public GenerateIdTokenCommandHandler(IIdTokenContentFactory idTokenContentFactory, ITokenGenerator tokenGenerator)
+        public GenerateIdTokenCommandHandler(IValidator validator, IAuthorizationStateFactory authorizationStateFactory, ISecurityRepository securityRepository, ITrustedDomainResolver trustedDomainResolver, ISupportedScopesProvider supportedScopesProvider, IUserInfoFactory userInfoFactory, IIdTokenContentFactory idTokenContentFactory, ITokenGenerator tokenGenerator)
+            : base(validator, authorizationStateFactory, securityRepository, trustedDomainResolver, supportedScopesProvider)
         {
-            NullGuard.NotNull(idTokenContentFactory, nameof(idTokenContentFactory))
+            NullGuard.NotNull(userInfoFactory, nameof(userInfoFactory))
+                .NotNull(idTokenContentFactory, nameof(idTokenContentFactory))
                 .NotNull(tokenGenerator, nameof(tokenGenerator));
 
+            _userInfoFactory = userInfoFactory;
             _idTokenContentFactory = idTokenContentFactory;
             _tokenGenerator = tokenGenerator;
         }
@@ -35,28 +43,64 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Methods
 
-        public Task<IToken> ExecuteAsync(IGenerateIdTokenCommand generateIdTokenCommand)
+        protected override async Task<IToken> HandleAuthorizationStateAsync(IGenerateIdTokenCommand generateIdTokenCommand, IAuthorizationState authorizationState)
         {
-            NullGuard.NotNull(generateIdTokenCommand, nameof(generateIdTokenCommand));
+            NullGuard.NotNull(generateIdTokenCommand, nameof(generateIdTokenCommand))
+                .NotNull(authorizationState, nameof(authorizationState));
 
-            return Task.Run(() =>
+            ClaimsPrincipal claimsPrincipal = generateIdTokenCommand.ClaimsPrincipal;
+
+            string subjectIdentifier = await ResolveSubjectIdentifierAsync(claimsPrincipal);
+            IUserInfo userInfo = await ResolveUserInfoAsync(claimsPrincipal);
+
+            IIdTokenContentBuilder idTokenContentBuilder = _idTokenContentFactory.Create(subjectIdentifier, userInfo, generateIdTokenCommand.AuthenticationTime);
+
+            string nonce = authorizationState.Nonce;
+            if (string.IsNullOrWhiteSpace(nonce) == false)
             {
-                Claim nameIdentifierClaim = generateIdTokenCommand.ClaimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-                if (nameIdentifierClaim == null || string.IsNullOrWhiteSpace(nameIdentifierClaim.Value))
-                {
-                    throw new IntranetExceptionBuilder(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser).Build();
-                }
+                idTokenContentBuilder = idTokenContentBuilder.WithNonce(nonce);
+            }
 
-                IIdTokenContentBuilder idTokenContentBuilder = _idTokenContentFactory.Create(nameIdentifierClaim.Value.ComputeSha512Hash(), generateIdTokenCommand.AuthenticationTime);
+            foreach (Claim claim in await ResolveClaimsSupportedByScope(claimsPrincipal, SupportedScopesProvider.SupportedScopes[ScopeHelper.WebApiScope]))
+            {
+                idTokenContentBuilder = idTokenContentBuilder.WithCustomClaim(claim.Type, claim.Value);
+            }
 
-                string nonce = generateIdTokenCommand.Nonce;
-                if (string.IsNullOrWhiteSpace(nonce) == false)
-                {
-                    idTokenContentBuilder.WithNonce(nonce);
-                }
+            return _tokenGenerator.Generate(new ClaimsIdentity(idTokenContentBuilder.Build()), TimeSpan.FromMinutes(5));
+        }
 
-                return _tokenGenerator.Generate(new ClaimsIdentity(idTokenContentBuilder.Build()));
-            });
+        private Task<IUserInfo> ResolveUserInfoAsync(ClaimsPrincipal claimsPrincipal)
+        {
+            NullGuard.NotNull(claimsPrincipal, nameof(claimsPrincipal));
+
+            IUserInfo userInfo = _userInfoFactory.FromPrincipal(claimsPrincipal);
+            if (userInfo == null)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser).Build();
+            }
+
+            return Task.FromResult(userInfo);
+        }
+
+        private static Task<string> ResolveSubjectIdentifierAsync(ClaimsPrincipal claimsPrincipal)
+        {
+            NullGuard.NotNull(claimsPrincipal, nameof(claimsPrincipal));
+
+            Claim nameIdentifierClaim = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier);
+            if (nameIdentifierClaim == null || string.IsNullOrWhiteSpace(nameIdentifierClaim.Value))
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser).Build();
+            }
+
+            return Task.FromResult(nameIdentifierClaim.Value.ComputeSha512Hash());
+        }
+
+        private static Task<IEnumerable<Claim>> ResolveClaimsSupportedByScope(ClaimsPrincipal claimsPrincipal, IScope supportedScope)
+        {
+            NullGuard.NotNull(claimsPrincipal, nameof(claimsPrincipal))
+                .NotNull(supportedScope, nameof(supportedScope));
+
+            return Task.FromResult(supportedScope.Filter(claimsPrincipal.Claims));
         }
 
         #endregion

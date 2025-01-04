@@ -13,11 +13,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuthorizationCodeCommand
+namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.AuthorizationStateCommandBase
 {
     [TestFixture]
     public class ToDomainTests
@@ -50,7 +49,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenAuthorizationStateFactoryIsNull_ThrowsArgumentNullException()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(null, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object));
 
@@ -62,7 +61,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenValidatorIsNull_ThrowsArgumentNullException()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(_authorizationStateFactoryMock.Object, null, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object));
 
@@ -74,7 +73,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenSecurityRepositoryIsNull_ThrowsArgumentNullException()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, null, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object));
 
@@ -86,7 +85,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenTrustedDomainResolverIsNull_ThrowsArgumentNullException()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, null, _supportedScopesProviderMock.Object));
 
@@ -98,7 +97,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenSupportedScopesProviderIsNull_ThrowsArgumentNullException()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, null));
 
@@ -111,7 +110,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertFromBase64StringWasCalledOnAuthorizationStateFactoryWithAuthorizationStateFromGenerateAuthorizationCodeCommand()
         {
             string authorizationState = _fixture.Create<string>();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationState: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationState: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -126,7 +125,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertFromBase64StringWasCalledOnAuthorizationStateFactoryWithUnprotectFromGenerateAuthorizationCodeCommand()
         {
             Func<byte[], byte[]> unprotect = bytes => bytes;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(unprotect: unprotect);
+            IAuthorizationStateCommand sut = CreateSut(unprotect: unprotect);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -141,7 +140,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertResponseTypeWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory()
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -153,7 +152,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertClientIdWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory()
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -165,7 +164,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertClientSecretWasNotCalledOnAuthorizationStateCreatedByAuthorizationStateFactory()
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -177,7 +176,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertRedirectUriWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory()
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -189,7 +188,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertScopesWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory()
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -203,7 +202,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertExternalStateWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory(bool hasExternalState)
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock(hasExternalState: hasExternalState);
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -217,7 +216,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertNonceWasCalledOnAuthorizationStateCreatedByAuthorizationStateFactory(bool hasNonce)
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock(hasNonce: hasNonce);
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -231,7 +230,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertAuthorizationCodeWasNotCalledOnAuthorizationStateCreatedByAuthorizationStateFactory(bool hasAuthorizationCode)
         {
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: hasAuthorizationCode);
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationStateMock.Object);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -242,7 +241,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertSupportedScopesWasCalledOnSupportedScopesProvider()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -253,7 +252,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertStringWasCalledSevenTimesOnValidator()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -264,7 +263,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertObjectWasCalledSixTimesOnValidator()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -275,7 +274,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_AssertEnumerableWasCalledThreeTimesOnValidator()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -288,7 +287,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string responseType = _fixture.Create<string>();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(responseType: responseType).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -305,7 +304,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string responseType = _fixture.Create<string>();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(responseType: responseType).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -324,7 +323,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string responseType = _fixture.Create<string>();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(responseType: responseType).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -343,7 +342,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string clientId = _fixture.Create<string>();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(clientId: clientId).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -360,7 +359,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string clientId = _fixture.Create<string>();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(clientId: clientId).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -379,7 +378,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string clientId = _fixture.Create<string>();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(clientId: clientId).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -398,7 +397,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(redirectUri: redirectUri).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -415,7 +414,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             Uri redirectUri = _fixture.CreateEndpoint();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(redirectUri: redirectUri).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -434,7 +433,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(scopes: scopes).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -451,7 +450,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(scopes: scopes).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -469,7 +468,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(scopes: scopes).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -495,7 +494,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(scopes: scopes).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState, supportedScopes: supportedScopes);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState, supportedScopes: supportedScopes);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -514,7 +513,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string[] scopes = _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray();
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(scopes: scopes).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -534,7 +533,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithExternalStateFromAuthorizationStateCreatedByAuthorizationStateFactory(bool hasExternalState)
         {
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasExternalState: hasExternalState).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -553,7 +552,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string externalState = hasExternalState ? _fixture.Create<string>() : null;
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasExternalState: hasExternalState, externalState: externalState).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -573,7 +572,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertShouldMatchPatternWasNotCalledOnStringValidatorWithExternalStateFromAuthorizationStateCreatedByAuthorizationStateFactory(bool hasExternalState)
         {
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasExternalState: hasExternalState).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -593,7 +592,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_AssertShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithNonceFromAuthorizationStateCreatedByAuthorizationStateFactory(bool hasNonce)
         {
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasNonce: hasNonce).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -612,7 +611,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         {
             string nonce = hasNonce ? _fixture.Create<string>() : null;
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock(hasNonce: hasNonce, nonce: nonce).Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -629,7 +628,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         [Category("UnitTest")]
         public void ToDomain_WhenCalled_ReturnsNotNull()
         {
-            IGenerateAuthorizationCodeCommand sut = CreateSut();
+            IAuthorizationStateCommand sut = CreateSut();
 
             IAuthorizationState result = sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -641,14 +640,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
         public void ToDomain_WhenCalled_ReturnsAuthorizationStateCreatedByAuthorizationStateFactory()
         {
             IAuthorizationState authorizationState = _fixture.BuildAuthorizationStateMock().Object;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
+            IAuthorizationStateCommand sut = CreateSut(authorizationStateFromFactory: authorizationState);
 
             IAuthorizationState result = sut.ToDomain(_authorizationStateFactoryMock.Object, _validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
             Assert.That(result, Is.EqualTo(authorizationState));
         }
 
-        private IGenerateAuthorizationCodeCommand CreateSut(string authorizationState = null, Func<byte[], byte[]> unprotect = null, IAuthorizationState authorizationStateFromFactory = null, IDictionary<string, IScope> supportedScopes = null)
+        private IAuthorizationStateCommand CreateSut(string authorizationState = null, Func<byte[], byte[]> unprotect = null, IAuthorizationState authorizationStateFromFactory = null, IDictionary<string, IScope> supportedScopes = null)
         {
             supportedScopes ??= new Dictionary<string, IScope>
             {
@@ -665,7 +664,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
             _supportedScopesProviderMock.Setup(m => m.SupportedScopes)
                 .Returns(new ConcurrentDictionary<string, IScope>(supportedScopes));
 
-            return new BusinessLogic.Security.Commands.GenerateAuthorizationCodeCommand(authorizationState ?? _fixture.Create<string>(), Array.Empty<Claim>(), unprotect ?? (bytes => bytes));
+            return new MyAuthorizationStateCommand(authorizationState ?? _fixture.Create<string>(), unprotect ?? (bytes => bytes));
         }
+
+        private class MyAuthorizationStateCommand(string authorizationState, Func<byte[], byte[]> unprotect) : BusinessLogic.Security.Commands.AuthorizationStateCommandBase(authorizationState, unprotect);
     }
 }

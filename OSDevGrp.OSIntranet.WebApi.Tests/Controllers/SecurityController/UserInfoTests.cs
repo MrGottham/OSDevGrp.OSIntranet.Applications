@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
+using System;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
 
@@ -24,6 +25,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private Mock<ICommandBus> _commandBusMock;
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
+        private Mock<TimeProvider> _timeProviderMock;
         private Fixture _fixture;
 
         #endregion
@@ -34,6 +36,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock = new Mock<ICommandBus>();
             _queryBusMock = new Mock<IQueryBus>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
+            _timeProviderMock = new Mock<TimeProvider>();
             _fixture = new Fixture();
         }
 
@@ -204,7 +207,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _queryBusMock.Setup(m => m.QueryAsync<IGetUserInfoAsTokenQuery, IToken>(It.IsAny<IGetUserInfoAsTokenQuery>()))
                 .Returns(Task.FromResult(hasToken ? token ?? _fixture.BuildTokenMock().Object : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object);
         }
     }
 }

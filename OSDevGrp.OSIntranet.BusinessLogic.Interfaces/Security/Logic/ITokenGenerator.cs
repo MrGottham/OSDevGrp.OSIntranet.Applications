@@ -1,4 +1,5 @@
 ﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
@@ -7,6 +8,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 	{
         string SigningAlgorithm { get; }
 
-        IToken Generate(ClaimsIdentity claimsIdentity);
+        IToken Generate(ClaimsIdentity claimsIdentity, TimeSpan expiresIn);
     }
 }

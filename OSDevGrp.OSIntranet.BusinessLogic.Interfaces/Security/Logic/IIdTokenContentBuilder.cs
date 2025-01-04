@@ -13,6 +13,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         IIdTokenContentBuilder WithAuthorizedParty(string authorizedParty);
 
+        IIdTokenContentBuilder WithCustomClaim(string claimType, string value);
+
         IEnumerable<Claim> Build();
     }
 }

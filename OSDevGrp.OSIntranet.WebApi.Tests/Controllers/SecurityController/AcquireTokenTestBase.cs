@@ -32,11 +32,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         protected abstract Mock<IDataProtector> DataProtectorMock { get; }
 
+        protected abstract Mock<TimeProvider> TimeProviderMock { get; }
+
         protected abstract Mock<IAuthenticationService> AuthenticationServiceMock { get; }
 
         protected abstract Fixture Fixture { get; }
-
-        protected abstract Random Random { get; }
 
         protected static string GrantTypePattern => "^(authorization_code|client_credentials){1}$";
 
@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             CommandBusMock.Setup(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsAny<IGenerateTokenCommand>()))
                 .Returns(Task.FromResult(hasToken ? token ?? Fixture.BuildTokenMock().Object : null));
 
-            return new Controller(CommandBusMock.Object, QueryBusMock.Object, DataProtectionProviderMock.Object)
+            return new Controller(CommandBusMock.Object, QueryBusMock.Object, DataProtectionProviderMock.Object, TimeProviderMock.Object)
             {
                 ControllerContext =
                 {

@@ -4,6 +4,7 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -54,7 +55,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.QueryHandlers
                     return null;
                 }
 
-                return _tokenGenerator.Generate(new ClaimsIdentity(userInfo.ToClaims()));
+                return _tokenGenerator.Generate(new ClaimsIdentity(userInfo.ToClaims()), TimeSpan.FromMinutes(5));
             });
         }
 

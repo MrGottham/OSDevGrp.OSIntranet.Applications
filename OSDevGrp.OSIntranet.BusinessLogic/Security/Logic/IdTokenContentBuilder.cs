@@ -1,5 +1,6 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -25,21 +26,35 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         #region Private variables
 
         private readonly string _subjectIdentifier;
+        private readonly IUserInfo _userInfo;
         private readonly DateTimeOffset _authenticationTime;
+        private readonly IList<KeyValuePair<string, string>> _customClaims = new List<KeyValuePair<string, string>>();
         private string _nonce;
         private string _authenticationContextClassReference;
         private string[] _authenticationMethodsReferences;
         private string _authorizedParty;
 
+        private static readonly string[] HandledClaimType =
+        [
+            SubjectIdentifierClaimType,
+            AuthenticationTimeClaimType,
+            NonceClaimType,
+            AuthenticationContextClassReferenceClaimType,
+            AuthenticationMethodsReferencesClaimType,
+            AuthorizedPartyClaimType
+        ];
+
         #endregion
 
         #region Constructor
 
-        public IdTokenContentBuilder(string subjectIdentifier, DateTimeOffset authenticationTime)
+        public IdTokenContentBuilder(string subjectIdentifier, IUserInfo userInfo, DateTimeOffset authenticationTime)
         {
-            NullGuard.NotNullOrWhiteSpace(subjectIdentifier, nameof(subjectIdentifier));
+            NullGuard.NotNullOrWhiteSpace(subjectIdentifier, nameof(subjectIdentifier))
+                .NotNull(userInfo, nameof(userInfo));
 
             _subjectIdentifier = subjectIdentifier;
+            _userInfo = userInfo;
             _authenticationTime = authenticationTime;
         }
 
@@ -83,13 +98,29 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
             return this;
         }
 
+        public IIdTokenContentBuilder WithCustomClaim(string claimType, string value)
+        {
+            NullGuard.NotNullOrWhiteSpace(claimType, nameof(claimType));
+
+            if (HandledClaimType.Contains(claimType))
+            {
+                throw new ArgumentException($"Cannot add a custom claim with the type: {claimType}", nameof(claimType));
+            }
+
+            _customClaims.Add(new KeyValuePair<string, string>(claimType, value));
+
+            return this;
+        }
+
         public IEnumerable<Claim> Build()
         {
-            IList<Claim> claims = new List<Claim>
-            {
+            List<Claim> claims =
+            [
                 new(SubjectIdentifierClaimType, _subjectIdentifier),
                 new(AuthenticationTimeClaimType, _authenticationTime.ToUniversalTime().ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture))
-            };
+            ];
+
+            claims.AddRange(ResolveUserInfoClaims());
 
             if (string.IsNullOrWhiteSpace(_nonce) == false)
             {
@@ -111,7 +142,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
                 claims.Add(new Claim(AuthorizedPartyClaimType, _authorizedParty));
             }
 
+            claims.AddRange(_customClaims.Select(customClaim => new Claim(customClaim.Key, string.IsNullOrWhiteSpace(customClaim.Value) == false ? customClaim.Value : string.Empty)));
+
             return claims;
+        }
+
+        private IEnumerable<Claim> ResolveUserInfoClaims()
+        {
+            return _userInfo.ToClaims()
+                .Where(claim => string.IsNullOrWhiteSpace(claim.Type) == false && HandledClaimType.Contains(claim.Type) == false)
+                .Where(claim => string.IsNullOrWhiteSpace(claim.Value) == false)
+                .ToArray();
         }
 
         #endregion
