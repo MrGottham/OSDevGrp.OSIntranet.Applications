@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
 
@@ -147,59 +148,103 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsOkObjectResult()
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResult()
         {
             Controller sut = CreateSut();
 
             IActionResult result = await sut.UserInfo();
 
-            Assert.That(result, Is.TypeOf<OkObjectResult>());
+            Assert.That(result, Is.TypeOf<ContentResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsOkObjectResultWhereValueIsNotNull()
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereContentIsNotNull()
         {
             Controller sut = CreateSut();
 
-            OkObjectResult result = (OkObjectResult) await sut.UserInfo();
+            ContentResult result = (ContentResult) await sut.UserInfo();
 
-            Assert.That(result.Value, Is.Not.Null);
+            Assert.That(result.Content, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsOkObjectResultWhereValueIsString()
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereContentIsNonEmptyString()
         {
             Controller sut = CreateSut();
 
-            OkObjectResult result = (OkObjectResult) await sut.UserInfo();
+            ContentResult result = (ContentResult) await sut.UserInfo();
 
-            Assert.That(result.Value, Is.TypeOf<string>());
+            Assert.That(result.Content, Is.Not.Empty);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsOkObjectResultWhereValueIsNonEmptyString()
-        {
-            Controller sut = CreateSut();
-
-            OkObjectResult result = (OkObjectResult) await sut.UserInfo();
-
-            Assert.That((string) result.Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsOkObjectResultWhereValueIsNonEmptyStringEqualToAccessTokenOnToken()
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereContentIsEqualToAccessTokenOnToken()
         {
             string accessToken = _fixture.Create<string>();
             IToken token = _fixture.BuildTokenMock(accessToken: accessToken).Object;
             Controller sut = CreateSut(token: token);
 
-            OkObjectResult result = (OkObjectResult) await sut.UserInfo();
+            ContentResult result = (ContentResult) await sut.UserInfo();
 
-            Assert.That((string) result.Value, Is.EqualTo(accessToken));
+            Assert.That(result.Content, Is.EqualTo(accessToken));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereContentTypeIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            ContentResult result = (ContentResult) await sut.UserInfo();
+
+            Assert.That(result.ContentType, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereContentTypeIsNonEmptyString()
+        {
+            Controller sut = CreateSut();
+
+            ContentResult result = (ContentResult) await sut.UserInfo();
+
+            Assert.That(result.ContentType, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereContentTypeIsEqualToApplicationJwt()
+        {
+            Controller sut = CreateSut();
+
+            ContentResult result = (ContentResult) await sut.UserInfo();
+
+            Assert.That(result.ContentType, Is.EqualTo("application/jwt"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereStatusCodeIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            ContentResult result = (ContentResult) await sut.UserInfo();
+
+            Assert.That(result.StatusCode, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task UserInfo_WhenTokenForUserInfoWasReturnedFromQueryBus_ReturnsContentResultWhereStatusCodeIsEqualToOK()
+        {
+            Controller sut = CreateSut();
+
+            ContentResult result = (ContentResult) await sut.UserInfo();
+
+            Assert.That(result.StatusCode, Is.EqualTo((int) HttpStatusCode.OK));
         }
 
         private Controller CreateSut(bool hasToken = true, IToken token = null)

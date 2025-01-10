@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
@@ -296,7 +297,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 throw new IntranetExceptionBuilder(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser).Build();
             }
 
-            return Ok(token.AccessToken);
+            ContentResult content = Content(token.AccessToken, "application/jwt");
+            content.StatusCode = (int) HttpStatusCode.OK;
+
+            return content;
         }
 
         [AllowAnonymous]
