@@ -41,7 +41,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
 
         #region Methods
 
-        public IToken Generate(ClaimsIdentity claimsIdentity, TimeSpan expiresIn)
+        public IToken Generate(ClaimsIdentity claimsIdentity, TimeSpan expiresIn, string audience = null)
         {
             NullGuard.NotNull(claimsIdentity, nameof(claimsIdentity));
 
@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
                         CacheSignatureProviders = false
                     }
                 },
-                Audience = tokenGeneratorOptions.Audience,
+                Audience = string.IsNullOrWhiteSpace(audience) ? tokenGeneratorOptions.Audience : audience,
                 Expires = expires
             };
             SecurityToken securityToken = tokenHandler.CreateToken(tokenDescriptor);

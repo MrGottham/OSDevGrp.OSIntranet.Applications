@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
@@ -13,7 +14,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 
         IIdTokenContentBuilder WithAuthorizedParty(string authorizedParty);
 
-        IIdTokenContentBuilder WithCustomClaim(string claimType, string value);
+        IIdTokenContentBuilder WithCustomClaimsFilteredByScope(IScope scope, IEnumerable<Claim> customClaims);
+
+        IIdTokenContentBuilder WithCustomClaimsFilteredByClaimType(string claimType, IEnumerable<Claim> customClaims);
 
         IEnumerable<Claim> Build();
     }

@@ -8,6 +8,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic
 	{
         string SigningAlgorithm { get; }
 
-        IToken Generate(ClaimsIdentity claimsIdentity, TimeSpan expiresIn);
+        IToken Generate(ClaimsIdentity claimsIdentity, TimeSpan expiresIn, string audience = null);
     }
 }

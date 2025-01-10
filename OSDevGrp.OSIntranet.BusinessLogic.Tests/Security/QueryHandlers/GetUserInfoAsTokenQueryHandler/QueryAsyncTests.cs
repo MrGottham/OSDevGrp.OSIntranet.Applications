@@ -81,7 +81,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsAny<ClaimsIdentity>(),
-                    It.IsAny<TimeSpan>()),
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string>()),
                 Times.Never);
         }
 
@@ -118,7 +119,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsAny<ClaimsIdentity>(),
-                    It.IsAny<TimeSpan>()),
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string>()),
                 Times.Never);
         }
 
@@ -155,7 +157,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsNotNull<ClaimsIdentity>(),
-                    It.IsAny<TimeSpan>()),
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string>()),
                 Times.Once);
         }
 
@@ -171,7 +174,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.Is<ClaimsIdentity>(value => value != null && value.Claims != null && claims.All(claim => value.HasClaim(claim.Type, claim.Value))),
-                    It.IsAny<TimeSpan>()),
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<string>()),
                 Times.Once);
         }
 
@@ -187,7 +191,25 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsAny<ClaimsIdentity>(),
-                    It.Is<TimeSpan>(value => (int)value.TotalSeconds == 300)),
+                    It.Is<TimeSpan>(value => (int)value.TotalSeconds == 300),
+                    It.IsAny<string>()),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task QueryAsync_WhenUserInfoCouldBeCreatedForCurrentPrincipal_AssertGenerateWasCalledOnTokenGeneratorWithAudienceEqualToNull()
+        {
+            Claim[] claims = _fixture.CreateClaims(_random);
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claims).Object;
+            IQueryHandler<IGetUserInfoAsTokenQuery, IToken> sut = CreateSut(hasUserInfo: true, userInfo: userInfo);
+
+            await sut.QueryAsync(CreateGetUserInfoAsTokenQuery());
+
+            _tokenGeneratorMock.Verify(m => m.Generate(
+                    It.IsAny<ClaimsIdentity>(),
+                    It.IsAny<TimeSpan>(),
+                    It.Is<string>(value => value == null)),
                 Times.Once);
         }
 
@@ -233,7 +255,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.QueryHandlers.GetUser
             _userInfoFactoryMock.Setup(m => m.FromPrincipal(It.IsAny<ClaimsPrincipal>()))
                 .Returns(hasUserInfo ? userInfo ?? _fixture.BuildUserInfoMock().Object : null);
 
-            _tokenGeneratorMock.Setup(m => m.Generate(It.IsAny<ClaimsIdentity>(), It.IsAny<TimeSpan>()))
+            _tokenGeneratorMock.Setup(m => m.Generate(It.IsAny<ClaimsIdentity>(), It.IsAny<TimeSpan>(), It.IsAny<string>()))
                 .Returns(canGenerateToken ? token ?? _fixture.BuildTokenMock().Object : null);
 
             return new BusinessLogic.Security.QueryHandlers.GetUserInfoAsTokenQueryHandler(_principalResolverMock.Object, _userInfoFactoryMock.Object, _tokenGeneratorMock.Object);

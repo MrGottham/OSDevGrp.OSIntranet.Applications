@@ -666,6 +666,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.Authenticate
                 clientId ?? _fixture.Create<string>(),
                 clientSecret ?? _fixture.Create<string>(),
                 redirectUri ?? _fixture.CreateEndpoint(),
+                _ => { },
                 Array.Empty<Claim>(),
                 _fixture.Create<string>(),
                 new Dictionary<string, string>(),

@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers
             ((ErrorResponseModel) objectResult.Value).AssertExpectedValues(expectedError, expectedErrorDescription, expectedErrorUri, expectedState);
         }
 
-        internal static void AssertExpectedAccessTokenModel(this ObjectResult objectResult, string expectedTokenType, string expectedAccessToken, DateTimeOffset expectedExpires)
+        internal static void AssertExpectedAccessTokenModel(this ObjectResult objectResult, string expectedTokenType, string expectedAccessToken, string expectedIdToken, DateTimeOffset expectedExpires)
         {
             NullGuard.NotNullOrWhiteSpace(expectedTokenType, nameof(expectedTokenType))
                 .NotNullOrWhiteSpace(expectedAccessToken, nameof(expectedAccessToken));
@@ -37,7 +37,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers
             Assert.That(objectResult.Value, Is.Not.Null);
             Assert.That(objectResult.Value, Is.TypeOf<AccessTokenModel>());
 
-            ((AccessTokenModel) objectResult.Value).AssertExpectedValues(expectedTokenType, expectedAccessToken, expectedExpires);
+            ((AccessTokenModel) objectResult.Value).AssertExpectedValues(expectedTokenType, expectedAccessToken, expectedIdToken, expectedExpires);
         }
 
         #endregion

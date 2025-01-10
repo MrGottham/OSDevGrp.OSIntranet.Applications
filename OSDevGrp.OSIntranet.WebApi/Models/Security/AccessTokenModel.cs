@@ -17,6 +17,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
         [JsonPropertyName("access_token")]
         public string AccessToken { get; set; }
 
+        [MinLength(1)]
+        [JsonPropertyName("id_token")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string IdToken { get; set; }
+
         [Required]
         [Range(1, 3600)]
         [JsonRequired]

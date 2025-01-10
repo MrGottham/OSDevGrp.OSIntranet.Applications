@@ -1,17 +1,18 @@
 ﻿using AutoFixture;
+using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
-using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Linq;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentBuilder
 {
     [TestFixture]
-    public class WithAuthenticationMethodsReferencesTests
+    public class WithAuthenticationMethodsReferencesTests : IdTokenContentBuilderTestBase
     {
         #region Private variables
 
+        private Mock<IClaimsSelector> _claimSelectorMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -20,9 +21,16 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
         [SetUp]
         public void SetUp()
         {
+            _claimSelectorMock = new Mock<IClaimsSelector>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
+
+        protected override Mock<IClaimsSelector> ClaimsSelectorMock => _claimSelectorMock;
+
+        protected override Fixture Fixture => _fixture;
+
+        protected override Random Random => _random;
 
         [Test]
         [Category("UnitTest")]
@@ -78,11 +86,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
             IIdTokenContentBuilder result = sut.WithAuthenticationMethodsReferences(_fixture.CreateMany<string>(_random.Next(5, 10)).ToArray());
 
             Assert.That(result, Is.SameAs(sut));
-        }
-
-        private IIdTokenContentBuilder CreateSut()
-        {
-            return new BusinessLogic.Security.Logic.IdTokenContentBuilder(_fixture.Create<string>(), _fixture.BuildUserInfoMock().Object, DateTimeOffset.UtcNow.AddSeconds(_random.Next(300) * -1));
         }
     }
 }

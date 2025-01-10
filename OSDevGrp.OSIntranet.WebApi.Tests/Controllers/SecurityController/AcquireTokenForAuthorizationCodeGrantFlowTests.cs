@@ -1408,6 +1408,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AcquireToken_WhenNeededValuesAreValid_AssertPublishAsyncWasCalledOnCommandBusWithAuthenticateAuthorizationCodeCommandWhereOnIdTokenResolvedIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AcquireToken(GrantType, code: _fixture.Create<string>(), clientId: _fixture.Create<string>(), clientSecret: _fixture.Create<string>(), redirectUri: _fixture.CreateEndpointString());
+
+            _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal>(It.Is<IAuthenticateAuthorizationCodeCommand>(value => value != null && value.OnIdTokenResolved != null)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AcquireToken_WhenNeededValuesAreValid_AssertPublishAsyncWasCalledOnCommandBusWithAuthenticateAuthorizationCodeCommandWhereClaimsIsNotNull()
         {
             Controller sut = CreateSut();
@@ -1885,15 +1896,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         [Category("UnitTest")]
         public async Task AcquireToken_WhenTokenWasReturnedFromCommandBus_ReturnsOkObjectResultWithExpectedAccessTokenModel()
         {
+            string accessTokenForIdToken = _fixture.Create<string>();
+            IToken idToken = _fixture.BuildTokenMock(accessToken: accessTokenForIdToken).Object;
             string tokenType = _fixture.Create<string>();
             string accessToken = _fixture.Create<string>();
             DateTimeOffset expires = DateTimeOffset.Now.AddSeconds(_random.Next(30 * 60, 60 * 60));
             IToken token = _fixture.BuildTokenMock(tokenType: tokenType, accessToken: accessToken, expires.LocalDateTime).Object;
-            Controller sut = CreateSut(token: token);
+            Controller sut = CreateSut(idToken: idToken, token: token);
 
             OkObjectResult result = (OkObjectResult) await sut.AcquireToken(GrantType, code: _fixture.Create<string>(), clientId: _fixture.Create<string>(), clientSecret: _fixture.Create<string>(), redirectUri: _fixture.CreateEndpointString());
 
-            result.AssertExpectedAccessTokenModel(tokenType, accessToken, expires.UtcDateTime);
+            result.AssertExpectedAccessTokenModel(tokenType, accessToken, accessTokenForIdToken, expires.UtcDateTime);
         }
 
         [Test]
@@ -2202,11 +2215,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             result.AssertExpectedErrorResponseModel("server_error", ErrorDescriptionResolver.Resolve(ErrorCode.UnableAuthenticateClient), null, null);
         }
 
-        private Controller CreateSut(HttpContext httpContext = null, bool hasClaimsPrincipal = true, ClaimsPrincipal claimsPrincipal = null, bool hasToken = true, IToken token = null, Exception exception = null)
+        private Controller CreateSut(HttpContext httpContext = null, bool hasClaimsPrincipal = true, ClaimsPrincipal claimsPrincipal = null, IToken idToken = null, bool hasToken = true, IToken token = null, Exception exception = null)
         {
             if (exception == null)
             {
                 _commandBusMock.Setup(m => m.PublishAsync<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateAuthorizationCodeCommand>()))
+                    .Callback<IAuthenticateAuthorizationCodeCommand>(authenticateAuthorizationCodeCommand =>
+                    {
+                        Assert.That(authenticateAuthorizationCodeCommand, Is.Not.Null);
+                        Assert.That(authenticateAuthorizationCodeCommand.OnIdTokenResolved, Is.Not.Null);
+
+                        authenticateAuthorizationCodeCommand.OnIdTokenResolved(idToken ?? _fixture.BuildTokenMock().Object);
+                    })
                     .Returns(Task.FromResult(hasClaimsPrincipal ? claimsPrincipal ?? CreateClaimsPrincipal() : null));
             }
             else

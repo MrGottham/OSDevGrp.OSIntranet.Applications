@@ -1,10 +1,13 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -50,12 +53,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             }
 
             IAuthorizationCode authorizationCode = await _authorizationDataConverter.ToAuthorizationCodeAsync(keyValueEntry, out IReadOnlyCollection<Claim> claims, out IReadOnlyDictionary<string, string> authorizationData);
-            if (authorizationCode == null || authorizationCode.Expired || claims == null || claims.Any() == false || authorizationData == null || authorizationData.Any() == false)
+            if (authorizationCode == null || authorizationCode.Expired || claims == null || claims.Count == 0 || authorizationData == null || authorizationData.Count == 0 || authorizationData.ContainsKey(AuthorizationDataConverter.IdTokenKey) == false || string.IsNullOrWhiteSpace(authorizationData[AuthorizationDataConverter.IdTokenKey]))
             {
                 return null;
             }
 
-            return new AuthorizationCodeIdentity(claims, authorizationData);
+            return new AuthorizationCodeIdentity(claims, authorizationData, TokenFactory.Create().FromBase64String(authorizationData[AuthorizationDataConverter.IdTokenKey]), authenticateAuthorizationCodeCommand.OnIdTokenResolved);
         }
 
         protected override bool IsMatch(IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand, IIdentity identity)
@@ -95,7 +98,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             NullGuard.NotNull(authenticateAuthorizationCodeCommand, nameof(authenticateAuthorizationCodeCommand))
                 .NotNull(authorizationCodeIdentity, nameof(authorizationCodeIdentity));
 
-            return authenticateAuthorizationCodeCommand.IsMatchAsync(authorizationCodeIdentity.AuthorizationData, SecurityRepository, _trustedDomainResolver)
+            return authorizationCodeIdentity.IsMatchAsync(authenticateAuthorizationCodeCommand, SecurityRepository, _trustedDomainResolver)
                 .GetAwaiter()
                 .GetResult();
         }
@@ -106,30 +109,59 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 .NotNull(claims, nameof(claims))
                 .NotNullOrWhiteSpace(authenticationType, nameof(authenticationType));
 
-            return new ClaimsIdentity(authorizationCodeIdentity.Claims.Concat(claims), authenticationType);
+            return authorizationCodeIdentity.ToAuthenticatedClaimsIdentity(claims, authenticationType);
         }
 
         #endregion
 
         #region Private classes
 
-        internal class AuthorizationCodeIdentity : ClaimsIdentity
+        private class AuthorizationCodeIdentity : ClaimsIdentity
         {
+            #region Private variables
+
+            private readonly IReadOnlyDictionary<string, string> _authorizationData;
+            private readonly IToken _idToken;
+            private readonly Action<IToken> _onIdTokenResolved;
+
+            #endregion
+
             #region Constructor
 
-            public AuthorizationCodeIdentity(IReadOnlyCollection<Claim> claims, IReadOnlyDictionary<string, string> authorizationData) 
+            public AuthorizationCodeIdentity(IReadOnlyCollection<Claim> claims, IReadOnlyDictionary<string, string> authorizationData, IToken idToken, Action<IToken> onIdTokenResolved) 
                 : base(claims)
             {
-                NullGuard.NotNull(authorizationData, nameof(authorizationData));
+                NullGuard.NotNull(authorizationData, nameof(authorizationData))
+                    .NotNull(idToken, nameof(idToken))
+                    .NotNull(onIdTokenResolved, nameof(onIdTokenResolved));
 
-                AuthorizationData = authorizationData;
+                _authorizationData = authorizationData;
+                _idToken = idToken;
+                _onIdTokenResolved = onIdTokenResolved;
             }
 
             #endregion
 
-            #region Properties
+            #region Methods
 
-            internal IReadOnlyDictionary<string, string> AuthorizationData { get; }
+            internal Task<bool> IsMatchAsync(IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand, ISecurityRepository securityRepository, ITrustedDomainResolver trustedDomainResolver)
+            {
+                NullGuard.NotNull(authenticateAuthorizationCodeCommand, nameof(authenticateAuthorizationCodeCommand))
+                    .NotNull(securityRepository, nameof(securityRepository))
+                    .NotNull(trustedDomainResolver, nameof(trustedDomainResolver));
+
+                return authenticateAuthorizationCodeCommand.IsMatchAsync(_authorizationData, securityRepository, trustedDomainResolver);
+            }
+
+            internal ClaimsIdentity ToAuthenticatedClaimsIdentity(IEnumerable<Claim> additionalClaims, string authenticationType)
+            {
+                NullGuard.NotNull(additionalClaims, nameof(additionalClaims))
+                    .NotNullOrWhiteSpace(authenticationType, nameof(authenticationType));
+
+                _onIdTokenResolved(_idToken);
+
+                return new ClaimsIdentity(Claims.Concat(additionalClaims), authenticationType);
+            }
 
             #endregion
         }

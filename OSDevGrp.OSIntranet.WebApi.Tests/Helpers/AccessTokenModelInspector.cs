@@ -9,7 +9,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers
     {
         #region Methods
 
-        internal static void AssertExpectedValues(this AccessTokenModel accessTokenModel, string expectedTokenType, string expectedAccessToken, DateTimeOffset expectedExpires)
+        internal static void AssertExpectedValues(this AccessTokenModel accessTokenModel, string expectedTokenType, string expectedAccessToken, string expectedIdToken, DateTimeOffset expectedExpires)
         {
             NullGuard.NotNull(accessTokenModel, nameof(accessTokenModel))
                 .NotNullOrWhiteSpace(expectedTokenType, nameof(expectedTokenType))
@@ -21,6 +21,16 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Helpers
             Assert.That(accessTokenModel.AccessToken, Is.Not.Null);
             Assert.That(accessTokenModel.AccessToken, Is.Not.Empty);
             Assert.That(accessTokenModel.AccessToken, Is.EqualTo(expectedAccessToken));
+            if (string.IsNullOrWhiteSpace(expectedIdToken) == false)
+            {
+                Assert.That(accessTokenModel.IdToken, Is.Not.Null);
+                Assert.That(accessTokenModel.IdToken, Is.Not.Empty);
+                Assert.That(accessTokenModel.IdToken, Is.EqualTo(expectedIdToken));
+            }
+            else
+            {
+                Assert.That(accessTokenModel.IdToken, Is.Null);
+            }
             Assert.That(accessTokenModel.ExpiresIn, Is.GreaterThanOrEqualTo(1));
             Assert.That(accessTokenModel.ExpiresIn, Is.LessThanOrEqualTo(3600));
             Assert.That(DateTime.UtcNow.AddSeconds(accessTokenModel.ExpiresIn), Is.EqualTo(expectedExpires.UtcDateTime).Within(1).Seconds);

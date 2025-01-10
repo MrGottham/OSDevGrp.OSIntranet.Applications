@@ -65,7 +65,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.Is<ClaimsIdentity>(value => value != null && value == claimsIdentity),
-                    It.Is<TimeSpan>(value => (int) value.TotalSeconds == 3600)),
+                    It.Is<TimeSpan>(value => (int) value.TotalSeconds == 3600),
+					It.Is<string>(value => value == null)),
                 Times.Once);
         }
 
@@ -108,7 +109,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 			_claimsIdentityResolverMock.Setup(m => m.GetCurrentClaimsIdentity())
 				.Returns(claimsIdentity ?? new ClaimsIdentity());
 
-			_tokenGeneratorMock.Setup(m => m.Generate(It.IsAny<ClaimsIdentity>(), It.IsAny<TimeSpan>()))
+			_tokenGeneratorMock.Setup(m => m.Generate(It.IsAny<ClaimsIdentity>(), It.IsAny<TimeSpan>(), It.IsAny<string>()))
 				.Returns(generatesToken ? token ?? _fixture.BuildTokenMock().Object : null);
 
 			return new BusinessLogic.Security.CommandHandlers.GenerateTokenCommandHandler(_claimsIdentityResolverMock.Object, _tokenGeneratorMock.Object);

@@ -1084,7 +1084,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             string authorization = CreateAuthorization();
             OkObjectResult result = (OkObjectResult) await sut.AcquireToken(GrantType, authorization: authorization);
 
-            result.AssertExpectedAccessTokenModel(tokenType, accessToken, expires.UtcDateTime);
+            result.AssertExpectedAccessTokenModel(tokenType, accessToken, null, expires.UtcDateTime);
         }
 
         [Test]

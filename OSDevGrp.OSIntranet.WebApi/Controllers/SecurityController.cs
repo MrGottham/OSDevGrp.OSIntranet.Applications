@@ -240,11 +240,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             ClaimsPrincipal currentPrincipal = HttpContext.User;
             try
             {
+                string idToken = null;
                 ClaimsPrincipal principal;
                 switch (grantType)
                 {
                     case "authorization_code":
-                        principal = await ResolvePrincipalAsync(code, nameof(code), clientId, "client_id", clientSecret, "client_secret", redirectUri, "redirect_uri");
+                        principal = await ResolvePrincipalAsync(code, nameof(code), clientId, "client_id", clientSecret, "client_secret", redirectUri, "redirect_uri", value => idToken = string.IsNullOrWhiteSpace(value?.AccessToken) ? null : value.AccessToken);
                         break;
 
                     case "client_credentials":
@@ -260,7 +261,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
                 IToken token = await ResolveTokenAsync();
 
-                return Ok(_securityModelConverter.Convert<IToken, AccessTokenModel>(token));
+                AccessTokenModel accessTokenModel = _securityModelConverter.Convert<IToken, AccessTokenModel>(token);
+                accessTokenModel.IdToken = idToken;
+
+                return Ok(accessTokenModel);
             }
             catch (IntranetValidationException ex)
             {
@@ -371,12 +375,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             return principal;
         }
 
-        private async Task<ClaimsPrincipal> ResolvePrincipalAsync(string code, string codeParameterName, string clientId, string clientIdParameterName, string clientSecret, string clientSecretParameterName, string redirectUri, string redirectUriParameterName)
+        private async Task<ClaimsPrincipal> ResolvePrincipalAsync(string code, string codeParameterName, string clientId, string clientIdParameterName, string clientSecret, string clientSecretParameterName, string redirectUri, string redirectUriParameterName, Action<IToken> onIdTokenResolved)
         {
             NullGuard.NotNullOrWhiteSpace(codeParameterName, nameof(codeParameterName))
                 .NotNullOrWhiteSpace(clientIdParameterName, nameof(clientIdParameterName))
                 .NotNullOrWhiteSpace(clientSecretParameterName, nameof(clientSecretParameterName))
-                .NotNullOrWhiteSpace(redirectUriParameterName, nameof(redirectUriParameterName));
+                .NotNullOrWhiteSpace(redirectUriParameterName, nameof(redirectUriParameterName))
+                .NotNull(onIdTokenResolved, nameof(onIdTokenResolved));
 
             if (string.IsNullOrWhiteSpace(code))
             {
@@ -418,7 +423,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     .Build();
             }
 
-            IAuthenticateAuthorizationCodeCommand command = SecurityCommandFactory.BuildAuthenticateAuthorizationCodeCommand(code, clientId, clientSecret, redirect, Schemes.Internal, value => value);
+            IAuthenticateAuthorizationCodeCommand command = SecurityCommandFactory.BuildAuthenticateAuthorizationCodeCommand(code, clientId, clientSecret, redirect, onIdTokenResolved, Schemes.Internal, value => value);
             ClaimsPrincipal principal = await _commandBus.PublishAsync<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal>(command);
             if (principal?.Identity == null || principal.Identity.IsAuthenticated == false)
             {

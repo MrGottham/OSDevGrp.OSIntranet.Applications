@@ -1,9 +1,9 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Claims;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
@@ -21,9 +21,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new AuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
 		}
 
-        public static IAuthenticateAuthorizationCodeCommand BuildAuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, string authenticationType, Func<string, string> protector)
+        public static IAuthenticateAuthorizationCodeCommand BuildAuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, Action<IToken> onIdTokenResolved, string authenticationType, Func<string, string> protector)
         {
-            return new AuthenticateAuthorizationCodeCommand(authorizationCode, clientId, clientSecret, redirectUri, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
+            return new AuthenticateAuthorizationCodeCommand(authorizationCode, clientId, clientSecret, redirectUri, onIdTokenResolved, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
         }
 
 		public static IGenerateTokenCommand BuildGenerateTokenCommand()

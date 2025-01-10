@@ -342,19 +342,25 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return authorizationStateBuilderMock;
         }
 
-        public static Mock<IUserInfo> BuildUserInfoMock(this Fixture fixture, string subject = null, string fullName = null, string givenName = null, string surname = null, string middleName = null, string nickName = null, string preferredUsername = null, Uri profile = null, Uri picture = null, Uri webpage = null, string email = null, bool? emailVerified = null, string gender = null, DateTimeOffset? birthdate = null, string timeZone = null, string locale = null, string phoneNumber = null, bool? phoneNumberVerified = null, IUserAddress userAddress = null, DateTimeOffset? updatedAt = null, string toJson = null, IEnumerable<Claim> toClaims = null)
+        public static Mock<IUserInfo> BuildUserInfoMock(this Fixture fixture, string subject = null, bool? hasFullName = null, string fullName = null, bool? hasGivenName = null, string givenName = null, bool? hasSurname = null, string surname = null, string middleName = null, string nickName = null, string preferredUsername = null, Uri profile = null, Uri picture = null, Uri webpage = null, bool? hasEmail = null, string email = null, bool? hasEmailVerified = null, bool? emailVerified = null, string gender = null, DateTimeOffset? birthdate = null, string timeZone = null, string locale = null, string phoneNumber = null, bool? phoneNumberVerified = null, IUserAddress userAddress = null, DateTimeOffset? updatedAt = null, string toJson = null, IEnumerable<Claim> toClaims = null)
         {
             Random random = new Random(fixture.Create<int>());
+
+            hasFullName ??= random.Next(100) > 50;
+            hasGivenName ??= random.Next(100) > 50;
+            hasSurname ??= random.Next(100) > 50;
+            hasEmail ??= random.Next(100) > 50;
+            hasEmailVerified ??= hasEmail.Value && random.Next(100) > 50;
 
             Mock<IUserInfo> userInfoMock = new Mock<IUserInfo>();
             userInfoMock.Setup(m => m.Subject)
                 .Returns(subject ?? fixture.Create<string>());
             userInfoMock.Setup(m => m.FullName)
-                .Returns(fullName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasFullName.Value ? fullName ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.GivenName)
-                .Returns(givenName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasGivenName.Value ? givenName ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.Surname)
-                .Returns(surname ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasSurname.Value ? surname ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.MiddleName)
                 .Returns(middleName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
             userInfoMock.Setup(m => m.NickName)
@@ -368,9 +374,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             userInfoMock.Setup(m => m.Webpage)
                 .Returns(webpage ?? (random.Next(100) > 50 ? fixture.CreateEndpoint() : null));
             userInfoMock.Setup(m => m.Email)
-                .Returns(email ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasEmail.Value ? email ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.EmailVerified)
-                .Returns(emailVerified ?? (random.Next(100) > 50 ? fixture.Create<bool>() : null));
+                .Returns(hasEmailVerified.Value ? emailVerified ?? fixture.Create<bool>() : null);
             userInfoMock.Setup(m => m.Gender)
                 .Returns(gender ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
             userInfoMock.Setup(m => m.Birthdate)

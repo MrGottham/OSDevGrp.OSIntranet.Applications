@@ -2,7 +2,10 @@
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
@@ -14,10 +17,11 @@ using System.Text.Json;
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentBuilder
 {
     [TestFixture]
-    public class BuildTests
+    public class BuildTests : IdTokenContentBuilderTestBase
     {
         #region Private variables
 
+        private Mock<IClaimsSelector> _claimSelectorMock;
         private Fixture _fixture;
         private Random _random;
 
@@ -26,25 +30,592 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
         [SetUp]
         public void SetUp()
         {
+            _claimSelectorMock = new Mock<IClaimsSelector>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
         }
 
+        protected override Mock<IClaimsSelector> ClaimsSelectorMock => _claimSelectorMock;
+
+        protected override Fixture Fixture => _fixture;
+
+        protected override Random Random => _random;
+
         [Test]
         [Category("UnitTest")]
-        public void Build_Called_AssertToClaimsWasCalledOnUserInfo()
+        public void Build_WhenOpenIdScopeNotInScopesGivenByConstructor_AssertSelectWasNotCalledOnClaimsSelector()
         {
-            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object);
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
 
-            sut.Build();
+            Assert.Throws<IntranetBusinessException>(() => sut.Build());
 
-            userInfoMock.Verify(m => m.ToClaims(), Times.Once);
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.IsAny<IReadOnlyDictionary<string, IScope>>(),
+                    It.IsAny<IEnumerable<string>>(),
+                    It.IsAny<IEnumerable<Claim>>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Build_Called_ReturnsNotNull()
+        public void Build_WhenOpenIdScopeNotInScopesGivenByConstructor_ThrowsIntranetBusinessException()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.Build());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeNotInScopesGivenByConstructor_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.Build());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeNotInScopesGivenByConstructor_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.Build());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Message, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeNotInScopesGivenByConstructor_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.Build());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Message, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeNotInScopesGivenByConstructor_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IntranetBusinessException result = Assert.Throws<IntranetBusinessException>(() => sut.Build());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.InnerException, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_AssertSelectWasCalledOnClaimsSelectorWithOpenIdScopeAsOnlyScopeAndClaimsIsEmpty()
+        {
+            string nameIdentifier = _fixture.Create<string>();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(nameIdentifier: nameIdentifier, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.OpenIdScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.Any() == false)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollection()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimType()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0), Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueNotEqualToNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithNonEmptyValue()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeTypeWithValueEqualToNameIdentifierGivenByConstructor()
+        {
+            string nameIdentifier = _fixture.Create<string>();
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(nameIdentifier: nameIdentifier, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.EqualTo(nameIdentifier));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenOpenIdScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionWithSelectedClaimsForOpenIdScope()
+        {
+            IEnumerable<Claim> selectedClaims = _fixture.CreateClaims(Random);
+            IScope openIdScope = CreateOpenIdScope(selectedClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(openIdScope, CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withOpenIdScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(selectedClaims.All(selectedClaim => result.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, selectedClaim.Type) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, selectedClaim.Value) == 0) != null), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructor_AssertFullNameWasCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.FullName, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoHasFullName_AssertSelectWasCalledOnClaimsSelectorWithProfileScopeAsOnlyScopeAndClaimsContainingMatchingClaimForName()
+        {
+            string fullName = _fixture.Create<string>();
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasFullName: true, fullName: fullName).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.Name) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, fullName) == 0) != null)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoDoesNotHaveFullName_AssertSelectWasNotCalledOnClaimsSelectorWithProfileScopeAsOnlyScopeAndClaimsContainingClaimForName()
+        {
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasFullName: false).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.Name) == 0) != null)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructor_AssertGivenNameWasCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.GivenName, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoHasGivenName_AssertSelectWasCalledOnClaimsSelectorWithProfileScopeAsOnlyScopeAndClaimsContainingMatchingClaimForGivenName()
+        {
+            string givenName = _fixture.Create<string>();
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasGivenName: true, givenName: givenName).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.GivenName) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, givenName) == 0) != null)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoDoesNotHaveGivenName_AssertSelectWasNotCalledOnClaimsSelectorWithProfileScopeAsOnlyScopeAndClaimsContainingClaimForGivenName()
+        {
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasGivenName: false).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.GivenName) == 0) != null)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructor_AssertSurnameWasCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.Surname, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoHasSurname_AssertSelectWasCalledOnClaimsSelectorWithProfileScopeAsOnlyScopeAndClaimsContainingMatchingClaimForSurname()
+        {
+            string surname = _fixture.Create<string>();
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasSurname: true, surname: surname).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.Surname) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, surname) == 0) != null)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoDoesNotHaveSurname_AssertSelectWasNotCalledOnClaimsSelectorWithProfileScopeAsOnlyScopeAndClaimsContainingClaimForSurname()
+        {
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasSurname: false).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.Surname) == 0) != null)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollection()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionWithSelectedClaimsForProfileScope()
+        {
+            IEnumerable<Claim> selectedClaims = _fixture.CreateClaims(Random);
+            IScope profileScope = CreateProfileScope(selectedClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), profileScope, CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(selectedClaims.All(selectedClaim => result.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, selectedClaim.Type) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, selectedClaim.Value) == 0) != null), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeNotInScopesGivenByConstructor_AssertFullNameWasNotCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: false);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.FullName, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeNotInScopesGivenByConstructor_AssertGivenNameWasNotCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: false);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.GivenName, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeNotInScopesGivenByConstructor_AssertSurnameWasNotCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: false);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.Surname, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeNotInScopesGivenByConstructor_AssertSelectWasNotCalledOnClaimsSelectorWithProfileScopeAsOnlyScope()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.IsAny<IReadOnlyDictionary<string, IScope>>(),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.IsAny<IEnumerable<Claim>>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeNotInScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeInScopesGivenByConstructor_AssertEmailWasCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.Email, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoHasEmail_AssertSelectWasCalledOnClaimsSelectorWithEmailScopeAsOnlyScopeAndClaimsContainingMatchingClaimForEmail()
+        {
+            string email = _fixture.Create<string>();
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasEmail: true, email: email).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.EmailScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.Email) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, email) == 0) != null)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenProfileScopeInScopesGivenByConstructorAndUserInfoDoesNotHaveEmail_AssertSelectWasNotCalledOnClaimsSelectorWithEmailScopeAsOnlyScopeAndClaimsContainingClaimForEmail()
+        {
+            IUserInfo userInfo = _fixture.BuildUserInfoMock(hasEmail: false).Object;
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.Is<IReadOnlyDictionary<string, IScope>>(value => value != null && value == supportedScopes),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.ProfileScope) == 0)),
+                    It.Is<IEnumerable<Claim>>(value => value != null && value.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.Email) == 0) != null)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeInScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollection()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: true);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionWithSelectedClaimsForEmailScope()
+        {
+            IEnumerable<Claim> selectedClaims = _fixture.CreateClaims(Random);
+            IScope emailScope = CreateEmailScope(selectedClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), emailScope, CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(selectedClaims.All(selectedClaim => result.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, selectedClaim.Type) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, selectedClaim.Value) == 0) != null), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeNotInScopesGivenByConstructor_AssertEmailWasNotCalledOnUserInfo()
+        {
+            Mock<IUserInfo> userInfoMock = _fixture.BuildUserInfoMock();
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: false);
+            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfoMock.Object, scopes: scopes);
+
+            sut.Build();
+
+            userInfoMock.Verify(m => m.Email, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeNotInScopesGivenByConstructor_AssertSelectWasNotCalledOnClaimsSelectorWithEmailScopeAsOnlyScope()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            sut.Build();
+
+            ClaimsSelectorMock.Verify(m => m.Select(
+                    It.IsAny<IReadOnlyDictionary<string, IScope>>(),
+                    It.Is<IEnumerable<string>>(value => value != null && value.All(scope => string.IsNullOrWhiteSpace(scope) == false && string.CompareOrdinal(scope, ScopeHelper.EmailScope) == 0)),
+                    It.IsAny<IEnumerable<Claim>>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenEmailScopeNotInScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IReadOnlyCollection<string> scopes = CreateScopes(withEmailScope: false);
+            IIdTokenContentBuilder sut = CreateSut(scopes: scopes);
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenCalled_ReturnsNonNull()
         {
             IIdTokenContentBuilder sut = CreateSut();
 
@@ -55,255 +626,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollection()
-        {
-            IIdTokenContentBuilder sut = CreateSut();
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimType()
-        {
-            IIdTokenContentBuilder sut = CreateSut();
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueNotEqualToNull()
-        {
-            IIdTokenContentBuilder sut = CreateSut();
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithNonEmptyValue()
-        {
-            IIdTokenContentBuilder sut = CreateSut();
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueEqualToSubjectIdentifierFromConstructor()
-        {
-            string subjectIdentifier = _fixture.Create<string>();
-            IIdTokenContentBuilder sut = CreateSut(subjectIdentifier: subjectIdentifier);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.EqualTo(subjectIdentifier));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainSubjectIdentifierClaim_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainSubjectIdentifierClaim_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainSubjectIdentifierClaim_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesContainsSubjectIdentifierClaim_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueEqualToSubjectIdentifierFromConstructor()
-        {
-            string subjectIdentifier = _fixture.Create<string>();
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(subjectIdentifier: subjectIdentifier, userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.EqualTo(subjectIdentifier));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueEqualToSubjectIdentifierFromConstructor()
-        {
-            string subjectIdentifier = _fixture.Create<string>();
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(subjectIdentifier: subjectIdentifier, userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.EqualTo(subjectIdentifier));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsSubjectIdentifierClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneSubjectIdentifierClaimTypeWithValueEqualToSubjectIdentifierFromConstructor()
-        {
-            string subjectIdentifier = _fixture.Create<string>();
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasSubjectIdentifierClaim: true, hasSubjectIdentifierClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(subjectIdentifier: subjectIdentifier, userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType) == 0).Value, Is.EqualTo(subjectIdentifier));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionContainingAllClaimsWithValueResolvedByUserInfo()
-        {
-            Claim[] additionalClaims = _fixture.CreateClaims(_random);
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(additionalClaims: additionalClaims);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(additionalClaims.All(additionalClaim => result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, additionalClaim.Type) == 0 && string.CompareOrdinal(claim.Value, additionalClaim.Value) == 0 && string.CompareOrdinal(claim.ValueType, additionalClaim.ValueType) == 0) != null), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionNotContainingClaimsWithoutValueResolvedByUserInfo()
-        {
-            Claim[] additionalClaims =
-            [
-                _fixture.CreateClaim(hasValue: false),
-                _fixture.CreateClaim(hasValue: false),
-                _fixture.CreateClaim(hasValue: false)
-            ];
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(additionalClaims: additionalClaims);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(additionalClaims.All(additionalClaim => result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, additionalClaim.Type) == 0) == null), Is.True);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimType()
+        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimType()
         {
             IIdTokenContentBuilder sut = CreateSut();
 
@@ -314,7 +637,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueNotEqualToNull()
+        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueNotEqualToNull()
         {
             IIdTokenContentBuilder sut = CreateSut();
 
@@ -325,7 +648,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_Called_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithNonEmptyValue()
+        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithNonEmptyValue()
         {
             IIdTokenContentBuilder sut = CreateSut();
 
@@ -336,7 +659,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenAuthenticationTimeIsUtcTime_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
+        public void Build_WhenAuthenticationTimeGivenByConstructorIsUtcTime_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
         {
             DateTimeOffset authenticationTime = DateTimeOffset.UtcNow;
             IIdTokenContentBuilder sut = CreateSut(authenticationTime: authenticationTime);
@@ -348,7 +671,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenAuthenticationTimeIsLocalTime_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
+        public void Build_WhenAuthenticationTimeGivenByConstructorIsLocalTime_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
         {
             DateTimeOffset authenticationTime = DateTimeOffset.Now;
             IIdTokenContentBuilder sut = CreateSut(authenticationTime: authenticationTime);
@@ -356,165 +679,6 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
             IEnumerable<Claim> result = sut.Build();
 
             Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.EqualTo(CalculateExpectedValueForAuthenticationTimeClaimType(authenticationTime.ToUniversalTime())));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainAuthenticationTimeClaim_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainAuthenticationTimeClaim_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainAuthenticationTimeClaim_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoDoesNotContainAuthenticationTimeClaim_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            DateTimeOffset authenticationTime = DateTimeOffset.UtcNow;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, authenticationTime: authenticationTime);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.EqualTo(CalculateExpectedValueForAuthenticationTimeClaimType(authenticationTime)));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue:false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            DateTimeOffset authenticationTime = DateTimeOffset.UtcNow;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, authenticationTime: authenticationTime);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.EqualTo(CalculateExpectedValueForAuthenticationTimeClaimType(authenticationTime)));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenClaimsResolvedByUserInfoContainsAuthenticationTimeClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneAuthenticationTimeClaimTypeWithValueEqualToUnixTimeSeconds()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasAuthenticationTimeClaim: true, hasAuthenticationTimeClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            DateTimeOffset authenticationTime = DateTimeOffset.UtcNow;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo, authenticationTime: authenticationTime);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType) == 0).Value, Is.EqualTo(CalculateExpectedValueForAuthenticationTimeClaimType(authenticationTime)));
         }
 
         [Test]
@@ -564,207 +728,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoDoesNotContainNonceClaim_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoDoesNotContainNonceClaim_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoDoesNotContainNonceClaim_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoDoesNotContainNonceClaim_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithValueEqualToValueFromCallToWithNonce()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            string nonce = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithNonce(nonce).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.EqualTo(nonce));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithoutValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithValueEqualToValueFromCallToWithNonce()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            string nonce = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithNonce(nonce).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.EqualTo(nonce));
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0), Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithValueNotEqualToNull()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.Not.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithNonEmptyValue()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.WithNonce(_fixture.Create<string>()).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.Not.Empty);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithValue_ReturnsNonEmptyClaimsCollectionContainingOneNonceClaimTypeWithValueEqualToValueFromCallToWithNonce()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            string nonce = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithNonce(nonce).Build();
-
-            Assert.That(result.Single(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0).Value, Is.EqualTo(nonce));
-        }
-
-        [Test]
-        [Category("UnitTest")]
         public void Build_WhenWithNonceHasNotBeenCalled_ReturnsNonEmptyClaimsCollectionWithoutNonceClaimType()
         {
             IIdTokenContentBuilder sut = CreateSut();
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0), Is.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasNotBeenCalledAndClaimsResolvedByUserInfoDoesNotContainNonceClaim_ReturnsNonEmptyClaimsCollectionWithoutNonceClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0), Is.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasNotBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithoutValue_ReturnsNonEmptyClaimsCollectionWithoutNonceClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: false);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
-
-            IEnumerable<Claim> result = sut.Build();
-
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType) == 0), Is.Null);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public void Build_WhenWithNonceHasNotBeenCalledAndClaimsResolvedByUserInfoContainsNonceClaimWithValue_ReturnsNonEmptyClaimsCollectionWithoutNonceClaimType()
-        {
-            IEnumerable<Claim> claimsForUserInfo = CreateClaimsForUserInfo(hasNonceClaim: true, hasNonceClaimValue: true);
-            IUserInfo userInfo = _fixture.BuildUserInfoMock(toClaims: claimsForUserInfo).Object;
-            IIdTokenContentBuilder sut = CreateSut(userInfo: userInfo);
 
             IEnumerable<Claim> result = sut.Build();
 
@@ -952,124 +918,311 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.IdTokenContentB
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithCustomClaimHasBeenCalledWithValueEqualToNull_ReturnsNonEmptyClaimsCollectionContainingMatchingCustomClaim()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInSupportedScopesGivenByConstructor_AssertFilterWasNotCalledOnScope(bool withWebApiScope)
         {
-            IIdTokenContentBuilder sut = CreateSut();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: withWebApiScope);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
 
-            string claimType = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithCustomClaim(claimType, null).Build();
+            Mock<IScope> scopeMock = CreateWebApiScopeMock();
+            sut.WithCustomClaimsFilteredByScope(scopeMock.Object, _fixture.CreateClaims(_random)).Build();
 
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, claimType) == 0 && string.CompareOrdinal(claim.Value, string.Empty) == 0), Is.Not.Null);
+            scopeMock.Verify(m => m.Filter(It.IsAny<IEnumerable<Claim>>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithCustomClaimHasBeenCalledWithEmptyValue_ReturnsNonEmptyClaimsCollectionContainingMatchingCustomClaim()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInSupportedScopesGivenByConstructor_ReturnsNotNull(bool withWebApiScope)
         {
-            IIdTokenContentBuilder sut = CreateSut();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: withWebApiScope);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
 
-            string claimType = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithCustomClaim(claimType, string.Empty).Build();
+            IScope scope = CreateWebApiScope();
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
 
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, claimType) == 0 && string.CompareOrdinal(claim.Value, string.Empty) == 0), Is.Not.Null);
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithCustomClaimHasBeenCalledWithEqualToWhiteSpace_ReturnsNonEmptyClaimsCollectionContainingMatchingCustomClaim()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInSupportedScopesGivenByConstructor_ReturnsNonEmptyClaimsCollection(bool withWebApiScope)
         {
-            IIdTokenContentBuilder sut = CreateSut();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: withWebApiScope);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
 
-            string claimType = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithCustomClaim(claimType, " ").Build();
+            IScope scope = CreateWebApiScope();
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
 
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, claimType) == 0 && string.CompareOrdinal(claim.Value, string.Empty) == 0), Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithCustomClaimHasBeenCalledWithNonEmptyValue_ReturnsNonEmptyClaimsCollectionContainingMatchingCustomClaim()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInSupportedScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionWithoutFilteredClaimsFromScope(bool withWebApiScope)
         {
-            IIdTokenContentBuilder sut = CreateSut();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: withWebApiScope);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
 
-            string claimType = _fixture.Create<string>();
-            string value = _fixture.Create<string>();
-            IEnumerable<Claim> result = sut.WithCustomClaim(claimType, value).Build();
+            IEnumerable<Claim> filteredClaims = _fixture.CreateClaims(_random);
+            IScope scope = CreateWebApiScope(filteredClaims);
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
 
-            Assert.That(result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, claimType) == 0 && string.CompareOrdinal(claim.Value, value) == 0), Is.Not.Null);
+            Assert.That(filteredClaims.All(selectedClaim => result.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, selectedClaim.Type) == 0) == null), Is.True);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithCustomClaimHasBeenCalledMultipleTimesWithDifferentClaimTypes_ReturnsNonEmptyClaimsCollectionContainingMatchingCustomClaims()
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInScopesGivenByConstructor_AssertFilterWasNotCalledOnScope()
+        {
+            Mock<IScope> scopeMock = CreateWebApiScopeMock();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scopeMock.Object);
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: false);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            sut.WithCustomClaimsFilteredByScope(scopeMock.Object, _fixture.CreateClaims(_random)).Build();
+
+            scopeMock.Verify(m => m.Filter(It.IsAny<IEnumerable<Claim>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IScope scope = CreateWebApiScope();
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: false);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scope);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollection()
+        {
+            IScope scope = CreateWebApiScope();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scope);
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: false);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledButScopeNotInScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionWithoutFilteredClaimsFromScope()
+        {
+            IEnumerable<Claim> filteredClaims = _fixture.CreateClaims(_random);
+            IScope scope = CreateWebApiScope(filteredClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scope);
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: false);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
+
+            Assert.That(filteredClaims.All(selectedClaim => result.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, selectedClaim.Type) == 0) == null), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledAndScopeInBothSupportedScopesAndScopesGivenByConstructor_AssertFilterWasCalledOnScope()
+        {
+            IEnumerable<Claim> filteredClaims = _fixture.CreateClaims(_random);
+            Mock<IScope> scopeMock = CreateWebApiScopeMock(filteredClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scopeMock.Object);
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> customClaims = _fixture.CreateClaims(_random);
+            sut.WithCustomClaimsFilteredByScope(scopeMock.Object, customClaims).Build();
+
+            scopeMock.Verify(m => m.Filter(It.Is<IEnumerable<Claim>>(value => value != null && value == customClaims)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledAndScopeInBothSupportedScopesAndScopesGivenByConstructor_ReturnsNotNull()
+        {
+            IScope scope = CreateWebApiScope();
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: true);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scope);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledAndScopeInBothSupportedScopesAndScopesGivenByConstructor_ReturnsNonEmptyClaimsCollection()
+        {
+            IScope scope = CreateWebApiScope();
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scope);
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasBeenCalledAndScopeInBothSupportedScopesAndScopesGivenByConstructor_ReturnsNonEmptyClaimsCollectionWithFilteredClaimsFromScope()
+        {
+            IEnumerable<Claim> filteredClaims = _fixture.CreateClaims(_random);
+            IScope scope = CreateWebApiScope(filteredClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), CreateProfileScope(), CreateEmailScope(), scope);
+            IReadOnlyCollection<string> scopes = CreateScopes(withWebApiScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
+
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByScope(scope, _fixture.CreateClaims(_random)).Build();
+
+            Assert.That(filteredClaims.All(selectedClaim => result.SingleOrDefault(claim => claim != null && string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, selectedClaim.Type) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, selectedClaim.Value) == 0) != null), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasNotBeenCalled_ReturnsNotNull()
         {
             IIdTokenContentBuilder sut = CreateSut();
 
-            IDictionary<string, string> customClaims = new Dictionary<string, string>
-            {
-                {_fixture.Create<string>(), _fixture.Create<string>()},
-                {_fixture.Create<string>(), _fixture.Create<string>()},
-                {_fixture.Create<string>(), _fixture.Create<string>()},
-                {_fixture.Create<string>(), _fixture.Create<string>()},
-                {_fixture.Create<string>(), _fixture.Create<string>()}
-            };
-            foreach (KeyValuePair<string, string> customClaim in customClaims)
-            {
-                sut = sut.WithCustomClaim(customClaim.Key, customClaim.Value);
-            }
             IEnumerable<Claim> result = sut.Build();
 
-            Assert.That(customClaims.All(customClaim => result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, customClaim.Key) == 0 && string.CompareOrdinal(claim.Value, customClaim.Value) == 0) != null), Is.True);
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void Build_WhenWithCustomClaimHasBeenCalledMultipleTimesWithSameClaimType_ReturnsNonEmptyClaimsCollectionContainingMatchingCustomClaims()
+        public void Build_WhenWithCustomClaimsFilteredByScopeHasNotBeenCalled_ReturnsNonEmptyClaimsCollection()
+        {
+            IIdTokenContentBuilder sut = CreateSut();
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasBeenCalled_ReturnsNotNull()
         {
             IIdTokenContentBuilder sut = CreateSut();
 
             string claimType = _fixture.Create<string>();
-            IList<KeyValuePair<string, string>> customClaims = new List<KeyValuePair<string, string>>
-            {
-                new(claimType, _fixture.Create<string>()),
-                new(claimType, _fixture.Create<string>()),
-                new(claimType, _fixture.Create<string>()),
-                new(claimType, _fixture.Create<string>()),
-                new(claimType, _fixture.Create<string>())
-            };
-            foreach (KeyValuePair<string, string> customClaim in customClaims)
-            {
-                sut = sut.WithCustomClaim(customClaim.Key, customClaim.Value);
-            }
+            IEnumerable<Claim> customClaims = new List<Claim>(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(type: claimType)));
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByClaimType(claimType, customClaims).Build();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasBeenCalled_ReturnsNonEmptyClaimsCollection()
+        {
+            IIdTokenContentBuilder sut = CreateSut();
+
+            string claimType = _fixture.Create<string>();
+            IEnumerable<Claim> customClaims = new List<Claim>(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(type: claimType)));
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByClaimType(claimType, customClaims).Build();
+
+            Assert.That(result, Is.Not.Empty);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasBeenCalledWhereCustomClaimsContainingClaimTypeOnce_ReturnsNonEmptyClaimsCollectionWithFilteredCustomClaims()
+        {
+            IIdTokenContentBuilder sut = CreateSut();
+
+            string claimType = _fixture.Create<string>();
+            string claimValue = _fixture.Create<string>();
+            IEnumerable<Claim> customClaims = new List<Claim>(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(type: claimType, value: claimValue)));
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByClaimType(claimType, customClaims).Build();
+
+            Assert.That(result.SingleOrDefault(claim => string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, claimType) == 0 && string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, claimValue) == 0), Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasBeenCalledWhereCustomClaimsContainingClaimTypeMultipleTimes_ReturnsNonEmptyClaimsCollectionWithFilteredCustomClaims()
+        {
+            IIdTokenContentBuilder sut = CreateSut();
+
+            string claimType = _fixture.Create<string>();
+            IEnumerable<Claim> customClaims = new List<Claim>(_fixture.CreateClaims(_random).Concat(_fixture.CreateClaim(type: claimType), _fixture.CreateClaim(type: claimType), _fixture.CreateClaim(type: claimType)));
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByClaimType(claimType, customClaims).Build();
+
+            Assert.That(result.Count(claim => string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, claimType) == 0), Is.EqualTo(3));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasBeenCalledWhereCustomClaimsNotContainingClaimType_ReturnsNonEmptyClaimsCollectionWithFilteredCustomClaims()
+        {
+            IIdTokenContentBuilder sut = CreateSut();
+
+            IEnumerable<Claim> customClaims = new List<Claim>(_fixture.CreateClaims(_random));
+            IEnumerable<Claim> result = sut.WithCustomClaimsFilteredByClaimType(_fixture.Create<string>(), customClaims).Build();
+
+            Assert.That(customClaims.All(customClaim => result.Any(claim => string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, customClaim.Type) == 0) == false), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasNotBeenCalled_ReturnsNotNull()
+        {
+            IIdTokenContentBuilder sut = CreateSut();
+
             IEnumerable<Claim> result = sut.Build();
 
-            Assert.That(customClaims.All(customClaim => result.SingleOrDefault(claim => string.CompareOrdinal(claim.Type, customClaim.Key) == 0 && string.CompareOrdinal(claim.Value, customClaim.Value) == 0) != null), Is.True);
+            Assert.That(result, Is.Not.Null);
         }
 
-        private IIdTokenContentBuilder CreateSut(string subjectIdentifier = null, IUserInfo userInfo = null, DateTimeOffset? authenticationTime = null)
+        [Test]
+        [Category("UnitTest")]
+        public void Build_WithCustomClaimsFilteredByClaimTypeHasNotBeenCalled_ReturnsNonEmptyClaimsCollection()
         {
-            return new BusinessLogic.Security.Logic.IdTokenContentBuilder(subjectIdentifier ?? _fixture.Create<string>(), userInfo ?? _fixture.BuildUserInfoMock().Object, authenticationTime ?? DateTimeOffset.UtcNow.AddSeconds(_random.Next(300) * -1));
+            IIdTokenContentBuilder sut = CreateSut();
+
+            IEnumerable<Claim> result = sut.Build();
+
+            Assert.That(result, Is.Not.Empty);
         }
 
-        private IEnumerable<Claim> CreateClaimsForUserInfo(bool hasSubjectIdentifierClaim = true, bool hasSubjectIdentifierClaimValue = true, bool hasAuthenticationTimeClaim = true, bool hasAuthenticationTimeClaimValue = true, bool hasNonceClaim = true, bool hasNonceClaimValue = true, IEnumerable<Claim> additionalClaims = null)
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(ClaimTypes.NameIdentifier)]
+        public void Build_WhenCalled_ReturnsNonEmptyClaimsCollectionNotContainingNoneSupportedClaimTypes(string nonSupportedClaimType)
         {
-            List<Claim> claims = [];
-            if (hasSubjectIdentifierClaim)
-            {
-                claims.Add(_fixture.CreateClaim(BusinessLogic.Security.Logic.IdTokenContentBuilder.SubjectIdentifierClaimType, hasValue: hasSubjectIdentifierClaimValue));
-            }
-            if (hasAuthenticationTimeClaim)
-            {
-                claims.Add(_fixture.CreateClaim(BusinessLogic.Security.Logic.IdTokenContentBuilder.AuthenticationTimeClaimType, hasValue: hasAuthenticationTimeClaimValue));
-            }
-            if (hasNonceClaim)
-            {
-                claims.Add(_fixture.CreateClaim(BusinessLogic.Security.Logic.IdTokenContentBuilder.NonceClaimType, hasValue: hasNonceClaimValue));
-            }
+            IEnumerable<Claim> selectedClaims =
+            [
+                _fixture.CreateClaim(nonSupportedClaimType)
+            ];
+            IScope profileScope = CreateProfileScope(selectedClaims);
+            IReadOnlyDictionary<string, IScope> supportedScopes = CreateSupportedScopes(CreateOpenIdScope(), profileScope, CreateEmailScope(), CreateWebApiScope());
+            IReadOnlyCollection<string> scopes = CreateScopes(withProfileScope: true);
+            IIdTokenContentBuilder sut = CreateSut(supportedScopes: supportedScopes, scopes: scopes);
 
-            claims.AddRange(additionalClaims ?? _fixture.CreateClaims(_random));
+            IEnumerable<Claim> result = sut.Build();
 
-            return claims;
+            Assert.That(result.FirstOrDefault(claim => string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, nonSupportedClaimType) == 0), Is.Null);
         }
 
         private static string CalculateExpectedValueForAuthenticationTimeClaimType(DateTimeOffset authenticationTime)

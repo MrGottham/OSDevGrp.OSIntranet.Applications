@@ -2,7 +2,6 @@
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Extensions;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -10,6 +9,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -50,10 +50,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
             ClaimsPrincipal claimsPrincipal = generateIdTokenCommand.ClaimsPrincipal;
 
-            string subjectIdentifier = await ResolveSubjectIdentifierAsync(claimsPrincipal);
+            string nameIdentifier = await ResolveNameIdentifierAsync(claimsPrincipal);
             IUserInfo userInfo = await ResolveUserInfoAsync(claimsPrincipal);
 
-            IIdTokenContentBuilder idTokenContentBuilder = _idTokenContentFactory.Create(subjectIdentifier, userInfo, generateIdTokenCommand.AuthenticationTime);
+            IReadOnlyDictionary<string, IScope> supportedScopes = SupportedScopesProvider.SupportedScopes;
+
+            IIdTokenContentBuilder idTokenContentBuilder = _idTokenContentFactory.Create(nameIdentifier, userInfo, generateIdTokenCommand.AuthenticationTime, supportedScopes, authorizationState.Scopes.ToArray());
 
             string nonce = authorizationState.Nonce;
             if (string.IsNullOrWhiteSpace(nonce) == false)
@@ -61,12 +63,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 idTokenContentBuilder = idTokenContentBuilder.WithNonce(nonce);
             }
 
-            foreach (Claim claim in await ResolveClaimsSupportedByScope(claimsPrincipal, SupportedScopesProvider.SupportedScopes[ScopeHelper.WebApiScope]))
-            {
-                idTokenContentBuilder = idTokenContentBuilder.WithCustomClaim(claim.Type, claim.Value);
-            }
+            idTokenContentBuilder = idTokenContentBuilder.WithCustomClaimsFilteredByScope(supportedScopes[ScopeHelper.WebApiScope], claimsPrincipal.Claims)
+                .WithCustomClaimsFilteredByClaimType(ClaimHelper.MicrosoftTokenClaimType, claimsPrincipal.Claims)
+                .WithCustomClaimsFilteredByClaimType(ClaimHelper.GoogleTokenClaimType, claimsPrincipal.Claims);
 
-            return _tokenGenerator.Generate(new ClaimsIdentity(idTokenContentBuilder.Build()), TimeSpan.FromMinutes(5));
+            return _tokenGenerator.Generate(new ClaimsIdentity(idTokenContentBuilder.Build()), TimeSpan.FromMinutes(5), authorizationState.ClientId);
         }
 
         private Task<IUserInfo> ResolveUserInfoAsync(ClaimsPrincipal claimsPrincipal)
@@ -82,7 +83,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             return Task.FromResult(userInfo);
         }
 
-        private static Task<string> ResolveSubjectIdentifierAsync(ClaimsPrincipal claimsPrincipal)
+        private static Task<string> ResolveNameIdentifierAsync(ClaimsPrincipal claimsPrincipal)
         {
             NullGuard.NotNull(claimsPrincipal, nameof(claimsPrincipal));
 
@@ -92,15 +93,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 throw new IntranetExceptionBuilder(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser).Build();
             }
 
-            return Task.FromResult(nameIdentifierClaim.Value.ComputeSha512Hash());
-        }
-
-        private static Task<IEnumerable<Claim>> ResolveClaimsSupportedByScope(ClaimsPrincipal claimsPrincipal, IScope supportedScope)
-        {
-            NullGuard.NotNull(claimsPrincipal, nameof(claimsPrincipal))
-                .NotNull(supportedScope, nameof(supportedScope));
-
-            return Task.FromResult(supportedScope.Filter(claimsPrincipal.Claims));
+            return Task.FromResult(nameIdentifierClaim.Value);
         }
 
         #endregion
