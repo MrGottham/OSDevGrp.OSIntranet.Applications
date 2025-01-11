@@ -1,6 +1,6 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace OSDevGrp.OSIntranet.WebApi.PostBuild;
 
@@ -8,23 +8,25 @@ public static class PostBuildExecutor
 {
     #region Methods
 
-    public static void Execute(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, IServiceProvider serviceProvider)
+    public static void Execute(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, string webApiVersion, IServiceProvider serviceProvider)
     {
-        ExecuteAsync(arguments, runningInDockerCalculator, serviceProvider)
+        ExecuteAsync(arguments, runningInDockerCalculator, webApiVersion, serviceProvider)
             .GetAwaiter()
             .GetResult();
     }
 
-    public static Task ExecuteAsync(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, IServiceProvider serviceProvider)
+    public static Task ExecuteAsync(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, string webApiVersion, IServiceProvider serviceProvider)
     {
         using IServiceScope serviceScope = serviceProvider.CreateScope();
 
         ILogger logger = serviceScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(PostBuildExecutor));
+        ISwaggerProvider swaggerProvider = serviceScope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+        ClientApiCodeGenerator clientApiCodeGenerator = new ClientApiCodeGenerator();
 
-        return ExecuteAsync(PostBuildExecutorContext.Create(arguments, runningInDockerCalculator, logger));
+        return ExecuteAsync(PostBuildExecutorContext.Create(arguments, runningInDockerCalculator, swaggerProvider, webApiVersion, logger), clientApiCodeGenerator);
     }
 
-    private static async Task ExecuteAsync(PostBuildExecutorContext context)
+    private static async Task ExecuteAsync(PostBuildExecutorContext context, ClientApiCodeGenerator clientApiCodeGenerator)
     {
         bool shouldContinueExecution = await Task.Run(async () => 
         {
@@ -42,6 +44,8 @@ public static class PostBuildExecutor
                     await context.NotifyAsync($"{nameof(PostBuildExecutor)} has been disabled while running in docker");
                     return false;
                 }
+
+                await clientApiCodeGenerator.GenerateAsync(context);
 
                 return false;
             }
@@ -64,62 +68,4 @@ public static class PostBuildExecutor
     }
 
     #endregion
-
-    private class PostBuildExecutorContext
-    {
-        #region Private variables
-
-        private readonly ILogger _logger;
-
-        #endregion
-
-        #region Constructor
-
-        private PostBuildExecutorContext(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, ILogger logger)
-        {
-            IsPostBuild = arguments.Count > 0 && arguments.ElementAt(0) == "postbuild";
-            RunningInDocker = runningInDockerCalculator();
-
-            _logger = logger;
-        }
-
-        #endregion
-
-        #region Properties
-
-        internal bool IsPostBuild { get; }
-
-        internal bool RunningInDocker { get;}
-
-        #endregion
-
-        #region Methods
-
-        internal async Task NotifyAsync(string message)
-        {
-            _logger.LogInformation(message);
-
-            if (IsPostBuild)
-            {
-                await Console.Out.WriteLineAsync(message);
-            }
-        }
-
-        internal async Task NotifyAsync(Exception exception)
-        {
-            _logger.LogError(exception, exception.Message);
-
-            if (IsPostBuild)
-            {
-                await Console.Error.WriteLineAsync(exception.Message);
-            }
-        }
-
-        internal static PostBuildExecutorContext Create(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, ILogger logger)
-        {
-            return new PostBuildExecutorContext(arguments, runningInDockerCalculator, logger);
-        }
-
-        #endregion
-    }
 }
