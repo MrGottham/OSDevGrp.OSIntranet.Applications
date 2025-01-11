@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using OSDevGrp.OSIntranet.WebApi.PostBuild;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
@@ -20,6 +22,8 @@ namespace OSDevGrp.OSIntranet.WebApi
 
 			WebApplication application = applicationBuilder.Build();
 			startup.Configure(application, application.Environment);
+
+            PostBuildExecutor.Execute(args, Startup.RunningInDocker, application.Services);
 
 			return application;
 		}

@@ -447,7 +447,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             return supportedScopesProvider.SupportedScopes.ToDictionary(supportedScope => supportedScope.Value.Name, supportedScope => supportedScope.Value.Description);
         }
 
-        private static bool RunningInDocker()
+        internal static bool RunningInDocker()
         {
             return RunningInDocker(Environment.GetEnvironmentVariable(DotnetRunningInContainerEnvironmentVariable));
         }
