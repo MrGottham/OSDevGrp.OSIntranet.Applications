@@ -4,6 +4,8 @@ services:
 
   builder:
     image: builder-osintranet
+    environment: 
+      - DOTNET_RUNNING_IN_CONTAINER=true
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile

@@ -21,15 +21,19 @@ COPY OSDevGrp.OSIntranet.BusinessLogic.Tests/OSDevGrp.OSIntranet.BusinessLogic.T
 COPY OSDevGrp.OSIntranet.Mvc/OSDevGrp.OSIntranet.Mvc.csproj ./OSDevGrp.OSIntranet.Mvc/
 COPY OSDevGrp.OSIntranet.Mvc.Tests/OSDevGrp.OSIntranet.Mvc.Tests.csproj ./OSDevGrp.OSIntranet.Mvc.Tests/
 COPY OSDevGrp.OSIntranet.WebApi/OSDevGrp.OSIntranet.WebApi.csproj ./OSDevGrp.OSIntranet.WebApi/
+COPY OSDevGrp.OSIntranet.WebApi.PostBuild/OSDevGrp.OSIntranet.WebApi.PostBuild.csproj ./OSDevGrp.OSIntranet.WebApi.PostBuild/
 COPY OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.WebApi.Tests/
 RUN dotnet restore
 
 # Copy everything else and build app
 COPY . .
 
+# Tell the build enviroment that we are running in a container
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+
 # Build the MVC application
 WORKDIR /src/OSDevGrp.OSIntranet.Mvc
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out 
 
 # Build the WebApi application
 WORKDIR /src/OSDevGrp.OSIntranet.WebApi

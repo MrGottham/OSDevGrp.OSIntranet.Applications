@@ -32,6 +32,7 @@
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Repositories\OSDevGrp.OSIntranet.Repositories.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic.Interfaces\OSDevGrp.OSIntranet.BusinessLogic.Interfaces.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.BusinessLogic\OSDevGrp.OSIntranet.BusinessLogic.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.WebApi.PostBuild\OSDevGrp.OSIntranet.WebApi.PostBuild.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,5 +40,13 @@
       <_Parameter1>$(AssemblyName).Tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuild">
+    <Exec Command="dotnet &quot;$(TargetDir)$(TargetFileName)&quot; postbuild" />
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet &quot;$(TargetDir)$(TargetFileName)&quot; postbuild" />
+  </Target>
 
 </Project>
