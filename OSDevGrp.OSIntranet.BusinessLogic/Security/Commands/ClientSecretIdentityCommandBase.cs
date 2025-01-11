@@ -7,11 +7,13 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-	public abstract class ClientSecretIdentityCommandBase : IdentityCommandBase, IClientSecretIdentityCommand
+    public abstract class ClientSecretIdentityCommandBase : IdentityCommandBase, IClientSecretIdentityCommand
     {
         #region Properties
 
         public string FriendlyName { get; set; }
+
+        protected virtual bool MapIdentifier => true;
 
         #endregion
 
@@ -45,7 +47,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
         private IClientSecretIdentityBuilder CreateClientSecretIdentityBuilder()
         {
             return ClientSecretIdentityBuilderFactory.Create(FriendlyName, Claims)
-	            .WithIdentifier(Identifier);
+	            .WithIdentifier(MapIdentifier ? Identifier : 0);
         }
 
         #endregion

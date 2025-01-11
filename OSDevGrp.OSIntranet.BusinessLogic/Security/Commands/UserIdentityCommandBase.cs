@@ -7,11 +7,13 @@ using OSDevGrp.OSIntranet.Repositories.Interfaces;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 {
-	public abstract class UserIdentityCommandBase : IdentityCommandBase, IUserIdentityCommand
+    public abstract class UserIdentityCommandBase : IdentityCommandBase, IUserIdentityCommand
     {
         #region Properties
 
         public string ExternalUserIdentifier { get; set; }
+
+        protected virtual bool MapIdentifier => true;
 
         #endregion
 
@@ -31,7 +33,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
         public IUserIdentity ToDomain()
         {
             return UserIdentityBuilderFactory.Create(ExternalUserIdentifier, Claims)
-                .WithIdentifier(Identifier)
+                .WithIdentifier(MapIdentifier ? Identifier : 0)
                 .Build();
         }
 
