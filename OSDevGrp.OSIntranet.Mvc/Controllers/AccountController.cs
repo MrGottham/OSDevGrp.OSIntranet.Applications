@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
+using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -38,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly ITrustedDomainResolver _trustedDomainResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
         private readonly IDataProtectionProvider _dataProtectionProvider;
-        private readonly Regex _supportedSchemeRegex = new($"^({MicrosoftAccountDefaults.AuthenticationScheme}|{GoogleDefaults.AuthenticationScheme}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
+        private readonly Regex _supportedSchemeRegex = new($"^({OpenIdConnectDefaults.AuthenticationScheme}|{MicrosoftAccountDefaults.AuthenticationScheme}|{GoogleDefaults.AuthenticationScheme}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
 
 		#endregion
 
@@ -80,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
             AuthenticationProperties authenticationProperties = new AuthenticationProperties
             {
-                RedirectUri = Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri})
+                RedirectUri = GetRedirectUriForScheme(scheme, returnUri)
             };
             return Challenge(authenticationProperties, scheme);
         }
@@ -132,11 +134,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
                 {
                     IGetMicrosoftTokenQuery getMicrosoftTokenQuery = SecurityQueryFactory.BuildGetMicrosoftTokenQuery(authenticatedClaimsPrincipal, dataProtector.Unprotect);
                     IRefreshableToken microsoftToken = await _queryBus.QueryAsync<IGetMicrosoftTokenQuery, IRefreshableToken>(getMicrosoftTokenQuery);
-                    await HandleMicrosoftToken(microsoftToken);
+                    if (microsoftToken != null)
+                    {
+                        await _tokenHelperFactory.StoreMicrosoftToken(HttpContext, microsoftToken);
+                    }
 
                     IGetGoogleTokenQuery getGoogleTokenQuery = SecurityQueryFactory.BuildGetGoogleTokenQuery(authenticatedClaimsPrincipal, dataProtector.Unprotect);
                     IToken googleToken = await _queryBus.QueryAsync<IGetGoogleTokenQuery, IToken>(getGoogleTokenQuery);
-                    await HandleGoogleToken(googleToken);
+                    if (googleToken != null)
+                    {
+                        await _tokenHelperFactory.StoreGoogleToken(HttpContext, googleToken);
+                    }
 
                     if (returnUri != null)
                     {
@@ -228,16 +236,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
             return ConvertToAbsoluteUri(Url.AbsoluteContent(returnUri.OriginalString));
         }
 
-        private Task HandleMicrosoftToken(IRefreshableToken microsoftToken)
+        private string GetRedirectUriForScheme(string scheme, Uri returnUri)
         {
-	        return microsoftToken != null
-		        ? _tokenHelperFactory.StoreTokenAsync(TokenType.MicrosoftGraphToken, HttpContext, microsoftToken.ToBase64String())
-		        : Task.CompletedTask;
-        }
+            NullGuard.NotNullOrWhiteSpace(scheme, nameof(scheme))
+                .NotNull(returnUri, nameof(returnUri));
 
-		private static Task HandleGoogleToken(IToken _)
-        {
-	        return Task.CompletedTask;
+            switch (scheme)
+            {
+                case OpenIdConnectDefaults.AuthenticationScheme:
+                    return returnUri.AbsoluteUri;
+
+                case MicrosoftAccountDefaults.AuthenticationScheme:
+                case GoogleDefaults.AuthenticationScheme:
+                    return Url.AbsoluteAction(nameof(LoginCallback), "Account", new {returnUrl = returnUri.AbsoluteUri});
+            }
+
+            throw new IntranetExceptionBuilder(ErrorCode.ValueShouldBeKnown, scheme)
+                .WithValidatingType(typeof(string))
+                .WithValidatingField(nameof(scheme))
+                .Build();
         }
 
         #endregion

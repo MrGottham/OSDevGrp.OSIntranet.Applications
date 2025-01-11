@@ -18,7 +18,8 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
                 .NotNull(configuration, nameof(configuration));
 
-            serviceCollection.Configure<MicrosoftSecurityOptions>(configuration.GetMicrosoftSecuritySection())
+            serviceCollection.Configure<OpenIdConnectOptions>(configuration.GetOpenIdConnectSection())
+                .Configure<MicrosoftSecurityOptions>(configuration.GetMicrosoftSecuritySection())
                 .Configure<GoogleSecurityOptions>(configuration.GetGoogleSecuritySection())
                 .Configure<ExternalDashboardOptions>(configuration.GetExternalDashboardSection());
 

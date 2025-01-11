@@ -4,6 +4,7 @@
     {
 	    public const string SecuritySectionName = "Security";
 	    public const string JwtSectionName = "JWT";
+        public const string OpenIdConnectSectionName = "OIDC";
 	    public const string MicrosoftSectionName = "Microsoft";
 	    public const string GoogleSectionName = "Google";
 	    public const string AcmeChallengeSectionName = "AcmeChallenge";
@@ -20,6 +21,10 @@
         public static readonly string JwtKeyQi = $"{SecuritySectionName}:{JwtSectionName}:{JwtKeySectionName}:qi";
         public static readonly string JwtIssuer = $"{SecuritySectionName}:{JwtSectionName}:Issuer";
         public static readonly string JwtAudience = $"{SecuritySectionName}:{JwtSectionName}:Audience";
+
+        public static readonly string OpenIdConnectAuthority = $"{SecuritySectionName}:{OpenIdConnectSectionName}:Authority";
+        public static readonly string OpenIdConnectClientId = $"{SecuritySectionName}:{OpenIdConnectSectionName}:ClientId";
+        public static readonly string OpenIdConnectClientSecret = $"{SecuritySectionName}:{OpenIdConnectSectionName}:ClientSecret";
 
         public static readonly string MicrosoftClientId = $"{SecuritySectionName}:{MicrosoftSectionName}:ClientId";
         public static readonly string MicrosoftClientSecret = $"{SecuritySectionName}:{MicrosoftSectionName}:ClientSecret";

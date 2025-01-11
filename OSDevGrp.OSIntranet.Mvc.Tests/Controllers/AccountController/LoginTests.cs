@@ -1,6 +1,7 @@
 using AutoFixture;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -307,6 +308,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
@@ -320,19 +322,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledTwiceOnUrlHelper(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, 1)]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, 2)]
+        [TestCase(GoogleDefaults.AuthenticationScheme, 2)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledExpectedTimesForSchemeOnUrlHelper(string scheme, int expectedTimesForScheme)
         {
             Controller sut = CreateSut();
 
             sut.Login(scheme);
 
-            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(2));
+            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(expectedTimesForScheme));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledOnUrlHelperWithControllerEqualToHomeAndActionEqualToIndex(string scheme)
@@ -348,7 +352,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -361,6 +365,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertActionWasNotCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
+        {
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
+
+            sut.Login(scheme);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", _=> true))), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNull_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
@@ -376,6 +395,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsNotNull(string scheme)
@@ -389,6 +409,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResult(string scheme)
@@ -402,6 +423,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
@@ -415,6 +437,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
@@ -428,6 +451,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
@@ -441,6 +465,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
@@ -454,6 +479,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
@@ -467,6 +493,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
@@ -481,6 +508,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
@@ -495,9 +523,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/Home/Index")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToExpectedUrlForScheme(string scheme, string expectedUrlForScheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -506,11 +535,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             ChallengeResult result = (ChallengeResult) sut.Login(scheme);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}{expectedUrlForScheme}"));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullButCalculatedReturnUrlIsNonTrusted_ReturnsNotNull(string scheme)
@@ -524,6 +554,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNullButCalculatedReturnUrlIsNonTrusted_ReturnsBadRequestResult(string scheme)
@@ -537,6 +568,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
@@ -550,19 +582,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledTwiceOnUrlHelper(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, 1)]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, 2)]
+        [TestCase(GoogleDefaults.AuthenticationScheme, 2)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledExpectedTimesForSchemeOnUrlHelper(string scheme, int expectedTimesForScheme)
         {
             Controller sut = CreateSut();
 
             sut.Login(scheme, string.Empty);
 
-            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(2));
+            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(expectedTimesForScheme));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledOnUrlHelperWithControllerEqualToHomeAndActionEqualToIndex(string scheme)
@@ -578,7 +612,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -591,6 +625,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertActionWasNotCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
+        {
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
+
+            sut.Login(scheme, string.Empty);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", _ => true))), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmpty_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
@@ -606,6 +655,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsNotNull(string scheme)
@@ -619,6 +669,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResult(string scheme)
@@ -632,6 +683,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
@@ -645,6 +697,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
@@ -658,6 +711,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
@@ -671,6 +725,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
@@ -684,6 +739,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
@@ -697,6 +753,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
@@ -711,6 +768,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
@@ -725,9 +783,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/Home/Index")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToExpectedUrlForScheme(string scheme, string expectedUrlForScheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -736,11 +795,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, string.Empty);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}{expectedUrlForScheme}"));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyButCalculatedReturnUrlIsNonTrusted_ReturnsNotNull(string scheme)
@@ -754,6 +814,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsEmptyButCalculatedReturnUrlIsNonTrusted_ReturnsBadRequestResult(string scheme)
@@ -767,6 +828,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertContentWasCalledOnUrlHelperWithRelativeUrlToIndexOnHomeController(string scheme)
@@ -780,19 +842,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledTwiceOnUrlHelper(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, 1)]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, 2)]
+        [TestCase(GoogleDefaults.AuthenticationScheme, 2)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledExpectedTimesForSchemeOnUrlHelper(string scheme, int expectedTimesForScheme)
         {
             Controller sut = CreateSut();
 
             sut.Login(scheme, " ");
 
-            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(2));
+            _urlHelperMock.Verify(m => m.Action(It.IsNotNull<UrlActionContext>()), Times.Exactly(expectedTimesForScheme));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledOnUrlHelperWithControllerEqualToHomeAndActionEqualToIndex(string scheme)
@@ -808,7 +872,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -821,6 +885,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertActionWasNotCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
+        {
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
+
+            sut.Login(scheme, " ");
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", _ => true))), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpace_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlToIndexOnHomeController(string scheme)
@@ -836,6 +915,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsNotNull(string scheme)
@@ -849,6 +929,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResult(string scheme)
@@ -862,6 +943,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
@@ -875,6 +957,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
@@ -888,6 +971,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
@@ -901,6 +985,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
@@ -914,6 +999,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
@@ -927,6 +1013,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
@@ -941,6 +1028,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
@@ -955,9 +1043,10 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/Home/Index")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceAndCalculatedReturnUrlIsTrusted_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToExpectedUrlForScheme(string scheme, string expectedUrlForScheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -966,11 +1055,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, " ");
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}{expectedUrlForScheme}"));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceButCalculatedReturnUrlIsNonTrusted_ReturnsNotNull(string scheme)
@@ -984,6 +1074,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsWhiteSpaceButCalculatedReturnUrlIsNonTrusted_ReturnsBadRequestResult(string scheme)
@@ -997,6 +1088,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me", "user/me", "~/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me", "user/me", "~/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me", "user/me", "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me", "user/me", "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me", "user/me", "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me", "user/me", "~/users/me")]
@@ -1020,7 +1114,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
         [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme, string returnUrl)
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme, string returnUrl)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -1033,6 +1127,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsRelativeUri_AssertActionWasNotCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme, string returnUrl)
+        {
+            string domainName = _fixture.CreateDomainName();
+            string pathBase = _fixture.Create<string>();
+            Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
+
+            sut.Login(scheme, returnUrl);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", _ => true))), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1052,6 +1165,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1069,6 +1185,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1086,6 +1205,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1103,6 +1225,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1120,6 +1245,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1137,6 +1265,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1154,6 +1285,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1171,6 +1305,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1189,6 +1326,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1207,13 +1347,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
-        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me")]
-        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me")]
-        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me")]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme, string returnUrl)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me", "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me", "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me", "/users/me")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me", "/Account/LoginCallback")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me", "/Account/LoginCallback")]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me", "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "users/me", "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/users/me", "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "~/users/me", "/Account/LoginCallback")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedRelativeUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToExpectedUrlForScheme(string scheme, string returnUrl, string expectedUrlForScheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
@@ -1222,11 +1365,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
             ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}{expectedUrlForScheme}"));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1244,6 +1390,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "/users/me")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, "~/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/users/me")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "~/users/me")]
@@ -1261,6 +1410,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertContentWasNotCalledOnUrlHelper(string scheme)
@@ -1276,7 +1426,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallback(string scheme)
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertActionWasCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
         {
             Controller sut = CreateSut();
 
@@ -1288,6 +1438,20 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertActionWasNotCalledOnUrlHelperWithControllerEqualToAccountAndActionEqualToLoginCallbackForSpecifiedSchemes(string scheme)
+        {
+            Controller sut = CreateSut();
+
+            string returnUrl = _fixture.CreateEndpointString(domainName: "localhost");
+            sut.Login(scheme, returnUrl);
+
+            _urlHelperMock.Verify(m => m.Action(It.Is<UrlActionContext>(value => value != null && Matches(value, "Account", "LoginCallback", _ => true))), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsAbsoluteUri_AssertIsTrustedDomainWasCalledOnTrustedDomainResolverWithAbsoluteUrlForReturnUrl(string scheme)
@@ -1302,6 +1466,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsNotNull(string scheme)
@@ -1315,6 +1480,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResult(string scheme)
@@ -1328,6 +1494,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesIsNotNull(string scheme)
@@ -1341,6 +1508,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesIsNotEmpty(string scheme)
@@ -1354,6 +1522,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesContainsOneAuthenticationScheme(string scheme)
@@ -1367,6 +1536,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereAuthenticationSchemesContainsSchemeFromArgument(string scheme)
@@ -1380,6 +1550,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWherePropertiesIsNotNull(string scheme)
@@ -1393,6 +1564,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotNull(string scheme)
@@ -1407,6 +1579,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsNotEmpty(string scheme)
@@ -1421,22 +1594,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
-        [TestCase(GoogleDefaults.AuthenticationScheme)]
-        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToUrlForLoginCallback(string scheme)
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme, null)]
+        [TestCase(MicrosoftAccountDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        [TestCase(GoogleDefaults.AuthenticationScheme, "/Account/LoginCallback")]
+        public void Login_WhenSchemeIsSupportedAndReturnUrlIsTrustedAbsoluteUri_ReturnsChallengeResultWhereRedirectUriInPropertiesIsEqualToExpectedUrlForScheme(string scheme, string expectedUrlForScheme)
         {
             string domainName = _fixture.CreateDomainName();
             string pathBase = _fixture.Create<string>();
             Controller sut = CreateSut(domainName: domainName, pathBase: pathBase);
 
-            ChallengeResult result = (ChallengeResult) sut.Login(scheme, _fixture.CreateEndpointString(domainName: "localhost"));
+            string returnUrl = _fixture.CreateEndpointString(domainName: "localhost");
+            ChallengeResult result = (ChallengeResult) sut.Login(scheme, returnUrl);
 
             Assert.That(result.Properties, Is.Not.Null);
-            Assert.That(result.Properties.RedirectUri, Is.EqualTo($"https://{domainName}/{pathBase}/Account/LoginCallback"));
+            Assert.That(result.Properties.RedirectUri, Is.EqualTo(string.IsNullOrWhiteSpace(expectedUrlForScheme) == false ? $"https://{domainName}/{pathBase}{expectedUrlForScheme}" : returnUrl));
         }
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonTrustedAbsoluteUri_ReturnsNotNull(string scheme)
@@ -1450,6 +1626,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonTrustedAbsoluteUri_ReturnsBadRequestResult(string scheme)
@@ -1463,6 +1640,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_AssertContentWasNotCalledOnUrlHelper(string scheme)
@@ -1476,6 +1654,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_AssertActionWasNotCalledOnUrlHelper(string scheme)
@@ -1489,6 +1668,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_AssertIsTrustedDomainWasNotCalledOnTrustedDomainResolver(string scheme)
@@ -1502,6 +1682,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_ReturnsNotNull(string scheme)
@@ -1515,6 +1696,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
+        [TestCase(OpenIdConnectDefaults.AuthenticationScheme)]
         [TestCase(MicrosoftAccountDefaults.AuthenticationScheme)]
         [TestCase(GoogleDefaults.AuthenticationScheme)]
         public void Login_WhenSchemeIsSupportedAndReturnUrlIsNonRelativeNorAbsoluteUri_ReturnsBadRequestResult(string scheme)
