@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 
 namespace OSDevGrp.OSIntranet.WebApi
 {
-	public class Program
+    public class Program
     {
         public static void Main(string[] args)
         {
@@ -10,8 +11,9 @@ namespace OSDevGrp.OSIntranet.WebApi
         }
 
 		private static WebApplication CreateWebApplication(string[] args)
-		{
-			WebApplicationBuilder applicationBuilder = WebApplication.CreateBuilder(args);
+        {
+            WebApplicationBuilder applicationBuilder = WebApplication.CreateBuilder(args);
+            applicationBuilder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 			Startup startup = new Startup(applicationBuilder.Configuration);
 			startup.ConfigureServices(applicationBuilder.Services);

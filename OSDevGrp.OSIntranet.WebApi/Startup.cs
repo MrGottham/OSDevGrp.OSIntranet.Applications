@@ -1,5 +1,7 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -63,8 +65,27 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
-                opt.MinimumSameSitePolicy = SameSiteMode.None;
-                opt.Secure = CookieSecurePolicy.SameAsRequest;
+                opt.CheckConsentNeeded = _ => false;
+                opt.ConsentCookie.Name = $"{GetType().Namespace}.Consent";
+                opt.MinimumSameSitePolicy = SameSiteMode.Lax;
+                opt.Secure = CookieSecurePolicy.Always;
+            });
+
+            services.ConfigureApplicationCookie(opt =>
+            {
+                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Application";
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+            });
+
+            services.AddAntiforgery(opt =>
+            {
+                opt.FormFieldName = "__CSRF";
+                opt.HeaderName = $"X-{GetType().Namespace}-CSRF-TOKEN";
+                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Antiforgery";
             });
 
             services.AddDataProtection()
@@ -101,6 +122,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{GetInternalScheme()}";
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
             })
             .AddMicrosoftAccount(opt =>
@@ -111,6 +133,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.SignInScheme = GetInternalScheme();
                 opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -127,6 +150,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.SignInScheme = GetInternalScheme();
                 opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{GoogleDefaults.AuthenticationScheme}";
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("openid");

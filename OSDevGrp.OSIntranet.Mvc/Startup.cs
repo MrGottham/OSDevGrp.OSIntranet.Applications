@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.OAuth.Claims;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -57,16 +59,35 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.Configure<CookiePolicyOptions>(opt =>
             {
                 opt.CheckConsentNeeded = _ => true;
-                opt.MinimumSameSitePolicy = SameSiteMode.None;
-                opt.Secure = CookieSecurePolicy.SameAsRequest;
+                opt.ConsentCookie.Name = $"{GetType().Namespace}.Consent";
+                opt.MinimumSameSitePolicy = SameSiteMode.Lax;
+                opt.Secure = CookieSecurePolicy.Always;
+            });
+
+            services.ConfigureApplicationCookie(opt =>
+            {
+                opt.LoginPath = GetLoginPath();
+                opt.LogoutPath = GetLogoffPath();
+                opt.AccessDeniedPath = GetAccessDeniedPath();
+                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Application";
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+            });
+
+            services.AddAntiforgery(opt =>
+            {
+                opt.FormFieldName = "__CSRF";
+                opt.HeaderName = $"X-{GetType().Namespace}-CSRF-TOKEN";
+                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Antiforgery";
             });
 
             services.AddDataProtection()
                 .SetApplicationName("OSDevGrp.OSIntranet.Mvc")
                 .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
-
-            services.AddAntiforgery();
 
             services.AddControllersWithViews(opt => opt.Filters.Add(typeof(AcquireTokenActionFilter)))
                 .AddJsonOptions(opt =>
@@ -94,6 +115,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.ExpireTimeSpan = new TimeSpan(0, 60, 0);
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{Schemes.Internal}";
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddCookie(Schemes.External, opt =>
@@ -104,6 +126,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{Schemes.External}";
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             })
             .AddOpenIdConnect(opt =>
@@ -117,6 +140,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.AccessDeniedPath = GetAccessDeniedPath();
                 opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{OpenIdConnectDefaults.AuthenticationScheme}";
                 opt.SaveTokens = true;
                 opt.ResponseType = OpenIdConnectResponseType.Code;
                 opt.UsePkce = true;
@@ -145,6 +169,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.AccessDeniedPath = GetAccessDeniedPath();
                 opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -162,6 +187,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.AccessDeniedPath = GetAccessDeniedPath();
                 opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{GoogleDefaults.AuthenticationScheme}";
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
             });
