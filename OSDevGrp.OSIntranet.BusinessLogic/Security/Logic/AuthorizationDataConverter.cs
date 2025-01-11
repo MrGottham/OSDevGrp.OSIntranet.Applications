@@ -18,6 +18,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
         internal const string ClientIdKey = "urn:osdevgrp:osintranet:authorizationdata:client:id";
         internal const string ClientSecretKey = "urn:osdevgrp:osintranet:authorizationdata:client:secret";
         internal const string RedirectUriKey = "urn:osdevgrp:osintranet:authorizationdata:redirecturi";
+        internal const string IdTokenKey = "urn:osdevgrp:osintranet:authorizationdata:idtoken";
 
         #endregion
 

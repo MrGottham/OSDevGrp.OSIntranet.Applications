@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get install -y supervisor openssh-server sudo

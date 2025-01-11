@@ -9,6 +9,7 @@
 # Files
 .dockerignore
 .gitignore
+.env
 OSDevGrp.OSIntranet.Builder.Dockerfile
 OSDevGrp.OSIntranet.Mvc.Dockerfile
 OSDevGrp.OSIntranet.WebApi.Dockerfile

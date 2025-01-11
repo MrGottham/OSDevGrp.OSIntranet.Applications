@@ -3,6 +3,8 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Extensions;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
@@ -17,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AuthenticateUserCommandHandler
 {
-	[TestFixture]
+    [TestFixture]
     public class ExecuteAsyncTests
     {
 	    #region Private variables
@@ -256,7 +258,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 			IAuthenticateUserCommand authenticateUserCommand = CreateAuthenticateUserCommand(claims: claims);
 			await sut.ExecuteAsync(authenticateUserCommand);
 
-			userIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && claims.All(claim => value.Any(v => v.Type == claim.Type && v.Value == claim.Value)))), Times.Once);
+			userIdentityMock.Verify(m => m.AddClaims(It.Is<IEnumerable<Claim>>(value => value != null && claims.All(claim => value.Any(v => IsMatch(v, claim.Type, CalculateExpectedClaimValue(claim)))))), Times.Once);
 		}
 
 		[Test]
@@ -427,17 +429,39 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         private IReadOnlyCollection<Claim> BuildClaimCollection()
         {
-	        return new[]
-	        {
-		        ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
+	        return
+            [
+                ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
 		        ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
 		        ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
-	        };
+            ];
         }
 
         private IReadOnlyCollection<Claim> BuildEmptyClaimCollection()
         {
 	        return Array.Empty<Claim>();
+        }
+
+        private static bool IsMatch(Claim claim, string claimType, string claimValue)
+        {
+            NullGuard.NotNull(claim, nameof(claim))
+                .NotNullOrWhiteSpace(claimType, nameof(claimType))
+                .NotNullOrWhiteSpace(claimValue, nameof(claimValue));
+
+            return string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, claimType) == 0 &&
+                   string.IsNullOrWhiteSpace(claim.Value) == false && string.CompareOrdinal(claim.Value, claimValue) == 0;
+        }
+
+        private static string CalculateExpectedClaimValue(Claim claim)
+        {
+            NullGuard.NotNull(claim, nameof(claim));
+
+            if (string.IsNullOrWhiteSpace(claim.Type) == false && string.CompareOrdinal(claim.Type, ClaimTypes.NameIdentifier) == 0)
+            {
+                return string.IsNullOrWhiteSpace(claim.Value) ? string.Empty : claim.Value.ComputeSha512Hash();
+            }
+
+            return string.IsNullOrWhiteSpace(claim.Value) ? string.Empty : claim.Value;
         }
     }
 }

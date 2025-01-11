@@ -3,8 +3,6 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.CommandHandlers;
-using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
@@ -16,16 +14,11 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-    internal class GenerateAuthorizationCodeCommandHandler : CommandHandlerTransactionalBase, ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState>
+    internal class GenerateAuthorizationCodeCommandHandler : AuthorizationStateCommandHandlerBase<IGenerateAuthorizationCodeCommand, IAuthorizationState>
     {
         #region Private variables
 
-        private readonly IValidator _validator;
-        private readonly IAuthorizationStateFactory _authorizationStateFactory;
-        private readonly ISecurityRepository _securityRepository;
         private readonly ICommonRepository _commonRepository;
-        private readonly ITrustedDomainResolver _trustedDomainResolver;
-        private readonly ISupportedScopesProvider _supportedScopesProvider;
         private readonly IClaimsSelector _claimsSelector;
         private readonly IAuthorizationCodeGenerator _authorizationCodeGenerator;
         private readonly IAuthorizationDataConverter _authorizationDataConverter;
@@ -34,24 +27,15 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Constructor
 
-        public GenerateAuthorizationCodeCommandHandler(IValidator validator, IAuthorizationStateFactory authorizationStateFactory, ISecurityRepository securityRepository, ICommonRepository commonRepository, ITrustedDomainResolver trustedDomainResolver, ISupportedScopesProvider supportedScopesProvider, IClaimsSelector claimsSelector, IAuthorizationCodeGenerator authorizationCodeGenerator, IAuthorizationDataConverter authorizationDataConverter)
+        public GenerateAuthorizationCodeCommandHandler(IValidator validator, IAuthorizationStateFactory authorizationStateFactory, ISecurityRepository securityRepository, ICommonRepository commonRepository, ITrustedDomainResolver trustedDomainResolver, ISupportedScopesProvider supportedScopesProvider, IClaimsSelector claimsSelector, IAuthorizationCodeGenerator authorizationCodeGenerator, IAuthorizationDataConverter authorizationDataConverter) 
+            : base(validator, authorizationStateFactory, securityRepository, trustedDomainResolver, supportedScopesProvider)
         {
-            NullGuard.NotNull(validator, nameof(validator))
-                .NotNull(authorizationStateFactory, nameof(authorizationStateFactory))
-                .NotNull(securityRepository, nameof(securityRepository))
-                .NotNull(commonRepository, nameof(commonRepository))
-                .NotNull(trustedDomainResolver, nameof(trustedDomainResolver))
-                .NotNull(supportedScopesProvider, nameof(supportedScopesProvider))
+            NullGuard.NotNull(commonRepository, nameof(commonRepository))
                 .NotNull(claimsSelector, nameof(claimsSelector))
                 .NotNull(authorizationCodeGenerator, nameof(authorizationCodeGenerator))
                 .NotNull(authorizationDataConverter, nameof(authorizationDataConverter));
 
-            _validator = validator;
-            _authorizationStateFactory = authorizationStateFactory;
-            _securityRepository = securityRepository;
             _commonRepository = commonRepository;
-            _trustedDomainResolver = trustedDomainResolver;
-            _supportedScopesProvider = supportedScopesProvider;
             _claimsSelector = claimsSelector;
             _authorizationCodeGenerator = authorizationCodeGenerator;
             _authorizationDataConverter = authorizationDataConverter;
@@ -61,13 +45,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 
         #region Methods
 
-        public async Task<IAuthorizationState> ExecuteAsync(IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand)
+        protected override async Task<IAuthorizationState> HandleAuthorizationStateAsync(IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand, IAuthorizationState authorizationState)
         {
-            NullGuard.NotNull(generateAuthorizationCodeCommand, nameof(generateAuthorizationCodeCommand));
-
-            generateAuthorizationCodeCommand.Validate(_validator);
-
-            IAuthorizationState authorizationState = generateAuthorizationCodeCommand.ToDomain(_authorizationStateFactory, _validator, _securityRepository, _trustedDomainResolver, _supportedScopesProvider);
+            NullGuard.NotNull(generateAuthorizationCodeCommand, nameof(generateAuthorizationCodeCommand))
+                .NotNull(authorizationState, nameof(authorizationState));
 
             string clientId = authorizationState.ClientId;
             string clientSecret = await ResolveClientSecretAsync(clientId);
@@ -76,13 +57,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
                 return null;
             }
 
-            IReadOnlyCollection<Claim> selectedClaims = await ResolveSelectedClaimsAsync(_supportedScopesProvider.SupportedScopes, authorizationState.Scopes, generateAuthorizationCodeCommand.Claims);
+            IReadOnlyCollection<Claim> selectedClaims = await ResolveSelectedClaimsAsync(SupportedScopesProvider.SupportedScopes, authorizationState.Scopes, generateAuthorizationCodeCommand.Claims);
             if (selectedClaims == null || selectedClaims.Count == 0)
             {
                 return null;
             }
 
-            IReadOnlyDictionary<string, string> authorizationData = await ResolveAuthorizationData(clientId, clientSecret, authorizationState.RedirectUri);
+            IReadOnlyDictionary<string, string> authorizationData = await ResolveAuthorizationData(clientId, clientSecret, authorizationState.RedirectUri, generateAuthorizationCodeCommand.IdToken);
 
             IAuthorizationCode authorizationCode = await _authorizationCodeGenerator.GenerateAsync();
             IKeyValueEntry keyValueEntry = await _authorizationDataConverter.ToKeyValueEntryAsync(authorizationCode, selectedClaims, authorizationData);
@@ -95,7 +76,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
         {
             NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId));
 
-            IClientSecretIdentity clientSecretIdentity = await _securityRepository.GetClientSecretIdentityAsync(clientId);
+            IClientSecretIdentity clientSecretIdentity = await SecurityRepository.GetClientSecretIdentityAsync(clientId);
             if (clientSecretIdentity == null || string.IsNullOrWhiteSpace(clientSecretIdentity.ClientSecret))
             {
                 return null;
@@ -113,17 +94,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
             return Task.FromResult(_claimsSelector.Select(supportedScopes, scopes, claims));
         }
 
-        private Task<IReadOnlyDictionary<string, string>> ResolveAuthorizationData(string clientId, string clientSecret, Uri redirectUri)
+        private Task<IReadOnlyDictionary<string, string>> ResolveAuthorizationData(string clientId, string clientSecret, Uri redirectUri, IToken idToken)
         {
             NullGuard.NotNullOrWhiteSpace(clientId, nameof(clientId))
                 .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret))
-                .NotNull(redirectUri, nameof(redirectUri));
+                .NotNull(redirectUri, nameof(redirectUri))
+                .NotNull(idToken, nameof(idToken));
 
             IDictionary<string, string> authorizationData = new Dictionary<string, string>
             {
                 {AuthorizationDataConverter.ClientIdKey, clientId},
                 {AuthorizationDataConverter.ClientSecretKey, clientSecret},
-                {AuthorizationDataConverter.RedirectUriKey, redirectUri.AbsoluteUri}
+                {AuthorizationDataConverter.RedirectUriKey, redirectUri.AbsoluteUri},
+                {AuthorizationDataConverter.IdTokenKey, idToken.ToBase64String()}
             };
 
             return Task.FromResult<IReadOnlyDictionary<string, string>>(authorizationData.AsReadOnly());

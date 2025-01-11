@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         #region Methods
 
-        protected static IAuthorizationState CreateSut(Fixture fixture, Random random, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
+        protected static IAuthorizationState CreateSut(Fixture fixture, Random random, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasNonce = true, string nonce = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture))
                 .NotNull(random, nameof(random));
@@ -33,6 +33,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
                 redirectUri ?? fixture.CreateEndpoint(),
                 scopes ?? CreateScopes(fixture, random),
                 hasExternalState ? externalState ?? fixture.Create<string>() : null,
+                hasNonce ? nonce ?? fixture.Create<string>() : null,
                 hasAuthorizationCode ? authorizationCode ?? fixture.BuildAuthorizationCodeMock().Object : null);
         }
 
@@ -111,6 +112,21 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             NullGuard.NotNullOrWhiteSpace(base64, nameof(base64));
 
             return HasJsonPropertyWithoutValue(Base64ToJson(base64), "ExternalState");
+        }
+
+        protected static bool HasMatchingNonce(string base64, string expectedNonce)
+        {
+            NullGuard.NotNullOrWhiteSpace(base64, nameof(base64))
+                .NotNullOrWhiteSpace(expectedNonce, nameof(expectedNonce));
+
+            return HasMatchingJsonProperty(Base64ToJson(base64), "Nonce", expectedNonce);
+        }
+
+        protected static bool HasNonceWithoutValue(string base64)
+        {
+            NullGuard.NotNullOrWhiteSpace(base64, nameof(base64));
+
+            return HasJsonPropertyWithoutValue(Base64ToJson(base64), "Nonce");
         }
 
         protected static bool HasMatchingValueForAuthorizationCode(string base64, string value)

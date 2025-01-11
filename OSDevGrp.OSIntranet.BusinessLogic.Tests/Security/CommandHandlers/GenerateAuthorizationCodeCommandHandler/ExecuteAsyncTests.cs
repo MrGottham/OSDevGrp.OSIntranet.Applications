@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.ParamName, Is.EqualTo("generateAuthorizationCodeCommand"));
+            Assert.That(result.ParamName, Is.EqualTo("command"));
         }
 
         [Test]
@@ -188,6 +188,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
             await sut.ExecuteAsync(generateAuthorizationCodeCommand);
 
             authorizationState.Verify(m => m.RedirectUri, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenClientSecretCouldNotBeResolvedForClientId_AssertIdTokenWasNotCalledOnGenerateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut(hasClientSecretIdentity: false);
+
+            Mock<IGenerateAuthorizationCodeCommand> generateAuthorizationCodeCommandMock = CreateGenerateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(generateAuthorizationCodeCommandMock.Object);
+
+            generateAuthorizationCodeCommandMock.Verify(m => m.IdToken, Times.Never);
         }
 
         [Test]
@@ -359,6 +371,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenSelectedClaimsCouldNotBeResolved_AssertIdTokenWasNotCalledOnGenerateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut(hasSelectedClaims: false);
+
+            Mock<IGenerateAuthorizationCodeCommand> generateAuthorizationCodeCommandMock = CreateGenerateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(generateAuthorizationCodeCommandMock.Object);
+
+            generateAuthorizationCodeCommandMock.Verify(m => m.IdToken, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenSelectedClaimsCouldNotBeResolved_AssertGenerateAsyncWasNotCalledOnAuthorizationCodeGenerator()
         {
             ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut(hasSelectedClaims: false);
@@ -440,6 +464,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsEmptyCollection_AssertIdTokenWasNotCalledOnGenerateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut(selectedClaims: Array.Empty<Claim>());
+
+            Mock<IGenerateAuthorizationCodeCommand> generateAuthorizationCodeCommandMock = CreateGenerateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(generateAuthorizationCodeCommandMock.Object);
+
+            generateAuthorizationCodeCommandMock.Verify(m => m.IdToken, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsEmptyCollection_AssertGenerateAsyncWasNotCalledOnAuthorizationCodeGenerator()
         {
             ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut(selectedClaims: Array.Empty<Claim>());
@@ -505,7 +541,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsEmptyCollection_AssertRedirectUriWasCalledOnAuthorizationStateCreatedByToDomainOnGenerateAuthorizationCodeCommand()
+        public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsNonEmptyCollection_AssertRedirectUriWasCalledOnAuthorizationStateCreatedByToDomainOnGenerateAuthorizationCodeCommand()
         {
             ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut();
 
@@ -514,6 +550,31 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
             await sut.ExecuteAsync(generateAuthorizationCodeCommand);
 
             authorizationState.Verify(m => m.RedirectUri, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsNonEmptyCollection_AssertIdTokenWasCalledOnGenerateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut();
+
+            Mock<IGenerateAuthorizationCodeCommand> generateAuthorizationCodeCommandMock = CreateGenerateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(generateAuthorizationCodeCommandMock.Object);
+
+            generateAuthorizationCodeCommandMock.Verify(m => m.IdToken, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsNonEmptyCollection_AssertToBase64StringWasCalledOnIdTokenFromGenerateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut();
+
+            Mock<IToken> idTokenMock = _fixture.BuildTokenMock();
+            IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = CreateGenerateAuthorizationCodeCommand(idToken: idTokenMock.Object);
+            await sut.ExecuteAsync(generateAuthorizationCodeCommand);
+
+            idTokenMock.Verify(m => m.ToBase64String(), Times.Once);
         }
 
         [Test]
@@ -629,6 +690,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
                     It.IsAny<IAuthorizationCode>(),
                     It.IsAny<IReadOnlyCollection<Claim>>(),
                     It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value.ContainsKey(AuthorizationDataConverter.RedirectUriKey) && string.IsNullOrWhiteSpace(value[AuthorizationDataConverter.RedirectUriKey]) == false && string.CompareOrdinal(value[AuthorizationDataConverter.RedirectUriKey], redirectUri.AbsoluteUri) == 0)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenSelectedClaimsCouldBeResolvedAsNonEmptyCollection_AssertToKeyValueEntryAsyncWasCalledOnAuthorizationDataConverterWithAuthorizationDataContainingKeyValuePairForIdToken()
+        {
+            ICommandHandler<IGenerateAuthorizationCodeCommand, IAuthorizationState> sut = CreateSut();
+
+            string idTokenAsBase64 = _fixture.Create<string>();
+            IToken idToken = _fixture.BuildTokenMock(toBase64String: idTokenAsBase64).Object;
+            IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = CreateGenerateAuthorizationCodeCommand(idToken: idToken);
+            await sut.ExecuteAsync(generateAuthorizationCodeCommand);
+
+            _authorizationDataConverterMock.Verify(m => m.ToKeyValueEntryAsync(
+                    It.IsAny<IAuthorizationCode>(),
+                    It.IsAny<IReadOnlyCollection<Claim>>(),
+                    It.Is<IReadOnlyDictionary<string, string>>(value => value != null && value.ContainsKey(AuthorizationDataConverter.IdTokenKey) && string.IsNullOrWhiteSpace(value[AuthorizationDataConverter.IdTokenKey]) == false && string.CompareOrdinal(value[AuthorizationDataConverter.IdTokenKey], idTokenAsBase64) == 0)),
                 Times.Once);
         }
 
@@ -753,16 +832,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
             return new BusinessLogic.Security.CommandHandlers.GenerateAuthorizationCodeCommandHandler(_validatorMock.Object, _authorizationStateFactoryMock.Object, _securityRepositoryMock.Object, _commonRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object, _claimsSelectorMock.Object, _authorizationCodeGeneratorMock.Object, _authorizationDataConverterMock.Object);
         }
 
-        private IGenerateAuthorizationCodeCommand CreateGenerateAuthorizationCodeCommand(IReadOnlyCollection<Claim> claims = null, IAuthorizationState toDomain = null)
+        private IGenerateAuthorizationCodeCommand CreateGenerateAuthorizationCodeCommand(IReadOnlyCollection<Claim> claims = null, IToken idToken = null, IAuthorizationState toDomain = null)
         {
-            return CreateGenerateAuthorizationCodeCommandMock(claims, toDomain).Object;
+            return CreateGenerateAuthorizationCodeCommandMock(claims, idToken, toDomain).Object;
         }
 
-        private Mock<IGenerateAuthorizationCodeCommand> CreateGenerateAuthorizationCodeCommandMock(IReadOnlyCollection<Claim> claims = null, IAuthorizationState toDomain = null)
+        private Mock<IGenerateAuthorizationCodeCommand> CreateGenerateAuthorizationCodeCommandMock(IReadOnlyCollection<Claim> claims = null, IToken idToken = null, IAuthorizationState toDomain = null)
         {
             Mock<IGenerateAuthorizationCodeCommand> generateAuthorizationCodeCommandMock = new Mock<IGenerateAuthorizationCodeCommand>();
             generateAuthorizationCodeCommandMock.Setup(m => m.Claims)
                 .Returns(claims ?? _fixture.CreateClaims(_random));
+            generateAuthorizationCodeCommandMock.Setup(m => m.IdToken)
+                .Returns(idToken ?? _fixture.BuildTokenMock().Object);
             generateAuthorizationCodeCommandMock.Setup(m => m.Validate(It.IsAny<IValidator>()))
                 .Returns(_validatorMock.Object);
             generateAuthorizationCodeCommandMock.Setup(m => m.ToDomain(It.IsAny<IAuthorizationStateFactory>(), It.IsAny<IValidator>(), It.IsAny<ISecurityRepository>(), It.IsAny<ITrustedDomainResolver>(), It.IsAny<ISupportedScopesProvider>()))

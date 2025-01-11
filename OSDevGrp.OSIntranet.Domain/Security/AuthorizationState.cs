@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
     {
         #region Constructor
 
-        public AuthorizationState(string responseType, string clientId, string clientSecret, Uri redirectUri, string[] scopes, string externalState, IAuthorizationCode authorizationCode)
+        public AuthorizationState(string responseType, string clientId, string clientSecret, Uri redirectUri, string[] scopes, string externalState, string nonce, IAuthorizationCode authorizationCode)
         {
             NullGuard.NotNullOrWhiteSpace(responseType, nameof(responseType))
                 .NotNullOrWhiteSpace(clientId, nameof(clientId))
@@ -29,6 +29,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             RedirectUri = redirectUri;
             Scopes = scopes.Where(scope => string.IsNullOrWhiteSpace(scope) == false).ToArray();
             ExternalState = string.IsNullOrWhiteSpace(externalState) == false ? externalState : null;
+            Nonce = string.IsNullOrWhiteSpace(nonce) == false ? nonce : null;
             AuthorizationCode = authorizationCode;
         }
 
@@ -47,6 +48,8 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         public IEnumerable<string> Scopes { get; }
 
         public string ExternalState { get; }
+
+        public string Nonce { get; }
 
         public IAuthorizationCode AuthorizationCode { get; }
 
@@ -86,6 +89,10 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             if (string.IsNullOrWhiteSpace(ExternalState) == false)
             {
                 authorizationStateBuilder.WithExternalState(ExternalState);
+            }
+            if (string.IsNullOrWhiteSpace(Nonce) == false)
+            {
+                authorizationStateBuilder.WithNonce(Nonce);
             }
             if (AuthorizationCode != null && string.IsNullOrWhiteSpace(AuthorizationCode.Value) == false)
             {
@@ -153,6 +160,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
                 RedirectUri = RedirectUri.AbsoluteUri,
                 Scopes = Scopes.ToArray(),
                 ExternalState = string.IsNullOrWhiteSpace(ExternalState) == false ? ExternalState : null,
+                Nonce = string.IsNullOrWhiteSpace(Nonce) == false ? Nonce : null,
                 AuthorizationCode = AuthorizationCode != null
                     ? new LocalAuthorizationCode
                     {
@@ -179,6 +187,10 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             if (string.IsNullOrWhiteSpace(localAuthorizationState.ExternalState) == false)
             {
                 authorizationStateBuilder.WithExternalState(localAuthorizationState.ExternalState);
+            }
+            if (string.IsNullOrWhiteSpace(localAuthorizationState.Nonce) == false)
+            {
+                authorizationStateBuilder.WithNonce(localAuthorizationState.Nonce);
             }
             if (localAuthorizationState.AuthorizationCode != null && string.IsNullOrWhiteSpace(localAuthorizationState.AuthorizationCode.Value) == false)
             {
@@ -212,6 +224,8 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             public string[] Scopes { get; init; }
 
             public string ExternalState { get; init; }
+
+            public string Nonce { get; set; }
 
             public LocalAuthorizationCode AuthorizationCode { get; init; }
         }

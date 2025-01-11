@@ -30,6 +30,16 @@ namespace OSDevGrp.OSIntranet.Core.HealthChecks
                 .AddEndpointConfigurationValidation(configuration, SecurityConfigurationKeys.JwtAudience);
         }
 
+        public SecurityHealthCheckOptions WithOpenIdConnect(IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return AddEndpointConfigurationValidation(configuration, SecurityConfigurationKeys.OpenIdConnectAuthority)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.OpenIdConnectClientId)
+                .AddStringConfigurationValidation(configuration, SecurityConfigurationKeys.OpenIdConnectClientSecret);
+
+        }
+
         public SecurityHealthCheckOptions WithMicrosoftValidation(IConfiguration configuration, bool requireTenant)
         {
             NullGuard.NotNull(configuration, nameof(configuration));

@@ -4,11 +4,12 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.CommandHandlers;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using System;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 {
-	internal class GenerateTokenCommandHandler : CommandHandlerNonTransactionalBase, ICommandHandler<IGenerateTokenCommand, IToken>
+    internal class GenerateTokenCommandHandler : CommandHandlerNonTransactionalBase, ICommandHandler<IGenerateTokenCommand, IToken>
 	{
 		#region Private variables
 
@@ -36,7 +37,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers
 		{
 			NullGuard.NotNull(generateTokenCommand, nameof(generateTokenCommand));
 
-			return Task.FromResult(_tokenGenerator.Generate(_claimsIdentityResolver.GetCurrentClaimsIdentity()));
+			return Task.FromResult(_tokenGenerator.Generate(_claimsIdentityResolver.GetCurrentClaimsIdentity(), TimeSpan.FromHours(1)));
 		}
 
 		#endregion

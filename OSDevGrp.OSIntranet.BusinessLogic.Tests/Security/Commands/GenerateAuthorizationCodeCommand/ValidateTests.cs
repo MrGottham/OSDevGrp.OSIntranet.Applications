@@ -4,6 +4,8 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Validation;
 using OSDevGrp.OSIntranet.BusinessLogic.Tests.Validation;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,13 +56,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertObjectWasCalledTwoTimesOnValidator()
+        public void Validate_WhenCalled_AssertObjectWasCalledTwoThreeOnValidator()
         {
             IGenerateAuthorizationCodeCommand sut = CreateSut();
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
-            _validatorMockContext.ValidatorMock.Verify(m => m.Object, Times.Exactly(2));
+            _validatorMockContext.ValidatorMock.Verify(m => m.Object, Times.Exactly(3));
         }
 
         [Test]
@@ -128,6 +130,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
+        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithUnprotect()
+        {
+            Func<byte[], byte[]> unprotect = bytes => bytes;
+            IGenerateAuthorizationCodeCommand sut = CreateSut(unprotect: unprotect);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object);
+
+            _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
+                    It.Is<Func<byte[], byte[]>>(value => value != null && value == unprotect),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Unprotect") == 0)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithClaims()
         {
             IReadOnlyCollection<Claim> claims = CreateClaims();
@@ -179,17 +197,17 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithUnprotect()
+        public void Validate_WhenCalled_AssertShouldNotBeNullWasCalledOnObjectValidatorWithIdToken()
         {
-            Func<byte[], byte[]> unprotect = bytes => bytes;
-            IGenerateAuthorizationCodeCommand sut = CreateSut(unprotect: unprotect);
+            IToken idToken = _fixture.BuildTokenMock().Object;
+            IGenerateAuthorizationCodeCommand sut = CreateSut(idToken: idToken);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object);
 
             _validatorMockContext.ObjectValidatorMock.Verify(m => m.ShouldNotBeNull(
-                    It.Is<Func<byte[], byte[]>>(value => value != null && value == unprotect),
+                    It.Is<IToken>(value => value != null && value == idToken),
                     It.Is<Type>(value => value != null && value == sut.GetType()),
-                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Unprotect") == 0)),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "IdToken") == 0)),
                 Times.Once);
         }
 
@@ -215,19 +233,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.GenerateAuth
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IGenerateAuthorizationCodeCommand CreateSut(string authorizationState = null, IReadOnlyCollection<Claim> claims = null, Func<byte[], byte[]> unprotect = null)
+        private IGenerateAuthorizationCodeCommand CreateSut(string authorizationState = null, IReadOnlyCollection<Claim> claims = null, IToken idToken = null, Func<byte[], byte[]> unprotect = null)
         {
-            return new BusinessLogic.Security.Commands.GenerateAuthorizationCodeCommand(authorizationState ?? _fixture.Create<string>(), claims ?? CreateClaims(), unprotect ?? (bytes => bytes));
+            return new BusinessLogic.Security.Commands.GenerateAuthorizationCodeCommand(authorizationState ?? _fixture.Create<string>(), claims ?? CreateClaims(), idToken ?? _fixture.BuildTokenMock().Object, unprotect ?? (bytes => bytes));
         }
 
         private IReadOnlyCollection<Claim> CreateClaims()
         {
-            return new Claim[]
-            {
+            return
+            [
                 new(_fixture.Create<string>(), _fixture.Create<string>()),
                 new(_fixture.Create<string>(), _fixture.Create<string>()),
                 new(_fixture.Create<string>(), _fixture.Create<string>())
-            };
+            ];
         }
     }
 }

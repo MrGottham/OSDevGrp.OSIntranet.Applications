@@ -1,6 +1,7 @@
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using System;
@@ -29,7 +30,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsNotNull()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsNotNull(bool mapIdentifier)
         {
 	        IClientSecretIdentityCommand sut = CreateSut();
 
@@ -40,10 +43,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithIdentifierFromCommand()
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecretAndIdentifierShouldBeMapped_ReturnsClientSecretIdentityWithIdentifierFromCommand()
         {
             int identifier = _fixture.Create<int>();
-            IClientSecretIdentityCommand sut = CreateSut(identifier);
+            IClientSecretIdentityCommand sut = CreateSut(identifier, mapIdentifier: true);
 
             IClientSecretIdentity result = sut.ToDomain();
 
@@ -52,7 +55,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithFriendlyNameFromCommand()
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecretAndIdentifierShouldNotBeMapped_ReturnsClientSecretIdentityWithIdentifierEqualToZero()
+        {
+            IClientSecretIdentityCommand sut = CreateSut(_fixture.Create<int>(), mapIdentifier: false);
+
+            IClientSecretIdentity result = sut.ToDomain();
+
+            Assert.That(result.Identifier, Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithFriendlyNameFromCommand(bool mapIdentifier)
         {
             string friendlyName = _fixture.Create<string>();
             IClientSecretIdentityCommand sut = CreateSut(friendlyName: friendlyName);
@@ -64,7 +80,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWhereClientIdIsNotNullEmptyOrWhiteSpace()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWhereClientIdIsNotNullEmptyOrWhiteSpace(bool mapIdentifier)
         {
             string friendlyName = _fixture.Create<string>();
             IClientSecretIdentityCommand sut = CreateSut(friendlyName: friendlyName);
@@ -76,7 +94,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWhereClientSecretIsNotNullEmptyOrWhiteSpace()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWhereClientSecretIsNotNullEmptyOrWhiteSpace(bool mapIdentifier)
         {
             string friendlyName = _fixture.Create<string>();
             IClientSecretIdentityCommand sut = CreateSut(friendlyName: friendlyName);
@@ -88,7 +108,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand(bool mapIdentifier)
         {
             IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IClientSecretIdentityCommand sut = CreateSut(claims: claims);
@@ -103,91 +125,99 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenClientIdIsNull_ThrowsArgumentNullException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenClientIdIsNull_ThrowsArgumentNullException(bool mapIdentifier)
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             string clientSecret = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(null, clientSecret));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenClientIdIsEmpty_ThrowsArgumentNullException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenClientIdIsEmpty_ThrowsArgumentNullException(bool mapIdentifier)
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             string clientSecret = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(string.Empty, clientSecret));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenClientIdIsWhiteSpace_ThrowsArgumentNullException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenClientIdIsWhiteSpace_ThrowsArgumentNullException(bool mapIdentifier)
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             string clientSecret = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(" ", clientSecret));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientId"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenClientSecretIsNull_ThrowsArgumentNullException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenClientSecretIsNull_ThrowsArgumentNullException(bool mapIdentifier)
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             string clientId = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(clientId, null));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientSecret"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenClientSecretIsEmpty_ThrowsArgumentNullException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenClientSecretIsEmpty_ThrowsArgumentNullException(bool mapIdentifier)
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             string clientId = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(clientId, string.Empty));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientSecret"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenClientSecretIsWhiteSpace_ThrowsArgumentNullException()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenClientSecretIsWhiteSpace_ThrowsArgumentNullException(bool mapIdentifier)
         {
             IClientSecretIdentityCommand sut = CreateSut();
 
             string clientId = _fixture.Create<string>();
             ArgumentNullException result = Assert.Throws<ArgumentNullException>(() => sut.ToDomain(clientId, " "));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientSecret"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsNotNull()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsNotNull(bool mapIdentifier)
         {
 	        IClientSecretIdentityCommand sut = CreateSut();
 
@@ -200,10 +230,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithIdentifierFromCommand()
+        public void ToDomain_WhenCalledWithClientIdAndClientSecretAndIdentifierShouldBeMapped_ReturnsClientSecretIdentityWithIdentifierFromCommand()
         {
             int identifier = _fixture.Create<int>();
-            IClientSecretIdentityCommand sut = CreateSut(identifier);
+            IClientSecretIdentityCommand sut = CreateSut(identifier, mapIdentifier: true);
 
             string clientId = _fixture.Create<string>();
             string clientSecret = _fixture.Create<string>();
@@ -214,7 +244,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithFriendlyNameFromCommand()
+        public void ToDomain_WhenCalledWithClientIdAndClientSecretAndIdentifierShouldNotBeMapped_ReturnsClientSecretIdentityWithIdentifierEqualToZero()
+        {
+            IClientSecretIdentityCommand sut = CreateSut(_fixture.Create<int>(), mapIdentifier: false);
+
+            string clientId = _fixture.Create<string>();
+            string clientSecret = _fixture.Create<string>();
+            IClientSecretIdentity result = sut.ToDomain(clientId, clientSecret);
+
+            Assert.That(result.Identifier, Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithFriendlyNameFromCommand(bool mapIdentifier)
         {
             string friendlyName = _fixture.Create<string>();
             IClientSecretIdentityCommand sut = CreateSut(friendlyName: friendlyName);
@@ -228,7 +273,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithClientId()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithoutClientIdAndClientSecret_ReturnsClientSecretIdentityWithClientId(bool mapIdentifier)
         {
             string friendlyName = _fixture.Create<string>();
             IClientSecretIdentityCommand sut = CreateSut(friendlyName: friendlyName);
@@ -242,7 +289,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithClientSecret()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithClientSecret(bool mapIdentifier)
         {
             string friendlyName = _fixture.Create<string>();
             IClientSecretIdentityCommand sut = CreateSut(friendlyName: friendlyName);
@@ -256,7 +305,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
 
         [Test]
         [Category("UnitTest")]
-        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ToDomain_WhenCalledWithClientIdAndClientSecret_ReturnsClientSecretIdentityWithClaimsFromCommand(bool mapIdentifier)
         {
             IEnumerable<Claim> claims = _fixture.CreateClaims(_random);
             IClientSecretIdentityCommand sut = CreateSut(claims: claims);
@@ -271,17 +322,33 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.ClientSecret
             }
         }
 
-        private IClientSecretIdentityCommand CreateSut(int? identifier = null, string friendlyName = null, IEnumerable<Claim> claims = null)
+        private IClientSecretIdentityCommand CreateSut(int? identifier = null, string friendlyName = null, IEnumerable<Claim> claims = null, bool? mapIdentifier = null)
         {
-            return _fixture.Build<Sut>()
-                .With(m => m.Identifier, identifier ?? _fixture.Create<int>())
-                .With(m => m.FriendlyName, friendlyName ?? _fixture.Create<string>())
-                .With(m => m.Claims, claims ?? _fixture.CreateClaims(_random))
-                .Create();
+            return new Sut(identifier ?? _fixture.Create<int>(), friendlyName ?? _fixture.Create<string>(), claims ?? _fixture.CreateClaims(_random), mapIdentifier ?? _fixture.Create<bool>());
         }
 
         private class Sut : BusinessLogic.Security.Commands.ClientSecretIdentityCommandBase
         {
+            #region Constructor
+
+            public Sut(int identifier, string friendlyName, IEnumerable<Claim> claims, bool mapIdentifier)
+            {
+                NullGuard.NotNullOrWhiteSpace(friendlyName, nameof(friendlyName))
+                    .NotNull(claims, nameof(claims));
+
+                Identifier = identifier;
+                FriendlyName = friendlyName;
+                Claims = claims;
+                MapIdentifier = mapIdentifier;
+            }
+
+            #endregion
+
+            #region Properties
+
+            protected override bool MapIdentifier { get; }
+
+            #endregion
         }
     }
 }

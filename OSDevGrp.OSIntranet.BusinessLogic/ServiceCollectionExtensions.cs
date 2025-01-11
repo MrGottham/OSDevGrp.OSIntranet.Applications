@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Validation;
 using OSDevGrp.OSIntranet.Core;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic
 {
@@ -70,7 +71,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic
                 .AddSingleton<ISupportedScopesProvider, SupportedScopesProvider>()
                 .AddTransient<IClaimsSelector, ClaimsSelector>()
                 .AddTransient<IAuthorizationCodeGenerator, AuthorizationCodeGenerator>()
-                .AddTransient<IAuthorizationDataConverter, AuthorizationDataConverter>();
+                .AddTransient<IAuthorizationDataConverter, AuthorizationDataConverter>()
+                .AddTransient<IIdTokenContentFactory, IdTokenContentFactory>()
+                .AddSingleton(TimeProvider.System);
         }
 
         #endregion

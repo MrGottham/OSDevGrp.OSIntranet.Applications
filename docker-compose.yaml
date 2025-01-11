@@ -17,10 +17,10 @@ services:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Executor.Dockerfile
       args:
-        appUserGroup: [TBD]
-        nonRootUser: [TBD]
-        nonPassword: [TBD]
-        sshPassword: [TBD]
+        appUserGroup: ${appUserGroup}
+        nonRootUser: ${nonRootUser}
+        nonPassword: ${nonPassword}
+        sshPassword: ${sshPasswordExecutor}
     restart: "no"
 
   reverseproxy:
@@ -46,26 +46,29 @@ services:
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_HTTP_PORTS=8080
-      - NON_ROOT_USER=[TBD]
+      - NON_ROOT_USER=${nonRootUser}
       - SUDO_ASKPASS=/usr/local/bin/askpw
-      - connectionStrings__OSIntranet=[TBD]
-      - Security__Microsoft__ClientId=[TBD]
-      - Security__Microsoft__ClientSecret=[TBD]
-      - Security__Microsoft__Tenant=[TBD]
-      - Security__Google__ClientId=[TBD]
-      - Security__Google__ClientSecret=[TBD]
-      - Security__TrustedDomainCollection=[TBD]
-      - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
-      - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
-      - ExternalData__Dashboard__EndpointAddress=[TBD]
+      - connectionStrings__OSIntranet=${connectionStringsMvc}
+      - Security__OIDC__Authority=${securityOidcAuthority}
+      - Security__OIDC__ClientId=${securityOidcClientId}
+      - Security__OIDC__ClientSecret=${securityOidcClientSecret}
+      - Security__Microsoft__ClientId=${securityMicrosoftClientId}
+      - Security__Microsoft__ClientSecret=${securityMicrosoftClientSecret}
+      - Security__Microsoft__Tenant=${securityMicrosoftTenant}
+      - Security__Google__ClientId=${securityGoogleClientId}
+      - Security__Google__ClientSecret=${securityGoogleClientSecret}
+      - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
+      - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenMvc}
+      - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationMvc}
+      - ExternalData__Dashboard__EndpointAddress=${externalDataDashboardEndpointAddress}
     depends_on:
       - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
       args:
-        appUserGroup: [TBD]
-        nonRootUser: [TBD]
+        appUserGroup: ${appUserGroup}
+        nonRootUser: ${nonRootUser}
       cache_from:
         - builder-osintranet
         - executor-osintranet
@@ -80,35 +83,35 @@ services:
       - TZ=Europe/Copenhagen
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_HTTP_PORTS=8080
-      - NON_ROOT_USER=[TBD]
+      - NON_ROOT_USER=${nonRootUser}
       - SUDO_ASKPASS=/usr/local/bin/askpw
-      - connectionStrings__OSIntranet=[TBD]
-      - Security__Microsoft__ClientId=[TBD]
-      - Security__Microsoft__ClientSecret=[TBD]
-      - Security__Google__ClientId=[TBD]
-      - Security__Google__ClientSecret=[TBD]
-      - Security__TrustedDomainCollection=[TBD]
-      - Security__JWT__Key__kty=[TBD]
-      - Security__JWT__Key__n=[TBD]
-      - Security__JWT__Key__e=[TBD]
-      - Security__JWT__Key__d=[TBD]
-      - Security__JWT__Key__dp=[TBD]
-      - Security__JWT__Key__dq=[TBD]
-      - Security__JWT__Key__p=[TBD]
-      - Security__JWT__Key__q=[TBD]
-      - Security__JWT__Key__qi=[TBD]
-      - Security__JWT__Issuer=[TBD]
-      - Security__JWT__Audience=[TBD]
-      - Security__AcmeChallenge__WellKnownChallengeToken=[TBD]
-      - Security__AcmeChallenge__ConstructedKeyAuthorization=[TBD]
+      - connectionStrings__OSIntranet=${connectionStringsWebApi}
+      - Security__Microsoft__ClientId=${securityMicrosoftClientId}
+      - Security__Microsoft__ClientSecret=${securityMicrosoftClientSecret}
+      - Security__Google__ClientId=${securityGoogleClientId}
+      - Security__Google__ClientSecret=${securityGoogleClientSecret}
+      - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
+      - Security__JWT__Key__kty=${securityJwtKeyKty}
+      - Security__JWT__Key__n=${securityJwtKeyN}
+      - Security__JWT__Key__e=${securityJwtKeyE}
+      - Security__JWT__Key__d=${securityJwtKeyD}
+      - Security__JWT__Key__dp=${securityJwtKeyDP}
+      - Security__JWT__Key__dq=${securityJwtKeyDQ}
+      - Security__JWT__Key__p=${securityJwtKeyP}
+      - Security__JWT__Key__q=${securityJwtKeyQ}
+      - Security__JWT__Key__qi=${securityJwtKeyQI}
+      - Security__JWT__Issuer=${securityJwtIssuer}
+      - Security__JWT__Audience=${securityJwtAudience}
+      - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenWebApi}
+      - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationWebApi}
     depends_on:
       - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile
       args:
-        appUserGroup: [TBD]
-        nonRootUser: [TBD]
+        appUserGroup: ${appUserGroup}
+        nonRootUser: ${nonRootUser}
       cache_from:
         - builder-osintranet
         - executor-osintranet
@@ -123,7 +126,7 @@ services:
       context: .
       dockerfile: Certbot.Dockerfile
       args:
-        sshPassword: [TBD]
+        sshPassword: ${sshPasswordCertbot}
     ports:
       - "8022:2222"
     restart: "always"

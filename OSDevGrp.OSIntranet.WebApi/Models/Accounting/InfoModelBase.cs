@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
@@ -7,12 +7,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         [Required]
         [Range(1950, 2199)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public short Year { get; set; }
 
         [Required]
         [Range(1, 12)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public short Month { get; set; }
     }
 }

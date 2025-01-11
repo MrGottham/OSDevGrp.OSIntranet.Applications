@@ -3,6 +3,8 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Logic;
 using OSDevGrp.OSIntranet.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Options
@@ -27,9 +29,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Options
             return new SecurityKeyBuilder(tokenGeneratorOptions.Key);
         }
 
-        public static TokenValidationParameters ToTokenValidationParameters(this TokenGeneratorOptions tokenGeneratorOptions)
+        public static TokenValidationParameters ToTokenValidationParameters(this TokenGeneratorOptions tokenGeneratorOptions, params string[] additionalAudiences)
         {
-            NullGuard.NotNull(tokenGeneratorOptions, nameof(tokenGeneratorOptions));
+            NullGuard.NotNull(tokenGeneratorOptions, nameof(tokenGeneratorOptions))
+                .NotNull(additionalAudiences, nameof(additionalAudiences));
+
+            List<string> validAudiences = [tokenGeneratorOptions.Audience];
+            validAudiences.AddRange(additionalAudiences.Where(additionalAudience => string.IsNullOrWhiteSpace(additionalAudience) == false));
 
             return new TokenValidationParameters
             {
@@ -42,11 +48,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Options
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = tokenGeneratorOptions.ToSecurityKeyBuilder().Build(),
                 ValidateAudience = true,
-                ValidAudience = tokenGeneratorOptions.Audience,
-                ValidAudiences =
-                [
-                    tokenGeneratorOptions.Audience
-                ],
+                ValidAudience = validAudiences.First(),
+                ValidAudiences = validAudiences,
                 ValidateLifetime = true,
                 LifetimeValidator = LocalLifetimeValidator,
                 RequireExpirationTime = true,

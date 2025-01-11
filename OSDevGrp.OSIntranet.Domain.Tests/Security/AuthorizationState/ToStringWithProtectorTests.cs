@@ -174,6 +174,39 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void ToString_WhenNonceIsSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForNonce()
+        {
+            string nonce = _fixture.Create<string>();
+            IAuthorizationState sut = CreateSut(hasNonce: true, nonce: nonce);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasMatchingNonce(Convert.ToBase64String(protectorCalledWithBytes), nonce), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenNonceIsNotSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForNonce()
+        {
+            IAuthorizationState sut = CreateSut(hasNonce: false);
+
+            byte[] protectorCalledWithBytes = [];
+            sut.ToString(bytes =>
+            {
+                protectorCalledWithBytes = bytes;
+                return bytes;
+            });
+
+            Assert.That(HasNonceWithoutValue(Convert.ToBase64String(protectorCalledWithBytes)), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void ToString_WhenAuthorizationCodeIsSet_AssertProtectorWasCalledWithByteArrayContainingMatchingJsonPropertyForValueOnAuthorizationCode()
         {
             string value = _fixture.Create<string>();
@@ -353,6 +386,29 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
 
         [Test]
         [Category("UnitTest")]
+        public void ToString_WhenNonceIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForNonce()
+        {
+            string nonce = _fixture.Create<string>();
+            IAuthorizationState sut = CreateSut(hasNonce: true, nonce: nonce);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasMatchingNonce(result, nonce), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToString_WhenNonceIsNotSet_ReturnsBase64StringContainingMatchingJsonPropertyForNonce()
+        {
+            IAuthorizationState sut = CreateSut(hasNonce: false);
+
+            string result = sut.ToString(Protect);
+
+            Assert.That(HasNonceWithoutValue(result), Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public void ToString_WhenAuthorizationCodeIsSet_ReturnsBase64StringContainingMatchingJsonPropertyForValueOnAuthorizationCode()
         {
             string value = _fixture.Create<string>();
@@ -400,9 +456,9 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.AuthorizationState
             Assert.That(result, Is.EqualTo(Convert.ToBase64String(bytes)));
         }
 
-        private IAuthorizationState CreateSut(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
+        private IAuthorizationState CreateSut(string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasNonce = true, string nonce = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null)
         {
-            return CreateSut(_fixture, _random, responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasAuthorizationCode, authorizationCode);
+            return CreateSut(_fixture, _random, responseType, clientId, hasClientSecret, clientSecret, redirectUri, scopes, hasExternalState, externalState, hasNonce, nonce, hasAuthorizationCode, authorizationCode);
         }
 
         private static byte[] Protect(byte[] bytes)

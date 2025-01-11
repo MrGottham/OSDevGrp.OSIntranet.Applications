@@ -16,7 +16,7 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Properties
 
-        protected virtual SslProtocols EnforceSslProtocol => SslProtocols.Tls12;
+        private SslProtocols EnforceSslProtocol => SslProtocols.Tls12 | SslProtocols.Tls13;
 
         #endregion
 
@@ -59,6 +59,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
 	            {
 		            using HttpClientHandler httpClientHandler = CreateHttpClientHandler(EnforceSslProtocol);
+
                     using HttpClient httpClient = new HttpClient(httpClientHandler);
                     using HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback);
                     using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
@@ -82,6 +83,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             return ExecuteAsync(async () =>
                 {
 	                using HttpClientHandler httpClientHandler = CreateHttpClientHandler(EnforceSslProtocol);
+
                     using HttpClient httpClient = new HttpClient(httpClientHandler);
                     using HttpRequestMessage httpRequestMessage = CreateHttpRequestMessage(requestUri, httpRequestMessageCreator, httpRequestMessageCallback);
                     using HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
@@ -134,33 +136,10 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         private static HttpClientHandler CreateHttpClientHandler(SslProtocols enforceSslProtocol)
         {
-	        SecurityProtocolType enforceSecurityProtocolType = ConvertSslProtocolsToSecurityProtocolType(enforceSslProtocol);
-
-	        SecurityProtocolType existingSecurityProtocolType = ServicePointManager.SecurityProtocol;
-	        if (existingSecurityProtocolType.HasFlag(enforceSecurityProtocolType) == false)
-	        {
-		        ServicePointManager.SecurityProtocol = existingSecurityProtocolType | enforceSecurityProtocolType;
-	        }
-
 	        return new HttpClientHandler
 	        {
 		        SslProtocols = enforceSslProtocol
 	        };
-        }
-
-        private static SecurityProtocolType ConvertSslProtocolsToSecurityProtocolType(SslProtocols sslProtocol)
-        {
-	        switch (sslProtocol)
-	        {
-		        case SslProtocols.Tls12:
-			        return SecurityProtocolType.Tls12;
-
-		        case SslProtocols.Tls13:
-			        return SecurityProtocolType.Tls13;
-
-		        default:
-			        throw new NotSupportedException($"Unsupported SSL protocol: {sslProtocol}");
-	        }
         }
 
         private static HttpRequestMessage CreateHttpRequestMessage(Uri requestUri, Func<Uri, HttpRequestMessage> httpRequestMessageCreator, Action<HttpRequestMessage> httpRequestMessageCallback = null)

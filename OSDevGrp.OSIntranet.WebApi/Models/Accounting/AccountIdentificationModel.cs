@@ -1,23 +1,23 @@
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class AccountIdentificationModel
     {
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public AccountingIdentificationModel Accounting { get; set; }
 
         [Required]
         [StringLength(16, MinimumLength = 1)]
         [RegularExpression(ValidationRegexPatterns.AccountNumberRegexPattern)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public string AccountNumber { get; set; }
 
         [Required]
         [StringLength(256, MinimumLength = 1)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public string AccountName { get; set; }
     }
 }

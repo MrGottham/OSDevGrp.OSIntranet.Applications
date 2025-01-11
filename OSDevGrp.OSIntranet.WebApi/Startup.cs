@@ -1,5 +1,7 @@
 ﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -63,8 +65,27 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.Configure<CookiePolicyOptions>(opt =>
             {
-                opt.MinimumSameSitePolicy = SameSiteMode.None;
-                opt.Secure = CookieSecurePolicy.SameAsRequest;
+                opt.CheckConsentNeeded = _ => false;
+                opt.ConsentCookie.Name = $"{GetType().Namespace}.Consent";
+                opt.MinimumSameSitePolicy = SameSiteMode.Lax;
+                opt.Secure = CookieSecurePolicy.Always;
+            });
+
+            services.ConfigureApplicationCookie(opt =>
+            {
+                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Application";
+                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+            });
+
+            services.AddAntiforgery(opt =>
+            {
+                opt.FormFieldName = "__CSRF";
+                opt.HeaderName = $"X-{GetType().Namespace}-CSRF-TOKEN";
+                opt.Cookie.SameSite = SameSiteMode.Strict;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Antiforgery";
             });
 
             services.AddDataProtection()
@@ -99,8 +120,9 @@ namespace OSDevGrp.OSIntranet.WebApi
             .AddCookie(GetInternalScheme(), opt =>
             {
                 opt.ExpireTimeSpan = new TimeSpan(0, 0, 10);
-                opt.Cookie.SameSite = SameSiteMode.None;
-                opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.Cookie.SameSite = SameSiteMode.Lax;
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{GetInternalScheme()}";
                 opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
             })
             .AddMicrosoftAccount(opt =>
@@ -109,8 +131,9 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.ClientId = microsoftSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientId).Build();
                 opt.ClientSecret = microsoftSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.MicrosoftClientSecret).Build();
                 opt.SignInScheme = GetInternalScheme();
-                opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{MicrosoftAccountDefaults.AuthenticationScheme}";
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("User.Read");
@@ -125,8 +148,9 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.ClientId = googleSecurityOptions.ClientId ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientId).Build();
                 opt.ClientSecret = googleSecurityOptions.ClientSecret ?? throw new IntranetExceptionBuilder(ErrorCode.MissingConfiguration, SecurityConfigurationKeys.GoogleClientSecret).Build();
                 opt.SignInScheme = GetInternalScheme();
-                opt.CorrelationCookie.SameSite = SameSiteMode.None;
-                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                opt.CorrelationCookie.SameSite = SameSiteMode.Lax;
+                opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{GoogleDefaults.AuthenticationScheme}";
                 opt.SaveTokens = true;
                 opt.Scope.Clear();
                 opt.Scope.Add("openid");
@@ -211,7 +235,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme, Array.Empty<string>()}});
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement {{bearerSecurityScheme, Array.Empty<string>()}});
             });
-            services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddHealthChecks()
                 .AddSecurityHealthChecks(opt =>
@@ -242,7 +265,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(WebApplication app, IWebHostEnvironment env)
         {
             NullGuard.NotNull(app, nameof(app))
                 .NotNull(env, nameof(env));
@@ -263,7 +286,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 app.UseHttpsRedirection();
             }
             app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.MapStaticAssets();
 
             app.UseCookiePolicy();
 
@@ -306,13 +329,10 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.SwaggerEndpoint($"/api/swagger/{WebApiVersion}/swagger.json", WebApiName);
             });
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapDefaultControllerRoute();
-	            endpoints.MapRazorPages();
-                endpoints.MapHealthChecks("/health");
-                endpoints.MapHealthChecks("/api/health");
-            });
+            app.MapDefaultControllerRoute().WithStaticAssets();
+            app.MapRazorPages().WithStaticAssets();
+            app.MapHealthChecks("/health");
+            app.MapHealthChecks("/api/health");
         }
 
         private static Uri GetAuthorizationUrl()

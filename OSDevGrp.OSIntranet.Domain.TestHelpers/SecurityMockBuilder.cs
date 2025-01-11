@@ -273,7 +273,7 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return scopeMock;
         }
 
-        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null, Uri redirectUriWithAuthorizationCode = null)
+        public static Mock<IAuthorizationState> BuildAuthorizationStateMock(this Fixture fixture, string responseType = null, string clientId = null, bool hasClientSecret = false, string clientSecret = null, Uri redirectUri = null, string[] scopes = null, bool hasExternalState = true, string externalState = null, bool hasNonce = true, string nonce = null, bool hasAuthorizationCode = false, IAuthorizationCode authorizationCode = null, string toStringValue = null, IAuthorizationStateBuilder toAuthorizationStateBuilder = null, Uri redirectUriWithAuthorizationCode = null)
         {
             NullGuard.NotNull(fixture, nameof(fixture));
 
@@ -293,6 +293,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(scopes ?? fixture.CreateStringArray(random));
             authorizationStateMock.Setup(m => m.ExternalState)
                 .Returns(hasExternalState ? externalState ?? fixture.Create<string>() : null);
+            authorizationStateMock.Setup(m => m.Nonce)
+                .Returns(hasNonce ? nonce ?? fixture.Create<string>() : null);
             authorizationStateMock.Setup(m => m.AuthorizationCode)
                 .Returns(hasAuthorizationCode ? authorizationCode ?? fixture.BuildAuthorizationCodeMock().Object : null);
             authorizationStateMock.Setup(m => m.ToString())
@@ -329,6 +331,8 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
                 .Returns(authorizationStateBuilderMock.Object);
             authorizationStateBuilderMock.Setup(m => m.WithExternalState(It.IsAny<string>()))
                 .Returns(authorizationStateBuilderMock.Object);
+            authorizationStateBuilderMock.Setup(m => m.WithNonce(It.IsAny<string>()))
+                .Returns(authorizationStateBuilderMock.Object);
             authorizationStateBuilderMock.Setup(m => m.WithAuthorizationCode(It.IsAny<IAuthorizationCode>()))
                 .Returns(authorizationStateBuilderMock.Object);
             authorizationStateBuilderMock.Setup(m => m.WithAuthorizationCode(It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
@@ -338,19 +342,25 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             return authorizationStateBuilderMock;
         }
 
-        public static Mock<IUserInfo> BuildUserInfoMock(this Fixture fixture, string subject = null, string fullName = null, string givenName = null, string surname = null, string middleName = null, string nickName = null, string preferredUsername = null, Uri profile = null, Uri picture = null, Uri webpage = null, string email = null, bool? emailVerified = null, string gender = null, DateTimeOffset? birthdate = null, string timeZone = null, string locale = null, string phoneNumber = null, bool? phoneNumberVerified = null, IUserAddress userAddress = null, DateTimeOffset? updatedAt = null, string toJson = null, IEnumerable<Claim> toClaims = null)
+        public static Mock<IUserInfo> BuildUserInfoMock(this Fixture fixture, string subject = null, bool? hasFullName = null, string fullName = null, bool? hasGivenName = null, string givenName = null, bool? hasSurname = null, string surname = null, string middleName = null, string nickName = null, string preferredUsername = null, Uri profile = null, Uri picture = null, Uri webpage = null, bool? hasEmail = null, string email = null, bool? hasEmailVerified = null, bool? emailVerified = null, string gender = null, DateTimeOffset? birthdate = null, string timeZone = null, string locale = null, string phoneNumber = null, bool? phoneNumberVerified = null, IUserAddress userAddress = null, DateTimeOffset? updatedAt = null, string toJson = null, IEnumerable<Claim> toClaims = null)
         {
             Random random = new Random(fixture.Create<int>());
+
+            hasFullName ??= random.Next(100) > 50;
+            hasGivenName ??= random.Next(100) > 50;
+            hasSurname ??= random.Next(100) > 50;
+            hasEmail ??= random.Next(100) > 50;
+            hasEmailVerified ??= hasEmail.Value && random.Next(100) > 50;
 
             Mock<IUserInfo> userInfoMock = new Mock<IUserInfo>();
             userInfoMock.Setup(m => m.Subject)
                 .Returns(subject ?? fixture.Create<string>());
             userInfoMock.Setup(m => m.FullName)
-                .Returns(fullName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasFullName.Value ? fullName ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.GivenName)
-                .Returns(givenName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasGivenName.Value ? givenName ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.Surname)
-                .Returns(surname ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasSurname.Value ? surname ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.MiddleName)
                 .Returns(middleName ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
             userInfoMock.Setup(m => m.NickName)
@@ -364,9 +374,9 @@ namespace OSDevGrp.OSIntranet.Domain.TestHelpers
             userInfoMock.Setup(m => m.Webpage)
                 .Returns(webpage ?? (random.Next(100) > 50 ? fixture.CreateEndpoint() : null));
             userInfoMock.Setup(m => m.Email)
-                .Returns(email ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
+                .Returns(hasEmail.Value ? email ?? fixture.Create<string>() : null);
             userInfoMock.Setup(m => m.EmailVerified)
-                .Returns(emailVerified ?? (random.Next(100) > 50 ? fixture.Create<bool>() : null));
+                .Returns(hasEmailVerified.Value ? emailVerified ?? fixture.Create<bool>() : null);
             userInfoMock.Setup(m => m.Gender)
                 .Returns(gender ?? (random.Next(100) > 50 ? fixture.Create<string>() : null));
             userInfoMock.Setup(m => m.Birthdate)

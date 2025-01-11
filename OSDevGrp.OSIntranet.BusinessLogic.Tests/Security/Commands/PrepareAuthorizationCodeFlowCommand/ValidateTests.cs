@@ -105,13 +105,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertStringWasCalledSixTimesOnValidator()
+        public void Validate_WhenCalled_AssertStringWasCalledSevenTimesOnValidator()
         {
             IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
-            _validatorMockContext.ValidatorMock.Verify(m => m.String, Times.Exactly(6));
+            _validatorMockContext.ValidatorMock.Verify(m => m.String, Times.Exactly(7));
         }
 
         [Test]
@@ -370,9 +370,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithState()
+        public void Validate_WhenStateIsSet_AssertShouldShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithState()
         {
-            IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasState: true);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -385,10 +385,10 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithState()
+        public void Validate_WhenStateIsSet_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithState()
         {
             string state = _fixture.Create<string>();
-            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(state: state);
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasState: true, state: state);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -403,9 +403,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
 
         [Test]
         [Category("UnitTest")]
-        public void Validate_WhenCalled_AssertShouldMatchPatternWasNotCalledOnStringValidatorWithState()
+        public void Validate_WhenStateIsSet_AssertShouldMatchPatternWasNotCalledOnStringValidatorWithState()
         {
-            IPrepareAuthorizationCodeFlowCommand sut = CreateSut();
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasState: true);
 
             sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
 
@@ -416,6 +416,120 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "State") == 0),
                     It.IsAny<bool>()),
                 Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenStateIsNotSet_AssertShouldShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithState()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasState: false);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
+                    It.IsAny<string>(),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "State") == 0)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenStateIsNotSet_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithState()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasState: false);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value)),
+                    It.Is<int>(value => value == 1),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "State") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenStateIsNotSet_AssertShouldMatchPatternWasNotCalledOnStringValidatorWithState()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasState: false);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldMatchPattern(
+                    It.IsAny<string>(),
+                    It.IsAny<Regex>(),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "State") == 0),
+                    It.IsAny<bool>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenNonceIsSet_AssertShouldShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithNonce()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: true);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
+                    It.IsAny<string>(),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Nonce") == 0)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenNonceIsSet_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithNonce()
+        {
+            string nonce = _fixture.Create<string>();
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: true, nonce: nonce);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, nonce) == 0),
+                    It.Is<int>(value => value == 1),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Nonce") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenNonceIsNotSet_AssertShouldShouldNotBeNullOrWhiteSpaceWasNotCalledOnStringValidatorWithNonce()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: false);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldNotBeNullOrWhiteSpace(
+                    It.IsAny<string>(),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Nonce") == 0)),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void Validate_WhenNonceIsNotSet_AssertShouldHaveMinLengthWasCalledOnStringValidatorWithNonce()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: false);
+
+            sut.Validate(_validatorMockContext.ValidatorMock.Object, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object, _supportedScopesProviderMock.Object);
+
+            _validatorMockContext.StringValidatorMock.Verify(m => m.ShouldHaveMinLength(
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value)),
+                    It.Is<int>(value => value == 1),
+                    It.Is<Type>(value => value != null && value == sut.GetType()),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "Nonce") == 0),
+                    It.Is<bool>(value => value)),
+                Times.Once);
         }
 
         [Test]
@@ -456,7 +570,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             Assert.That(result, Is.EqualTo(_validatorMockContext.ValidatorMock.Object));
         }
 
-        private IPrepareAuthorizationCodeFlowCommand CreateSut(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasState = true, string state = null, IDictionary<string, IScope> supportedScopes = null, Func<byte[], byte[]> protector = null)
+        private IPrepareAuthorizationCodeFlowCommand CreateSut(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasState = true, string state = null, bool hasNonce = true, string nonce = null, IDictionary<string, IScope> supportedScopes = null, Func<byte[], byte[]> protector = null)
         {
             supportedScopes ??= new Dictionary<string, IScope>
             {
@@ -476,6 +590,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
                 redirectUri ?? _fixture.CreateEndpoint(),
                 scopes ?? _fixture.CreateMany<string>(_random.Next(5, 10)).ToArray(),
                 hasState ? state ?? _fixture.Create<string>() : state,
+                hasNonce ? nonce ?? _fixture.Create<string>() : nonce,
                 protector ?? (bytes => bytes));
         }
     }

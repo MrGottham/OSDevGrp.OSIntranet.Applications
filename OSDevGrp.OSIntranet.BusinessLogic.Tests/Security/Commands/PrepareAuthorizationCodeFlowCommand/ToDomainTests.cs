@@ -159,6 +159,51 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
 
         [Test]
         [Category("UnitTest")]
+        public void ToDomain_WhenNonceIsSetOnPrepareAuthorizationCodeFlowCommand_AssertWithNonceWasCalledOnAuthorizationStateBuilderWithNonceFromPrepareAuthorizationCodeFlowCommand()
+        {
+            string nonce = _fixture.Create<string>();
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: true, nonce: nonce);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object);
+
+            _authorizationStateBuilderMock.Verify(m => m.WithNonce(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, nonce) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenNonceIsSetOnPrepareAuthorizationCodeFlowCommand_AssertBuildWasCalledOnAuthorizationStateBuilder()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: true);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object);
+
+            _authorizationStateBuilderMock.Verify(m => m.Build(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenNonceIsNotSetOnPrepareAuthorizationCodeFlowCommand_AssertWithNonceWasNotCalledOnAuthorizationStateBuilder()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: false);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object);
+
+            _authorizationStateBuilderMock.Verify(m => m.WithNonce(It.IsAny<string>()), Times.Never());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ToDomain_WhenNonceIsNotSetOnPrepareAuthorizationCodeFlowCommand_AssertBuildWasCalledOnAuthorizationStateBuilder()
+        {
+            IPrepareAuthorizationCodeFlowCommand sut = CreateSut(hasNonce: false);
+
+            sut.ToDomain(_authorizationStateFactoryMock.Object);
+
+            _authorizationStateBuilderMock.Verify(m => m.Build(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         [TestCase(true)]
         [TestCase(false)]
         public void ToDomain_WhenCalled_ReturnsNotNull(bool hasState)
@@ -184,12 +229,14 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
             Assert.That(result, Is.EqualTo(authorizationState));
         }
 
-        private IPrepareAuthorizationCodeFlowCommand CreateSut(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasState = true, string state = null, IAuthorizationState authorizationState = null)
+        private IPrepareAuthorizationCodeFlowCommand CreateSut(string responseType = null, string clientId = null, Uri redirectUri = null, string[] scopes = null, bool hasState = true, string state = null, bool hasNonce = true, string nonce = null, IAuthorizationState authorizationState = null)
         {
             _authorizationStateFactoryMock.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Uri>(), It.IsAny<IEnumerable<string>>()))
                 .Returns(_authorizationStateBuilderMock.Object);
 
             _authorizationStateBuilderMock.Setup(m => m.WithExternalState(It.IsAny<string>()))
+                .Returns(_authorizationStateBuilderMock.Object);
+            _authorizationStateBuilderMock.Setup(m => m.WithNonce(It.IsAny<string>()))
                 .Returns(_authorizationStateBuilderMock.Object);
             _authorizationStateBuilderMock.Setup(m => m.Build())
                 .Returns(authorizationState ?? _fixture.BuildAuthorizationStateMock().Object);
@@ -200,6 +247,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.PrepareAutho
                 redirectUri ?? _fixture.CreateEndpoint(),
                 scopes ?? CreateScopes(),
                 hasState ? state ?? _fixture.Create<string>() : state,
+                hasNonce ? nonce ?? _fixture.Create<string>() : nonce,
                 bytes => bytes);
         }
 

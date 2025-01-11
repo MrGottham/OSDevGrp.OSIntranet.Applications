@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
 {
-    public class TokenHelperFactory : ITokenHelperFactory
+    internal class TokenHelperFactory : ITokenHelperFactory
     {
         #region Private variables
 
@@ -81,12 +81,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers.Security
         {
             NullGuard.NotNull(methodBase, nameof(methodBase));
 
-            if (_tokenHelperDictionary.ContainsKey(tokenType) == false)
+            if (_tokenHelperDictionary.TryGetValue(tokenType, out ITokenHelper tokenHelper) == false)
             {
                 throw new NotSupportedException($"The token type '{tokenType}' is not supported within the method '{methodBase.Name}'.");
             }
 
-            return _tokenHelperDictionary[tokenType];
+            return tokenHelper;
         }
 
         private ITokenHelper<T> Resolve<T>(TokenType tokenType, MethodBase methodBase) where T : class, IToken

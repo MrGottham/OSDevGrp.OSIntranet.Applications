@@ -35,6 +35,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         private Mock<IQueryBus> _queryBusMock;
         private Mock<IDataProtectionProvider> _dataProtectionProviderMock;
         private Mock<IDataProtector> _dataProtectorMock;
+        private Mock<TimeProvider> _timeProviderMock;
         private Mock<IAuthenticationService> _authenticationServiceMock;
         private Fixture _fixture;
         private Random _random;
@@ -48,6 +49,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _queryBusMock = new Mock<IQueryBus>();
             _dataProtectionProviderMock = new Mock<IDataProtectionProvider>();
             _dataProtectorMock = new Mock<IDataProtector>();
+            _timeProviderMock = new Mock<TimeProvider>();
             _authenticationServiceMock = new Mock<IAuthenticationService>();
             _fixture = new Fixture();
             _random = new Random(_fixture.Create<int>());
@@ -66,6 +68,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     It.Is<HttpContext>(value => value != null && value == httpContext),
                     It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, Schemes.Internal) == 0)),
                 Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoResultWasReturnedFromAuthenticationService_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            AuthenticateResult authenticateResult = CreateAuthenticateNoResult();
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
         }
 
         [Test]
@@ -90,6 +104,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoResultWasReturnedFromAuthenticationService_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            AuthenticateResult authenticateResult = CreateAuthenticateNoResult();
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -176,6 +202,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenFailWasReturnedFromAuthenticationService_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            AuthenticateResult authenticateResult = CreateAuthenticateFail();
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenFailWasReturnedFromAuthenticationService_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             AuthenticateResult authenticateResult = CreateAuthenticateFail();
@@ -196,6 +234,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenFailWasReturnedFromAuthenticationService_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            AuthenticateResult authenticateResult = CreateAuthenticateFail();
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -282,6 +332,21 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalHasNoClaimsIdentity_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: false);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalHasNoClaimsIdentity_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: false);
@@ -308,6 +373,21 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalHasNoClaimsIdentity_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: false);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -409,6 +489,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalHasUnauthenticatedClaimsIdentity_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: false);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: true, claimsIdentity: claimsIdentity);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalHasUnauthenticatedClaimsIdentity_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: false);
@@ -437,6 +533,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalHasUnauthenticatedClaimsIdentity_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: false);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: true, claimsIdentity: claimsIdentity);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -544,6 +656,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalAuthenticatedClaimsIdentityContainingNoEmailClaim_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: true, hasEmailClaim: false);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: true, claimsIdentity: claimsIdentity);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalAuthenticatedClaimsIdentityContainingNoEmailClaim_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: true, hasEmailClaim: false);
@@ -572,6 +700,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalAuthenticatedClaimsIdentityContainingNoEmailClaim_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: true, hasEmailClaim: false);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: true, claimsIdentity: claimsIdentity);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -679,6 +823,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalAuthenticatedClaimsIdentityContainingEmailClaimWithoutValue_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: true, hasEmailClaim: true, hasValueInEmailClaim: false);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: true, claimsIdentity: claimsIdentity);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalAuthenticatedClaimsIdentityContainingEmailClaimWithoutValue_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: true, hasEmailClaim: true, hasValueInEmailClaim: false);
@@ -707,6 +867,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereClaimsPrincipalAuthenticatedClaimsIdentityContainingEmailClaimWithoutValue_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity(isAuthenticated: true, hasEmailClaim: true, hasValueInEmailClaim: false);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasClaimsIdentity: true, claimsIdentity: claimsIdentity);
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(claimsPrincipal: claimsPrincipal, authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -814,6 +990,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNoItems_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: false);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNoItems_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: false);
@@ -838,6 +1028,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNoItems_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: false);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -936,6 +1140,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNonEmptyItemsNotContainingAuthorizationStateKey_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: true, hasAuthorizationStateKey: false);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNonEmptyItemsNotContainingAuthorizationStateKey_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: true, hasAuthorizationStateKey: false);
@@ -960,6 +1178,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNonEmptyItemsNotContainingAuthorizationStateKey_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: true, hasAuthorizationStateKey: false);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -1058,6 +1290,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNonEmptyItemsContainingAuthorizationStateKeyWithoutValue_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: true, hasAuthorizationStateKey: true, hasValueForAuthorizationStateKey: false);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNonEmptyItemsContainingAuthorizationStateKeyWithoutValue_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: true, hasAuthorizationStateKey: true, hasValueForAuthorizationStateKey: false);
@@ -1082,6 +1328,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _commandBusMock.Verify(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenSuccessWasReturnedFromAuthenticationServiceWhereAuthenticationPropertiesHasNonEmptyItemsContainingAuthorizationStateKeyWithoutValue_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(hasItems: true, hasAuthorizationStateKey: true, hasValueForAuthorizationStateKey: false);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -1269,6 +1529,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoInternalClaimsPrincipalWasReturnedFromCommandBus_AssertGetUtcNowWasNotCalledOnTimeProvider()
+        {
+            Controller sut = CreateSut(hasInternalClaimsPrincipal: false);
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenNoInternalClaimsPrincipalWasReturnedFromCommandBus_AssertCreateProtectorWasNotCalledOnDataProtectionProvider()
         {
             Controller sut = CreateSut(hasInternalClaimsPrincipal: false);
@@ -1276,6 +1547,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             await sut.AuthorizeCallback();
 
             _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            Controller sut = CreateSut(hasInternalClaimsPrincipal: false);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Never);
         }
 
         [Test]
@@ -1359,67 +1641,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertCreateProtectorWasCalledOnDataProtectionProviderWithAuthorizationStateProtection()
-        {
-            Controller sut = CreateSut();
-
-            await sut.AuthorizeCallback();
-
-            _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "AuthorizationStateProtection") == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommand()
-        {
-            Controller sut = CreateSut();
-
-            await sut.AuthorizeCallback();
-
-            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.IsNotNull<IGenerateAuthorizationCodeCommand>()), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereAuthorizationStateIsEqualToValueForAuthorizationStateKeyFromAuthenticationProperties()
-        {
-            string valueForAuthorizationStateKey = _fixture.Create<string>();
-            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(valueForAuthorizationStateKey: valueForAuthorizationStateKey);
-            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
-            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
-            Controller sut = CreateSut(authenticateResult: authenticateResult);
-
-            await sut.AuthorizeCallback();
-
-            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && string.IsNullOrWhiteSpace(value.AuthorizationState) == false && string.CompareOrdinal(value.AuthorizationState, valueForAuthorizationStateKey) == 0)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereClaimsIsEqualToClaimsFromInternalClaimsPrincipalGivenByCommandBus()
-        {
-            ClaimsIdentity claimsIdentity = CreateClaimsIdentity();
-            ClaimsPrincipal internalClaimsPrincipal = CreateClaimsPrincipal(claimsIdentity: claimsIdentity);
-            Controller sut = CreateSut(internalClaimsPrincipal: internalClaimsPrincipal);
-
-            await sut.AuthorizeCallback();
-
-            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && value.Claims != null && claimsIdentity.Claims.All(claim => value.Claims.Contains(claim)))), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereUnprotectIsNotNull()
-        {
-            Controller sut = CreateSut();
-
-            await sut.AuthorizeCallback();
-
-            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && value.Unprotect != null)), Times.Once);
-        }
-
-        [Test]
-        [Category("UnitTest")]
         public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertSignInAsyncWasCalledOnAuthenticationService()
         {
             HttpContext httpContext = CreateHttpContext();
@@ -1437,6 +1658,214 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     It.Is<ClaimsPrincipal>(value => value != null && value == internalClaimsPrincipal),
                     It.Is<AuthenticationProperties>(value => value != null && value == authenticationProperties)),
                 Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertGetUtcNowWasCalledOnTimeProvider()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AuthorizeCallback();
+
+            _timeProviderMock.Verify(m => m.GetUtcNow(), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertCreateProtectorWasCalledOnDataProtectionProviderWithAuthorizationStateProtection()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AuthorizeCallback();
+
+            _dataProtectionProviderMock.Verify(m => m.CreateProtector(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "AuthorizationStateProtection") == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateIdTokenCommand()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateIdTokenCommandWhereClaimsPrincipalIsEqualToInternalClaimsPrincipalGivenByCommandBus()
+        {
+            ClaimsPrincipal internalClaimsPrincipal = CreateClaimsPrincipal();
+            Controller sut = CreateSut(internalClaimsPrincipal: internalClaimsPrincipal);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.Is<IGenerateIdTokenCommand>(value => value != null && value.ClaimsPrincipal != null && value.ClaimsPrincipal == internalClaimsPrincipal)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateIdTokenCommandWhereAuthenticationTimeIsEqualToUtcNowFromTimerProvider()
+        {
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
+            Controller sut = CreateSut(authenticationTime: utcNow);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.Is<IGenerateIdTokenCommand>(value => value != null && value.AuthenticationTime == utcNow)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateIdTokenCommandWhereAuthorizationStateIsEqualToValueForAuthorizationStateKeyFromAuthenticationProperties()
+        {
+            string valueForAuthorizationStateKey = _fixture.Create<string>();
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(valueForAuthorizationStateKey: valueForAuthorizationStateKey);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.Is<IGenerateIdTokenCommand>(value => value != null && string.IsNullOrWhiteSpace(value.AuthorizationState) == false && string.CompareOrdinal(value.AuthorizationState, valueForAuthorizationStateKey) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenInternalClaimsPrincipalWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateIdTokenCommandWhereUnprotectIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.Is<IGenerateIdTokenCommand>(value => value != null && value.Unprotect != null)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoIdTokenWasReturnedFromCommandBus_AssertPublishAsyncWasNotCalledOnCommandBusWithGenerateAuthorizationCodeCommand()
+        {
+            Controller sut = CreateSut(hasIdToken: false);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.IsAny<IGenerateAuthorizationCodeCommand>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoIdTokenWasReturnedFromCommandBus_AssertSignOutAsyncWasCalledOnAuthenticationService()
+        {
+            HttpContext httpContext = CreateHttpContext();
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties();
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(httpContext: httpContext, authenticateResult: authenticateResult, hasIdToken: false);
+
+            await sut.AuthorizeCallback();
+
+            _authenticationServiceMock.Verify(m => m.SignOutAsync(
+                    It.Is<HttpContext>(value => value != null && value == httpContext),
+                    It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, Schemes.Internal) == 0),
+                    It.Is<AuthenticationProperties>(value => value != null && value == authenticationProperties)),
+                Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoIdTokenWasReturnedFromCommandBus_ReturnsNotNull()
+        {
+            Controller sut = CreateSut(hasIdToken: false);
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoIdTokenWasReturnedFromCommandBus_ReturnsUnauthorizedObjectResult()
+        {
+            Controller sut = CreateSut(hasIdToken: false);
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            Assert.That(result, Is.TypeOf<UnauthorizedObjectResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenNoIdTokenWasReturnedFromCommandBus_ReturnsUnauthorizedObjectResultWithExpectedErrorResponseModel()
+        {
+            Controller sut = CreateSut(hasIdToken: false);
+
+            IActionResult result = await sut.AuthorizeCallback();
+
+            ((UnauthorizedObjectResult) result).AssertExpectedErrorResponseModel("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser), null, null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenIdTokenWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommand()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.IsNotNull<IGenerateAuthorizationCodeCommand>()), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenIdTokenWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereAuthorizationStateIsEqualToValueForAuthorizationStateKeyFromAuthenticationProperties()
+        {
+            string valueForAuthorizationStateKey = _fixture.Create<string>();
+            AuthenticationProperties authenticationProperties = CreateAuthenticationProperties(valueForAuthorizationStateKey: valueForAuthorizationStateKey);
+            AuthenticationTicket authenticationTicket = CreateAuthenticationTicket(authenticationProperties: authenticationProperties);
+            AuthenticateResult authenticateResult = CreateAuthenticateSuccess(authenticationTicket: authenticationTicket);
+            Controller sut = CreateSut(authenticateResult: authenticateResult);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && string.IsNullOrWhiteSpace(value.AuthorizationState) == false && string.CompareOrdinal(value.AuthorizationState, valueForAuthorizationStateKey) == 0)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenIdTokenWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereClaimsIsEqualToClaimsFromInternalClaimsPrincipalGivenByCommandBus()
+        {
+            ClaimsIdentity claimsIdentity = CreateClaimsIdentity();
+            ClaimsPrincipal internalClaimsPrincipal = CreateClaimsPrincipal(claimsIdentity: claimsIdentity);
+            Controller sut = CreateSut(internalClaimsPrincipal: internalClaimsPrincipal);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && value.Claims != null && claimsIdentity.Claims.All(claim => value.Claims.Contains(claim)))), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenIdTokenWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereIdTokenIsEqualToITokenGivenByCommandBus()
+        {
+            IToken idToken = _fixture.BuildTokenMock().Object;
+            Controller sut = CreateSut(idToken: idToken);
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && value.IdToken != null && value.IdToken == idToken)), Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task AuthorizeCallback_WhenIdTokenWasReturnedFromCommandBus_AssertPublishAsyncWasCalledOnCommandBusWithGenerateAuthorizationCodeCommandWhereUnprotectIsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            await sut.AuthorizeCallback();
+
+            _commandBusMock.Verify(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.Is<IGenerateAuthorizationCodeCommand>(value => value != null && value.Unprotect != null)), Times.Once);
         }
 
         [Test]
@@ -1596,10 +2025,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
         public async Task AuthorizeCallback_WhenAuthorizationStateWithAuthorizationCodeWasReturnedFromCommandBus_ReturnsRedirectResultWhereUrlIsEqualToRedirectUriWithAuthorizationCode()
         {
             KeyValuePair<string, string>[] queryParameters =
-            {
+            [
                 _fixture.CreateQueryParameter("code"),
                 _fixture.CreateQueryParameter("state")
-            };
+            ];
             Uri redirectUriWithAuthorizationCode = _fixture.CreateEndpoint(queryParameters: queryParameters);
             IAuthorizationState authorizationStateWithAuthorizationCode = _fixture.BuildAuthorizationStateMock(hasAuthorizationCode: true, redirectUriWithAuthorizationCode: redirectUriWithAuthorizationCode).Object;
             Controller sut = CreateSut(authorizationStateWithAuthorizationCode: authorizationStateWithAuthorizationCode);
@@ -1949,7 +2378,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             ((ObjectResult) result).AssertExpectedErrorResponseModel("server_error", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, null);
         }
 
-        private Controller CreateSut(HttpContext httpContext = null, AuthenticateResult authenticateResult = null, bool hasInternalClaimsPrincipal = true, ClaimsPrincipal internalClaimsPrincipal = null, bool hasAuthorizationStateWithAuthorizationCode = true, IAuthorizationState authorizationStateWithAuthorizationCode = null, Exception exception = null)
+        private Controller CreateSut(HttpContext httpContext = null, AuthenticateResult authenticateResult = null, DateTimeOffset? authenticationTime = null, bool hasInternalClaimsPrincipal = true, ClaimsPrincipal internalClaimsPrincipal = null, bool hasIdToken = true, IToken idToken = null, bool hasAuthorizationStateWithAuthorizationCode = true, IAuthorizationState authorizationStateWithAuthorizationCode = null, Exception exception = null)
         {
             _authenticationServiceMock.Setup(m => m.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(authenticateResult ?? CreateAuthenticateSuccess()));
@@ -1961,10 +2390,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _dataProtectionProviderMock.Setup(m => m.CreateProtector(It.IsAny<string>()))
                 .Returns(_dataProtectorMock.Object);
 
+            _timeProviderMock.Setup(m => m.GetUtcNow())
+                .Returns(authenticationTime ?? DateTimeOffset.UtcNow);
+
             if (exception == null)
             {
                 _commandBusMock.Setup(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()))
                     .Returns(Task.FromResult(hasInternalClaimsPrincipal ? internalClaimsPrincipal ?? CreateClaimsPrincipal() : null));
+                _commandBusMock.Setup(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()))
+                    .Returns(Task.FromResult(hasIdToken ? idToken ?? _fixture.BuildTokenMock().Object : null));
                 _commandBusMock.Setup(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.IsAny<IGenerateAuthorizationCodeCommand>()))
                     .Returns(Task.FromResult(hasAuthorizationStateWithAuthorizationCode ? authorizationStateWithAuthorizationCode ?? _fixture.BuildAuthorizationStateMock(hasClientSecret: true, hasExternalState: true, hasAuthorizationCode: true).Object : null));
             }
@@ -1972,11 +2406,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             {
                 _commandBusMock.Setup(m => m.PublishAsync<IAuthenticateUserCommand, ClaimsPrincipal>(It.IsAny<IAuthenticateUserCommand>()))
                     .Throws(exception);
+                _commandBusMock.Setup(m => m.PublishAsync<IGenerateIdTokenCommand, IToken>(It.IsAny<IGenerateIdTokenCommand>()))
+                    .Throws(exception);
                 _commandBusMock.Setup(m => m.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(It.IsAny<IGenerateAuthorizationCodeCommand>()))
                     .Throws(exception);
             }
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object)
             {
                 ControllerContext =
                 {

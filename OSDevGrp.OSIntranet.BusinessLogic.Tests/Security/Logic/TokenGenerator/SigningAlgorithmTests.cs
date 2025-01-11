@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.Options;
+using System;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 {
@@ -13,6 +14,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         #region Private variables
 
         private Mock<IOptions<TokenGeneratorOptions>> _tokenGeneratorOptionsMock;
+        private Mock<TimeProvider> _timeProviderMock;
 
         #endregion
 
@@ -20,6 +22,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
         public void SetUp()
         {
             _tokenGeneratorOptionsMock = new Mock<IOptions<TokenGeneratorOptions>>();
+            _timeProviderMock = new Mock<TimeProvider>();
         }
 
         [Test]
@@ -57,7 +60,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.TokenGenerator
 
         private ITokenGenerator CreateSut()
         {
-            return new BusinessLogic.Security.Logic.TokenGenerator(_tokenGeneratorOptionsMock.Object);
+            return new BusinessLogic.Security.Logic.TokenGenerator(_tokenGeneratorOptionsMock.Object, _timeProviderMock.Object);
         }
     }
 }

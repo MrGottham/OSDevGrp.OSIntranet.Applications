@@ -1,4 +1,5 @@
 ﻿using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,9 +21,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new AuthenticateClientSecretCommand(clientId, clientSecret, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
 		}
 
-        public static IAuthenticateAuthorizationCodeCommand BuildAuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, string authenticationType, Func<string, string> protector)
+        public static IAuthenticateAuthorizationCodeCommand BuildAuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, Action<IToken> onIdTokenResolved, string authenticationType, Func<string, string> protector)
         {
-            return new AuthenticateAuthorizationCodeCommand(authorizationCode, clientId, clientSecret, redirectUri, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
+            return new AuthenticateAuthorizationCodeCommand(authorizationCode, clientId, clientSecret, redirectUri, onIdTokenResolved, Array.Empty<Claim>(), authenticationType, new ConcurrentDictionary<string, string>(), protector);
         }
 
 		public static IGenerateTokenCommand BuildGenerateTokenCommand()
@@ -30,19 +31,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
 			return new GenerateTokenCommand();
 		}
 
+        public static IGenerateIdTokenCommand BuildGenerateIdTokenCommand(ClaimsPrincipal claimsPrincipal, DateTimeOffset authenticationTime, string authorizationState, Func<byte[], byte[]> unprotect)
+        {
+            return new GenerateIdTokenCommand(claimsPrincipal, authenticationTime, authorizationState, unprotect);
+        }
+
         public static IAcmeChallengeCommand BuildAcmeChallengeCommand(string challengeToken)
         {
             return new AcmeChallengeCommand(challengeToken);
         }
 
-        public static IPrepareAuthorizationCodeFlowCommand BuildPrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, Func<byte[], byte[]> protector)
+        public static IPrepareAuthorizationCodeFlowCommand BuildPrepareAuthorizationCodeFlowCommand(string responseType, string clientId, Uri redirectUri, string[] scopes, string state, string nonce, Func<byte[], byte[]> protector)
         {
-            return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, protector);
+            return new PrepareAuthorizationCodeFlowCommand(responseType, clientId, redirectUri, scopes, state, nonce, protector);
         }
 
-        public static IGenerateAuthorizationCodeCommand BuildGenerateAuthorizationCodeCommand(string authorizationState, IReadOnlyCollection<Claim> claims, Func<byte[], byte[]> unprotect)
+        public static IGenerateAuthorizationCodeCommand BuildGenerateAuthorizationCodeCommand(string authorizationState, IReadOnlyCollection<Claim> claims, IToken idToken, Func<byte[], byte[]> unprotect)
         {
-            return new GenerateAuthorizationCodeCommand(authorizationState, claims, unprotect);
+            return new GenerateAuthorizationCodeCommand(authorizationState, claims, idToken, unprotect);
         }
 
         #endregion

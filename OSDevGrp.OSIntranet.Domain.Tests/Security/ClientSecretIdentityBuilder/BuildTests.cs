@@ -45,7 +45,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Security.ClientSecretIdentityBuilder
 
             IClientSecretIdentity result = sut.Build();
 
-            Assert.That(result.Identifier, Is.EqualTo(default(int)));
+            Assert.That(result.Identifier, Is.EqualTo(0));
         }
 
         [Test]

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class PostingWarningCollectionModel : IReadOnlyCollection<PostingWarningModel>
     {
-        [JsonIgnore]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public IReadOnlyCollection<PostingWarningModel> Items { get; set; } = Array.Empty<PostingWarningModel>();
 
-        [JsonIgnore]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public int Count => Items.Count;
 
         IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();

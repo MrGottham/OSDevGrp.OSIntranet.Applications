@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
@@ -7,37 +7,37 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         [StringLength(256, MinimumLength = 1)]
         [RegularExpression(ValidationRegexPatterns.MailAddressRegexPattern)]
-        [JsonProperty(Required = Required.Default)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string MailAddress { get; set; }
 
         [StringLength(32, MinimumLength = 1)]
         [RegularExpression(ValidationRegexPatterns.PhoneNumberRegexPattern)]
-        [JsonProperty(Required = Required.Default)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PrimaryPhone { get; set; }
 
         [StringLength(32, MinimumLength = 1)]
         [RegularExpression(ValidationRegexPatterns.PhoneNumberRegexPattern)]
-        [JsonProperty(Required = Required.Default)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string SecondaryPhone { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public PaymentTermModel PaymentTerm { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BalanceInfoValuesModel ValuesAtStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BalanceInfoValuesModel ValuesAtEndOfLastMonthFromStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BalanceInfoValuesModel ValuesAtEndOfLastYearFromStatusDate { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public BalanceInfoCollectionModel BalanceInfos { get; set; }
     }
 }

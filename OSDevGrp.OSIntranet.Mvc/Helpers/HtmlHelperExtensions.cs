@@ -11,7 +11,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Helpers
     {
         #region Private constants
 
-        private const string AntiForgeryTokenName = "__RequestVerificationToken";
+        private const string AntiForgeryTokenName = "__CSRF";
 
         #endregion
 

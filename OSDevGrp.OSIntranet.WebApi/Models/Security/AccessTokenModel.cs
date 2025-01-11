@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Security
@@ -8,20 +7,25 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
     {
         [Required]
         [MinLength(1)]
+        [JsonRequired]
         [JsonPropertyName("token_type")]
-        [JsonProperty("token_type", Required = Required.Always)]
         public string TokenType { get; set; }
 
         [Required]
         [MinLength(1)]
+        [JsonRequired]
         [JsonPropertyName("access_token")]
-        [JsonProperty("access_token", Required = Required.Always)]
         public string AccessToken { get; set; }
+
+        [MinLength(1)]
+        [JsonPropertyName("id_token")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string IdToken { get; set; }
 
         [Required]
         [Range(1, 3600)]
+        [JsonRequired]
         [JsonPropertyName("expires_in")]
-        [JsonProperty("expires_in", Required = Required.Always)]
         public int ExpiresIn { get; set; }
     }
 }

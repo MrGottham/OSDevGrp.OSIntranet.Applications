@@ -9,6 +9,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Options
     {
         #region Methods
 
+        public static OpenIdConnectOptions GetOpenIdConnectOptions(this IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return configuration.GetOpenIdConnectSection().Get<OpenIdConnectOptions>();
+        }
+
         public static MicrosoftSecurityOptions GetMicrosoftSecurityOptions(this IConfiguration configuration)
         {
             NullGuard.NotNull(configuration, nameof(configuration));
@@ -28,6 +35,13 @@ namespace OSDevGrp.OSIntranet.Repositories.Options
             NullGuard.NotNull(configuration, nameof(configuration));
 
             return configuration.GetExternalDashboardSection().Get<ExternalDashboardOptions>();
+        }
+
+        internal static IConfigurationSection GetOpenIdConnectSection(this IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.OpenIdConnectSectionName}");
         }
 
         internal static IConfigurationSection GetMicrosoftSecuritySection(this IConfiguration configuration)

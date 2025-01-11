@@ -42,114 +42,259 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
 
         [Test]
         [Category("UnitTest")]
-        public void MicrosoftGraphCallback_WhenCodeIsNull_ThrowsArgumentNullException()
+        public async Task MicrosoftGraphCallback_WhenCodeIsNull_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(null, _fixture.Create<string>()));
+            await sut.MicrosoftGraphCallback(null, Guid.NewGuid().ToString());
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("code"));
-            // ReSharper restore PossibleNullReferenceException
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void MicrosoftGraphCallback_WhenCodeIsEmpty_ThrowsArgumentNullException()
+        public async Task MicrosoftGraphCallback_WhenCodeIsNull_ReturnsNotNull()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(string.Empty, _fixture.Create<string>()));
+            IActionResult result = await sut.MicrosoftGraphCallback(null, Guid.NewGuid().ToString());
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("code"));
-            // ReSharper restore PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void MicrosoftGraphCallback_WhenCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async Task MicrosoftGraphCallback_WhenCodeIsNull_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(" ", _fixture.Create<string>()));
+            IActionResult result = await sut.MicrosoftGraphCallback(null, Guid.NewGuid().ToString());
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("code"));
-            // ReSharper restore PossibleNullReferenceException
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public void MicrosoftGraphCallback_WhenStateIsNull_ThrowsArgumentNullException()
+        public async Task MicrosoftGraphCallback_WhenCodeIsEmpty_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(_fixture.Create<string>(), null));
+            await sut.MicrosoftGraphCallback(string.Empty, Guid.NewGuid().ToString());
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("state"));
-            // ReSharper restore PossibleNullReferenceException
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void MicrosoftGraphCallback_WhenStateIsEmpty_ThrowsArgumentNullException()
+        public async Task MicrosoftGraphCallback_WhenCodeIsEmpty_ReturnsNotNull()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(_fixture.Create<string>(), string.Empty));
+            IActionResult result = await sut.MicrosoftGraphCallback(string.Empty, Guid.NewGuid().ToString());
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("state"));
-            // ReSharper restore PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void MicrosoftGraphCallback_WhenStateIsWhiteSpace_ThrowsArgumentNullException()
+        public async Task MicrosoftGraphCallback_WhenCodeIsEmpty_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MicrosoftGraphCallback(_fixture.Create<string>(), " "));
+            IActionResult result = await sut.MicrosoftGraphCallback(string.Empty, Guid.NewGuid().ToString());
 
-            // ReSharper disable PossibleNullReferenceException
-            Assert.That(result.ParamName, Is.EqualTo("state"));
-            // ReSharper restore PossibleNullReferenceException
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task MicrosoftGraphCallback_WhenStateIsNotGuid_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
+        public async Task MicrosoftGraphCallback_WhenCodeIsWhiteSpace_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
         {
             Controller sut = CreateSut();
 
-            string state = $"{_fixture.Create<string>()} {_fixture.Create<string>()}";
-            await sut.MicrosoftGraphCallback(_fixture.Create<string>(), state);
+            await sut.MicrosoftGraphCallback(" ", Guid.NewGuid().ToString());
 
-            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(It.IsAny<TokenType>(), It.IsAny<HttpContext>(), It.IsAny<object[]>()), Times.Never);
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task MicrosoftGraphCallback_WhenStateIsNotGuid_ReturnsNotNull()
+        public async Task MicrosoftGraphCallback_WhenCodeIsWhiteSpace_ReturnsNotNull()
         {
-	        Controller sut = CreateSut();
+            Controller sut = CreateSut();
 
-	        string state = $"{_fixture.Create<string>()} {_fixture.Create<string>()}";
-	        IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), state);
+            IActionResult result = await sut.MicrosoftGraphCallback(" ", Guid.NewGuid().ToString());
 
-	        Assert.That(result, Is.TypeOf<BadRequestResult>());
+            Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task MicrosoftGraphCallback_WhenStateIsNotGuid_ReturnsBadRequestResult()
+        public async Task MicrosoftGraphCallback_WhenCodeIsWhiteSpace_ReturnsBadRequestResult()
         {
             Controller sut = CreateSut();
 
-            string state = $"{_fixture.Create<string>()} {_fixture.Create<string>()}";
-            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), state);
+            IActionResult result = await sut.MicrosoftGraphCallback(" ", Guid.NewGuid().ToString());
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNull_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
+        {
+            Controller sut = CreateSut();
+
+            await sut.MicrosoftGraphCallback(_fixture.Create<string>(), null);
+
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNull_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), null);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNull_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), null);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsEmpty_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
+        {
+            Controller sut = CreateSut();
+
+            await sut.MicrosoftGraphCallback(_fixture.Create<string>(), string.Empty);
+
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsEmpty_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), string.Empty);
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsEmpty_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), string.Empty);
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsWhiteSpace_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
+        {
+            Controller sut = CreateSut();
+
+            await sut.MicrosoftGraphCallback(_fixture.Create<string>(), " ");
+
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsWhiteSpace_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), " ");
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsWhiteSpace_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), " ");
+
+            Assert.That(result, Is.TypeOf<BadRequestResult>());
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNonGuid_AssertAcquireTokenAsyncWasNotCalledOnTokenHelperFactory()
+        {
+            Controller sut = CreateSut();
+
+            await sut.MicrosoftGraphCallback(_fixture.Create<string>(), $"{_fixture.Create<string>()} {_fixture.Create<string>()}");
+
+            _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
+                    It.IsAny<TokenType>(),
+                    It.IsAny<HttpContext>(),
+                    It.IsAny<object[]>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNonGuid_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), $"{_fixture.Create<string>()} {_fixture.Create<string>()}");
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsNonGuid_ReturnsBadRequestResult()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), $"{_fixture.Create<string>()} {_fixture.Create<string>()}");
 
             Assert.That(result, Is.TypeOf<BadRequestResult>());
         }
@@ -158,40 +303,62 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountController
         [Category("UnitTest")]
         public async Task MicrosoftGraphCallback_WhenStateIsGuid_AssertAcquireTokenAsyncWasCalledOnTokenHelperFactory()
         {
-            Controller sut = CreateSut();
+            HttpContext httpContext = CreateHttpContext();
+            Controller sut = CreateSut(httpContext: httpContext);
 
-            Guid stateIdentifier = Guid.NewGuid();
-            string code = $"{_fixture.Create<string>()} {_fixture.Create<string>()}";
-            string state = stateIdentifier.ToString();
-            await sut.MicrosoftGraphCallback(code, state);
+            string code = _fixture.Create<string>();
+            Guid state = Guid.NewGuid();
+            await sut.MicrosoftGraphCallback(code, state.ToString());
 
             _tokenHelperFactoryMock.Verify(m => m.AcquireTokenAsync(
                     It.Is<TokenType>(value => value == TokenType.MicrosoftGraphToken),
-                    It.IsAny<HttpContext>(),
-                    It.Is<object[]>(value => value != null && value.Length == 2 && (Guid) value[0] == stateIdentifier && string.CompareOrdinal((string) value[1], state) == 0)),
-                Times.Never);
+                    It.Is<HttpContext>(value => value != null && value == httpContext),
+                    It.Is<object[]>(value =>
+                        value != null && value.Length == 2 && (Guid) value[0] == state &&
+                        string.Compare((string) value[1], code) == 0)),
+                Times.Once);
         }
 
         [Test]
         [Category("UnitTest")]
-        public async Task MicrosoftGraphCallback_WhenStateIsGuid_ReturnActionResultFromAcquireTokenAsyncOnTokenHelperFactory()
+        public async Task MicrosoftGraphCallback_WhenStateIsGuid_ReturnsNotNull()
+        {
+            Controller sut = CreateSut();
+
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), Guid.NewGuid().ToString());
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task MicrosoftGraphCallback_WhenStateIsGuid_ReturnsActionResultFromAcquireTokenAsyncOnTokenHelperFactory()
         {
             IActionResult actionResult = new Mock<IActionResult>().Object;
-            Controller sut = CreateSut(actionResult);
+            Controller sut = CreateSut(actionResult: actionResult);
 
-            string code = $"{_fixture.Create<string>()} {_fixture.Create<string>()}";
-            string state = Guid.NewGuid().ToString();
-            IActionResult result = await sut.MicrosoftGraphCallback(code, state);
+            IActionResult result = await sut.MicrosoftGraphCallback(_fixture.Create<string>(), Guid.NewGuid().ToString());
 
             Assert.That(result, Is.EqualTo(actionResult));
         }
 
-        private Controller CreateSut(IActionResult actionResult = null)
+        private Controller CreateSut(HttpContext httpContext = null, IActionResult actionResult = null)
         {
             _tokenHelperFactoryMock.Setup(m => m.AcquireTokenAsync(It.IsAny<TokenType>(), It.IsAny<HttpContext>(), It.IsAny<object[]>()))
                 .Returns(Task.Run(() => actionResult ?? new Mock<IActionResult>().Object));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainResolverMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _trustedDomainResolverMock.Object, _tokenHelperFactoryMock.Object, _dataProtectionProviderMock.Object)
+            {
+                ControllerContext =
+                {
+                    HttpContext = httpContext ?? CreateHttpContext()
+                }
+            };
+        }
+
+        private static HttpContext CreateHttpContext()
+        {
+            return new DefaultHttpContext();
         }
     }
 }

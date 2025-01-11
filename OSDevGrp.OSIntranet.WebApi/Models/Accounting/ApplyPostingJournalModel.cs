@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
@@ -7,11 +7,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         [Required]
         [Range(1, 99)]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public int AccountingNumber { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public ApplyPostingLineCollectionModel ApplyPostingLines { get; set; }
     }
 }

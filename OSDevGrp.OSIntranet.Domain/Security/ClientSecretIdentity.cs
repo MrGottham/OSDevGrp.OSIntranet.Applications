@@ -1,4 +1,5 @@
 ﻿using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Extensions;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Domain.Security
 {
-	internal class ClientSecretIdentity : ClaimsIdentity, IClientSecretIdentity
+    internal class ClientSecretIdentity : ClaimsIdentity, IClientSecretIdentity
     {
         #region Constructor
 
@@ -23,7 +24,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             ClientSecret = clientSecret;
 
             base.AddClaim(ClaimHelper.CreateNameClaim(friendlyName));
-            base.AddClaim(ClaimHelper.CreateNameIdentifierClaim(clientId));
+            base.AddClaim(ClaimHelper.CreateNameIdentifierClaim(clientId.ComputeSha512Hash()));
             base.AddClaim(ClaimHelper.CreateFriendlyNameClaim(friendlyName));
             base.AddClaim(ClaimHelper.CreateClientIdClaim(clientId));
         }

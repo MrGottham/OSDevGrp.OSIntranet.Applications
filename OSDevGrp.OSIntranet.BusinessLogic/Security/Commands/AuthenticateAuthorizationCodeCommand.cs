@@ -15,18 +15,20 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
     {
         #region Constructor
 
-        public AuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, IReadOnlyCollection<Claim> claims, string authenticationType, IReadOnlyDictionary<string, string> authenticationSessionItems, Func<string, string> protector) 
+        public AuthenticateAuthorizationCodeCommand(string authorizationCode, string clientId, string clientSecret, Uri redirectUri, Action<IToken> onIdTokenResolved, IReadOnlyCollection<Claim> claims, string authenticationType, IReadOnlyDictionary<string, string> authenticationSessionItems, Func<string, string> protector) 
             : base(claims, authenticationType, authenticationSessionItems, protector)
         {
             NullGuard.NotNullOrWhiteSpace(authorizationCode, nameof(authorizationCode))
                 .NotNullOrWhiteSpace(clientId, nameof(clientId))
                 .NotNullOrWhiteSpace(clientSecret, nameof(clientSecret))
-                .NotNull(redirectUri, nameof(redirectUri));
+                .NotNull(redirectUri, nameof(redirectUri))
+                .NotNull(onIdTokenResolved, nameof(onIdTokenResolved));
 
             AuthorizationCode = authorizationCode;
             ClientId = clientId;
             ClientSecret = clientSecret;
             RedirectUri = redirectUri;
+            OnIdTokenResolved = onIdTokenResolved;
         }
 
         #endregion
@@ -40,6 +42,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Commands
         public string ClientSecret { get; }
 
         public Uri RedirectUri { get; }
+
+        public Action<IToken> OnIdTokenResolved { get; }
 
         #endregion
 

@@ -1,16 +1,16 @@
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
     public class CreditInfoValuesModel : BalanceInfoValuesModel
     {
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public decimal Credit { get; set; }
 
         [Required]
-        [JsonProperty(Required = Required.Always)]
+        [JsonRequired]
         public decimal Available { get; set; }
     }
 }

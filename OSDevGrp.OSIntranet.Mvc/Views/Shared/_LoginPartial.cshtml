@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Authentication.Google
+@using Microsoft.AspNetCore.Authentication.MicrosoftAccount
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect
 @if (User.Identity is {IsAuthenticated: true })
 {
     <li class="nav-item d-none d-lg-block d-xl-block">
@@ -13,14 +16,13 @@ else
         <a href="#" class="nav-link text-dark dropdown-toggle" id="navbarDropdownMenuLogin" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Log ind</a>
         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLogin">
             <li class="nav-item">
-                <form asp-area="" asp-controller="Account" asp-action="LoginWithMicrosoftAccount" method="post">
-                    <button type="submit" class="nav-link text-dark dropdown-item">Med Microsoft</button>
-                </form>
+                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Account" asp-action="Login" asp-route-scheme="@OpenIdConnectDefaults.AuthenticationScheme">Med OpenID Connect</a>
             </li>
             <li class="nav-item">
-                <form asp-area="" asp-controller="Account" asp-action="LoginWithGoogleAccount" method="post">
-                    <button type="submit" class="nav-link text-dark dropdown-item">Med Google</button>
-                </form>
+                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Account" asp-action="Login" asp-route-scheme="@MicrosoftAccountDefaults.AuthenticationScheme">Med Microsoft</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Account" asp-action="Login" asp-route-scheme="@GoogleDefaults.AuthenticationScheme">Med Google</a>
             </li>
         </ul>
     </li>

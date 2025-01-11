@@ -17,6 +17,8 @@ namespace OSDevGrp.OSIntranet.Domain.Interfaces.Security
 
         string ExternalState { get; }
 
+        string Nonce { get; }
+
         IAuthorizationCode AuthorizationCode { get; }
 
         string ToString(Func<byte[], byte[]> protector);

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Logic;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.HashKeyGenerator
 {
@@ -33,9 +33,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.HashKeyGenerator
 
             ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ComputeHashAsync(null));
 
-            // ReSharper disable PossibleNullReferenceException
+            Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("byteCollection"));
-            // ReSharper restore PossibleNullReferenceException
         }
 
         [Test]

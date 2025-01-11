@@ -133,7 +133,7 @@ namespace OSDevGrp.OSIntranet.Domain.Security
         [JsonPropertyName("updated_at")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         // ReSharper disable UnusedMember.Global
-        public double? UpdatedAtAsString => UpdatedAt?.Subtract(GetCalculateDateTime()).TotalSeconds;
+        public long? UpdatedAtAsString => UpdatedAt?.ToUniversalTime().ToUnixTimeSeconds();
         // ReSharper restore UnusedMember.Global
 
         #endregion
@@ -177,11 +177,6 @@ namespace OSDevGrp.OSIntranet.Domain.Security
             string claimValue = value?.ToString();
 
             return new Claim(jsonPropertyNameAttribute.Name, string.IsNullOrWhiteSpace(claimValue) == false ? claimValue : string.Empty);
-        }
-
-        private static DateTimeOffset GetCalculateDateTime()
-        {
-            return new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
         }
 
         #endregion

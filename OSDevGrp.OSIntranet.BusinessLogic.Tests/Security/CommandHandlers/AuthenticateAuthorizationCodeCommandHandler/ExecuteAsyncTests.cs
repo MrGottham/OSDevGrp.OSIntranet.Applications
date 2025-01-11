@@ -151,6 +151,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenKeyValueEntryCouldNotBeResolvedForAuthorizationCode_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasKeyValueEntryForAuthorizationCode: false);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenKeyValueEntryCouldNotBeResolvedForAuthorizationCode_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
         {
             ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasKeyValueEntryForAuthorizationCode: false);
@@ -320,6 +332,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationCodeCouldNotBeResolvedByAuthorizationDataConverter_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasAuthorizationCode: false);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenAuthorizationCodeCouldNotBeResolvedByAuthorizationDataConverter_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
         {
             ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasAuthorizationCode: false);
@@ -475,6 +499,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationCodeResolvedByAuthorizationDataConverterHasExpired_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expired: true).Object;
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationCode: authorizationCode);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenAuthorizationCodeResolvedByAuthorizationDataConverterHasExpired_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
         {
             IAuthorizationCode authorizationCode = _fixture.BuildAuthorizationCodeMock(expired: true).Object;
@@ -622,6 +659,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenClaimCollectionCouldNotBeResolvedByAuthorizationDataConverter_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasClaims: false);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenClaimCollectionCouldNotBeResolvedByAuthorizationDataConverter_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
         {
             ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasClaims: false);
@@ -760,6 +809,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
 
             authenticateAuthorizationCodeCommandMock.Verify(m => m.RedirectUri, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenClaimCollectionResolvedByAuthorizationDataConverterIsEmpty_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyCollection<Claim> claims = CreateEmptyClaimCollection();
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(claims: claims);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
         }
 
         [Test]
@@ -911,6 +973,18 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryCouldNotBeResolvedByAuthorizationDataConverter_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasAuthorizationData: false);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenAuthorizationDataDictionaryCouldNotBeResolvedByAuthorizationDataConverter_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
         {
             ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(hasAuthorizationData: false);
@@ -1053,6 +1127,19 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterIsEmpty_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateEmptyAuthorizationDataDictionary();
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterIsEmpty_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
         {
             IReadOnlyDictionary<string, string> authorizationData = CreateEmptyAuthorizationDataDictionary();
@@ -1164,6 +1251,344 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         [Test]
         [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertClientIdWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.ClientId, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertClientSecretWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.ClientSecret, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertRedirectUriWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.RedirectUri, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.IsMatchAsync(
+                    It.IsAny<IReadOnlyDictionary<string, string>>(),
+                    It.IsAny<ISecurityRepository>(),
+                    It.IsAny<ITrustedDomainResolver>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertClaimsWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.Claims, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertAuthenticationSessionItemsWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.AuthenticationSessionItems, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertProtectorWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.Protector, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertCanBuildWasNotCalledOnExternalTokenClaimCreator()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            _externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertBuildWasNotCalledOnExternalTokenClaimCreator()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            _externalTokenClaimCreatorMock.Verify(m => m.Build(
+                    It.IsAny<IReadOnlyDictionary<string, string>>(),
+                    It.IsAny<Func<string, string>>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_AssertAuthenticationTypeWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.AuthenticationType, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterDoesNotContainKeyForIdToken_ReturnsNull()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand();
+            ClaimsPrincipal result = await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertClientIdWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.ClientId, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertClientSecretWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.ClientSecret, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertRedirectUriWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.RedirectUri, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertOnIdTokenResolvedWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertIsMatchAsyncWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.IsMatchAsync(
+                    It.IsAny<IReadOnlyDictionary<string, string>>(),
+                    It.IsAny<ISecurityRepository>(),
+                    It.IsAny<ITrustedDomainResolver>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertClaimsWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.Claims, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertAuthenticationSessionItemsWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.AuthenticationSessionItems, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertProtectorWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.Protector, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertCanBuildWasNotCalledOnExternalTokenClaimCreator()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            _externalTokenClaimCreatorMock.Verify(m => m.CanBuild(It.IsAny<IReadOnlyDictionary<string, string>>()), Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertBuildWasNotCalledOnExternalTokenClaimCreator()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            _externalTokenClaimCreatorMock.Verify(m => m.Build(
+                    It.IsAny<IReadOnlyDictionary<string, string>>(),
+                    It.IsAny<Func<string, string>>()),
+                Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_AssertAuthenticationTypeWasNotCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.AuthenticationType, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenAuthorizationDataDictionaryResolvedByAuthorizationDataConverterContainsKeyForIdTokenWithoutValue_ReturnsNull()
+        {
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(hasKeyForIdToken: true, hasValueForIdToken: false);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand();
+            ClaimsPrincipal result = await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenIdentityForAuthorizationCodeCouldBeCreated_AssertOnIdTokenResolvedWasCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut();
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
         public async Task ExecuteAsync_WhenIdentityForAuthorizationCodeCouldBeCreated_AssertIsMatchAsyncWasCalledOnAuthenticateAuthorizationCodeCommand()
         {
             ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut();
@@ -1263,6 +1688,31 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
 
             authenticateAuthorizationCodeCommandMock.Verify(m => m.RedirectUri, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCreatedIdentityForAuthorizationCodeIsNoneMatching_AssertOnIdTokenResolvedWasCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut();
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock(isMatch: false);
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCreatedIdentityForAuthorizationCodeIsNoneMatching_AssertOnIdTokenResolvedOnAuthenticateAuthorizationCodeCommandWasNotExecuted()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut();
+
+            bool onIdTokenResolvedExecuted = false;
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand(isMatch: false, onIdTokenResolved: _ => onIdTokenResolvedExecuted = true);
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            Assert.That(onIdTokenResolvedExecuted, Is.False);
         }
 
         [Test]
@@ -1386,6 +1836,47 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
 
             authenticateAuthorizationCodeCommandMock.Verify(m => m.RedirectUri, Times.Never);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCreatedIdentityForAuthorizationCodeIsMatching_AssertOnIdTokenResolvedWasCalledOnAuthenticateAuthorizationCodeCommand()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut();
+
+            Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = CreateAuthenticateAuthorizationCodeCommandMock();
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommandMock.Object);
+
+            authenticateAuthorizationCodeCommandMock.Verify(m => m.OnIdTokenResolved, Times.Once);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCreatedIdentityForAuthorizationCodeIsMatching_AssertOnIdTokenResolvedOnAuthenticateAuthorizationCodeCommandWasExecuted()
+        {
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut();
+
+            bool onIdTokenResolvedExecuted = false;
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand(onIdTokenResolved: _ => onIdTokenResolvedExecuted = true);
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            Assert.That(onIdTokenResolvedExecuted, Is.True);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public async Task ExecuteAsync_WhenCreatedIdentityForAuthorizationCodeIsMatching_AssertOnIdTokenResolvedOnAuthenticateAuthorizationCodeCommandWasExecutedWithIdTokenFromAuthorizationData()
+        {
+            string base64ForIdToken = CreateBase64ForIdToken();
+            IReadOnlyDictionary<string, string> authorizationData = CreateAuthorizationDataDictionary(valueForIdToken: base64ForIdToken);
+            ICommandHandler<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal> sut = CreateSut(authorizationData: authorizationData);
+
+            IToken onIdTokenResolvedExecutedWithToken = null;
+            IAuthenticateAuthorizationCodeCommand authenticateAuthorizationCodeCommand = CreateAuthenticateAuthorizationCodeCommand(onIdTokenResolved: token => onIdTokenResolvedExecutedWithToken = token);
+            await sut.ExecuteAsync(authenticateAuthorizationCodeCommand);
+
+            Assert.That(onIdTokenResolvedExecutedWithToken, Is.Not.Null);
+            Assert.That(onIdTokenResolvedExecutedWithToken.ToBase64String(), Is.EqualTo(base64ForIdToken));
         }
 
         [Test]
@@ -1684,12 +2175,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             return new BusinessLogic.Security.CommandHandlers.AuthenticateAuthorizationCodeCommandHandler(_securityRepositoryMock.Object, _commonRepositoryMock.Object, _authorizationDataConverterMock.Object, _trustedDomainResolverMock.Object, _externalTokenClaimCreatorMock.Object);
         }
 
-        private IAuthenticateAuthorizationCodeCommand CreateAuthenticateAuthorizationCodeCommand(string authorizationCode = null, string clientId = null, string clientSecret = null, Uri redirectUri = null, IReadOnlyCollection<Claim> claims = null, string authenticationType = null, IReadOnlyDictionary<string, string> authenticationSessionItems = null, Func<string, string> protector = null, bool isMatch = true)
+        private IAuthenticateAuthorizationCodeCommand CreateAuthenticateAuthorizationCodeCommand(string authorizationCode = null, string clientId = null, string clientSecret = null, Uri redirectUri = null, Action<IToken> onIdTokenResolved = null, IReadOnlyCollection<Claim> claims = null, string authenticationType = null, IReadOnlyDictionary<string, string> authenticationSessionItems = null, Func<string, string> protector = null, bool isMatch = true)
         {
-            return CreateAuthenticateAuthorizationCodeCommandMock(authorizationCode, clientId, clientSecret, redirectUri, claims, authenticationType, authenticationSessionItems, protector, isMatch).Object;
+            return CreateAuthenticateAuthorizationCodeCommandMock(authorizationCode, clientId, clientSecret, redirectUri, onIdTokenResolved, claims, authenticationType, authenticationSessionItems, protector, isMatch).Object;
         }
 
-        private Mock<IAuthenticateAuthorizationCodeCommand> CreateAuthenticateAuthorizationCodeCommandMock(string authorizationCode = null, string clientId = null, string clientSecret = null, Uri redirectUri = null, IReadOnlyCollection<Claim> claims = null, string authenticationType = null, IReadOnlyDictionary<string, string> authenticationSessionItems = null, Func<string, string> protector = null, bool isMatch = true)
+        private Mock<IAuthenticateAuthorizationCodeCommand> CreateAuthenticateAuthorizationCodeCommandMock(string authorizationCode = null, string clientId = null, string clientSecret = null, Uri redirectUri = null, Action<IToken> onIdTokenResolved = null, IReadOnlyCollection<Claim> claims = null, string authenticationType = null, IReadOnlyDictionary<string, string> authenticationSessionItems = null, Func<string, string> protector = null, bool isMatch = true)
         {
             Mock<IAuthenticateAuthorizationCodeCommand> authenticateAuthorizationCodeCommandMock = new Mock<IAuthenticateAuthorizationCodeCommand>();
             authenticateAuthorizationCodeCommandMock.Setup(m => m.AuthorizationCode)
@@ -1700,6 +2191,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
                 .Returns(clientSecret ?? _fixture.Create<string>());
             authenticateAuthorizationCodeCommandMock.Setup(m => m.RedirectUri)
                 .Returns(redirectUri ?? _fixture.CreateEndpoint());
+            authenticateAuthorizationCodeCommandMock.Setup(m => m.OnIdTokenResolved)
+                .Returns(onIdTokenResolved ?? (_ => { }));
             authenticateAuthorizationCodeCommandMock.Setup(m => m.Claims)
                 .Returns(claims ?? CreateEmptyClaimCollection());
             authenticateAuthorizationCodeCommandMock.Setup(m => m.AuthenticationType)
@@ -1720,12 +2213,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
         private IReadOnlyCollection<Claim> CreateClaimCollection()
         {
-            return new[]
-            {
+            return
+            [
                 ClaimHelper.CreateNameIdentifierClaim(_fixture.Create<string>()),
                 ClaimHelper.CreateNameClaim(_fixture.Create<string>()),
                 ClaimHelper.CreateEmailClaim($"{_fixture.Create<string>()}@{_fixture.Create<string>()}.{_fixture.Create<string>()}")
-            };
+            ];
         }
 
         private IReadOnlyCollection<Claim> CreateEmptyClaimCollection()
@@ -1733,16 +2226,34 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
             return Array.Empty<Claim>();
         }
 
-        private IReadOnlyDictionary<string, string> CreateAuthorizationDataDictionary()
+        private IReadOnlyDictionary<string, string> CreateAuthorizationDataDictionary(bool hasKeyForIdToken = true, bool hasValueForIdToken = true, string valueForIdToken = null)
         {
-            return _fixture.CreateMany<string>(_random.Next(5, 10))
-                .ToDictionary(value => value, _ => _fixture.Create<string>())
-                .AsReadOnly();
+            IDictionary<string, string> authorizationData = new Dictionary<string, string>();
+            if (hasKeyForIdToken)
+            {
+                valueForIdToken ??= CreateBase64ForIdToken();
+                authorizationData.Add(BusinessLogic.Security.Logic.AuthorizationDataConverter.IdTokenKey, hasValueForIdToken ? valueForIdToken : null);
+            }
+            foreach (string key in _fixture.CreateMany<string>(_random.Next(5, 10)))
+            {
+                authorizationData.Add(key, _fixture.Create<string>());
+            }
+            return authorizationData.AsReadOnly();
         }
 
         private IReadOnlyDictionary<string, string> CreateEmptyAuthorizationDataDictionary()
         {
             return new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+        }
+
+        private string CreateBase64ForIdToken()
+        {
+            return TokenFactory.Create()
+                .WithTokenType(_fixture.Create<string>())
+                .WithAccessToken(_fixture.Create<string>())
+                .WithExpires(DateTime.Now.AddMinutes(_random.Next(5, 60)))
+                .Build()
+                .ToBase64String();
         }
     }
 }

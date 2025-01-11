@@ -136,7 +136,7 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.QueryHandlers.Med
 
 			object result = await sut.QueryAsync(CreateMediaLibraryQuery());
 
-			Assert.That(result, Is.EqualTo(default));
+			Assert.That(result, Is.EqualTo(default(object)));
 		}
 
 		private IQueryHandler<IMediaLibraryQuery, object> CreateSut(bool? hasResult = null, object result = null)

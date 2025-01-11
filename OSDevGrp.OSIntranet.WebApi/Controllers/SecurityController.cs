@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
@@ -48,6 +49,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
         private readonly IDataProtectionProvider _dataProtectionProvider;
+        private readonly TimeProvider _timeProvider;
         private readonly IConverter _securityModelConverter = new SecurityModelConverter();
         private static readonly Regex GrantTypeRegex = new("^(authorization_code|client_credentials){1}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
         private static readonly Regex AuthorizationRegex = new($"^(Basic){{1}}\\s+({Base64Pattern}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
@@ -57,15 +59,17 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider)
+        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider, TimeProvider timeProvider)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
-                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider));
+                .NotNull(dataProtectionProvider, nameof(dataProtectionProvider))
+                .NotNull(timeProvider, nameof(timeProvider));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
             _dataProtectionProvider = dataProtectionProvider;
+            _timeProvider = timeProvider;
         }
 
         #endregion
@@ -77,7 +81,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Authorize([Required][FromQuery(Name = "response_type")] string responseType, [Required][FromQuery(Name = "client_id")] string clientId, [Required][FromQuery(Name = "redirect_uri")] string redirectUri, [Required][FromQuery(Name = "scope")] string scope, [FromQuery(Name = "state")] string state)
+        public async Task<IActionResult> Authorize([Required][FromQuery(Name = "response_type")] string responseType, [Required][FromQuery(Name = "client_id")] string clientId, [Required][FromQuery(Name = "redirect_uri")] string redirectUri, [Required][FromQuery(Name = "scope")] string scope, [FromQuery(Name = "state")] string state, [FromQuery(Name = "nonce")] string nonce)
         {
             if (string.IsNullOrWhiteSpace(responseType))
             {
@@ -100,7 +104,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 return BadRequest(ErrorResponseModelResolver.Resolve("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.ValueCannotBeNullOrWhiteSpace, "redirect_uri"), null, state));
             }
 
-            if (Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri absoluteRedirectUri) == false)
+            if (Uri.IsWellFormedUriString(redirectUri, UriKind.Absolute) == false || Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri absoluteRedirectUri) == false)
             {
                 return BadRequest(ErrorResponseModelResolver.Resolve("invalid_request", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToAuthorizeUser), null, state));
             }
@@ -112,7 +116,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
             try
             {
-                IPrepareAuthorizationCodeFlowCommand command = SecurityCommandFactory.BuildPrepareAuthorizationCodeFlowCommand(responseType, clientId, absoluteRedirectUri, scope.Split(' '), state, _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Protect);
+                IPrepareAuthorizationCodeFlowCommand command = SecurityCommandFactory.BuildPrepareAuthorizationCodeFlowCommand(responseType, clientId, absoluteRedirectUri, scope.Split(' '), state, nonce, _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Protect);
                 string authorizationState = await _commandBus.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(command);
 
                 return RedirectToPage("/Security/Login", new {authorizationState});
@@ -178,7 +182,16 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     await HttpContext.SignInAsync(Schemes.Internal, internalClaimsPrincipal, authenticateResult.Properties);
                     HttpContext.User = internalClaimsPrincipal;
 
-                    IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = SecurityCommandFactory.BuildGenerateAuthorizationCodeCommand(authorizationState, internalClaimsPrincipal.Claims.ToArray(), _dataProtectionProvider.CreateProtector("AuthorizationStateProtection").Unprotect);
+                    IDataProtector dataProtector = _dataProtectionProvider.CreateProtector("AuthorizationStateProtection");
+
+                    IGenerateIdTokenCommand generateIdTokenCommand = SecurityCommandFactory.BuildGenerateIdTokenCommand(internalClaimsPrincipal, _timeProvider.GetUtcNow(), authorizationState, dataProtector.Unprotect);
+                    IToken idToken = await _commandBus.PublishAsync<IGenerateIdTokenCommand, IToken>(generateIdTokenCommand);
+                    if (idToken == null)
+                    {
+                        return Unauthorized(ErrorResponseModelResolver.Resolve("access_denied", ErrorDescriptionResolver.Resolve(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser), null, null));
+                    }
+
+                    IGenerateAuthorizationCodeCommand generateAuthorizationCodeCommand = SecurityCommandFactory.BuildGenerateAuthorizationCodeCommand(authorizationState, internalClaimsPrincipal.Claims.ToArray(), idToken, dataProtector.Unprotect);
                     IAuthorizationState authorizationStateWithAuthorizationCode = await _commandBus.PublishAsync<IGenerateAuthorizationCodeCommand, IAuthorizationState>(generateAuthorizationCodeCommand);
                     if (string.IsNullOrWhiteSpace(authorizationStateWithAuthorizationCode?.AuthorizationCode.Value))
                     {
@@ -228,11 +241,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             ClaimsPrincipal currentPrincipal = HttpContext.User;
             try
             {
+                string idToken = null;
                 ClaimsPrincipal principal;
                 switch (grantType)
                 {
                     case "authorization_code":
-                        principal = await ResolvePrincipalAsync(code, nameof(code), clientId, "client_id", clientSecret, "client_secret", redirectUri, "redirect_uri");
+                        principal = await ResolvePrincipalAsync(code, nameof(code), clientId, "client_id", clientSecret, "client_secret", redirectUri, "redirect_uri", value => idToken = string.IsNullOrWhiteSpace(value?.AccessToken) ? null : value.AccessToken);
                         break;
 
                     case "client_credentials":
@@ -248,7 +262,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
                 IToken token = await ResolveTokenAsync();
 
-                return Ok(_securityModelConverter.Convert<IToken, AccessTokenModel>(token));
+                AccessTokenModel accessTokenModel = _securityModelConverter.Convert<IToken, AccessTokenModel>(token);
+                accessTokenModel.IdToken = idToken;
+
+                return Ok(accessTokenModel);
             }
             catch (IntranetValidationException ex)
             {
@@ -280,7 +297,10 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 throw new IntranetExceptionBuilder(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser).Build();
             }
 
-            return Ok(token.AccessToken);
+            ContentResult content = Content(token.AccessToken, "application/jwt");
+            content.StatusCode = (int) HttpStatusCode.OK;
+
+            return content;
         }
 
         [AllowAnonymous]
@@ -359,12 +379,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             return principal;
         }
 
-        private async Task<ClaimsPrincipal> ResolvePrincipalAsync(string code, string codeParameterName, string clientId, string clientIdParameterName, string clientSecret, string clientSecretParameterName, string redirectUri, string redirectUriParameterName)
+        private async Task<ClaimsPrincipal> ResolvePrincipalAsync(string code, string codeParameterName, string clientId, string clientIdParameterName, string clientSecret, string clientSecretParameterName, string redirectUri, string redirectUriParameterName, Action<IToken> onIdTokenResolved)
         {
             NullGuard.NotNullOrWhiteSpace(codeParameterName, nameof(codeParameterName))
                 .NotNullOrWhiteSpace(clientIdParameterName, nameof(clientIdParameterName))
                 .NotNullOrWhiteSpace(clientSecretParameterName, nameof(clientSecretParameterName))
-                .NotNullOrWhiteSpace(redirectUriParameterName, nameof(redirectUriParameterName));
+                .NotNullOrWhiteSpace(redirectUriParameterName, nameof(redirectUriParameterName))
+                .NotNull(onIdTokenResolved, nameof(onIdTokenResolved));
 
             if (string.IsNullOrWhiteSpace(code))
             {
@@ -406,7 +427,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                     .Build();
             }
 
-            IAuthenticateAuthorizationCodeCommand command = SecurityCommandFactory.BuildAuthenticateAuthorizationCodeCommand(code, clientId, clientSecret, redirect, Schemes.Internal, value => value);
+            IAuthenticateAuthorizationCodeCommand command = SecurityCommandFactory.BuildAuthenticateAuthorizationCodeCommand(code, clientId, clientSecret, redirect, onIdTokenResolved, Schemes.Internal, value => value);
             ClaimsPrincipal principal = await _commandBus.PublishAsync<IAuthenticateAuthorizationCodeCommand, ClaimsPrincipal>(command);
             if (principal?.Identity == null || principal.Identity.IsAuthenticated == false)
             {

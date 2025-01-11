@@ -38,7 +38,8 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Security.Logic
                 .ValidateClientId(authorizationState.ClientId, securityRepository, authorizationState.GetType(), nameof(authorizationState.ClientId))
                 .ValidateRedirectUri(authorizationState.RedirectUri, trustedDomainResolver, authorizationState.GetType(), nameof(authorizationState.RedirectUri))
                 .ValidateScopes(authorizationState.Scopes, supportedScopesProvider, authorizationState.GetType(), nameof(authorizationState.Scopes))
-                .ValidateState(authorizationState.ExternalState, authorizationState.GetType(), nameof(authorizationState.ExternalState), true);
+                .ValidateState(authorizationState.ExternalState, authorizationState.GetType(), nameof(authorizationState.ExternalState), true)
+                .ValidateNonce(authorizationState.Nonce, authorizationState.GetType(), nameof(authorizationState.Nonce), true);
         }
 
         #endregion

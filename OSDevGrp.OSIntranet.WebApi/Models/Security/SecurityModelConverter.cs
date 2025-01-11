@@ -33,6 +33,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
                 {
                     opt.Condition(src => string.IsNullOrWhiteSpace(src.AccessToken) == false);
                 })
+                .ForMember(dest => dest.IdToken, opt => opt.Ignore())
                 .ForMember(dest => dest.ExpiresIn, opt => opt.ConvertUsing(_totalSecondsCalculator, src => src.Expires));
 
             mapperConfiguration.CreateMap<JsonWebKeySet, JsonWebKeySetModel>()
@@ -86,7 +87,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
                 .ForMember(dest => dest.RegistrationTermsOfServiceEndpoint, opt => opt.ConvertUsing(_uriToStringConverter, src => src.RegistrationTermsOfServiceEndpoint));
         }
 
-        public class TotalSecondsCalculator : IValueConverter<DateTimeOffset, int>
+        private class TotalSecondsCalculator : IValueConverter<DateTimeOffset, int>
         {
             #region Private variables
 
