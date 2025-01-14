@@ -22,6 +22,7 @@ COPY OSDevGrp.OSIntranet.Mvc/OSDevGrp.OSIntranet.Mvc.csproj ./OSDevGrp.OSIntrane
 COPY OSDevGrp.OSIntranet.Mvc.Tests/OSDevGrp.OSIntranet.Mvc.Tests.csproj ./OSDevGrp.OSIntranet.Mvc.Tests/
 COPY OSDevGrp.OSIntranet.WebApi/OSDevGrp.OSIntranet.WebApi.csproj ./OSDevGrp.OSIntranet.WebApi/
 COPY OSDevGrp.OSIntranet.WebApi.PostBuild/OSDevGrp.OSIntranet.WebApi.PostBuild.csproj ./OSDevGrp.OSIntranet.WebApi.PostBuild/
+COPY OSDevGrp.OSIntranet.WebApi.ClientApi/OSDevGrp.OSIntranet.WebApi.ClientApi.csproj ./OSDevGrp.OSIntranet.WebApi.ClientApi/
 COPY OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.WebApi.Tests/
 RUN dotnet restore
 

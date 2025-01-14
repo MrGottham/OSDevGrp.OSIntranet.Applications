@@ -8,14 +8,14 @@ public static class PostBuildExecutor
 {
     #region Methods
 
-    public static void Execute(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, string webApiVersion, IServiceProvider serviceProvider)
+    public static void Execute(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, string webApiVersion, string generatedCodeNamespace, string generatedCodeClassName, IServiceProvider serviceProvider)
     {
-        ExecuteAsync(arguments, runningInDockerCalculator, webApiVersion, serviceProvider)
+        ExecuteAsync(arguments, runningInDockerCalculator, webApiVersion, generatedCodeNamespace, generatedCodeClassName, serviceProvider)
             .GetAwaiter()
             .GetResult();
     }
 
-    public static Task ExecuteAsync(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, string webApiVersion, IServiceProvider serviceProvider)
+    public static Task ExecuteAsync(IReadOnlyCollection<string> arguments, Func<bool> runningInDockerCalculator, string webApiVersion, string generatedCodeNamespace, string generatedCodeClassName, IServiceProvider serviceProvider)
     {
         using IServiceScope serviceScope = serviceProvider.CreateScope();
 
@@ -23,7 +23,7 @@ public static class PostBuildExecutor
         ISwaggerProvider swaggerProvider = serviceScope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
         ClientApiCodeGenerator clientApiCodeGenerator = new ClientApiCodeGenerator();
 
-        return ExecuteAsync(PostBuildExecutorContext.Create(arguments, runningInDockerCalculator, swaggerProvider, webApiVersion, logger), clientApiCodeGenerator);
+        return ExecuteAsync(PostBuildExecutorContext.Create(arguments, runningInDockerCalculator, swaggerProvider, webApiVersion, generatedCodeNamespace, generatedCodeClassName, logger, CancellationToken.None), clientApiCodeGenerator);
     }
 
     private static async Task ExecuteAsync(PostBuildExecutorContext context, ClientApiCodeGenerator clientApiCodeGenerator)

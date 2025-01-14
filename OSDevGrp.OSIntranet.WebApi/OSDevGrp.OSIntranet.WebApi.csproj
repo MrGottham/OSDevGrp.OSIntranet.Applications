@@ -42,11 +42,11 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuild">
-    <Exec Command="dotnet &quot;$(TargetDir)$(TargetFileName)&quot; postbuild" />
+    <Exec Command="dotnet &quot;$(TargetDir)$(TargetFileName)&quot; postbuild --solutionDir $(SolutionDir)" />
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet &quot;$(TargetDir)$(TargetFileName)&quot; postbuild" />
+    <Exec Command="dotnet &quot;$(TargetDir)$(TargetFileName)&quot; postbuild --solutionDir $(SolutionDir)" />
   </Target>
 
 </Project>
