@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Extensions;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
@@ -31,17 +32,13 @@ internal class SecurityGateway : ServiceGatewayBase, ISecurityGateway
         {
             return await WebApiClient.TokenAsync("client_credentials", string.Empty, string.Empty, string.Empty, string.Empty, cancellationToken);
         }
-        catch (WebApiClientException<ErrorResponseModel>)
+        catch (WebApiClientException<ErrorResponseModel> ex)
         {
-            // TODO: Find a good way to make exception in the service gates (ServiceGatewayException?)
-            // TODO: Make unit tests.
-            throw new UnauthorizedAccessException();
+            throw ex.ToServiceGatewayException();
         }
         catch (WebApiClientException ex)
         {
-            // TODO: Find a good way to make exception in the service gates (ServiceGatewayException?)
-            // TODO: Make unit tests.
-            throw new UnauthorizedAccessException();
+            throw ex.ToServiceGatewayException();
         }
     }
 

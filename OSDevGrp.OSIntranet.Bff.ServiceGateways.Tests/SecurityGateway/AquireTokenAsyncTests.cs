@@ -3,8 +3,11 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.Extensions;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
+using System.Net;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.SecurityGateway;
 
@@ -13,9 +16,9 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 {
     #region Prviate variables
 
-    private Mock<IWebApiClient> _webApiClientMock;
-    private Mock<IOptions<WebApiOptions>> _webApiOptionsMock;
-    private Fixture _fixture;
+    private Mock<IWebApiClient>? _webApiClientMock;
+    private Mock<IOptions<WebApiOptions>>? _webApiOptionsMock;
+    private Fixture? _fixture;
 
     #endregion
 
@@ -35,7 +38,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiOptionsMock.Verify(m => m.Value, Times.Once);
+        _webApiOptionsMock!.Verify(m => m.Value, Times.Once);
     }
 
     [Test]
@@ -46,7 +49,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
@@ -64,7 +67,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.Is<string?>(value => string.IsNullOrWhiteSpace(value) == false && string.CompareOrdinal(value, "client_credentials") == 0), 
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
@@ -82,7 +85,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.IsAny<string?>(), 
                 It.Is<string?>(value => value != null && string.Compare(value, string.Empty) == 0), 
                 It.IsAny<string?>(), 
@@ -100,7 +103,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.IsAny<string?>(),
                 It.IsAny<string?>(), 
                 It.Is<string?>(value => value != null && string.Compare(value, string.Empty) == 0), 
@@ -118,7 +121,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),  
                 It.IsAny<string?>(), 
@@ -136,7 +139,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
         await sut.AquireTokenAsync();
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
@@ -155,7 +158,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
         CancellationToken cancellationToken = CancellationToken.None;
         await sut.AquireTokenAsync(cancellationToken);
 
-        _webApiClientMock.Verify(m => m.TokenAsync(
+        _webApiClientMock!.Verify(m => m.TokenAsync(
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
                 It.IsAny<string?>(), 
@@ -178,6 +181,30 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
     }
 
     [Test]
+    [Category("UnitTest")]
+    public void AquireTokenAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    {
+        WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
+        ISecurityGateway sut = CreateSut(exception: webApiClientException);
+
+        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.AquireTokenAsync());
+
+        Assert.That(result, Is.Not.Null);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void AquireTokenAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorResponseModel_ThrowsServiceGatewayExceptionBase()
+    {
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorResponseModel());
+        ISecurityGateway sut = CreateSut(exception: webApiClientException);
+
+        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.AquireTokenAsync());
+
+        Assert.That(result, Is.Not.Null);
+    }
+
+    [Test]
     [Category("IntegrationTest")]
     public async Task AquireTokenAsync_WhenCalled_ExpectNoErrors()
     {
@@ -187,12 +214,20 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
         await sut.AquireTokenAsync();
     }
 
-    private ISecurityGateway CreateSut(AccessTokenModel? accessTokenModel = null, WebApiOptions? webApiOptions = null)
+    private ISecurityGateway CreateSut(AccessTokenModel? accessTokenModel = null, WebApiOptions? webApiOptions = null, Exception? exception = null)
     {
-        _webApiClientMock.Setup(m => m.TokenAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(accessTokenModel ?? CreateAccessTokenModel()));
+        if (exception != null)
+        {
+            _webApiClientMock!.Setup(m => m.TokenAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                .Throws(exception);
+        }
+        else
+        {
+            _webApiClientMock!.Setup(m => m.TokenAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(accessTokenModel ?? CreateAccessTokenModel()));
+        }
 
-        _webApiOptionsMock.Setup(m => m.Value)
+        _webApiOptionsMock!.Setup(m => m.Value)
             .Returns(webApiOptions ?? CreateWebApiOptions());
 
         return new ServiceGateways.SecurityGateway(_webApiClientMock.Object, _webApiOptionsMock.Object);

@@ -12,8 +12,8 @@ public class CheckHealthAsyncTests
 {
     #region Prviate variables
 
-    private Mock<IOptions<WebApiOptions>> _webApiOptionsMock;
-    private Fixture _fixture;
+    private Mock<IOptions<WebApiOptions>>? _webApiOptionsMock;
+    private Fixture? _fixture;
 
     #endregion
 
@@ -32,7 +32,7 @@ public class CheckHealthAsyncTests
 
         await sut.CheckHealthAsync(CreateHealthCheckContext(), CancellationToken.None);
 
-        _webApiOptionsMock.Verify(m => m.Value, Times.Once);
+        _webApiOptionsMock!.Verify(m => m.Value, Times.Once);
     }
 
     [Test]
@@ -251,7 +251,7 @@ public class CheckHealthAsyncTests
 
     private IHealthCheck CreateSut(WebApiOptions? webApiOptions = null)
     {
-        _webApiOptionsMock.Setup(m => m.Value)
+        _webApiOptionsMock!.Setup(m => m.Value)
             .Returns(webApiOptions ?? CreateWebApiOptions());
 
         return new ServiceGateways.Options.WepApiOptionsHealthCheck(_webApiOptionsMock.Object);
