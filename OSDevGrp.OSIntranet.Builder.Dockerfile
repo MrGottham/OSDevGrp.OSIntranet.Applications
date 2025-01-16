@@ -24,6 +24,9 @@ COPY OSDevGrp.OSIntranet.WebApi/OSDevGrp.OSIntranet.WebApi.csproj ./OSDevGrp.OSI
 COPY OSDevGrp.OSIntranet.WebApi.PostBuild/OSDevGrp.OSIntranet.WebApi.PostBuild.csproj ./OSDevGrp.OSIntranet.WebApi.PostBuild/
 COPY OSDevGrp.OSIntranet.WebApi.ClientApi/OSDevGrp.OSIntranet.WebApi.ClientApi.csproj ./OSDevGrp.OSIntranet.WebApi.ClientApi/
 COPY OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.WebApi.Tests/
+COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/
+COPY OSDevGrp.OSIntranet.Bff.ServiceGateways/OSDevGrp.OSIntranet.Bff.ServiceGateways.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways/
+COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/
 RUN dotnet restore
 
 # Copy everything else and build app

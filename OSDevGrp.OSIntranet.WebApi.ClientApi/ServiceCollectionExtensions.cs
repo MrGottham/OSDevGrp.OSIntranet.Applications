@@ -6,13 +6,12 @@ public static class ServiceCollectionExtensions
 {
     #region Methods
 
-    public static IServiceCollection AddWebApiClient(this IServiceCollection serviceCollection, Action<IHttpClientBuilder> buildHttpClient, Action<HttpClient> configureHttpClient)
+    public static IServiceCollection AddWebApiClient(this IServiceCollection serviceCollection, Action<IServiceProvider, HttpClient> configureHttpClient, Action<IHttpClientBuilder> buildHttpClient)
     {
-        IHttpClientBuilder httpClientBuilder = serviceCollection.AddHttpClient<IWebApiClient, WebApiClient>();
+        IHttpClientBuilder httpClientBuilder = serviceCollection.AddHttpClient<IWebApiClient, WebApiClient>(configureHttpClient);
         buildHttpClient(httpClientBuilder);
-        httpClientBuilder.ConfigureHttpClient(configureHttpClient);
 
-        return serviceCollection.AddTransient<IWebApiClient, WebApiClient>();
+        return serviceCollection;
     }
 
     #endregion
