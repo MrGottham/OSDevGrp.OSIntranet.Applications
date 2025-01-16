@@ -1,10 +1,8 @@
 using AutoFixture;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.Exceptions;
-using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.Extensions;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using System.Net;
@@ -17,7 +15,6 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
     #region Prviate variables
 
     private Mock<IWebApiClient>? _webApiClientMock;
-    private Mock<IOptions<WebApiOptions>>? _webApiOptionsMock;
     private Fixture? _fixture;
 
     #endregion
@@ -26,19 +23,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
     public void SetUp()
     {
         _webApiClientMock = new Mock<IWebApiClient>();
-        _webApiOptionsMock = new Mock<IOptions<WebApiOptions>>();
         _fixture = new Fixture();
-    }
-
-    [Test]
-    [Category("UnitTest")]
-    public async Task AquireTokenAsync_WhenCalled_AssertValueWasCalledOnWebApiOptions()
-    {
-        ISecurityGateway sut = CreateSut();
-
-        await sut.AquireTokenAsync();
-
-        _webApiOptionsMock!.Verify(m => m.Value, Times.Once);
     }
 
     [Test]
@@ -211,10 +196,17 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
         await using ServiceGatewayCreator serviceGatewayCreator = new ServiceGatewayCreator(CreateTestConfiguration());
 
         ISecurityGateway sut = serviceGatewayCreator.CreateSecurityGateway();
-        await sut.AquireTokenAsync();
+        try
+        {
+            await sut.AquireTokenAsync();
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail(ex.Message);
+        }
     }
 
-    private ISecurityGateway CreateSut(AccessTokenModel? accessTokenModel = null, WebApiOptions? webApiOptions = null, Exception? exception = null)
+    private ISecurityGateway CreateSut(AccessTokenModel? accessTokenModel = null, Exception? exception = null)
     {
         if (exception != null)
         {
@@ -227,19 +219,7 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
                 .Returns(Task.FromResult(accessTokenModel ?? CreateAccessTokenModel()));
         }
 
-        _webApiOptionsMock!.Setup(m => m.Value)
-            .Returns(webApiOptions ?? CreateWebApiOptions());
-
-        return new ServiceGateways.SecurityGateway(_webApiClientMock.Object, _webApiOptionsMock.Object);
-    }
-
-    private WebApiOptions CreateWebApiOptions(string? clientId = null, string? clientSecret = null)
-    {
-        return new WebApiOptions
-        {
-            ClientId =  clientId ?? _fixture.Create<string>(),
-            ClientSecret = clientSecret ?? _fixture.Create<string>()
-        };
+        return new ServiceGateways.SecurityGateway(_webApiClientMock.Object);
     }
 
     private AccessTokenModel CreateAccessTokenModel()

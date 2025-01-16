@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Handlers;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using System.Reflection;
@@ -12,18 +14,22 @@ public static class ServiceCollectionExtensions
 {
     #region Methods
 
-    public static IServiceCollection AddServiceGateways(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection AddServiceGateways<TSecurityContextProvider>(this IServiceCollection serviceCollection, IConfiguration configuration) where TSecurityContextProvider : class, ISecurityContextProvider 
     {
         serviceCollection.Configure<WebApiOptions>(configuration.GetWebApiSection());
 
+        serviceCollection.AddScoped<ISecurityContextProvider, TSecurityContextProvider>(); 
+
+        serviceCollection.AddTransient<WebApiClientSecurityHandler>();
         serviceCollection.AddWebApiClient(
             (serviceProvider, httpClient) =>
             {
                 IOptions<WebApiOptions> webApiOptions = serviceProvider.GetRequiredService<IOptions<WebApiOptions>>();
                 httpClient.BaseAddress = new Uri(webApiOptions.Value.EndpointAddress ?? throw new Exception($"{nameof(webApiOptions.Value.EndpointAddress)} has not been given in the {webApiOptions.Value.GetType().Name}."), UriKind.Absolute);
             },
-            HttpClientBuilder => 
+            httpClientBuilder => 
             {
+                httpClientBuilder.AddHttpMessageHandler<WebApiClientSecurityHandler>();
             }
         );
 

@@ -1,25 +1,16 @@
-﻿using Microsoft.Extensions.Options;
-using OSDevGrp.OSIntranet.Bff.ServiceGateways.Extensions;
+﻿using OSDevGrp.OSIntranet.Bff.ServiceGateways.Extensions;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
-using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways;
 
 internal class SecurityGateway : ServiceGatewayBase, ISecurityGateway
 {
-    #region Private variables
-
-    private readonly IOptions<WebApiOptions> _webApiOptions;
-
-    #endregion
-
     #region Constructor
 
-    public SecurityGateway(IWebApiClient webApiClient, IOptions<WebApiOptions> webApiOptions)
+    public SecurityGateway(IWebApiClient webApiClient)
         : base(webApiClient)
     {
-        _webApiOptions = webApiOptions;
     }
 
     #endregion

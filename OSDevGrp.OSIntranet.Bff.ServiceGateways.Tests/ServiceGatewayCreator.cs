@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.SecurityContext;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests;
 
@@ -18,7 +19,8 @@ internal class ServiceGatewayCreator : IDisposable, IAsyncDisposable
     public ServiceGatewayCreator(IConfiguration configuration)
     {
         IServiceCollection serviceCollection = new ServiceCollection();
-        serviceCollection.AddServiceGateways(configuration);
+        serviceCollection.AddSingleton(TimeProvider.System);
+        serviceCollection.AddServiceGateways<LocalSecurityContextProvider>(configuration);
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
         _serviceScope = _serviceProvider.CreateScope();
