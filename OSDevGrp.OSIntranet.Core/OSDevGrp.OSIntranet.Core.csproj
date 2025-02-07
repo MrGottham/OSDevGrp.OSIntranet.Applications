@@ -8,24 +8,16 @@
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="DataAnnotationsValidatorNetStandard" Version="1.0.3" />
     <PackageReference Include="MarkdownBuilder" Version="0.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
   </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
 
     <UserSecretsId>D90A43A7-8021-4B7F-924E-BBFC306C544E</UserSecretsId>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageId>OSDevGrp.OSIntranet.Core</PackageId>
-    <Version>1.0.0</Version>
-    <Authors>Ole Sørensen</Authors>
-    <Company>OS Development Group</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

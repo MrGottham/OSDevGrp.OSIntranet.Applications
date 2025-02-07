@@ -38,7 +38,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 {
     public class Startup
     {
-        private const string WebApiVersion = "v1";
+        internal const string WebApiVersion = "v1";
         private const string WebApiName = "OS Development Group Web API";
         private const string WebApiDescription = "Web API supporting OS Intranet by OS Development Group";
         private const string DotnetRunningInContainerEnvironmentVariable = "DOTNET_RUNNING_IN_CONTAINER";
@@ -447,7 +447,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             return supportedScopesProvider.SupportedScopes.ToDictionary(supportedScope => supportedScope.Value.Name, supportedScope => supportedScope.Value.Description);
         }
 
-        private static bool RunningInDocker()
+        internal static bool RunningInDocker()
         {
             return RunningInDocker(Environment.GetEnvironmentVariable(DotnetRunningInContainerEnvironmentVariable));
         }

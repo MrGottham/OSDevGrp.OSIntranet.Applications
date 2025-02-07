@@ -4,12 +4,4 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>OSDevGrp.OSIntranet.Core.Interfaces</PackageId>
-    <Version>1.0.0</Version>
-    <Authors>Ole Sørensen</Authors>
-    <Company>OS Development Group</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
-
 </Project>
