@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
+using System.Runtime.Caching;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.SecurityContext;
 
@@ -11,7 +12,7 @@ internal class LocalSecurityContextProvider : ISecurityContextProvider
 
     private readonly IServiceProvider _serviceProvider;
     private readonly TimeProvider _timeProvider;
-    private ISecurityContext? _securityContext;
+    private readonly MemoryCache _memoryCache = MemoryCache.Default;
 
     #endregion
 
@@ -36,16 +37,22 @@ internal class LocalSecurityContextProvider : ISecurityContextProvider
         await semaphore.WaitAsync();
         try
         {
-            if (_securityContext != null && _securityContext.AccessToken.Expired == false)
+            ISecurityContext? securityContext = _memoryCache.Get(typeof(LocalSecurityContext).FullName) as ISecurityContext;
+            if (securityContext != null && securityContext.AccessToken.Expired == false)
             {
-                return _securityContext;
+                return securityContext;
             }
 
             ISecurityGateway securityGateway = _serviceProvider.GetRequiredService<ISecurityGateway>();
             AccessTokenModel accessTokenModel = await securityGateway.AquireTokenAsync(cancellationToken);
 
             IToken token = new LocalToken(accessTokenModel.Token_type, accessTokenModel.Access_token, _timeProvider.GetUtcNow().AddSeconds(accessTokenModel.Expires_in), _timeProvider);
-            return _securityContext = new LocalSecurityContext(token);
+            securityContext = new LocalSecurityContext(token);
+
+            TimeProvider timeProvider = _serviceProvider.GetRequiredService<TimeProvider>();
+            _memoryCache.Set(typeof(LocalSecurityContext).FullName, securityContext, new CacheItemPolicy {AbsoluteExpiration = timeProvider.GetUtcNow().AddSeconds(accessTokenModel.Expires_in)});
+
+            return securityContext;
         }
         finally
         {

@@ -84,6 +84,20 @@ public class ConfigurationTests : ServiceGatewayTestBase
         Assert.That(result, Is.Not.Empty);
     }
 
+    [Test]
+    [Category("IntegrationTest")]
+    public void Configuration_WhenCalledWithTestDataAccountingExistingAccountingNumber_ReturnsExistingAccountingNumber()
+    {
+        IConfiguration sut = CreateSut();
+
+        string? result = sut["TestData:Accounting:ExistingAccountingNumber"];
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Is.Not.Empty);
+
+        Assert.That(int.Parse(result!), Is.GreaterThan(0));
+    }
+
     private IConfiguration CreateSut()
     {
         return CreateTestConfiguration();

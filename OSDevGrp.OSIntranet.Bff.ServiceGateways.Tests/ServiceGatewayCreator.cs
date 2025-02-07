@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.Options;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.SecurityContext;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests;
@@ -19,6 +21,8 @@ internal class ServiceGatewayCreator : IDisposable, IAsyncDisposable
     public ServiceGatewayCreator(IConfiguration configuration)
     {
         IServiceCollection serviceCollection = new ServiceCollection();
+        serviceCollection.Configure<AccountingTestOptions>(configuration.GetSection("TestData:Accounting"));
+
         serviceCollection.AddSingleton(TimeProvider.System);
         serviceCollection.AddServiceGateways<LocalSecurityContextProvider>(configuration);
 
@@ -40,6 +44,16 @@ internal class ServiceGatewayCreator : IDisposable, IAsyncDisposable
     {
         _serviceScope.Dispose();
         await _serviceProvider.DisposeAsync();
+    }
+
+    public TimeProvider GetTimeProvider()
+    {
+        return _serviceScope.ServiceProvider.GetRequiredService<TimeProvider>();
+    }
+
+    public AccountingTestOptions GetAccountingTestOptions()
+    {
+        return _serviceScope.ServiceProvider.GetRequiredService<IOptions<AccountingTestOptions>>().Value;
     }
 
     public IAccountingGateway CreateAccountingGateway()
