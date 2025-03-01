@@ -3,6 +3,7 @@ using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using System.Runtime.Caching;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.SecurityContext;
 
@@ -46,8 +47,9 @@ internal class LocalSecurityContextProvider : ISecurityContextProvider
             ISecurityGateway securityGateway = _serviceProvider.GetRequiredService<ISecurityGateway>();
             AccessTokenModel accessTokenModel = await securityGateway.AquireTokenAsync(cancellationToken);
 
+            ClaimsPrincipal user = new ClaimsPrincipal(new ClaimsIdentity(Array.Empty<Claim>()));
             IToken token = new LocalToken(accessTokenModel.Token_type, accessTokenModel.Access_token, _timeProvider.GetUtcNow().AddSeconds(accessTokenModel.Expires_in), _timeProvider);
-            securityContext = new LocalSecurityContext(token);
+            securityContext = new LocalSecurityContext(user, token);
 
             TimeProvider timeProvider = _serviceProvider.GetRequiredService<TimeProvider>();
             _memoryCache.Set(typeof(LocalSecurityContext).FullName, securityContext, new CacheItemPolicy {AbsoluteExpiration = timeProvider.GetUtcNow().AddSeconds(accessTokenModel.Expires_in)});

@@ -6,7 +6,7 @@ public abstract class ServiceGatewayTestBase
 {
     #region Methods
 
-    protected IConfiguration CreateTestConfiguration()
+    protected static IConfiguration CreateTestConfiguration()
     {
         return new ConfigurationBuilder()
             .AddUserSecrets<ServiceGatewayTestBase>()

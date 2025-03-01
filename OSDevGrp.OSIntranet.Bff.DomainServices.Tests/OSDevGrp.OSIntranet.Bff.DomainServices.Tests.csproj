@@ -10,6 +10,8 @@
   <ItemGroup>
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces\OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.csproj" />
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Bff.DomainServices\OSDevGrp.OSIntranet.Bff.DomainServices.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces\OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Bff.ServiceGateways\OSDevGrp.OSIntranet.Bff.ServiceGateways.csproj" />
   </ItemGroup>
 
   <ItemGroup>
