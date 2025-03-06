@@ -4,7 +4,9 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeatureCance
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeatureLogging;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeaturePermissionVerifier;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Security;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices;
@@ -13,7 +15,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection serviceCollection)
     {
-        return serviceCollection.AddTransient<IPermissionValidator, PermissionValidator>()
+        return serviceCollection.AddSingleton<IStaticTextProvider, StaticTextProvider>()
+            .AddTransient<IPermissionValidator, PermissionValidator>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);
     }
 
