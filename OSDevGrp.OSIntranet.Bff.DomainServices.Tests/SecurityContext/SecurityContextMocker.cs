@@ -32,9 +32,9 @@ internal static class SecurityContextMocker
         return new ClaimsPrincipal(fixture.CreateNonAuthenticatedClaimsIdentity());
     }
 
-    internal static ClaimsIdentity CreateAuthenticatedClaimsIdentity(this Fixture fixture, params Claim[] extraClaims)
+    internal static ClaimsIdentity CreateAuthenticatedClaimsIdentity(this Fixture fixture, bool hasNameIdentifierClaim = true, bool hasNameIdentifierClaimValue = true, string? nameIdentifierClaimValue = null, bool hasNameClaim = true, bool hasNameClaimValue = true, string? nameClaimValue = null, params Claim[] extraClaims)
     {
-        return new ClaimsIdentity(fixture.CreateClaimCollection(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: true, hasNameClaim: true, hasNameClaimValue: true, extraClaims: extraClaims), fixture.Create<string>());
+        return new ClaimsIdentity(fixture.CreateClaimCollection(hasNameIdentifierClaim: hasNameIdentifierClaim, hasNameIdentifierClaimValue: hasNameIdentifierClaimValue, nameIdentifierClaimValue: nameIdentifierClaimValue, hasNameClaim: hasNameClaim, hasNameClaimValue: hasNameClaimValue, nameClaimValue: nameClaimValue, extraClaims: extraClaims), fixture.Create<string>());
     }
 
     internal static ClaimsIdentity CreateNonAuthenticatedClaimsIdentity(this Fixture _)

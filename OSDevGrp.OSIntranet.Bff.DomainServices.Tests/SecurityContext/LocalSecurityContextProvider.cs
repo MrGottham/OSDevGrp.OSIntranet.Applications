@@ -13,7 +13,7 @@ internal class LocalSecurityContextProvider : ISecurityContextProvider
 
     #region Constructor
 
-    internal LocalSecurityContextProvider()
+    public LocalSecurityContextProvider()
     {
         Fixture fixture = new Fixture();
 
