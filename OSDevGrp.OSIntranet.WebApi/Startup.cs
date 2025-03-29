@@ -76,7 +76,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Cookie.SameSite = SameSiteMode.Strict;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Application";
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             });
 
             services.AddAntiforgery(opt =>
@@ -89,7 +89,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
 
             services.AddDataProtection()
-                .SetApplicationName("OSDevGrp.OSIntranet.WebApi")
+                .SetApplicationName(GetType().Namespace)
                 .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
@@ -123,7 +123,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{GetInternalScheme()}";
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddMicrosoftAccount(opt =>
             {
@@ -140,7 +140,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Scope.Add("Contacts.ReadWrite");
                 opt.Scope.Add("offline_access");
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddGoogle(opt =>
             {
@@ -157,7 +157,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Scope.Add("profile");
                 opt.Scope.Add("email");
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.WebApi");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddJwtBearer(opt =>
             {

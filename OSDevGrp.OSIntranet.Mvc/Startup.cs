@@ -72,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Cookie.SameSite = SameSiteMode.Strict;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Application";
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             });
 
             services.AddAntiforgery(opt =>
@@ -85,7 +85,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             });
 
             services.AddDataProtection()
-                .SetApplicationName("OSDevGrp.OSIntranet.Mvc")
+                .SetApplicationName(GetType().Namespace)
                 .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
@@ -116,7 +116,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{Schemes.Internal}";
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddCookie(Schemes.External, opt =>
             {
@@ -127,7 +127,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{Schemes.External}";
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddOpenIdConnect(opt =>
             {
@@ -158,7 +158,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                     ITokenHelperFactory tokenHelperFactory = context.HttpContext.RequestServices.GetRequiredService<ITokenHelperFactory>();
                     await tokenHelperFactory.StoreExternalTokensInSecurityToken(context.HttpContext, context.SecurityToken);
                 };
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddMicrosoftAccount(opt =>
             {
@@ -176,7 +176,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.Scope.Add("Contacts.ReadWrite");
                 opt.Scope.Add("offline_access");
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             })
             .AddGoogle(opt =>
             {
@@ -189,7 +189,7 @@ namespace OSDevGrp.OSIntranet.Mvc
                 opt.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.CorrelationCookie.Name = $"{GetType().Namespace}.Authentication.{GoogleDefaults.AuthenticationScheme}";
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-                opt.DataProtectionProvider = DataProtectionProvider.Create("OSDevGrp.OSIntranet.Mvc");
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
             });
             services.AddAuthorization(opt =>
             {
