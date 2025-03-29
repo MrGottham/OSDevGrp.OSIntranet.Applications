@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
 
   builder:
@@ -21,7 +19,7 @@ services:
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-        nonPassword: ${nonPassword}
+        nonRootPassword: ${nonRootPassword}
         sshPassword: ${sshPasswordExecutor}
     restart: "no"
 
@@ -40,6 +38,7 @@ services:
       - "80:80"
       - "443:443"
       - "8443:8443"
+      - "8445:8445"
     restart: always
 
   mvc:
@@ -52,8 +51,8 @@ services:
       - SUDO_ASKPASS=/usr/local/bin/askpw
       - connectionStrings__OSIntranet=${connectionStringsMvc}
       - Security__OIDC__Authority=${securityOidcAuthority}
-      - Security__OIDC__ClientId=${securityOidcClientId}
-      - Security__OIDC__ClientSecret=${securityOidcClientSecret}
+      - Security__OIDC__ClientId=${securityOidcClientIdMvc}
+      - Security__OIDC__ClientSecret=${securityOidcClientSecretMvc}
       - Security__Microsoft__ClientId=${securityMicrosoftClientId}
       - Security__Microsoft__ClientSecret=${securityMicrosoftClientSecret}
       - Security__Microsoft__Tenant=${securityMicrosoftTenant}
@@ -111,6 +110,33 @@ services:
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile
+      args:
+        appUserGroup: ${appUserGroup}
+        nonRootUser: ${nonRootUser}
+      cache_from:
+        - builder-osintranet
+        - executor-osintranet
+    expose:
+      - "8080"
+      - "2222"
+    restart: always
+
+  bff:
+    image: bff-osintranet
+    environment: 
+      - TZ=Europe/Copenhagen
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ASPNETCORE_HTTP_PORTS=8080
+      - NON_ROOT_USER=${nonRootUser}
+      - SUDO_ASKPASS=/usr/local/bin/askpw
+      - ServiceGateways__WebApi__EndpointAddress=${serviceGatewaysWebApiEndpointAddress}
+      - ServiceGateways__WebApi__ClientId=${securityOidcClientIdBff}
+      - ServiceGateways__WebApi__ClientSecret=${securityOidcClientSecretBff}
+    depends_on:
+      - executor
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.Bff.WebApi.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}

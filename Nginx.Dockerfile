@@ -13,4 +13,4 @@ COPY Nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=certificatebuilder /certificate/localhost.crt /etc/ssl/certs/localhost.crt
 COPY --from=certificatebuilder /certificate/localhost.key /etc/ssl/private/localhost.key
 
-EXPOSE 80 443 8443
+EXPOSE 80 443 8443 8445
