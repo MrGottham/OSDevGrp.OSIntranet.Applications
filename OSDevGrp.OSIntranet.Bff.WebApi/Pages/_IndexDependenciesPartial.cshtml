@@ -1,3 +1,20 @@
-@model IndexPageModel
-@using OSDevGrp.OSIntranet.Bff.WebApi.Models
+@model IEnumerable<DependencyHealthResultModel>
+@using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local
 <p><strong><u>Dependencies:</u></strong></p>
+@foreach (DependencyHealthResultModel dependencyHealthResultModel in Model)
+{
+    <p>
+        @if (dependencyHealthResultModel.IsHealthy)
+        {
+            <span class="text-success">
+                <i class="fa-regular fa-circle-check"></i>&nbsp;@dependencyHealthResultModel.Description
+            </span>
+        }
+        else
+        {
+            <span class="text-danger">
+                <i class="fa-regular fa-circle-xmark"></i>&nbsp;@dependencyHealthResultModel.Description
+            </span>
+        }
+    </p>
+}

@@ -11,7 +11,7 @@
             @await Html.PartialAsync("_IndexInformationPartial", Model)
         </div>
         <div class="col-md-5 col-lg-4 col-xl-3 col-xxl-3">
-            @await Html.PartialAsync("_IndexDependenciesPartial", Model)
+            @await Html.PartialAsync("_IndexDependenciesPartial", Model.Dependencies)
         </div>
     </div>
 </div>
@@ -23,7 +23,7 @@
     </div>
     <div class="row">
         <div class="col-12">
-            @await Html.PartialAsync("_IndexDependenciesPartial", Model)
+            @await Html.PartialAsync("_IndexDependenciesPartial", Model.Dependencies)
         </div>
     </div>
 </div>
