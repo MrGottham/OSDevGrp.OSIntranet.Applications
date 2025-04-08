@@ -9,6 +9,26 @@ services:
       dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile
     restart: "no"
 
+  certificatebuilder:
+    image: certificatebuilder-osintranet
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.CertificateBuilder.Dockerfile
+      args:
+        certificateCommonName: ${certificateCommonName}
+        certificateCountryName: ${certificateCountryName}
+        certificateStateOrProvinceName: ${certificateStateOrProvinceName}
+        certificateLocalityName: ${certificateLocalityName}
+        certificateOrganizationName: ${certificateOrganizationName}
+        certificateOrganizationalUnitName: ${certificateOrganizationalUnitName}
+        certificateDns1: ${certificateDns1}
+        certificateDns2: ${certificateDns2}
+        certificateDns3: ${certificateDns3}
+        certificateDns4: ${certificateDns4}
+        certificateDns5: ${certificateDns5}
+        certificatePassword: ${certificatePassword}
+    restart: "no"
+
   executor:
     image: executor-osintranet
     depends_on:
@@ -26,14 +46,15 @@ services:
   reverseproxy:
     image: reverseproxy-osintranet
     depends_on:
+      - certificatebuilder
       - mvc
       - webapi
+      - bff
     build:
       context: .
       dockerfile: Nginx.Dockerfile
       args:
-        certificateSubject: /C=DK/ST=/L=Copenhagen/O=OS Development Group/OU=/CN=localhost
-        certificatePassword: MjRiZmUzMjItZDExMi00NzcwLTg2ZGEtMGY1ZDdjMGQ0ZDAz
+        certificateCommonName: ${certificateCommonName}
     ports:
       - "80:80"
       - "443:443"
