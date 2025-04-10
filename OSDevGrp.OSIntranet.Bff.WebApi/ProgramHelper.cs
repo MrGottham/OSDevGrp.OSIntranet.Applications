@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using OSDevGrp.OSIntranet.Bff.WebApi.Security;
+
 namespace OSDevGrp.OSIntranet.Bff.WebApi;
 
 internal static class ProgramHelper
@@ -20,20 +23,21 @@ internal static class ProgramHelper
         return result;
     }
 
-    internal static string GetTitle()
-    {
-        return "OS Development Group Backend For Frontend API";
-    }
+    internal static string GetConsentCookieName() => $"{GetNamespace()}.Consent";
 
-    internal static string GetDescription()
-    {
-        return "Web API supporting frontend applications for OS Development Group.";
-    }
+    internal static string GetApplicationCookieName() => $"{GetNamespace()}.Application";
 
-    internal static string GetOpenApiDocumentName()
-    {
-        return "swagger";
-    }
+    internal static string GetAntiforgeryCookieName() => $"{GetNamespace()}.Antiforgery";
+
+    internal static string GetInternalAuthenticationCookieName() => $"{GetNamespace()}.Authentication.{Schemes.Internal}";
+
+    internal static string GetOpenIdConnectAuthenticationCookieName() => $"{ProgramHelper.GetNamespace()}.Authentication.{OpenIdConnectDefaults.AuthenticationScheme}";
+
+    internal static string GetTitle() => "OS Development Group Backend For Frontend API";
+
+    internal static string GetDescription() => "Web API supporting frontend applications for OS Development Group.";
+
+    internal static string GetOpenApiDocumentName() => "swagger";
 
     internal static Uri? GetOpenApiDocumentUrl(IHostEnvironment environment)
     {
@@ -58,6 +62,14 @@ internal static class ProgramHelper
         }
         return result;
     }
+
+    internal static string GetReturnUrlParameter() => "returnUrl";
+
+    internal static string GetLoginPath() => "/api/security/login";
+
+    internal static string GetLogoutPath() => "/api/security/logout";
+
+    internal static string GetAccessDeniedPath() => "/api/security/accessdenied";
 
     #endregion
 }

@@ -51,7 +51,7 @@ internal class WepApiOptionsHealthCheck : IHealthCheck
             }
 
             return new HealthCheckResult(HealthStatus.Healthy);
-        });
+        }, cancellationToken);
     }
 
     #endregion

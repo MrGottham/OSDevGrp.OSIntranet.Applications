@@ -34,6 +34,21 @@ internal class ProblemDetailsFactory : IProblemDetailsFactory
         return ToProblemDetails(httpRequest);
     }
 
+    public ProblemDetails CreateProblemDetailsForBadRequest(HttpRequest httpRequest, string detail)
+    {
+        return ToProblemDetails(httpRequest, HttpStatusCode.BadRequest, "Bad Request", detail);
+    }
+
+    public ProblemDetails CreateProblemDetailsForUnauthorized(HttpRequest httpRequest)
+    {
+        return ToProblemDetails(httpRequest, HttpStatusCode.Unauthorized, "Unauthorized", "You are not authorized to perform the requested operation.");
+    }
+
+    public ProblemDetails CreateProblemDetailsForInternalServerError(HttpRequest httpRequest)
+    {
+        return ToProblemDetails(httpRequest, HttpStatusCode.InternalServerError, "Internal Server Error", "An internal server error occurred while processing your request.");
+    }
+
     private static ProblemDetails ToProblemDetails(HttpRequest httpRequest)
     {
         return ToProblemDetails(httpRequest, HttpStatusCode.InternalServerError, "Internal Server Error", "An internal server error occurred while processing your request.");

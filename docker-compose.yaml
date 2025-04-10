@@ -150,6 +150,10 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - NON_ROOT_USER=${nonRootUser}
       - SUDO_ASKPASS=/usr/local/bin/askpw
+      - Security__OIDC__Authority=${securityOidcAuthority}
+      - Security__OIDC__ClientId=${securityOidcClientIdBff}
+      - Security__OIDC__ClientSecret=${securityOidcClientSecretBff}
+      - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
       - ServiceGateways__WebApi__EndpointAddress=${serviceGatewaysWebApiEndpointAddress}
       - ServiceGateways__WebApi__ClientId=${securityOidcClientIdBff}
       - ServiceGateways__WebApi__ClientSecret=${securityOidcClientSecretBff}

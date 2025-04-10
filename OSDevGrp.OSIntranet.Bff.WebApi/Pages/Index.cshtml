@@ -1,14 +1,11 @@
 ﻿@page
 @model IndexPageModel
 @using OSDevGrp.OSIntranet.Bff.WebApi.Models
-<div class="row">
-    <div class="col-12">
-    </div>
-</div>
 <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block">
     <div class="row">
         <div class="col-md-7 col-lg-8 col-xl-9 col-xxl-9">
             @await Html.PartialAsync("_IndexInformationPartial", Model)
+            @await Html.PartialAsync("_IndexActionsPartial", Model)
         </div>
         <div class="col-md-5 col-lg-4 col-xl-3 col-xxl-3">
             @await Html.PartialAsync("_IndexDependenciesPartial", Model.Dependencies)
@@ -19,6 +16,7 @@
     <div class="row">
         <div class="col-12">
             @await Html.PartialAsync("_IndexInformationPartial", Model)
+            @await Html.PartialAsync("_IndexActionsPartial", Model)
         </div>
     </div>
     <div class="row">

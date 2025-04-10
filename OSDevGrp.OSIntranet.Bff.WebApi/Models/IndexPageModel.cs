@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
@@ -5,7 +6,10 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Local.HealthMonito
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
+using OSDevGrp.OSIntranet.Bff.WebApi.Options;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
+using System.Security.Claims;
+using System.Web;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Models;
 
@@ -14,6 +18,7 @@ public class IndexPageModel : PageModel
     #region Private variables
 
     private readonly IWebHostEnvironment _environment;
+    private readonly IOptions<OpenIdConnectOptions> _openIdConnectOptions;
     private readonly IOptions<WebApiOptions> _webApiOptions;
     private IQueryFeature<HealthMonitorRequest, HealthMonitorResponse> _healthMonitorQueryFeature;
     private string? _title;
@@ -24,9 +29,10 @@ public class IndexPageModel : PageModel
 
     #region Constructor
 
-    public IndexPageModel(IWebHostEnvironment environment, IOptions<WebApiOptions> webApiOptions, IQueryFeature<HealthMonitorRequest, HealthMonitorResponse> healthMonitorQueryFeature)
+    public IndexPageModel(IWebHostEnvironment environment, IOptions<OpenIdConnectOptions> openIdConnectOptions, IOptions<WebApiOptions> webApiOptions, IQueryFeature<HealthMonitorRequest, HealthMonitorResponse> healthMonitorQueryFeature)
     {
         _environment = environment;
+        _openIdConnectOptions = openIdConnectOptions;
         _webApiOptions = webApiOptions;
         _healthMonitorQueryFeature = healthMonitorQueryFeature;
     }
@@ -43,6 +49,12 @@ public class IndexPageModel : PageModel
 
     public string? OpenApiDocumentName { get; private set; }
 
+    public ClaimsIdentity? AuthenticatedUser => GetAuthenticatedUser();
+
+    public bool AuthenticationEnabled { get; private set; }
+
+    public Uri? ReturnUrl { get; private set; }
+
     public IEnumerable<DependencyHealthResultModel> Dependencies => _dependencies ?? throw new InvalidOperationException($"{nameof(Dependencies)} has not been set.");
 
     #endregion
@@ -57,15 +69,33 @@ public class IndexPageModel : PageModel
         OpenApiDocumentUrl = ProgramHelper.GetOpenApiDocumentUrl(_environment);
         OpenApiDocumentName = OpenApiDocumentUrl != null ? ProgramHelper.GetOpenApiDocumentName() : null;
 
-        _dependencies = await GetDependenciesHealthAsync(_webApiOptions.Value, cancellationToken);
+        AuthenticationEnabled = _environment.IsDevelopment();
+        if (AuthenticationEnabled)
+        {
+            ReturnUrl = new Uri(HttpUtility.UrlDecode(HttpContext.Request.GetEncodedUrl()), UriKind.Absolute);
+        }
+
+        _dependencies = await GetDependenciesHealthAsync(_openIdConnectOptions.Value, _webApiOptions.Value, cancellationToken);
 
         return Page();
     }
 
-    private async Task<IEnumerable<DependencyHealthResultModel>> GetDependenciesHealthAsync(WebApiOptions webApiOptions, CancellationToken cancellationToken)
+    private ClaimsIdentity? GetAuthenticatedUser()
+    {
+        ClaimsIdentity? claimsIdentity = HttpContext.User.Identity as ClaimsIdentity;
+        if (claimsIdentity == null || claimsIdentity.IsAuthenticated == false)
+        {
+            return null;
+        }
+
+        return claimsIdentity;
+    }
+
+    private async Task<IEnumerable<DependencyHealthResultModel>> GetDependenciesHealthAsync(OpenIdConnectOptions openIdConnectOptions, WebApiOptions webApiOptions, CancellationToken cancellationToken)
     {
         DependencyHealthModel[] dependencies =
         [
+            new DependencyHealthModel("OpenID Connect Authority", new Uri($"{openIdConnectOptions.AsAuthorityUrl().AbsoluteUri}health", UriKind.Absolute)),
             new DependencyHealthModel("OS Development Group Web API", new Uri($"{webApiOptions.AsEndpointAddressUrl().AbsoluteUri}health", UriKind.Absolute))
         ];
 

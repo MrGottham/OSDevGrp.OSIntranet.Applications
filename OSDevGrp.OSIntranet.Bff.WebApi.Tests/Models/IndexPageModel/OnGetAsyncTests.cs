@@ -1,5 +1,6 @@
 using AutoFixture;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
@@ -9,6 +10,9 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Local.HealthMonito
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
+using OSDevGrp.OSIntranet.Bff.WebApi.Options;
+using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Models.IndexPageModel;
 
@@ -18,6 +22,7 @@ public class OnGetAsyncTests
     #region Private variables
 
     private Mock<IWebHostEnvironment>? _webHostEnvironmentMock;
+    private Mock<IOptions<OpenIdConnectOptions>>? _openIdConnectOptionsMock;
     private Mock<IOptions<WebApiOptions>>? _webApiOptionsMock;
     private Mock<IQueryFeature<HealthMonitorRequest, HealthMonitorResponse>>? _healthMonitorQueryFeatureMock;
     private Fixture? _fixture;
@@ -28,6 +33,7 @@ public class OnGetAsyncTests
     public void SetUp()
     {
         _webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
+        _openIdConnectOptionsMock = new Mock<IOptions<OpenIdConnectOptions>>();
         _webApiOptionsMock = new Mock<IOptions<WebApiOptions>>();
         _healthMonitorQueryFeatureMock = new Mock<IQueryFeature<HealthMonitorRequest, HealthMonitorResponse>>();
         _fixture = new Fixture();
@@ -37,14 +43,28 @@ public class OnGetAsyncTests
     [Category("UnitTest")]
     [TestCase(true)]
     [TestCase(false)]
-    public async Task OnGetAsync_WhenCalled_AssertEnvironmentNameWasCalledOnWebHostEnvironment(bool isDevelopment)
+    public async Task OnGetAsync_WhenCalled_AssertEnvironmentNameWasCalledTwiceOnWebHostEnvironment(bool isDevelopment)
     {
         WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment);
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         await sut.OnGetAsync(cancellationTokenSource.Token);
 
-        _webHostEnvironmentMock!.Verify(m => m.EnvironmentName, Times.Once);
+        _webHostEnvironmentMock!.Verify(m => m.EnvironmentName, Times.Exactly(2));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenCalled_AssertValueWasCalledOnOpenIdConnectOptions(bool isDevelopment)
+    {
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        _openIdConnectOptionsMock!.Verify(m => m.Value, Times.Once);
     }
 
     [Test]
@@ -141,7 +161,106 @@ public class OnGetAsyncTests
     [Category("UnitTest")]
     [TestCase(true)]
     [TestCase(false)]
-    public async Task OnGetAsync_WhenCalled_AssertExecuteAsyncWasCalledOnHealthMonitorQueryFeatureWithHealthMonitorRequestWhereDependenciesContainsOneDependency(bool isDevelopment)
+    public async Task OnGetAsync_WhenUserInHttpContextHasNoIdentity_AsserAuthenticatedUserIsNotInitialized(bool isDevelopment)
+    {
+        ClaimsPrincipal user = _fixture!.CreateNonAuthenticatedClaimsPrincipal(hasClaimsIdentity: false);
+        HttpContext httpContext = CreateHttpContext(user: user);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, httpContext: httpContext);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.AuthenticatedUser, Is.Null);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenUserInHttpContextHasNonAuthenticatedIdentity_AsserAuthenticatedUserIsNotInitialized(bool isDevelopment)
+    {
+        ClaimsPrincipal user = _fixture!.CreateNonAuthenticatedClaimsPrincipal(hasClaimsIdentity: true);
+        HttpContext httpContext = CreateHttpContext(user: user);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, httpContext: httpContext);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.AuthenticatedUser, Is.Null);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenUserInHttpContextHasAuthenticatedIdentity_AsserAuthenticatedUserIsInitializedWithIdentityFromUserInHttpContext(bool isDevelopment)
+    {
+        ClaimsIdentity claimsIdentity = _fixture!.CreateAuthenticatedClaimsIdentity();
+        ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal(claimsIdentity: claimsIdentity);
+        HttpContext httpContext = CreateHttpContext(user: user);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, httpContext: httpContext);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.AuthenticatedUser, Is.EqualTo(claimsIdentity));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task OnGetAsync_WhenEnviromentIsDevelopment_AssertAuthenticationEnabledIsIntiailizedWithTrue()
+    {
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: true);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.AuthenticationEnabled, Is.True);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task OnGetAsync_WhenEnviromentIsDevelopment_AssertReturnUrlIsIntiailizedWithUrlForHttpRequestFromHttpContext()
+    {
+        Uri requestUri = CreateRequestUri();
+        HttpContext httpContext = CreateHttpContext(requestUri: requestUri);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: true, httpContext: httpContext);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.ReturnUrl, Is.EqualTo(requestUri));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task OnGetAsync_WhenEnviromentIsNotDevelopment_AssertAuthenticationEnabledIsIntiailizedWithFalse()
+    {
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: false);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.AuthenticationEnabled, Is.False);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task OnGetAsync_WhenEnviromentIsNotDevelopment_AssertReturnUrlIsNotIntiailized()
+    {
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: false);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        Assert.That(sut.ReturnUrl, Is.Null);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenCalled_AssertExecuteAsyncWasCalledOnHealthMonitorQueryFeatureWithHealthMonitorRequestWhereDependenciesContainsTwoDependencies(bool isDevelopment)
     {
         WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment);
 
@@ -149,7 +268,163 @@ public class OnGetAsyncTests
         await sut.OnGetAsync(cancellationTokenSource.Token);
 
         _healthMonitorQueryFeatureMock!.Verify(m => m.ExecuteAsync(
-                It.Is<HealthMonitorRequest>(value => value.Dependencies.Count() == 1),
+                It.Is<HealthMonitorRequest>(value => value.Dependencies.Count() == 2),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenAuthorityIsNotSetInOpenIdConnectOptions_ThrowsInvalidOperationException(bool isDevelopment)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: false);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        try
+        {
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await sut.OnGetAsync(cancellationTokenSource.Token);
+
+            Assert.Fail("An InvalidOperationException was expected, but no exception was thrown.");
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenAuthorityIsNotSetInOpenIdConnectOptions_ThrowsInvalidOperationExceptionWhereErrorMessageIsSpecificText(bool isDevelopment)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: false);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        try
+        {
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await sut.OnGetAsync(cancellationTokenSource.Token);
+
+            Assert.Fail("An InvalidOperationException was expected, but no exception was thrown.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Assert.That(ex.Message, Is.EqualTo("The authority '' is not a valid absolute URI."));
+        }
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task OnGetAsync_WhenAuthorityIsNotSetInOpenIdConnectOptions_ThrowsInvalidOperationExceptionWhereInnerExceptionIsNull(bool isDevelopment)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: false);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        try
+        {
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await sut.OnGetAsync(cancellationTokenSource.Token);
+
+            Assert.Fail("An InvalidOperationException was expected, but no exception was thrown.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Assert.That(ex.InnerException, Is.Null);
+        }
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true, "XYZ")]
+    [TestCase(true, "123")]
+    [TestCase(false, "XYZ")]
+    [TestCase(false, "123")]
+    public async Task OnGetAsync_WhenAuthorityIsNoneAbsoluteUriInOpenIdConnectOptions_ThrowsInvalidOperationException(bool isDevelopment, string authority)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: true, authority: authority);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        try
+        {
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await sut.OnGetAsync(cancellationTokenSource.Token);
+
+            Assert.Fail("An InvalidOperationException was expected, but no exception was thrown.");
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true, "XYZ")]
+    [TestCase(true, "123")]
+    [TestCase(false, "XYZ")]
+    [TestCase(false, "123")]
+    public async Task OnGetAsync_WhenAuthorityIsNoneAbsoluteUriInOpenIdConnectOptions_ThrowsInvalidOperationExceptionWhereErrorMessageIsSpecificText(bool isDevelopment, string authority)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: true, authority: authority);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        try
+        {
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await sut.OnGetAsync(cancellationTokenSource.Token);
+
+            Assert.Fail("An InvalidOperationException was expected, but no exception was thrown.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Assert.That(ex.Message, Is.EqualTo($"The authority '{authority}' is not a valid absolute URI."));
+        }
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true, "XYZ")]
+    [TestCase(true, "123")]
+    [TestCase(false, "XYZ")]
+    [TestCase(false, "123")]
+    public async Task OnGetAsync_WhenAuthorityIsNoneAbsoluteUriInOpenIdConnectOptions_ThrowsInvalidOperationExceptionWhereInnerExceptionIsNull(bool isDevelopment, string authority)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: true, authority: authority);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        try
+        {
+            using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            await sut.OnGetAsync(cancellationTokenSource.Token);
+
+            Assert.Fail("An InvalidOperationException was expected, but no exception was thrown.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Assert.That(ex.InnerException, Is.Null);
+        }
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true, "https://api.localhost", "https://api.localhost/health")]
+    [TestCase(true, "https://api.localhost/", "https://api.localhost/health")]
+    [TestCase(false, "https://api.localhost", "https://api.localhost/health")]
+    [TestCase(false, "https://api.localhost/", "https://api.localhost/health")]
+    public async Task OnGetAsync_WhenAuthorityIsAbsoluteUriInInOpenIdConnectOptions_AssertExecuteAsyncWasCalledOnHealthMonitorQueryFeatureWithHealthMonitorRequestWhereDependenciesContainsDependencyforOpenIdConnect(bool isDevelopment, string authority, string expectedHealthEndpointAddress)
+    {
+        OpenIdConnectOptions openIdConnectOptions = CreateOpenIdConnectOptions(hasAuthority: true, authority: authority);
+        WebApi.Models.IndexPageModel sut = CreateSut(isDevelopment: isDevelopment, openIdConnectOptions: openIdConnectOptions);
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.OnGetAsync(cancellationTokenSource.Token);
+
+        _healthMonitorQueryFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<HealthMonitorRequest>(value => value.Dependencies.SingleOrDefault(dependency => dependency.Description == "OpenID Connect Authority"  && dependency.HealthEndpoint.AbsoluteUri == expectedHealthEndpointAddress) != null),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -372,10 +647,13 @@ public class OnGetAsyncTests
         Assert.That(result, Is.TypeOf<PageResult>());
     }
 
-    private WebApi.Models.IndexPageModel CreateSut(bool isDevelopment = true, WebApiOptions? webApiOptions = null, HealthMonitorResponse? healthMonitorResponse = null)
+    private WebApi.Models.IndexPageModel CreateSut(bool isDevelopment = true, OpenIdConnectOptions? openIdConnectOptions = null, WebApiOptions? webApiOptions = null, HttpContext? httpContext = null, HealthMonitorResponse? healthMonitorResponse = null)
     {
         _webHostEnvironmentMock!.Setup(m => m.EnvironmentName)
             .Returns(isDevelopment ? "Development" : "Production");
+
+        _openIdConnectOptionsMock!.Setup(m => m.Value)
+            .Returns(openIdConnectOptions ?? CreateOpenIdConnectOptions());
 
         _webApiOptionsMock!.Setup(m => m.Value)
             .Returns(webApiOptions ?? CreateWebApiOptions());
@@ -383,7 +661,21 @@ public class OnGetAsyncTests
         _healthMonitorQueryFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<HealthMonitorRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(healthMonitorResponse ?? CreateHealthMonitorResponse()));
 
-        return new WebApi.Models.IndexPageModel(_webHostEnvironmentMock!.Object, _webApiOptionsMock!.Object, _healthMonitorQueryFeatureMock.Object);
+        return new WebApi.Models.IndexPageModel(_webHostEnvironmentMock!.Object, _openIdConnectOptionsMock.Object, _webApiOptionsMock!.Object, _healthMonitorQueryFeatureMock.Object)
+        {
+            PageContext = new PageContext
+            {
+                HttpContext = httpContext ?? CreateHttpContext()
+            }
+        };
+    }
+
+    private OpenIdConnectOptions CreateOpenIdConnectOptions(bool hasAuthority = true, string? authority = null)
+    {
+        return new OpenIdConnectOptions
+        {
+            Authority = hasAuthority ? authority ?? CreateEndpointAddress() : null
+        };
     }
 
     private WebApiOptions CreateWebApiOptions(bool hasEndpointAddress = true, string? endpointAddress = null)
@@ -397,6 +689,29 @@ public class OnGetAsyncTests
     private string CreateEndpointAddress()
     {
         return $"https://{_fixture!.Create<string>()}.local";
+    }
+
+    private HttpContext CreateHttpContext(Uri? requestUri = null, ClaimsPrincipal? user = null)
+    {
+        requestUri ??= CreateRequestUri();
+
+        return new DefaultHttpContext
+        {
+            Request =
+            {
+                Scheme = requestUri.Scheme,
+                Host = HostString.FromUriComponent(requestUri),
+                PathBase = PathString.Empty,
+                Path = PathString.FromUriComponent(requestUri),
+                QueryString = QueryString.FromUriComponent(requestUri)
+            },
+            User = user ?? _fixture!.CreateAuthenticatedClaimsPrincipal()
+        };
+    }
+
+    private Uri CreateRequestUri()
+    {
+        return new Uri($"https://{_fixture!.Create<string>()}.local/{_fixture!.Create<string>()}", UriKind.Absolute);
     }
 
     private HealthMonitorResponse CreateHealthMonitorResponse(IEnumerable<DependencyHealthResultModel>? dependencies = null)
