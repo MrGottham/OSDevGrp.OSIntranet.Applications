@@ -39,7 +39,7 @@ public class GetStaticTextAsyncTests
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
         string result = await sut.GetStaticTextAsync(staticTextKey, arguments, formatProvider);
 
-        Assert.That(result, Is.EqualTo(string.Format(expectedStaticText, arguments, formatProvider)));
+        Assert.That(result, Is.EqualTo(string.Format(formatProvider, expectedStaticText, arguments.ToArray())));
     }
 
     [Test]

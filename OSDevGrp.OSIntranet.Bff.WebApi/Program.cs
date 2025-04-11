@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.SchemaValidation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Options;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
+using System.Globalization;
 using System.Security.Claims;
 
 WebApplicationBuilder applicationBuilder = WebApplication.CreateBuilder(args);
@@ -182,6 +183,7 @@ applicationBuilder.Services.Configure<OSDevGrp.OSIntranet.Bff.WebApi.Options.Ope
     .AddScoped<IProblemDetailsFactory, ProblemDetailsFactory>()
     .AddScoped<ISchemaValidator, SchemaValidator>()
     .AddSingleton(TimeProvider.System)
+    .AddSingleton<IFormatProvider>(_ => new CultureInfo("da-DK", false))
     .AddSingleton<ITokenKeyGenerator, TokenKeyGenerator>()
     .Configure<TokenKeyProviderOptions>(_ => { })
     .AddSingleton<ITokenKeyProvider, TokenKeyProvider>()

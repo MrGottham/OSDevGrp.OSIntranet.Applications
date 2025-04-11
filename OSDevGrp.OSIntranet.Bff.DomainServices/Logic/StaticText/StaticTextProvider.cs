@@ -24,7 +24,7 @@ internal class StaticTextProvider : IStaticTextProvider
             throw new ArgumentOutOfRangeException(nameof(staticTextKey), staticTextKey, $"The static text key {staticTextKey} is not supported.");
         }
 
-        return Task.FromResult(string.Format(formatProvider, staticText, arguments));
+        return Task.FromResult(string.Format(formatProvider, staticText, arguments.ToArray()));
     }
 
     private static IReadOnlyDictionary<StaticTextKey, string> GenerateStaticTexts()
