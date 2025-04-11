@@ -8,7 +8,7 @@ using System.Net;
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.Extensions.WebApiClientExceptionExtensions;
 
 [TestFixture]
-[Category("UnitTests")]
+[Category("UnitTest")]
 public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
 {
     #region Private constants
