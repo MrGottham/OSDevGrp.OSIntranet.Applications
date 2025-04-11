@@ -1,0 +1,55 @@
+@using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
+@using OSDevGrp.OSIntranet.Bff.WebApi
+@using System;
+@inject IBuildInfoProvider buildInfoProvider;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ProgramHelper.GetTitle()</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+        integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
+    @await RenderSectionAsync("Stylesheets", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar bg-body-tertiary">
+            <div class="container">
+                <span class="navbar-brand mb-0 h1">@ProgramHelper.GetTitle()</span>
+            </div>
+        </nav>
+    </header>
+    <main class="flex-shrink-0 pt-3">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+    <footer class="fixed-bottom pt-3 bg-body-tertiary text-muted">
+        <div class="container">
+            @{
+                IBuildInfo buildInfo = buildInfoProvider.GetBuildInfo(typeof(ProgramHelper).Assembly);
+            }
+            <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
+                <p>Build @buildInfo.BuildTime.ToString("yyyyMMddHHmm")</p>
+            </div>
+            <div class="d-none d-sm-none d-md-block d-lg-none d-xl-none">
+                <p>@ProgramHelper.GetTitle() - Build @buildInfo.BuildTime.ToString("yyyyMMddHHmm")</p>
+            </div>
+            <div class="d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                <p>OS Development Group &copy; @buildInfo.BuildTime.Year - @ProgramHelper.GetTitle() - Build @buildInfo.BuildTime.ToString("yyyyMMddHHmm")</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"
+        integrity="sha512-7Pi/otdlbbCR+LnW+F7PwFcSDJOuUJB3OxtEHbg4vSMvzvJjde4Po1v4BR9Gdc9aXNUNFVUY+SK51wWT8WF0Gg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer">
+    </script>
+    <script src="https://kit.fontawesome.com/b877ebd397.js" crossorigin="anonymous"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

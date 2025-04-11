@@ -1,0 +1,8 @@
+@model IndexPageModel
+@using OSDevGrp.OSIntranet.Bff.WebApi.Models
+<p><strong>Welcome to @Model.Title</strong></p>
+<p>@Model.Description</p>
+@if (Model.OpenApiDocumentUrl != null && string.IsNullOrWhiteSpace(Model.OpenApiDocumentName) == false)
+{
+    <p>OpenAPI Specifcation: <a href="@Model.OpenApiDocumentUrl">@Model.OpenApiDocumentName</a></p>
+}

@@ -1,0 +1,21 @@
+@model IndexPageModel
+@using OSDevGrp.OSIntranet.Bff.WebApi.Models
+@if (Model.AuthenticationEnabled && Model.ReturnUrl != null)
+{
+    <hr />
+    @if (Model.AuthenticatedUser != null && string.IsNullOrWhiteSpace(Model.AuthenticatedUser.Name) == false)
+    {
+        <p>Welcome @Model.AuthenticatedUser.Name</p>
+        <hr />
+    }
+    <div class="btn-group" role="group">
+        @if (Model.AuthenticatedUser == null)
+        {
+            @Html.ActionLink("Login", "Login", "Security", new { returnUrl = Model.ReturnUrl }, new { @class = "btn btn-outline-primary" })
+        }
+        else
+        {
+            @Html.ActionLink("Logout", "Logout", "Security", new { returnUrl = Model.ReturnUrl }, new { @class = "btn btn-outline-primary" })
+        }
+    </div>
+}

@@ -11,9 +11,9 @@ ENV LANG=da_DK.UTF-8
 ENV LANGUAGE=da_DK.da
 ENV TZ=Europe/Copenhagen
 
-ARG appUserGroup=[TBD]
-ARG nonRootUser=[TBD]
-ARG nonRootPassword=[TBD]
+ARG appUserGroup
+ARG nonRootUser
+ARG nonRootPassword
 ENV NON_ROOT_USER=${nonRootUser}
 RUN groupadd ${appUserGroup}
 RUN useradd -m -g ${appUserGroup} ${nonRootUser}
@@ -25,7 +25,7 @@ RUN mkdir -p /var/log/supervisor
 RUN chmod g+rwx /var/run && chgrp ${appUserGroup} /var/run
 RUN chmod g+rwx /var/log/supervisor && chgrp ${appUserGroup} /var/log/supervisor
 
-ARG sshPassword=[TBD]
+ARG sshPassword
 RUN mkdir /var/run/sshd
 RUN echo "root:${sshPassword}" | chpasswd
 RUN sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config

@@ -37,9 +37,9 @@ namespace OSDevGrp.OSIntranet.Repositories
 					}
 					else
 					{
-						mediaCollection.AddRange(await movieModelHandler.ReadAsync(movieModel => movieModel.CoreData.Title.StartsWith(titleFilter) || (movieModel.CoreData.Subtitle != null && movieModel.CoreData.Subtitle.StartsWith(titleFilter))));
-						mediaCollection.AddRange(await musicModelHandler.ReadAsync(musicModel => musicModel.CoreData.Title.StartsWith(titleFilter) || (musicModel.CoreData.Subtitle != null && musicModel.CoreData.Subtitle.StartsWith(titleFilter))));
-						mediaCollection.AddRange(await bookModelHandler.ReadAsync(bookModel => bookModel.CoreData.Title.StartsWith(titleFilter) || (bookModel.CoreData.Subtitle != null && bookModel.CoreData.Subtitle.StartsWith(titleFilter))));
+						mediaCollection.AddRange(await movieModelHandler.ReadAsync(movieModel => movieModel.CoreData.Title.Contains(titleFilter) || (movieModel.CoreData.Subtitle != null && movieModel.CoreData.Subtitle.Contains(titleFilter))));
+						mediaCollection.AddRange(await musicModelHandler.ReadAsync(musicModel => musicModel.CoreData.Title.Contains(titleFilter) || (musicModel.CoreData.Subtitle != null && musicModel.CoreData.Subtitle.Contains(titleFilter))));
+						mediaCollection.AddRange(await bookModelHandler.ReadAsync(bookModel => bookModel.CoreData.Title.Contains(titleFilter) || (bookModel.CoreData.Subtitle != null && bookModel.CoreData.Subtitle.Contains(titleFilter))));
 					}
 
 					HashSet<IMedia> mediaHashSet = new HashSet<IMedia>(mediaCollection);
@@ -61,7 +61,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 						IEnumerable<IMovie> movies = string.IsNullOrWhiteSpace(titleFilter)
 							? await handler.ReadAsync()
-							: await handler.ReadAsync(movieModel => movieModel.CoreData.Title.StartsWith(titleFilter) || (movieModel.CoreData.Subtitle != null && movieModel.CoreData.Subtitle.StartsWith(titleFilter)));
+							: await handler.ReadAsync(movieModel => movieModel.CoreData.Title.Contains(titleFilter) || (movieModel.CoreData.Subtitle != null && movieModel.CoreData.Subtitle.Contains(titleFilter)));
 
 						return movies.OfType<TMedia>().ToArray();
 					}
@@ -72,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 						IEnumerable<IMusic> music = string.IsNullOrWhiteSpace(titleFilter)
 							? await handler.ReadAsync()
-							: await handler.ReadAsync(musicModel => musicModel.CoreData.Title.StartsWith(titleFilter) || (musicModel.CoreData.Subtitle != null && musicModel.CoreData.Subtitle.StartsWith(titleFilter)));
+							: await handler.ReadAsync(musicModel => musicModel.CoreData.Title.Contains(titleFilter) || (musicModel.CoreData.Subtitle != null && musicModel.CoreData.Subtitle.Contains(titleFilter)));
 
 						return music.OfType<TMedia>().ToArray();
 					}
@@ -83,7 +83,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 						IEnumerable<IBook> books = string.IsNullOrWhiteSpace(titleFilter)
 							? await handler.ReadAsync()
-							: await handler.ReadAsync(bookModel => bookModel.CoreData.Title.StartsWith(titleFilter) || (bookModel.CoreData.Subtitle != null && bookModel.CoreData.Subtitle.StartsWith(titleFilter)));
+							: await handler.ReadAsync(bookModel => bookModel.CoreData.Title.Contains(titleFilter) || (bookModel.CoreData.Subtitle != null && bookModel.CoreData.Subtitle.Contains(titleFilter)));
 
 						return books.OfType<TMedia>().ToArray();
 					}
@@ -289,7 +289,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
 			        return string.IsNullOrWhiteSpace(nameFilter)
 				        ? await handler.ReadAsync()
-				        : await handler.ReadAsync(mediaPersonalityModel => (mediaPersonalityModel.GivenName != null && mediaPersonalityModel.GivenName.StartsWith(nameFilter)) || (mediaPersonalityModel.MiddleName != null && mediaPersonalityModel.MiddleName.StartsWith(nameFilter)) || mediaPersonalityModel.Surname.StartsWith(nameFilter));
+				        : await handler.ReadAsync(mediaPersonalityModel => (mediaPersonalityModel.GivenName != null && mediaPersonalityModel.GivenName.Contains(nameFilter)) || (mediaPersonalityModel.MiddleName != null && mediaPersonalityModel.MiddleName.Contains(nameFilter)) || mediaPersonalityModel.Surname.Contains(nameFilter));
 		        },
 		        MethodBase.GetCurrentMethod());
         }
@@ -367,7 +367,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
 					return string.IsNullOrWhiteSpace(fullNameFilter)
 						? await handler.ReadAsync()
-						: await handler.ReadAsync(borrowerModel => borrowerModel.FullName.StartsWith(fullNameFilter));
+						: await handler.ReadAsync(borrowerModel => borrowerModel.FullName.Contains(fullNameFilter));
 				},
 				MethodBase.GetCurrentMethod());
 		}

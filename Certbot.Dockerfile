@@ -3,7 +3,7 @@ RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get install -y openssh-server certbot openssl
 
-ARG sshPassword=[TBD]
+ARG sshPassword
 RUN mkdir /var/run/sshd
 RUN echo "root:${sshPassword}" | chpasswd
 RUN sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config

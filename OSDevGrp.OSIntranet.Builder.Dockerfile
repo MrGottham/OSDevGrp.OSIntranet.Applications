@@ -27,6 +27,11 @@ COPY OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj ./
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways/OSDevGrp.OSIntranet.Bff.ServiceGateways.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/
+COPY OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/
+COPY OSDevGrp.OSIntranet.Bff.DomainServices/OSDevGrp.OSIntranet.Bff.DomainServices.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices/
+COPY OSDevGrp.OSIntranet.Bff.DomainServices.Tests/OSDevGrp.OSIntranet.Bff.DomainServices.Tests.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices.Tests/
+COPY OSDevGrp.OSIntranet.Bff.WebApi/OSDevGrp.OSIntranet.Bff.WebApi.csproj ./OSDevGrp.OSIntranet.Bff.WebApi/
+COPY OSDevGrp.OSIntranet.Bff.WebApi.Tests/OSDevGrp.OSIntranet.Bff.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.Bff.WebApi.Tests/
 RUN dotnet restore
 
 # Copy everything else and build app
@@ -41,4 +46,8 @@ RUN dotnet publish -c Release -o out
 
 # Build the WebApi application
 WORKDIR /src/OSDevGrp.OSIntranet.WebApi
+RUN dotnet publish -c Release -o out
+
+# Build the BFF WebApi application
+WORKDIR /src/OSDevGrp.OSIntranet.Bff.WebApi
 RUN dotnet publish -c Release -o out
