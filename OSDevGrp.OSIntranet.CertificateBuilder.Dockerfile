@@ -22,8 +22,8 @@ RUN sed -i "s/\[certificateDns3\]/${certificateDns3}/g" certificate.conf
 RUN sed -i "s/\[certificateDns4\]/${certificateDns4}/g" certificate.conf
 RUN sed -i "s/\[certificateDns5\]/${certificateDns5}/g" certificate.conf
 
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout localhost.key -out localhost.crt -config certificate.conf -subj "/C=${certificateCountryName}/ST=${certificateStateOrProvinceName}/L=${certificateLocalityName}/O=${certificateOrganizationName}/OU${certificateOrganizationalUnitName}=/CN=localhost" -passin pass:${certificatePassword}
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout localhost.key -out localhost.crt -config certificate.conf -subj "/C=${certificateCountryName}/ST=${certificateStateOrProvinceName}/L=${certificateLocalityName}/O=${certificateOrganizationName}/OU=${certificateOrganizationalUnitName}/CN=localhost" -passin pass:${certificatePassword}
 RUN openssl pkcs12 -export -out localhost.pfx -inkey localhost.key -in localhost.crt -password pass:${certificatePassword}
 
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout ${certificateCommonName}.key -out ${certificateCommonName}.crt -config certificate.conf -subj "/C=${certificateCountryName}/ST=${certificateStateOrProvinceName}/L=${certificateLocalityName}/O=${certificateOrganizationName}/OU${certificateOrganizationalUnitName}=/CN=${certificateCommonName}" -passin pass:${certificatePassword}
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout ${certificateCommonName}.key -out ${certificateCommonName}.crt -config certificate.conf -subj "/C=${certificateCountryName}/ST=${certificateStateOrProvinceName}/L=${certificateLocalityName}/O=${certificateOrganizationName}/OU=${certificateOrganizationalUnitName}/CN=${certificateCommonName}" -passin pass:${certificatePassword}
 RUN openssl pkcs12 -export -out ${certificateCommonName}.pfx -inkey ${certificateCommonName}.key -in ${certificateCommonName}.crt -password pass:${certificatePassword}

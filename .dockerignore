@@ -10,8 +10,11 @@
 .dockerignore
 .gitignore
 .env
+OSDevGrp.OSIntranet.CertificateBuilder.Dockerfile
 OSDevGrp.OSIntranet.Builder.Dockerfile
+OSDevGrp.OSIntranet.Executor.Dockerfile
 OSDevGrp.OSIntranet.Mvc.Dockerfile
 OSDevGrp.OSIntranet.WebApi.Dockerfile
+OSDevGrp.OSIntranet.Bff.WebApi.Dockerfile
 Nginx.Dockerfile
 docker-compose.yaml
