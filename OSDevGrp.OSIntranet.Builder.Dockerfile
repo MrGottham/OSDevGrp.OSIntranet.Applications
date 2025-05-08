@@ -32,6 +32,7 @@ COPY OSDevGrp.OSIntranet.Bff.DomainServices/OSDevGrp.OSIntranet.Bff.DomainServic
 COPY OSDevGrp.OSIntranet.Bff.DomainServices.Tests/OSDevGrp.OSIntranet.Bff.DomainServices.Tests.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices.Tests/
 COPY OSDevGrp.OSIntranet.Bff.WebApi/OSDevGrp.OSIntranet.Bff.WebApi.csproj ./OSDevGrp.OSIntranet.Bff.WebApi/
 COPY OSDevGrp.OSIntranet.Bff.WebApi.Tests/OSDevGrp.OSIntranet.Bff.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.Bff.WebApi.Tests/
+COPY osdevgrp.osintranet.react/osdevgrp.osintranet.react.esproj ./osdevgrp.osintranet.react/
 RUN dotnet restore
 
 # Copy everything else and build app
