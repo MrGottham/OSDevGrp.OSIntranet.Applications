@@ -61,7 +61,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OSDevGrp.OSIntranet.Bff.Web
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OSDevGrp.OSIntranet.Bff.WebApi.Tests", "OSDevGrp.OSIntranet.Bff.WebApi.Tests\OSDevGrp.OSIntranet.Bff.WebApi.Tests.csproj", "{5CB23951-1656-4FC7-BC2C-51A847BAF7D2}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "osdevgrp.osintranet.react", "OSDevGrp.OSIntranet.React\osdevgrp.osintranet.react.esproj", "{5EF99E37-E354-9AAB-CD47-EF2AA678861E}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "osdevgrp.osintranet.react", "osdevgrp.osintranet.react\osdevgrp.osintranet.react.esproj", "{5EF99E37-E354-9AAB-CD47-EF2AA678861E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

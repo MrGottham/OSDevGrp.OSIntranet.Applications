@@ -50,6 +50,7 @@ services:
       - mvc
       - webapi
       - bff
+      - react
     build:
       context: .
       dockerfile: Nginx.Dockerfile
@@ -60,6 +61,7 @@ services:
       - "443:443"
       - "8443:8443"
       - "8445:8445"
+      - "8447:8447"
     restart: always
 
   mvc:
@@ -172,6 +174,28 @@ services:
       - "8080"
       - "2222"
     restart: always
+
+  react:
+    image: react-osintranet
+    environment: 
+      - RUNNING_IN_CONTAINER=true
+      - SERVER_PORT=8080
+      - NON_ROOT_USER=${nonRootUser}
+      - SUDO_ASKPASS=/usr/local/bin/askpw
+      - VITE_BFF_ENDPOINT=${bffEndpointAddress}
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.React.Dockerfile
+      args:
+        bffEndpointAddress: ${bffEndpointAddress}
+        appUserGroup: ${appUserGroup}
+        nonRootUser: ${nonRootUser}
+        nonRootPassword: ${nonRootPassword}
+        sshPassword: ${sshPasswordExecutor}
+    expose:
+      - "8080"
+      - "2222"
+    restart: "always"
 
   certbot:
     image: certbot-osintranet

@@ -5,16 +5,18 @@
 **/[Bb]in/
 **/[Oo]bj/
 **/[Oo]ut/
+**/[Ll]logs/
+**/[Nn]ode_[Mm]odules/
+**/[Dd]ist/
+**/[Dd]ist-ssr/
 
 # Files
 .dockerignore
 .gitignore
 .env
-OSDevGrp.OSIntranet.CertificateBuilder.Dockerfile
-OSDevGrp.OSIntranet.Builder.Dockerfile
-OSDevGrp.OSIntranet.Executor.Dockerfile
-OSDevGrp.OSIntranet.Mvc.Dockerfile
-OSDevGrp.OSIntranet.WebApi.Dockerfile
-OSDevGrp.OSIntranet.Bff.WebApi.Dockerfile
-Nginx.Dockerfile
 docker-compose.yaml
+*.Dockerfile
+*.local
+**/.env
+**/*.log
+**/*.log*
