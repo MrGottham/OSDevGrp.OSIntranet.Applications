@@ -8,8 +8,7 @@ function buildServerProxy(target) {
     return {
         '^/api': {
             target: target,
-            changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/api/, '')
+            changeOrigin: true
         }
     }
 }
@@ -55,7 +54,12 @@ function buildServerHttps(env) {
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
 
-    const serverProxy = buildServerProxy(env.BFF_API_ENDPOINT);
+    const bffEndpoint = env.VITE_BFF_ENDPOINT;
+    if (bffEndpoint === undefined || bffEndpoint === null) {
+        throw new Error('Endpoint to the Backend for Frontend application is not defined.');
+    }
+
+    const serverProxy = buildServerProxy(bffEndpoint);
     const serverPort = buildServerPort(env);
 
     if (/^true$/i.test(env.RUNNING_IN_CONTAINER)) {
@@ -75,7 +79,13 @@ export default defineConfig(({ mode }) => {
         server: {
             proxy: serverProxy,
             port: serverPort,
-            https: serverHttps
+            https: serverHttps,
+            cors: {
+                "origin": "https://localhost:5001",
+                "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+                "preflightContinue": false,
+                "optionsSuccessStatus": 204
+            }
         }
     }
 })

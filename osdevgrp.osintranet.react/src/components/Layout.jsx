@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { ServiceContext } from '../contexts/ServiceContext'
 import Navigation from './Navigation'
 import Main from './Main'
 import Footer from './Footer'
 
 function Layout({ children }) {
+    const homeService = useContext(ServiceContext).homeService;
     const [layoutContext, setLayoutContext] = useState();
 
     useEffect(() => {
@@ -26,12 +28,9 @@ function Layout({ children }) {
     );
 
     async function populateLayoutContext() {
-        const response = await fetch('/api/home/index');
-        if (response.ok) {
-            const json = await response.json();
-            document.title = json.title;
-            setLayoutContext(json);
-        }
+        const json = await homeService.getLayoutContext();
+        document.title = json.title;
+        setLayoutContext(json);
     }
 }
 

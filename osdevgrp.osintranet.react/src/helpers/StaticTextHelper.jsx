@@ -1,8 +1,10 @@
-export function getStaticTextByKey(staticTexts, key) {
-    const found = staticTexts.find(item => item.key === key);
-    if (found) {
-        return found.text;
-    }
+export default class StaticTextHelper {
+    getStaticTextByKey(staticTexts, key) {
+        const found = staticTexts.find(item => item.key === key);
+        if (found) {
+            return found.text;
+        }
 
-    throw Error("No static text was found for the key named: " + key);
+        throw Error("No static text was found for the key named: " + key);
+    }
 }
