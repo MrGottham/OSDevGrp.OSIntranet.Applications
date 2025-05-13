@@ -8,6 +8,7 @@ internal class TokenKeyGenerator : ITokenKeyGenerator
     #region Private variables
 
     private readonly SHA512 _sha512 = SHA512.Create();
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     #endregion
 
@@ -16,6 +17,7 @@ internal class TokenKeyGenerator : ITokenKeyGenerator
     public void Dispose()
     {
         _sha512.Dispose();
+        _semaphore.Dispose();
     }
 
     public async Task<string> GenerateAsync(IReadOnlyCollection<string> values, CancellationToken cancellationToken = default)
@@ -25,28 +27,36 @@ internal class TokenKeyGenerator : ITokenKeyGenerator
             throw new ArgumentException("The given collection does not contain any items.", nameof(values));
         }
 
-        using MemoryStream memoryStream = new MemoryStream();
-        using StreamWriter streamWriter = new StreamWriter(memoryStream);
-        for (int i = 0; i < values.Count; i++)
+        await _semaphore.WaitAsync(cancellationToken);
+        try
         {
-            if (i > 0)
+            using MemoryStream memoryStream = new MemoryStream();
+            using StreamWriter streamWriter = new StreamWriter(memoryStream);
+            for (int i = 0; i < values.Count; i++)
             {
-                await streamWriter.WriteAsync('|');
+                if (i > 0)
+                {
+                    await streamWriter.WriteAsync('|');
+                }
+                await streamWriter.WriteAsync(values.ElementAt(i));
             }
-            await streamWriter.WriteAsync(values.ElementAt(i));
+            await streamWriter.FlushAsync();
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            byte[] hash = await _sha512.ComputeHashAsync(memoryStream, cancellationToken);
+
+            StringBuilder keyBuilder = new StringBuilder();
+            foreach (byte b in hash)
+            {
+                keyBuilder.Append(b.ToString("x2"));
+            }
+
+            return keyBuilder.ToString();
         }
-        await streamWriter.FlushAsync();
-
-        memoryStream.Seek(0, SeekOrigin.Begin);
-        byte[] hash = await _sha512.ComputeHashAsync(memoryStream, cancellationToken);
-
-        StringBuilder keyBuilder = new StringBuilder();
-        foreach (byte b in hash)
+        finally
         {
-            keyBuilder.Append(b.ToString("x2"));
+            _semaphore.Release();
         }
-
-        return keyBuilder.ToString();
     }
 
     #endregion
