@@ -45,6 +45,18 @@ public class ConfigurationTests
 
     [Test]
     [Category("IntegrationTest")]
+    public void Configuration_WhenCalledWithSecurityCorsOriginCollection_ReturnsCorsOriginCollection()
+    {
+        IConfiguration sut = CreateSut();
+
+        string? result = sut[SecurityConfigurationKeys.CorsOriginCollection];
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Is.Not.Empty);
+    }
+
+    [Test]
+    [Category("IntegrationTest")]
     public void Configuration_WhenCalledWithSecurityTrustedDomainCollection_ReturnsTrustedDomainCollection()
     {
         IConfiguration sut = CreateSut();

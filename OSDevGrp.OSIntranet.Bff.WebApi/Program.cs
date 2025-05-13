@@ -55,7 +55,17 @@ applicationBuilder.Services.AddDataProtection()
     .UseEphemeralDataProtectionProvider()
     .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
-applicationBuilder.Services.AddCors();
+applicationBuilder.Services.AddCors(options =>
+{
+    options.AddPolicy(ProgramHelper.GetReactFrontendPolicyName(), builder =>
+    {
+        CorsOptions corsOptions = applicationBuilder.Configuration.GetCorsOptions() ?? throw new InvalidOperationException($"Configuration was not provided for {nameof(CorsOptions)}.");
+        builder.WithOrigins(corsOptions.AsOrigins().ToArray())
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 applicationBuilder.Services.AddRazorPages();
 applicationBuilder.Services.AddControllers(options => 
@@ -173,12 +183,14 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 applicationBuilder.Services.AddHealthChecks()
     .AddServiceGatewayHealthCheck()
     .AddCheck<OpenIdConnectOptionsHealthCheck>(nameof(OpenIdConnectOptionsHealthCheck))
+    .AddCheck<CorsOptionsHealthCheck>(nameof(CorsOptionsHealthCheck))
     .AddCheck<TrustedDomainOptionsHealthCheck>(nameof(TrustedDomainOptionsHealthCheck));
 
 applicationBuilder.Services.AddHttpContextAccessor()
     .AddMemoryCache();
 
 applicationBuilder.Services.Configure<OSDevGrp.OSIntranet.Bff.WebApi.Options.OpenIdConnectOptions>(applicationBuilder.Configuration.GetOpenIdConnectSection())
+    .Configure<CorsOptions>(applicationBuilder.Configuration.GetCorsSection())
     .Configure<TrustedDomainOptions>(applicationBuilder.Configuration.GetTrustedDomainSection())
     .AddScoped<IProblemDetailsFactory, ProblemDetailsFactory>()
     .AddScoped<ISchemaValidator, SchemaValidator>()
@@ -220,7 +232,7 @@ if (ProgramHelper.RunningInDocker() == false)
 
 webApplication.UseCookiePolicy();
 
-webApplication.UseCors("default");
+webApplication.UseCors(ProgramHelper.GetReactFrontendPolicyName());
 
 webApplication.UseAuthentication();
 webApplication.UseAuthorization();

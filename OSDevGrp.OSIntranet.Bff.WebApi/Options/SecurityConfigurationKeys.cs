@@ -4,10 +4,13 @@ internal static class SecurityConfigurationKeys
 {
     internal const string SecuritySectionName = "Security";
     internal const string OpenIdConnectSectionName = "OIDC";
+    internal const string CorsSectionName = "Cors";
 
     internal static readonly string OpenIdConnectAuthority = $"{SecuritySectionName}:{OpenIdConnectSectionName}:Authority";
     internal static readonly string OpenIdConnectClientId = $"{SecuritySectionName}:{OpenIdConnectSectionName}:ClientId";
     internal static readonly string OpenIdConnectClientSecret = $"{SecuritySectionName}:{OpenIdConnectSectionName}:ClientSecret";
+
+    internal static readonly string CorsOriginCollection = $"{SecuritySectionName}:{CorsSectionName}:OriginCollection";
 
     internal static readonly string TrustedDomainCollection = $"{SecuritySectionName}:TrustedDomainCollection";
 }

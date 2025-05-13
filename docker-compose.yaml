@@ -155,6 +155,7 @@ services:
       - Security__OIDC__Authority=${securityOidcAuthority}
       - Security__OIDC__ClientId=${securityOidcClientIdBff}
       - Security__OIDC__ClientSecret=${securityOidcClientSecretBff}
+      - Security__Cors__OriginCollection=${securityCorsOriginCollectionBff}
       - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
       - ServiceGateways__WebApi__EndpointAddress=${serviceGatewaysWebApiEndpointAddress}
       - ServiceGateways__WebApi__ClientId=${securityOidcClientIdBff}
