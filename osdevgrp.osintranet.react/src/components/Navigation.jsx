@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { Link } from 'react-router';
 import { HelperContext } from '../contexts/HelperContext';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -6,7 +7,7 @@ import Navbar from 'react-bootstrap/Navbar';
 
 function buildStartNavLink(layoutContext, staticTextHelper) {
     return (
-        <Nav.Link href="#home">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Start')}</Nav.Link>
+        <Nav.Link as={Link} to="/">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Start')}</Nav.Link>
     );
 }
 
@@ -30,15 +31,15 @@ function buildSecondaryNavigationContent(layoutContext, staticTextHelper) {
     if (layoutContext.userInfo) {
         return (
             <Nav className="justify-content-end">
-                <Nav.Link href="#userInfo">{layoutContext.userInfo.name}</Nav.Link>
-                <Nav.Link href="#logout">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Logout')}</Nav.Link>
+                <Nav.Link href="/security/userinfo">{layoutContext.userInfo.name}</Nav.Link>
+                <Nav.Link as={Link} to="/security/logout">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Logout')}</Nav.Link>
             </Nav>
         );
     }
 
     return (
         <Nav className="justify-content-end">
-            <Nav.Link href="#login">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Login')}</Nav.Link>
+            <Nav.Link as={Link} to="/security/login">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Login')}</Nav.Link>
         </Nav>
     );
 }
@@ -50,7 +51,7 @@ function Navigation({ layoutContext }) {
         <header>
             <Navbar expand="md lg xl xxl" className="bg-body-tertiary">
                 <Container>
-                    <Navbar.Brand href="#home">{layoutContext.title}</Navbar.Brand>
+                    <Navbar.Brand as={Link} to="/">{layoutContext.title}</Navbar.Brand>
                     <Navbar.Toggle aria-controls="layout-navbar-nav" />
                     <Navbar.Collapse id="layout-navbar-nav">
                         {buildPrimaryNavigationContent(layoutContext, staticTextHelper)}

@@ -8,13 +8,14 @@ function buildServerProxy(target) {
     return {
         '^/api': {
             target: target,
-            changeOrigin: true
+            changeOrigin: true,
+            secure: false
         }
     }
 }
 
 function buildServerPort(env) {
-    return parseInt(env.SERVER_PORT || '5001')
+    return parseInt(env.SERVER_PORT || '5003')
 }
 
 function buildServerHttps(env) {
@@ -81,7 +82,7 @@ export default defineConfig(({ mode }) => {
             port: serverPort,
             https: serverHttps,
             cors: {
-                "origin": "https://localhost:5001",
+                "origin": "https://localhost:5003",
                 "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
                 "preflightContinue": false,
                 "optionsSuccessStatus": 204

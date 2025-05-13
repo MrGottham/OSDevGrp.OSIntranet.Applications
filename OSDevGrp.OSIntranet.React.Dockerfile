@@ -44,6 +44,9 @@ ENV SUDO_ASKPASS=/usr/local/bin/askpw
 
 RUN npm install -g serve
 
+ARG maxHttpHeaderSize
+ENV NODE_OPTIONS=--max-http-header-size=${maxHttpHeaderSize}
+
 WORKDIR /app
 COPY --from=reactbuilder /src/dist .
 COPY OSDevGrp.OSIntranet.React.supervisord.conf /etc/supervisor/conf.d/supervisord.conf

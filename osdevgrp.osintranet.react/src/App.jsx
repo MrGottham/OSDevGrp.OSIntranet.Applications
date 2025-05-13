@@ -1,17 +1,21 @@
+import { BrowserRouter as Router} from 'react-router';
 import './App.css'
 import { ServiceProvider } from './contexts/ServiceContext';
 import { HelperProvider } from './contexts/HelperContext'
 import Layout from './components/Layout'
+import Home from './components/Home'
 
 function App() {
     return (
-        <ServiceProvider>
-            <HelperProvider>
-                <Layout>
-                    <p>Content!</p>
-                </Layout>
-            </HelperProvider>
-        </ServiceProvider>
+        <Router>
+            <ServiceProvider>
+                <HelperProvider>
+                    <Layout>
+                        <Home />
+                    </Layout>
+                </HelperProvider>
+            </ServiceProvider>
+        </Router>
     )
 }
 

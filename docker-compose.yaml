@@ -193,6 +193,7 @@ services:
         nonRootUser: ${nonRootUser}
         nonRootPassword: ${nonRootPassword}
         sshPassword: ${sshPasswordExecutor}
+        maxHttpHeaderSize: ${maxHttpHeaderSize}
     expose:
       - "8080"
       - "2222"
