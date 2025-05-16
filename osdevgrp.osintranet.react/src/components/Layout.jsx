@@ -22,7 +22,7 @@ function Layout({ children }) {
     return (
         <>
             <Navigation layoutContext={layoutContext} />
-            <Main children={children} />
+            <Main layoutContext={layoutContext} children={children} />
             <Footer layoutContext={layoutContext} />
         </>
     );

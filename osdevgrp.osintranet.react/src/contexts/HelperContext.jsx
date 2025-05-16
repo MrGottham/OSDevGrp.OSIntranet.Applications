@@ -1,7 +1,9 @@
 import { createContext } from 'react'
+import AuthorizationHelper from '../helpers/AuthorizationHelper';
 import StaticTextHelper from '../helpers/StaticTextHelper';
 
 const helpers = {
+    authorizationHelper: new AuthorizationHelper(),
     staticTextHelper: new StaticTextHelper()
 };
 

@@ -37,6 +37,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Start, "Start");
         staticTexts.Add(StaticTextKey.Login, "Log ind");
         staticTexts.Add(StaticTextKey.Logout, "Log ud");
+        staticTexts.Add(StaticTextKey.FinancialManagement, "Finansstyring");
+        staticTexts.Add(StaticTextKey.Accountings, "Regnskaber");
         return staticTexts.AsReadOnly();
     }
 

@@ -8,5 +8,7 @@ public enum StaticTextKey
     BuildInfo,
     Start,
     Login,
-    Logout
+    Logout,
+    FinancialManagement,
+    Accountings,
 }
