@@ -71,7 +71,7 @@ function buildSecondaryNavigationContent(layoutContext, authorizationHelper, sta
     if (authorizationHelper.authenticatedUser(layoutContext)) {
         return (
             <Nav className="justify-content-end">
-                <Nav.Link href="/security/userinfo">{layoutContext.userInfo.name}</Nav.Link>
+                <Nav.Link as={Link} to="/security/userinfo">{layoutContext.userInfo.name}</Nav.Link>
                 <Nav.Link as={Link} to="/security/logout">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Logout')}</Nav.Link>
             </Nav>
         );

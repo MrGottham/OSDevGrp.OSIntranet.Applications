@@ -31,6 +31,9 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.Start, "Start", 0)]
     [TestCase(StaticTextKey.Login, "Log ind", 0)]
     [TestCase(StaticTextKey.Logout, "Log ud", 0)]
+    [TestCase(StaticTextKey.AccessDenied, "Adgang nægtet", 0)]
+    [TestCase(StaticTextKey.MissingPermissionToPage, "Du har ikke de nødvendige rettigheder til at tilgå denne side.", 0)]
+    [TestCase(StaticTextKey.CheckYourCredentials, "Tjek venligst op på dine rettigheder og prøv igen.", 0)]
     [TestCase(StaticTextKey.FinancialManagement, "Finansstyring", 0)]
     [TestCase(StaticTextKey.Accountings, "Regnskaber", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)

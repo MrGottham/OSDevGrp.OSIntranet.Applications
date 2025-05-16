@@ -2,25 +2,30 @@ using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Filters.ErrorHandling.ProblemDetailsFactory;
+using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.SecurityContextProvider;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.TrustedDomainResolver;
+using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Security.SecurityController;
 
-public abstract class SecurityControllerTestBase
+public abstract class SecurityControllerTestBase<TQueryFeatureResponse> where TQueryFeatureResponse : class, IResponse
 {
     #region Methods
 
-    protected abstract WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true);
+    protected abstract WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, TQueryFeatureResponse? queryFeatureResponse = null);
 
-    protected static WebApi.Controllers.Security.SecurityController CreateSut(Mock<IProblemDetailsFactory> problemDetailsFactoryMock, Mock<ITrustedDomainResolver> trustedDomainResolverMock, Fixture fixture, HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true)
+    protected static WebApi.Controllers.Security.SecurityController CreateSut(Mock<IProblemDetailsFactory> problemDetailsFactoryMock, Mock<ITrustedDomainResolver> trustedDomainResolverMock, Mock<ISecurityContextProvider> securityContextProviderMock, Fixture fixture, Random random, HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, TQueryFeatureResponse? queryFeatureResponse = null)
     {
         problemDetailsFactoryMock.Setup(fixture, problemDetails: problemDetails);
         trustedDomainResolverMock.Setup(isTrustedDomain: isTrustedDomain);
+        securityContextProviderMock!.Setup(fixture, random, securityContext: securityContext);
 
-        return new WebApi.Controllers.Security.SecurityController(problemDetailsFactoryMock.Object, trustedDomainResolverMock.Object)
+        return new WebApi.Controllers.Security.SecurityController(problemDetailsFactoryMock.Object, trustedDomainResolverMock.Object, formatProvider ?? CultureInfo.InvariantCulture, securityContextProviderMock.Object)
         {
             ControllerContext = new ControllerContext
             {

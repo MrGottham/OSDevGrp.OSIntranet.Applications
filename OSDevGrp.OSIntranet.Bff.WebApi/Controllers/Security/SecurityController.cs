@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using System.ComponentModel.DataAnnotations;
@@ -19,15 +23,19 @@ public class SecurityController : ControllerBase
 
     private readonly IProblemDetailsFactory _problemDetailsFactory;
     private readonly ITrustedDomainResolver _trustedDomainResolver;
+    private readonly IFormatProvider _formatProvider;
+    private readonly ISecurityContextProvider _securityContextProvider;
 
     #endregion
 
     #region Constructor
 
-    public SecurityController(IProblemDetailsFactory problemDetailsFactory, ITrustedDomainResolver trustedDomainResolver)
+    public SecurityController(IProblemDetailsFactory problemDetailsFactory, ITrustedDomainResolver trustedDomainResolver, IFormatProvider formatProvider, ISecurityContextProvider securityContextProvider)
     {
         _problemDetailsFactory = problemDetailsFactory;
         _trustedDomainResolver = trustedDomainResolver;
+        _formatProvider = formatProvider;
+        _securityContextProvider = securityContextProvider;
     }
 
     #endregion
@@ -81,6 +89,22 @@ public class SecurityController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
     public IActionResult AccessDenied() => RedirectToPage("/AccessDenied");
+
+    [AllowAnonymous]
+    [HttpGet("accessdenied/content")]
+    [ProducesResponseType(typeof(AccessDeniedContentResponseDto), (int) HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AccessDeniedContentAsync([FromServices] IQueryFeature<AccessDeniedContentRequest, AccessDeniedContentResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AccessDeniedContentRequest accessDeniedContentRequest = new AccessDeniedContentRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        AccessDeniedContentResponse accessDeniedContentResponse = await queryFeature.ExecuteAsync(accessDeniedContentRequest, cancellationToken);
+
+        return Ok(AccessDeniedContentResponseDto.Map(accessDeniedContentResponse));
+    }
 
     private Uri? GetValidatedReturnUri(string returnUrl, out IActionResult? actionResult)
     {

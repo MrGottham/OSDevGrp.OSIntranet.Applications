@@ -9,6 +9,9 @@ public enum StaticTextKey
     Start,
     Login,
     Logout,
+    AccessDenied,
+    MissingPermissionToPage,
+    CheckYourCredentials,
     FinancialManagement,
     Accountings,
 }

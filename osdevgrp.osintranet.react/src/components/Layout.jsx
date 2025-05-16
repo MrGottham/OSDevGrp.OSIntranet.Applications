@@ -1,8 +1,9 @@
 import { useContext, useState, useEffect } from 'react';
-import { ServiceContext } from '../contexts/ServiceContext'
-import Navigation from './Navigation'
-import Main from './Main'
-import Footer from './Footer'
+import { ServiceContext } from '../contexts/ServiceContext';
+import Loading from './Loading';
+import Navigation from './Navigation';
+import Main from './Main';
+import Footer from './Footer';
 
 function Layout({ children }) {
     const homeService = useContext(ServiceContext).homeService;
@@ -15,6 +16,7 @@ function Layout({ children }) {
     if (layoutContext === undefined) {
         return (
             <>
+                <Loading />
             </>
         );
     }

@@ -37,6 +37,9 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Start, "Start");
         staticTexts.Add(StaticTextKey.Login, "Log ind");
         staticTexts.Add(StaticTextKey.Logout, "Log ud");
+        staticTexts.Add(StaticTextKey.AccessDenied, "Adgang nægtet");
+        staticTexts.Add(StaticTextKey.MissingPermissionToPage, "Du har ikke de nødvendige rettigheder til at tilgå denne side.");
+        staticTexts.Add(StaticTextKey.CheckYourCredentials, "Tjek venligst op på dine rettigheder og prøv igen.");
         staticTexts.Add(StaticTextKey.FinancialManagement, "Finansstyring");
         staticTexts.Add(StaticTextKey.Accountings, "Regnskaber");
         return staticTexts.AsReadOnly();
