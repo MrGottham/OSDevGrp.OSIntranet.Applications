@@ -9,4 +9,17 @@ export default class HomeService extends ServiceBase {
 
         throw new Error(response.statusText);
     }
+
+    async getCookieConsent(applicationName) {
+        if (applicationName === undefined || applicationName === null) {
+            throw new Error('Application name is required.');
+        }
+
+        const response = await fetch(this.resolveEndpoint(`/api/home/cookie-consent?applicationName=${applicationName}`), { credentials: 'include' });
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw new Error(response.statusText);
+    }
 }

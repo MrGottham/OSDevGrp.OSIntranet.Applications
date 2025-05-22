@@ -3,6 +3,7 @@ import './App.css'
 import { ServiceProvider } from './contexts/ServiceContext';
 import { HelperProvider } from './contexts/HelperContext'
 import Layout from './components/Layout'
+import CookieConsent from './components/CookieConsent';
 import Home from './components/Home'
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
             <ServiceProvider>
                 <HelperProvider>
                     <Layout>
+                        <CookieConsent />
                         <Home />
                     </Layout>
                 </HelperProvider>

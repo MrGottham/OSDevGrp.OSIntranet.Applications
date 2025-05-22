@@ -12,6 +12,9 @@ public enum StaticTextKey
     AccessDenied,
     MissingPermissionToPage,
     CheckYourCredentials,
+    WebsiteUsingCookies,
+    CookieConsentInformation,
+    AllowNecessaryCookies,
     FinancialManagement,
     Accountings,
 }

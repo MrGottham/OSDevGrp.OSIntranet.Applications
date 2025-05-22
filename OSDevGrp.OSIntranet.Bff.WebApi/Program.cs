@@ -194,7 +194,6 @@ applicationBuilder.Services.Configure<OSDevGrp.OSIntranet.Bff.WebApi.Options.Ope
     .Configure<TrustedDomainOptions>(applicationBuilder.Configuration.GetTrustedDomainSection())
     .AddScoped<IProblemDetailsFactory, ProblemDetailsFactory>()
     .AddScoped<ISchemaValidator, SchemaValidator>()
-    .AddSingleton(TimeProvider.System)
     .AddSingleton<IFormatProvider>(_ => new CultureInfo("da-DK", false))
     .AddSingleton<ITokenKeyGenerator, TokenKeyGenerator>()
     .Configure<TokenKeyProviderOptions>(_ => { })

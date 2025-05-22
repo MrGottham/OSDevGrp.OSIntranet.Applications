@@ -20,7 +20,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection serviceCollection)
     {
-        return serviceCollection.AddSingleton<IBuildInfoProvider, BuildInfoProvider>()
+        return serviceCollection.AddSingleton(TimeProvider.System)
+            .AddSingleton<IBuildInfoProvider, BuildInfoProvider>()
             .AddSingleton<IStaticTextProvider, StaticTextProvider>()
             .AddTransient<IUserInfoProvider, UserInfoProvider>()
             .AddTransient<IPermissionValidator, PermissionValidator>()
