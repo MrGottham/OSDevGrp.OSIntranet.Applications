@@ -8,7 +8,7 @@ export default class AuthenticateService extends ServiceBase {
 
         const loginEndpoint = this.resolveEndpoint(`/api/security/login`);
 
-        return `${loginEndpoint}?returnUrl=${this.getReturnUrl(location)}`;
+        return `${loginEndpoint}?returnUrl=${encodeURIComponent(this.getReturnUrl(location))}`;
     }
 
     getLogoutUrl(location) {
@@ -18,7 +18,7 @@ export default class AuthenticateService extends ServiceBase {
 
         const logoutEndpoint = this.resolveEndpoint(`/api/security/logout`);
 
-        return `${logoutEndpoint}?returnUrl=${this.getReturnUrl(location)}`;
+        return `${logoutEndpoint}?returnUrl=${encodeURIComponent(this.getReturnUrl(location))}`;
     }
 
     getReturnUrl(location) {

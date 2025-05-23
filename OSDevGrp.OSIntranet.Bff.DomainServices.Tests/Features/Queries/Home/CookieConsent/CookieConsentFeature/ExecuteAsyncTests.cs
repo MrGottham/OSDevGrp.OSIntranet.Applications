@@ -7,15 +7,13 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.BuildInfo.BuildInfoProvider;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoProvider;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using System.Globalization;
-using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Home.CookieConsent.CookieConsentFeature;
 
 [TestFixture]
-public class ExecuteAsyncTests
+public class ExecuteAsyncTests : HomePageFeatureTestBase
 {    
     #region Private variables
 
@@ -41,7 +39,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<CookieConsentRequest, CookieConsentResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         CookieConsentRequest cookieConsentRequest = CreateCookieConsentRequest(securityContext: securityContext);
         await sut.ExecuteAsync(cookieConsentRequest);
 
@@ -57,7 +55,7 @@ public class ExecuteAsyncTests
         IQueryFeature<CookieConsentRequest, CookieConsentResponse> sut = CreateSut();
 
         string applicationName = _fixture!.Create<string>();
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         CookieConsentRequest cookieConsentRequest = CreateCookieConsentRequest(applicationName: applicationName, securityContext: securityContext);
         CookieConsentResponse result = await sut.ExecuteAsync(cookieConsentRequest);
 
@@ -72,7 +70,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<CookieConsentRequest, CookieConsentResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         CookieConsentRequest cookieConsentRequest = CreateCookieConsentRequest(securityContext: securityContext);
         CookieConsentResponse result = await sut.ExecuteAsync(cookieConsentRequest);
 
@@ -88,7 +86,7 @@ public class ExecuteAsyncTests
         DateTimeOffset utcNow = DateTimeOffset.UtcNow;
         IQueryFeature<CookieConsentRequest, CookieConsentResponse> sut = CreateSut(utcNow: utcNow);
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         CookieConsentRequest cookieConsentRequest = CreateCookieConsentRequest(securityContext: securityContext);
         CookieConsentResponse result = await sut.ExecuteAsync(cookieConsentRequest);
 
@@ -104,7 +102,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<CookieConsentRequest, CookieConsentResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: true);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: true);
         CookieConsentRequest cookieConsentRequest = CreateCookieConsentRequest(securityContext: securityContext);
         CookieConsentResponse result = await sut.ExecuteAsync(cookieConsentRequest);
 
@@ -120,7 +118,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<CookieConsentRequest, CookieConsentResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: false);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: false);
         CookieConsentRequest cookieConsentRequest = CreateCookieConsentRequest(securityContext: securityContext);
         CookieConsentResponse result = await sut.ExecuteAsync(cookieConsentRequest);
 
@@ -139,36 +137,6 @@ public class ExecuteAsyncTests
 
     private CookieConsentRequest CreateCookieConsentRequest(string? applicationName = null, ISecurityContext? securityContext = null)
     {
-        return new CookieConsentRequest(Guid.NewGuid(), applicationName ?? _fixture!.Create<string>(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext());
-    }
-
-    private ISecurityContext CreateSecurityContext(bool withAuthenticatedUser = true)
-    {
-        return CreateSecurityContextMock(withAuthenticatedUser).Object;
-    }
-
-    private ISecurityContext CreateSecurityContext(ClaimsPrincipal user)
-    {
-        return CreateSecurityContextMock(user).Object;
-    }
-
-    private Mock<ISecurityContext> CreateSecurityContextMock(bool withAuthenticatedUser = true)
-    {
-        return CreateSecurityContextMock(user: withAuthenticatedUser ? CreateAuthenticatedUser() : CreateNonAuthenticated());
-    }
-
-    private Mock<ISecurityContext> CreateSecurityContextMock(ClaimsPrincipal user)
-    {
-        return _fixture!.CreateSecurityContextMock(user: user);
-    }
-
-    private ClaimsPrincipal CreateAuthenticatedUser()
-    {
-        return _fixture!.CreateAuthenticatedClaimsPrincipal();
-    }
-
-    private ClaimsPrincipal CreateNonAuthenticated()
-    {
-        return _fixture!.CreateNonAuthenticatedClaimsPrincipal();
+        return new CookieConsentRequest(Guid.NewGuid(), applicationName ?? _fixture!.Create<string>(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext(_fixture!));
     }
 }

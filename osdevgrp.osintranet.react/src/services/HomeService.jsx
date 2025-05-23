@@ -15,7 +15,20 @@ export default class HomeService extends ServiceBase {
             throw new Error('Application name is required.');
         }
 
-        const response = await fetch(this.resolveEndpoint(`/api/home/cookie-consent?applicationName=${applicationName}`), { credentials: 'include' });
+        const response = await fetch(this.resolveEndpoint(`/api/home/cookie-consent?applicationName=${encodeURIComponent(applicationName)}`), { credentials: 'include' });
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw new Error(response.statusText);
+    }
+
+    async getErrorContent(errorMessage) {
+        if (errorMessage === undefined || errorMessage === null) {
+            throw new Error('Error message is required.');
+        }
+
+        const response = await fetch(this.resolveEndpoint(`/api/home/error?errorMessage=${encodeURIComponent(errorMessage)}`), { credentials: 'include' });
         if (response.ok) {
             return await response.json();
         }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.CookieConsent;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Error;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Index;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -67,6 +68,22 @@ public class HomeController : ControllerBase
         CookieConsentResponse cookieConsentResponse = await queryFeature.ExecuteAsync(cookieConsentRequest, cancellationToken);
 
         return Ok(CookieConsentResponseDto.Map(cookieConsentResponse));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("error")]
+    [ProducesResponseType(typeof(ErrorResponseDto), (int) HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> ErrorAsync([FromServices] IQueryFeature<ErrorRequest, ErrorResponse> queryFeature, [FromQuery][Required][MinLength(1)] string errorMessage, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        ErrorRequest errorRequest = new ErrorRequest(Guid.NewGuid(), errorMessage, _formatProvider, securityContext);
+        ErrorResponse errorResponse = await queryFeature.ExecuteAsync(errorRequest, cancellationToken);
+
+        return Ok(ErrorResponseDto.Map(errorResponse));
     }
 
     #endregion

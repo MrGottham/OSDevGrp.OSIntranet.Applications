@@ -34,6 +34,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.AccessDenied, "Adgang nægtet", 0)]
     [TestCase(StaticTextKey.MissingPermissionToPage, "Du har ikke de nødvendige rettigheder til at tilgå denne side.", 0)]
     [TestCase(StaticTextKey.CheckYourCredentials, "Tjek venligst op på dine rettigheder og prøv igen.", 0)]
+    [TestCase(StaticTextKey.SomethingWentWrong, "Noget gik galt", 0)]
     [TestCase(StaticTextKey.WebsiteUsingCookies, "Denne hjemmeside bruger cookies", 0)]
     [TestCase(StaticTextKey.CookieConsentInformation, "Vi bruger cookies til at tilpasse dit indhold, dine funktioner samt optimere din brugeroplevelse her på hjemmeside. Vi deler ikke oplysninger om din brug af vores hjemmesede med partnere, sociale medier, annonceringspartnere ej heller analysepartnere.", 0)]
     [TestCase(StaticTextKey.AllowNecessaryCookies, "Tillad nødvendige", 0)]

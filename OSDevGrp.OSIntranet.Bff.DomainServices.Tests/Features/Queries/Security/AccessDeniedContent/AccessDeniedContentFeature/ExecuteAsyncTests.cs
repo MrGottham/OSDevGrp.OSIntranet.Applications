@@ -5,15 +5,13 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDen
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using System.Globalization;
-using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Security.AccessDeniedContent.AccessDeniedContentFeature;
 
 [TestFixture]
-public class ExecuteAsyncTests
+public class ExecuteAsyncTests : SecurityPageFeatureTestBase
 {
     #region Private variables
 
@@ -38,7 +36,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<AccessDeniedContentRequest, AccessDeniedContentResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: true);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: true);
         AccessDeniedContentRequest accessDeniedContentRequest = CreateAccessDeniedContentRequest(securityContext: securityContext);
         AccessDeniedContentResponse result = await sut.ExecuteAsync(accessDeniedContentRequest);
 
@@ -54,7 +52,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<AccessDeniedContentRequest, AccessDeniedContentResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: false);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: false);
         AccessDeniedContentRequest accessDeniedContentRequest = CreateAccessDeniedContentRequest(securityContext: securityContext);
         AccessDeniedContentResponse result = await sut.ExecuteAsync(accessDeniedContentRequest);
 
@@ -70,31 +68,6 @@ public class ExecuteAsyncTests
 
     private AccessDeniedContentRequest CreateAccessDeniedContentRequest(ISecurityContext? securityContext = null)
     {
-        return new AccessDeniedContentRequest(Guid.NewGuid(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext());
-    }
-
-    private ISecurityContext CreateSecurityContext(bool withAuthenticatedUser = true)
-    {
-        return CreateSecurityContextMock(withAuthenticatedUser).Object;
-    }
-
-    private Mock<ISecurityContext> CreateSecurityContextMock(bool withAuthenticatedUser = true)
-    {
-        return CreateSecurityContextMock(user: withAuthenticatedUser ? CreateAuthenticatedUser() : CreateNonAuthenticated());
-    }
-
-    private Mock<ISecurityContext> CreateSecurityContextMock(ClaimsPrincipal user)
-    {
-        return _fixture!.CreateSecurityContextMock(user: user);
-    }
-
-    private ClaimsPrincipal CreateAuthenticatedUser()
-    {
-        return _fixture!.CreateAuthenticatedClaimsPrincipal();
-    }
-
-    private ClaimsPrincipal CreateNonAuthenticated()
-    {
-        return _fixture!.CreateNonAuthenticatedClaimsPrincipal();
+        return new AccessDeniedContentRequest(Guid.NewGuid(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext(_fixture!));
     }
 }

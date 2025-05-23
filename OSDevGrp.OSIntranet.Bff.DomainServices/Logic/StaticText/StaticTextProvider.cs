@@ -40,6 +40,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.AccessDenied, "Adgang nægtet");
         staticTexts.Add(StaticTextKey.MissingPermissionToPage, "Du har ikke de nødvendige rettigheder til at tilgå denne side.");
         staticTexts.Add(StaticTextKey.CheckYourCredentials, "Tjek venligst op på dine rettigheder og prøv igen.");
+        staticTexts.Add(StaticTextKey.SomethingWentWrong, "Noget gik galt");
         staticTexts.Add(StaticTextKey.WebsiteUsingCookies, "Denne hjemmeside bruger cookies");
         staticTexts.Add(StaticTextKey.CookieConsentInformation, "Vi bruger cookies til at tilpasse dit indhold, dine funktioner samt optimere din brugeroplevelse her på hjemmeside. Vi deler ikke oplysninger om din brug af vores hjemmesede med partnere, sociale medier, annonceringspartnere ej heller analysepartnere.");
         staticTexts.Add(StaticTextKey.AllowNecessaryCookies, "Tillad nødvendige");
