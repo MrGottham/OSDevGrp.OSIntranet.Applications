@@ -1,15 +1,18 @@
 import { useContext, useState, useEffect } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Loading from './Loading';
 
 function AccessDenied() {
+    const { showBoundary } = useErrorBoundary();
     const securityService = useContext(ServiceContext).securityService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [accessDeniedContent, setAccessDeniedContent] = useState();
 
     useEffect(() => {
-        populateAccessDeniedContent();
+        populateAccessDeniedContent()
+            .catch(error => showBoundary(error));
     }, []);
 
     if (accessDeniedContent === undefined) {

@@ -5,6 +5,6 @@ export default class StaticTextHelper {
             return found.text;
         }
 
-        throw Error("No static text was found for the key named: " + key);
+        throw Error('No static text was found for the key named: ' + key);
     }
 }

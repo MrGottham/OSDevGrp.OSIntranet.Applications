@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import { createContext } from 'react';
 import AuthorizationHelper from '../helpers/AuthorizationHelper';
 import StaticTextHelper from '../helpers/StaticTextHelper';
 

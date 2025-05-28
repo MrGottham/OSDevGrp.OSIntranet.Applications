@@ -21,4 +21,47 @@ export default class ServiceBase {
 
         return this._bffEndpoint + path;
     }
+
+    async generateError(response) {
+        if (response.status === 400) {
+            const problemDetails = await response.json();
+            if (problemDetails === undefined || problemDetails === null) {
+                return new Error(response.statusText);
+            }
+
+            return this.problemDetailsToError(problemDetails, response.statusText);
+        }
+
+        if (response.status === 401) {
+            const problemDetails = await response.json();
+            if (problemDetails === undefined || problemDetails === null) {
+                return new Error(response.statusText);
+            }
+
+            return this.problemDetailsToError(problemDetails, response.statusText);
+        }
+
+        if (response.status === 500) {
+            const problemDetails = await response.json();
+            if (problemDetails === undefined || problemDetails === null) {
+                return new Error(response.statusText);
+            }
+
+            return this.problemDetailsToError(problemDetails, response.statusText);
+        }
+
+        return new Error(response.statusText);
+    }
+
+    problemDetailsToError(problemDetails, fallbackMessage) {
+        if (problemDetails.detail !== undefined && problemDetails.detail !== null && problemDetails.detail.length > 0) {
+            return new Error(problemDetails.detail);
+        }
+
+        if (problemDetails.title !== undefined && problemDetails.title !== null && problemDetails.title.length > 0) {
+            return new Error(problemDetails.title);
+        }
+
+        return new Error(fallbackMessage);
+    }
 }

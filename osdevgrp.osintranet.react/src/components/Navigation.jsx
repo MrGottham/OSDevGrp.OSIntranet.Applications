@@ -8,7 +8,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 
 function buildStartNavLink(layoutContext, staticTextHelper) {
     return (
-        <Nav.Link as={Link} to="/">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Start')}</Nav.Link>
+        <Nav.Link as={Link} to='/'>{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Start')}</Nav.Link>
     );
 }
 
@@ -43,8 +43,8 @@ function buildFinancialManagementNavigationContent(layoutContext, authorizationH
     }
 
     return (
-        <NavDropdown title={staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'FinancialManagement')} id="navbarFinancialManagementDropdown">
-            <NavDropdown.Item as={Link} to="/accountings">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Accountings')}</NavDropdown.Item>
+        <NavDropdown title={staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'FinancialManagement')} id='navbarFinancialManagementDropdown'>
+            <NavDropdown.Item as={Link} to='/accountings'>{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Accountings')}</NavDropdown.Item>
             {buildAccountingsNavigationContent(layoutContext.userInfo.accountings)}
         </NavDropdown>
     );
@@ -53,7 +53,7 @@ function buildFinancialManagementNavigationContent(layoutContext, authorizationH
 function buildPrimaryNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
     if (authorizationHelper.authenticatedUser(layoutContext)) {
         return (
-            <Nav className="me-auto">
+            <Nav className='me-auto'>
                 {buildStartNavLink(layoutContext, staticTextHelper)}
                 {buildFinancialManagementNavigationContent(layoutContext, authorizationHelper, staticTextHelper)}
             </Nav>
@@ -61,7 +61,7 @@ function buildPrimaryNavigationContent(layoutContext, authorizationHelper, stati
     }
 
     return (
-        <Nav className="me-auto">
+        <Nav className='me-auto'>
             {buildStartNavLink(layoutContext, staticTextHelper)}
         </Nav>
     );
@@ -70,16 +70,16 @@ function buildPrimaryNavigationContent(layoutContext, authorizationHelper, stati
 function buildSecondaryNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
     if (authorizationHelper.authenticatedUser(layoutContext)) {
         return (
-            <Nav className="justify-content-end">
-                <Nav.Link as={Link} to="/security/userinfo">{layoutContext.userInfo.name}</Nav.Link>
-                <Nav.Link as={Link} to="/security/logout">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Logout')}</Nav.Link>
+            <Nav className='justify-content-end'>
+                <Nav.Link as={Link} to='/security/userinfo'>{layoutContext.userInfo.name}</Nav.Link>
+                <Nav.Link as={Link} to='/security/logout'>{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Logout')}</Nav.Link>
             </Nav>
         );
     }
 
     return (
-        <Nav className="justify-content-end">
-            <Nav.Link as={Link} to="/security/login">{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Login')}</Nav.Link>
+        <Nav className='justify-content-end'>
+            <Nav.Link as={Link} to='/security/login'>{staticTextHelper.getStaticTextByKey(layoutContext.staticTexts, 'Login')}</Nav.Link>
         </Nav>
     );
 }
@@ -91,11 +91,11 @@ function Navigation({ layoutContext }) {
 
     return (
         <header>
-            <Navbar expand="md lg xl xxl" className="bg-body-tertiary">
+            <Navbar expand='md lg xl xxl' className='bg-body-tertiary'>
                 <Container>
-                    <Navbar.Brand as={Link} to="/">{layoutContext.title}</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="layout-navbar-nav" />
-                    <Navbar.Collapse id="layout-navbar-nav">
+                    <Navbar.Brand as={Link} to='/'>{layoutContext.title}</Navbar.Brand>
+                    <Navbar.Toggle aria-controls='layout-navbar-nav' />
+                    <Navbar.Collapse id='layout-navbar-nav'>
                         {buildPrimaryNavigationContent(layoutContext, authorizationHelper, staticTextHelper)}
                         {buildSecondaryNavigationContent(layoutContext, authorizationHelper, staticTextHelper)}
                     </Navbar.Collapse>

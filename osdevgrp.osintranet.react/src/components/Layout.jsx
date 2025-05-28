@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import Loading from './Loading';
 import Navigation from './Navigation';
@@ -6,11 +7,13 @@ import Main from './Main';
 import Footer from './Footer';
 
 function Layout({ children }) {
+    const { showBoundary } = useErrorBoundary();
     const homeService = useContext(ServiceContext).homeService;
     const [layoutContext, setLayoutContext] = useState();
 
     useEffect(() => {
-        populateLayoutContext();
+        populateLayoutContext()
+            .catch(error => showBoundary(error));
     }, []);
 
     if (layoutContext === undefined) {
@@ -36,4 +39,4 @@ function Layout({ children }) {
     }
 }
 
-export default Layout
+export default Layout;

@@ -9,7 +9,8 @@ function Fallback({ error, resetErrorBoundary }) {
     const [errorContent, setErrorContent] = useState();
 
     useEffect(() => {
-        populateErrorContent(error.message);
+        populateErrorContent(error.message)
+            .catch(error => console.error('Error while populating error content:', error));
     }, []);
 
     if (errorContent === undefined) {
@@ -21,7 +22,7 @@ function Fallback({ error, resetErrorBoundary }) {
     }
 
     return (
-        <div className='alert alert-danger'>
+        <div className='alert alert-danger mt-5 ms-5 me-5'>
             <span>
                 <i className='fa-solid fa-bug'></i>&nbsp;<strong>{staticTextHelper.getStaticTextByKey(errorContent.staticTexts, 'SomethingWentWrong')}</strong>
             </span>

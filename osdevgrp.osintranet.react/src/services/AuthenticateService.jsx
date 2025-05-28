@@ -1,4 +1,4 @@
-import ServiceBase from "./ServiceBase";
+import ServiceBase from './ServiceBase';
 
 export default class AuthenticateService extends ServiceBase {
     getLoginUrl(location) {

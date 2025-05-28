@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Navigate } from 'react-router';
-import { ServiceContext } from '../contexts/ServiceContext'
+import { ServiceContext } from '../contexts/ServiceContext';
 
 function Logout() {
     const authenticateService = useContext(ServiceContext).authenticateService;

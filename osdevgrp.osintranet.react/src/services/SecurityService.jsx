@@ -1,4 +1,4 @@
-import ServiceBase from "./ServiceBase";
+import ServiceBase from './ServiceBase';
 
 export default class SecurityService extends ServiceBase {
     async getAccessDeniedContent() {
@@ -7,6 +7,6 @@ export default class SecurityService extends ServiceBase {
             return await response.json();
         }
 
-        throw new Error(response.statusText);
+        throw await this.generateError(response);
     }
 }

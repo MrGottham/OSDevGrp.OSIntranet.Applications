@@ -1,4 +1,4 @@
-import ServiceBase from "./ServiceBase";
+import ServiceBase from './ServiceBase';
 
 export default class HomeService extends ServiceBase {
     async getLayoutContext() {
@@ -7,7 +7,7 @@ export default class HomeService extends ServiceBase {
             return await response.json();
         }
 
-        throw new Error(response.statusText);
+        throw await this.generateError(response);
     }
 
     async getCookieConsent(applicationName) {
@@ -20,7 +20,7 @@ export default class HomeService extends ServiceBase {
             return await response.json();
         }
 
-        throw new Error(response.statusText);
+        throw await this.generateError(response);
     }
 
     async getErrorContent(errorMessage) {
@@ -33,6 +33,6 @@ export default class HomeService extends ServiceBase {
             return await response.json();
         }
 
-        throw new Error(response.statusText);
+        throw await this.generateError(response);
     }
 }

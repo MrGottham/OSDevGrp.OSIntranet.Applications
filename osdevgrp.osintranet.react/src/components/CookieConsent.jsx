@@ -1,15 +1,18 @@
 import { useContext, useState, useEffect } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import {CookieConsent as CookieConsentForReact, OPTIONS } from 'react-cookie-consent';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 
 function CookieConsent() {
+    const { showBoundary } = useErrorBoundary();
     const homeService = useContext(ServiceContext).homeService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [cookieConsent, setCookieConsent] = useState();
 
     useEffect(() => {
-        populateCookieConsent();
+        populateCookieConsent()
+            .catch(error => showBoundary(error));
     }, []);
 
     if (cookieConsent === undefined) {
