@@ -8,7 +8,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Local.HealthMonitor;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Options;
 using OSDevGrp.OSIntranet.Bff.WebApi.Options;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;

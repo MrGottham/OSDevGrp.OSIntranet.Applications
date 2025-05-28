@@ -1,10 +1,8 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Home;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.UserInfo;
@@ -13,14 +11,16 @@ internal class UserInfoProvider : IUserInfoProvider
 {
     #region Private variables
 
+    private readonly IUserHelper _userHelper;
     private readonly IAccountingGateway _accountingGateway;
 
     #endregion
 
     #region Constructor
 
-    public UserInfoProvider(IAccountingGateway accountingGateway)
+    public UserInfoProvider(IUserHelper userHelper, IAccountingGateway accountingGateway)
     {
+        _userHelper = userHelper;
         _accountingGateway = accountingGateway;
     }
 
@@ -30,7 +30,7 @@ internal class UserInfoProvider : IUserInfoProvider
 
     public bool IsAuthenticated(ClaimsPrincipal claimsPrincipal)
     {
-        return claimsPrincipal.Identity?.IsAuthenticated ?? false;
+        return _userHelper.IsAuthenticated(claimsPrincipal);
     }
 
     public async Task<IUserInfoModel?> GetUserInfoAsync(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken = default)
@@ -40,26 +40,31 @@ internal class UserInfoProvider : IUserInfoProvider
             return null;
         }
 
-        string? name = null;
-        Task getNameTask = GetNameAsync(claimsPrincipal, cancellationToken).ContinueWith(task => name = task.Result, cancellationToken);
+        string? nameIdentifier = _userHelper.GetNameIdentifier(claimsPrincipal);
+        string? fullName = _userHelper.GetFullName(claimsPrincipal);
+        string? mailAddress = _userHelper.GetMailAddress(claimsPrincipal);
 
-        Claim? accountingClaim = claimsPrincipal.FindFirst(Security.ClaimTypes.AccountingClaimType);
-        bool hasAccountingAccess = accountingClaim != null;
-        int? defaultAccountingNumber = null;
-        Task getDefaultAccountingNumberTask = GetDefaultAccountingNumberAsync(accountingClaim, cancellationToken).ContinueWith(task => defaultAccountingNumber = task.Result, cancellationToken);
-        IDictionary<int, string> accountings = new ConcurrentDictionary<int, string>();
-        Task getAccountingsTask = GetAccountingsAsync(hasAccountingAccess, accountings, cancellationToken).ContinueWith(task => accountings = task.Result, cancellationToken);
+        bool hasAccountingAccess = _userHelper.HasAccountingAccess(claimsPrincipal);
+        int? defaultAccountingNumber = _userHelper.GetDefaultAccountingNumber(claimsPrincipal);
+        bool isAccountingAdministrator = _userHelper.IsAccountingAdministrator(claimsPrincipal);
+        bool isAccountingCreator = _userHelper.IsAccountingCreator(claimsPrincipal);
+        bool isAccountingModifier = _userHelper.IsAccountingModifier(claimsPrincipal);
+        bool isAccountingViewer = _userHelper.IsAccountingViewer(claimsPrincipal);
 
-        await Task.WhenAll(getNameTask, getDefaultAccountingNumberTask, getAccountingsTask);
+        IReadOnlyDictionary<int, string> accountings = await GetAccountingsAsync(hasAccountingAccess, cancellationToken);
+        IReadOnlyDictionary<int, string> modifiableAccountings = FilterAccountings(accountings, isAccountingModifier, item => _userHelper.IsAccountingModifier(claimsPrincipal, item.Key));
+        IReadOnlyDictionary<int, string> viewableAccountings = FilterAccountings(accountings, isAccountingViewer, item => _userHelper.IsAccountingViewer(claimsPrincipal, item.Key));
 
-        return new UserInfoModel(name, hasAccountingAccess, defaultAccountingNumber, accountings.AsReadOnly());
+        bool hasCommonDataAccess = _userHelper.HasCommonDataAccess(claimsPrincipal);
+
+        return new UserInfoModel(nameIdentifier, fullName, mailAddress, hasAccountingAccess, defaultAccountingNumber, accountings, isAccountingAdministrator, isAccountingCreator, isAccountingModifier, modifiableAccountings, isAccountingViewer, viewableAccountings, hasCommonDataAccess);
     }
 
-    private async Task<IDictionary<int, string>> GetAccountingsAsync(bool hasAccountingAccess, IDictionary<int, string> accountings, CancellationToken cancellationToken = default)
+    private async Task<IReadOnlyDictionary<int, string>> GetAccountingsAsync(bool hasAccountingAccess, CancellationToken cancellationToken = default)
     {
         if (hasAccountingAccess == false)
         {
-            return accountings;
+            return new ConcurrentDictionary<int, string>();
         }
 
         IEnumerable<AccountingModel> accountingModels = await _accountingGateway.GetAccountingsAsync(cancellationToken);
@@ -67,46 +72,14 @@ internal class UserInfoProvider : IUserInfoProvider
         return new ConcurrentDictionary<int, string>(accountingModels.ToDictionary(accountingModel => accountingModel.Number, accountingModel => accountingModel.Name));
     }
 
-    private static Task<string?> GetNameAsync(ClaimsPrincipal claimsPrincipal, CancellationToken cancellationToken = default)
+    private static IReadOnlyDictionary<int, string> FilterAccountings(IReadOnlyDictionary<int, string> accountings, bool accountingPermission, Func<KeyValuePair<int, string>, bool> predicate)
     {
-        return Task.Run(() => 
+        if (accountingPermission == false)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            return new ConcurrentDictionary<int, string>();
+        }
 
-            Claim? nameClaim = claimsPrincipal.FindFirst(ClaimTypes.Name);
-            if (nameClaim != null && string.IsNullOrWhiteSpace(nameClaim.Value) == false)
-            {
-                return nameClaim.Value;
-            }
-
-            Claim? emailClaim = claimsPrincipal.FindFirst(ClaimTypes.Email);
-            if (emailClaim != null && string.IsNullOrWhiteSpace(emailClaim.Value) == false)
-            {
-                return emailClaim.Value;
-            }
-
-            return null;
-        });
-    }
-
-    private static Task<int?> GetDefaultAccountingNumberAsync(Claim? accountingClaim, CancellationToken cancellationToken = default)
-    {
-        return Task.Run<int?>(() =>
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (accountingClaim == null || string.IsNullOrWhiteSpace(accountingClaim.Value))
-            {
-                return null;
-            }
-
-            if (int.TryParse(accountingClaim.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result))
-            {
-                return result;
-            }
-
-            return null;
-        });
+        return new ConcurrentDictionary<int, string>(accountings.Where(predicate).ToDictionary(pair => pair.Key, pair => pair.Value));
     }
 
     #endregion

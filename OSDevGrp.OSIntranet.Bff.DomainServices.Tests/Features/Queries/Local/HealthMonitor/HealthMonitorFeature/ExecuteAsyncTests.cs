@@ -4,7 +4,6 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Local.HealthMonitor;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DependencyHealth.DependencyHealthMonitor;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 

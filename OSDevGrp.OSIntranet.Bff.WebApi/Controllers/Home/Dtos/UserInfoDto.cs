@@ -1,4 +1,4 @@
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using System.ComponentModel.DataAnnotations;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;

@@ -1,4 +1,4 @@
-namespace OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
+namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
 
 public class DependencyHealthModel
 {

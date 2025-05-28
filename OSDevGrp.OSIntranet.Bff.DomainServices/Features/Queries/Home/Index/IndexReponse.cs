@@ -1,5 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Index;
 

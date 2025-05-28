@@ -1,4 +1,3 @@
-using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
 using System.Net;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;

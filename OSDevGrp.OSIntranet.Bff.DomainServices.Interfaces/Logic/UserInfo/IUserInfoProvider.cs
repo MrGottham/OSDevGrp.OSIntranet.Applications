@@ -1,4 +1,3 @@
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;

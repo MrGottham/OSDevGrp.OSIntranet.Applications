@@ -2,6 +2,8 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.UserHelper;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using System.Security.Claims;
@@ -13,6 +15,7 @@ public class IsAuthenticatedTests
 {
     #region Private variables
 
+    private Mock<IUserHelper>? _userHelperMock;
     private Mock<IAccountingGateway>? _accountingGatewayMock;
     private Fixture? _fixture;
 
@@ -21,50 +24,43 @@ public class IsAuthenticatedTests
     [SetUp]
     public void SetUp()
     {
+        _userHelperMock = new Mock<IUserHelper>();
         _accountingGatewayMock = new Mock<IAccountingGateway>();
         _fixture = new Fixture();
     }
 
     [Test]
     [Category("UnitTest")]
-    public void IsAuthenticated_WhenIdentityOnClaimsPrincipalIsNull_ReturnsFalse()
+    public void IsAuthenticated_WhenCalled_AssertIsAuthenticatedWasCalledOnUserHelperWithGivenClaimsPrincipal()
     {
         IUserInfoProvider sut = CreateSut();
 
-        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal();
-        bool result = sut.IsAuthenticated(claimsPrincipal);
+        ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
+        sut.IsAuthenticated(user);
 
-        Assert.That(result, Is.False);
+        _userHelperMock!.Verify(m => m.IsAuthenticated(It.Is<ClaimsPrincipal>(value => value == user)), Times.Once);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void IsAuthenticated_WhenIdentityOnClaimsPrincipalIsNonAuthenticatedClaimsIdentity_ReturnsFalse()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void IsAuthenticated_WhenCalled_ReturnsIsAuthenticatedFromUserHelper(bool isAuthenticated)
     {
-        IUserInfoProvider sut = CreateSut();
+        IUserInfoProvider sut = CreateSut(isAuthenticated: isAuthenticated);
 
-        ClaimsIdentity claimsIdentity = _fixture!.CreateNonAuthenticatedClaimsIdentity();
-        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        bool result = sut.IsAuthenticated(claimsPrincipal);
+        ClaimsPrincipal user = isAuthenticated
+            ? _fixture!.CreateAuthenticatedClaimsPrincipal()
+            : _fixture!.CreateNonAuthenticatedClaimsPrincipal();
+        bool result = sut.IsAuthenticated(user);
 
-        Assert.That(result, Is.False);
+        Assert.That(result, Is.EqualTo(isAuthenticated));
     }
 
-    [Test]
-    [Category("UnitTest")]
-    public void IsAuthenticated_WhenIdentityOnClaimsPrincipalIsAuthenticatedClaimsIdentity_ReturnsTrue()
+    private IUserInfoProvider CreateSut(bool isAuthenticated = true)
     {
-        IUserInfoProvider sut = CreateSut();
+        _userHelperMock!.Setup(_fixture!, isAuthenticated: isAuthenticated);
 
-        ClaimsIdentity claimsIdentity = _fixture!.CreateAuthenticatedClaimsIdentity();
-        ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-        bool result = sut.IsAuthenticated(claimsPrincipal);
-
-        Assert.That(result, Is.True);
-    }
-
-    private IUserInfoProvider CreateSut()
-    {
-        return new DomainServices.Logic.UserInfo.UserInfoProvider(_accountingGatewayMock!.Object);
+        return new DomainServices.Logic.UserInfo.UserInfoProvider(_userHelperMock!.Object, _accountingGatewayMock!.Object);
     }
 }

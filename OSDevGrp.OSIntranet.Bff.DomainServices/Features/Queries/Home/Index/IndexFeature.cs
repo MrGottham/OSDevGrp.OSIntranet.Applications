@@ -1,7 +1,6 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
 using System.Globalization;
 using System.Security.Claims;
 

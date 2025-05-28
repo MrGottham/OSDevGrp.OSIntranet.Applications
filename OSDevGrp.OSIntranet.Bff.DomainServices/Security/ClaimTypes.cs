@@ -14,5 +14,7 @@ internal static class ClaimTypes
 
     internal const string AccountingViewerClaimType = "urn:osdevgrp:osintranet:claims:accounting:viewer";
 
+    internal const string CommonDataClaimType = "urn:osdevgrp:osintranet:claims:commondata";
+
     #endregion
 }

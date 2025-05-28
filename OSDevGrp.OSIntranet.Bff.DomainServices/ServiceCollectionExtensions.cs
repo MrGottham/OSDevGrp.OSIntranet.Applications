@@ -25,6 +25,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IStaticTextProvider, StaticTextProvider>()
             .AddTransient<IUserInfoProvider, UserInfoProvider>()
             .AddTransient<IPermissionValidator, PermissionValidator>()
+            .AddTransient<IPermissionChecker, UserHelper>()
+            .AddTransient<IUserHelper, UserHelper>()
             .AddTransient<IDependencyHealthMonitor, DependencyHealthMonitor>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);
     }

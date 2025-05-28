@@ -5,7 +5,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Index;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
