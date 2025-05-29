@@ -23,7 +23,7 @@ public abstract class PipelineExtensionTestBase
 
         if (isPermissionVerifiable)
         {
-            Mock<IPermissionVerifiable> permissionVerifiableMock = commandFeatureMock.As<IPermissionVerifiable>();
+            Mock<IPermissionVerifiable<IRequest>> permissionVerifiableMock = commandFeatureMock.As<IPermissionVerifiable<IRequest>>();
             permissionVerifiableMock.Setup(m => m.VerifyPermissionAsync(It.IsAny<ISecurityContext>(), It.IsAny<IRequest>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissionGranted));
         }
@@ -57,7 +57,7 @@ public abstract class PipelineExtensionTestBase
 
         if (isPermissionVerifiable)
         {
-            Mock<IPermissionVerifiable> permissionVerifiableMock = queryFeatureMock.As<IPermissionVerifiable>();
+            Mock<IPermissionVerifiable<IRequest>> permissionVerifiableMock = queryFeatureMock.As<IPermissionVerifiable<IRequest>>();
             permissionVerifiableMock.Setup(m => m.VerifyPermissionAsync(It.IsAny<ISecurityContext>(), It.IsAny<IRequest>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissionGranted));
         }

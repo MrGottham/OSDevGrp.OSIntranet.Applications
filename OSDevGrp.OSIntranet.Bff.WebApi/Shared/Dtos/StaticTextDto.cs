@@ -1,7 +1,7 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using System.ComponentModel.DataAnnotations;
 
-namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
+namespace OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 
 public class StaticTextDto
 {

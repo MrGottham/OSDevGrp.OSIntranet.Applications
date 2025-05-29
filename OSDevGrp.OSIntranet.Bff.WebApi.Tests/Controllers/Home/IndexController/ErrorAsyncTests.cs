@@ -4,11 +4,11 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Error;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.SecurityContextProvider;
+using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Home.IndexController;
@@ -167,11 +167,6 @@ public class ErrorAsyncTests
 
     private ErrorResponse CreateErrorResponse()
     {
-        Dictionary<StaticTextKey, string> staticTexts = new Dictionary<StaticTextKey, string>
-        {
-            { StaticTextKey.SomethingWentWrong, _fixture!.Create<string>() }
-        };
-
-        return new ErrorResponse(_fixture.Create<string>(), staticTexts);
+        return new ErrorResponse(_fixture.Create<string>(), _fixture!.CreateStaticTexts(_random!));
     }
 }

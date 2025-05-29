@@ -24,7 +24,7 @@ internal class QueryFeaturePermissionVerifier<TRequest, TResponse> : IQueryFeatu
 
     public async Task<TResponse> ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {
-        if (this.GetInnerMostFeature() is IPermissionVerifiable permissionVerifiable)
+        if (this.GetInnerMostFeature() is IPermissionVerifiable<TRequest> permissionVerifiable)
         {
             if (await permissionVerifiable.VerifyPermissionAsync(request.SecurityContext, request, cancellationToken) == false)
             {

@@ -16,6 +16,14 @@ public enum StaticTextKey
     WebsiteUsingCookies,
     CookieConsentInformation,
     AllowNecessaryCookies,
+    MailAddress,
+    Permissions,
+    Administrator,
+    Creator,
+    Modifier,
+    Viewer,
     FinancialManagement,
-    Accountings
+    PrimaryAccounting,
+    Accountings,
+    CommonData
 }

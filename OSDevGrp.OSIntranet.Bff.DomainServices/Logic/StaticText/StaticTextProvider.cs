@@ -44,8 +44,16 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.WebsiteUsingCookies, "Denne hjemmeside bruger cookies");
         staticTexts.Add(StaticTextKey.CookieConsentInformation, "Vi bruger cookies til at tilpasse dit indhold, dine funktioner samt optimere din brugeroplevelse her på hjemmeside. Vi deler ikke oplysninger om din brug af vores hjemmesede med partnere, sociale medier, annonceringspartnere ej heller analysepartnere.");
         staticTexts.Add(StaticTextKey.AllowNecessaryCookies, "Tillad nødvendige");
+        staticTexts.Add(StaticTextKey.MailAddress, "Mailadresse");
+        staticTexts.Add(StaticTextKey.Permissions, "Rettigheder");
+        staticTexts.Add(StaticTextKey.Administrator, "Administrator");
+        staticTexts.Add(StaticTextKey.Creator, "Skaber");
+        staticTexts.Add(StaticTextKey.Modifier, "Redaktør");
+        staticTexts.Add(StaticTextKey.Viewer, "Læser");
         staticTexts.Add(StaticTextKey.FinancialManagement, "Finansstyring");
+        staticTexts.Add(StaticTextKey.PrimaryAccounting, "Primær regnskab");
         staticTexts.Add(StaticTextKey.Accountings, "Regnskaber");
+        staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         return staticTexts.AsReadOnly();
     }
 

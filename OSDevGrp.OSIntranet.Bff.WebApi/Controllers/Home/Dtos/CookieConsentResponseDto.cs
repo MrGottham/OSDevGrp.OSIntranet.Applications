@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.CookieConsent;
+using OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
@@ -18,7 +19,7 @@ public class CookieConsentResponseDto
     public required int DaysUntilExpiry { get; init; }
 
     [Required]
-    public required IReadOnlyCollection<StaticTextDto> StaticTexts { get; init; }= Array.Empty<StaticTextDto>();
+    public required IReadOnlyCollection<StaticTextDto> StaticTexts { get; init; } = Array.Empty<StaticTextDto>();
 
     internal static CookieConsentResponseDto Map(CookieConsentResponse cookieConsentResponse)
     {

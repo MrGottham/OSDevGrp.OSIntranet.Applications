@@ -5,12 +5,12 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
+using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Security.SecurityController;
@@ -150,13 +150,6 @@ public class AccessDeniedContentAsyncTests : SecurityControllerTestBase<AccessDe
 
     private AccessDeniedContentResponse CreateAccessDeniedContentResponse()
     {
-        Dictionary<StaticTextKey, string> staticTexts = new Dictionary<StaticTextKey, string>
-        {
-            { StaticTextKey.AccessDenied, _fixture!.Create<string>() },
-            { StaticTextKey.MissingPermissionToPage, _fixture.Create<string>() },
-            { StaticTextKey.CheckYourCredentials, _fixture.Create<string>() }
-        };
-
-        return new AccessDeniedContentResponse(staticTexts);
+        return new AccessDeniedContentResponse(_fixture!.CreateStaticTexts(_random!));
     }
 }

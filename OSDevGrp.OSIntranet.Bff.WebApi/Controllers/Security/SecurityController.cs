@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
@@ -80,6 +81,21 @@ public class SecurityController : ControllerBase
             RedirectUri = validatedReturnUri!.AbsoluteUri
         };
         return SignOut(authenticationProperties, OpenIdConnectDefaults.AuthenticationScheme, Schemes.Internal);
+    }
+
+    [HttpGet("userinfo")]
+    [ProducesResponseType(typeof(UserInfoResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> UserInfoAsync([FromServices] IQueryFeature<UserInfoRequest, UserInfoResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        UserInfoRequest userInfoRequest = new UserInfoRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        UserInfoResponse userInfoResponse = await queryFeature.ExecuteAsync(userInfoRequest, cancellationToken);
+
+        return Ok(UserInfoResponseDto.Map(userInfoResponse));
     }
 
     [AllowAnonymous]

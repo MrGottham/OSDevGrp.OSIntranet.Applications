@@ -10,6 +10,7 @@ using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.SecurityContextProvider;
+using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Home.IndexController;
@@ -149,7 +150,7 @@ public class IndexAsyncTests
     [TestCase(false, false, false, false)]
     public async Task IndexAsync_WhenCalled_ReturnsOkObjectResultWhereValueIsIndexResponseDto(bool hasUserInfo, bool hasName, bool hasAccountingAccess, bool hasDefaultAccountingNumber)
     {
-        IUserInfoModel userInfo = CreateUserInfoModel(hasName: hasName, hasAccountingAccess: hasAccountingAccess);
+        IUserInfoModel userInfo = _fixture!.CreateUserInfoModel(_random!, hasName: hasName, hasAccountingAccess: hasAccountingAccess, hasDefaultAccountingNumber: hasDefaultAccountingNumber);
         IndexResponse indexResponse = CreateIndexResponse(hasUserInfo: hasUserInfo, userInfo: userInfo);
         WebApi.Controllers.Home.HomeController sut = CreateSut(indexResponse: indexResponse);
 
@@ -171,33 +172,9 @@ public class IndexAsyncTests
 
     private IndexResponse CreateIndexResponse(bool hasUserInfo = true, IUserInfoModel? userInfo = null)
     {
-        StaticTextKey titleSelector = StaticTextKey.OSDevelopmentGroup;
-        Dictionary<StaticTextKey, string> staticTexts = new Dictionary<StaticTextKey, string>
-        {
-            { titleSelector, _fixture!.Create<string>() },
-            { StaticTextKey.Login, _fixture.Create<string>() },
-            { StaticTextKey.Logout, _fixture.Create<string>() }
-        };
+        IReadOnlyDictionary<StaticTextKey, string> staticTexts = _fixture!.CreateStaticTexts(_random!);
+        StaticTextKey titleSelector = staticTexts.First().Key;
 
-        return new IndexResponse(titleSelector, hasUserInfo ? userInfo ?? CreateUserInfoModel() : null, staticTexts);
-    }
-
-    private IUserInfoModel CreateUserInfoModel(bool hasName = true, bool hasAccountingAccess = true, bool hasDefaultAccountingNumber = true)
-    {
-        return CreateUserInfoModelMock(hasName, hasAccountingAccess, hasDefaultAccountingNumber).Object;
-    }
-
-    private Mock<IUserInfoModel> CreateUserInfoModelMock(bool hasName = true, bool hasAccountingAccess = true, bool hasDefaultAccountingNumber = true)
-    {
-        Mock<IUserInfoModel> userInfoModelMock = new Mock<IUserInfoModel>();
-        userInfoModelMock.Setup(m => m.Name)
-            .Returns(hasName ? _fixture!.Create<string>() : null);
-        userInfoModelMock.Setup(m => m.HasAccountingAccess)
-            .Returns(hasAccountingAccess);
-        userInfoModelMock.Setup(m => m.DefaultAccountingNumber)
-            .Returns(hasAccountingAccess ? hasDefaultAccountingNumber ? _fixture!.Create<int>() : null : null);
-        userInfoModelMock.Setup(m => m.Accountings)
-            .Returns(hasAccountingAccess ? _fixture!.CreateMany<int>().ToDictionary(value => value, _ => _fixture!.Create<string>()) : new Dictionary<int, string>());
-        return userInfoModelMock;
+        return new IndexResponse(titleSelector, hasUserInfo ? userInfo ?? _fixture!.CreateUserInfoModel(_random!) : null, staticTexts);
     }
 }

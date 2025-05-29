@@ -4,11 +4,11 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.CookieConsent;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.SecurityContextProvider;
+using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Home.IndexController;
@@ -181,13 +181,6 @@ public class CookieConsentAsyncTests
 
     private CookieConsentResponse CreateCookieConsentResponse()
     {
-        Dictionary<StaticTextKey, string> staticTexts = new Dictionary<StaticTextKey, string>
-        {
-            { StaticTextKey.WebsiteUsingCookies, _fixture!.Create<string>() },
-            { StaticTextKey.CookieConsentInformation, _fixture.Create<string>() },
-            { StaticTextKey.AllowNecessaryCookies, _fixture.Create<string>() }
-        };
-
-        return new CookieConsentResponse(_fixture.Create<string>(), _fixture.Create<string>(), DateTime.Now.AddDays(_random!.Next(30, 90)), _timeProviderMock!.Object, staticTexts);
+        return new CookieConsentResponse(_fixture.Create<string>(), _fixture.Create<string>(), DateTime.Now.AddDays(_random!.Next(30, 90)), _timeProviderMock!.Object, _fixture!.CreateStaticTexts(_random!));
     }
 }

@@ -47,7 +47,7 @@ public class ExecuteAsyncTests : FeaturePermissionVerifierTestBase
         IRequest request = CreateRequest(() => _fixture!, securityContext: securityContext);
         await sut.ExecuteAsync(request, CancellationToken.None);
 
-        _innerFeatureMock!.As<IPermissionVerifiable>().Verify(m => m.VerifyPermissionAsync(
+        _innerFeatureMock!.As<IPermissionVerifiable<IRequest>>().Verify(m => m.VerifyPermissionAsync(
                 It.Is<ISecurityContext>(value => value == securityContext),
                 It.IsAny<IRequest>(),
                 It.IsAny<CancellationToken>()), 
@@ -63,7 +63,7 @@ public class ExecuteAsyncTests : FeaturePermissionVerifierTestBase
         IRequest request = CreateRequest(() => _fixture!);
         await sut.ExecuteAsync(request, CancellationToken.None);
 
-        _innerFeatureMock!.As<IPermissionVerifiable>().Verify(m => m.VerifyPermissionAsync(
+        _innerFeatureMock!.As<IPermissionVerifiable<IRequest>>().Verify(m => m.VerifyPermissionAsync(
                 It.IsAny<ISecurityContext>(),
                 It.Is<IRequest>(value => value == request),
                 It.IsAny<CancellationToken>()), 
@@ -81,7 +81,7 @@ public class ExecuteAsyncTests : FeaturePermissionVerifierTestBase
         CancellationToken cancellationToken = cancellationTokenSource.Token;
         await sut.ExecuteAsync(request, cancellationToken);
 
-        _innerFeatureMock!.As<IPermissionVerifiable>().Verify(m => m.VerifyPermissionAsync(
+        _innerFeatureMock!.As<IPermissionVerifiable<IRequest>>().Verify(m => m.VerifyPermissionAsync(
                 It.IsAny<ISecurityContext>(),
                 It.IsAny<IRequest>(),
                 It.Is<CancellationToken>(value => value == cancellationToken)), 

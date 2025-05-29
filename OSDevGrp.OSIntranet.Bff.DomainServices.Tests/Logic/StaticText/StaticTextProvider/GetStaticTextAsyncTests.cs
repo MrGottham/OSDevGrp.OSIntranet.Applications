@@ -38,8 +38,16 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.WebsiteUsingCookies, "Denne hjemmeside bruger cookies", 0)]
     [TestCase(StaticTextKey.CookieConsentInformation, "Vi bruger cookies til at tilpasse dit indhold, dine funktioner samt optimere din brugeroplevelse her på hjemmeside. Vi deler ikke oplysninger om din brug af vores hjemmesede med partnere, sociale medier, annonceringspartnere ej heller analysepartnere.", 0)]
     [TestCase(StaticTextKey.AllowNecessaryCookies, "Tillad nødvendige", 0)]
+    [TestCase(StaticTextKey.MailAddress, "Mailadresse", 0)]
+    [TestCase(StaticTextKey.Permissions, "Rettigheder", 0)]
+    [TestCase(StaticTextKey.Administrator, "Administrator", 0)]
+    [TestCase(StaticTextKey.Creator, "Skaber", 0)]
+    [TestCase(StaticTextKey.Modifier, "Redaktør", 0)]
+    [TestCase(StaticTextKey.Viewer, "Læser", 0)]
     [TestCase(StaticTextKey.FinancialManagement, "Finansstyring", 0)]
+    [TestCase(StaticTextKey.PrimaryAccounting, "Primær regnskab", 0)]
     [TestCase(StaticTextKey.Accountings, "Regnskaber", 0)]
+    [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();
