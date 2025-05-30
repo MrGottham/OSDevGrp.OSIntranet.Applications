@@ -24,7 +24,7 @@ function Fallback({ error, resetErrorBoundary }) {
     return (
         <div className='alert alert-danger mt-5 ms-5 me-5'>
             <span>
-                <i className='fa-solid fa-bug'></i>&nbsp;<strong>{staticTextHelper.getStaticTextByKey(errorContent.staticTexts, 'SomethingWentWrong')}</strong>
+                <i className='fa-solid fa-bug'></i>&nbsp;<strong>{staticTextHelper.getSomethingWentWrongText(errorContent.staticTexts)}</strong>
             </span>
             <hr />
             <p>{errorContent.errorMessage}</p>

@@ -23,9 +23,9 @@ function CookieConsent() {
     }
 
     return (
-        <CookieConsentForReact disableStyles={true} location={OPTIONS.BOTTOM} buttonText={staticTextHelper.getStaticTextByKey(cookieConsent.staticTexts, 'AllowNecessaryCookies')} cookieName={cookieConsent.cookieName} cookieValue={cookieConsent.cookieValue} expires={cookieConsent.daysUntilExpiry} buttonClasses='btn btn-primary right' containerClasses='alert alert-warning mb-6'>
-            <p><b>{staticTextHelper.getStaticTextByKey(cookieConsent.staticTexts, 'WebsiteUsingCookies')}</b></p>
-            <p className='small'>{staticTextHelper.getStaticTextByKey(cookieConsent.staticTexts, 'CookieConsentInformation')}</p>
+        <CookieConsentForReact disableStyles={true} location={OPTIONS.BOTTOM} buttonText={staticTextHelper.getAllowNecessaryCookiesText(cookieConsent.staticTexts)} cookieName={cookieConsent.cookieName} cookieValue={cookieConsent.cookieValue} expires={cookieConsent.daysUntilExpiry} buttonClasses='btn btn-primary right' containerClasses='alert alert-warning mb-6'>
+            <p><b>{staticTextHelper.getWebsiteUsingCookiesText(cookieConsent.staticTexts)}</b></p>
+            <p className='small'>{staticTextHelper.getCookieConsentInformationText(cookieConsent.staticTexts)}</p>
         </CookieConsentForReact>
     );
 

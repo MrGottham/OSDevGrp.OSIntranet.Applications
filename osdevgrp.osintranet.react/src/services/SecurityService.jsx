@@ -9,4 +9,13 @@ export default class SecurityService extends ServiceBase {
 
         throw await this.generateError(response);
     }
+
+    async getUserInfo() {
+        const response = await fetch(this.resolveEndpoint('/api/security/userinfo'), { credentials: 'include' });
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw await this.generateError(response);
+    }
 }

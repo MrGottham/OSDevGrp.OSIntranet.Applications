@@ -26,11 +26,11 @@ function AccessDenied() {
     return (
         <div className='alert alert-danger'>
             <span>
-                <i className='fa-solid fa-circle-xmark'></i>&nbsp;<strong>{staticTextHelper.getStaticTextByKey(accessDeniedContent.staticTexts, 'AccessDenied')}</strong>
+                <i className='fa-solid fa-circle-xmark'></i>&nbsp;<strong>{staticTextHelper.getAccessDeniedText(accessDeniedContent.staticTexts)}</strong>
             </span>
             <hr />
-            <p>{staticTextHelper.getStaticTextByKey(accessDeniedContent.staticTexts, 'MissingPermissionToPage')}</p>
-            <p>{staticTextHelper.getStaticTextByKey(accessDeniedContent.staticTexts, 'CheckYourCredentials')}</p>
+            <p>{staticTextHelper.getMissingPermissionToPageText(accessDeniedContent.staticTexts)}</p>
+            <p>{staticTextHelper.getCheckYourCredentialsText(accessDeniedContent.staticTexts)}</p>
         </div>
     )
 
