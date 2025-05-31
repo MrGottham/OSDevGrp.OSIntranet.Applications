@@ -6,7 +6,9 @@ import { HelperContext } from '../contexts/HelperContext';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
+import Image from 'react-bootstrap/Image';
 import Loading from './Loading';
+import AccoutingImage from '../assets/accounting.png';
 
 function UserInfo() {
     const { showBoundary } = useErrorBoundary();
@@ -173,6 +175,7 @@ function UserInfo() {
                     {userInfo.accountings.map((accounting, index) => (
                         <Col key={index}>
                             <Card className='h-100'>
+                                <Card.Img variant='top' as={Image} src={AccoutingImage} fluid />
                                 <Card.Body>
                                     <Card.Title><Card.Link as={Link} to={`/accountings/${accounting.number}`}>{accounting.name}</Card.Link></Card.Title>
                                     {getPermissionContent(userInfo.isAccountingModifier && accountingNumberInAccountings(accounting.number, userInfo.modifiableAccountings), staticTextHelper.getModifierText(staticTexts), 'mt-3')}
