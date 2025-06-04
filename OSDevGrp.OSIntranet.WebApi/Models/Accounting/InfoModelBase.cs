@@ -14,5 +14,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
         [Range(1, 12)]
         [JsonRequired]
         public short Month { get; set; }
-    }
+
+        [Required]
+        [JsonRequired]
+        public bool Modifiable { get; set; }
+
+        [Required]
+        [JsonRequired]
+        public bool Deletable { get; set; }
+     }
 }

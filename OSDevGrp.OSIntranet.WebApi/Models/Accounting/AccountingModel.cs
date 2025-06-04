@@ -35,5 +35,13 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
         [Required]
         [JsonRequired]
         public ContactAccountCollectionModel ContactAccounts { get; set; }
+
+        [Required]
+        [JsonRequired]
+        public bool Modifiable { get; set; }
+
+        [Required]
+        [JsonRequired]
+        public bool Deletable { get; set; }
     }
 }

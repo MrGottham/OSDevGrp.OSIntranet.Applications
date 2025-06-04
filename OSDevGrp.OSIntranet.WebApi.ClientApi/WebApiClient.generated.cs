@@ -3437,7 +3437,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public AccountModel(AccountGroupModel @accountGroup, AccountingIdentificationModel @accounting, string @accountName, string @accountNumber, System.Collections.Generic.ICollection<CreditInfoModel> @creditInfos, string? @description, string? @note, DateTimeOffset @statusDate, CreditInfoValuesModel @valuesAtEndOfLastMonthFromStatusDate, CreditInfoValuesModel @valuesAtEndOfLastYearFromStatusDate, CreditInfoValuesModel @valuesAtStatusDate)
+        public AccountModel(AccountGroupModel @accountGroup, AccountingIdentificationModel @accounting, string @accountName, string @accountNumber, System.Collections.Generic.ICollection<CreditInfoModel> @creditInfos, bool @deletable, string? @description, bool @modifiable, string? @note, DateTimeOffset @statusDate, CreditInfoValuesModel @valuesAtEndOfLastMonthFromStatusDate, CreditInfoValuesModel @valuesAtEndOfLastYearFromStatusDate, CreditInfoValuesModel @valuesAtStatusDate)
 
         {
 
@@ -3452,6 +3452,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             this.Note = @note;
 
             this.StatusDate = @statusDate;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
             this.AccountGroup = @accountGroup;
 
@@ -3490,6 +3494,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("statusDate")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public DateTimeOffset StatusDate { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("accountGroup")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -3543,7 +3553,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public AccountingModel(System.Collections.Generic.ICollection<AccountModel> @accounts, int @backDating, BalanceBelowZeroType @balanceBelowZero, System.Collections.Generic.ICollection<BudgetAccountModel> @budgetAccounts, System.Collections.Generic.ICollection<ContactAccountModel> @contactAccounts, LetterHeadIdentificationModel @letterHead, string @name, int @number, DateTimeOffset @statusDate)
+        public AccountingModel(System.Collections.Generic.ICollection<AccountModel> @accounts, int @backDating, BalanceBelowZeroType @balanceBelowZero, System.Collections.Generic.ICollection<BudgetAccountModel> @budgetAccounts, System.Collections.Generic.ICollection<ContactAccountModel> @contactAccounts, bool @deletable, LetterHeadIdentificationModel @letterHead, bool @modifiable, string @name, int @number, DateTimeOffset @statusDate)
 
         {
 
@@ -3564,6 +3574,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             this.BudgetAccounts = @budgetAccounts;
 
             this.ContactAccounts = @contactAccounts;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
         }
         [System.Text.Json.Serialization.JsonPropertyName("number")]
@@ -3603,6 +3617,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("contactAccounts")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<ContactAccountModel> ContactAccounts { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
 
     }
 
@@ -3747,13 +3767,17 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public BalanceInfoModel(double @balance, int @month, int @year)
+        public BalanceInfoModel(double @balance, bool @deletable, bool @modifiable, int @month, int @year)
 
         {
 
             this.Year = @year;
 
             this.Month = @month;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
             this.Balance = @balance;
 
@@ -3765,6 +3789,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("month")]
         [System.ComponentModel.DataAnnotations.Range(1, 12)]
         public int Month { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("balance")]
         public double Balance { get; }
@@ -3818,7 +3848,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public BudgetAccountModel(AccountingIdentificationModel @accounting, string @accountName, string @accountNumber, BudgetAccountGroupModel @budgetAccountGroup, System.Collections.Generic.ICollection<BudgetInfoModel> @budgetInfos, string? @description, string? @note, DateTimeOffset @statusDate, BudgetInfoValuesModel @valuesForLastMonthOfStatusDate, BudgetInfoValuesModel @valuesForLastYearOfStatusDate, BudgetInfoValuesModel @valuesForMonthOfStatusDate, BudgetInfoValuesModel @valuesForYearToDateOfStatusDate)
+        public BudgetAccountModel(AccountingIdentificationModel @accounting, string @accountName, string @accountNumber, BudgetAccountGroupModel @budgetAccountGroup, System.Collections.Generic.ICollection<BudgetInfoModel> @budgetInfos, bool @deletable, string? @description, bool @modifiable, string? @note, DateTimeOffset @statusDate, BudgetInfoValuesModel @valuesForLastMonthOfStatusDate, BudgetInfoValuesModel @valuesForLastYearOfStatusDate, BudgetInfoValuesModel @valuesForMonthOfStatusDate, BudgetInfoValuesModel @valuesForYearToDateOfStatusDate)
 
         {
 
@@ -3833,6 +3863,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             this.Note = @note;
 
             this.StatusDate = @statusDate;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
             this.BudgetAccountGroup = @budgetAccountGroup;
 
@@ -3874,6 +3908,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public DateTimeOffset StatusDate { get; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
+
         [System.Text.Json.Serialization.JsonPropertyName("budgetAccountGroup")]
         [System.ComponentModel.DataAnnotations.Required]
         public BudgetAccountGroupModel BudgetAccountGroup { get; }
@@ -3905,13 +3945,17 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public BudgetInfoModel(double @available, double @budget, double @expenses, double @income, int @month, double @posted, int @year)
+        public BudgetInfoModel(double @available, double @budget, bool @deletable, double @expenses, double @income, bool @modifiable, int @month, double @posted, int @year)
 
         {
 
             this.Year = @year;
 
             this.Month = @month;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
             this.Income = @income;
 
@@ -3931,6 +3975,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("month")]
         [System.ComponentModel.DataAnnotations.Range(1, 12)]
         public int Month { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("income")]
         [System.ComponentModel.DataAnnotations.Range(0D, 99999999D)]
@@ -3983,7 +4033,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public ContactAccountModel(AccountingIdentificationModel @accounting, string @accountName, string @accountNumber, System.Collections.Generic.ICollection<BalanceInfoModel> @balanceInfos, string? @description, string? @mailAddress, string? @note, PaymentTermModel @paymentTerm, string? @primaryPhone, string? @secondaryPhone, DateTimeOffset @statusDate, BalanceInfoValuesModel @valuesAtEndOfLastMonthFromStatusDate, BalanceInfoValuesModel @valuesAtEndOfLastYearFromStatusDate, BalanceInfoValuesModel @valuesAtStatusDate)
+        public ContactAccountModel(AccountingIdentificationModel @accounting, string @accountName, string @accountNumber, System.Collections.Generic.ICollection<BalanceInfoModel> @balanceInfos, bool @deletable, string? @description, string? @mailAddress, bool @modifiable, string? @note, PaymentTermModel @paymentTerm, string? @primaryPhone, string? @secondaryPhone, DateTimeOffset @statusDate, BalanceInfoValuesModel @valuesAtEndOfLastMonthFromStatusDate, BalanceInfoValuesModel @valuesAtEndOfLastYearFromStatusDate, BalanceInfoValuesModel @valuesAtStatusDate)
 
         {
 
@@ -3998,6 +4048,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             this.Note = @note;
 
             this.StatusDate = @statusDate;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
             this.MailAddress = @mailAddress;
 
@@ -4043,6 +4097,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public DateTimeOffset StatusDate { get; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
+
         [System.Text.Json.Serialization.JsonPropertyName("mailAddress")]
         [System.ComponentModel.DataAnnotations.StringLength(256, MinimumLength = 1)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")]
@@ -4085,13 +4145,17 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     {
         [System.Text.Json.Serialization.JsonConstructor]
 
-        public CreditInfoModel(double @available, double @balance, double @credit, int @month, int @year)
+        public CreditInfoModel(double @available, double @balance, double @credit, bool @deletable, bool @modifiable, int @month, int @year)
 
         {
 
             this.Year = @year;
 
             this.Month = @month;
+
+            this.Modifiable = @modifiable;
+
+            this.Deletable = @deletable;
 
             this.Balance = @balance;
 
@@ -4107,6 +4171,12 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("month")]
         [System.ComponentModel.DataAnnotations.Range(1, 12)]
         public int Month { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modifiable")]
+        public bool Modifiable { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("deletable")]
+        public bool Deletable { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("balance")]
         public double Balance { get; }
