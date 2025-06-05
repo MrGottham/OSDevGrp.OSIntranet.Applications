@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoModel;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoProvider;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -189,6 +190,7 @@ public class ExecuteAsyncTests : UserInfoFeatureTestBase
     private IQueryFeature<UserInfoRequest, UserInfoResponse> CreateSut(bool hasUserInfo = true, IUserInfoModel? userInfoModel = null)
     {
         _userInfoProviderMock!.Setup(_fixture!, _random!, hasUserInfo: hasUserInfo, userInfoModel: userInfoModel);
+        _staticTextProviderMock!.Setup(_fixture!);
 
         return new DomainServices.Features.Queries.Security.UserInfo.UserInfoFeature(_permissionCheckerMock!.Object, _userInfoProviderMock!.Object, _staticTextProviderMock!.Object);
     }

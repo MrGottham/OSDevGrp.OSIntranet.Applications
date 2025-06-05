@@ -47,6 +47,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.FinancialManagement, "Finansstyring", 0)]
     [TestCase(StaticTextKey.PrimaryAccounting, "Primær regnskab", 0)]
     [TestCase(StaticTextKey.Accountings, "Regnskaber", 0)]
+    [TestCase(StaticTextKey.CreateNewAccounting, "Tilføj regnskab", 0)]
     [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {

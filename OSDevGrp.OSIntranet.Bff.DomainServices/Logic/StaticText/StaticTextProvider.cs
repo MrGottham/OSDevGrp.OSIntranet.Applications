@@ -53,6 +53,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.FinancialManagement, "Finansstyring");
         staticTexts.Add(StaticTextKey.PrimaryAccounting, "Primær regnskab");
         staticTexts.Add(StaticTextKey.Accountings, "Regnskaber");
+        staticTexts.Add(StaticTextKey.CreateNewAccounting, "Tilføj regnskab");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         return staticTexts.AsReadOnly();
     }

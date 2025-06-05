@@ -25,5 +25,6 @@ public enum StaticTextKey
     FinancialManagement,
     PrimaryAccounting,
     Accountings,
+    CreateNewAccounting,
     CommonData
 }
