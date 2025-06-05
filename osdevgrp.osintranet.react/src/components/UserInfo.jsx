@@ -1,14 +1,12 @@
 import { useContext, useState, useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
-import { Link } from 'react-router';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
-import Image from 'react-bootstrap/Image';
 import Loading from './Loading';
-import AccoutingImage from '../assets/accounting.png';
+import AccountingCard from './AccountingCard';
 
 function UserInfo() {
     const { showBoundary } = useErrorBoundary();
@@ -33,19 +31,19 @@ function UserInfo() {
         <>
             <Row>
                 <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
-                    {getFullNameContent(userInfo.userInfo)}
-                    {getMailAddressContent(userInfo.userInfo, userInfo.staticTexts, staticTextHelper)}
+                    {getFullNameContent(userInfo)}
+                    {getMailAddressContent(userInfo, userInfo.staticTexts, staticTextHelper)}
                 </Col>
             </Row>
             <Row>
                 <Col xs={12} sm={12} md={5} lg={4} xl={4} xxl={3}>
                     <Row xs={1} sm={1} md={1} lg={1} xl={1} xxl={1} className='g-3'>
-                        {getPermissionsContent(userInfo.userInfo, userInfo.staticTexts, staticTextHelper)}
-                        {getFinancialManagementContent(userInfo.userInfo, userInfo.staticTexts, staticTextHelper)}
+                        {getPermissionsContent(userInfo, userInfo.staticTexts, staticTextHelper)}
+                        {getFinancialManagementContent(userInfo, userInfo.staticTexts, staticTextHelper)}
                     </Row>
                 </Col>
                 <Col xs={12} sm={12} md={7} lg={8} xl={8} xxl={9}>
-                    {getAccountingsContent(userInfo.userInfo, userInfo.staticTexts, staticTextHelper)}
+                    {getAccountingsContent(userInfo, userInfo.staticTexts, staticTextHelper)}
                 </Col>
             </Row>
         </>
@@ -174,14 +172,10 @@ function UserInfo() {
                 <Row xs={1} sm={1} md={1} lg={2} xl={3} xxl={3} className='g-3'>
                     {userInfo.accountings.map((accounting, index) => (
                         <Col key={index}>
-                            <Card className='h-100'>
-                                <Card.Img variant='top' as={Image} src={AccoutingImage} fluid />
-                                <Card.Body>
-                                    <Card.Title><Card.Link as={Link} to={`/accountings/${accounting.number}`}>{accounting.name}</Card.Link></Card.Title>
-                                    {getPermissionContent(userInfo.isAccountingModifier && accountingNumberInAccountings(accounting.number, userInfo.modifiableAccountings), staticTextHelper.getModifierText(staticTexts), 'mt-3')}
-                                    {getPermissionContent(userInfo.isAccountingViewer && accountingNumberInAccountings(accounting.number, userInfo.viewableAccountings), staticTextHelper.getViewerText(staticTexts), 'mt-3')}
-                                </Card.Body>
-                            </Card>
+                            <AccountingCard accounting={accounting}>
+                                {getPermissionContent(userInfo.isAccountingModifier && accountingNumberInAccountings(accounting.number, userInfo.modifiableAccountings), staticTextHelper.getModifierText(staticTexts), 'mt-3')}
+                                {getPermissionContent(userInfo.isAccountingViewer && accountingNumberInAccountings(accounting.number, userInfo.viewableAccountings), staticTextHelper.getViewerText(staticTexts), 'mt-3')}
+                            </AccountingCard>
                         </Col>
                     ))}
                 </Row>
