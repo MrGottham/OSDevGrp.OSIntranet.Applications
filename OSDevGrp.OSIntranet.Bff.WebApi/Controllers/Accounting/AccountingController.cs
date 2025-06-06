@@ -1,0 +1,57 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accountings;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
+using OSDevGrp.OSIntranet.Bff.WebApi.Security;
+using System.Net;
+using System.Net.Mime;
+
+namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting;
+
+[Authorize(Policy = Policies.Accounting)]
+[ApiController]
+[Route("api/accounting")]
+public class AccountingController : ControllerBase
+{
+    #region Private variables
+
+    private readonly TimeProvider _timeProvider;
+    private readonly IFormatProvider _formatProvider;
+    private readonly ISecurityContextProvider _securityContextProvider;
+
+    #endregion
+
+    #region Constructor
+
+    public AccountingController(TimeProvider timeProvider, IFormatProvider formatProvider, ISecurityContextProvider securityContextProvider)
+    {
+        _timeProvider = timeProvider;
+        _formatProvider = formatProvider;
+        _securityContextProvider = securityContextProvider;
+    }
+
+    #endregion
+
+    #region Methods
+
+    [AllowAnonymous]
+    [HttpGet()]
+    [HttpGet("acccountings")]
+    [ProducesResponseType(typeof(AccountingsResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AccountingsAsync([FromServices] IQueryFeature<AccountingsRequest, AccountingsResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AccountingsRequest accountingsRequest = new AccountingsRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        AccountingsResponse accountingsResponse = await queryFeature.ExecuteAsync(accountingsRequest, cancellationToken);
+
+        return Ok(AccountingsResponseDto.Map(accountingsResponse));
+    }
+
+    #endregion
+}

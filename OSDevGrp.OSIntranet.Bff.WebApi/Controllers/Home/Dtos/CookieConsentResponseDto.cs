@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.CookieConsent;
+using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,15 +8,15 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
 public class CookieConsentResponseDto
 {
     [Required]
-    [MinLength(1)]
+    [MinLength(ValidationValues.CookieNameMinLength)]
     public required string CookieName { get; init; }
 
     [Required]
-    [MinLength(1)]
+    [MinLength(ValidationValues.CookieValueMinLength)]
     public required string CookieValue { get; init; }
 
     [Required]
-    [Range(0, 365)]
+    [Range(ValidationValues.DaysUntilCookieExpiryMinValue, ValidationValues.DaysUntilCookieExpiryMaxValue)]
     public required int DaysUntilExpiry { get; init; }
 
     [Required]

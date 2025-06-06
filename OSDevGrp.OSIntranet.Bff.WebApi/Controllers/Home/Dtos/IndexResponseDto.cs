@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Index;
+using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,7 +8,7 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
 public class IndexResponseDto
 {
     [Required]
-    [MinLength(1)]
+    [MinLength(ValidationValues.TitleMinLength)]
     public required string Title { get; init; }
 
     public UserInfoDto? UserInfo { get; init; }

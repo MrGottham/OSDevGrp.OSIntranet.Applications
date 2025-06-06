@@ -6,11 +6,11 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 public class StaticTextDto
 {
     [Required]
-    [MinLength(1)]
+    [MinLength(ValidationValues.StaticTextKeyMinLength)]
     public required string Key { get; init; }
 
     [Required]
-    [MinLength(1)]
+    [MinLength(ValidationValues.StaticTextValueMinLength)]
     public required string Text { get; init; }
 
     internal static StaticTextDto Map(KeyValuePair<StaticTextKey, string> staticText)

@@ -5,8 +5,8 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 public class AccountingInfoDto : AccountingIdentificationDto
 {
     [Required]
-    [MinLength(1)]
-    [MaxLength(256)]
+    [MinLength(ValidationValues.AccountingNameMinLength)]
+    [MaxLength(ValidationValues.AccountingNameMaxLength)]
     public required string Name { get; init; }
 
     internal static AccountingInfoDto Map(KeyValuePair<int, string> accounting)

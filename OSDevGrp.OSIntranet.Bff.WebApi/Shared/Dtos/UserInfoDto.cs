@@ -5,23 +5,23 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 
 public class UserInfoDto
 {
-    [MinLength(1)]
+    [MinLength(ValidationValues.NameIdentifierMinLength)]
     public string? NameIdentifier { get; init; }
 
-    [MinLength(1)]
+    [MinLength(ValidationValues.NameMinLength)]
     public string? Name { get; init; }
 
-    [MinLength(1)]
+    [MinLength(ValidationValues.MailAddressMinLength)]
     public string? MailAddress { get; init; }
 
     [Required]
     public required bool HasAccountingAccess { get; init; }
 
-    [Range(1, 99)]
+    [Range(ValidationValues.AccountingIdentificationMinValue, ValidationValues.AccountingIdentificationMaxValue)]
     public int? DefaultAccountingNumber { get; init; }
 
     [Required]
-    public required IReadOnlyCollection<AccountingInfoDto> Accountings { get; init; } = Array.Empty<AccountingInfoDto>();
+    public required IReadOnlyCollection<AccountingInfoDto> Accountings { get; init; } = [];
 
     [Required]
     public required bool IsAccountingAdministrator { get; init; }
@@ -33,13 +33,13 @@ public class UserInfoDto
     public required bool IsAccountingModifier { get; init; }
 
     [Required]
-    public required IReadOnlyCollection<AccountingInfoDto> ModifiableAccountings { get; init; } = Array.Empty<AccountingInfoDto>();
+    public required IReadOnlyCollection<AccountingInfoDto> ModifiableAccountings { get; init; } = [];
 
     [Required]
     public required bool IsAccountingViewer { get; init; }
 
     [Required]
-    public required IReadOnlyCollection<AccountingInfoDto> ViewableAccountings { get; init; } = Array.Empty<AccountingInfoDto>();
+    public required IReadOnlyCollection<AccountingInfoDto> ViewableAccountings { get; init; } = [];
 
     [Required]
     public required bool HasCommonDataAccess { get; init; }
