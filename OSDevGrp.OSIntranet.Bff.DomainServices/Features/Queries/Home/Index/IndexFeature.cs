@@ -71,6 +71,7 @@ internal class IndexFeature : PageFeatureBase<IndexRequest, IndexResponse, Claim
         staticTextSpecifications.Add(StaticTextKey.Logout, noArguments);
         staticTextSpecifications.Add(StaticTextKey.FinancialManagement, noArguments);
         staticTextSpecifications.Add(StaticTextKey.Accountings, noArguments);
+        staticTextSpecifications.Add(StaticTextKey.CreateNewAccounting, noArguments);
 
         return staticTextSpecifications.AsReadOnly();
     }

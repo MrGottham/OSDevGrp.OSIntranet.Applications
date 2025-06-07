@@ -83,6 +83,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'Accountings');
     }
 
+    getCreateNewAccountingText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'CreateNewAccounting');
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }

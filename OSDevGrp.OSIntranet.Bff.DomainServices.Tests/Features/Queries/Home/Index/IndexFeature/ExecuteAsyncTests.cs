@@ -196,6 +196,7 @@ public class ExecuteAsyncTests : HomePageFeatureTestBase
     [TestCase(StaticTextKey.Logout)]
     [TestCase(StaticTextKey.FinancialManagement)]
     [TestCase(StaticTextKey.Accountings)]
+    [TestCase(StaticTextKey.CreateNewAccounting)]
     public async Task ExecuteAsync_WhenUserFromSecurityConextIsAuthenticated_ReturnsIndexResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
@@ -230,6 +231,7 @@ public class ExecuteAsyncTests : HomePageFeatureTestBase
     [TestCase(StaticTextKey.Logout)]
     [TestCase(StaticTextKey.FinancialManagement)]
     [TestCase(StaticTextKey.Accountings)]
+    [TestCase(StaticTextKey.CreateNewAccounting)]
     public async Task ExecuteAsync_WhenUserFromSecurityConextIsNotAuthenticated_ReturnsIndexResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();

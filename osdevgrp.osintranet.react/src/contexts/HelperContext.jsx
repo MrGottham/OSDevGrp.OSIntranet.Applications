@@ -1,8 +1,10 @@
 import { createContext } from 'react';
+import AccountingHelper from '../helpers/AccountingHelper';
 import AuthorizationHelper from '../helpers/AuthorizationHelper';
 import StaticTextHelper from '../helpers/StaticTextHelper';
 
 const helpers = {
+    accountingHelper: new AccountingHelper(),
     authorizationHelper: new AuthorizationHelper(),
     staticTextHelper: new StaticTextHelper()
 };

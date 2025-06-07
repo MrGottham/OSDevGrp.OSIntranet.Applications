@@ -1,17 +1,43 @@
-export default class AuthorizationHelper {
-    authenticatedUser(layoutContext) {
-        if (layoutContext === undefined || layoutContext === null) {
-            throw new Error('Layout context is required.');
-        }
+import AccountingHelper from "./AccountingHelper";
 
-        return layoutContext.userInfo !== undefined && layoutContext.userInfo !== null;
+export default class AuthorizationHelper {
+    accountingHelper = new AccountingHelper();
+
+    authenticatedUser(userInfo) {
+        return userInfo !== undefined && userInfo !== null;
     }
 
-    hasAccountingAccess(layoutContext) {
-        if (layoutContext === undefined || layoutContext === null) {
-            throw new Error('Layout context is required.');
+    hasAccountingAccess(userInfo) {
+        return this.authenticatedUser(userInfo) && userInfo.hasAccountingAccess !== undefined && userInfo.hasAccountingAccess !== null && userInfo.hasAccountingAccess === true;
+    }
+
+    isAccountingAdministrator(userInfo) {
+        return this.hasAccountingAccess(userInfo) && userInfo.isAccountingAdministrator !== undefined && userInfo.isAccountingAdministrator !== null && userInfo.isAccountingAdministrator === true;
+    }
+
+    isAccountingCreator(userInfo) {
+        return this.hasAccountingAccess(userInfo) && userInfo.isAccountingCreator !== undefined && userInfo.isAccountingCreator !== null && userInfo.isAccountingCreator === true;
+    }
+
+    isAccountingModifier(userInfo, accountingNumber) {
+        const result = this.hasAccountingAccess(userInfo) && userInfo.isAccountingModifier !== undefined && userInfo.isAccountingModifier !== null && userInfo.isAccountingModifier === true;
+        if (result === false || accountingNumber === undefined || accountingNumber === null) {
+            return result;
         }
 
-        return this.authenticatedUser(layoutContext) && layoutContext.userInfo.hasAccountingAccess !== undefined && layoutContext.userInfo.hasAccountingAccess !== null && layoutContext.userInfo.hasAccountingAccess === true;
+        return this.accountingHelper.isAccountingNumberInAccountings(accountingNumber, userInfo.modifiableAccountings);
+    }
+
+    isAccountingViewer(userInfo, accountingNumber) {
+        const result = this.hasAccountingAccess(userInfo) && userInfo.isAccountingViewer !== undefined && userInfo.isAccountingViewer !== null && userInfo.isAccountingViewer === true;
+        if (result === false || accountingNumber === undefined || accountingNumber === null) {
+            return result;
+        }
+
+        return this.accountingHelper.isAccountingNumberInAccountings(accountingNumber, userInfo.viewableAccountings);
+    }
+
+    hasCommonDataAccess(userInfo) {
+        return this.authenticatedUser(userInfo) && userInfo.hasCommonDataAccess !== undefined && userInfo.hasCommonDataAccess !== null && userInfo.hasCommonDataAccess === true;
     }
 }

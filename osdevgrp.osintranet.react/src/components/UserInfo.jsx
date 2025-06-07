@@ -11,6 +11,7 @@ import AccountingCard from './AccountingCard';
 function UserInfo() {
     const { showBoundary } = useErrorBoundary();
     const securityService = useContext(ServiceContext).securityService;
+    const authorizationHelper = useContext(HelperContext).authorizationHelper;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [userInfo, setUserInfo] = useState();
 
@@ -38,12 +39,12 @@ function UserInfo() {
             <Row>
                 <Col xs={12} sm={12} md={5} lg={4} xl={4} xxl={3}>
                     <Row xs={1} sm={1} md={1} lg={1} xl={1} xxl={1} className='g-3'>
-                        {getPermissionsContent(userInfo, userInfo.staticTexts, staticTextHelper)}
-                        {getFinancialManagementContent(userInfo, userInfo.staticTexts, staticTextHelper)}
+                        {getPermissionsContent(userInfo, authorizationHelper, userInfo.staticTexts, staticTextHelper)}
+                        {getFinancialManagementContent(userInfo, authorizationHelper, userInfo.staticTexts, staticTextHelper)}
                     </Row>
                 </Col>
                 <Col xs={12} sm={12} md={7} lg={8} xl={8} xxl={9}>
-                    {getAccountingsContent(userInfo, userInfo.staticTexts, staticTextHelper)}
+                    {getAccountingsContent(userInfo, authorizationHelper, userInfo.staticTexts, staticTextHelper)}
                 </Col>
             </Row>
         </>
@@ -81,18 +82,18 @@ function UserInfo() {
         );
     }
 
-    function getPermissionsContent(userInfo, staticTexts, staticTextHelper) {
+    function getPermissionsContent(userInfo, authorizationHelper, staticTexts, staticTextHelper) {
         return (
             <Col>
                 <Card>
                     <Card.Body>
                         <Card.Title>{staticTextHelper.getPermissionsText(staticTexts)}</Card.Title>
-                        {getPermissionContent(userInfo.hasAccountingAccess, staticTextHelper.getFinancialManagementText(staticTexts), 'mt-3')}
-                        {getPermissionContent(userInfo.isAccountingAdministrator, staticTextHelper.getAdministratorText(staticTexts), 'mt-3 ps-3')}
-                        {getPermissionContent(userInfo.isAccountingCreator, staticTextHelper.getCreatorText(staticTexts), 'mt-3 ps-3')}
-                        {getPermissionContent(userInfo.isAccountingModifier, staticTextHelper.getModifierText(staticTexts), 'mt-3 ps-3')}
-                        {getPermissionContent(userInfo.isAccountingViewer, staticTextHelper.getViewerText(staticTexts), 'mt-3 ps-3')}
-                        {getPermissionContent(userInfo.hasCommonDataAccess, staticTextHelper.getCommonDataText(staticTexts), 'mt-3')}
+                        {getPermissionContent(authorizationHelper.hasAccountingAccess(userInfo), staticTextHelper.getFinancialManagementText(staticTexts), 'mt-3')}
+                        {getPermissionContent(authorizationHelper.isAccountingAdministrator(userInfo), staticTextHelper.getAdministratorText(staticTexts), 'mt-3 ps-3')}
+                        {getPermissionContent(authorizationHelper.isAccountingCreator(userInfo), staticTextHelper.getCreatorText(staticTexts), 'mt-3 ps-3')}
+                        {getPermissionContent(authorizationHelper.isAccountingModifier(userInfo), staticTextHelper.getModifierText(staticTexts), 'mt-3 ps-3')}
+                        {getPermissionContent(authorizationHelper.isAccountingViewer(userInfo), staticTextHelper.getViewerText(staticTexts), 'mt-3 ps-3')}
+                        {getPermissionContent(authorizationHelper.hasCommonDataAccess(userInfo), staticTextHelper.getCommonDataText(staticTexts), 'mt-3')}
                     </Card.Body>
                 </Card>
             </Col>
@@ -112,8 +113,8 @@ function UserInfo() {
         );
     }
 
-    function getFinancialManagementContent(userInfo, staticTexts, staticTextHelper) {
-        if (userInfo.hasAccountingAccess === undefined || userInfo.hasAccountingAccess === null || userInfo.hasAccountingAccess === false) {
+    function getFinancialManagementContent(userInfo, authorizationHelper, staticTexts, staticTextHelper) {
+        if (authorizationHelper.hasAccountingAccess(userInfo) === false) {
             return (
                 <>
                 </>
@@ -154,8 +155,8 @@ function UserInfo() {
         );
     }
 
-    function getAccountingsContent(userInfo, staticTexts, staticTextHelper) {
-        if (userInfo.hasAccountingAccess === undefined || userInfo.hasAccountingAccess === null || userInfo.hasAccountingAccess === false) {
+    function getAccountingsContent(userInfo, authorizationHelper, staticTexts, staticTextHelper) {
+        if (authorizationHelper.hasAccountingAccess(userInfo) === false) {
             return (
                 <>
                 </>
@@ -170,25 +171,28 @@ function UserInfo() {
                     </Col>
                 </Row>
                 <Row xs={1} sm={1} md={1} lg={2} xl={3} xxl={3} className='g-3'>
-                    {userInfo.accountings.map((accounting, index) => (
-                        <Col key={index}>
-                            <AccountingCard accounting={accounting}>
-                                {getPermissionContent(userInfo.isAccountingModifier && accountingNumberInAccountings(accounting.number, userInfo.modifiableAccountings), staticTextHelper.getModifierText(staticTexts), 'mt-3')}
-                                {getPermissionContent(userInfo.isAccountingViewer && accountingNumberInAccountings(accounting.number, userInfo.viewableAccountings), staticTextHelper.getViewerText(staticTexts), 'mt-3')}
-                            </AccountingCard>
-                        </Col>
-                    ))}
+                    {userInfo.accountings.map((accounting, index) => getAccountingContent(accounting, index, userInfo, authorizationHelper, staticTexts, staticTextHelper))}
                 </Row>
             </>
         );
     }
 
-    function accountingNumberInAccountings(accountingNumber, accountings) {
-        if (accountingNumber === undefined || accountingNumber === null || accountings === undefined || accountings === null) {
-            return false;
+    function getAccountingContent(accounting, index, userInfo, authorizationHelper, staticTexts, staticTextHelper) {
+        if (authorizationHelper.isAccountingViewer(userInfo, accounting.number) === false) {
+            return (
+                <>
+                </>
+            );
         }
 
-        return accountings.some(accounting => accounting.number === accountingNumber);
+        return (
+            <Col key={index}>
+                <AccountingCard accounting={accounting}>
+                    {getPermissionContent(authorizationHelper.isAccountingModifier(userInfo, accounting.number), staticTextHelper.getModifierText(staticTexts), 'mt-3')}
+                    {getPermissionContent(authorizationHelper.isAccountingViewer(userInfo, accounting.number), staticTextHelper.getViewerText(staticTexts), 'mt-3')}
+                </AccountingCard>
+            </Col>
+        );
     }
 
     async function populateUserInfo() {

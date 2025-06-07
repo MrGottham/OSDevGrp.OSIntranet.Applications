@@ -12,15 +12,38 @@ function buildStartNavLink(layoutContext, staticTextHelper) {
     );
 }
 
-function buildAccountingsNavigationContent(accountings) {
-    if (accountings === undefined || accountings === null || accountings.length === 0) {
+function buildAccountingCreatorNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
+    if (authorizationHelper.isAccountingCreator(layoutContext.userInfo) === false) {
         return (
             <>
             </>
         );
     }
 
-    const accountingsNavigationContent = accountings.map(accounting => {
+    return (
+        <>
+            <NavDropdown.Divider />
+            <NavDropdown.Item as={Link} to={`/accountings/add`}>{staticTextHelper.getCreateNewAccountingText(layoutContext.staticTexts)}</NavDropdown.Item>
+        </>
+    );
+}
+
+function buildAccountingsNavigationContent(layoutContext, authorizationHelper) {
+    if (layoutContext.userInfo.accountings === undefined || layoutContext.userInfo.accountings === null || layoutContext.userInfo.accountings.length === 0) {
+        return (
+            <>
+            </>
+        );
+    }
+
+    const accountingsNavigationContent = layoutContext.userInfo.accountings.map(accounting => {
+        if (authorizationHelper.isAccountingViewer(layoutContext.userInfo, accounting.number) === false) {
+            return (
+                <>
+                </>
+            );
+        }
+
         return (
             <NavDropdown.Item key={accounting.number} as={Link} to={`/accountings/${accounting.number}`}>{accounting.name}</NavDropdown.Item>
         );
@@ -35,7 +58,7 @@ function buildAccountingsNavigationContent(accountings) {
 }
 
 function buildFinancialManagementNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
-    if (authorizationHelper.hasAccountingAccess(layoutContext) === false) {
+    if (authorizationHelper.hasAccountingAccess(layoutContext.userInfo) === false) {
         return (
             <>
             </>
@@ -45,13 +68,14 @@ function buildFinancialManagementNavigationContent(layoutContext, authorizationH
     return (
         <NavDropdown title={staticTextHelper.getFinancialManagementText(layoutContext.staticTexts)} id='navbarFinancialManagementDropdown'>
             <NavDropdown.Item as={Link} to='/accountings'>{staticTextHelper.getAccountingsText(layoutContext.staticTexts)}</NavDropdown.Item>
-            {buildAccountingsNavigationContent(layoutContext.userInfo.accountings)}
+            {buildAccountingCreatorNavigationContent(layoutContext, authorizationHelper, staticTextHelper)}
+            {buildAccountingsNavigationContent(layoutContext, authorizationHelper)}
         </NavDropdown>
     );
 }
 
 function buildPrimaryNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
-    if (authorizationHelper.authenticatedUser(layoutContext)) {
+    if (authorizationHelper.authenticatedUser(layoutContext.userInfo)) {
         return (
             <Nav className='me-auto'>
                 {buildStartNavLink(layoutContext, staticTextHelper)}
@@ -68,7 +92,7 @@ function buildPrimaryNavigationContent(layoutContext, authorizationHelper, stati
 }
 
 function buildSecondaryNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
-    if (authorizationHelper.authenticatedUser(layoutContext)) {
+    if (authorizationHelper.authenticatedUser(layoutContext.userInfo)) {
         return (
             <Nav className='justify-content-end'>
                 <Nav.Link as={Link} to='/security/userinfo'>{layoutContext.userInfo.name}</Nav.Link>
