@@ -94,6 +94,10 @@ authenticationBuilder.AddCookie(Schemes.Internal, options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.Name = ProgramHelper.GetInternalAuthenticationCookieName();
+    options.Events.OnSigningIn += context =>
+    {
+        return context.TransformAsync();
+    };
     options.Events.OnSigningOut += async context =>
     {
         ITokenStorage tokenStorage = context.HttpContext.RequestServices.GetRequiredService<ITokenStorage>();
