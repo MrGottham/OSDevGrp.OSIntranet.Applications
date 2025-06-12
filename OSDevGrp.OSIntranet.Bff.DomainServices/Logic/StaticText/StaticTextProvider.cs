@@ -44,6 +44,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.WebsiteUsingCookies, "Denne hjemmeside bruger cookies");
         staticTexts.Add(StaticTextKey.CookieConsentInformation, "Vi bruger cookies til at tilpasse dit indhold, dine funktioner samt optimere din brugeroplevelse her på hjemmeside. Vi deler ikke oplysninger om din brug af vores hjemmesede med partnere, sociale medier, annonceringspartnere ej heller analysepartnere.");
         staticTexts.Add(StaticTextKey.AllowNecessaryCookies, "Tillad nødvendige");
+        staticTexts.Add(StaticTextKey.FunctionalityNotImplmented, "Funktionaliteten er endnu ikke implementeret");
+        staticTexts.Add(StaticTextKey.FunctionalityNotImplmentedDetails, "Denne funktionalitet er på nuværende tidspunkt endnu ikke implementeret i systemet. Det betyder, at det pågældende element, knap eller funktion ikke er aktiv og derfor ikke udfører nogen handling ved brug. Funktionen er planlagt til fremtidig udvikling og vil blive tilgængelig i en kommende opdatering. Indtil da kan du opleve, at visse funktioner er deaktiverede eller markeret som utilgængelige. Vi arbejder løbende på at udvide og forbedre systemets muligheder.");
         staticTexts.Add(StaticTextKey.MailAddress, "Mailadresse");
         staticTexts.Add(StaticTextKey.Permissions, "Rettigheder");
         staticTexts.Add(StaticTextKey.Administrator, "Administrator");

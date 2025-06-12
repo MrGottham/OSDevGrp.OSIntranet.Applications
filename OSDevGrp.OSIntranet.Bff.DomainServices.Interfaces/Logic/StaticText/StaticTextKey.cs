@@ -16,6 +16,8 @@ public enum StaticTextKey
     WebsiteUsingCookies,
     CookieConsentInformation,
     AllowNecessaryCookies,
+    FunctionalityNotImplmented,
+    FunctionalityNotImplmentedDetails,
     MailAddress,
     Permissions,
     Administrator,

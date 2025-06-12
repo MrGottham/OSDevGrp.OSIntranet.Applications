@@ -38,6 +38,8 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.WebsiteUsingCookies, "Denne hjemmeside bruger cookies", 0)]
     [TestCase(StaticTextKey.CookieConsentInformation, "Vi bruger cookies til at tilpasse dit indhold, dine funktioner samt optimere din brugeroplevelse her på hjemmeside. Vi deler ikke oplysninger om din brug af vores hjemmesede med partnere, sociale medier, annonceringspartnere ej heller analysepartnere.", 0)]
     [TestCase(StaticTextKey.AllowNecessaryCookies, "Tillad nødvendige", 0)]
+    [TestCase(StaticTextKey.FunctionalityNotImplmented, "Funktionaliteten er endnu ikke implementeret", 0)]
+    [TestCase(StaticTextKey.FunctionalityNotImplmentedDetails, "Denne funktionalitet er på nuværende tidspunkt endnu ikke implementeret i systemet. Det betyder, at det pågældende element, knap eller funktion ikke er aktiv og derfor ikke udfører nogen handling ved brug. Funktionen er planlagt til fremtidig udvikling og vil blive tilgængelig i en kommende opdatering. Indtil da kan du opleve, at visse funktioner er deaktiverede eller markeret som utilgængelige. Vi arbejder løbende på at udvide og forbedre systemets muligheder.", 0)]
     [TestCase(StaticTextKey.MailAddress, "Mailadresse", 0)]
     [TestCase(StaticTextKey.Permissions, "Rettigheder", 0)]
     [TestCase(StaticTextKey.Administrator, "Administrator", 0)]
