@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.CookieConsent;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Error;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Index;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.NotImplemented;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
@@ -84,6 +85,22 @@ public class HomeController : ControllerBase
         ErrorResponse errorResponse = await queryFeature.ExecuteAsync(errorRequest, cancellationToken);
 
         return Ok(ErrorResponseDto.Map(errorResponse));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("notimplemented")]
+    [ProducesResponseType(typeof(NotImplementedResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> NotImplementedAsync([FromServices] IQueryFeature<NotImplementedRequest, NotImplementedResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        NotImplementedRequest notImplementedRequest = new NotImplementedRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        NotImplementedResponse notImplementedResponse = await queryFeature.ExecuteAsync(notImplementedRequest, cancellationToken);
+
+        return Ok(NotImplementedResponseDto.Map(notImplementedResponse));
     }
 
     #endregion
