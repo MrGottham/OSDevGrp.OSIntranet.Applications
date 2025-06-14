@@ -35,4 +35,13 @@ export default class HomeService extends ServiceBase {
 
         throw await this.generateError(response);
     }
+
+    async getNotImplementedContent() {
+        const response = await fetch(this.resolveEndpoint('/api/home/notimplemented'), { credentials: 'include' });
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw await this.generateError(response);
+    }
 }

@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
+import Alert from 'react-bootstrap/Alert';
 import Loading from './Loading';
 
 function AccessDenied() {
@@ -24,15 +25,17 @@ function AccessDenied() {
     }
 
     return (
-        <div className='alert alert-danger'>
-            <span>
-                <i className='fa-solid fa-circle-xmark'></i>&nbsp;<strong>{staticTextHelper.getAccessDeniedText(accessDeniedContent.staticTexts)}</strong>
-            </span>
+        <Alert variant='danger'>
+            <Alert.Heading>
+                <span>
+                    <i className='fa-solid fa-circle-xmark'></i>&nbsp;<strong>{staticTextHelper.getAccessDeniedText(accessDeniedContent.staticTexts)}</strong>
+                </span>
+            </Alert.Heading>
             <hr />
             <p>{staticTextHelper.getMissingPermissionToPageText(accessDeniedContent.staticTexts)}</p>
             <p>{staticTextHelper.getCheckYourCredentialsText(accessDeniedContent.staticTexts)}</p>
-        </div>
-    )
+        </Alert>
+    );
 
     async function populateAccessDeniedContent() {
         const json = await securityService.getAccessDeniedContent();

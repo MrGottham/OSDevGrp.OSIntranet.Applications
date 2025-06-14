@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
+import Alert from 'react-bootstrap/Alert';
 import Loading from './Loading';
 
 function Fallback({ error, resetErrorBoundary }) {
@@ -22,13 +23,15 @@ function Fallback({ error, resetErrorBoundary }) {
     }
 
     return (
-        <div className='alert alert-danger mt-5 ms-5 me-5'>
-            <span>
-                <i className='fa-solid fa-bug'></i>&nbsp;<strong>{staticTextHelper.getSomethingWentWrongText(errorContent.staticTexts)}</strong>
-            </span>
+        <Alert variant='danger' className='mt-5 ms-5 me-5'>
+            <Alert.Heading>
+                <span>
+                    <i className='fa-solid fa-bug'></i>&nbsp;<strong>{staticTextHelper.getSomethingWentWrongText(errorContent.staticTexts)}</strong>
+                </span>
+            </Alert.Heading>
             <hr />
             <p>{errorContent.errorMessage}</p>
-        </div>
+        </Alert>
     );
 
     async function populateErrorContent(errorMessage) {

@@ -47,6 +47,14 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'AllowNecessaryCookies');
     }
 
+    getFunctionalityNotImplmentedText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'FunctionalityNotImplmented');
+    }
+
+    getFunctionalityNotImplmentedDetailsText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'FunctionalityNotImplmentedDetails');
+    }
+
     getMailAddressText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'MailAddress');
     }
