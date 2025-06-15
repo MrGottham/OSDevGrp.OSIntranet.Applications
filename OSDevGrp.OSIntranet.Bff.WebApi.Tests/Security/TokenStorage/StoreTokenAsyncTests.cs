@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.TokenKeyProvider;
 using System.Security.Claims;
@@ -41,7 +42,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
         ITokenStorage sut = CreateSut();
 
         ClaimsPrincipal user = authenticatedUser ? _fixture!.CreateAuthenticatedClaimsPrincipal() : _fixture!.CreateNonAuthenticatedClaimsPrincipal();
-        IToken token = _fixture!.CreateToken(_random!);
+        IToken token = _fixture!.CreateToken();
         await sut.StoreTokenAsync(user, token);
 
         _tokenKeyProviderMock!.Verify(m => m.ResolveAsync(
@@ -57,7 +58,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
         ITokenStorage sut = CreateSut();
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
-        IToken token = _fixture!.CreateToken(_random!);
+        IToken token = _fixture!.CreateToken();
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
         await sut.StoreTokenAsync(user, token, cancellationToken);
@@ -75,7 +76,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
         ITokenStorage sut = CreateSut();
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
-        Mock<IToken> tokenMock = _fixture!.CreateTokenMock(_random!);
+        Mock<IToken> tokenMock = _fixture!.CreateTokenMock();
         await sut.StoreTokenAsync(user, tokenMock.Object);
 
         tokenMock.Verify(m => m.Expires, Times.Once());
@@ -89,7 +90,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
         ITokenStorage sut = CreateSut(tokenKey: tokenKey);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
-        IToken token = _fixture!.CreateToken(_random!);
+        IToken token = _fixture!.CreateToken();
         await sut.StoreTokenAsync(user, token);
 
         _memoryCacheMock!.Verify(m => m.CreateEntry(It.Is<object>(value => value.Equals(tokenKey))), Times.Once());
@@ -103,7 +104,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
         ITokenStorage sut = CreateSut(cacheEntry: cacheEntryMock.Object);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
-        IToken token = _fixture!.CreateToken(_random!);
+        IToken token = _fixture!.CreateToken();
         await sut.StoreTokenAsync(user, token);
 
         cacheEntryMock.VerifySet(m => m.Value = It.Is<IToken>(value => value == token), Times.Once());
@@ -118,7 +119,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
         DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(_random!.Next(5, 60));
-        IToken token = _fixture!.CreateToken(_random!, expires: expires);
+        IToken token = _fixture!.CreateToken(expires: expires);
         await sut.StoreTokenAsync(user, token);
 
         cacheEntryMock.VerifySet(m => m.AbsoluteExpiration = It.Is<DateTimeOffset>(value => value == expires), Times.Once());
@@ -130,7 +131,7 @@ public class StoreTokenAsyncTests : TokenStorageTestBase
             .Returns(cacheEntry ?? CreateCacheEntry(_fixture!, _random!));
 
         _tokenKeyProviderMock!.Setup(_fixture!, tokenKey: tokenKey);
-        _tokenProviderMock!.Setup(_fixture!, _random!);
+        _tokenProviderMock!.Setup(_fixture!);
 
         return new WebApi.Security.TokenStorage(_memoryCacheMock!.Object, _tokenKeyProviderMock!.Object, _tokenProviderMock!.Object);
     }

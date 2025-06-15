@@ -6,9 +6,9 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.UserHelper;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Accounting.Accountings.AccountingsFeature;

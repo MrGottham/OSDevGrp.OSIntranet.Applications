@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.UserHelper;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Accounting.Accountings.AccountingsFeature;
@@ -101,7 +102,7 @@ public class ExecuteAsyncTests : AccountingsFeatureTestBase
     [Category("UnitTest")]
     public async Task ExecuteAsync_WhenCalled_ReturnsAccountingsResponseWhereAccountingsContainsAccountingsFromAccountingGateway()
     {
-        AccountingModel[] accountingModels = CreateAccountingModels(_fixture!, _random!);
+        AccountingModel[] accountingModels = _fixture!.CreateAccountingModels(_random!);
         IQueryFeature<AccountingsRequest, AccountingsResponse> sut = CreateSut(accountingModels: accountingModels);
 
         AccountingsRequest accountingsRequest = CreateAccountingsRequest(_fixture!);
@@ -129,7 +130,7 @@ public class ExecuteAsyncTests : AccountingsFeatureTestBase
         _permissionCheckerMock!.Setup(_fixture!, isAccountingCreator: isAccountingCreator);
 
         _accountingGatewayMock!.Setup(m => m.GetAccountingsAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.FromResult(accountingModels ?? CreateAccountingModels(_fixture!, _random!)));
+            .Returns(Task.FromResult(accountingModels ?? _fixture!.CreateAccountingModels(_random!)));
 
         _staticTextProviderMock!.Setup(_fixture!);
 

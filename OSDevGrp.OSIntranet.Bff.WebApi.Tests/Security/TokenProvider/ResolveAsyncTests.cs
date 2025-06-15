@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 

@@ -6,8 +6,8 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Account
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
-using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.SecurityContextProvider;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
@@ -16,7 +16,7 @@ using System.Globalization;
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.AccountingController;
 
 [TestFixture]
-public class AccountingsAsyncTests : AccountingControllerTestBase
+public class AccountingsAsyncTests
 {
     #region Private variables
 
@@ -35,7 +35,7 @@ public class AccountingsAsyncTests : AccountingControllerTestBase
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _queryFeatureMock = new Mock<IQueryFeature<AccountingsRequest, AccountingsResponse>>();
         _fixture = new Fixture();
-        _random = new Random();
+        _random = new Random(_fixture.Create<int>());
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class AccountingsAsyncTests : AccountingControllerTestBase
     [Category("UnitTest")]
     public async Task AccountingsAsync_WhenCalled_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingsRequestWhereSecurityContextIsEqualToSecurityResolvedBySecurityContextProvider()
     {
-        ISecurityContext securityContext = _fixture!.CreateSecurityContext(_random!);
+        ISecurityContext securityContext = _fixture!.CreateSecurityContext();
         WebApi.Controllers.Accounting.AccountingController sut = CreateSut(securityContext: securityContext);
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -143,7 +143,7 @@ public class AccountingsAsyncTests : AccountingControllerTestBase
 
     private WebApi.Controllers.Accounting.AccountingController CreateSut(IFormatProvider? formatProvider = null, AccountingsResponse? accountingsResponse = null, ISecurityContext? securityContext = null)
     {
-        _securityContextProviderMock!.Setup(_fixture!, _random!, securityContext: securityContext);
+        _securityContextProviderMock!.Setup(_fixture!, securityContext: securityContext);
 
         _queryFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<AccountingsRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(accountingsResponse ?? CreateAccountingsResponse()));
@@ -155,6 +155,6 @@ public class AccountingsAsyncTests : AccountingControllerTestBase
     {
         IReadOnlyDictionary<StaticTextKey, string> staticTexts = _fixture!.CreateStaticTexts(_random!);
 
-        return new AccountingsResponse(creationAllowed ?? _fixture.Create<bool>(), accountingModels ?? CreateAccountingModels(_fixture!, _random!), staticTexts);
+        return new AccountingsResponse(creationAllowed ?? _fixture.Create<bool>(), accountingModels ?? _fixture!.CreateAccountingModels(_random!), staticTexts);
     }
 }

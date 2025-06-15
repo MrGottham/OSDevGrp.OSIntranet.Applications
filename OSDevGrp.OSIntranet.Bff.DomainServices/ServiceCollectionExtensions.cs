@@ -5,11 +5,13 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeatureLoggi
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeaturePermissionVerifier;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Security;
@@ -28,6 +30,10 @@ public static class ServiceCollectionExtensions
             .AddTransient<IPermissionChecker, UserHelper>()
             .AddTransient<IUserHelper, UserHelper>()
             .AddTransient<IDependencyHealthMonitor, DependencyHealthMonitor>()
+            .AddTransient<IAccountingTextsBuilder, AccountingTextsBuilder>()
+            .AddTransient<IAccountTextsBuilder, AccountTextsBuilder>()
+            .AddTransient<IBudgetAccountTextsBuilder, BudgetAccountTextsBuilder>()
+            .AddTransient<IContactAccountTextsBuilder, ContactAccountTextsBuilder>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);
     }
 

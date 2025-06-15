@@ -1,7 +1,7 @@
 using AutoFixture;
 using Moq;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries;

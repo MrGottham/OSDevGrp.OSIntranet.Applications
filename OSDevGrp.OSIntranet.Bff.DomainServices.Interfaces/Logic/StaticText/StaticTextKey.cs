@@ -28,5 +28,11 @@ public enum StaticTextKey
     PrimaryAccounting,
     Accountings,
     CreateNewAccounting,
+    BalanceBelowZero,
+    Debtors,
+    Creditors,
+    BackDating,
+    Days,
+    Day,
     CommonData
 }

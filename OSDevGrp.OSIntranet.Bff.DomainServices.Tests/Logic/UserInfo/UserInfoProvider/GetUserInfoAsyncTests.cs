@@ -4,8 +4,8 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.UserHelper;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using System.Security.Claims;
 

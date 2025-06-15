@@ -23,7 +23,6 @@ public class LogoutTests : SecurityControllerTestBase<AccessDeniedContentRespons
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
     private Mock<ISecurityContextProvider>? _securityContextProviderMock;
     private Fixture? _fixture;
-    private Random? _random;
 
     #endregion
 
@@ -34,7 +33,6 @@ public class LogoutTests : SecurityControllerTestBase<AccessDeniedContentRespons
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _fixture = new Fixture();
-        _random = new Random(_fixture.Create<int>());
     }
 
     [Test]
@@ -355,6 +353,6 @@ public class LogoutTests : SecurityControllerTestBase<AccessDeniedContentRespons
 
     protected override WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, AccessDeniedContentResponse? accessDeniedContentResponse = null)
     {
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, _random!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 }

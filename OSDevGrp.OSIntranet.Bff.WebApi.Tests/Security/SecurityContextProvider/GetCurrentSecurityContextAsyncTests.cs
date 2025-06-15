@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.TokenStorage;
 using System.Security.Claims;
@@ -17,7 +18,6 @@ public class GetCurrentSecurityContextAsyncTests
     private Mock<IHttpContextAccessor>? _httpContextAccessorMock;
     private Mock<ITokenStorage>? _tokenStorageMock;
     private Fixture? _fixture;
-    private Random? _random;
 
     #endregion
 
@@ -27,7 +27,6 @@ public class GetCurrentSecurityContextAsyncTests
         _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
         _tokenStorageMock = new Mock<ITokenStorage>();
         _fixture = new Fixture();
-        _random = new Random(_fixture.Create<int>());
     }
 
     [Test]
@@ -144,7 +143,7 @@ public class GetCurrentSecurityContextAsyncTests
     [TestCase(false)]
     public async Task GetCurrentSecurityContextAsync_WhenCalled_ReturnsLocalSecurityContextWhereAccessTokenIsEqualToTokenFromTokenStorage(bool isAuthenticated)
     {
-        IToken token = _fixture!.CreateToken(_random!);
+        IToken token = _fixture!.CreateToken();
         ISecurityContextProvider sut = CreateSut(token: token);
 
         ISecurityContext result = await sut.GetCurrentSecurityContextAsync();
@@ -157,7 +156,7 @@ public class GetCurrentSecurityContextAsyncTests
         _httpContextAccessorMock!.Setup(m => m.HttpContext)
             .Returns(hasHttpContext ? httpContext ?? CreateHttpContext() : null);
 
-        _tokenStorageMock!.Setup(_fixture!, _random!, token);
+        _tokenStorageMock!.Setup(_fixture!, token);
 
         return new WebApi.Security.SecurityContextProvider(_httpContextAccessorMock!.Object, _tokenStorageMock!.Object);
     }

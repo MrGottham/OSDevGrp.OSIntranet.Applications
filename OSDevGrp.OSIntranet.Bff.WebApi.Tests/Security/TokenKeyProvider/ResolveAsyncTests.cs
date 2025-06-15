@@ -2,6 +2,7 @@ using AutoFixture;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.TokenKeyGenerator;
 using System.Security;

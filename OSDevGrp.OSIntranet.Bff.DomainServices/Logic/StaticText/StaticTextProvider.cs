@@ -56,6 +56,12 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.PrimaryAccounting, "Primær regnskab");
         staticTexts.Add(StaticTextKey.Accountings, "Regnskaber");
         staticTexts.Add(StaticTextKey.CreateNewAccounting, "Tilføj regnskab");
+        staticTexts.Add(StaticTextKey.BalanceBelowZero, "Saldo under {0:C}");
+        staticTexts.Add(StaticTextKey.Debtors, "Debitorer");
+        staticTexts.Add(StaticTextKey.Creditors, "Kreditorer");
+        staticTexts.Add(StaticTextKey.BackDating, "Antal dage for tilbagedatering");
+        staticTexts.Add(StaticTextKey.Days, "Dage");
+        staticTexts.Add(StaticTextKey.Day, "Dag");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         return staticTexts.AsReadOnly();
     }

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OSDevGrp.OSIntranet.Bff.WebApi\OSDevGrp.OSIntranet.Bff.WebApi.csproj" />
+    <ProjectReference Include="..\OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData\OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData.csproj" />
   </ItemGroup>
 
   <ItemGroup>

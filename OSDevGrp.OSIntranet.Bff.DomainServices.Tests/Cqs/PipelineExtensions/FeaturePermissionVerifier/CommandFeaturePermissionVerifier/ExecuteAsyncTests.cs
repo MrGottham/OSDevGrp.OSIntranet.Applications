@@ -2,8 +2,8 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using System.Security;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Cqs.PipelineExtensions.FeaturePermissionVerifier.CommandFeaturePermissionVerifier;

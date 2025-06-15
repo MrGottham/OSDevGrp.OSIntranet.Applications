@@ -1,5 +1,6 @@
 using AutoFixture;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 

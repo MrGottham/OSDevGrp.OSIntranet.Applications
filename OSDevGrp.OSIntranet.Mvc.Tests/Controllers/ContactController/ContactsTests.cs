@@ -43,7 +43,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
             _fixture = new Fixture();
             _fixture.Customize<ICountry>(builder => builder.FromFactory(() => _fixture.BuildCountryMock().Object));
 
-            _random = new Random();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]

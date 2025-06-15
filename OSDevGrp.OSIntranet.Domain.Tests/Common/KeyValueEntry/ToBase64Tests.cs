@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Common.KeyValueEntry
         public void SetUp()
         {
             _fixture = new Fixture();
-            _random = new Random();
+            _random = new Random(_fixture.Create<int>());
         }
 
         [Test]

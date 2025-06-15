@@ -5,8 +5,8 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Error;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Home.Dtos;
-using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.SecurityContextProvider;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using System.Globalization;
@@ -33,7 +33,7 @@ public class ErrorAsyncTests
         _queryFeatureMock = new Mock<IQueryFeature<ErrorRequest, ErrorResponse>>();
         _timeProviderMock = new Mock<TimeProvider>();
         _fixture = new Fixture();
-        _random = new Random();
+        _random = new Random(_fixture.Create<int>());
     }
 
     [Test]
@@ -100,7 +100,7 @@ public class ErrorAsyncTests
     [Category("UnitTest")]
     public async Task ErrorAsync_WhenCalled_AssertExecuteAsyncWasCalledOnQueryFeatureWithErrorRequestWhereSecurityContextIsEqualToSecurityResolvedBySecurityContextProvider()
     {
-        ISecurityContext securityContext = _fixture!.CreateSecurityContext(_random!);
+        ISecurityContext securityContext = _fixture!.CreateSecurityContext();
         WebApi.Controllers.Home.HomeController sut = CreateSut(securityContext: securityContext);
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -154,7 +154,7 @@ public class ErrorAsyncTests
 
     private WebApi.Controllers.Home.HomeController CreateSut(IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, DateTimeOffset? utcNow = null, ErrorResponse? errorResponse = null)
     {
-        _securityContextProviderMock!.Setup(_fixture!, _random!, securityContext: securityContext);
+        _securityContextProviderMock!.Setup(_fixture!, securityContext: securityContext);
 
         _timeProviderMock!.Setup(m => m.GetUtcNow())
             .Returns(utcNow ?? DateTimeOffset.UtcNow);

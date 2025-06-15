@@ -26,6 +26,7 @@ COPY OSDevGrp.OSIntranet.WebApi.ClientApi/OSDevGrp.OSIntranet.WebApi.ClientApi.c
 COPY OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.WebApi.Tests/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways/OSDevGrp.OSIntranet.Bff.ServiceGateways.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways/
+COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData/OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/
 COPY OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/
 COPY OSDevGrp.OSIntranet.Bff.DomainServices/OSDevGrp.OSIntranet.Bff.DomainServices.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices/

@@ -1,7 +1,7 @@
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.PermissionValidator;

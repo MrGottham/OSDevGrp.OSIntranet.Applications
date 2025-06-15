@@ -3,16 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
-using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos;
 using System.Globalization;
 
@@ -91,7 +89,7 @@ public class UserInfoAsyncTests : SecurityControllerTestBase<UserInfoResponse>
     [Category("UnitTest")]
     public async Task UserInfoAsync_WhenCalled_AssertExecuteAsyncWasCalledOnQueryFeatureWithUserInfoRequestWhereSecurityContextIsEqualToSecurityResolvedBySecurityContextProvider()
     {
-        ISecurityContext securityContext = _fixture!.CreateSecurityContext(_random!);
+        ISecurityContext securityContext = _fixture!.CreateSecurityContext();
         WebApi.Controllers.Security.SecurityController sut = CreateSut(securityContext: securityContext);
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -182,7 +180,7 @@ public class UserInfoAsyncTests : SecurityControllerTestBase<UserInfoResponse>
         _queryFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<UserInfoRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(userInfoResponse ?? CreateUserInfoResponse()));
 
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, _random!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 
     private UserInfoResponse CreateUserInfoResponse(IUserInfoModel? userInfoModel = null)

@@ -50,6 +50,12 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.PrimaryAccounting, "Primær regnskab", 0)]
     [TestCase(StaticTextKey.Accountings, "Regnskaber", 0)]
     [TestCase(StaticTextKey.CreateNewAccounting, "Tilføj regnskab", 0)]
+    [TestCase(StaticTextKey.BalanceBelowZero, "Saldo under {0}", 1)]
+    [TestCase(StaticTextKey.Debtors, "Debitorer", 0)]
+    [TestCase(StaticTextKey.Creditors, "Kreditorer", 0)]
+    [TestCase(StaticTextKey.BackDating, "Antal dage for tilbagedatering", 0)]
+    [TestCase(StaticTextKey.Days, "Dage", 0)]
+    [TestCase(StaticTextKey.Day, "Dag", 0)]
     [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {

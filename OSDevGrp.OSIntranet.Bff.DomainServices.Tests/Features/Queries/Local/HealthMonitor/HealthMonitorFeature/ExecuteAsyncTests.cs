@@ -5,7 +5,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Local.HealthMonito
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DependencyHealth.DependencyHealthMonitor;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Local.HealthMonitor.HealthMonitorFeature;
 
