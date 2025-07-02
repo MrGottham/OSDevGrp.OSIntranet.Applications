@@ -2,7 +2,6 @@ using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
-using System.Globalization;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
@@ -21,7 +20,7 @@ public static class FixtureExtensions
         ];
     }
 
-    public static AccountingModel CreateAccountingModel(this Fixture fixture, Random random, int? backDating = null, BalanceBelowZeroType? balanceBelowZeroType = null)
+    public static AccountingModel CreateAccountingModel(this Fixture fixture, Random random, LetterHeadIdentificationModel? letterHeadIdentificationModel = null, int? backDating = null, BalanceBelowZeroType? balanceBelowZeroType = null)
     {
         AccountingIdentificationModel accountingIdentificationModel = fixture.CreateAccountingIdentificationModel(random);
 
@@ -32,7 +31,7 @@ public static class FixtureExtensions
             fixture.CreateBudgetAccountModels(random, accountingIdentificationModel: accountingIdentificationModel),
             fixture.CreateContactAccountModels(random, accountingIdentificationModel: accountingIdentificationModel),
             fixture.Create<bool>(),
-            fixture.CreateLetterHeadIdentificationModel(random),
+            letterHeadIdentificationModel ?? fixture.CreateLetterHeadIdentificationModel(random),
             fixture.Create<bool>(),
             accountingIdentificationModel.Name,
             accountingIdentificationModel.Number,
@@ -42,6 +41,31 @@ public static class FixtureExtensions
     public static AccountingIdentificationModel CreateAccountingIdentificationModel(this Fixture fixture, Random random)
     {
         return new AccountingIdentificationModel(
+            fixture.Create<string>(),
+            random.Next(1, 99));
+    }
+
+    public static LetterHeadModel[] CreateLetterHeadModels(this Fixture fixture, Random random)
+    {
+        return
+        [
+            fixture.CreateLetterHeadModel(random),
+            fixture.CreateLetterHeadModel(random),
+            fixture.CreateLetterHeadModel(random)
+        ];
+    }
+
+    public static LetterHeadModel CreateLetterHeadModel(this Fixture fixture, Random random)
+    {
+        return new LetterHeadModel(
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            fixture.Create<string>(),
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
             fixture.Create<string>(),
             random.Next(1, 99));
     }

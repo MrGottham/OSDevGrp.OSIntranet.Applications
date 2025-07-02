@@ -56,6 +56,12 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.PrimaryAccounting, "Primær regnskab");
         staticTexts.Add(StaticTextKey.Accountings, "Regnskaber");
         staticTexts.Add(StaticTextKey.CreateNewAccounting, "Tilføj regnskab");
+        staticTexts.Add(StaticTextKey.UpdateAccounting, "Redigér regnskab");
+        staticTexts.Add(StaticTextKey.DeleteAccounting, "Slet regnskab");
+        staticTexts.Add(StaticTextKey.MasterData, "Stamdata");
+        staticTexts.Add(StaticTextKey.AccountingNumber, "Regnskabsnummer");
+        staticTexts.Add(StaticTextKey.AccountingName, "Regnskabsnavn");
+        staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.BalanceBelowZero, "Saldo under {0:C}");
         staticTexts.Add(StaticTextKey.Debtors, "Debitorer");
         staticTexts.Add(StaticTextKey.Creditors, "Kreditorer");
