@@ -12,6 +12,9 @@ internal static class ValidationValues
     internal const int StaticTextKeyMinLength = 1;
     internal const int StaticTextValueMinLength = 1;
 
+    internal const int ValueDisplayerLabelMinLength = 1;
+    internal const int ValueDisplayerValueMinLength = 1;
+
     internal const int ErrorMessageMinLength = 1;
 
     internal const int NameIdentifierMinLength = 1;

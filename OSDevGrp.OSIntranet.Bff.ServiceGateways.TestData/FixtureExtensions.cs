@@ -70,6 +70,16 @@ public static class FixtureExtensions
             random.Next(1, 99));
     }
 
+    public static LetterHeadIdentificationModel[] CreateLetterHeadIdentificationModels(this Fixture fixture, Random random)
+    {
+        return
+        [
+            fixture.CreateLetterHeadIdentificationModel(random),
+            fixture.CreateLetterHeadIdentificationModel(random),
+            fixture.CreateLetterHeadIdentificationModel(random)
+        ];
+    }
+
     public static LetterHeadIdentificationModel CreateLetterHeadIdentificationModel(this Fixture fixture, Random random)
     {
         return new LetterHeadIdentificationModel(
