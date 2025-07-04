@@ -31,8 +31,6 @@ services:
 
   executor:
     image: executor-osintranet
-    depends_on:
-      - builder
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Executor.Dockerfile
@@ -46,7 +44,6 @@ services:
   reverseproxy:
     image: reverseproxy-osintranet
     depends_on:
-      - certificatebuilder
       - mvc
       - webapi
       - bff
@@ -56,6 +53,8 @@ services:
       dockerfile: Nginx.Dockerfile
       args:
         certificateCommonName: ${certificateCommonName}
+      additional_contexts:
+        certificatebuilder-osintranet: "service:certificatebuilder"
     ports:
       - "80:80"
       - "443:443"
@@ -85,17 +84,15 @@ services:
       - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenMvc}
       - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationMvc}
       - ExternalData__Dashboard__EndpointAddress=${externalDataDashboardEndpointAddress}
-    depends_on:
-      - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-      cache_from:
-        - builder-osintranet
-        - executor-osintranet
+      additional_contexts:
+        builder-osintranet: "service:builder"
+        executor-osintranet: "service:executor"
     expose:
       - "8080"
       - "2222"
@@ -128,17 +125,15 @@ services:
       - Security__JWT__Audience=${securityJwtAudience}
       - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenWebApi}
       - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationWebApi}
-    depends_on:
-      - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-      cache_from:
-        - builder-osintranet
-        - executor-osintranet
+      additional_contexts:
+        builder-osintranet: "service:builder"
+        executor-osintranet: "service:executor"
     expose:
       - "8080"
       - "2222"
@@ -160,17 +155,15 @@ services:
       - ServiceGateways__WebApi__EndpointAddress=${serviceGatewaysWebApiEndpointAddress}
       - ServiceGateways__WebApi__ClientId=${securityOidcClientIdBff}
       - ServiceGateways__WebApi__ClientSecret=${securityOidcClientSecretBff}
-    depends_on:
-      - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Bff.WebApi.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-      cache_from:
-        - builder-osintranet
-        - executor-osintranet
+      additional_contexts:
+        builder-osintranet: "service:builder"
+        executor-osintranet: "service:executor"
     expose:
       - "8080"
       - "2222"

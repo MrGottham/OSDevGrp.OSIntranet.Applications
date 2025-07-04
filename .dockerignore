@@ -7,8 +7,8 @@
 **/[Oo]ut/
 **/[Ll]logs/
 **/[Nn]ode_[Mm]odules/
-**/[Dd]ist/
-**/[Dd]ist-ssr/
+**/[Oo]sdevgrp.[Oo]sintranet.[Rr]eact/[Dd]ist/
+**/[Oo]sdevgrp.[Oo]sintranet.[Rr]eact/[Dd]ist-ssr/
 
 # Files
 .dockerignore
