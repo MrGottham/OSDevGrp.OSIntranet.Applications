@@ -1,4 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBug } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Alert from 'react-bootstrap/Alert';
@@ -26,7 +28,7 @@ function Fallback({ error, resetErrorBoundary }) {
         <Alert variant='danger' className='mt-5 ms-5 me-5'>
             <Alert.Heading>
                 <span>
-                    <i className='fa-solid fa-bug'></i>&nbsp;<strong>{staticTextHelper.getSomethingWentWrongText(errorContent.staticTexts)}</strong>
+                    <FontAwesomeIcon icon={faBug} />&nbsp;<strong>{staticTextHelper.getSomethingWentWrongText(errorContent.staticTexts)}</strong>
                 </span>
             </Alert.Heading>
             <hr />

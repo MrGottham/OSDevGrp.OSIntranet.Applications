@@ -25,6 +25,8 @@ function Main({ layoutContext, children }) {
                         <Route path='accountings' element={authorizationHelper.hasAccountingAccess(layoutContext.userInfo) ? <Accountings /> : <AccessDenied />} />
                         <Route path='accountings/add' element={authorizationHelper.isAccountingCreator(layoutContext.userInfo) ? <NotImplemented /> : <AccessDenied />} />
                         <Route path='accountings/:accountingNumber' element={authorizationHelper.isAccountingViewer(layoutContext.userInfo) ? <Accounting /> : <AccessDenied />} />
+                        <Route path='accountings/:accountingNumber/edit' element={authorizationHelper.isAccountingModifier(layoutContext.userInfo) ? <NotImplemented /> : <AccessDenied />} />
+                        <Route path='accountings/:accountingNumber/remove' element={authorizationHelper.isAccountingModifier(layoutContext.userInfo) ? <NotImplemented /> : <AccessDenied />} />
                     </Route>
                 </Routes>
             </Container>

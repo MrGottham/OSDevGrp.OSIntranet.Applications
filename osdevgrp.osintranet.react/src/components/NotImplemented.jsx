@@ -1,5 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Alert from 'react-bootstrap/Alert';
@@ -28,7 +30,7 @@ function NotImplemented() {
         <Alert variant='info'>
             <Alert.Heading>
                 <span>
-                    <i className='fa-solid fa-circle-info'></i>&nbsp;<strong>{staticTextHelper.getFunctionalityNotImplmentedText(content.staticTexts)}</strong>
+                    <FontAwesomeIcon icon={faCircleInfo} />&nbsp;<strong>{staticTextHelper.getFunctionalityNotImplmentedText(content.staticTexts)}</strong>
                 </span>
             </Alert.Heading>
             <hr />

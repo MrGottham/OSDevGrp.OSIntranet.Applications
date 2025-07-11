@@ -1,6 +1,8 @@
 import { useContext, useState, useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Row from 'react-bootstrap/esm/Row';
@@ -57,7 +59,7 @@ function Accountings() {
                 <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
                     <ButtonToolbar>
                         <ButtonGroup className='me-2'>
-                            <Button as={Link} to='/accountings/add'>{staticTextHelper.getCreateNewAccountingText(staticTexts)}</Button>
+                            <Button as={Link} to='/accountings/add'><FontAwesomeIcon icon={faPlus} />&nbsp;{staticTextHelper.getCreateNewAccountingText(staticTexts)}</Button>
                         </ButtonGroup>
                     </ButtonToolbar>
                 </Col>

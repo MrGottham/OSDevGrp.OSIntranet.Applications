@@ -1,5 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Alert from 'react-bootstrap/Alert';
@@ -28,7 +30,7 @@ function AccessDenied() {
         <Alert variant='danger'>
             <Alert.Heading>
                 <span>
-                    <i className='fa-solid fa-circle-xmark'></i>&nbsp;<strong>{staticTextHelper.getAccessDeniedText(accessDeniedContent.staticTexts)}</strong>
+                    <FontAwesomeIcon icon={faCircleXmark} />&nbsp;<strong>{staticTextHelper.getAccessDeniedText(accessDeniedContent.staticTexts)}</strong>
                 </span>
             </Alert.Heading>
             <hr />

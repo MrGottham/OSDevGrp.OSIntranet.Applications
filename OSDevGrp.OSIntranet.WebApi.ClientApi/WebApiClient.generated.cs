@@ -3422,7 +3422,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("accountNumber")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(16, MinimumLength = 1)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string AccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("accountName")]
@@ -3475,7 +3475,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("accountNumber")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(16, MinimumLength = 1)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string AccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("accountName")]
@@ -3718,7 +3718,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("accountNumber")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(16, MinimumLength = 1)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string AccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("details")]
@@ -3728,7 +3728,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
 
         [System.Text.Json.Serialization.JsonPropertyName("budgetAccountNumber")]
         [System.ComponentModel.DataAnnotations.StringLength(16)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string? BudgetAccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("debit")]
@@ -3741,7 +3741,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
 
         [System.Text.Json.Serialization.JsonPropertyName("contactAccountNumber")]
         [System.ComponentModel.DataAnnotations.StringLength(16)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string? ContactAccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("sortOrder")]
@@ -3888,7 +3888,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("accountNumber")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(16, MinimumLength = 1)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string AccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("accountName")]
@@ -4077,7 +4077,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("accountNumber")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(16, MinimumLength = 1)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9A-Z\-+]{1,16}")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[0-9A-ZÆØÅ\-+]{1,16}$")]
         public string AccountNumber { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("accountName")]

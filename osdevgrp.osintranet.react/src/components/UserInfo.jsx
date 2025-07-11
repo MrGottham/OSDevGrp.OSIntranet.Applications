@@ -1,5 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
 import Row from 'react-bootstrap/Row';
@@ -109,7 +111,7 @@ function UserInfo() {
         }
 
         return (
-            <Card.Text className={className}><span><i className='fa-solid fa-check'></i>&nbsp;{permissionName}</span></Card.Text>
+            <Card.Text className={className}><span><FontAwesomeIcon icon={faCheck} />&nbsp;{permissionName}</span></Card.Text>
         );
     }
 

@@ -95,6 +95,22 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'CreateNewAccounting');
     }
 
+    getUpdateAccountingText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'UpdateAccounting');
+    }
+
+    getDeleteAccountingText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'DeleteAccounting');
+    }
+
+    getMasterDataText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'MasterData');
+    }
+
+    getLetterHeadText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'LetterHead');
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }

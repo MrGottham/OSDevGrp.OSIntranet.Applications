@@ -39,7 +39,6 @@ public class AccountingController : ControllerBase
 
     #region Methods
 
-    [AllowAnonymous]
     [HttpGet()]
     [HttpGet("acccountings")]
     [ProducesResponseType(typeof(AccountingsResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
@@ -56,7 +55,7 @@ public class AccountingController : ControllerBase
         return Ok(AccountingsResponseDto.Map(accountingsResponse));
     }
 
-    [AllowAnonymous]
+    [Authorize(Policy = Policies.AccountingViewer)]
     [HttpGet("{accountingNumber:int}")]
     [ProducesResponseType(typeof(AccountingResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
