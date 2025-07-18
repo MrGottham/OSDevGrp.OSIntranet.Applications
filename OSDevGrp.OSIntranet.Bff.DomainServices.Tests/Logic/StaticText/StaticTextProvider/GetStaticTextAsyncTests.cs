@@ -63,6 +63,13 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.Days, "Dage", 0)]
     [TestCase(StaticTextKey.Day, "Dag", 0)]
     [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
+    [TestCase(StaticTextKey.RequiredValueValidationError, "{0} skal angives.", 1)]
+    [TestCase(StaticTextKey.MinLengthValidationError, "{0} skal minimum have en længde på {1} tegn.", 2)]
+    [TestCase(StaticTextKey.MaxLengthValidationError, "{0} må maksimum have en længde på {1} tegn.", 2)]
+    [TestCase(StaticTextKey.MinValueValidationError, "{0} skal være større end eller lig med {1}.", 2)]
+    [TestCase(StaticTextKey.MaxValueValidationError, "{0} skal være mindre end eller lig med {1}.", 2)]
+    [TestCase(StaticTextKey.PatternValidationError, "{0} skal matche mønstret: {1}", 2)]
+    [TestCase(StaticTextKey.OneOfValidationError, "{0} skal være en af følgende værdier: {1}", 2)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();

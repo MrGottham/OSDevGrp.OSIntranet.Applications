@@ -40,5 +40,12 @@ public enum StaticTextKey
     BackDating,
     Days,
     Day,
-    CommonData
+    CommonData,
+    RequiredValueValidationError,
+    MinLengthValidationError,
+    MaxLengthValidationError,
+    MinValueValidationError,
+    MaxValueValidationError,
+    PatternValidationError,
+    OneOfValidationError
 }

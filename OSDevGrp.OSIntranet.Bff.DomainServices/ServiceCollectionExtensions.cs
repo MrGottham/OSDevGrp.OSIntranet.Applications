@@ -8,12 +8,14 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.UserInfo;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Security;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices;
@@ -34,6 +36,14 @@ public static class ServiceCollectionExtensions
             .AddTransient<IAccountTextsBuilder, AccountTextsBuilder>()
             .AddTransient<IBudgetAccountTextsBuilder, BudgetAccountTextsBuilder>()
             .AddTransient<IContactAccountTextsBuilder, ContactAccountTextsBuilder>()
+            .AddTransient<IRequiredValueRuleFactory, RequiredValueRuleFactory>()
+            .AddTransient<IMinLengthRuleFactory, MinLengthRuleFactory>()
+            .AddTransient<IMaxLengthRuleFactory, MaxLengthRuleFactory>()
+            .AddTransient<IMinValueRuleFactory, MinValueRuleFactory>()
+            .AddTransient<IMaxValueRuleFactory, MaxValueRuleFactory>()
+            .AddTransient<IPatternRuleFactory, PatternRuleFactory>()
+            .AddTransient<IOneOfRuleFactory, OneOfRuleFactory>()
+            .AddTransient<IValidationRuleSetBuilder, ValidationRuleSetBuilder>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);
     }
 
