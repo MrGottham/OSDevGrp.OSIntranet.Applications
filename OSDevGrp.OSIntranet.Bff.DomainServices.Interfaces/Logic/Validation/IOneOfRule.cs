@@ -1,6 +1,6 @@
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 
-public interface IOneOfRule<TValue> : IValidationRule where TValue : struct, IComparable<TValue>
+public interface IOneOfRule<TValue> : IValidationRule where TValue : IComparable<TValue>
 {
-    IReadOnlyCollection<TValue> ValidValues { get; }
+    IReadOnlyCollection<IValueSpecification<TValue>> ValidValues { get; }
 }

@@ -1,7 +1,9 @@
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
+
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
 
 public enum BalanceBelowZeroType
 {
-    Debtors = 0,
-    Creditors = 1
+    Debtors = AccountingRuleSetSpecifications.BalanceBelowZeroDebtorsValue,
+    Creditors = AccountingRuleSetSpecifications.BalanceBelowZeroCreditorsValue
 }

@@ -61,7 +61,6 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.MasterData, "Stamdata");
         staticTexts.Add(StaticTextKey.AccountingNumber, "Regnskabsnummer");
         staticTexts.Add(StaticTextKey.AccountingName, "Regnskabsnavn");
-        staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.BalanceBelowZero, "Saldo under {0:C}");
         staticTexts.Add(StaticTextKey.Debtors, "Debitorer");
         staticTexts.Add(StaticTextKey.Creditors, "Kreditorer");
@@ -69,6 +68,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Days, "Dage");
         staticTexts.Add(StaticTextKey.Day, "Dag");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
+        staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
+        staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");
         staticTexts.Add(StaticTextKey.RequiredValueValidationError, "{0} skal angives.");
         staticTexts.Add(StaticTextKey.MinLengthValidationError, "{0} skal minimum have en længde på {1} tegn.");
         staticTexts.Add(StaticTextKey.MaxLengthValidationError, "{0} må maksimum have en længde på {1} tegn.");

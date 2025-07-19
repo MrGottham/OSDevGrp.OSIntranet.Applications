@@ -31,11 +31,6 @@ internal abstract class DynamicTextsBuilderBase<TModel, TDynamicTexts> : IDynami
         return await Task.WhenAll(models.Select(model => BuildAsync(model, formatProvider, cancellationToken)));
     }
 
-    protected Task<IValueDisplayer> GetValueDisplayerAsync<TValue>(StaticTextKey staticTextKey, TValue value, IFormatProvider formatProvider, Func<TValue, IFormatProvider, string?> valueFormatter, CancellationToken cancellationToken = default)
-    {
-        return GetValueDisplayerAsync(staticTextKey, Array.Empty<object>(), value, formatProvider, valueFormatter, cancellationToken);
-    }
-
     protected async Task<IValueDisplayer> GetValueDisplayerAsync<TValue>(StaticTextKey staticTextKey, IEnumerable<object> arguments, TValue value, IFormatProvider formatProvider, Func<TValue, IFormatProvider, string?> valueFormatter, CancellationToken cancellationToken = default)
     {
         string staticText = await StaticTextProvider.GetStaticTextAsync(staticTextKey, arguments, formatProvider, cancellationToken);

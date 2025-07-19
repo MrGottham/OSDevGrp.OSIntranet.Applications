@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
 using System.Globalization;
 
@@ -265,7 +266,7 @@ public class GetValueDisplayerAsyncTests
 
         public override async Task<MyDynamicText> BuildAsync(MyModel model, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
         {
-            IValueDisplayer valueDisplayer = await GetValueDisplayerAsync(_staticTextKey, model.Value, formatProvider, _valueFormatter, cancellationToken);
+            IValueDisplayer valueDisplayer = await GetValueDisplayerAsync(_staticTextKey, _staticTextKey.DefaultArguments(), model.Value, formatProvider, _valueFormatter, cancellationToken);
 
             return new MyDynamicText(valueDisplayer);
         }

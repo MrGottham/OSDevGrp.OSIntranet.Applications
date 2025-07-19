@@ -5,6 +5,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -21,6 +22,7 @@ public class VerifyPermissionAsyncTests : AccountingIdentificationFeatureTestBas
     private Mock<IAccountingGateway>? _accountingGatewayMock;
     private Mock<IStaticTextProvider>? _staticTextProviderMock;
     private Mock<IDynamicTextsBuilder<object, IDynamicTexts>>? _dynamicTextsBuilderMock;
+    private Mock<IValidationRuleSetBuilder>? _validationRuleSetBuilderMock;
     private Fixture? _fixture;
 
     #endregion
@@ -32,6 +34,7 @@ public class VerifyPermissionAsyncTests : AccountingIdentificationFeatureTestBas
         _accountingGatewayMock = new Mock<IAccountingGateway>();
         _staticTextProviderMock = new Mock<IStaticTextProvider>();
         _dynamicTextsBuilderMock = new Mock<IDynamicTextsBuilder<object, IDynamicTexts>>();
+        _validationRuleSetBuilderMock = new Mock<IValidationRuleSetBuilder>();
         _fixture = new Fixture();
     }
 
@@ -178,6 +181,6 @@ public class VerifyPermissionAsyncTests : AccountingIdentificationFeatureTestBas
 
     private IPermissionVerifiable<MyAccountingIdentificationRequest> CreateSut(bool isAuthenticated = true, bool hasAccountingAccess = true, bool isAccountingViewer = true)
     {
-        return (IPermissionVerifiable<MyAccountingIdentificationRequest>) CreateSut(_fixture!, _permissionCheckerMock!, _accountingGatewayMock!, _staticTextProviderMock!, _dynamicTextsBuilderMock!, isAuthenticated: isAuthenticated, hasAccountingAccess: hasAccountingAccess, isAccountingViewer: isAccountingViewer);
+        return (IPermissionVerifiable<MyAccountingIdentificationRequest>) CreateSut(_fixture!, _permissionCheckerMock!, _accountingGatewayMock!, _staticTextProviderMock!, _dynamicTextsBuilderMock!, _validationRuleSetBuilderMock!, isAuthenticated: isAuthenticated, hasAccountingAccess: hasAccountingAccess, isAccountingViewer: isAccountingViewer);
     }
 }

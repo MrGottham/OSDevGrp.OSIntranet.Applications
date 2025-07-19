@@ -1,3 +1,4 @@
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using System.ComponentModel.DataAnnotations;
@@ -10,10 +11,10 @@ public class AccountingDto : AccountingInfoDto
     public required LetterHeadInfoDto LetterHead { get; init; }
 
     [Required]
-    public required BalanceBelowZeroType BalanceBelowZeroType { get; init; }
+    public required BalanceBelowZeroType BalanceBelowZero { get; init; }
 
     [Required]
-    [Range(0, 365)]
+    [Range(AccountingRuleSetSpecifications.BackDatingMinValue, AccountingRuleSetSpecifications.BackDatingMaxValue)]
     public required int BackDating { get; init; }
 
     [Required]
@@ -41,7 +42,7 @@ public class AccountingDto : AccountingInfoDto
             Number = accountingModel.Number,
             Name = accountingModel.Name,
             LetterHead = LetterHeadInfoDto.Map(accountingModel.LetterHead),
-            BalanceBelowZeroType = Enum.Parse<BalanceBelowZeroType>(accountingModel.BalanceBelowZero.ToString()),
+            BalanceBelowZero = Enum.Parse<BalanceBelowZeroType>(accountingModel.BalanceBelowZero.ToString()),
             BackDating = accountingModel.BackDating,
             StatusDate = accountingModel.StatusDate,
             Accounts = accountingModel.Accounts.Select(AccountDto.Map).ToArray(),

@@ -1,5 +1,6 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Validation;
 
@@ -18,7 +19,7 @@ internal class MinValueRuleFactory : ValidationRuleFactoryBase, IMinValueRuleFac
 
     public async Task<IValidationRule> CreateAsync<TValue>(string name, StaticTextKey field, TValue minValue, IFormatProvider formatProvider, CancellationToken cancellationToken = default) where TValue : struct, IComparable<TValue>
     {
-        string fieldText = await StaticTextProvider.GetStaticTextAsync(field, [], formatProvider, cancellationToken);
+        string fieldText = await StaticTextProvider.GetStaticTextAsync(field, field.DefaultArguments(), formatProvider, cancellationToken);
         string validationError = await StaticTextProvider.GetStaticTextAsync(StaticTextKey.MinValueValidationError, [fieldText, minValue], formatProvider, cancellationToken);
 
         return new MinValueRule<TValue>(name, minValue, validationError);

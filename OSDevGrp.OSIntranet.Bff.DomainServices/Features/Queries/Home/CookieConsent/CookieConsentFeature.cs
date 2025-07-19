@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.CookieConsent;
 
@@ -33,13 +34,11 @@ internal class CookieConsentFeature : PageFeatureBase<CookieConsentRequest, Cook
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(CookieConsentRequest request, object argument)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.WebsiteUsingCookies, noArguments },
-            { StaticTextKey.CookieConsentInformation, noArguments },
-            { StaticTextKey.AllowNecessaryCookies, noArguments }
+            { StaticTextKey.WebsiteUsingCookies, StaticTextKey.WebsiteUsingCookies.DefaultArguments() },
+            { StaticTextKey.CookieConsentInformation, StaticTextKey.CookieConsentInformation.DefaultArguments() },
+            { StaticTextKey.AllowNecessaryCookies, StaticTextKey.AllowNecessaryCookies.DefaultArguments() }
         };
     }
 

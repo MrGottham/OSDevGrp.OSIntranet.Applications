@@ -2,11 +2,11 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Validation;
 
-internal class OneOfRule<TValue> : ValidationRuleBase, IOneOfRule<TValue> where TValue : struct, IComparable<TValue>
+internal class OneOfRule<TValue> : ValidationRuleBase, IOneOfRule<TValue> where TValue : IComparable<TValue>
 {
     #region Constructor
 
-    public OneOfRule(string name, IReadOnlyCollection<TValue> validValues, string validationError)
+    public OneOfRule(string name, IReadOnlyCollection<IValueSpecification<TValue>> validValues, string validationError)
         : base(name, validationError)
     {
         ValidValues = validValues;
@@ -18,7 +18,7 @@ internal class OneOfRule<TValue> : ValidationRuleBase, IOneOfRule<TValue> where 
 
     public override ValidationRuleType RuleType => ValidationRuleType.OneOfRule;
 
-    public IReadOnlyCollection<TValue> ValidValues { get; }
+    public IReadOnlyCollection<IValueSpecification<TValue>> ValidValues { get; }
 
     #endregion
 }

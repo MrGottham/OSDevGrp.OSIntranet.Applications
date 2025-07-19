@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.Error;
 
@@ -24,11 +25,9 @@ internal class ErrorFeature : PageFeatureBase<ErrorRequest, ErrorResponse, objec
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(ErrorRequest request, object argument)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.SomethingWentWrong, noArguments }
+            { StaticTextKey.SomethingWentWrong, StaticTextKey.SomethingWentWrong.DefaultArguments() }
         };
     }
 

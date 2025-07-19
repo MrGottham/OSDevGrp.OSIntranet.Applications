@@ -2,6 +2,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.UserInfo;
@@ -48,20 +49,18 @@ internal class UserInfoFeature : PageFeatureBase<UserInfoRequest, UserInfoRespon
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(UserInfoRequest request, IUserInfoModel userInfo)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.MailAddress, noArguments },
-            { StaticTextKey.Permissions, noArguments },
-            { StaticTextKey.FinancialManagement, noArguments },
-            { StaticTextKey.Administrator, noArguments },
-            { StaticTextKey.Creator, noArguments },
-            { StaticTextKey.Modifier, noArguments },
-            { StaticTextKey.Viewer, noArguments },
-            { StaticTextKey.CommonData, noArguments },
-            { StaticTextKey.PrimaryAccounting, noArguments },
-            { StaticTextKey.Accountings, noArguments },
+            { StaticTextKey.MailAddress, StaticTextKey.MailAddress.DefaultArguments() },
+            { StaticTextKey.Permissions, StaticTextKey.Permissions.DefaultArguments() },
+            { StaticTextKey.FinancialManagement, StaticTextKey.FinancialManagement.DefaultArguments() },
+            { StaticTextKey.Administrator, StaticTextKey.Administrator.DefaultArguments() },
+            { StaticTextKey.Creator, StaticTextKey.Creator.DefaultArguments() },
+            { StaticTextKey.Modifier, StaticTextKey.Modifier.DefaultArguments() },
+            { StaticTextKey.Viewer, StaticTextKey.Viewer.DefaultArguments() },
+            { StaticTextKey.CommonData, StaticTextKey.CommonData.DefaultArguments() },
+            { StaticTextKey.PrimaryAccounting, StaticTextKey.PrimaryAccounting.DefaultArguments() },
+            { StaticTextKey.Accountings, StaticTextKey.Accountings.DefaultArguments() },
         };
     }
 

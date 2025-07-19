@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Validation;
 
-internal sealed class ValidationRuleSetBuilder : IValidationRuleSetBuilder
+internal sealed class ExtendedValidationRuleSetBuilder : IExtendedValidationRuleSetBuilder
 {
     #region Private variables
 
@@ -21,7 +21,7 @@ internal sealed class ValidationRuleSetBuilder : IValidationRuleSetBuilder
 
     #region Constructor
 
-    public ValidationRuleSetBuilder(IRequiredValueRuleFactory requiredValueRuleFactory, IMinLengthRuleFactory minLengthRuleFactory, IMaxLengthRuleFactory maxLengthRuleFactory, IMinValueRuleFactory minValueRuleFactory, IMaxValueRuleFactory maxValueRuleFactory, IPatternRuleFactory patternRuleFactory, IOneOfRuleFactory oneOfRuleFactory)
+    public ExtendedValidationRuleSetBuilder(IRequiredValueRuleFactory requiredValueRuleFactory, IMinLengthRuleFactory minLengthRuleFactory, IMaxLengthRuleFactory maxLengthRuleFactory, IMinValueRuleFactory minValueRuleFactory, IMaxValueRuleFactory maxValueRuleFactory, IPatternRuleFactory patternRuleFactory, IOneOfRuleFactory oneOfRuleFactory)
     {
         _requiredValueRuleFactory = requiredValueRuleFactory;
         _minLengthRuleFactory = minLengthRuleFactory;
@@ -36,57 +36,57 @@ internal sealed class ValidationRuleSetBuilder : IValidationRuleSetBuilder
 
     #region Methods
 
-    public IValidationRuleSetBuilder WithRequiredValueRule(StaticTextKey field)
+    public IExtendedValidationRuleSetBuilder WithRequiredValueRule(StaticTextKey field)
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _requiredValueRuleFactory.CreateAsync($"{field}:{ValidationRuleType.RequiredValueRule}", field, formatProvider, cancellationToken));
 
         return this;
     }
 
-    public IValidationRuleSetBuilder WithMinLengthRule(StaticTextKey field, int minLength)
+    public IExtendedValidationRuleSetBuilder WithMinLengthRule(StaticTextKey field, int minLength)
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _minLengthRuleFactory.CreateAsync($"{field}:{ValidationRuleType.MinLengthRule}", field, minLength, formatProvider, cancellationToken));
 
         return this;
     }
 
-    public IValidationRuleSetBuilder WithMaxLengthRule(StaticTextKey field, int maxLength)
+    public IExtendedValidationRuleSetBuilder WithMaxLengthRule(StaticTextKey field, int maxLength)
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _maxLengthRuleFactory.CreateAsync($"{field}:{ValidationRuleType.MaxLengthRule}", field, maxLength, formatProvider, cancellationToken));
 
         return this;
     }
 
-    public IValidationRuleSetBuilder WithMinValueRule<TValue>(StaticTextKey field, TValue minValue) where TValue : struct, IComparable<TValue>
+    public IExtendedValidationRuleSetBuilder WithMinValueRule<TValue>(StaticTextKey field, TValue minValue) where TValue : struct, IComparable<TValue>
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _minValueRuleFactory.CreateAsync($"{field}:{ValidationRuleType.MinValueRule}", field, minValue, formatProvider, cancellationToken));
 
         return this;
     }
 
-    public IValidationRuleSetBuilder WithMaxValueRule<TValue>(StaticTextKey field, TValue maxValue) where TValue : struct, IComparable<TValue>
+    public IExtendedValidationRuleSetBuilder WithMaxValueRule<TValue>(StaticTextKey field, TValue maxValue) where TValue : struct, IComparable<TValue>
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _maxValueRuleFactory.CreateAsync($"{field}:{ValidationRuleType.MaxValueRule}", field, maxValue, formatProvider, cancellationToken));
 
         return this;
     }
 
-    public IValidationRuleSetBuilder WithRangeRule<TValue>(StaticTextKey field, TValue minValue, TValue maxValue) where TValue : struct, IComparable<TValue>
+    public IExtendedValidationRuleSetBuilder WithRangeRule<TValue>(StaticTextKey field, TValue minValue, TValue maxValue) where TValue : struct, IComparable<TValue>
     {
         return WithMinValueRule(field, minValue)
             .WithMaxValueRule(field, maxValue);
     }
 
-    public IValidationRuleSetBuilder WithPatternRule(StaticTextKey field, string pattern)
+    public IExtendedValidationRuleSetBuilder WithPatternRule(StaticTextKey field, string pattern)
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _patternRuleFactory.CreateAsync($"{field}:{ValidationRuleType.PatternRule}", field, new Regex(pattern, RegexOptions.Compiled, TimeSpan.FromMilliseconds(32)), formatProvider, cancellationToken));
 
         return this;
     }
 
-    public IValidationRuleSetBuilder WithOneOfRule<TValue>(StaticTextKey field, params TValue[] values) where TValue : struct, IComparable<TValue>
+    public IExtendedValidationRuleSetBuilder WithOneOfRule<TValue>(StaticTextKey field, params IValueSpecification<TValue>[] validValues) where TValue : IComparable<TValue>
     {
-        _validationRuleFactories.Add((formatProvider, cancellationToken) => _oneOfRuleFactory.CreateAsync($"{field}:{ValidationRuleType.OneOfRule}", field, values, formatProvider, cancellationToken));
+        _validationRuleFactories.Add((formatProvider, cancellationToken) => _oneOfRuleFactory.CreateAsync($"{field}:{ValidationRuleType.OneOfRule}", field, validValues, formatProvider, cancellationToken));
 
         return this;
     }

@@ -22,7 +22,7 @@ public class AccountingResponseDto : AccountingDto
             Number = accountingResponse.Model.Number,
             Name = accountingResponse.Model.Name,
             LetterHead = LetterHeadInfoDto.Map(accountingResponse.Model.LetterHead),
-            BalanceBelowZeroType = Enum.Parse<BalanceBelowZeroType>(accountingResponse.Model.BalanceBelowZero.ToString()),
+            BalanceBelowZero = Enum.Parse<BalanceBelowZeroType>(accountingResponse.Model.BalanceBelowZero.ToString()),
             BackDating = accountingResponse.Model.BackDating,
             StatusDate = accountingResponse.Model.StatusDate,
             Accounts = accountingResponse.Model.Accounts.Select(AccountDto.Map).ToArray(),

@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
 
@@ -24,13 +25,11 @@ internal class AccessDeniedContentFeature : PageFeatureBase<AccessDeniedContentR
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(AccessDeniedContentRequest request, object argument)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.AccessDenied, noArguments },
-            { StaticTextKey.MissingPermissionToPage, noArguments },
-            { StaticTextKey.CheckYourCredentials, noArguments }
+            { StaticTextKey.AccessDenied, StaticTextKey.AccessDenied.DefaultArguments() },
+            { StaticTextKey.MissingPermissionToPage, StaticTextKey.MissingPermissionToPage.DefaultArguments() },
+            { StaticTextKey.CheckYourCredentials, StaticTextKey.CheckYourCredentials.DefaultArguments() }
         };
     }
 

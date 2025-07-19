@@ -1,6 +1,7 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
@@ -52,12 +53,10 @@ internal class AccountingsFeature : PageFeatureBase<AccountingsRequest, Accounti
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(AccountingsRequest request, IReadOnlyCollection<AccountingModel> argument)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.Accountings, noArguments },
-            { StaticTextKey.CreateNewAccounting, noArguments }
+            { StaticTextKey.Accountings, StaticTextKey.Accountings.DefaultArguments() },
+            { StaticTextKey.CreateNewAccounting, StaticTextKey.CreateNewAccounting.DefaultArguments() }
         };
     }
 

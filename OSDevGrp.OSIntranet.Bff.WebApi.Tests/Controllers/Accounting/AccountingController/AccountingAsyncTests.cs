@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Account
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
@@ -271,8 +272,9 @@ public class AccountingAsyncTests
     private AccountingResponse CreateAccountingResponse(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, IReadOnlyCollection<LetterHeadIdentificationModel>? letterHeads = null)
     {
         IReadOnlyDictionary<StaticTextKey, string> staticTexts = _fixture!.CreateStaticTexts(_random!);
+        IReadOnlyCollection<IValidationRule> validationRuleSet = _fixture!.CreateValidationRuleSet();
 
-        return new AccountingResponse(accountingModel ?? _fixture!.CreateAccountingModel(_random!), accountingTexts ?? CreateAccountingTexts(), letterHeads ?? _fixture!.CreateLetterHeadIdentificationModels(_random!), staticTexts);
+        return new AccountingResponse(accountingModel ?? _fixture!.CreateAccountingModel(_random!), accountingTexts ?? CreateAccountingTexts(), letterHeads ?? _fixture!.CreateLetterHeadIdentificationModels(_random!), staticTexts, validationRuleSet);
     }
 
     private IAccountingTexts CreateAccountingTexts()

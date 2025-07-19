@@ -4,9 +4,11 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ValidationRuleSetBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.UserHelper;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -18,17 +20,18 @@ public abstract class AccountingIdentificationFeatureTestBase : AccountingPageFe
 {
     #region Methods
 
-    protected static IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> CreateSut(Fixture fixture, Mock<IPermissionChecker> permissionCheckerMock, Mock<IAccountingGateway> accountingGatewayMock, Mock<IStaticTextProvider> staticTextProviderMock, Mock<IDynamicTextsBuilder<object, IDynamicTexts>> dynamicTextsBuilderMock, bool isAuthenticated = true, bool hasAccountingAccess = true, bool isAccountingViewer = true, Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>>? modelGetter = null, Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>>? responseBuilder = null, Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>>? staticTextSpecificationsGetter = null, IDynamicTexts? dynamicTexts = null)
+    protected static IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> CreateSut(Fixture fixture, Mock<IPermissionChecker> permissionCheckerMock, Mock<IAccountingGateway> accountingGatewayMock, Mock<IStaticTextProvider> staticTextProviderMock, Mock<IDynamicTextsBuilder<object, IDynamicTexts>> dynamicTextsBuilderMock, Mock<IValidationRuleSetBuilder> validationRuleSetBuilderMock, bool isAuthenticated = true, bool hasAccountingAccess = true, bool isAccountingViewer = true, Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>>? modelGetter = null, Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>>? responseBuilder = null, Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>>? staticTextSpecificationsGetter = null, IDynamicTexts? dynamicTexts = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
     {
         permissionCheckerMock.Setup(fixture, isAuthenticated: isAuthenticated, hasAccountingAccess: hasAccountingAccess, isAccountingViewer: isAccountingViewer);
         staticTextProviderMock.Setup(fixture);
         dynamicTextsBuilderMock.Setup(dynamicTexts: dynamicTexts);
+        validationRuleSetBuilderMock.Setup(fixture, validationRuleSet: validationRuleSet);
 
         modelGetter ??= (_, _) => Task.FromResult(new object());
-        responseBuilder ??= (model, staticTexts, dynamicTexts, _) => Task.FromResult(new MyAccountingIdentificationResponse(model, dynamicTexts, staticTexts));
+        responseBuilder ??= (m, st, dt, vrs, _) => Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st, vrs));
         staticTextSpecificationsGetter ??= (_, _) => new Dictionary<StaticTextKey, IEnumerable<object>>();
 
-        return new MyAccountingIdentificationFeature(modelGetter, responseBuilder, staticTextSpecificationsGetter, permissionCheckerMock.Object, accountingGatewayMock.Object, staticTextProviderMock.Object, dynamicTextsBuilderMock.Object);
+        return new MyAccountingIdentificationFeature(modelGetter, responseBuilder, staticTextSpecificationsGetter, permissionCheckerMock.Object, accountingGatewayMock.Object, staticTextProviderMock.Object, dynamicTextsBuilderMock.Object, validationRuleSetBuilderMock.Object);
     }
 
     protected static MyAccountingIdentificationRequest CreateAccountingIdentificationRequest(Fixture fixture, int? accountingNumber = null, DateTimeOffset? statusDate = null, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null)
@@ -40,20 +43,20 @@ public abstract class AccountingIdentificationFeatureTestBase : AccountingPageFe
 
     #region Private classes
 
-    private class MyAccountingIdentificationFeature : AccountingIdentificationFeatureBase<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse, object, IDynamicTexts, IDynamicTextsBuilder<object, IDynamicTexts>>
+    private class MyAccountingIdentificationFeature : AccountingIdentificationFeatureBase<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse, object, IDynamicTexts, IDynamicTextsBuilder<object, IDynamicTexts>, IValidationRuleSetBuilder>
     {
         #region Private variables
 
         private readonly Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>> _modelGetter;
-        private readonly Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>> _responseBuilder;
+        private readonly Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>> _responseBuilder;
         private readonly Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>> _staticTextSpecificationsGetter;
 
         #endregion
 
         #region Methods
 
-        public MyAccountingIdentificationFeature(Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>> modelGetter, Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder, Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>> staticTextSpecificationsGetter, IPermissionChecker permissionChecker, IAccountingGateway accountingGateway, IStaticTextProvider staticTextProvider, IDynamicTextsBuilder<object, IDynamicTexts> dynamicTextsBuilder)
-            : base(permissionChecker, accountingGateway, staticTextProvider, dynamicTextsBuilder)
+        public MyAccountingIdentificationFeature(Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>> modelGetter, Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder, Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>> staticTextSpecificationsGetter, IPermissionChecker permissionChecker, IAccountingGateway accountingGateway, IStaticTextProvider staticTextProvider, IDynamicTextsBuilder<object, IDynamicTexts> dynamicTextsBuilder, IValidationRuleSetBuilder validationRuleSetBuilder)
+            : base(permissionChecker, accountingGateway, staticTextProvider, dynamicTextsBuilder, validationRuleSetBuilder)
         {
             _modelGetter = modelGetter;
             _responseBuilder = responseBuilder;
@@ -66,7 +69,7 @@ public abstract class AccountingIdentificationFeatureTestBase : AccountingPageFe
 
         protected override Task<object> GetModelAsync(MyAccountingIdentificationRequest request, CancellationToken cancellationToken) => _modelGetter(request, cancellationToken);
 
-        protected override Task<MyAccountingIdentificationResponse> BuildResponseAsync(object model, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IDynamicTexts dynamicTexts, CancellationToken cancellationToken) => _responseBuilder(model, staticTexts, dynamicTexts, cancellationToken);
+        protected override Task<MyAccountingIdentificationResponse> BuildResponseAsync(object model, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IDynamicTexts dynamicTexts, IReadOnlyCollection<IValidationRule> validationRuleSet, CancellationToken cancellationToken) => _responseBuilder(model, staticTexts, dynamicTexts, validationRuleSet, cancellationToken);
 
         protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(MyAccountingIdentificationRequest request, object model) => _staticTextSpecificationsGetter(request, model);
 

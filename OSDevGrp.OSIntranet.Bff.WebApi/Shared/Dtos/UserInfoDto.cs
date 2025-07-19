@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
@@ -17,7 +18,7 @@ public class UserInfoDto
     [Required]
     public required bool HasAccountingAccess { get; init; }
 
-    [Range(ValidationValues.AccountingIdentificationMinValue, ValidationValues.AccountingIdentificationMaxValue)]
+    [Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)]
     public int? DefaultAccountingNumber { get; init; }
 
     [Required]

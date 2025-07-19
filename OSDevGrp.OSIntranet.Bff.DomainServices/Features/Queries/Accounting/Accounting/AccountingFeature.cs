@@ -1,13 +1,15 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 
-internal class AccountingFeature : AccountingIdentificationFeatureBase<AccountingRequest, AccountingResponse, AccountingModel, IAccountingTexts, IAccountingTextsBuilder>
+internal class AccountingFeature : AccountingIdentificationFeatureBase<AccountingRequest, AccountingResponse, AccountingModel, IAccountingTexts, IAccountingTextsBuilder, IAccountingRuleSetBuilder>
 {
     #region Private variables
 
@@ -18,8 +20,8 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
 
     #region Construcot
 
-    public AccountingFeature(IPermissionChecker permissionChecker, IAccountingGateway accountingGateway, ICommonGateway commonGateway, IStaticTextProvider staticTextProvider, IAccountingTextsBuilder dynamicTextsBuilder)
-        : base(permissionChecker, accountingGateway, staticTextProvider, dynamicTextsBuilder)
+    public AccountingFeature(IPermissionChecker permissionChecker, IAccountingGateway accountingGateway, ICommonGateway commonGateway, IStaticTextProvider staticTextProvider, IAccountingTextsBuilder accountingTextsBuilder, IAccountingRuleSetBuilder accountingRuleSetBuilder)
+        : base(permissionChecker, accountingGateway, staticTextProvider, accountingTextsBuilder, accountingRuleSetBuilder)
     {
         _commonGateway = commonGateway;
     }
@@ -37,27 +39,25 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
         return accountingModel;
     }
 
-    protected override Task<AccountingResponse> BuildResponseAsync(AccountingModel accountingModel, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IAccountingTexts accountingTexts, CancellationToken cancellationToken)
+    protected override Task<AccountingResponse> BuildResponseAsync(AccountingModel accountingModel, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IAccountingTexts accountingTexts, IReadOnlyCollection<IValidationRule> validationRuleSet, CancellationToken cancellationToken)
     {
-        return Task.Run(() => new AccountingResponse(accountingModel, accountingTexts, _letterHeads.AsReadOnly(), staticTexts), cancellationToken);
+        return Task.Run(() => new AccountingResponse(accountingModel, accountingTexts, _letterHeads.AsReadOnly(), staticTexts, validationRuleSet), cancellationToken);
     }
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(AccountingRequest request, AccountingModel accountingModel)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.UpdateAccounting, noArguments },
-            { StaticTextKey.DeleteAccounting, noArguments },
-            { StaticTextKey.MasterData, noArguments },
-            { StaticTextKey.AccountingNumber, noArguments },
-            { StaticTextKey.AccountingName, noArguments },
-            { StaticTextKey.LetterHead, noArguments },
-            { StaticTextKey.BalanceBelowZero, [ 0 ] },
-            { StaticTextKey.Debtors, noArguments },
-            { StaticTextKey.Creditors, noArguments },
-            { StaticTextKey.BackDating, noArguments },
+            { StaticTextKey.UpdateAccounting, StaticTextKey.UpdateAccounting.DefaultArguments() },
+            { StaticTextKey.DeleteAccounting, StaticTextKey.DeleteAccounting.DefaultArguments() },
+            { StaticTextKey.MasterData, StaticTextKey.MasterData.DefaultArguments() },
+            { StaticTextKey.AccountingNumber, StaticTextKey.AccountingNumber.DefaultArguments() },
+            { StaticTextKey.AccountingName, StaticTextKey.AccountingName.DefaultArguments() },
+            { StaticTextKey.LetterHead, StaticTextKey.LetterHead.DefaultArguments() },
+            { StaticTextKey.BalanceBelowZero, StaticTextKey.BalanceBelowZero.DefaultArguments() },
+            { StaticTextKey.Debtors, StaticTextKey.Debtors.DefaultArguments() },
+            { StaticTextKey.Creditors, StaticTextKey.Creditors.DefaultArguments() },
+            { StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments() },
         };
     }
 

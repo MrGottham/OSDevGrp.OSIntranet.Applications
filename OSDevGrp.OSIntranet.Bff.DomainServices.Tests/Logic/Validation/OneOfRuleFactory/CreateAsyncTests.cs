@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ValueSpecification;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.OneOfRuleFactory;
@@ -34,7 +35,7 @@ public class CreateAsyncTests
     {
         IOneOfRuleFactory sut = CreateSut();
 
-        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture);
+        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == staticTextKey),
@@ -53,7 +54,7 @@ public class CreateAsyncTests
         IOneOfRuleFactory sut = CreateSut();
 
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
-        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), formatProvider);
+        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), formatProvider);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == staticTextKey),
@@ -73,7 +74,7 @@ public class CreateAsyncTests
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
-        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture, cancellationToken);
+        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture, cancellationToken);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == staticTextKey),
@@ -91,12 +92,12 @@ public class CreateAsyncTests
     {
         IOneOfRuleFactory sut = CreateSut();
 
-        int[] validValues = _fixture!.CreateMany<int>(5).ToArray();
+        IReadOnlyCollection<IValueSpecification<int>> validValues = CreateValueSpecificationColletion();
         await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, validValues, CultureInfo.InvariantCulture);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == StaticTextKey.OneOfValidationError),
-                It.Is<IEnumerable<object>>(value => value.Count() == 2 && ((string)value.ElementAt(0)).StartsWith($"{staticTextKey}:") && ((string)value.ElementAt(1)) == string.Join(", ", validValues)),
+                It.Is<IEnumerable<object>>(value => value.Count() == 2 && ((string)value.ElementAt(0)).StartsWith($"{staticTextKey}:") && ((string)value.ElementAt(1)) == string.Join(", ", validValues.Select(validValue => validValue.Description))),
                 It.IsAny<IFormatProvider>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -111,7 +112,7 @@ public class CreateAsyncTests
         IOneOfRuleFactory sut = CreateSut();
 
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
-        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), formatProvider);
+        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), formatProvider);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == StaticTextKey.OneOfValidationError),
@@ -131,7 +132,7 @@ public class CreateAsyncTests
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
-        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture, cancellationToken);
+        await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture, cancellationToken);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == StaticTextKey.OneOfValidationError),
@@ -149,7 +150,7 @@ public class CreateAsyncTests
     {
         IOneOfRuleFactory sut = CreateSut();
 
-        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture);
+        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture);
 
         Assert.That(result, Is.TypeOf<OneOfRule<int>>());
     }
@@ -163,7 +164,7 @@ public class CreateAsyncTests
         IOneOfRuleFactory sut = CreateSut();
 
         string name = _fixture!.Create<string>();
-        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(name, staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture);
+        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(name, staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture);
 
         Assert.That(result.Name, Is.EqualTo(name));
     }
@@ -176,7 +177,7 @@ public class CreateAsyncTests
     {
         IOneOfRuleFactory sut = CreateSut();
 
-        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture);
+        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture);
 
         Assert.That(result.RuleType, Is.EqualTo(ValidationRuleType.OneOfRule));
     }
@@ -189,7 +190,7 @@ public class CreateAsyncTests
     {
         IOneOfRuleFactory sut = CreateSut();
 
-        int[] validValues = _fixture!.CreateMany<int>(5).ToArray();
+        IReadOnlyCollection<IValueSpecification<int>> validValues = CreateValueSpecificationColletion();
         IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, validValues, CultureInfo.InvariantCulture);
 
         Assert.That(result.ValidValues, Is.EqualTo(validValues));
@@ -203,7 +204,7 @@ public class CreateAsyncTests
     {
         IOneOfRuleFactory sut = CreateSut();
 
-        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, _fixture!.CreateMany<int>(5).ToArray(), CultureInfo.InvariantCulture);
+        IOneOfRule<int> result = (IOneOfRule<int>)await sut.CreateAsync(_fixture!.Create<string>(), staticTextKey, CreateValueSpecificationColletion(), CultureInfo.InvariantCulture);
 
         Assert.That(result.ValidationError, Does.StartWith($"{StaticTextKey.OneOfValidationError}:"));
     }
@@ -213,5 +214,12 @@ public class CreateAsyncTests
         _staticTextProviderMock!.Setup(_fixture!);
 
         return new DomainServices.Logic.Validation.OneOfRuleFactory(_staticTextProviderMock!.Object);
+    }
+
+    private IReadOnlyCollection<IValueSpecification<int>> CreateValueSpecificationColletion(int[]? validValues = null)
+    {
+        return (validValues ?? _fixture!.CreateMany<int>(5).ToArray())
+            .Select(validValue => _fixture!.CreateValueSpecification(value: validValue))
+            .ToArray();
     }
 }

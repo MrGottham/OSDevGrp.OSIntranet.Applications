@@ -7,9 +7,14 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Account
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingRuleSetBuilder;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MaxLengthRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MinLengthRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.UserHelper;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -28,6 +33,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     private Mock<ICommonGateway>? _commonGatewayMock;
     private Mock<IStaticTextProvider>? _staticTextProviderMock;
     private Mock<IAccountingTextsBuilder>? _accountingTextsBuilderMock;
+    private Mock<IAccountingRuleSetBuilder>? _accountingRuleSetBuilderMock;
     private Fixture? _fixture;
     private Random? _random;
 
@@ -41,6 +47,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         _commonGatewayMock = new Mock<ICommonGateway>();
         _staticTextProviderMock = new Mock<IStaticTextProvider>();
         _accountingTextsBuilderMock = new Mock<IAccountingTextsBuilder>();
+        _accountingRuleSetBuilderMock = new Mock<IAccountingRuleSetBuilder>();
         _fixture = new Fixture();
         _random = new Random(_fixture!.Create<int>());
     }
@@ -235,18 +242,37 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         Assert.That(result.StaticTexts.ContainsKey(staticTextKey), Is.True);
     }
 
-    private IQueryFeature<AccountingRequest, AccountingResponse> CreateSut(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, bool hasCommonDataAccess = true, IEnumerable<LetterHeadModel>? letterHeadModels = null)
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereValidationRuleSetIsEqualToValidationRuleSetResolvedByValidationRuleSetBuilder()
+    {
+        IReadOnlyCollection<IValidationRule> validationRuleSet =
+        [
+            _fixture!.CreateRequiredValueRule(),
+            _fixture!.CreateMinLengthRule(),
+            _fixture!.CreateMaxLengthRule()
+        ];
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(validationRuleSet: validationRuleSet);
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!);
+        AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
+
+        Assert.That(result.ValidationRuleSet, Is.EqualTo(validationRuleSet));
+    }
+
+    private IQueryFeature<AccountingRequest, AccountingResponse> CreateSut(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, bool hasCommonDataAccess = true, IEnumerable<LetterHeadModel>? letterHeadModels = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
     {
         _permissionCheckerMock!.Setup(_fixture!, hasCommonDataAccess: hasCommonDataAccess);
         _staticTextProviderMock!.Setup(_fixture!);
         _accountingTextsBuilderMock!.Setup(accountingTexts: accountingTexts);
+        _accountingRuleSetBuilderMock!.Setup(_fixture!, validationRuleSet: validationRuleSet);
 
         _accountingGatewayMock!.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(accountingModel ?? _fixture!.CreateAccountingModel(_random!)));
         _commonGatewayMock!.Setup(m => m.GetLetterHeadsAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(letterHeadModels ?? _fixture!.CreateLetterHeadModels(_random!)));
 
-        return new DomainServices.Features.Queries.Accounting.Accounting.AccountingFeature(_permissionCheckerMock!.Object, _accountingGatewayMock!.Object, _commonGatewayMock!.Object, _staticTextProviderMock!.Object, _accountingTextsBuilderMock!.Object);
+        return new DomainServices.Features.Queries.Accounting.Accounting.AccountingFeature(_permissionCheckerMock!.Object, _accountingGatewayMock!.Object, _commonGatewayMock!.Object, _staticTextProviderMock!.Object, _accountingTextsBuilderMock!.Object, _accountingRuleSetBuilderMock!.Object);
     }
 
     private static AccountingRequest CreateAccountingRequest(Fixture fixture, int? accountingNumber = null, DateTimeOffset? statusDate = null, ISecurityContext? securityContext = null)

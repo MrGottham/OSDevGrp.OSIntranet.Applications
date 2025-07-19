@@ -4,7 +4,11 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MaxLengthRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MinLengthRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using System.Globalization;
 
@@ -19,6 +23,7 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
     private Mock<IAccountingGateway>? _accountingGatewayMock;
     private Mock<IStaticTextProvider>? _staticTextProviderMock;
     private Mock<IDynamicTextsBuilder<object, IDynamicTexts>>? _dynamicTextsBuilderMock;
+    private Mock<IValidationRuleSetBuilder>? _validationRuleSetBuilderMock;
     private Fixture? _fixture;
 
     #endregion
@@ -30,6 +35,7 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
         _accountingGatewayMock = new Mock<IAccountingGateway>();
         _staticTextProviderMock = new Mock<IStaticTextProvider>();
         _dynamicTextsBuilderMock = new Mock<IDynamicTextsBuilder<object, IDynamicTexts>>();
+        _validationRuleSetBuilderMock = new Mock<IValidationRuleSetBuilder>();
         _fixture = new Fixture();
     }
 
@@ -242,15 +248,48 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
 
     [Test]
     [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenCalled_AssertBuildAsyncWasCalledOnValidationRuleSetBuilderWithFormatProviderFromAccountingIdentificationRequest()
+    {
+        IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut();
+
+        IFormatProvider formatProvider = CultureInfo.InvariantCulture;
+        MyAccountingIdentificationRequest request = CreateAccountingIdentificationRequest(_fixture!, formatProvider: formatProvider);
+        await sut.ExecuteAsync(request);
+
+        _validationRuleSetBuilderMock!.Verify(m => m.BuildAsync(
+                It.Is<IFormatProvider>(value => value == formatProvider),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenCalled_AssertBuildAsyncWasCalledOnValidationRuleSetBuilderWithGivenCancellationToken()
+    {
+        IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut();
+
+        MyAccountingIdentificationRequest request = CreateAccountingIdentificationRequest(_fixture!);
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        await sut.ExecuteAsync(request, cancellationToken);
+
+        _validationRuleSetBuilderMock!.Verify(m => m.BuildAsync(
+                It.IsAny<IFormatProvider>(),
+                It.Is<CancellationToken>(value => value == cancellationToken)),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     public async Task ExecuteAsync_WhenCalled_AsserBuildResponseAsyncWasCalledOnAccountingIdentificationFeatureBaseWithModelReturnedByGetModelAsync()
     {
         object model = new object();
         Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>> modelGetter = (_, _) => Task.FromResult(model);
         object? buildResponseAsyncWasCalledWith = null;
-        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, _) =>
+        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, vrs, _) =>
         {
             buildResponseAsyncWasCalledWith = m;
-            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st));
+            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st, vrs));
         };
         IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut(modelGetter: modelGetter, responseBuilder: responseBuilder);
 
@@ -272,10 +311,10 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
         };
         Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>> staticTextSpecificationsGetter = (_, _) => staticTextSpecifications;
         IReadOnlyDictionary<StaticTextKey, string>? buildResponseAsyncWasCalledWith = null;
-        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, _) =>
+        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, vrs, _) =>
         {
             buildResponseAsyncWasCalledWith = st;
-            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st));
+            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st, vrs));
         };
         IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut(staticTextSpecificationsGetter: staticTextSpecificationsGetter, responseBuilder: responseBuilder);
 
@@ -293,10 +332,10 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
     public async Task ExecuteAsync_WhenCalled_AsserBuildResponseAsyncWasCalledOnAccountingIdentificationFeatureBaseWithDynamicTextReturnedByDynamicTextBuilder()
     {
         IDynamicTexts? buildResponseAsyncWasCalledWith = null;
-        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, _) =>
+        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, vrs, _) =>
         {
             buildResponseAsyncWasCalledWith = dt;
-            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st));
+            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st, vrs));
         };
         IDynamicTexts dynamicTexts = new Mock<IDynamicTexts>().Object;
         IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut(responseBuilder: responseBuilder, dynamicTexts: dynamicTexts);
@@ -305,6 +344,30 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
         await sut.ExecuteAsync(request);
 
         Assert.That(buildResponseAsyncWasCalledWith!, Is.EqualTo(dynamicTexts));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenCalled_AsserBuildResponseAsyncWasCalledOnAccountingIdentificationFeatureBaseWithValidationRuleSetReturnedByValidationRuleSetValidationRuleSetBuilder()
+    {
+        IReadOnlyCollection<IValidationRule>? buildResponseAsyncWasCalledWith = null;
+        Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>> responseBuilder = (m, st, dt, vrs, _) =>
+        {
+            buildResponseAsyncWasCalledWith = vrs;
+            return Task.FromResult(new MyAccountingIdentificationResponse(m, dt, st, vrs));
+        };
+        IReadOnlyCollection<IValidationRule> validationRuleSet =
+        [
+            _fixture!.CreateRequiredValueRule(),
+            _fixture!.CreateMinLengthRule(),
+            _fixture!.CreateMaxLengthRule()
+        ];
+        IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut(responseBuilder: responseBuilder, validationRuleSet: validationRuleSet);
+
+        MyAccountingIdentificationRequest request = CreateAccountingIdentificationRequest(_fixture!);
+        await sut.ExecuteAsync(request);
+
+        Assert.That(buildResponseAsyncWasCalledWith!, Is.EqualTo(validationRuleSet));
     }
 
     [Test]
@@ -356,8 +419,26 @@ public class ExecuteAsyncTests : AccountingIdentificationFeatureTestBase
         }
     }
 
-    private IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> CreateSut(Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>>? modelGetter = null, Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, CancellationToken, Task<MyAccountingIdentificationResponse>>? responseBuilder = null, Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>>? staticTextSpecificationsGetter = null, IDynamicTexts? dynamicTexts = null)
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenCalled_ReturnsAccountingIdentificationResponseWhereValidationRuleSetIsEqualToValidationRuleSetReturnedByValidationRuleSetBuilder()
     {
-        return CreateSut(_fixture!, _permissionCheckerMock!, _accountingGatewayMock!, _staticTextProviderMock!, _dynamicTextsBuilderMock!, modelGetter: modelGetter, responseBuilder: responseBuilder, staticTextSpecificationsGetter: staticTextSpecificationsGetter, dynamicTexts: dynamicTexts);
+        IReadOnlyCollection<IValidationRule> validationRuleSet =
+        [
+            _fixture!.CreateRequiredValueRule(),
+            _fixture!.CreateMinLengthRule(),
+            _fixture!.CreateMaxLengthRule()
+        ];
+        IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> sut = CreateSut(validationRuleSet: validationRuleSet);
+
+        MyAccountingIdentificationRequest request = CreateAccountingIdentificationRequest(_fixture!);
+        MyAccountingIdentificationResponse result = await sut.ExecuteAsync(request);
+
+        Assert.That(result.ValidationRuleSet, Is.EqualTo(validationRuleSet));
+    }
+
+    private IQueryFeature<MyAccountingIdentificationRequest, MyAccountingIdentificationResponse> CreateSut(Func<MyAccountingIdentificationRequest, CancellationToken, Task<object>>? modelGetter = null, Func<object, IReadOnlyDictionary<StaticTextKey, string>, IDynamicTexts, IReadOnlyCollection<IValidationRule>, CancellationToken, Task<MyAccountingIdentificationResponse>>? responseBuilder = null, Func<MyAccountingIdentificationRequest, object, IReadOnlyDictionary<StaticTextKey, IEnumerable<object>>>? staticTextSpecificationsGetter = null, IDynamicTexts? dynamicTexts = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
+    {
+        return CreateSut(_fixture!, _permissionCheckerMock!, _accountingGatewayMock!, _staticTextProviderMock!, _dynamicTextsBuilderMock!, _validationRuleSetBuilderMock!, modelGetter: modelGetter, responseBuilder: responseBuilder, staticTextSpecificationsGetter: staticTextSpecificationsGetter, dynamicTexts: dynamicTexts, validationRuleSet: validationRuleSet);
     }
 }

@@ -1,5 +1,6 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
@@ -33,19 +34,19 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
     {
         IDictionary<BalanceBelowZeroType, string> staticTexts = new Dictionary<BalanceBelowZeroType, string>
         {
-            {BalanceBelowZeroType.Debtors, await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Debtors, [], formatProvider, cancellationToken)},
-            {BalanceBelowZeroType.Creditors, await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Creditors, [], formatProvider, cancellationToken)}
+            {BalanceBelowZeroType.Debtors, await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Debtors, StaticTextKey.Debtors.DefaultArguments(), formatProvider, cancellationToken)},
+            {BalanceBelowZeroType.Creditors, await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Creditors, StaticTextKey.Creditors.DefaultArguments(), formatProvider, cancellationToken)}
         };
 
-        return await GetValueDisplayerAsync(StaticTextKey.BalanceBelowZero, [0], model.BalanceBelowZero, formatProvider, (value, _) => Resolve(value, staticTexts), cancellationToken);
+        return await GetValueDisplayerAsync(StaticTextKey.BalanceBelowZero, StaticTextKey.BalanceBelowZero.DefaultArguments(), model.BalanceBelowZero, formatProvider, (value, _) => Resolve(value, staticTexts), cancellationToken);
     }
 
     private async Task<IValueDisplayer> BuildBackDatingAsync(AccountingModel model, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
-        string days = await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Days, [], formatProvider, cancellationToken);
-        string day = await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Day, [], formatProvider, cancellationToken);
+        string days = await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Days, StaticTextKey.Days.DefaultArguments(), formatProvider, cancellationToken);
+        string day = await StaticTextProvider.GetStaticTextAsync(StaticTextKey.Day, StaticTextKey.Day.DefaultArguments(), formatProvider, cancellationToken);
 
-        return await GetValueDisplayerAsync<int>(StaticTextKey.BackDating, model.BackDating, formatProvider, (value, fp) => $"{value.ToString(fp)} {(value == 1 ? day : days).ToLower()}", cancellationToken);
+        return await GetValueDisplayerAsync(StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments(), model.BackDating, formatProvider, (value, fp) => $"{value.ToString(fp)} {(value == 1 ? day : days).ToLower()}", cancellationToken);
     }
 
     #endregion

@@ -5,10 +5,10 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using System.Text.RegularExpressions;
 
-namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ValidationRuleSetBuilder;
+namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ExtendedValidationRuleSetBuilder;
 
 [TestFixture]
-public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
+public class WithOneOfRuleTests : ExtendedValidationRuleSetBuilderTestBase
 {
     #region Private variables
 
@@ -40,11 +40,11 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnRequiredValueRuleFactory(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnRequiredValueRuleFactory(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _requiredValueRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
@@ -58,11 +58,11 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMinLengthRuleFactory(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMinLengthRuleFactory(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _minLengthRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
@@ -77,11 +77,11 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMaxLengthRuleFactory(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMaxLengthRuleFactory(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _maxLengthRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
@@ -96,11 +96,11 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMinValueRuleFactory(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMinValueRuleFactory(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _minValueRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
@@ -115,11 +115,11 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMaxValueRuleFactoryMock(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnMaxValueRuleFactoryMock(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _maxValueRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
@@ -134,11 +134,11 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnPatternRuleFactory(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnPatternRuleFactory(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _patternRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
@@ -153,16 +153,16 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_AssertCreateAsyncWasNotCalledOnOneOfRuleFactory(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_AssertCreateAsyncWasNotCalledOnOneOfRuleFactory(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         _oneOfRuleFactoryMock!.Verify(m => m.CreateAsync(
                 It.IsAny<string>(),
                 It.IsAny<StaticTextKey>(),
-                It.IsAny<IReadOnlyCollection<int>>(),
+                It.IsAny<IReadOnlyCollection<IValueSpecification<int>>>(),
                 It.IsAny<IFormatProvider>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
@@ -172,16 +172,16 @@ public class WithMinLengthRuleTests : ValidationRuleSetBuilderTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
-    public void WithMinLengthRule_WhenCalled_ReturnsSameValidationRuleSetBuilder(StaticTextKey staticTextKey)
+    public void WithOneOfRule_WhenCalled_ReturnsSameExtendedValidationRuleSetBuilder(StaticTextKey staticTextKey)
     {
-        IValidationRuleSetBuilder sut = CreateSut();
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
 
-        IValidationRuleSetBuilder result = sut.WithMinLengthRule(staticTextKey, _fixture!.Create<int>());
+        IExtendedValidationRuleSetBuilder result = sut.WithOneOfRule(staticTextKey, CreateValueSpeceficationCollection<int>(_fixture!));
 
         Assert.That(result, Is.SameAs(sut));
     }
 
-    private IValidationRuleSetBuilder CreateSut()
+    private IExtendedValidationRuleSetBuilder CreateSut()
     {
         return CreateSut(_fixture!, _requiredValueRuleFactoryMock!, _minLengthRuleFactoryMock!, _maxLengthRuleFactoryMock!, _minValueRuleFactoryMock!, _maxValueRuleFactoryMock!, _patternRuleFactoryMock!, _oneOfRuleFactoryMock!);
     }

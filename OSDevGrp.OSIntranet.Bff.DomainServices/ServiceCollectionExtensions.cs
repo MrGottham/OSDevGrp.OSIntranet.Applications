@@ -43,7 +43,13 @@ public static class ServiceCollectionExtensions
             .AddTransient<IMaxValueRuleFactory, MaxValueRuleFactory>()
             .AddTransient<IPatternRuleFactory, PatternRuleFactory>()
             .AddTransient<IOneOfRuleFactory, OneOfRuleFactory>()
-            .AddTransient<IValidationRuleSetBuilder, ValidationRuleSetBuilder>()
+            .AddTransient<IExtendedValidationRuleSetBuilder, ExtendedValidationRuleSetBuilder>()
+            .AddTransient<IAccountingNumberRuleSetBuilder, AccountingNumberRuleSetBuilder>()
+            .AddTransient<IAccountingNameRuleSetBuilder, AccountingNameRuleSetBuilder>()
+            .AddTransient<IBalanceBelowZeroRuleSetBuilder, BalanceBelowZeroRuleSetBuilder>()
+            .AddTransient<IBackDatingRuleSetBuilder, BackDatingRuleSetBuilder>()
+            .AddTransient<IAccountingRuleSetBuilder, AccountingRuleSetBuilder>()
+            .AddTransient<ILetterHeadNumberRuleSetBuilder, LetterHeadNumberRuleSetBuilder>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);
     }
 

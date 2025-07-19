@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accountings;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
-using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Mime;
@@ -61,7 +61,7 @@ public class AccountingController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
-    public async Task<IActionResult> AccountingAsync([FromServices] IQueryFeature<AccountingRequest, AccountingResponse> queryFeature, [FromRoute][Required][Range(ValidationValues.AccountingIdentificationMinValue, ValidationValues.AccountingIdentificationMaxValue)] int accountingNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    public async Task<IActionResult> AccountingAsync([FromServices] IQueryFeature<AccountingRequest, AccountingResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
     {
         ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
 

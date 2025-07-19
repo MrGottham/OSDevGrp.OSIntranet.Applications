@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Home.NotImplemented;
 
@@ -24,12 +25,10 @@ internal class NotImplementedFeature : PageFeatureBase<NotImplementedRequest, No
 
     protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(NotImplementedRequest request, object argument)
     {
-        object[] noArguments = Array.Empty<object>();
-
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
-            { StaticTextKey.FunctionalityNotImplmented, noArguments },
-            { StaticTextKey.FunctionalityNotImplmentedDetails, noArguments },
+            { StaticTextKey.FunctionalityNotImplmented, StaticTextKey.FunctionalityNotImplmented.DefaultArguments() },
+            { StaticTextKey.FunctionalityNotImplmentedDetails, StaticTextKey.FunctionalityNotImplmentedDetails.DefaultArguments() },
         };
     }
 

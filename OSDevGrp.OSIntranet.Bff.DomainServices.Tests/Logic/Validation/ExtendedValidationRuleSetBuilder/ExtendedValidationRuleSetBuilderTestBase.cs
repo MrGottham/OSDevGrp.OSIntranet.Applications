@@ -8,19 +8,20 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MinValueRule
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.OneOfRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.PatternRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ValueSpecification;
 
-namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ValidationRuleSetBuilder;
+namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ExtendedValidationRuleSetBuilder;
 
-public abstract class ValidationRuleSetBuilderTestBase
+public abstract class ExtendedValidationRuleSetBuilderTestBase
 {
     #region Methods
 
-    protected static IValidationRuleSetBuilder CreateSut(Fixture fixture, Mock<IRequiredValueRuleFactory> requiredValueRuleFactoryMock, Mock<IMinLengthRuleFactory> minLengthRuleFactoryMock, Mock<IMaxLengthRuleFactory> maxLengthRuleFactoryMock, Mock<IMinValueRuleFactory> minValueRuleFactoryMock, Mock<IMaxValueRuleFactory> maxValueRuleFactoryMock, Mock<IPatternRuleFactory> patternRuleFactoryMock, Mock<IOneOfRuleFactory> oneOfRuleFactoryMock)
+    protected static IExtendedValidationRuleSetBuilder CreateSut(Fixture fixture, Mock<IRequiredValueRuleFactory> requiredValueRuleFactoryMock, Mock<IMinLengthRuleFactory> minLengthRuleFactoryMock, Mock<IMaxLengthRuleFactory> maxLengthRuleFactoryMock, Mock<IMinValueRuleFactory> minValueRuleFactoryMock, Mock<IMaxValueRuleFactory> maxValueRuleFactoryMock, Mock<IPatternRuleFactory> patternRuleFactoryMock, Mock<IOneOfRuleFactory> oneOfRuleFactoryMock)
     {
         return CreateSut<int>(fixture, requiredValueRuleFactoryMock, minLengthRuleFactoryMock, maxLengthRuleFactoryMock, minValueRuleFactoryMock, maxValueRuleFactoryMock, patternRuleFactoryMock, oneOfRuleFactoryMock);
     }
 
-    protected static IValidationRuleSetBuilder CreateSut<TValue>(Fixture fixture, Mock<IRequiredValueRuleFactory> requiredValueRuleFactoryMock, Mock<IMinLengthRuleFactory> minLengthRuleFactoryMock, Mock<IMaxLengthRuleFactory> maxLengthRuleFactoryMock, Mock<IMinValueRuleFactory> minValueRuleFactoryMock, Mock<IMaxValueRuleFactory> maxValueRuleFactoryMock, Mock<IPatternRuleFactory> patternRuleFactoryMock, Mock<IOneOfRuleFactory> oneOfRuleFactoryMock) where TValue : struct, IComparable<TValue>
+    protected static IExtendedValidationRuleSetBuilder CreateSut<TValue>(Fixture fixture, Mock<IRequiredValueRuleFactory> requiredValueRuleFactoryMock, Mock<IMinLengthRuleFactory> minLengthRuleFactoryMock, Mock<IMaxLengthRuleFactory> maxLengthRuleFactoryMock, Mock<IMinValueRuleFactory> minValueRuleFactoryMock, Mock<IMaxValueRuleFactory> maxValueRuleFactoryMock, Mock<IPatternRuleFactory> patternRuleFactoryMock, Mock<IOneOfRuleFactory> oneOfRuleFactoryMock) where TValue : struct, IComparable<TValue>
     {
         requiredValueRuleFactoryMock.Setup(fixture);
         minLengthRuleFactoryMock.Setup(fixture);
@@ -30,7 +31,7 @@ public abstract class ValidationRuleSetBuilderTestBase
         patternRuleFactoryMock.Setup(fixture);
         oneOfRuleFactoryMock.Setup<TValue>(fixture);
 
-        return new DomainServices.Logic.Validation.ValidationRuleSetBuilder(
+        return new DomainServices.Logic.Validation.ExtendedValidationRuleSetBuilder(
             requiredValueRuleFactoryMock.Object,
             minLengthRuleFactoryMock.Object,
             maxLengthRuleFactoryMock.Object,
@@ -43,6 +44,18 @@ public abstract class ValidationRuleSetBuilderTestBase
     protected static string CreatePattern(Fixture fixture)
     {
         return $"^({string.Join('|', fixture.CreateMany<int>(7).ToArray())})$";
+    }
+
+    protected static IValueSpecification<TValue>[] CreateValueSpeceficationCollection<TValue>(Fixture fixture) where TValue : IComparable<TValue>
+    {
+        return
+        [
+            fixture.CreateValueSpecification<TValue>(),
+            fixture.CreateValueSpecification<TValue>(),
+            fixture.CreateValueSpecification<TValue>(),
+            fixture.CreateValueSpecification<TValue>(),
+            fixture.CreateValueSpecification<TValue>()
+        ];
     }
 
     #endregion
