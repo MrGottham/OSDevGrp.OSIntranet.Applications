@@ -15,6 +15,9 @@ public class AccountingResponseDto : AccountingDto
     [Required]
     public required IReadOnlyCollection<StaticTextDto> StaticTexts { get; init; } = [];
 
+    [Required]
+    public required ValidationRuleSetDto ValidationRuleSet { get; init; }
+
     internal static AccountingResponseDto Map(AccountingResponse accountingResponse)
     {
         return new AccountingResponseDto
@@ -32,7 +35,8 @@ public class AccountingResponseDto : AccountingDto
             Deletable = accountingResponse.Model.Deletable,
             LetterHeads = accountingResponse.LetterHeads.Select(LetterHeadInfoDto.Map).ToArray(),
             DynamicTexts = AccountingTextsDto.Map(accountingResponse.DynamicTexts),
-            StaticTexts = accountingResponse.StaticTexts.Select(StaticTextDto.Map).ToArray()
+            StaticTexts = accountingResponse.StaticTexts.Select(StaticTextDto.Map).ToArray(),
+            ValidationRuleSet = ValidationRuleSetDto.Map(accountingResponse.ValidationRuleSet)
         };
     }
 }
