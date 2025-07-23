@@ -73,6 +73,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.RequiredValueValidationError, "{0} skal angives.");
         staticTexts.Add(StaticTextKey.MinLengthValidationError, "{0} skal minimum have en længde på {1} tegn.");
         staticTexts.Add(StaticTextKey.MaxLengthValidationError, "{0} må maksimum have en længde på {1} tegn.");
+        staticTexts.Add(StaticTextKey.ShouldBeIntegerValidationError, "{0} skal være et heltal.");
         staticTexts.Add(StaticTextKey.MinValueValidationError, "{0} skal være større end eller lig med {1}.");
         staticTexts.Add(StaticTextKey.MaxValueValidationError, "{0} skal være mindre end eller lig med {1}.");
         staticTexts.Add(StaticTextKey.PatternValidationError, "{0} skal matche mønstret: {1}");

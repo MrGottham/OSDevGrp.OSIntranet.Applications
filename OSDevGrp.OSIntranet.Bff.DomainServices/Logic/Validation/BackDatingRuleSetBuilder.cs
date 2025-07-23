@@ -19,6 +19,7 @@ internal class BackDatingRuleSetBuilder : ValidationRuleSetBuilderBase, IBackDat
     public override async Task<IReadOnlyCollection<IValidationRule>> BuildAsync(IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
         return await ExtendedValidationRuleSetBuilder.WithRequiredValueRule(StaticTextKey.BackDating)
+            .WithShouldBeIntegerRule(StaticTextKey.BackDating)
             .WithRangeRule(StaticTextKey.BackDating, AccountingRuleSetSpecifications.BackDatingMinValue, AccountingRuleSetSpecifications.BackDatingMaxValue)
             .BuildAsync(formatProvider, cancellationToken);
     }

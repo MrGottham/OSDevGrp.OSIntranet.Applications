@@ -45,6 +45,7 @@ public enum StaticTextKey
     RequiredValueValidationError,
     MinLengthValidationError,
     MaxLengthValidationError,
+    ShouldBeIntegerValidationError,
     MinValueValidationError,
     MaxValueValidationError,
     PatternValidationError,

@@ -8,6 +8,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MaxValueRule
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MinValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ExtendedValidationRuleSetBuilder;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ShouldBeIntegerRuleFactory;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingNumberRuleSetBuilder;
@@ -38,6 +39,17 @@ public class BuildAsyncTests
         await sut.BuildAsync(CultureInfo.InvariantCulture);
 
         _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithRequiredValueRule(It.Is<StaticTextKey>(value => value == StaticTextKey.AccountingNumber)), Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_AssertWithShouldBeIntegerRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyForAccountingNumber()
+    {
+        IAccountingNumberRuleSetBuilder sut = CreateSut();
+
+        await sut.BuildAsync(CultureInfo.InvariantCulture);
+
+        _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithShouldBeIntegerRule(It.Is<StaticTextKey>(value => value == StaticTextKey.AccountingNumber)), Times.Once);
     }
 
     [Test]
@@ -123,6 +135,7 @@ public class BuildAsyncTests
         IValidationRule[] validationRuleSet =
         [
             _fixture!.CreateRequiredValueRule(),
+            _fixture!.CreateShouldBeIntegerRule(),
             _fixture!.CreateMinValueRule<int>(),
             _fixture!.CreateMaxValueRule<int>(),
         ];

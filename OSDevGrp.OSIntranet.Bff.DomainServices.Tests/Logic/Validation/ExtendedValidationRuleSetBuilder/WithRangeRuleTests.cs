@@ -15,6 +15,7 @@ public class WithRangeRuleTests : ExtendedValidationRuleSetBuilderTestBase
     private Mock<IRequiredValueRuleFactory>? _requiredValueRuleFactoryMock;
     private Mock<IMinLengthRuleFactory>? _minLengthRuleFactoryMock;
     private Mock<IMaxLengthRuleFactory>? _maxLengthRuleFactoryMock;
+    private Mock<IShouldBeIntegerRuleFactory>? _shouldBeIntegerRuleFactoryMock;
     private Mock<IMinValueRuleFactory>? _minValueRuleFactoryMock;
     private Mock<IMaxValueRuleFactory>? _maxValueRuleFactoryMock;
     private Mock<IPatternRuleFactory>? _patternRuleFactoryMock;
@@ -29,6 +30,7 @@ public class WithRangeRuleTests : ExtendedValidationRuleSetBuilderTestBase
         _requiredValueRuleFactoryMock = new Mock<IRequiredValueRuleFactory>();
         _minLengthRuleFactoryMock = new Mock<IMinLengthRuleFactory>();
         _maxLengthRuleFactoryMock = new Mock<IMaxLengthRuleFactory>();
+        _shouldBeIntegerRuleFactoryMock = new Mock<IShouldBeIntegerRuleFactory>();
         _minValueRuleFactoryMock = new Mock<IMinValueRuleFactory>();
         _maxValueRuleFactoryMock = new Mock<IMaxValueRuleFactory>();
         _patternRuleFactoryMock = new Mock<IPatternRuleFactory>();
@@ -87,6 +89,24 @@ public class WithRangeRuleTests : ExtendedValidationRuleSetBuilderTestBase
                 It.IsAny<string>(),
                 It.IsAny<StaticTextKey>(),
                 It.IsAny<int>(),
+                It.IsAny<IFormatProvider>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public void WithRangeRule_WhenCalled_AssertCreateAsyncWasNotCalledOnShouldBeIntegerRuleFactory(StaticTextKey staticTextKey)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        sut.WithRangeRule(staticTextKey, _fixture!.Create<int>(), _fixture!.Create<int>());
+
+        _shouldBeIntegerRuleFactoryMock!.Verify(m => m.CreateAsync(
+                It.IsAny<string>(),
+                It.IsAny<StaticTextKey>(),
                 It.IsAny<IFormatProvider>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
@@ -183,6 +203,6 @@ public class WithRangeRuleTests : ExtendedValidationRuleSetBuilderTestBase
 
     private IExtendedValidationRuleSetBuilder CreateSut()
     {
-        return CreateSut(_fixture!, _requiredValueRuleFactoryMock!, _minLengthRuleFactoryMock!, _maxLengthRuleFactoryMock!, _minValueRuleFactoryMock!, _maxValueRuleFactoryMock!, _patternRuleFactoryMock!, _oneOfRuleFactoryMock!);
+        return CreateSut(_fixture!, _requiredValueRuleFactoryMock!, _minLengthRuleFactoryMock!, _maxLengthRuleFactoryMock!, _shouldBeIntegerRuleFactoryMock!, _minValueRuleFactoryMock!, _maxValueRuleFactoryMock!, _patternRuleFactoryMock!, _oneOfRuleFactoryMock!);
     }
 }

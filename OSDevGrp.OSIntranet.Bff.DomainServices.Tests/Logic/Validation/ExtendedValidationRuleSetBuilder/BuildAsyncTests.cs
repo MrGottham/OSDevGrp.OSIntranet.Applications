@@ -16,6 +16,7 @@ public class BuildAsyncTests : ExtendedValidationRuleSetBuilderTestBase
     private Mock<IRequiredValueRuleFactory>? _requiredValueRuleFactoryMock;
     private Mock<IMinLengthRuleFactory>? _minLengthRuleFactoryMock;
     private Mock<IMaxLengthRuleFactory>? _maxLengthRuleFactoryMock;
+    private Mock<IShouldBeIntegerRuleFactory>? _shouldBeIntegerRuleFactoryMock;
     private Mock<IMinValueRuleFactory>? _minValueRuleFactoryMock;
     private Mock<IMaxValueRuleFactory>? _maxValueRuleFactoryMock;
     private Mock<IPatternRuleFactory>? _patternRuleFactoryMock;
@@ -30,6 +31,7 @@ public class BuildAsyncTests : ExtendedValidationRuleSetBuilderTestBase
         _requiredValueRuleFactoryMock = new Mock<IRequiredValueRuleFactory>();
         _minLengthRuleFactoryMock = new Mock<IMinLengthRuleFactory>();
         _maxLengthRuleFactoryMock = new Mock<IMaxLengthRuleFactory>();
+        _shouldBeIntegerRuleFactoryMock = new Mock<IShouldBeIntegerRuleFactory>();
         _minValueRuleFactoryMock = new Mock<IMinValueRuleFactory>();
         _maxValueRuleFactoryMock = new Mock<IMaxValueRuleFactory>();
         _patternRuleFactoryMock = new Mock<IPatternRuleFactory>();
@@ -82,6 +84,22 @@ public class BuildAsyncTests : ExtendedValidationRuleSetBuilderTestBase
                 It.IsAny<string>(),
                 It.IsAny<StaticTextKey>(),
                 It.IsAny<int>(),
+                It.IsAny<IFormatProvider>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenNoValidationRulesHasBeenAdded_AssertCreateAsyncWasNotCalledOnShouldBeIntegerRuleFactory()
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        await sut.BuildAsync(CultureInfo.InvariantCulture);
+
+        _shouldBeIntegerRuleFactoryMock!.Verify(m => m.CreateAsync(
+                It.IsAny<string>(),
+                It.IsAny<StaticTextKey>(),
                 It.IsAny<IFormatProvider>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
@@ -554,6 +572,120 @@ public class BuildAsyncTests : ExtendedValidationRuleSetBuilderTestBase
         IReadOnlyCollection<IValidationRule> result = await sut.WithMaxLengthRule(field, _fixture.Create<int>()).BuildAsync(CultureInfo.InvariantCulture);
 
         Assert.That(result.ElementAt(0), Is.InstanceOf<IMaxLengthRule>());
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_AssertCreateAsyncWasCalledOnShouldBeIntegerRuleFactoryWithGeneratedRuleName(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        await sut.WithShouldBeIntegerRule(field).BuildAsync(CultureInfo.InvariantCulture);
+
+        _shouldBeIntegerRuleFactoryMock!.Verify(m => m.CreateAsync(
+                It.Is<string>(value => value == $"{field}:{ValidationRuleType.ShouldBeIntegerRule}"),
+                It.IsAny<StaticTextKey>(),
+                It.IsAny<IFormatProvider>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_AssertCreateAsyncWasCalledOnShouldBeIntegerRuleFactoryWithGivenStaticTextKey(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        await sut.WithShouldBeIntegerRule(field).BuildAsync(CultureInfo.InvariantCulture);
+
+        _shouldBeIntegerRuleFactoryMock!.Verify(m => m.CreateAsync(
+                It.IsAny<string>(),
+                It.Is<StaticTextKey>(value => value == field),
+                It.IsAny<IFormatProvider>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_AssertCreateAsyncWasCalledOnShouldBeIntegerRuleFactoryWithGivenFormatProvider(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        IFormatProvider formatProvider = CultureInfo.InvariantCulture;
+        await sut.WithShouldBeIntegerRule(field).BuildAsync(formatProvider);
+
+        _shouldBeIntegerRuleFactoryMock!.Verify(m => m.CreateAsync(
+                It.IsAny<string>(),
+                It.IsAny<StaticTextKey>(),
+                It.Is<IFormatProvider>(value => value == formatProvider),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_AssertCreateAsyncWasCalledOnShouldBeIntegerRuleFactoryWithGivenCancellationToken(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        await sut.WithShouldBeIntegerRule(field).BuildAsync(CultureInfo.InvariantCulture, cancellationToken);
+
+        _shouldBeIntegerRuleFactoryMock!.Verify(m => m.CreateAsync(
+                It.IsAny<string>(),
+                It.IsAny<StaticTextKey>(),
+                It.IsAny<IFormatProvider>(),
+                It.Is<CancellationToken>(value => value == cancellationToken)),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_ReturnsNonEmptyValidationRuleSet(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        IReadOnlyCollection<IValidationRule> result = await sut.WithShouldBeIntegerRule(field).BuildAsync(CultureInfo.InvariantCulture);
+
+        Assert.That(result, Is.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_ReturnsValidationRuleSetContainingOneRule(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        IReadOnlyCollection<IValidationRule> result = await sut.WithShouldBeIntegerRule(field).BuildAsync(CultureInfo.InvariantCulture);
+
+        Assert.That(result.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(StaticTextKey.AccountingNumber)]
+    [TestCase(StaticTextKey.AccountingName)]
+    public async Task BuildAsync_WhenWithShouldBeIntegerRuleHasBeenCalled_ReturnsValidationRuleSetContainingShouldBeIntegerRule(StaticTextKey field)
+    {
+        IExtendedValidationRuleSetBuilder sut = CreateSut();
+
+        IReadOnlyCollection<IValidationRule> result = await sut.WithShouldBeIntegerRule(field).BuildAsync(CultureInfo.InvariantCulture);
+
+        Assert.That(result.ElementAt(0), Is.InstanceOf<IShouldBeIntegerRule>());
     }
 
     [Test]
@@ -1360,6 +1492,6 @@ public class BuildAsyncTests : ExtendedValidationRuleSetBuilderTestBase
 
     private IExtendedValidationRuleSetBuilder CreateSut()
     {
-        return CreateSut(_fixture!, _requiredValueRuleFactoryMock!, _minLengthRuleFactoryMock!, _maxLengthRuleFactoryMock!, _minValueRuleFactoryMock!, _maxValueRuleFactoryMock!, _patternRuleFactoryMock!, _oneOfRuleFactoryMock!);
+        return CreateSut(_fixture!, _requiredValueRuleFactoryMock!, _minLengthRuleFactoryMock!, _maxLengthRuleFactoryMock!, _shouldBeIntegerRuleFactoryMock!, _minValueRuleFactoryMock!, _maxValueRuleFactoryMock!, _patternRuleFactoryMock!, _oneOfRuleFactoryMock!);
     }
 }

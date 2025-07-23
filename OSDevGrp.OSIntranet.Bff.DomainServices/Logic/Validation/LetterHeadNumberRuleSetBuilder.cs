@@ -19,6 +19,7 @@ internal class LetterHeadNumberRuleSetBuilder : ValidationRuleSetBuilderBase, IL
     public override async Task<IReadOnlyCollection<IValidationRule>> BuildAsync(IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
         return await ExtendedValidationRuleSetBuilder.WithRequiredValueRule(StaticTextKey.LetterHeadNumber)
+            .WithShouldBeIntegerRule(StaticTextKey.LetterHeadNumber)
             .WithRangeRule(StaticTextKey.LetterHeadNumber, LetterHeadRuleSetSpecifications.LetterHeadNumberMinValue, LetterHeadRuleSetSpecifications.LetterHeadNumberMaxValue)
             .BuildAsync(formatProvider, cancellationToken);
     }

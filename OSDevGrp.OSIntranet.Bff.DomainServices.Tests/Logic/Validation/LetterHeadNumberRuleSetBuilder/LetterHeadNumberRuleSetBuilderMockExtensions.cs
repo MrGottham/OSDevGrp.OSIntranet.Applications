@@ -4,6 +4,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MaxValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MinValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ShouldBeIntegerRuleFactory;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.LetterHeadNumberRuleSetBuilder;
 
@@ -16,6 +17,7 @@ internal static class LetterHeadNumberRuleSetBuilderMockExtensions
         validationRuleSet ??=
         [
             fixture.CreateRequiredValueRule(),
+            fixture.CreateShouldBeIntegerRule(),
             fixture.CreateMinValueRule<int>(),
             fixture.CreateMaxValueRule<int>()
         ];

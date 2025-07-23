@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<IRequiredValueRuleFactory, RequiredValueRuleFactory>()
             .AddTransient<IMinLengthRuleFactory, MinLengthRuleFactory>()
             .AddTransient<IMaxLengthRuleFactory, MaxLengthRuleFactory>()
+            .AddTransient<IShouldBeIntegerRuleFactory, ShouldBeIntegerRuleFactory>()
             .AddTransient<IMinValueRuleFactory, MinValueRuleFactory>()
             .AddTransient<IMaxValueRuleFactory, MaxValueRuleFactory>()
             .AddTransient<IPatternRuleFactory, PatternRuleFactory>()

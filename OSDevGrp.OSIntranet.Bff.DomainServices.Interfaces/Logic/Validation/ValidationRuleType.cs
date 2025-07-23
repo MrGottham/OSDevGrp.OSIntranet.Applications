@@ -5,6 +5,7 @@ public enum ValidationRuleType
     RequiredValueRule,
     MinLengthRule,
     MaxLengthRule,
+    ShouldBeIntegerRule,
     MinValueRule,
     MaxValueRule,
     PatternRule,

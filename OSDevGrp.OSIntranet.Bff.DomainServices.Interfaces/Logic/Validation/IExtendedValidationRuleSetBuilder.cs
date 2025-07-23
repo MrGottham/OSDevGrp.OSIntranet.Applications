@@ -10,6 +10,8 @@ public interface IExtendedValidationRuleSetBuilder : IValidationRuleSetBuilder
 
     IExtendedValidationRuleSetBuilder WithMaxLengthRule(StaticTextKey field, int maxLength);
 
+    IExtendedValidationRuleSetBuilder WithShouldBeIntegerRule(StaticTextKey field);
+
     IExtendedValidationRuleSetBuilder WithMinValueRule<TValue>(StaticTextKey field, TValue minValue) where TValue : struct, IComparable<TValue>;
 
     IExtendedValidationRuleSetBuilder WithMaxValueRule<TValue>(StaticTextKey field, TValue maxValue) where TValue : struct, IComparable<TValue>;

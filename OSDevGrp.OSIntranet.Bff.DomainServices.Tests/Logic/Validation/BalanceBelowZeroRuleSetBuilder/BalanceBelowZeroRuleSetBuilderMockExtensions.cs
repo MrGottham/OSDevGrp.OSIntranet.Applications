@@ -3,6 +3,7 @@ using Moq;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.OneOfRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ShouldBeIntegerRuleFactory;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.BalanceBelowZeroRuleSetBuilder;
 
@@ -15,6 +16,7 @@ internal static class BalanceBelowZeroRuleSetBuilderMockExtensions
         validationRuleSet ??=
         [
             fixture.CreateRequiredValueRule(),
+            fixture.CreateShouldBeIntegerRule(),
             fixture.CreateOneOfRule<int>()
         ];
 

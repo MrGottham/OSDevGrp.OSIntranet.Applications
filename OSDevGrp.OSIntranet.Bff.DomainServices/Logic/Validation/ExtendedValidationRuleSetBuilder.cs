@@ -11,6 +11,7 @@ internal sealed class ExtendedValidationRuleSetBuilder : IExtendedValidationRule
     private readonly IRequiredValueRuleFactory _requiredValueRuleFactory;
     private readonly IMinLengthRuleFactory _minLengthRuleFactory;
     private readonly IMaxLengthRuleFactory _maxLengthRuleFactory;
+    private readonly IShouldBeIntegerRuleFactory _shouldBeIntegerRuleFactory;
     private readonly IMinValueRuleFactory _minValueRuleFactory;
     private readonly IMaxValueRuleFactory _maxValueRuleFactory;
     private readonly IPatternRuleFactory _patternRuleFactory;
@@ -21,11 +22,12 @@ internal sealed class ExtendedValidationRuleSetBuilder : IExtendedValidationRule
 
     #region Constructor
 
-    public ExtendedValidationRuleSetBuilder(IRequiredValueRuleFactory requiredValueRuleFactory, IMinLengthRuleFactory minLengthRuleFactory, IMaxLengthRuleFactory maxLengthRuleFactory, IMinValueRuleFactory minValueRuleFactory, IMaxValueRuleFactory maxValueRuleFactory, IPatternRuleFactory patternRuleFactory, IOneOfRuleFactory oneOfRuleFactory)
+    public ExtendedValidationRuleSetBuilder(IRequiredValueRuleFactory requiredValueRuleFactory, IMinLengthRuleFactory minLengthRuleFactory, IMaxLengthRuleFactory maxLengthRuleFactory, IShouldBeIntegerRuleFactory shouldBeIntegerRuleFactory, IMinValueRuleFactory minValueRuleFactory, IMaxValueRuleFactory maxValueRuleFactory, IPatternRuleFactory patternRuleFactory, IOneOfRuleFactory oneOfRuleFactory)
     {
         _requiredValueRuleFactory = requiredValueRuleFactory;
         _minLengthRuleFactory = minLengthRuleFactory;
         _maxLengthRuleFactory = maxLengthRuleFactory;
+        _shouldBeIntegerRuleFactory = shouldBeIntegerRuleFactory;
         _minValueRuleFactory = minValueRuleFactory;
         _maxValueRuleFactory = maxValueRuleFactory;
         _patternRuleFactory = patternRuleFactory;
@@ -53,6 +55,13 @@ internal sealed class ExtendedValidationRuleSetBuilder : IExtendedValidationRule
     public IExtendedValidationRuleSetBuilder WithMaxLengthRule(StaticTextKey field, int maxLength)
     {
         _validationRuleFactories.Add((formatProvider, cancellationToken) => _maxLengthRuleFactory.CreateAsync($"{field}:{ValidationRuleType.MaxLengthRule}", field, maxLength, formatProvider, cancellationToken));
+
+        return this;
+    }
+
+    public IExtendedValidationRuleSetBuilder WithShouldBeIntegerRule(StaticTextKey field)
+    {
+        _validationRuleFactories.Add((formatProvider, cancellationToken) => _shouldBeIntegerRuleFactory.CreateAsync($"{field}:{ValidationRuleType.ShouldBeIntegerRule}", field, formatProvider, cancellationToken));
 
         return this;
     }

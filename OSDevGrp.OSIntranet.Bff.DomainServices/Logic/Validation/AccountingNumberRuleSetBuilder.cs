@@ -19,6 +19,7 @@ internal class AccountingNumberRuleSetBuilder : ValidationRuleSetBuilderBase, IA
     public override async Task<IReadOnlyCollection<IValidationRule>> BuildAsync(IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
         return await ExtendedValidationRuleSetBuilder.WithRequiredValueRule(StaticTextKey.AccountingNumber)
+            .WithShouldBeIntegerRule(StaticTextKey.AccountingNumber)
             .WithRangeRule(StaticTextKey.AccountingNumber, AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)
             .BuildAsync(formatProvider, cancellationToken);
     }

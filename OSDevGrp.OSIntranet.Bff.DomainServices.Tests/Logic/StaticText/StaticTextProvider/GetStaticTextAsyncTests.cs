@@ -67,6 +67,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.RequiredValueValidationError, "{0} skal angives.", 1)]
     [TestCase(StaticTextKey.MinLengthValidationError, "{0} skal minimum have en længde på {1} tegn.", 2)]
     [TestCase(StaticTextKey.MaxLengthValidationError, "{0} må maksimum have en længde på {1} tegn.", 2)]
+    [TestCase(StaticTextKey.ShouldBeIntegerValidationError, "{0} skal være et heltal.", 1)]
     [TestCase(StaticTextKey.MinValueValidationError, "{0} skal være større end eller lig med {1}.", 2)]
     [TestCase(StaticTextKey.MaxValueValidationError, "{0} skal være mindre end eller lig med {1}.", 2)]
     [TestCase(StaticTextKey.PatternValidationError, "{0} skal matche mønstret: {1}", 2)]

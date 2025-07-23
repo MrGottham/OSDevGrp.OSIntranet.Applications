@@ -16,6 +16,9 @@ public class ValidationRuleSetDto
     public required IReadOnlyCollection<MaxLengthRuleDto> MaxLengthRules { get; init; } = [];
 
     [Required]
+    public required IReadOnlyCollection<ShouldBeIntegerRuleDto> ShouldBeIntegerRules { get; init; } = [];
+
+    [Required]
     public required IReadOnlyCollection<MinValueRuleDto> MinValueRules { get; init; } = [];
 
     [Required]
@@ -34,6 +37,7 @@ public class ValidationRuleSetDto
             RequiredValueRules = validationRuleSet.OfType<IRequiredValueRule>().Select(RequiredValueRuleDto.Map).ToArray(),
             MinLengthRules = validationRuleSet.OfType<IMinLengthRule>().Select(MinLengthRuleDto.Map).ToArray(),
             MaxLengthRules = validationRuleSet.OfType<IMaxLengthRule>().Select(MaxLengthRuleDto.Map).ToArray(),
+            ShouldBeIntegerRules = validationRuleSet.OfType<IShouldBeIntegerRule>().Select(ShouldBeIntegerRuleDto.Map).ToArray(),
             MinValueRules = Map<MinValueRuleDto>(validationRuleSet, typeof(IMinValueRule<>)).ToArray(),
             MaxValueRules = Map<MaxValueRuleDto>(validationRuleSet, typeof(IMaxValueRule<>)).ToArray(),
             PatternRules = validationRuleSet.OfType<IPatternRule>().Select(PatternRuleDto.Map).ToArray(),

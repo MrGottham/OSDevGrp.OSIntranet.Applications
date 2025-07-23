@@ -10,6 +10,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MinValueRule
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.OneOfRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.RequiredValueRuleFactory;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ExtendedValidationRuleSetBuilder;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.ShouldBeIntegerRuleFactory;
 using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.BalanceBelowZeroRuleSetBuilder
@@ -122,6 +123,17 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_AssertWithShouldBeIntegerRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyForBalanceBelowZero()
+    {
+        IBalanceBelowZeroRuleSetBuilder sut = CreateSut();
+
+        await sut.BuildAsync(CultureInfo.InvariantCulture);
+
+        _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithShouldBeIntegerRule(It.Is<StaticTextKey>(value => value == StaticTextKey.BalanceBelowZero)), Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     public async Task BuildAsync_WhenCalled_AssertWithOneOfRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyForBalanceBelowZero()
     {
         IBalanceBelowZeroRuleSetBuilder sut = CreateSut();
@@ -214,6 +226,7 @@ public class BuildAsyncTests
         IValidationRule[] validationRuleSet =
         [
             _fixture!.CreateRequiredValueRule(),
+            _fixture!.CreateShouldBeIntegerRule(),
             _fixture!.CreateOneOfRule<int>(),
         ];
         IBalanceBelowZeroRuleSetBuilder sut = CreateSut(validationRuleSet: validationRuleSet);

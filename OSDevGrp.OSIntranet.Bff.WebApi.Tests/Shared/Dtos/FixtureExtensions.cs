@@ -67,6 +67,7 @@ internal static class FixtureExtensions
             fixture.CreateRequiredValueRuleMock().As<IValidationRule>().Object,
             fixture.CreateMinLengthRuleMock().As<IValidationRule>().Object,
             fixture.CreateMaxLengthRuleMock().As<IValidationRule>().Object,
+            fixture.CreateShouldBeIntegerRuleMock().As<IValidationRule>().Object,
             fixture.CreateMinValueRuleMock<int>().As<IValidationRule>().Object,
             fixture.CreateMaxValueRuleMock<int>().As<IValidationRule>().Object,
             fixture.CreatePatternRuleMock().As<IValidationRule>().Object,
@@ -148,6 +149,30 @@ internal static class FixtureExtensions
             .Returns(validationError);
 
         return maxLengthRuleMock;
+    }
+
+    internal static Mock<IShouldBeIntegerRule> CreateShouldBeIntegerRuleMock(this Fixture fixture)
+    {
+        string name = fixture.Create<string>();
+        string validationError = fixture.Create<string>();
+
+        Mock<IShouldBeIntegerRule> shouldBeIntegerRuleMock = new Mock<IShouldBeIntegerRule>();
+        shouldBeIntegerRuleMock.Setup(m => m.Name)
+            .Returns(name);
+        shouldBeIntegerRuleMock.Setup(m => m.RuleType)
+            .Returns(ValidationRuleType.ShouldBeIntegerRule);
+        shouldBeIntegerRuleMock.Setup(m => m.ValidationError)
+            .Returns(validationError);
+
+        Mock<IValidationRule> validationRuleMock = shouldBeIntegerRuleMock.As<IValidationRule>();
+        validationRuleMock.Setup(m => m.Name)
+            .Returns(name);
+        validationRuleMock.Setup(m => m.RuleType)
+            .Returns(ValidationRuleType.ShouldBeIntegerRule);
+        validationRuleMock.Setup(m => m.ValidationError)
+            .Returns(validationError);
+
+        return shouldBeIntegerRuleMock;
     }
 
     internal static Mock<IMinValueRule<TValue>> CreateMinValueRuleMock<TValue>(this Fixture fixture) where TValue : struct, IComparable<TValue>

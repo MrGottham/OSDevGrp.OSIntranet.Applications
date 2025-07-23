@@ -30,6 +30,8 @@ internal static class ExtendedValidationRuleSetBuilderMockExtensions
             .Returns(extendedValidationRuleSetBuilderMock.Object);
         extendedValidationRuleSetBuilderMock.Setup(m => m.WithMaxLengthRule(It.IsAny<StaticTextKey>(), It.IsAny<int>()))
             .Returns(extendedValidationRuleSetBuilderMock.Object);
+        extendedValidationRuleSetBuilderMock.Setup(m => m.WithShouldBeIntegerRule(It.IsAny<StaticTextKey>()))
+            .Returns(extendedValidationRuleSetBuilderMock.Object);
         extendedValidationRuleSetBuilderMock.Setup(m => m.WithPatternRule(It.IsAny<StaticTextKey>(), It.IsAny<string>()))
             .Returns(extendedValidationRuleSetBuilderMock.Object);
         extendedValidationRuleSetBuilderMock.Setup(m => m.WithPatternRule(It.IsAny<StaticTextKey>(), It.IsAny<string>()))

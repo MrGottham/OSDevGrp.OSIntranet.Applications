@@ -33,6 +33,7 @@ internal class BalanceBelowZeroRuleSetBuilder : ValidationRuleSetBuilderBase, IB
         ];
 
         return await ExtendedValidationRuleSetBuilder.WithRequiredValueRule(StaticTextKey.BalanceBelowZero)
+            .WithShouldBeIntegerRule(StaticTextKey.BalanceBelowZero)
             .WithOneOfRule(StaticTextKey.BalanceBelowZero, validValues)
             .BuildAsync(formatProvider, cancellationToken);
     }
