@@ -49,5 +49,10 @@ public enum StaticTextKey
     MinValueValidationError,
     MaxValueValidationError,
     PatternValidationError,
-    OneOfValidationError
+    OneOfValidationError,
+    Create,
+    Update,
+    Delete,
+    Reset,
+    Cancel
 }

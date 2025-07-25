@@ -1,7 +1,7 @@
 import AccountingHelper from "./AccountingHelper";
 
 export default class AuthorizationHelper {
-    accountingHelper = new AccountingHelper();
+    #accountingHelper = new AccountingHelper();
 
     authenticatedUser(userInfo) {
         return userInfo !== undefined && userInfo !== null;
@@ -25,7 +25,7 @@ export default class AuthorizationHelper {
             return result;
         }
 
-        return this.accountingHelper.isAccountingNumberInAccountings(accountingNumber, userInfo.modifiableAccountings);
+        return this.#accountingHelper.isAccountingNumberInAccountings(accountingNumber, userInfo.modifiableAccountings);
     }
 
     isAccountingViewer(userInfo, accountingNumber) {
@@ -34,7 +34,7 @@ export default class AuthorizationHelper {
             return result;
         }
 
-        return this.accountingHelper.isAccountingNumberInAccountings(accountingNumber, userInfo.viewableAccountings);
+        return this.#accountingHelper.isAccountingNumberInAccountings(accountingNumber, userInfo.viewableAccountings);
     }
 
     hasCommonDataAccess(userInfo) {

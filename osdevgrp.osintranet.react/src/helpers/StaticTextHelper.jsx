@@ -103,6 +103,30 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'DeleteAccounting');
     }
 
+    getAccountingNumberText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'AccountingNumber');
+    }
+
+    getAccountingNameText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'AccountingName');
+    }
+
+    getBalanceBelowZeroText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'BalanceBelowZero');
+    }
+
+    getDebtorsText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Debtors');
+    }
+
+    getCreditorsText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Creditors');
+    }
+
+    getBackDatingText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'BackDating');
+    }
+
     getMasterDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'MasterData');
     }
@@ -115,7 +139,35 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }
 
+    getCreateText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Create');
+    }
+
+    getUpdateText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Update');
+    }
+
+    getDeleteText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Delete');
+    }
+
+    getResetText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Reset');
+    }
+
+    getCancelText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Cancel');
+    }
+
     getStaticTextByKey(staticTexts, key) {
+        if (staticTexts === undefined || staticTexts === null || Array.isArray(staticTexts) === false) {
+            throw new Error('An array of static texts is required.');
+        }
+
+        if (key === undefined || key === null || key.trim() === '') {
+            throw new Error('Key for static text is required.');
+        }
+
         const found = staticTexts.find(item => item.key === key);
         if (found) {
             return found.text;

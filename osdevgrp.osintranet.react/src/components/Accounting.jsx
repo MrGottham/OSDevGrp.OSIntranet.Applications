@@ -6,8 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
-import Row from 'react-bootstrap/esm/Row';
-import Col from 'react-bootstrap/esm/Col';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
@@ -32,9 +32,7 @@ function Accounting() {
 
     if (content === undefined) {
         return (
-            <>
-                <Loading />
-            </>
+            <Loading />
         );
     }
 

@@ -11,6 +11,10 @@ export default class AccountingService extends ServiceBase {
     }
 
     async getAccounting(accountingNumber) {
+        if (accountingNumber === undefined || accountingNumber === null) {
+            throw new Error('Accounting number is required.');
+        }
+
         const response = await fetch(this.resolveEndpoint(`/api/accounting/${accountingNumber}`), { credentials: 'include' });
         if (response.ok) {
             return await response.json();

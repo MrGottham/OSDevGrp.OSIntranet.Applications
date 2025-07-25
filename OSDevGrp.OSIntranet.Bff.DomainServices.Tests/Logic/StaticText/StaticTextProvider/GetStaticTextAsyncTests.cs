@@ -72,6 +72,11 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.MaxValueValidationError, "{0} skal være mindre end eller lig med {1}.", 2)]
     [TestCase(StaticTextKey.PatternValidationError, "{0} skal matche mønstret: {1}", 2)]
     [TestCase(StaticTextKey.OneOfValidationError, "{0} skal være en af følgende værdier: {1}", 2)]
+    [TestCase(StaticTextKey.Create, "Opret", 0)]
+    [TestCase(StaticTextKey.Update, "Opdatér", 0)]
+    [TestCase(StaticTextKey.Delete, "Slet", 0)]
+    [TestCase(StaticTextKey.Reset, "Nulstil", 0)]
+    [TestCase(StaticTextKey.Cancel, "Fortryd", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();

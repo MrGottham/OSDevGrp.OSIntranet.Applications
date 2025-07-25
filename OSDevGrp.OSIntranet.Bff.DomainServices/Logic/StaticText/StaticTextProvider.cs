@@ -78,6 +78,11 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.MaxValueValidationError, "{0} skal være mindre end eller lig med {1}.");
         staticTexts.Add(StaticTextKey.PatternValidationError, "{0} skal matche mønstret: {1}");
         staticTexts.Add(StaticTextKey.OneOfValidationError, "{0} skal være en af følgende værdier: {1}");
+        staticTexts.Add(StaticTextKey.Create, "Opret");
+        staticTexts.Add(StaticTextKey.Update, "Opdatér");
+        staticTexts.Add(StaticTextKey.Delete, "Slet");
+        staticTexts.Add(StaticTextKey.Reset, "Nulstil");
+        staticTexts.Add(StaticTextKey.Cancel, "Fortryd");
         return staticTexts.AsReadOnly();
     }
 

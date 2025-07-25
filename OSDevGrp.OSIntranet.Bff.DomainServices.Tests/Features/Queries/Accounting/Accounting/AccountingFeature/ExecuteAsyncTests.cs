@@ -231,6 +231,9 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.Debtors)]
     [TestCase(StaticTextKey.Creditors)]
     [TestCase(StaticTextKey.BackDating)]
+    [TestCase(StaticTextKey.Update)]
+    [TestCase(StaticTextKey.Reset)]
+    [TestCase(StaticTextKey.Cancel)]
     public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IAccountingTexts accountingTexts = new Mock<IAccountingTexts>().Object;

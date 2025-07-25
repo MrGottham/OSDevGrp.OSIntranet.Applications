@@ -1,5 +1,5 @@
 export default class ServiceBase {
-    _bffEndpoint = null;
+    #bffEndpoint = null;
 
     constructor() {
         if (import.meta.env.DEV) {
@@ -11,15 +11,15 @@ export default class ServiceBase {
             throw new Error('Endpoint to the Backend for Frontend application is not defined.');
         }
 
-        this._bffEndpoint = bffEndpoint;
+        this.#bffEndpoint = bffEndpoint;
     }
 
     resolveEndpoint(path) {
-        if (this._bffEndpoint === undefined || this._bffEndpoint === null) {
+        if (this.#bffEndpoint === undefined || this.#bffEndpoint === null) {
             return path;
         }
 
-        return this._bffEndpoint + path;
+        return this.#bffEndpoint + path;
     }
 
     async generateError(response) {
