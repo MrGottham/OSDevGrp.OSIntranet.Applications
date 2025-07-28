@@ -236,8 +236,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.Cancel)]
     public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
-        IAccountingTexts accountingTexts = new Mock<IAccountingTexts>().Object;
-        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(accountingTexts: accountingTexts);
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
 
         AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!);
         AccountingResponse result = await sut.ExecuteAsync(accountingRequest);

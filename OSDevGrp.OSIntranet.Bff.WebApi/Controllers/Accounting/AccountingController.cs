@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountingPreCreation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accountings;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
@@ -53,6 +54,22 @@ public class AccountingController : ControllerBase
         AccountingsResponse accountingsResponse = await queryFeature.ExecuteAsync(accountingsRequest, cancellationToken);
 
         return Ok(AccountingsResponseDto.Map(accountingsResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingCreator)]
+    [HttpGet("create")]
+    [ProducesResponseType(typeof(AccountingPreCreationResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AccountingPreCreationAsync([FromServices] IQueryFeature<AccountingPreCreationRequest, AccountingPreCreationResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AccountingPreCreationRequest accountingPreCreationRequest = new AccountingPreCreationRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        AccountingPreCreationResponse accountingPreCreationResponse = await queryFeature.ExecuteAsync(accountingPreCreationRequest, cancellationToken);
+
+        return Ok(AccountingPreCreationResponseDto.Map(accountingPreCreationResponse));
     }
 
     [Authorize(Policy = Policies.AccountingViewer)]

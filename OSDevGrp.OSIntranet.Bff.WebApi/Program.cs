@@ -176,6 +176,17 @@ applicationBuilder.Services.AddAuthorization(options =>
         policy.RequireClaim(ClaimTypes.Email);
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
     });
+    options.AddPolicy(Policies.AccountingCreator, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingCreatorClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.CommonDataClaimType);
+    });
     options.AddPolicy(Policies.AccountingViewer, policy =>
     {
         policy.AddAuthenticationSchemes(Schemes.Internal);
