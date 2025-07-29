@@ -10,6 +10,15 @@ export default class AccountingService extends ServiceBase {
         throw await this.generateError(response);
     }
 
+    async getAccountingPreCreation() {
+        const response = await fetch(this.resolveEndpoint('/api/accounting/create'), { credentials: 'include' });
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw await this.generateError(response);
+    }
+
     async getAccounting(accountingNumber) {
         if (accountingNumber === undefined || accountingNumber === null) {
             throw new Error('Accounting number is required.');

@@ -3,6 +3,10 @@ export default class UrlHelper {
         return '/home/notimplemented';
     }
 
+    getAccountingsUrl() {
+        return '/accountings';
+    }
+
     getAccountingUrl(accountingNumber) {
         if (accountingNumber === undefined || accountingNumber === null) {
             throw new Error('Accounting number is required.');

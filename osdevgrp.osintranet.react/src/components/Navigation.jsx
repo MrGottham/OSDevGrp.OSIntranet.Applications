@@ -13,7 +13,7 @@ function buildStartNavLink(layoutContext, staticTextHelper) {
 }
 
 function buildAccountingCreatorNavigationContent(layoutContext, authorizationHelper, staticTextHelper) {
-    if (authorizationHelper.isAccountingCreator(layoutContext.userInfo) === false) {
+    if (authorizationHelper.isAccountingCreator(layoutContext.userInfo) === false || authorizationHelper.hasCommonDataAccess(layoutContext.userInfo) === false) {
         return (
             <>
             </>

@@ -9,6 +9,7 @@ import Logout from './Logout';
 import UserInfo from './UserInfo';
 import Accountings from './Accountings';
 import Accounting from './Accounting';
+import AddAccounting from './AddAccounting';
 import EditAccounting from './EditAccounting';
 
 function Main({ layoutContext, children }) {
@@ -25,7 +26,7 @@ function Main({ layoutContext, children }) {
                         <Route path='security/logout' element={authorizationHelper.authenticatedUser(layoutContext.userInfo) ? <Logout /> : <AccessDenied />} />
                         <Route path='security/userinfo' element={authorizationHelper.authenticatedUser(layoutContext.userInfo) ? <UserInfo /> : <AccessDenied />} />
                         <Route path='accountings' element={authorizationHelper.hasAccountingAccess(layoutContext.userInfo) ? <Accountings /> : <AccessDenied />} />
-                        <Route path='accountings/add' element={authorizationHelper.isAccountingCreator(layoutContext.userInfo) ? <NotImplemented /> : <AccessDenied />} />
+                        <Route path='accountings/add' element={authorizationHelper.isAccountingCreator(layoutContext.userInfo) && authorizationHelper.hasCommonDataAccess(layoutContext.userInfo) ? <AddAccounting /> : <AccessDenied />} />
                         <Route path='accountings/:accountingNumber' element={authorizationHelper.isAccountingViewer(layoutContext.userInfo) ? <Accounting /> : <AccessDenied />} />
                         <Route path='accountings/:accountingNumber/edit' element={authorizationHelper.isAccountingModifier(layoutContext.userInfo) ? <EditAccounting /> : <AccessDenied />} />
                         <Route path='accountings/:accountingNumber/remove' element={authorizationHelper.isAccountingModifier(layoutContext.userInfo) ? <NotImplemented /> : <AccessDenied />} />
