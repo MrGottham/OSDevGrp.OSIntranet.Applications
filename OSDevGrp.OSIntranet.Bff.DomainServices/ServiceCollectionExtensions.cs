@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeatureCancellation;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeatureHumanVerifier;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeatureLogging;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeaturePermissionVerifier;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
@@ -24,13 +25,20 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDomainServices(this IServiceCollection serviceCollection)
     {
+        serviceCollection.AddMemoryCache();
+
         return serviceCollection.AddSingleton(TimeProvider.System)
+            .AddSingleton<IHashGenerator, HashGenerator>()
+            .AddSingleton<IVerificationCodeStorage, VerificationCodeStorage>()
             .AddSingleton<IBuildInfoProvider, BuildInfoProvider>()
             .AddSingleton<IStaticTextProvider, StaticTextProvider>()
             .AddTransient<IUserInfoProvider, UserInfoProvider>()
             .AddTransient<IPermissionValidator, PermissionValidator>()
             .AddTransient<IPermissionChecker, UserHelper>()
             .AddTransient<IUserHelper, UserHelper>()
+            .AddTransient<IVerificationCodeGenerator, VerificationCodeGenerator>()
+            .AddTransient<ICaptchaGenerator, CaptchaGenerator>()
+            .AddTransient<IVerificationCodeVerifier, VerificationCodeVerifier>()
             .AddTransient<IDependencyHealthMonitor, DependencyHealthMonitor>()
             .AddTransient<IAccountingTextsBuilder, AccountingTextsBuilder>()
             .AddTransient<IAccountTextsBuilder, AccountTextsBuilder>()
@@ -58,6 +66,7 @@ public static class ServiceCollectionExtensions
     {
         yield return new FeatureLoggingPipelineExtension();
         yield return new FeaturePermissionVerifierPipelineExtension();
+        yield return new FeatureHumanVerifierPipelineExtension();
         yield return new FeatureCancellationPipelineExtension();
     }
 }

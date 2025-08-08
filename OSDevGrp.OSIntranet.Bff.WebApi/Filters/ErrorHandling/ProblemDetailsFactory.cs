@@ -17,6 +17,7 @@ internal class ProblemDetailsFactory : IProblemDetailsFactory
         {typeof(ServiceGatewayUnauthorizedException), (httpRequest, _) => ToProblemDetails(httpRequest, HttpStatusCode.Unauthorized, "Unauthorized", "You are not authorized to perform the requested operation.")},
         {typeof(ServiceGatewayServerErrorException), (httpRequest, _) => ToProblemDetails(httpRequest)},
         {typeof(SchemaValidationException), (httpRequest, exception) => ToProblemDetails(httpRequest, HttpStatusCode.BadRequest, "Bad Request", exception.Message)},
+        {typeof(VerificationException), (httpRequest, exception) => ToProblemDetails(httpRequest, HttpStatusCode.BadRequest, "Bad Request", exception.Message)},
         {typeof(SecurityException), (httpRequest, _) => ToProblemDetails(httpRequest, HttpStatusCode.Unauthorized, "Unauthorized", "You are not authorized to perform the requested operation.")},
     };
 

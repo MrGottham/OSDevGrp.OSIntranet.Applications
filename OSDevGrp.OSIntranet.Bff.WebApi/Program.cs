@@ -220,8 +220,7 @@ applicationBuilder.Services.AddHealthChecks()
     .AddCheck<CorsOptionsHealthCheck>(nameof(CorsOptionsHealthCheck))
     .AddCheck<TrustedDomainOptionsHealthCheck>(nameof(TrustedDomainOptionsHealthCheck));
 
-applicationBuilder.Services.AddHttpContextAccessor()
-    .AddMemoryCache();
+applicationBuilder.Services.AddHttpContextAccessor();
 
 applicationBuilder.Services.Configure<OSDevGrp.OSIntranet.Bff.WebApi.Options.OpenIdConnectOptions>(applicationBuilder.Configuration.GetOpenIdConnectSection())
     .Configure<CorsOptions>(applicationBuilder.Configuration.GetCorsSection())

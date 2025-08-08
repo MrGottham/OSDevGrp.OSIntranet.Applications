@@ -21,6 +21,11 @@ internal static class ValidationValues
 
     internal const int ErrorMessageMinLength = 1;
 
+    internal const string VerificationKeyRegexPattern = @"^[a-z0-9]{128}$";
+    internal const string VerificationCodeRegexPattern = @"^[A-Za-z0-9]{6}$";
+    internal const int VerificationImageMinLength = 1;
+    internal const string VerificationImageRegexPattern = @"^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)?$";
+
     internal const int NameIdentifierMinLength = 1;
     internal const int NameMinLength = 1;
     internal const int MailAddressMinLength = 1;

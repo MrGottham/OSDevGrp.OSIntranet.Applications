@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using System.Text;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Security;
@@ -7,18 +7,20 @@ internal class TokenKeyGenerator : ITokenKeyGenerator
 {
     #region Private variables
 
-    private readonly SHA512 _sha512 = SHA512.Create();
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+    private readonly IHashGenerator _hashGenerator;
+
+    #endregion
+
+    #region Constructor
+
+    public TokenKeyGenerator(IHashGenerator hashGenerator)
+    {
+        _hashGenerator = hashGenerator;
+    }
 
     #endregion
 
     #region Methods
-
-    public void Dispose()
-    {
-        _sha512.Dispose();
-        _semaphore.Dispose();
-    }
 
     public async Task<string> GenerateAsync(IReadOnlyCollection<string> values, CancellationToken cancellationToken = default)
     {
@@ -27,36 +29,21 @@ internal class TokenKeyGenerator : ITokenKeyGenerator
             throw new ArgumentException("The given collection does not contain any items.", nameof(values));
         }
 
-        await _semaphore.WaitAsync(cancellationToken);
-        try
+        using MemoryStream memoryStream = new MemoryStream();
+        using StreamWriter streamWriter = new StreamWriter(memoryStream);
+        for (int i = 0; i < values.Count; i++)
         {
-            using MemoryStream memoryStream = new MemoryStream();
-            using StreamWriter streamWriter = new StreamWriter(memoryStream);
-            for (int i = 0; i < values.Count; i++)
+            if (i > 0)
             {
-                if (i > 0)
-                {
-                    await streamWriter.WriteAsync('|');
-                }
-                await streamWriter.WriteAsync(values.ElementAt(i));
+                await streamWriter.WriteAsync('|');
             }
-            await streamWriter.FlushAsync();
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            byte[] hash = await _sha512.ComputeHashAsync(memoryStream, cancellationToken);
-
-            StringBuilder keyBuilder = new StringBuilder();
-            foreach (byte b in hash)
-            {
-                keyBuilder.Append(b.ToString("x2"));
-            }
-
-            return keyBuilder.ToString();
+            await streamWriter.WriteAsync(values.ElementAt(i));
         }
-        finally
-        {
-            _semaphore.Release();
-        }
+        await streamWriter.FlushAsync();
+
+        memoryStream.Seek(0, SeekOrigin.Begin);
+
+        return await _hashGenerator.GenerateAsync(memoryStream.ToArray(), cancellationToken);
     }
 
     #endregion
