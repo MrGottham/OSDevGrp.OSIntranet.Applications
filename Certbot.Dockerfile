@@ -1,7 +1,7 @@
 FROM debian
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y openssh-server certbot openssl
+RUN apt-get install -y --no-install-recommends openssh-server certbot openssl
 
 ARG sshPassword
 RUN mkdir /var/run/sshd

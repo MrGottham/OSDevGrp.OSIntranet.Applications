@@ -58,6 +58,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.CreateNewAccounting, "Tilføj regnskab");
         staticTexts.Add(StaticTextKey.UpdateAccounting, "Redigér regnskab");
         staticTexts.Add(StaticTextKey.DeleteAccounting, "Slet regnskab");
+        staticTexts.Add(StaticTextKey.AccountingDeletionQuestion, "Er du sikker på, at du vil slette regnskabet med navnet {0}?");
         staticTexts.Add(StaticTextKey.MasterData, "Stamdata");
         staticTexts.Add(StaticTextKey.AccountingNumber, "Regnskabsnummer");
         staticTexts.Add(StaticTextKey.AccountingName, "Regnskabsnavn");
@@ -81,6 +82,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Create, "Opret");
         staticTexts.Add(StaticTextKey.Update, "Opdatér");
         staticTexts.Add(StaticTextKey.Delete, "Slet");
+        staticTexts.Add(StaticTextKey.ConfirmDeletion, "Bekræft sletning");
+        staticTexts.Add(StaticTextKey.DeleteVerificationInfo, "Du skal indtaste nedenstående verifikationskode, før du kan gennemføre den ønskede sletning.");
         staticTexts.Add(StaticTextKey.Reset, "Nulstil");
         staticTexts.Add(StaticTextKey.Cancel, "Fortryd");
         return staticTexts.AsReadOnly();

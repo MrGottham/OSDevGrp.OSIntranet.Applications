@@ -30,6 +30,7 @@ public enum StaticTextKey
     CreateNewAccounting,
     UpdateAccounting,
     DeleteAccounting,
+    AccountingDeletionQuestion,
     MasterData,
     AccountingNumber,
     AccountingName,
@@ -53,6 +54,8 @@ public enum StaticTextKey
     Create,
     Update,
     Delete,
+    ConfirmDeletion,
+    DeleteVerificationInfo,
     Reset,
     Cancel
 }

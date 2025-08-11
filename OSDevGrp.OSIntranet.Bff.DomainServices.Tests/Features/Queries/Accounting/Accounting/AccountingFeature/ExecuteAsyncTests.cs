@@ -223,6 +223,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [Category("UnitTest")]
     [TestCase(StaticTextKey.UpdateAccounting)]
     [TestCase(StaticTextKey.DeleteAccounting)]
+    [TestCase(StaticTextKey.AccountingDeletionQuestion)]
     [TestCase(StaticTextKey.MasterData)]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
@@ -232,6 +233,9 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.Creditors)]
     [TestCase(StaticTextKey.BackDating)]
     [TestCase(StaticTextKey.Update)]
+    [TestCase(StaticTextKey.Delete)]
+    [TestCase(StaticTextKey.ConfirmDeletion)]
+    [TestCase(StaticTextKey.DeleteVerificationInfo)]
     [TestCase(StaticTextKey.Reset)]
     [TestCase(StaticTextKey.Cancel)]
     public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)

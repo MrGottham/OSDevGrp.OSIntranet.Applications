@@ -1,7 +1,6 @@
 import { setLocale, string, number } from 'yup';
 import { da } from 'yup-locales';
-import ValidationRuleSetHelper from "./ValidationRuleSetHelper";
-import { parse } from '@fortawesome/fontawesome-svg-core';
+import ValidationRuleSetHelper from './ValidationRuleSetHelper';
 
 export default class ValidationSchemaHelper {
     #validationRuleSetHelper = new ValidationRuleSetHelper();

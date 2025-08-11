@@ -22,6 +22,12 @@ export default class ServiceBase {
         return this.#bffEndpoint + path;
     }
 
+    makeHeadersForPostWithJsonContent() {
+        return { 
+            'Content-Type': 'application/json; charset=utf-8' 
+        };
+    }
+
     async generateError(response) {
         if (response.status === 400) {
             const problemDetails = await response.json();

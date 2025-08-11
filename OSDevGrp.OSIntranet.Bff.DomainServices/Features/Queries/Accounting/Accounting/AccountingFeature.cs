@@ -50,6 +50,7 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
         {
             { StaticTextKey.UpdateAccounting, StaticTextKey.UpdateAccounting.DefaultArguments() },
             { StaticTextKey.DeleteAccounting, StaticTextKey.DeleteAccounting.DefaultArguments() },
+            { StaticTextKey.AccountingDeletionQuestion, new [] {accountingModel.Name} },
             { StaticTextKey.MasterData, StaticTextKey.MasterData.DefaultArguments() },
             { StaticTextKey.AccountingNumber, StaticTextKey.AccountingNumber.DefaultArguments() },
             { StaticTextKey.AccountingName, StaticTextKey.AccountingName.DefaultArguments() },
@@ -59,6 +60,9 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.Creditors, StaticTextKey.Creditors.DefaultArguments() },
             { StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments() },
             { StaticTextKey.Update, StaticTextKey.Update.DefaultArguments() },
+            { StaticTextKey.Delete, StaticTextKey.Update.DefaultArguments() },
+            { StaticTextKey.ConfirmDeletion, StaticTextKey.Update.DefaultArguments() },
+            { StaticTextKey.DeleteVerificationInfo, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.Reset, StaticTextKey.Reset.DefaultArguments() },
             { StaticTextKey.Cancel, StaticTextKey.Cancel.DefaultArguments() },
         };

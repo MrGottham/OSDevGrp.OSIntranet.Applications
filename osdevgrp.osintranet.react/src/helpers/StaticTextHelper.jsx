@@ -103,6 +103,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'DeleteAccounting');
     }
 
+    getAccountingDeletionQuestionText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'AccountingDeletionQuestion');
+    }
+
     getAccountingNumberText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'AccountingNumber');
     }
@@ -149,6 +153,14 @@ export default class StaticTextHelper {
 
     getDeleteText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'Delete');
+    }
+
+    getConfirmDeletionText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'ConfirmDeletion');
+    }
+
+    getDeleteVerificationInfoText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'DeleteVerificationInfo');
     }
 
     getResetText(staticTexts) {

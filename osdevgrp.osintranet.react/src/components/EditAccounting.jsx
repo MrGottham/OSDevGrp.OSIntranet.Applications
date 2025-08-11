@@ -78,12 +78,17 @@ function EditAccounting() {
     }
 
     function submit(values, actions) {
-        setSubmitting(true);
+        try {
+            setSubmitting(true);
 
-        console.debug(values);
-        console.debug(actions);
+            console.debug(values);
+            console.debug(actions);
 
-        navigate(urlHelper.getNotImplementedUrl(), { replace: true, preventScrollReset: true });
+            navigate(urlHelper.getNotImplementedUrl(), { replace: true, preventScrollReset: true });
+        }
+        catch (error) {
+            showBoundary(error);
+        }
     }
 }
 

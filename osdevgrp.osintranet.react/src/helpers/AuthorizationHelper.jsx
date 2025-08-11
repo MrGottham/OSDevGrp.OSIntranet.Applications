@@ -1,4 +1,4 @@
-import AccountingHelper from "./AccountingHelper";
+import AccountingHelper from './AccountingHelper';
 
 export default class AuthorizationHelper {
     #accountingHelper = new AccountingHelper();

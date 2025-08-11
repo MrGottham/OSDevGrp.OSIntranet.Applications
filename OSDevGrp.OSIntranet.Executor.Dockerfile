@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y supervisor openssh-server sudo
-RUN apt-get install -y locales
+RUN apt-get install -y --no-install-recommends supervisor openssh-server sudo
+RUN apt-get install -y --no-install-recommends locales
 
 RUN sed -i "s/^# *\(da_DK\)/\1/" /etc/locale.gen
 RUN dpkg-reconfigure --frontend=noninteractive locales

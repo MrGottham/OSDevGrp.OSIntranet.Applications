@@ -14,12 +14,17 @@ import Button from 'react-bootstrap/Button';
 import Accordion from 'react-bootstrap/Accordion';
 import Stack from 'react-bootstrap/Stack';
 import Loading from './Loading';
+import DeleteConfirmation from './DeleteConfirmation';
 
 function Accounting() {
     const { showBoundary } = useErrorBoundary();
     const accountingService = useContext(ServiceContext).accountingService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
+    const urlHelper = useContext(HelperContext).urlHelper;
     const [content, setContent] = useState();
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [deletionQuestion, setDeletionQuestion] = useState();
+    const [deleteContext, setDeleteContext] = useState();
     const accountingNumber = useParams().accountingNumber;
 
     useEffect(() => {
@@ -43,6 +48,16 @@ function Accounting() {
                     <h1>{content.name}</h1>
                 </Col>
             </Row>
+            <DeleteConfirmation
+                show={showDeleteConfirmation} 
+                title={staticTextHelper.getConfirmDeletionText(content.staticTexts)} 
+                deletionQuestion={deletionQuestion} 
+                verificationInfo={staticTextHelper.getDeleteVerificationInfoText(content.staticTexts)}
+                cancelText={staticTextHelper.getCancelText(content.staticTexts)}
+                deleteText={staticTextHelper.getDeleteText(content.staticTexts)}
+                deleteContext={deleteContext}
+                onClose={() => setShowDeleteConfirmation(false)}
+                onDelete={handleDelete} />
             {getOperationsContent(content.number, content.modifiable, content.deletable, content.staticTexts, staticTextHelper)}
             {getMasterDataContent(content, content.dynamicTexts, content.staticTexts, staticTextHelper)}
         </>
@@ -91,8 +106,15 @@ function Accounting() {
             );
         }
 
+        const deleteContext = {
+            type: 'accounting',
+            accountingNumber: accountingNumber
+        };
+
         return (
-            <Button as={Link} to={`/accountings/${accountingNumber}/remove`}><FontAwesomeIcon icon={faTrash} />&nbsp;{staticTextHelper.getDeleteAccountingText(staticTexts)}</Button>
+            <>
+                <Button onClick={() => confirmDeletion(staticTextHelper.getAccountingDeletionQuestionText(staticTexts), deleteContext)}><FontAwesomeIcon icon={faTrash} />&nbsp;{staticTextHelper.getDeleteAccountingText(staticTexts)}</Button>
+            </>
         );
     }
 
@@ -129,6 +151,20 @@ function Accounting() {
     async function populateContent(accountingNumber) {
         const json = await accountingService.getAccounting(accountingNumber);
         setContent(json);
+    }
+
+    function confirmDeletion(deletionQuestion, deleteContext) {
+        setDeletionQuestion(deletionQuestion);
+        setDeleteContext(deleteContext);
+        setShowDeleteConfirmation(true);
+    }
+
+    async function handleDelete(deleteContext, verificationKey, verificationCode) {
+        console.debug(`deleteContext=${JSON.stringify(deleteContext)}`);
+        console.debug(`verificationKey=${verificationKey}`);
+        console.debug(`verificationCode=${verificationCode}`);
+
+        return urlHelper.getNotImplementedUrl();
     }
 }
 

@@ -16,7 +16,7 @@ RUN npm run build
 FROM reactbase AS reactexecutor
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get install -y supervisor openssh-server sudo
+RUN apt-get install -y --no-install-recommends supervisor openssh-server sudo
 
 ARG appUserGroup
 ARG nonRootUser
