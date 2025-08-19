@@ -284,7 +284,65 @@ public class AccountingAsyncTests
             .Returns(CreateValueDisplayer());
         accountingTextsMock.Setup(m => m.BackDating)
             .Returns(CreateValueDisplayer());
+        accountingTextsMock.Setup(m => m.BalanceSheetAtStatusDate)
+            .Returns(CreateBalanceSheetDisplayer());
+        accountingTextsMock.Setup(m => m.BalanceSheetAtEndOfLastMonthFromStatusDate)
+            .Returns(CreateBalanceSheetDisplayer());
+        accountingTextsMock.Setup(m => m.BalanceSheetAtEndOfLastYearFromStatusDate)
+            .Returns(CreateBalanceSheetDisplayer());
+        accountingTextsMock.Setup(m => m.BudgetStatementForMonthOfStatusDate)
+            .Returns(CreateBudgetStatementDisplayer());
+        accountingTextsMock.Setup(m => m.BudgetStatementForLastMonthOfStatusDate)
+            .Returns(CreateBudgetStatementDisplayer());
+        accountingTextsMock.Setup(m => m.BudgetStatementForYearToDateOfStatusDate)
+            .Returns(CreateBudgetStatementDisplayer());
+        accountingTextsMock.Setup(m => m.BudgetStatementForLastYearOfStatusDate)
+            .Returns(CreateBudgetStatementDisplayer());
+        accountingTextsMock.Setup(m => m.ObligeePartiesAtStatusDate)
+            .Returns(CreateObligeePartiesDisplayer());
+        accountingTextsMock.Setup(m => m.ObligeePartiesAtEndOfLastMonthFromStatusDate)
+            .Returns(CreateObligeePartiesDisplayer());
+        accountingTextsMock.Setup(m => m.ObligeePartiesAtEndOfLastYearFromStatusDate)
+            .Returns(CreateObligeePartiesDisplayer());
         return accountingTextsMock.Object;
+    }
+
+    private IBalanceSheetDisplayer CreateBalanceSheetDisplayer()
+    {
+        Mock<IBalanceSheetDisplayer> balanceSheetDisplayerMock = new Mock<IBalanceSheetDisplayer>();
+        balanceSheetDisplayerMock.Setup(m => m.Header)
+            .Returns(_fixture!.Create<string>());
+        balanceSheetDisplayerMock.Setup(m => m.Assets)
+            .Returns(CreateValueDisplayer());
+        balanceSheetDisplayerMock.Setup(m => m.Liabilities)
+            .Returns(CreateValueDisplayer());
+        return balanceSheetDisplayerMock.Object;
+    }
+
+    private IBudgetStatementDisplayer CreateBudgetStatementDisplayer()
+    {
+        Mock<IBudgetStatementDisplayer> budgetStatementDisplayerMock = new Mock<IBudgetStatementDisplayer>();
+        budgetStatementDisplayerMock.Setup(m => m.Header)
+            .Returns(_fixture!.Create<string>());
+        budgetStatementDisplayerMock.Setup(m => m.Budget)
+            .Returns(CreateValueDisplayer());
+        budgetStatementDisplayerMock.Setup(m => m.Posted)
+            .Returns(CreateValueDisplayer());
+        budgetStatementDisplayerMock.Setup(m => m.Available)
+            .Returns(CreateValueDisplayer());
+        return budgetStatementDisplayerMock.Object;
+    }
+
+    private IObligeePartiesDisplayer CreateObligeePartiesDisplayer()
+    {
+        Mock<IObligeePartiesDisplayer> obligeePartiesDisplayerMock = new Mock<IObligeePartiesDisplayer>();
+        obligeePartiesDisplayerMock.Setup(m => m.Header)
+            .Returns(_fixture!.Create<string>());
+        obligeePartiesDisplayerMock.Setup(m => m.Debtors)
+            .Returns(CreateValueDisplayer());
+        obligeePartiesDisplayerMock.Setup(m => m.Creditors)
+            .Returns(CreateValueDisplayer());
+        return obligeePartiesDisplayerMock.Object;
     }
 
     private IValueDisplayer CreateValueDisplayer()

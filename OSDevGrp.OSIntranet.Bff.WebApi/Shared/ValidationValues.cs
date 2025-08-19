@@ -12,6 +12,10 @@ internal static class ValidationValues
     internal const int StaticTextKeyMinLength = 1;
     internal const int StaticTextValueMinLength = 1;
 
+    internal const int BalanceSheetDisplayerHeaderMinLength = 1;
+    internal const int BudgetStatementDisplayerHeaderMinLength = 1;
+    internal const int ObligeePartiesDisplayerHeaderMinLength = 1;
+
     internal const int ValueDisplayerLabelMinLength = 1;
     internal const int ValueDisplayerValueMinLength = 1;
 

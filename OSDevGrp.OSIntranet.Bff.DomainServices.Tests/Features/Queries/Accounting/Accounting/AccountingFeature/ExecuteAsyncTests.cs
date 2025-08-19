@@ -232,6 +232,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.Debtors)]
     [TestCase(StaticTextKey.Creditors)]
     [TestCase(StaticTextKey.BackDating)]
+    [TestCase(StaticTextKey.CurrentStatus)]
     [TestCase(StaticTextKey.Update)]
     [TestCase(StaticTextKey.Delete)]
     [TestCase(StaticTextKey.ConfirmDeletion)]

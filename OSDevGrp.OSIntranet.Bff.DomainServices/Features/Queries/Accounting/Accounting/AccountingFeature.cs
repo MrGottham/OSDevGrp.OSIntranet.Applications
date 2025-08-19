@@ -59,6 +59,7 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.Debtors, StaticTextKey.Debtors.DefaultArguments() },
             { StaticTextKey.Creditors, StaticTextKey.Creditors.DefaultArguments() },
             { StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments() },
+            { StaticTextKey.CurrentStatus, StaticTextKey.CurrentStatus.DefaultArguments() },
             { StaticTextKey.Update, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.Delete, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.ConfirmDeletion, StaticTextKey.Update.DefaultArguments() },
