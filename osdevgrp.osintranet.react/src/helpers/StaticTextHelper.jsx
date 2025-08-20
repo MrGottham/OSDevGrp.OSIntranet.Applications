@@ -139,6 +139,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'LetterHead');
     }
 
+    getCurrentStatusText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'CurrentStatus');
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }
