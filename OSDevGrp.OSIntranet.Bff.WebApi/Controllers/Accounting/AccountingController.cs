@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountingPreCreation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accountings;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountingSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -86,6 +87,22 @@ public class AccountingController : ControllerBase
         AccountingResponse accountingResponse = await queryFeature.ExecuteAsync(accountingRequest, cancellationToken);
 
         return Ok(AccountingResponseDto.Map(accountingResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingViewer)]
+    [HttpGet("{accountingNumber:int}/summary")]
+    [ProducesResponseType(typeof(AccountingSummaryResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AccountingSummeryAsync([FromServices] IQueryFeature<AccountingSummaryRequest, AccountingSummaryResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AccountingSummaryRequest accountingSummaryRequest = new AccountingSummaryRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(statusDate), _formatProvider, securityContext);
+        AccountingSummaryResponse accountingSummaryResponse = await queryFeature.ExecuteAsync(accountingSummaryRequest, cancellationToken);
+
+        return Ok(AccountingSummaryResponseDto.Map(accountingSummaryResponse));
     }
 
     private DateTimeOffset ResolveStatusDate(DateTimeOffset? value)

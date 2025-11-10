@@ -68,6 +68,13 @@ internal class IndexFeature : PageFeatureBase<IndexRequest, IndexResponse, Claim
         staticTextSpecifications.Add(StaticTextKey.Start, StaticTextKey.Start.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.Login, StaticTextKey.Login.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.Logout, StaticTextKey.Logout.DefaultArguments());
+
+        if (isAuthenticated == false)
+        {
+            return staticTextSpecifications.AsReadOnly();
+        }
+
+        staticTextSpecifications.Add(StaticTextKey.MyOverview, StaticTextKey.MyOverview.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.FinancialManagement, StaticTextKey.FinancialManagement.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.Accountings, StaticTextKey.Accountings.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.CreateNewAccounting, StaticTextKey.CreateNewAccounting.DefaultArguments());

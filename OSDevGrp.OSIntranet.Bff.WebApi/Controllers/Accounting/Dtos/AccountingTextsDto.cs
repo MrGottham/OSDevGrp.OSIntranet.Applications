@@ -7,6 +7,9 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
 public class AccountingTextsDto
 {
     [Required]
+    public required ValueDisplayerDto StatusDate { get; init; }
+
+    [Required]
     public required ValueDisplayerDto BalanceBelowZero { get; init; }
 
     [Required]
@@ -46,6 +49,7 @@ public class AccountingTextsDto
     {
         return new AccountingTextsDto
         {
+            StatusDate = ValueDisplayerDto.Map(accountingTexts.StatusDate),
             BalanceBelowZero = ValueDisplayerDto.Map(accountingTexts.BalanceBelowZero),
             BackDating = ValueDisplayerDto.Map(accountingTexts.BackDating),
             BalanceSheetAtStatusDate = BalanceSheetDisplayerDto.Map(accountingTexts.BalanceSheetAtStatusDate),

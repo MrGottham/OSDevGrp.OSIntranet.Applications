@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Security.Claims;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
@@ -20,6 +18,8 @@ using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Accounting.Accounting.AccountingFeature;
 

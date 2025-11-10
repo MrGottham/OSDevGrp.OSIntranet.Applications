@@ -75,6 +75,13 @@ internal static class FixtureExtensions
         ];
     }
 
+    internal static IReadOnlyCollection<IValidationRule> CreateEmptyValidationRuleSet(this Fixture fixture)
+    {
+        return
+        [
+        ];
+    }
+
     internal static Mock<IRequiredValueRule> CreateRequiredValueRuleMock(this Fixture fixture)
     {
         string name = fixture.Create<string>();

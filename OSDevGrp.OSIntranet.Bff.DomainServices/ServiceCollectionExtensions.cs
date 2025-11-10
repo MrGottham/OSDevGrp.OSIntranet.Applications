@@ -59,6 +59,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<IBackDatingRuleSetBuilder, BackDatingRuleSetBuilder>()
             .AddTransient<IAccountingRuleSetBuilder, AccountingRuleSetBuilder>()
             .AddTransient<ILetterHeadNumberRuleSetBuilder, LetterHeadNumberRuleSetBuilder>()
+            .AddTransient<IEmptyRuleSetBuilder, EmptyRuleSetBuilder>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);
     }
 

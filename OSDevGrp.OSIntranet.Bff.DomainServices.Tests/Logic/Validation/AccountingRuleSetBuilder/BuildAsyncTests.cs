@@ -17,8 +17,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.LetterHeadNu
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.BalanceBelowZeroRuleSetBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.BackDatingRuleSetBuilder;
 
-namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingRuleSetBuilder
-;
+namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingRuleSetBuilder;
 
 [TestFixture]
 public class BuildAsyncTests

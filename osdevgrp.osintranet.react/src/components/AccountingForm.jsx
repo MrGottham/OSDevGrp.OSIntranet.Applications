@@ -42,7 +42,7 @@ function AccountingForm({accountingNumber, readonlyAccountingNumber, accountingN
                     </Row>
                     <Row>
                         <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
-                            <SubmitToolbar submitText={submitText} submitVariant='primary' staticTexts={staticTexts} onReset={handleReset} onCancel={_ => navigate(cancelUrl, { replace: true, preventScrollReset: true })} />
+                            <SubmitToolbar submitText={submitText} submitVariant='primary' staticTexts={staticTexts} onReset={handleReset} onCancel={() => navigate(cancelUrl, { replace: true, preventScrollReset: true })} />
                         </Col>
                     </Row>
                 </Form>

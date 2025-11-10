@@ -19,6 +19,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'Logout');
     }
 
+    getMyOverviewText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'MyOverview');
+    }
+
     getAccessDeniedText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'AccessDenied');
     }

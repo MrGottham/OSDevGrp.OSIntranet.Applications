@@ -1,5 +1,6 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
 
@@ -29,6 +30,11 @@ internal abstract class DynamicTextsBuilderBase<TModel, TDynamicTexts> : IDynami
         cancellationToken.ThrowIfCancellationRequested();
 
         return await Task.WhenAll(models.Select(model => BuildAsync(model, formatProvider, cancellationToken)));
+    }
+
+    protected Task<IValueDisplayer> GetStatusDateAsync(DateTimeOffset statusDate, string format, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
+    {
+        return GetValueDisplayerAsync(StaticTextKey.StatusDate, StaticTextKey.StatusDate.DefaultArguments(), statusDate, formatProvider, (value, provider) => value.ToString(format, provider), cancellationToken);
     }
 
     protected async Task<IValueDisplayer> GetValueDisplayerAsync<TValue>(StaticTextKey staticTextKey, IEnumerable<object> arguments, TValue value, IFormatProvider formatProvider, Func<TValue, IFormatProvider, string?> valueFormatter, CancellationToken cancellationToken = default)

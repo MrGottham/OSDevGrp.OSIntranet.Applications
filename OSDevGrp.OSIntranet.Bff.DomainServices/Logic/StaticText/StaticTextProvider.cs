@@ -37,6 +37,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Start, "Start");
         staticTexts.Add(StaticTextKey.Login, "Log ind");
         staticTexts.Add(StaticTextKey.Logout, "Log ud");
+        staticTexts.Add(StaticTextKey.MyOverview, "Mit overblik");
         staticTexts.Add(StaticTextKey.AccessDenied, "Adgang nægtet");
         staticTexts.Add(StaticTextKey.MissingPermissionToPage, "Du har ikke de nødvendige rettigheder til at tilgå denne side.");
         staticTexts.Add(StaticTextKey.CheckYourCredentials, "Tjek venligst op på dine rettigheder og prøv igen.");
@@ -69,6 +70,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Days, "Dage");
         staticTexts.Add(StaticTextKey.Day, "Dag");
         staticTexts.Add(StaticTextKey.CurrentStatus, "Aktuel status");
+        staticTexts.Add(StaticTextKey.StatusDate, "Statusdato");
         staticTexts.Add(StaticTextKey.BalanceSheetAtStatusDate, "Balance pr. dags dato");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, "Balance ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate, "Balance ved sidste års afslutning");

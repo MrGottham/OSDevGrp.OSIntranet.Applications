@@ -57,7 +57,7 @@ function AddAccounting() {
         </>
     );
 
-    async function populateContent(accountingNumber) {
+    async function populateContent() {
         const json = await accountingService.getAccountingPreCreation();
         setContent(json);
     }

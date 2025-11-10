@@ -7,9 +7,10 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
 {
     #region Constructor
 
-    public AccountingTexts(AccountingModel model, IValueDisplayer balanceBelowZero, IValueDisplayer backDating, IBalanceSheetDisplayer balanceSheetAtStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastMonthFromStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastYearFromStatusDate, IBudgetStatementDisplayer budgetStatementForMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForYearToDateOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastYearOfStatusDate, IObligeePartiesDisplayer obligeePartiesAtStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastMonthFromStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastYearFromStatusDate, IFormatProvider formatProvider)
+    public AccountingTexts(AccountingModel model, IValueDisplayer statusDate, IValueDisplayer balanceBelowZero, IValueDisplayer backDating, IBalanceSheetDisplayer balanceSheetAtStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastMonthFromStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastYearFromStatusDate, IBudgetStatementDisplayer budgetStatementForMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForYearToDateOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastYearOfStatusDate, IObligeePartiesDisplayer obligeePartiesAtStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastMonthFromStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastYearFromStatusDate, IFormatProvider formatProvider)
         : base(model, formatProvider)
     {
+        StatusDate = statusDate;
         BalanceBelowZero = balanceBelowZero;
         BackDating = backDating;
         BalanceSheetAtStatusDate = balanceSheetAtStatusDate;
@@ -27,6 +28,8 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
     #endregion
 
     #region Properties
+
+    public IValueDisplayer StatusDate { get; }
 
     public IValueDisplayer BalanceBelowZero { get; }
 

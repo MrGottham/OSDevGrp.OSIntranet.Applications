@@ -32,6 +32,7 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    [TestCase(StaticTextKey.StatusDate, 1)]
     [TestCase(StaticTextKey.BalanceBelowZero, 1)]
     [TestCase(StaticTextKey.Debtors, 4)]
     [TestCase(StaticTextKey.Creditors, 4)]
@@ -80,6 +81,18 @@ public class BuildAsyncTests
         IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
 
         Assert.That(result, Is.TypeOf<AccountingTexts>());
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereLabelOnStatusDateIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
 
     [Test]

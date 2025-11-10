@@ -20,6 +20,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
 
     public override async Task<IAccountingTexts> BuildAsync(AccountingModel model, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
+        IValueDisplayer? statusDate = null;
         IValueDisplayer? balanceBelowZero = null;
         IValueDisplayer? backDating = null;
         IBalanceSheetDisplayer? balanceSheetAtStatusDate = null;
@@ -33,6 +34,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
         IObligeePartiesDisplayer? obligeePartiesAtEndOfLastMonthFromStatusDate = null;
         IObligeePartiesDisplayer? obligeePartiesAtEndOfLastYearFromStatusDate = null;
 
+        Task buildStatusDateTask = GetStatusDateAsync(model.StatusDate, "d. MMMM yyyy", formatProvider, cancellationToken).ContinueWith(task => statusDate = task.Result, cancellationToken);
         Task buildBalanceBelowZeroTask = BuildBalanceBelowZeroAsync(model, formatProvider, cancellationToken).ContinueWith(task => balanceBelowZero = task.Result, cancellationToken);
         Task buildBackDatingTask = BuildBackDatingAsync(model, formatProvider, cancellationToken).ContinueWith(task => backDating = task.Result, cancellationToken);
         Task buildBalanceSheetAtStatusDate = BalanceSheetDisplayer.CreateAsync(StaticTextKey.BalanceSheetAtStatusDate, StaticTextKey.Assets, StaticTextKey.Liabilities, StaticTextProvider, model, m => m.Accounts.Where(m => m.AccountGroup.AccountGroupType == AccountGroupType.Assets).Select(m => m.ValuesAtStatusDate).Sum(v => (decimal)v.Balance), m => m.Accounts.Where(m => m.AccountGroup.AccountGroupType == AccountGroupType.Liabilities).Select(m => m.ValuesAtStatusDate).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => balanceSheetAtStatusDate = task.Result, cancellationToken);
@@ -45,7 +47,8 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
         Task buildObligeePartiesAtStatusDate = ObligeePartiesDisplayer.CreateAsync( StaticTextKey.ObligeePartiesAtStatusDate, StaticTextKey.Debtors, StaticTextKey.Creditors, StaticTextProvider, model, m => m.ContactAccounts.Select(m => m.ValuesAtStatusDate).Where(v => v.IsDebtor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), m => m.ContactAccounts.Select(m => m.ValuesAtStatusDate).Where(v => v.IsCreditor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => obligeePartiesAtStatusDate = task.Result, cancellationToken);
         Task buildObligeePartiesAtEndOfLastMonthFromStatusDate = ObligeePartiesDisplayer.CreateAsync(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, StaticTextKey.Debtors, StaticTextKey.Creditors, StaticTextProvider, model, m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastMonthFromStatusDate).Where(v => v.IsDebtor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastMonthFromStatusDate).Where(v => v.IsCreditor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => obligeePartiesAtEndOfLastMonthFromStatusDate = task.Result, cancellationToken);
         Task buildObligeePartiesAtEndOfLastYearFromStatusDate = ObligeePartiesDisplayer.CreateAsync(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, StaticTextKey.Debtors, StaticTextKey.Creditors, StaticTextProvider, model, m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastYearFromStatusDate).Where(v => v.IsDebtor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastYearFromStatusDate).Where(v => v.IsCreditor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => obligeePartiesAtEndOfLastYearFromStatusDate = task.Result, cancellationToken);
-        await Task.WhenAll(buildBalanceBelowZeroTask,
+        await Task.WhenAll(buildStatusDateTask,
+            buildBalanceBelowZeroTask,
             buildBackDatingTask,
             buildBalanceSheetAtStatusDate,
             buildBalanceSheetAtEndOfLastMonthFromStatusDate,
@@ -60,6 +63,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
 
         return new AccountingTexts(
             model,
+            statusDate!,
             balanceBelowZero!,
             backDating!,
             balanceSheetAtStatusDate!,
