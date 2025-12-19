@@ -21,7 +21,7 @@ applicationBuilder.WebHost.ConfigureKestrel(options => options.AddServerHeader =
 applicationBuilder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
@@ -204,7 +204,7 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 {
     options.AddDocumentTransformer((document, _, _) => 
     {
-        document.Info = new Microsoft.OpenApi.Models.OpenApiInfo
+        document.Info = new Microsoft.OpenApi.OpenApiInfo
         {
             Title = ProgramHelper.GetTitle(),
             Version = "v1",

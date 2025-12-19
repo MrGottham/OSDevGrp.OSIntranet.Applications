@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.OpenApi;
-using Microsoft.OpenApi.Extensions;
-using Microsoft.OpenApi.Interfaces;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Writers;
+﻿using Microsoft.OpenApi;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
@@ -19,7 +15,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
     {
         #region Methods
 
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
             NullGuard.NotNull(schema, nameof(schema))
                 .NotNull(schema, nameof(schema));
@@ -29,7 +25,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 return;
             }
 
-            schema.AddExtension("x-error-codes", new ErrorCodeMetadataCollection(new CoreModelConverter()));
+            if (schema is not OpenApiSchema openApiSchema)
+            {
+                return;
+            }
+
+            openApiSchema.AddExtension("x-error-codes", new ErrorCodeMetadataCollection(new CoreModelConverter()));
         }
 
         #endregion

@@ -28,11 +28,11 @@ internal class ClientApiCodeGenerator
         return await ModifyAsync(generator.GenerateFile(), cancellationToken);
     }
 
-    private static async Task<OpenApiDocument> ConvertAsync(Microsoft.OpenApi.Models.OpenApiDocument openApiDocument)
+    private static async Task<OpenApiDocument> ConvertAsync(Microsoft.OpenApi.OpenApiDocument openApiDocument)
     {
-        using StringWriter jsonWriter = new StringWriter();
+        await using StringWriter jsonWriter = new StringWriter();
 
-        Microsoft.OpenApi.Writers.OpenApiJsonWriter openApiJsonWriter = new Microsoft.OpenApi.Writers.OpenApiJsonWriter(jsonWriter);
+        Microsoft.OpenApi.OpenApiJsonWriter openApiJsonWriter = new Microsoft.OpenApi.OpenApiJsonWriter(jsonWriter);
         openApiDocument.SerializeAsV3(openApiJsonWriter);
 
         return await OpenApiDocument.FromJsonAsync(jsonWriter.ToString());
@@ -46,7 +46,7 @@ internal class ClientApiCodeGenerator
             CompilationUnitSyntax compilationUnitSyntax = syntaxTree.GetCompilationUnitRoot(cancellationToken: cancellationToken);
 
             return compilationUnitSyntax;
-        });
+        }, cancellationToken);
     }
 
     private static async Task WriteAsync(FileInfo sourceFileInfo, string sourceCode, Func<string, Task> notifier)
@@ -80,25 +80,28 @@ internal class ClientApiCodeGenerator
             InjectHttpClient = true,
             UseBaseUrl = false,
             ClientClassAccessModifier = "internal",
-            ParameterDateFormat = typeof(DateTimeOffset).Name,
-            QueryNullValue = "null"
+            ParameterDateFormat = nameof(DateTimeOffset),
+            QueryNullValue = "null",
+            CSharpGeneratorSettings =
+            {
+                Namespace = @namespace,
+                ClassStyle = CSharpClassStyle.Record,
+                DateType = nameof(DateTimeOffset),
+                DateTimeType = nameof(DateTimeOffset),
+                TimeType = nameof(TimeSpan),
+                TimeSpanType = nameof(TimeSpan),
+                NumberType = nameof(Decimal),
+                JsonLibrary = CSharpJsonLibrary.SystemTextJson,
+                GenerateOptionalPropertiesAsNullable = true,
+                GenerateNullableReferenceTypes = true
+            }
         };
-        settings.CSharpGeneratorSettings.Namespace = @namespace;
-        settings.CSharpGeneratorSettings.ClassStyle = CSharpClassStyle.Record;
-        settings.CSharpGeneratorSettings.DateType = typeof(DateTimeOffset).Name;
-        settings.CSharpGeneratorSettings.DateTimeType = typeof(DateTimeOffset).Name;
-        settings.CSharpGeneratorSettings.TimeType = typeof(TimeSpan).Name;
-        settings.CSharpGeneratorSettings.TimeSpanType = typeof(TimeSpan).Name;
-        settings.CSharpGeneratorSettings.NumberType = typeof(decimal).Name;
-        settings.CSharpGeneratorSettings.JsonLibrary = CSharpJsonLibrary.SystemTextJson;
-        settings.CSharpGeneratorSettings.GenerateOptionalPropertiesAsNullable = true;
-        settings.CSharpGeneratorSettings.GenerateNullableReferenceTypes = true;
         return settings;
     }
 
     public static string NormalizeLineEndings(string value)
     {
-        return string.Join(Environment.NewLine, value.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None));
+        return string.Join(Environment.NewLine, value.Split(["\r\n", "\n"], StringSplitOptions.None));
     }
 
     #endregion

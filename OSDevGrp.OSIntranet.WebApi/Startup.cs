@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using OSDevGrp.OSIntranet.BusinessLogic;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.BusinessLogic.Security.CommandHandlers;
@@ -59,7 +59,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.Configure<ForwardedHeadersOptions>(opt => 
             {
                 opt.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
-                opt.KnownNetworks.Clear();
+                opt.KnownIPNetworks.Clear();
                 opt.KnownProxies.Clear();
             });
 
@@ -76,7 +76,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Cookie.SameSite = SameSiteMode.Strict;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Application";
-                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace!);
             });
 
             services.AddAntiforgery(opt =>
@@ -89,7 +89,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             });
 
             services.AddDataProtection()
-                .SetApplicationName(GetType().Namespace)
+                .SetApplicationName(GetType().Namespace!)
                 .UseEphemeralDataProtectionProvider()
                 .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
@@ -123,7 +123,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Cookie.SameSite = SameSiteMode.Lax;
                 opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 opt.Cookie.Name = $"{GetType().Namespace}.Authentication.{GetInternalScheme()}";
-                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace!);
             })
             .AddMicrosoftAccount(opt =>
             {
@@ -140,7 +140,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Scope.Add("Contacts.ReadWrite");
                 opt.Scope.Add("offline_access");
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.MicrosoftTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace!);
             })
             .AddGoogle(opt =>
             {
@@ -157,7 +157,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.Scope.Add("profile");
                 opt.Scope.Add("email");
                 opt.Events.OnCreatingTicket += o => o.Properties.Items.PrepareAsync(ClaimHelper.GoogleTokenClaimType, o.TokenType, o.AccessToken, o.RefreshToken, o.ExpiresIn);
-                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace);
+                opt.DataProtectionProvider = DataProtectionProvider.Create(GetType().Namespace!);
             })
             .AddJwtBearer(opt =>
             {
@@ -221,19 +221,19 @@ namespace OSDevGrp.OSIntranet.WebApi
                 options.OperationFilter<OperationAuthorizeFilterDescriptor>();
                 options.OperationFilter<OperationResponseFilterDescriptor>();
                 options.SchemaFilter<EnumToStringSchemeFilterDescriptor>();
-                options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>();
-
+                options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>(); 
+                
                 OpenApiSecurityScheme oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme = CreateOAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme(GetAuthorizationUrl(), GetTokenUrl(), GetScopes(serviceScope.ServiceProvider.GetRequiredService<ISupportedScopesProvider>()));
                 OpenApiSecurityScheme oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme = CreateOAuth2AuthenticationWithClientCredentialsFlowSecurityScheme(GetTokenUrl());
                 OpenApiSecurityScheme bearerSecurityScheme = CreateBearerSecurityScheme();
 
-                options.AddSecurityDefinition(oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme.Reference.Id, oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme);
-                options.AddSecurityDefinition(oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme.Reference.Id, oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme);
-                options.AddSecurityDefinition(bearerSecurityScheme.Reference.Id, bearerSecurityScheme);
+                options.AddSecurityDefinition(oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme.Scheme!, oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme);
+                options.AddSecurityDefinition(oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme.Scheme!, oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme);
+                options.AddSecurityDefinition(bearerSecurityScheme.Scheme!, bearerSecurityScheme);
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme, Array.Empty<string>()}});
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme, Array.Empty<string>()}});
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {{bearerSecurityScheme, Array.Empty<string>()}});
+                options.AddSecurityRequirement(openApiDocument => new OpenApiSecurityRequirement {{new OpenApiSecuritySchemeReference(oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme.Scheme!, openApiDocument), oAuth2AuthenticationWithAuthorizationCodeFlowSecurityScheme.Flows!.AuthorizationCode!.Scopes!.Keys.ToList()}});
+                options.AddSecurityRequirement(openApiDocument => new OpenApiSecurityRequirement {{new OpenApiSecuritySchemeReference(oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme.Scheme!, openApiDocument), oAuth2AuthenticationWithClientCredentialsFlowSecurityScheme.Flows!.ClientCredentials!.Scopes!.Keys.ToList()}});
+                options.AddSecurityRequirement(openApiDocument => new OpenApiSecurityRequirement {{new OpenApiSecuritySchemeReference(bearerSecurityScheme.Scheme!, openApiDocument), new List<string>()}});
             });
 
             services.AddHealthChecks()
@@ -299,6 +299,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             app.UseSwagger(options =>
             {
+                options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
                 options.RouteTemplate = "/api/swagger/{documentName}/swagger.json";
                 options.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
                 {
@@ -363,11 +364,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.OAuth2,
                 Scheme = GetOAuth2AuthenticationWithAuthorizationCodeFlowScheme(),
-                Reference = new OpenApiReference
-                {
-                    Id = GetOAuth2AuthenticationWithAuthorizationCodeFlowScheme(),
-                    Type = ReferenceType.SecurityScheme
-                },
                 Flows = new OpenApiOAuthFlows
                 {
                     AuthorizationCode = new OpenApiOAuthFlow
@@ -396,11 +392,6 @@ namespace OSDevGrp.OSIntranet.WebApi
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.OAuth2,
                 Scheme = GetOAuth2AuthenticationWithClientCredentialsFlowScheme(),
-                Reference = new OpenApiReference
-                {
-                    Id = GetOAuth2AuthenticationWithClientCredentialsFlowScheme(),
-                    Type = ReferenceType.SecurityScheme
-                },
                 Flows = new OpenApiOAuthFlows
                 {
                     ClientCredentials = new OpenApiOAuthFlow
@@ -414,7 +405,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
         private static string GetOAuth2AuthenticationWithClientCredentialsFlowScheme()
         {
-            return "Basic";
+            return "ClientCredentials";
         }
 
         private static OpenApiSecurityScheme CreateBearerSecurityScheme()
@@ -426,12 +417,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 Scheme = GetBearerAuthenticationScheme().ToLower(),
-                BearerFormat = "JWT",
-                Reference = new OpenApiReference
-                {
-                    Id = GetBearerAuthenticationScheme(),
-                    Type = ReferenceType.SecurityScheme
-                }
+                BearerFormat = "JWT"
             };
         }
 

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Text.RegularExpressions;
 
@@ -17,7 +17,7 @@ internal class PostBuildExecutorContext
 
     private readonly ILogger _logger;
 
-    private readonly static Regex SolutionDirectoryRegex = new($@"(--solutionDir){{1}}\s([A-Za-z0-9{Path.VolumeSeparatorChar}\{Path.DirectorySeparatorChar}.]+){{1}}", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
+    private static readonly Regex SolutionDirectoryRegex = new($@"(--solutionDir){{1}}\s([A-Za-z0-9{Path.VolumeSeparatorChar}\{Path.DirectorySeparatorChar}.]+){{1}}", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
 
     #endregion
 
@@ -52,7 +52,7 @@ internal class PostBuildExecutorContext
             OpenApiDocument? openApiDocument = _swaggerProvider.GetSwagger(_webApiVersion);
             if (openApiDocument == null)
             {
-                throw new Exception($"Could not reslove the Open Api Document for: {_webApiVersion}");
+                throw new Exception($"Could not resolve the Open Api Document for: {_webApiVersion}");
             }
             return openApiDocument;
         }
@@ -69,7 +69,7 @@ internal class PostBuildExecutorContext
             Match match = SolutionDirectoryRegex.Match(string.Join(' ', _arguments));
             if (match.Success == false)
             {
-                throw new Exception($"No arguments mathing: {SolutionDirectoryRegex}");
+                throw new Exception($"No arguments matching: {SolutionDirectoryRegex}");
             }
             return new DirectoryInfo(match.Groups[2].Value);
         }

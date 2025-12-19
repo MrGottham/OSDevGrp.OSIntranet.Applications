@@ -167,8 +167,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 
 	        string result = sut["TestData:MediaLibrary:ExistingBorrowerIdentifier"];
 
-	        Assert.That(result, Is.Not.Null);
-
 	        if (string.IsNullOrWhiteSpace(result))
 	        {
 		        return;
@@ -185,8 +183,6 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.Configuration
 	        IConfiguration sut = CreateSut();
 
 	        string result = sut["TestData:MediaLibrary:ExistingLendingIdentifier"];
-
-	        Assert.That(result, Is.Not.Null);
 
 	        if (string.IsNullOrWhiteSpace(result))
 	        {

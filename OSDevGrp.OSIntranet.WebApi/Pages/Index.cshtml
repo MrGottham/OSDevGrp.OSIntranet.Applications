@@ -49,7 +49,7 @@
                     if (response.obj.access_token === undefined || response.obj.access_token === null) {
                         return response;
                     }
-                    ui.preauthorizeApiKey(response.obj.token_type, response.obj.access_token);
+                    ui.preauthorizeApiKey(response.obj.token_type.toLowerCase(), response.obj.access_token);
                     return response;
                 }
             });
