@@ -1,4 +1,4 @@
-FROM node:22.15-slim AS reactbase
+FROM node:24.12-slim AS reactbase
 ARG bffEndpointAddress
 ENV SERVER_PORT=8080
 ENV RUNNING_IN_CONTAINER=true
