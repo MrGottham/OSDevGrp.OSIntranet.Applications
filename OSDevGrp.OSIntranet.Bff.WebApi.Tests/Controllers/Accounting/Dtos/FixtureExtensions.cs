@@ -8,7 +8,6 @@ internal static class FixtureExtensions
 {
     #region Methods
 
-
     internal static IAccountingTexts CreateAccountingTexts(this Fixture fixture, Random random)
     {
         Mock<IAccountingTexts> accountingTextsMock = new Mock<IAccountingTexts>();
@@ -38,6 +37,8 @@ internal static class FixtureExtensions
             .Returns(fixture.CreateObligeePartiesDisplayer(random));
         accountingTextsMock.Setup(m => m.ObligeePartiesAtEndOfLastYearFromStatusDate)
             .Returns(fixture.CreateObligeePartiesDisplayer(random));
+        accountingTextsMock.Setup(m => m.IncomeStatement)
+            .Returns(fixture.CreateIncomeStatementDisplayer(random));
         return accountingTextsMock.Object;
     }
 
@@ -77,6 +78,71 @@ internal static class FixtureExtensions
         obligeePartiesDisplayerMock.Setup(m => m.Creditors)
             .Returns(fixture.CreateValueDisplayer(random));
         return obligeePartiesDisplayerMock.Object;
+    }
+
+    internal static IIncomeStatementDisplayer CreateIncomeStatementDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IIncomeStatementDisplayer> incomeStatementDisplayerMock = new Mock<IIncomeStatementDisplayer>();
+        incomeStatementDisplayerMock.Setup(m => m.IncomeStatementLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.MonthOfStatusDateLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.LastMonthOfStatusDateLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.YearToDateOfStatusDateLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.LastYearOfStatusDateLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.BudgetLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.PostedLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.AvailableLabel)
+            .Returns(fixture.Create<string>());
+        incomeStatementDisplayerMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        List<IIncomeStatementLineDisplayer> lines = new List<IIncomeStatementLineDisplayer>();
+        for (int i = 0; i < random.Next(5, 10); i++)
+        {
+            lines.Add(fixture.CreateIncomeStatementLineDisplayer(random));
+        }
+        incomeStatementDisplayerMock.Setup(m => m.Lines)
+            .Returns(lines);
+        return incomeStatementDisplayerMock.Object;
+    }
+
+    internal static IIncomeStatementLineDisplayer CreateIncomeStatementLineDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IIncomeStatementLineDisplayer> incomeStatementLineDisplayerMock = new Mock<IIncomeStatementLineDisplayer>();
+        incomeStatementLineDisplayerMock.Setup(m => m.Identification)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.Description)
+            .Returns(fixture.Create<string>());
+        incomeStatementLineDisplayerMock.Setup(m => m.BudgetAtMonthOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.PostedAtMonthOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.AvailableAtMonthOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.BudgetAtLastMonthOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.PostedAtLastMonthOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.AvailableAtLastMonthOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.BudgetAtYearToDateOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.PostedAtYearToDateOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.AvailableAtYearToDateOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.BudgetAtLastYearOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.PostedAtLastYearOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        incomeStatementLineDisplayerMock.Setup(m => m.AvailableAtLastYearOfStatusDate)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        return incomeStatementLineDisplayerMock.Object;
     }
 
     internal static IValueDisplayer CreateValueDisplayer(this Fixture fixture, Random random)

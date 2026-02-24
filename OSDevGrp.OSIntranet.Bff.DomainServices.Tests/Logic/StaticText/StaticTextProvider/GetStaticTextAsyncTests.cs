@@ -81,6 +81,8 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.ObligeePartiesAtStatusDate, "Saldi pr. dags dato", 0)]
     [TestCase(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, "Saldi ved sidste måneds afslutning", 0)]
     [TestCase(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, "Saldi ved sidste års afslutning", 0)]
+    [TestCase(StaticTextKey.IncomeStatement, "Resultatopgørelse", 0)]
+    [TestCase(StaticTextKey.IncomeStatementTotal, "Resultat i alt", 0)]
     [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
     [TestCase(StaticTextKey.LetterHead, "Brevhoved", 0)]
     [TestCase(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved", 0)]

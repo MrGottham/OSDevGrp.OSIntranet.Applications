@@ -147,6 +147,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'CurrentStatus');
     }
 
+    getIncomeStatementText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'IncomeStatement');
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }

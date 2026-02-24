@@ -59,6 +59,8 @@ public enum StaticTextKey
     ObligeePartiesAtStatusDate,
     ObligeePartiesAtEndOfLastMonthFromStatusDate,
     ObligeePartiesAtEndOfLastYearFromStatusDate,
+    IncomeStatement,
+    IncomeStatementTotal,
     CommonData,
     LetterHead,
     LetterHeadNumber,

@@ -7,7 +7,7 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
 {
     #region Constructor
 
-    public AccountingTexts(AccountingModel model, IValueDisplayer statusDate, IValueDisplayer balanceBelowZero, IValueDisplayer backDating, IBalanceSheetDisplayer balanceSheetAtStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastMonthFromStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastYearFromStatusDate, IBudgetStatementDisplayer budgetStatementForMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForYearToDateOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastYearOfStatusDate, IObligeePartiesDisplayer obligeePartiesAtStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastMonthFromStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastYearFromStatusDate, IFormatProvider formatProvider)
+    public AccountingTexts(AccountingModel model, IValueDisplayer statusDate, IValueDisplayer balanceBelowZero, IValueDisplayer backDating, IBalanceSheetDisplayer balanceSheetAtStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastMonthFromStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastYearFromStatusDate, IBudgetStatementDisplayer budgetStatementForMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForYearToDateOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastYearOfStatusDate, IObligeePartiesDisplayer obligeePartiesAtStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastMonthFromStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastYearFromStatusDate, IIncomeStatementDisplayer incomeStatement, IFormatProvider formatProvider)
         : base(model, formatProvider)
     {
         StatusDate = statusDate;
@@ -23,6 +23,7 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
         ObligeePartiesAtStatusDate = obligeePartiesAtStatusDate;
         ObligeePartiesAtEndOfLastMonthFromStatusDate = obligeePartiesAtEndOfLastMonthFromStatusDate;
         ObligeePartiesAtEndOfLastYearFromStatusDate = obligeePartiesAtEndOfLastYearFromStatusDate;
+        IncomeStatement = incomeStatement;
     }
 
     #endregion
@@ -54,6 +55,8 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
     public IObligeePartiesDisplayer ObligeePartiesAtEndOfLastMonthFromStatusDate { get; }
 
     public IObligeePartiesDisplayer ObligeePartiesAtEndOfLastYearFromStatusDate { get; }
+
+    public IIncomeStatementDisplayer IncomeStatement { get; }
 
     #endregion
 }

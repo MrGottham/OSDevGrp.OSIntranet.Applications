@@ -60,6 +60,7 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.Creditors, StaticTextKey.Creditors.DefaultArguments() },
             { StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments() },
             { StaticTextKey.CurrentStatus, StaticTextKey.CurrentStatus.DefaultArguments() },
+            { StaticTextKey.IncomeStatement, StaticTextKey.IncomeStatement.DefaultArguments() },
             { StaticTextKey.Update, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.Delete, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.ConfirmDeletion, StaticTextKey.Update.DefaultArguments() },

@@ -12,10 +12,6 @@ internal static class ValidationValues
     internal const int StaticTextKeyMinLength = 1;
     internal const int StaticTextValueMinLength = 1;
 
-    internal const int BalanceSheetDisplayerHeaderMinLength = 1;
-    internal const int BudgetStatementDisplayerHeaderMinLength = 1;
-    internal const int ObligeePartiesDisplayerHeaderMinLength = 1;
-
     internal const int ValueDisplayerLabelMinLength = 1;
     internal const int ValueDisplayerValueMinLength = 1;
 
@@ -39,6 +35,24 @@ internal static class ValidationValues
     internal const string AccountNumberRegexPattern = @"^[0-9A-ZÆØÅ\-+]{1,16}$";
     internal const int AccountNameMinLength = 1;
     internal const int AccountNameMaxLength = 256;
+
+    internal const int BalanceSheetDisplayerHeaderMinLength = 1;
+    internal const int BudgetStatementDisplayerHeaderMinLength = 1;
+    internal const int ObligeePartiesDisplayerHeaderMinLength = 1;
+
+    internal const int IncomeStatementLabelMinLength = 1;
+    internal const int IncomeStatementLineIdentificationMinLength = 1;
+    internal const int IncomeStatementLineDescriptionMinLength = 1;
+    internal const int MonthOfStatusDateLabelMinLength = 1;
+    internal const int LastMonthOfStatusDateLabelMinLength = 1;
+    internal const int YearToDateOfStatusDateLabelMinLength = 1;
+    internal const int LastYearOfStatusDateLabelMinLength = 1;
+    internal const int BudgetLabelMinLength = 1;
+    internal const int BudgetMinLength = 1;
+    internal const int PostedLabelMinLength = 1;
+    internal const int PostedMinLength = 1;
+    internal const int AvailableLabelMinLength = 1;
+    internal const int AvailableMinLength = 1;
 
     internal const int LetterHeadNameMinLength = 1;
     internal const int LetterHeadNameMaxLength = 256;

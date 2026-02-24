@@ -20,7 +20,7 @@ public static class FixtureExtensions
         ];
     }
 
-    public static AccountingModel CreateAccountingModel(this Fixture fixture, Random random, LetterHeadIdentificationModel? letterHeadIdentificationModel = null, int? backDating = null, BalanceBelowZeroType? balanceBelowZeroType = null)
+    public static AccountingModel CreateAccountingModel(this Fixture fixture, Random random, LetterHeadIdentificationModel? letterHeadIdentificationModel = null, int? backDating = null, BalanceBelowZeroType? balanceBelowZeroType = null, DateTimeOffset? statusDate = null)
     {
         AccountingIdentificationModel accountingIdentificationModel = fixture.CreateAccountingIdentificationModel(random);
 
@@ -35,7 +35,7 @@ public static class FixtureExtensions
             fixture.Create<bool>(),
             accountingIdentificationModel.Name,
             accountingIdentificationModel.Number,
-            DateTimeOffset.UtcNow.Date);
+            statusDate ?? DateTimeOffset.UtcNow.Date);
     }
 
     public static AccountingIdentificationModel CreateAccountingIdentificationModel(this Fixture fixture, Random random)

@@ -14,6 +14,8 @@ import Button from 'react-bootstrap/Button';
 import Accordion from 'react-bootstrap/Accordion';
 import Stack from 'react-bootstrap/Stack';
 import Table from 'react-bootstrap/Table'
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 import Loading from './Loading';
 import DeleteConfirmation from './DeleteConfirmation';
 
@@ -65,6 +67,7 @@ function Accounting() {
                     <Accordion defaultActiveKey={['0', '1']} alwaysOpen>
                         {getMasterDataContent('0', content, content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getCurrentStatusContent('1', content.dynamicTexts, content.staticTexts, staticTextHelper)}
+                        {getIncomeStatementContent('2', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
                     </Accordion>
                 </Col>
             </Row>
@@ -271,6 +274,104 @@ function Accounting() {
                     </tbody>
                 </Table>
             </div>
+        );
+    }
+
+    function getIncomeStatementContent(eventKey, incomeStatementDisplayer, staticTexts, staticTextHelper) {
+        return (
+            <Accordion.Item eventKey={eventKey}>
+                <Accordion.Header><h2>{staticTextHelper.getIncomeStatementText(staticTexts)}</h2></Accordion.Header>
+                    <Accordion.Body>
+                        <Stack gap={3}>
+                            <div>
+                                <p className='small'>{incomeStatementDisplayer.statusDate.label}</p>
+                                <p>{incomeStatementDisplayer.statusDate.value}</p>
+                            </div>
+                            <Tabs defaultActiveKey='monthOfStatusDateTab' id='incomeStatementTabs' className='mb-3'>
+                                <Tab eventKey='monthOfStatusDateTab' title={incomeStatementDisplayer.monthOfStatusDateLabel}>
+                                    {getIncomeStatementFiveColumnTableContent(incomeStatementDisplayer, incomeStatementDisplayer.monthOfStatusDateLabel, incomeStatementDisplayer.lastMonthOfStatusDateLabel, incomeStatementDisplayer.budgetLabel, incomeStatementDisplayer.postedLabel, incomeStatementLineDisplayer => incomeStatementLineDisplayer.budgetAtMonthOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.postedAtMonthOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.budgetAtLastMonthOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.postedAtLastMonthOfStatusDate)}
+                                </Tab>
+                                <Tab eventKey='lastMonthOfStatusDateTab' title={incomeStatementDisplayer.lastMonthOfStatusDateLabel} tabClassName='d-block d-sm-block d-md-block d-lg-none d-xl-none d-xxl-none'>
+                                    {getIncomeStatementThreeColumnTableContent(incomeStatementDisplayer, incomeStatementDisplayer.budgetLabel, incomeStatementDisplayer.postedLabel, incomeStatementLineDisplayer => incomeStatementLineDisplayer.budgetAtLastMonthOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.postedAtLastMonthOfStatusDate)}
+                                </Tab>
+                                <Tab eventKey='yearToDateOfStatusDateTab' title={incomeStatementDisplayer.yearToDateOfStatusDateLabel}>
+                                    {getIncomeStatementFiveColumnTableContent(incomeStatementDisplayer, incomeStatementDisplayer.yearToDateOfStatusDateLabel, incomeStatementDisplayer.lastYearOfStatusDateLabel, incomeStatementDisplayer.budgetLabel, incomeStatementDisplayer.postedLabel, incomeStatementLineDisplayer => incomeStatementLineDisplayer.budgetAtYearToDateOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.postedAtYearToDateOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.budgetAtLastYearOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.postedAtLastYearOfStatusDate)}
+                                </Tab>
+                                <Tab eventKey='lastYearOfStatusDateTab' title={incomeStatementDisplayer.lastYearOfStatusDateLabel} tabClassName='d-block d-sm-block d-md-block d-lg-none d-xl-none d-xxl-none'>
+                                    {getIncomeStatementThreeColumnTableContent(incomeStatementDisplayer, incomeStatementDisplayer.budgetLabel, incomeStatementDisplayer.postedLabel, incomeStatementLineDisplayer => incomeStatementLineDisplayer.budgetAtLastYearOfStatusDate, incomeStatementLineDisplayer => incomeStatementLineDisplayer.postedAtLastYearOfStatusDate)}
+                                </Tab>
+                            </Tabs>
+                        </Stack>
+                    </Accordion.Body>
+                </Accordion.Item>
+        );
+    }
+
+    function getIncomeStatementFiveColumnTableContent(incomeStatementTableDisplayer, columGroup1Label, columGroup2Label, budgetLabel, postedLabel, column2ValueSelector, column3ValueSelector, column4ValueSelector, column5ValueSelector) {
+        return getIncomeStatementTableContent(incomeStatementTableDisplayer, () => {
+                return (
+                    <thead>
+                        <tr className='d-none d-sm-none d-md-none d-lg-table-row d-xl-table-row d-xxl-table-row'>
+                            <th></th>
+                            <th colSpan={2} className='text-center text-nowrap'>{columGroup1Label}</th>
+                            <th colSpan={2} className='text-center text-nowrap'>{columGroup2Label}</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th className='text-end text-nowrap'>{budgetLabel}</th>
+                            <th className='text-end text-nowrap'>{postedLabel}</th>
+                            <th className='d-none d-sm-none d-md-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{budgetLabel}</th>
+                            <th className='d-none d-sm-none d-md-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{postedLabel}</th>
+                        </tr>
+                    </thead>
+                );
+            },
+            (incomeStatementLineDisplayer, isTotal) => {
+                return (
+                    <tr key={incomeStatementLineDisplayer.identification}>
+                        <td className={isTotal ? 'fw-bold' : ''}>{incomeStatementLineDisplayer.description}</td>
+                        <td className={`${isTotal ? 'fw-bold' : ''} text-end`}>{column2ValueSelector(incomeStatementLineDisplayer)}</td>
+                        <td className={`${isTotal ? 'fw-bold' : ''} text-end`}>{column3ValueSelector(incomeStatementLineDisplayer)}</td>
+                        <td className={`d-none d-sm-none d-md-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell ${isTotal ? 'fw-bold' : ''} text-end`}>{column4ValueSelector(incomeStatementLineDisplayer)}</td>
+                        <td className={`d-none d-sm-none d-md-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell ${isTotal ? 'fw-bold' : ''} text-end`}>{column5ValueSelector(incomeStatementLineDisplayer)}</td>
+                    </tr>
+                );
+            }
+        );
+    }
+
+    function getIncomeStatementThreeColumnTableContent(incomeStatementTableDisplayer, budgetLabel, postedLabel, column2ValueSelector, column3ValueSelector) {
+        return getIncomeStatementTableContent(incomeStatementTableDisplayer, () => {
+                return (
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th className='text-end text-nowrap'>{budgetLabel}</th>
+                            <th className='text-end text-nowrap'>{postedLabel}</th>
+                        </tr>
+                    </thead>
+                );
+            },
+            (incomeStatementLineDisplayer, isTotal) => {
+                return (
+                    <tr key={incomeStatementLineDisplayer.identification}>
+                        <td className={isTotal ? 'fw-bold' : ''}>{incomeStatementLineDisplayer.description}</td>
+                        <td className={`${isTotal ? 'fw-bold' : ''} text-end`}>{column2ValueSelector(incomeStatementLineDisplayer)}</td>
+                        <td className={`${isTotal ? 'fw-bold' : ''} text-end`}>{column3ValueSelector(incomeStatementLineDisplayer)}</td>
+                    </tr>
+                );
+            }
+        );
+    }
+
+    function getIncomeStatementTableContent(incomeStatementTableDisplayer, headGenerator, lineGenerator) {
+        return (
+            <Table className='p-0' responsive={true}>
+                {headGenerator()}
+                <tbody>
+                    {incomeStatementTableDisplayer.lines.map((incomeStatementLineDisplayer, index) => lineGenerator(incomeStatementLineDisplayer, index === incomeStatementTableDisplayer.lines.length - 1))}
+                </tbody>
+            </Table>
         );
     }
 

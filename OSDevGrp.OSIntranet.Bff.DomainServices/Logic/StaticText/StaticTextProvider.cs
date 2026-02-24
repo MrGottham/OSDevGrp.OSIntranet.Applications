@@ -87,6 +87,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.ObligeePartiesAtStatusDate, "Saldi pr. dags dato");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, "Saldi ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, "Saldi ved sidste års afslutning");
+        staticTexts.Add(StaticTextKey.IncomeStatement, "Resultatopgørelse");
+        staticTexts.Add(StaticTextKey.IncomeStatementTotal, "Resultat i alt");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");
