@@ -71,11 +71,14 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Day, "Dag");
         staticTexts.Add(StaticTextKey.CurrentStatus, "Aktuel status");
         staticTexts.Add(StaticTextKey.StatusDate, "Statusdato");
+        staticTexts.Add(StaticTextKey.BalanceSheet, "Balance");
         staticTexts.Add(StaticTextKey.BalanceSheetAtStatusDate, "Balance pr. dags dato");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, "Balance ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate, "Balance ved sidste års afslutning");
         staticTexts.Add(StaticTextKey.Assets, "Aktiver");
+        staticTexts.Add(StaticTextKey.AssetsTotal, "Aktiver i alt");
         staticTexts.Add(StaticTextKey.Liabilities, "Passiver");
+        staticTexts.Add(StaticTextKey.LiabilitiesTotal, "Passiver i alt");
         staticTexts.Add(StaticTextKey.BudgetStatementForMonthOfStatusDate, "Resultat denne måned");
         staticTexts.Add(StaticTextKey.BudgetStatementForLastMonthOfStatusDate, "Resultat sidste måned");
         staticTexts.Add(StaticTextKey.BudgetStatementForYearToDateOfStatusDate, "Resultat år til dato");

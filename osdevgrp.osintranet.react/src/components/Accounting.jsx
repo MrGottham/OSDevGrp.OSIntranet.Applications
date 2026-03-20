@@ -68,6 +68,7 @@ function Accounting() {
                         {getMasterDataContent('0', content, content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getCurrentStatusContent('1', content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getIncomeStatementContent('2', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
+                        {getFullBalanceSheetContent('3', content.dynamicTexts.balanceSheet, content.staticTexts, staticTextHelper)}
                     </Accordion>
                 </Col>
             </Row>
@@ -373,6 +374,78 @@ function Accounting() {
                 </tbody>
             </Table>
         );
+    }
+
+    function getFullBalanceSheetContent(eventKey, fullBalanceSheetDisplayer, staticTexts, staticTextHelper) {
+        return (
+            <Accordion.Item eventKey={eventKey}>
+                <Accordion.Header><h2>{staticTextHelper.getBalanceSheetText(staticTexts)}</h2></Accordion.Header>
+                    <Accordion.Body>
+                        <Stack gap={3}>
+                            <div>
+                                <p className='small'>{fullBalanceSheetDisplayer.statusDate.label}</p>
+                                <p>{fullBalanceSheetDisplayer.statusDate.value}</p>
+                            </div>
+                            <Tabs defaultActiveKey='balanceSheetAtStatusDateTab' id='balanceSheetTabs' className='mb-3'>
+                                <Tab eventKey='balanceSheetAtStatusDateTab' title={fullBalanceSheetDisplayer.balanceSheetAtStatusDateLabel}>
+                                    {getFullBalanceSheetTabContent(fullBalanceSheetDisplayer, fullBalanceSheetLineDisplayer => fullBalanceSheetLineDisplayer.balanceAtStatusDate)}
+                                </Tab>
+                                <Tab eventKey='balanceSheetAtEndOfLastMonthFromStatusDateTab' title={fullBalanceSheetDisplayer.balanceSheetAtEndOfLastMonthFromStatusDateLabel}>
+                                    {getFullBalanceSheetTabContent(fullBalanceSheetDisplayer, fullBalanceSheetLineDisplayer => fullBalanceSheetLineDisplayer.balanceAtEndOfLastMonthFromStatusDate)}
+                                </Tab>
+                                <Tab eventKey='balanceSheetAtEndOfLastYearFromStatusDateTab' title={fullBalanceSheetDisplayer.balanceSheetAtEndOfLastYearFromStatusDateLabel}>
+                                    {getFullBalanceSheetTabContent(fullBalanceSheetDisplayer, fullBalanceSheetLineDisplayer => fullBalanceSheetLineDisplayer.balanceAtEndOfLastYearFromStatusDate)}
+                                </Tab>
+                            </Tabs>
+                        </Stack>
+                    </Accordion.Body>
+                </Accordion.Item>
+        );
+    }
+
+    function getFullBalanceSheetTabContent(fullBalanceSheetDisplayer, balanceValueSelector) {
+        return (
+            <Row className='mb-3'>
+                <Col xs={12} sm={12} md={12} lg={6} xl={6} xxl={6}>
+                    {getFullBalanceSheetTableContent(fullBalanceSheetDisplayer.assetsLabel, fullBalanceSheetDisplayer.assetsLines, balanceValueSelector)}
+                </Col>
+                <Col xs={12} sm={12} md={12} lg={6} xl={6} xxl={6}>
+                    {getFullBalanceSheetTableContent(fullBalanceSheetDisplayer.liabilitiesLabel, fullBalanceSheetDisplayer.liabilitiesLines, balanceValueSelector)}
+                </Col>
+            </Row>
+        );
+    }
+
+    function getFullBalanceSheetTableContent(tableLabel, fullBalanceSheetLineDisplayers, balanceValueSelector) {
+        if (fullBalanceSheetLineDisplayers === undefined || fullBalanceSheetLineDisplayers === null || fullBalanceSheetLineDisplayers.length === 0) {
+            return (
+                <>
+                </>
+            );
+        }
+
+        return (
+            <Table className='p-0' responsive={true}>
+                <thead>
+                    <tr>
+                        <th className='fw-bold'>{tableLabel}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {fullBalanceSheetLineDisplayers.map((fullBalanceSheetLineDisplayer, index) => getFullBalanceSheetLineContent(fullBalanceSheetLineDisplayer, index === fullBalanceSheetLineDisplayers.length - 1, balanceValueSelector))}
+                </tbody>
+            </Table>
+        );
+    }
+
+    function getFullBalanceSheetLineContent(fullBalanceSheetLineDisplayer, isTotal, balanceValueSelector) {
+        return (
+            <tr key={fullBalanceSheetLineDisplayer.identification}>
+                <td className={isTotal ? 'fw-bold' : ''}>{fullBalanceSheetLineDisplayer.description}</td>
+                <td className={`${isTotal ? 'fw-bold' : ''} text-end`}>{balanceValueSelector(fullBalanceSheetLineDisplayer)}</td>
+            </tr>
+        )
     }
 
     async function populateContent(accountingNumber) {

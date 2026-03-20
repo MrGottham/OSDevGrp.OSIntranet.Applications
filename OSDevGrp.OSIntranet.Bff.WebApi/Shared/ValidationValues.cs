@@ -37,6 +37,20 @@ internal static class ValidationValues
     internal const int AccountNameMaxLength = 256;
 
     internal const int BalanceSheetDisplayerHeaderMinLength = 1;
+    internal const int BalanceSheetLabelMinLength = 1;
+    internal const int BalanceSheetAtStatusDateLabelMinLength = 1;
+    internal const int BalanceSheetAtEndOfLastMonthFromStatusDateLabelMinLength = 1;
+    internal const int BalanceSheetAtEndOfLastYearFromStatusDateLabelMinLength = 1;
+    internal const int AssetsLabelMinLength = 1;
+    internal const int LiabilitiesLabelMinLength = 1;
+    internal const int FullBalanceSheetLineIdentificationMinLength = 1;
+    internal const int FullBalanceSheetLineDescriptionMinLength = 1;
+    internal const int CreditAtStatusDateMinLength = 1;
+    internal const int BalanceAtStatusDateMinLength = 1;
+    internal const int CreditAtEndOfLastMonthFromStatusDateMinLength = 1;
+    internal const int BalanceAtEndOfLastMonthFromStatusDateMinLength = 1;
+    internal const int CreditAtEndOfLastYearFromStatusDateMinLength = 1;
+    internal const int BalanceAtEndOfLastYearFromStatusDateMinLength = 1;
     internal const int BudgetStatementDisplayerHeaderMinLength = 1;
     internal const int ObligeePartiesDisplayerHeaderMinLength = 1;
 

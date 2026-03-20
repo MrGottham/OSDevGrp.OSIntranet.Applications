@@ -29,4 +29,6 @@ public interface IAccountingTexts : IDynamicTexts
     IObligeePartiesDisplayer ObligeePartiesAtEndOfLastYearFromStatusDate { get; }
 
     IIncomeStatementDisplayer IncomeStatement { get; }
+
+    IFullBalanceSheetDisplayer BalanceSheet { get; }
 }

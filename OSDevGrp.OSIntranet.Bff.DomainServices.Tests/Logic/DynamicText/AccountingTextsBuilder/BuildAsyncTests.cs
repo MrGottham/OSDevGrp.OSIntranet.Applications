@@ -32,18 +32,21 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    [TestCase(StaticTextKey.StatusDate, 2)]
+    [TestCase(StaticTextKey.StatusDate, 3)]
     [TestCase(StaticTextKey.BalanceBelowZero, 1)]
     [TestCase(StaticTextKey.Debtors, 4)]
     [TestCase(StaticTextKey.Creditors, 4)]
     [TestCase(StaticTextKey.BackDating, 1)]
     [TestCase(StaticTextKey.Days, 1)]
     [TestCase(StaticTextKey.Day, 1)]
-    [TestCase(StaticTextKey.BalanceSheetAtStatusDate, 1)]
-    [TestCase(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, 1)]
-    [TestCase(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, 1)]
-    [TestCase(StaticTextKey.Assets, 3)]
-    [TestCase(StaticTextKey.Liabilities, 3)]
+    [TestCase(StaticTextKey.BalanceSheet, 1)]
+    [TestCase(StaticTextKey.BalanceSheetAtStatusDate, 2)]
+    [TestCase(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, 2)]
+    [TestCase(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, 2)]
+    [TestCase(StaticTextKey.Assets, 4)]
+    [TestCase(StaticTextKey.AssetsTotal, 1)]
+    [TestCase(StaticTextKey.Liabilities, 4)]
+    [TestCase(StaticTextKey.LiabilitiesTotal, 1)]
     [TestCase(StaticTextKey.BudgetStatementForMonthOfStatusDate, 2)]
     [TestCase(StaticTextKey.BudgetStatementForLastMonthOfStatusDate, 2)]
     [TestCase(StaticTextKey.BudgetStatementForYearToDateOfStatusDate, 2)]
@@ -696,6 +699,106 @@ public class BuildAsyncTests
         IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.Lines.Count, Is.GreaterThan(0));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereBalanceSheetLabelOnBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.BalanceSheetLabel, Does.StartWith($"{StaticTextKey.BalanceSheet}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereBalanceSheetAtStatusDateLabelOnBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.BalanceSheetAtStatusDateLabel, Does.StartWith($"{StaticTextKey.BalanceSheetAtStatusDate}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereBalanceSheetAtEndOfLastMonthFromStatusDateLabelOnBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.BalanceSheetAtEndOfLastMonthFromStatusDateLabel, Does.StartWith($"{StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereBalanceSheetAtEndOfLastYearFromStatusDateLabelOnBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.BalanceSheetAtEndOfLastYearFromStatusDateLabel, Does.StartWith($"{StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereAssetsLabelOnBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.AssetsLabel, Does.StartWith($"{StaticTextKey.Assets}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereLiabilitiesLabelOnBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.LiabilitiesLabel, Does.StartWith($"{StaticTextKey.Liabilities}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereLabelOnStatusDateAtBalanceSheetIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(2024, 1, 1)]
+    [TestCase(2024, 6, 15)]
+    [TestCase(2024, 12, 31)]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWhereValueOnStatusDateAtBalanceSheetIsEqualToFormatedDate(int year, int month, int day)
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        DateTimeOffset statusDate = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
+        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, statusDate: statusDate);
+        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+
+        Assert.That(result.BalanceSheet.StatusDate.Value, Is.EqualTo(statusDate.ToString("D", CultureInfo.InvariantCulture)));
     }
 
     private IAccountingTextsBuilder CreateSut()

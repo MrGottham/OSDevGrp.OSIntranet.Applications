@@ -151,6 +151,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'IncomeStatement');
     }
 
+    getBalanceSheetText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'BalanceSheet');
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }

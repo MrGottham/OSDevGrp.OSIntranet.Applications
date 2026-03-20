@@ -33,7 +33,8 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
         IObligeePartiesDisplayer? obligeePartiesAtStatusDate = null;
         IObligeePartiesDisplayer? obligeePartiesAtEndOfLastMonthFromStatusDate = null;
         IObligeePartiesDisplayer? obligeePartiesAtEndOfLastYearFromStatusDate = null;
-        IncomeStatementDisplayer? incomeStatement = null;
+        IIncomeStatementDisplayer? incomeStatement = null;
+        IFullBalanceSheetDisplayer? balanceSheet = null;
 
         Task buildStatusDateTask = GetStatusDateAsync(model.StatusDate, "d. MMMM yyyy", formatProvider, cancellationToken).ContinueWith(task => statusDate = task.Result, cancellationToken);
         Task buildBalanceBelowZeroTask = BuildBalanceBelowZeroAsync(model, formatProvider, cancellationToken).ContinueWith(task => balanceBelowZero = task.Result, cancellationToken);
@@ -48,6 +49,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
         Task buildObligeePartiesAtEndOfLastMonthFromStatusDateTask = ObligeePartiesDisplayer.CreateAsync(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, StaticTextKey.Debtors, StaticTextKey.Creditors, StaticTextProvider, model, m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastMonthFromStatusDate).Where(v => v.IsDebtor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastMonthFromStatusDate).Where(v => v.IsCreditor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => obligeePartiesAtEndOfLastMonthFromStatusDate = task.Result, cancellationToken);
         Task buildObligeePartiesAtEndOfLastYearFromStatusDateTask = ObligeePartiesDisplayer.CreateAsync(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, StaticTextKey.Debtors, StaticTextKey.Creditors, StaticTextProvider, model, m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastYearFromStatusDate).Where(v => v.IsDebtor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastYearFromStatusDate).Where(v => v.IsCreditor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => obligeePartiesAtEndOfLastYearFromStatusDate = task.Result, cancellationToken);
         Task buildIncomeStatementTask = IncomeStatementDisplayer.CreateAsync(StaticTextKey.Budget, StaticTextKey.Result, StaticTextKey.Available, StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => incomeStatement = task.Result, cancellationToken);
+        Task buildBalanceSheetTask = FullBalanceSheetDisplayer.CreateAsync(StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => balanceSheet = task.Result, cancellationToken);
         await Task.WhenAll(buildStatusDateTask,
             buildBalanceBelowZeroTask,
             buildBackDatingTask,
@@ -61,7 +63,8 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
             buildObligeePartiesAtStatusDateTask,
             buildObligeePartiesAtEndOfLastMonthFromStatusDateTask,
             buildObligeePartiesAtEndOfLastYearFromStatusDateTask,
-            buildIncomeStatementTask);
+            buildIncomeStatementTask,
+            buildBalanceSheetTask);
 
         return new AccountingTexts(
             model,
@@ -79,6 +82,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
             obligeePartiesAtEndOfLastMonthFromStatusDate!,
             obligeePartiesAtEndOfLastYearFromStatusDate!,
             incomeStatement!,
+            balanceSheet!,
             formatProvider);
     }
 

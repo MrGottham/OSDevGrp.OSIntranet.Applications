@@ -48,6 +48,9 @@ public class AccountingTextsDto
     [Required]
     public required IncomeStatementDisplayerDto IncomeStatement { get; init;  }
 
+    [Required]
+    public required FullBalanceSheetDisplayerDto BalanceSheet { get; init;  }
+
     internal static AccountingTextsDto Map(IAccountingTexts accountingTexts)
     {
         return new AccountingTextsDto
@@ -65,7 +68,8 @@ public class AccountingTextsDto
             ObligeePartiesAtStatusDate = ObligeePartiesDisplayerDto.Map(accountingTexts.ObligeePartiesAtStatusDate),
             ObligeePartiesAtEndOfLastMonthFromStatusDate = ObligeePartiesDisplayerDto.Map(accountingTexts.ObligeePartiesAtEndOfLastMonthFromStatusDate),
             ObligeePartiesAtEndOfLastYearFromStatusDate = ObligeePartiesDisplayerDto.Map(accountingTexts.ObligeePartiesAtEndOfLastYearFromStatusDate),
-            IncomeStatement = IncomeStatementDisplayerDto.Map(accountingTexts.IncomeStatement)
+            IncomeStatement = IncomeStatementDisplayerDto.Map(accountingTexts.IncomeStatement),
+            BalanceSheet = FullBalanceSheetDisplayerDto.Map(accountingTexts.BalanceSheet)
         };
     }
 }

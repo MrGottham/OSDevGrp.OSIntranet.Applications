@@ -51,7 +51,7 @@ internal class IncomeStatementDisplayer : IIncomeStatementDisplayer
 
     #region Methods
 
-    internal static async Task<IncomeStatementDisplayer> CreateAsync(StaticTextKey budget, StaticTextKey posted, StaticTextKey available,IStaticTextProvider staticTextProvider, AccountingModel accounting, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
+    internal static async Task<IncomeStatementDisplayer> CreateAsync(StaticTextKey budget, StaticTextKey posted, StaticTextKey available, IStaticTextProvider staticTextProvider, AccountingModel accounting, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
         string incomeStatementLabel = await staticTextProvider.GetStaticTextAsync(StaticTextKey.IncomeStatement, StaticTextKey.IncomeStatement.DefaultArguments(), formatProvider, cancellationToken);
         string monthOfStatusDateLabel = await staticTextProvider.GetStaticTextAsync(StaticTextKey.BudgetStatementForMonthOfStatusDate, StaticTextKey.BudgetStatementForMonthOfStatusDate.DefaultArguments(), formatProvider, cancellationToken);
