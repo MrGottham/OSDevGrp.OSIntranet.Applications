@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
@@ -86,7 +87,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<IAccounting>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.FromResult(accountings ?? _fixture.CreateMany<IAccounting>(_random.Next(5, 10)).ToList()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

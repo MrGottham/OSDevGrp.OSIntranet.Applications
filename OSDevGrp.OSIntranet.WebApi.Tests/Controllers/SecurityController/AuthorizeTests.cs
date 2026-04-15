@@ -10,6 +10,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Tests.Helpers;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using System;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
@@ -807,7 +808,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync<IPrepareAuthorizationCodeFlowCommand, string>(It.IsAny<IPrepareAuthorizationCodeFlowCommand>()))
                 .Returns(Task.FromResult(authorizationState ?? _fixture.Create<string>()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object, ConverterFactoryCreator.Create());
         }
 
         private string GetLegalClientId() => _fixture.Create<string>();

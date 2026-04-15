@@ -8,6 +8,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.CommonController;
 
@@ -187,7 +188,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             _queryBusMock.Setup(m => m.QueryAsync<IGetLanguageQuery, ILanguage>(It.IsAny<IGetLanguageQuery>()))
                 .Returns(Task.FromResult(hasLanguage ? language ?? _fixture.BuildLanguageMock().Object : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

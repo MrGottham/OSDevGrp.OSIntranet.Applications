@@ -31,6 +31,18 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Configuration
             Assert.That(result, Is.Not.Empty);
         }
 
+        [Test]
+        [Category("IntegrationTest")]
+        public void Configuration_WhenCalledWithLicensesAutoMapperLicenseKey_ReturnsAutoMapperLicenseKey()
+        {
+            IConfiguration sut = CreateSut();
+
+            string result = sut[LicensesConfigurationKeys.AutoMapperLicenseKey];
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Empty);
+        }
+
         private IConfiguration CreateSut()
         {
             return new ConfigurationBuilder()

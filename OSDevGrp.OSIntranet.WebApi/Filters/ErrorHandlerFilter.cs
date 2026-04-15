@@ -1,12 +1,13 @@
-﻿using System;
-using System.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
-using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
-using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
+using OSDevGrp.OSIntranet.WebApi.Models.Core;
+using System;
+using System.Net;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
@@ -14,7 +15,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
     {
         #region Private variables
 
-        private readonly IConverter _coreModelConverter = new CoreModelConverter();
+        private readonly IConverter _coreModelConverter;
+
+        #endregion
+
+        #region Constructor
+
+        public ErrorHandlerFilter(IConverterFactory converterFactory)
+        {
+            NullGuard.NotNull(converterFactory, nameof(converterFactory));
+
+            _coreModelConverter = converterFactory.CreateCoreModelConverter();
+        }
 
         #endregion
 

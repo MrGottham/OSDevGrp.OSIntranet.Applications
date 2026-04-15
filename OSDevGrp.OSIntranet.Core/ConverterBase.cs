@@ -1,8 +1,11 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using AutoMapper;
-using OSDevGrp.OSIntranet.Core.Interfaces;
 
 namespace OSDevGrp.OSIntranet.Core
 {
@@ -23,9 +26,12 @@ namespace OSDevGrp.OSIntranet.Core
 
         #region Constructor
 
-        protected ConverterBase()
+        protected ConverterBase(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            MapperConfiguration mapperConfiguration = ResolveMapperConfiguration(GetType());
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            MapperConfiguration mapperConfiguration = ResolveMapperConfiguration(GetType(), licensesOptions, loggerFactory);
 
             Mapper = mapperConfiguration.CreateMapper();
         }
@@ -62,9 +68,11 @@ namespace OSDevGrp.OSIntranet.Core
 
         protected abstract void Initialize(IMapperConfigurationExpression mapperConfiguration);
 
-        private MapperConfiguration ResolveMapperConfiguration(Type converterType)
+        private MapperConfiguration ResolveMapperConfiguration(Type converterType, IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            NullGuard.NotNull(converterType, nameof(converterType));
+            NullGuard.NotNull(converterType, nameof(converterType))
+                .NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
 
             lock (SyncRoot)
             {
@@ -73,8 +81,13 @@ namespace OSDevGrp.OSIntranet.Core
                     return mapperConfiguration;
                 }
 
-                mapperConfiguration = new MapperConfiguration(Initialize);
+                mapperConfiguration = new MapperConfiguration(config => 
+                {
+                    config.LicenseKey = licensesOptions.Value.AutoMapper.LicenseKey;
+                    Initialize(config);
+                }, loggerFactory);
                 MapperConfigurations.Add(converterType, mapperConfiguration);
+
                 return mapperConfiguration;
             }
         }

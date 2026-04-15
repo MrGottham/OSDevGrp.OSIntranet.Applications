@@ -10,7 +10,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ExternalDashboardRepository
 
         protected IExternalDashboardRepository CreateSut()
         {
-            return new Repositories.ExternalDashboardRepository(CreateExternalDashboardOptions(), CreateLoggerFactory());
+            return new Repositories.ExternalDashboardRepository(CreateExternalDashboardOptions(), CreateConverterFactory(), CreateLoggerFactory());
         }
 
         private IOptions<ExternalDashboardOptions> CreateExternalDashboardOptions()

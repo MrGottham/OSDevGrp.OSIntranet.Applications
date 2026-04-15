@@ -17,7 +17,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
         protected IMediaLibraryRepository CreateSut()
         {
-            return new Repositories.MediaLibraryRepository(CreateTestRepositoryContext(), CreateLoggerFactory());
+            return new Repositories.MediaLibraryRepository(CreateTestRepositoryContext(), CreateConverterFactory(), CreateLoggerFactory());
         }
 
 		protected Guid WithExistingMediaPersonalityIdentifier()

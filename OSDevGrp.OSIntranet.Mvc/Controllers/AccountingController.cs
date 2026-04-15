@@ -20,6 +20,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Core.Validators;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Factories;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
@@ -43,22 +44,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
         private readonly IClaimResolver _claimResolver;
-        private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
-        private readonly IConverter _commonViewModelConverter = new CommonViewModelConverter();
+        private readonly IConverter _accountingViewModelConverter;
+        private readonly IConverter _commonViewModelConverter;
 
         #endregion
 
         #region Constructor
 
-        public AccountingController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver)
+        public AccountingController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, IConverterFactory converterFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
-                .NotNull(claimResolver, nameof(claimResolver));
+                .NotNull(claimResolver, nameof(claimResolver))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
             _claimResolver = claimResolver;
+            _accountingViewModelConverter = converterFactory.CreateAccountingViewModelConverter();
+            _commonViewModelConverter = converterFactory.CreateCommonViewModelConverter();
         }
 
         #endregion

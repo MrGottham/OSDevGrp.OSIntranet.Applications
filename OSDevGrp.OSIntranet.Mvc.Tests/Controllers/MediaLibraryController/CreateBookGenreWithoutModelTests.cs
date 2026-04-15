@@ -5,6 +5,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Logic;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.MediaLibraryController;
 
@@ -137,7 +138,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
 
         private Controller CreateSut()
         {
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

@@ -1,13 +1,17 @@
-﻿using System;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Home
 {
@@ -17,6 +21,15 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
 
         private readonly IValueConverter<IContact, DateTime> _upcomingBirthdayConverter = new UpcomingBirthdayConverter();
         private readonly IValueConverter<IContact, ushort> _ageOnUpcomingBirthdayConverter = new AgeOnUpcomingBirthdayConverter();
+
+        #endregion
+
+        #region Constructor
+
+        private HomeViewModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+        }
 
         #endregion
 
@@ -94,6 +107,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Home
                     opt.Condition(src => src.SourceUrl != null && src.SourceUrl.IsAbsoluteUri);
                     opt.MapFrom(src => src.SourceUrl.AbsoluteUri);
                 });
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new HomeViewModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion

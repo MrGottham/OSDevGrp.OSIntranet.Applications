@@ -1,16 +1,29 @@
+using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Linq;
-using AutoMapper;
-using OSDevGrp.OSIntranet.BusinessLogic.Security.Commands;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Mvc.Models.Core;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Security
 {
     internal class SecurityViewModelConverter : ConverterBase
     {
+        #region Constructor
+
+        private SecurityViewModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         protected override void Initialize(IMapperConfigurationExpression mapperConfiguration)
@@ -59,6 +72,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Security
 
             mapperConfiguration.CreateMap<ClaimViewModel, Claim>()
                 .ConvertUsing(src => new Claim(src.ClaimType, string.IsNullOrWhiteSpace(src.ActualValue) ? string.Empty : src.ActualValue));
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new SecurityViewModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion

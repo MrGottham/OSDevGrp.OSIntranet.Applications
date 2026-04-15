@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
+using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Options;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace OSDevGrp.OSIntranet.Repositories
                 serviceProvider.GetRequiredService<IConfiguration>(),
                 serviceProvider.GetRequiredService<IPrincipalResolver>(),
                 serviceProvider.GetRequiredService<ILoggerFactory>()));
+
+            serviceCollection.AddScoped<IConverterFactory, ConverterFactory>();
 
             TypeInfo[] classArray = typeof(RepositoryBase).Assembly.DefinedTypes
                 .Select(exportedType => exportedType.GetTypeInfo())

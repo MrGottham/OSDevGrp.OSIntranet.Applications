@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -287,7 +288,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IUpdateUserIdentityCommand>()))
                 .Returns(Task.Run(() => { }));
 
-            Controller controller = new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object);
+            Controller controller = new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
             if (modelIsValid == false)
             {
                 controller.ModelState.AddModelError(_fixture.Create<string>(), _fixture.Create<string>());

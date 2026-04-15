@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -624,7 +625,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             _queryBusMock.Setup(m => m.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(It.Is<IPullKeyValueEntryQuery>(query => query != null && string.CompareOrdinal(query.Key, postingJournalResultKey) == 0)))
                 .Returns(Task.FromResult(hasKeyValueEntryForPostingJournalResultKey ? keyValueEntryForPostingJournalResultKey ?? _fixture.BuildKeyValueEntryMock<ApplyPostingJournalResultViewModel>().Object : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

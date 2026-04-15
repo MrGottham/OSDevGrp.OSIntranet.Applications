@@ -26,6 +26,7 @@ using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.Repositories;
 using OSDevGrp.OSIntranet.Repositories.Options;
 using OSDevGrp.OSIntranet.WebApi.Filters;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
@@ -245,6 +246,10 @@ namespace OSDevGrp.OSIntranet.WebApi
                     opt.WithJwtValidation(Configuration);
                     opt.WithAcmeChallengeValidation(Configuration);
                 })
+                .AddLicensesHealthChecks(opt => 
+                {
+                    opt.WithAutoMapperLicense(Configuration);
+                })
                 .AddRepositoryHealthChecks(opt => 
                 {
                     opt.WithRepositoryContextValidation();
@@ -254,6 +259,7 @@ namespace OSDevGrp.OSIntranet.WebApi
             services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
+            services.AddLicenses(Configuration);
             services.AddResolvers(Configuration);
             services.AddDomainLogic();
             services.AddRepositories(Configuration);
@@ -263,6 +269,7 @@ namespace OSDevGrp.OSIntranet.WebApi
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
+            services.AddSingleton<IConverterFactory, ConverterFactory>();
         }
 
         public void Configure(WebApplication app, IWebHostEnvironment env)

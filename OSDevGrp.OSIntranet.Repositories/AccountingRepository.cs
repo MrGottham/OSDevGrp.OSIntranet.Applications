@@ -4,7 +4,6 @@ using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
 using OSDevGrp.OSIntranet.Domain.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
-using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
 using System;
@@ -25,8 +24,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public AccountingRepository(RepositoryContext repositoryContext, ILoggerFactory loggerFactory, IEventPublisher eventPublisher)
-            : base(repositoryContext, loggerFactory)
+        public AccountingRepository(RepositoryContext repositoryContext, IConverterFactory converterFactory, ILoggerFactory loggerFactory, IEventPublisher eventPublisher)
+            : base(repositoryContext, converterFactory, loggerFactory)
         {
             NullGuard.NotNull(eventPublisher, nameof(eventPublisher));
 
@@ -41,7 +40,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false, false);
                     return await accountingModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -51,7 +50,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false, false);
                     return await accountingModelHandler.ExistsAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -61,7 +60,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true, true);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true, true);
                     return await accountingModelHandler.ReadAsync(number, new AccountingIdentificationState(number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -73,7 +72,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false, false);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false, false);
                     return await accountingModelHandler.CreateAsync(accounting, new AccountingIdentificationState(accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -85,7 +84,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, true);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, true);
                     return await accountingModelHandler.UpdateAsync(accounting, new AccountingIdentificationState(accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -95,7 +94,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, true);
+                    using AccountingModelHandler accountingModelHandler = new AccountingModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, true);
                     return await accountingModelHandler.DeleteAsync(number, new AccountingIdentificationState(number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -105,7 +104,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true, true);
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true, true);
 
                     IAccountCollection accountCollection = new AccountCollection
                     {
@@ -123,7 +122,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false, false);
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false, false);
                     return await accountModelHandler.ExistsAsync(accountingNumber, accountNumber);
                 },
                 MethodBase.GetCurrentMethod());
@@ -135,7 +134,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true, true);
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true, true);
                     return await accountModelHandler.ReadAsync(accountingNumber, accountNumber);
                 },
                 MethodBase.GetCurrentMethod());
@@ -147,7 +146,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, false);
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, false);
                     return await accountModelHandler.CreateAsync(account, new AccountingIdentificationState(account.Accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -159,7 +158,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, true);
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, true);
                     return await accountModelHandler.UpdateAsync(account, new AccountingIdentificationState(account.Accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -171,7 +170,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, true);
+                    using AccountModelHandler accountModelHandler = new AccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, true);
                     return await accountModelHandler.DeleteAsync(new Tuple<int, string>(accountingNumber, accountNumber), new AccountingIdentificationState(accountingNumber));
                 },
                 MethodBase.GetCurrentMethod());
@@ -181,7 +180,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true, true);
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true, true);
 
                     IBudgetAccountCollection budgetAccountCollection = new BudgetAccountCollection
                     {
@@ -199,7 +198,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false, false);
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false, false);
                     return await budgetAccountModelHandler.ExistsAsync(accountingNumber, accountNumber);
                 },
                 MethodBase.GetCurrentMethod());
@@ -211,7 +210,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true, true);
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true, true);
                     return await budgetAccountModelHandler.ReadAsync(accountingNumber, accountNumber);
                 },
                 MethodBase.GetCurrentMethod());
@@ -223,7 +222,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, false);
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, false);
                     return await budgetAccountModelHandler.CreateAsync(budgetAccount, new AccountingIdentificationState(budgetAccount.Accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -235,7 +234,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, true);
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, true);
                     return await budgetAccountModelHandler.UpdateAsync(budgetAccount, new AccountingIdentificationState(budgetAccount.Accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -247,7 +246,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true, true);
+                    using BudgetAccountModelHandler budgetAccountModelHandler = new BudgetAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true, true);
                     return await budgetAccountModelHandler.DeleteAsync(new Tuple<int, string>(accountingNumber, accountNumber), new AccountingIdentificationState(accountingNumber));
                 },
                 MethodBase.GetCurrentMethod());
@@ -257,7 +256,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true);
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true);
 
                     IContactAccountCollection contactAccountCollection = new ContactAccountCollection
                     {
@@ -275,7 +274,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false);
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false);
                     return await contactAccountModelHandler.ExistsAsync(accountingNumber, accountNumber);
                 },
                 MethodBase.GetCurrentMethod());
@@ -287,7 +286,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, statusDate, true);
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, statusDate, true);
                     return await contactAccountModelHandler.ReadAsync(accountingNumber, accountNumber);
                 },
                 MethodBase.GetCurrentMethod());
@@ -299,7 +298,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, false);
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, false);
                     return await contactAccountModelHandler.CreateAsync(contactAccount, new AccountingIdentificationState(contactAccount.Accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -311,7 +310,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true);
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true);
                     return await contactAccountModelHandler.UpdateAsync(contactAccount, new AccountingIdentificationState(contactAccount.Accounting.Number));
                 },
                 MethodBase.GetCurrentMethod());
@@ -323,7 +322,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.Today, true);
+                    using ContactAccountModelHandler contactAccountModelHandler = new ContactAccountModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.Today, true);
                     return await contactAccountModelHandler.DeleteAsync(new Tuple<int, string>(accountingNumber, accountNumber), new AccountingIdentificationState(accountingNumber));
                 },
                 MethodBase.GetCurrentMethod());
@@ -333,7 +332,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PostingLineModelHandler postingLineModelHandler = new PostingLineModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.MinValue, statusDate, true, true, numberOfPostingLines);
+                    using PostingLineModelHandler postingLineModelHandler = new PostingLineModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.MinValue, statusDate, true, true, numberOfPostingLines);
 
                     IPostingLineCollection postingLineCollection = new PostingLineCollection
                     {
@@ -355,7 +354,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                     IPostingLineCollection postingLineCollection = new PostingLineCollection();
                     foreach (IGrouping<int, IPostingLine> group in postingJournal.PostingLineCollection.GroupBy(postingLine => postingLine.Accounting.Number))
                     {
-                        using PostingLineModelHandler postingLineModelHandler = new PostingLineModelHandler(DbContext, AccountingModelConverter.Create(), _eventPublisher, DateTime.MinValue, DateTime.Today, true, true, applyingPostingLines: true);
+                        using PostingLineModelHandler postingLineModelHandler = new PostingLineModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter(), _eventPublisher, DateTime.MinValue, DateTime.Today, true, true, applyingPostingLines: true);
 
                         AccountingIdentificationState accountingIdentificationState = new AccountingIdentificationState(group.Key);
 
@@ -383,7 +382,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await accountGroupModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -393,7 +392,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await accountGroupModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -405,7 +404,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await accountGroupModelHandler.CreateAsync(accountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -417,7 +416,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await accountGroupModelHandler.UpdateAsync(accountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -427,7 +426,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using AccountGroupModelHandler accountGroupModelHandler = new AccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await accountGroupModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -437,7 +436,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await budgetAccountGroupModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -447,7 +446,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await budgetAccountGroupModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -459,7 +458,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await budgetAccountGroupModelHandler.CreateAsync(budgetAccountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -471,7 +470,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await budgetAccountGroupModelHandler.UpdateAsync(budgetAccountGroup);
                 },
                 MethodBase.GetCurrentMethod());
@@ -481,7 +480,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, AccountingModelConverter.Create());
+                    using BudgetAccountGroupModelHandler budgetAccountGroupModelHandler = new BudgetAccountGroupModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await budgetAccountGroupModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -491,7 +490,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, AccountingModelConverter.Create());
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await paymentTermModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -501,7 +500,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, AccountingModelConverter.Create());
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await paymentTermModelHandler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -513,7 +512,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, AccountingModelConverter.Create());
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await paymentTermModelHandler.CreateAsync(paymentTerm);
                 },
                 MethodBase.GetCurrentMethod());
@@ -525,7 +524,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, AccountingModelConverter.Create());
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await paymentTermModelHandler.UpdateAsync(paymentTerm);
                 },
                 MethodBase.GetCurrentMethod());
@@ -535,7 +534,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, AccountingModelConverter.Create());
+                    using PaymentTermModelHandler paymentTermModelHandler = new PaymentTermModelHandler(DbContext, ConverterFactory.CreateAccountingModelConverter());
                     return await paymentTermModelHandler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());

@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Factories;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Attributes;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
@@ -36,24 +37,27 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly IQueryBus _queryBus;
         private readonly IClaimResolver _claimResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
-        private readonly IConverter _contactViewModelConverter = new ContactViewModelConverter();
-        private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
+        private readonly IConverter _contactViewModelConverter;
+        private readonly IConverter _accountingViewModelConverter;
 
         #endregion
 
         #region Constructor
 
-        public ContactController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory)
+        public ContactController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory, IConverterFactory converterFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
                 .NotNull(claimResolver, nameof(claimResolver))
-                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
+                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
             _claimResolver = claimResolver;
             _tokenHelperFactory = tokenHelperFactory;
+            _contactViewModelConverter = converterFactory.CreateContactViewModelConverter();
+            _accountingViewModelConverter = converterFactory.CreateAccountingViewModelConverter();
         }
 
         #endregion

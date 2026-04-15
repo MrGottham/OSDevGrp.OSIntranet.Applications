@@ -1,6 +1,9 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
 
@@ -8,6 +11,15 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 {
 	internal class CommonModelConverter : ConverterBase
     {
+        #region Constructor
+
+        private CommonModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         protected override void Initialize(IMapperConfigurationExpression mapperConfiguration)
@@ -51,9 +63,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 	            .ForMember(dest => dest.Books, opt => opt.Ignore());
         }
 
-        internal static IConverter Create()
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            return new CommonModelConverter();
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new CommonModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion

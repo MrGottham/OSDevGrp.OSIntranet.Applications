@@ -14,6 +14,7 @@ using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Home;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -161,7 +162,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _queryBusMock.Setup(m => m.QueryAsync<IGetContactWithBirthdayCollectionQuery, IEnumerable<IContact>>(It.IsAny<IGetContactWithBirthdayCollectionQuery>()))
                 .Returns(Task.FromResult(contactCollection ?? _fixture.CreateMany<IContact>(_random.Next(10, 15)).AsEnumerable()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

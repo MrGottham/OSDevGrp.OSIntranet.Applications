@@ -21,6 +21,20 @@ namespace OSDevGrp.OSIntranet.Core.Options
             return configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.AcmeChallengeSectionName}");
         }
 
+        internal static LicensesOptions GetLicensesOptions(this IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return configuration.GetLicensesSection().Get<LicensesOptions>();
+        }
+
+        internal static IConfigurationSection GetLicensesSection(this IConfiguration configuration)
+        {
+            NullGuard.NotNull(configuration, nameof(configuration));
+
+            return configuration.GetSection($"{LicensesConfigurationKeys.LicensesSectionName}");
+        }
+
         private static IConfigurationSection GetSecuritySection(this IConfiguration configuration)
         {
             NullGuard.NotNull(configuration, nameof(configuration));

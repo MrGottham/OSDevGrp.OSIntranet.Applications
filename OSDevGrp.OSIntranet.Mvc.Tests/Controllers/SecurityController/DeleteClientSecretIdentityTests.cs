@@ -6,6 +6,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
@@ -79,7 +80,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteClientSecretIdentityCommand>()))
                 .Returns(Task.Run(() => { }));
 
-            return new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object);
+            return new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.SecurityController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
@@ -96,7 +97,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<IClientSecretIdentity>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.Run(() => clientSecretIdentityCollection ?? _fixture.CreateMany<IClientSecretIdentity>(_random.Next(5, 10)).ToList()));
 
-            return new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object);
+            return new Mvc.Controllers.SecurityController(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

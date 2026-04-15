@@ -20,6 +20,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Factories;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
@@ -43,23 +44,25 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
         private readonly IQueryBus _queryBus;
         private readonly IClaimResolver _claimResolver;
         private readonly ITokenHelperFactory _tokenHelperFactory;
-        private readonly IConverter _homeViewModelConverter = new HomeViewModelConverter();
+        private readonly IConverter _homeViewModelConverter;
 
         #endregion
 
         #region Constructor
 
-        public HomeController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory)
+        public HomeController(ICommandBus commandBus, IQueryBus queryBus, IClaimResolver claimResolver, ITokenHelperFactory tokenHelperFactory, IConverterFactory converterFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
                 .NotNull(claimResolver, nameof(claimResolver))
-                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory));
+                .NotNull(tokenHelperFactory, nameof(tokenHelperFactory))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
             _claimResolver = claimResolver;
             _tokenHelperFactory = tokenHelperFactory;
+            _homeViewModelConverter = converterFactory.CreateHomeViewModelConverter();
         }
 
         #endregion

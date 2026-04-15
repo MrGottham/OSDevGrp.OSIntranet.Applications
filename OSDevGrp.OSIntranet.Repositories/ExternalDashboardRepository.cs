@@ -4,7 +4,6 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
-using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.ExternalDashboard;
 using OSDevGrp.OSIntranet.Repositories.Options;
@@ -27,8 +26,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public ExternalDashboardRepository(IOptions<ExternalDashboardOptions> externalDashboardOptions, ILoggerFactory loggerFactory)
-            : base(loggerFactory)
+        public ExternalDashboardRepository(IOptions<ExternalDashboardOptions> externalDashboardOptions, IConverterFactory converterFactory, ILoggerFactory loggerFactory)
+            : base(converterFactory, loggerFactory)
         {
             NullGuard.NotNull(externalDashboardOptions, nameof(externalDashboardOptions));
 
@@ -57,7 +56,7 @@ namespace OSDevGrp.OSIntranet.Repositories
                 };
                 ExternalDashboardModel externalDashboardModel = await GetAsync<ExternalDashboardModel>(new Uri(GetNewsUrl.Replace("{numberOfNews}", numberOfNews.ToString(CultureInfo.InvariantCulture))), null, serializerSettings);
 
-                IConverter converter = ExternalDashboardConverter.Create();
+                IConverter converter = ConverterFactory.CreateExternalDashboardConverter();
 
                 return converter.Convert<ExternalDashboardModel, IEnumerable<INews>>(externalDashboardModel);
             }

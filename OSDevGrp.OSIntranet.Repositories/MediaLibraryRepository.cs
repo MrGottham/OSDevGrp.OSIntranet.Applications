@@ -3,7 +3,6 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
-using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.MediaLibrary;
 using System;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal class MediaLibraryRepository(RepositoryContext dbContext, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(dbContext, loggerFactory), IMediaLibraryRepository
+    internal class MediaLibraryRepository(RepositoryContext dbContext, IConverterFactory converterFactory, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(dbContext, converterFactory, loggerFactory), IMediaLibraryRepository
     {
 		#region Methods
 
@@ -22,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync<IEnumerable<IMedia>>(async () =>
 				{
-					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+					IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 					using MovieModelHandler movieModelHandler = new MovieModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
 					using MusicModelHandler musicModelHandler = new MusicModelHandler(DbContext, mediaLibraryModelConverter, true, true, true);
@@ -53,7 +52,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync<IEnumerable<TMedia>>(async () =>
 				{
-					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+					IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
@@ -97,7 +96,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+					IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
@@ -128,7 +127,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+					IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
@@ -157,7 +156,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+					IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
@@ -188,7 +187,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+					IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 					if (typeof(TMedia) == typeof(IMovie))
 					{
@@ -222,7 +221,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 	        return ExecuteAsync(async () =>
 		        {
-			        IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+			        IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 			        if (typeof(TMedia) == typeof(IMovie))
 			        {
@@ -254,7 +253,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 	        return ExecuteAsync(async () =>
 		        {
-			        IConverter mediaLibraryModelConverter = MediaLibraryModelConverter.Create();
+			        IConverter mediaLibraryModelConverter = ConverterFactory.CreateMediaLibraryModelConverter();
 
 			        if (typeof(TMedia) == typeof(IMovie))
 			        {
@@ -286,7 +285,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 			        return string.IsNullOrWhiteSpace(nameFilter)
 				        ? await handler.ReadAsync()
 				        : await handler.ReadAsync(mediaPersonalityModel => (mediaPersonalityModel.GivenName != null && mediaPersonalityModel.GivenName.Contains(nameFilter)) || (mediaPersonalityModel.MiddleName != null && mediaPersonalityModel.MiddleName.Contains(nameFilter)) || mediaPersonalityModel.Surname.Contains(nameFilter));
@@ -298,7 +297,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), false);
 			        return await handler.ReadAsync(mediaPersonalityIdentifier) != null;
 		        },
 		        MethodBase.GetCurrentMethod());
@@ -310,7 +309,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), false);
 			        return (await handler.ReadAsync(mediaPersonalityModel => mediaPersonalityModel.GivenName == givenName && mediaPersonalityModel.MiddleName == middleName && mediaPersonalityModel.Surname == surname && mediaPersonalityModel.BirthDate == birthDate)).Any();
 		        },
 		        MethodBase.GetCurrentMethod());
@@ -320,7 +319,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 			        return await handler.ReadAsync(mediaPersonalityIdentifier);
 		        },
 		        MethodBase.GetCurrentMethod());
@@ -332,7 +331,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), false);
 			        await handler.CreateAsync(mediaPersonality);
 		        },
 		        MethodBase.GetCurrentMethod());
@@ -344,7 +343,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 			        await handler.UpdateAsync(mediaPersonality);
 		        },
 		        MethodBase.GetCurrentMethod());
@@ -354,7 +353,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
 	        return ExecuteAsync(async () =>
 		        {
-			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+			        using MediaPersonalityModelHandler handler = new MediaPersonalityModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 			        await handler.DeleteAsync(mediaPersonalityIdentifier);
 		        },
 		        MethodBase.GetCurrentMethod());
@@ -364,7 +363,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 					return string.IsNullOrWhiteSpace(fullNameFilter)
 						? await handler.ReadAsync()
 						: await handler.ReadAsync(borrowerModel => borrowerModel.FullName.Contains(fullNameFilter));
@@ -376,7 +375,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), false);
 					return await handler.ReadAsync(borrowerIdentifier) != null;
 				},
 				MethodBase.GetCurrentMethod());
@@ -388,7 +387,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), false);
 					return (await handler.ReadAsync(borrowerModel => borrowerModel.FullName == fullName)).Any();
 				},
 				MethodBase.GetCurrentMethod());
@@ -398,7 +397,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 					return await handler.ReadAsync(borrowerIdentifier);
 				},
 				MethodBase.GetCurrentMethod());
@@ -410,7 +409,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), false);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), false);
 					await handler.CreateAsync(borrower);
 				},
 				MethodBase.GetCurrentMethod());
@@ -422,7 +421,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 					await handler.UpdateAsync(borrower);
 				},
 				MethodBase.GetCurrentMethod());
@@ -432,7 +431,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, MediaLibraryModelConverter.Create(), true);
+					using BorrowerModelHandler handler = new BorrowerModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true);
 					await handler.DeleteAsync(borrowerIdentifier);
 				},
 				MethodBase.GetCurrentMethod());
@@ -442,7 +441,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true, true);
 					return includeReturned
 						? await handler.ReadAsync()
 						: await handler.ReadAsync(lendingModel => lendingModel.ReturnedDate == null || (lendingModel.ReturnedDate != null && lendingModel.ReturnedDate > DateTime.Today));
@@ -454,7 +453,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true, true);
 					return await handler.ReadAsync(lendingIdentifier) != null;
 				},
 				MethodBase.GetCurrentMethod());
@@ -464,7 +463,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true, true);
 					return await handler.ReadAsync(lendingIdentifier);
 				},
 				MethodBase.GetCurrentMethod());
@@ -476,7 +475,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true, true);
 					await handler.CreateAsync(lending);
 				},
 				MethodBase.GetCurrentMethod());
@@ -488,7 +487,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
 			return ExecuteAsync(async () =>
 				{
-					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true, true);
 					await handler.UpdateAsync(lending);
 				},
 				MethodBase.GetCurrentMethod());
@@ -498,7 +497,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 		{
 			return ExecuteAsync(async () =>
 				{
-					using LendingModelHandler handler = new LendingModelHandler(DbContext, MediaLibraryModelConverter.Create(), true, true);
+					using LendingModelHandler handler = new LendingModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter(), true, true);
 					await handler.DeleteAsync(lendingIdentifier);
 				},
 				MethodBase.GetCurrentMethod());
@@ -508,7 +507,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -518,7 +517,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -530,7 +529,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.CreateAsync(movieGenre);
                 },
                 MethodBase.GetCurrentMethod());
@@ -542,7 +541,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.UpdateAsync(movieGenre);
                 },
                 MethodBase.GetCurrentMethod());
@@ -552,7 +551,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MovieGenreModelHandler handler = new MovieGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -562,7 +561,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -572,7 +571,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -584,7 +583,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.CreateAsync(musicGenre);
                 },
                 MethodBase.GetCurrentMethod());
@@ -596,7 +595,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.UpdateAsync(musicGenre);
                 },
                 MethodBase.GetCurrentMethod());
@@ -606,7 +605,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MusicGenreModelHandler handler = new MusicGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -616,7 +615,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -626,7 +625,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -638,7 +637,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.CreateAsync(bookGenre);
                 },
                 MethodBase.GetCurrentMethod());
@@ -650,7 +649,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.UpdateAsync(bookGenre);
                 },
                 MethodBase.GetCurrentMethod());
@@ -660,7 +659,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using BookGenreModelHandler handler = new BookGenreModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -670,7 +669,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -680,7 +679,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     return await handler.ReadAsync(number);
                 },
                 MethodBase.GetCurrentMethod());
@@ -692,7 +691,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.CreateAsync(mediaType);
                 },
                 MethodBase.GetCurrentMethod());
@@ -704,7 +703,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.UpdateAsync(mediaType);
                 },
                 MethodBase.GetCurrentMethod());
@@ -714,7 +713,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, MediaLibraryModelConverter.Create());
+                    using MediaTypeModelHandler handler = new MediaTypeModelHandler(DbContext, ConverterFactory.CreateMediaLibraryModelConverter());
                     await handler.DeleteAsync(number);
                 },
                 MethodBase.GetCurrentMethod());

@@ -8,6 +8,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -188,7 +189,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<INationality>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.FromResult(hasNationalityCollection ? nationalityCollection ?? _fixture.CreateMany<INationality>(_random.Next(5, 10)).ToArray() : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

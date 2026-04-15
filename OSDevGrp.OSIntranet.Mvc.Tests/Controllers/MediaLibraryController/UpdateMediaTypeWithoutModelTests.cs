@@ -9,6 +9,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.Mvc.Controllers.MediaLibraryController;
 
@@ -190,7 +191,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
             _queryBusMock.Setup(m => m.QueryAsync<IGetMediaTypeQuery, IMediaType>(It.IsAny<IGetMediaTypeQuery>()))
                 .Returns(Task.FromResult(hasMediaType ? mediaType ?? _fixture.BuildMediaTypeMock().Object : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using System;
 using System.Threading.Tasks;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.SecurityController;
@@ -247,7 +248,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _urlHelperMock.Setup(m => m.Action(It.IsNotNull<UrlActionContext>()))
                 .Returns<UrlActionContext>(urlActionContext => $"/{urlActionContext.Controller}/{urlActionContext.Action}".ToLower());
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object, ConverterFactoryCreator.Create())
             {
                 Url = _urlHelperMock.Object
             };

@@ -51,6 +51,16 @@ namespace OSDevGrp.OSIntranet.Core
             return serviceCollection.AddScoped<IEventPublisher, EventPublisher>();
         }
 
+        public static IServiceCollection AddLicenses(this IServiceCollection serviceCollection, IConfiguration configuration)
+        {
+            NullGuard.NotNull(serviceCollection, nameof(serviceCollection))
+                .NotNull(configuration, nameof(configuration));
+
+            serviceCollection.Configure<LicensesOptions>(configuration.GetLicensesSection());
+
+            return serviceCollection;
+        }
+
         public static IServiceCollection AddResolvers(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             NullGuard.NotNull(serviceCollection, nameof(serviceCollection))

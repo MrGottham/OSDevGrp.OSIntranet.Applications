@@ -2,6 +2,7 @@
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
@@ -13,6 +14,23 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
     internal class ErrorCodeSchemeFilterDescriptor : ISchemaFilter
     {
+        #region Private variables
+
+        private readonly IConverter _coreModelConverter;
+
+        #endregion
+
+        #region Constructor
+
+        public ErrorCodeSchemeFilterDescriptor(IConverterFactory converterFactory)
+        {
+            NullGuard.NotNull(converterFactory, nameof(converterFactory));
+
+            _coreModelConverter = converterFactory.CreateCoreModelConverter();
+        }
+
+        #endregion
+
         #region Methods
 
         public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
@@ -30,7 +48,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 return;
             }
 
-            openApiSchema.AddExtension("x-error-codes", new ErrorCodeMetadataCollection(new CoreModelConverter()));
+            openApiSchema.AddExtension("x-error-codes", new ErrorCodeMetadataCollection(_coreModelConverter));
         }
 
         #endregion

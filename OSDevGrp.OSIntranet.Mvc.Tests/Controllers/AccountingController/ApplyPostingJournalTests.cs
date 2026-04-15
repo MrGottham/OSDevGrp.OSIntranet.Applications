@@ -15,6 +15,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -827,7 +828,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteKeyValueEntryCommand>()))
                 .Returns(Task.CompletedTask);
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, ConverterFactoryCreator.Create());
             if (modelIsValid == false)
             {
                 controller.ModelState.AddModelError(_fixture.Create<string>(), validationError ?? _fixture.Create<string>());

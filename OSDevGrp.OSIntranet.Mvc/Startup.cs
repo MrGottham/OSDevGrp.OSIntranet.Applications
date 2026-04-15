@@ -21,6 +21,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Resolvers;
 using OSDevGrp.OSIntranet.Domain;
 using OSDevGrp.OSIntranet.Domain.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Factories;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Filters;
@@ -276,6 +277,10 @@ namespace OSDevGrp.OSIntranet.Mvc
                     opt.WithTrustedDomainCollectionValidation(Configuration);
                     opt.WithAcmeChallengeValidation(Configuration);
                 })
+                .AddLicensesHealthChecks(opt => 
+                {
+                    opt.WithAutoMapperLicense(Configuration);
+                })
                 .AddRepositoryHealthChecks(opt =>
                 {
                     opt.WithRepositoryContextValidation();
@@ -286,6 +291,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddCommandBus().AddCommandHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddQueryBus().AddQueryHandlers(typeof(CreateUserIdentityCommandHandler).Assembly);
             services.AddEventPublisher();
+            services.AddLicenses(Configuration);
             services.AddResolvers(Configuration);
             services.AddDomainLogic();
             services.AddRepositories(Configuration);
@@ -297,6 +303,7 @@ namespace OSDevGrp.OSIntranet.Mvc
             services.AddTransient<IPrincipalResolver, PrincipalResolver>();
             services.AddTransient<ITokenHelperFactory, TokenHelperFactory>();
             services.AddTransient<ITokenHelper, MicrosoftGraphTokenHelper>();
+            services.AddSingleton<IConverterFactory, ConverterFactory>();
         }
 
         public void Configure(WebApplication app, IWebHostEnvironment env)

@@ -83,6 +83,7 @@ services:
       - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
       - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenMvc}
       - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationMvc}
+      - Licenses__AutoMapper__LicenseKey=${licensesAutoMapperLicenseKey}
       - ExternalData__Dashboard__EndpointAddress=${externalDataDashboardEndpointAddress}
     build:
       context: .
@@ -125,6 +126,7 @@ services:
       - Security__JWT__Audience=${securityJwtAudience}
       - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenWebApi}
       - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationWebApi}
+      - Licenses__AutoMapper__LicenseKey=${licensesAutoMapperLicenseKey}
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile

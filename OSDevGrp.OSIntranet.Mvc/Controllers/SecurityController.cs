@@ -10,6 +10,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Mvc.Helpers.Factories;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
 using OSDevGrp.OSIntranet.Mvc.Models.Security;
 using OSDevGrp.OSIntranet.Mvc.Security;
@@ -27,19 +28,21 @@ namespace OSDevGrp.OSIntranet.Mvc.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
-        private readonly IConverter _securityViewModelConverter = new SecurityViewModelConverter();
+        private readonly IConverter _securityViewModelConverter;
 
         #endregion
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, IQueryBus queryBus)
+        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IConverterFactory converterFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+                .NotNull(queryBus, nameof(queryBus))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _securityViewModelConverter = converterFactory.CreateSecurityViewModelConverter();
         }
 
         #endregion

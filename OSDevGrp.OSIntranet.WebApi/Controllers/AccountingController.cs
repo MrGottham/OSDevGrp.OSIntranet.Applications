@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
 using OSDevGrp.OSIntranet.WebApi.Security;
@@ -32,19 +33,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
-        private readonly IConverter _accountingModelConverter = new AccountingModelConverter();
+        private readonly IConverter _accountingModelConverter;
 
         #endregion
 
         #region Constructor
 
-        public AccountingController(ICommandBus commandBus, IQueryBus queryBus)
+        public AccountingController(ICommandBus commandBus, IQueryBus queryBus, IConverterFactory converterFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
-                .NotNull(queryBus, nameof(queryBus));
+                .NotNull(queryBus, nameof(queryBus))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
+            _accountingModelConverter = converterFactory.CreateAccountingModelConverter();
+
         }
 
         #endregion

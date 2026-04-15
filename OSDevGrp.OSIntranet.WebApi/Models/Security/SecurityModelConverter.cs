@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using System;
 using System.Collections.Generic;
@@ -15,6 +19,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
         private readonly IValueConverter<DateTimeOffset, int> _totalSecondsCalculator = new TotalSecondsCalculator(() => DateTimeOffset.Now);
         private readonly IValueConverter<Uri, string> _uriToStringConverter = new UriToStringConverter();
         private readonly IValueConverter<IEnumerable<string>, IEnumerable<string>> _stringCollectionConverter = new StringCollectionConverter();
+
+        #endregion
+
+        #region Constructor
+
+        private SecurityModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+        }
 
         #endregion
 
@@ -85,6 +98,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Security
                 .ForMember(dest => dest.UiLocalesSupported, opt => opt.ConvertUsing(_stringCollectionConverter, src => src.UiLocalesSupported))
                 .ForMember(dest => dest.RegistrationPolicyEndpoint, opt => opt.ConvertUsing(_uriToStringConverter, src => src.RegistrationPolicyEndpoint))
                 .ForMember(dest => dest.RegistrationTermsOfServiceEndpoint, opt => opt.ConvertUsing(_uriToStringConverter, src => src.RegistrationTermsOfServiceEndpoint));
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new SecurityModelConverter(licensesOptions, loggerFactory);
         }
 
         private class TotalSecondsCalculator : IValueConverter<DateTimeOffset, int>

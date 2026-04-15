@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.WebApi.Models.Common;
@@ -15,8 +18,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         #region Private variables
 
-        private readonly IConverter _commonModelConverter = new CommonModelConverter();
+        private readonly IConverter _commonModelConverter;
         private readonly IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>> _applyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter = new ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter();
+
+        #endregion
+
+        #region Constructor
+
+        private AccountingModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+            _commonModelConverter = CommonModelConverter.Create(licensesOptions, loggerFactory);
+        }
 
         #endregion
 
@@ -146,6 +159,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.PostingWarningReason, PostingWarningReason>();
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new AccountingModelConverter(licensesOptions, loggerFactory);
         }
 
         private class ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter : IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>>
