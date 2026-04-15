@@ -10,4 +10,4 @@ ARG certificateCommonName
 COPY --from=certificatebuilder /certificate/${certificateCommonName}.crt /etc/ssl/certs/${certificateCommonName}.crt
 COPY --from=certificatebuilder /certificate/${certificateCommonName}.key /etc/ssl/private/${certificateCommonName}.key
 
-EXPOSE 80 443 8443 8445
+EXPOSE 80 443 8443 8445 8447

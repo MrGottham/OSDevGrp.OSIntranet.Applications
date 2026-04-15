@@ -6,12 +6,10 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.BuildInfo.BuildInfoProvider;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoModel;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoProvider;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Models.Home.UserInfoModel;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using System.Globalization;
 using System.Reflection;
@@ -20,7 +18,7 @@ using System.Security.Claims;
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Queries.Home.Index.IndexFeature;
 
 [TestFixture]
-public class ExecuteAsyncTests
+public class ExecuteAsyncTests : HomePageFeatureTestBase
 {
     #region Private variables
 
@@ -50,7 +48,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        Mock<ISecurityContext> securityContextMock = CreateSecurityContextMock(withAuthenticatedUser: withAuthenticatedUser);
+        Mock<ISecurityContext> securityContextMock = CreateSecurityContextMock(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContextMock.Object);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -65,8 +63,8 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ClaimsPrincipal user = withAuthenticatedUser ? CreateAuthenticatedUser() : CreateNonAuthenticated();
-        ISecurityContext securityContext = CreateSecurityContext(user: user);
+        ClaimsPrincipal user = withAuthenticatedUser ? CreateAuthenticatedUser(_fixture!) : CreateNonAuthenticated(_fixture!);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, user: user);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -81,8 +79,8 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ClaimsPrincipal user = withAuthenticatedUser ? CreateAuthenticatedUser() : CreateNonAuthenticated();
-        ISecurityContext securityContext = CreateSecurityContext(user: user);
+        ClaimsPrincipal user = withAuthenticatedUser ? CreateAuthenticatedUser(_fixture!) : CreateNonAuthenticated(_fixture!);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, user: user);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -100,7 +98,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
@@ -121,7 +119,7 @@ public class ExecuteAsyncTests
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
         Assembly executingAssembly = Assembly.GetExecutingAssembly();
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         IndexRequest indexRequest = CreateIndexRequest(executingAssembly: executingAssembly, securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -137,7 +135,7 @@ public class ExecuteAsyncTests
         Mock<IBuildInfo> buildInfoMock = _fixture!.CreateBuildInfoMock(_random!);
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut(buildInfo: buildInfoMock.Object);
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -150,7 +148,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: true);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: true);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -166,7 +164,7 @@ public class ExecuteAsyncTests
         IUserInfoModel userInfo = _fixture!.CreateUserInfoModel(_random!);
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut(hasUserInfo: true, userInfo: userInfo);
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -181,7 +179,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut(hasUserInfo: false);
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: withAuthenticatedUser);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: withAuthenticatedUser);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -196,11 +194,15 @@ public class ExecuteAsyncTests
     [TestCase(StaticTextKey.Start)]
     [TestCase(StaticTextKey.Login)]
     [TestCase(StaticTextKey.Logout)]
+    [TestCase(StaticTextKey.MyOverview)]
+    [TestCase(StaticTextKey.FinancialManagement)]
+    [TestCase(StaticTextKey.Accountings)]
+    [TestCase(StaticTextKey.CreateNewAccounting)]
     public async Task ExecuteAsync_WhenUserFromSecurityConextIsAuthenticated_ReturnsIndexResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: true);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: true);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -213,7 +215,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: false);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: false);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -232,7 +234,7 @@ public class ExecuteAsyncTests
     {
         IQueryFeature<IndexRequest, IndexResponse> sut = CreateSut();
 
-        ISecurityContext securityContext = CreateSecurityContext(withAuthenticatedUser: false);
+        ISecurityContext securityContext = CreateSecurityContext(_fixture!, withAuthenticatedUser: false);
         IndexRequest indexRequest = CreateIndexRequest(securityContext: securityContext);
         IndexResponse result = await sut.ExecuteAsync(indexRequest);
 
@@ -250,36 +252,6 @@ public class ExecuteAsyncTests
 
     private IndexRequest CreateIndexRequest(Assembly? executingAssembly = null, ISecurityContext? securityContext = null)
     {
-        return new IndexRequest(Guid.NewGuid(), executingAssembly ?? Assembly.GetExecutingAssembly(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext());
-    }
-
-    private ISecurityContext CreateSecurityContext(bool withAuthenticatedUser = true)
-    {
-        return CreateSecurityContextMock(withAuthenticatedUser).Object;
-    }
-
-    private ISecurityContext CreateSecurityContext(ClaimsPrincipal user)
-    {
-        return CreateSecurityContextMock(user).Object;
-    }
-
-    private Mock<ISecurityContext> CreateSecurityContextMock(bool withAuthenticatedUser = true)
-    {
-        return CreateSecurityContextMock(user: withAuthenticatedUser ? CreateAuthenticatedUser() : CreateNonAuthenticated());
-    }
-
-    private Mock<ISecurityContext> CreateSecurityContextMock(ClaimsPrincipal user)
-    {
-        return _fixture!.CreateSecurityContextMock(user: user);
-    }
-
-    private ClaimsPrincipal CreateAuthenticatedUser()
-    {
-        return _fixture!.CreateAuthenticatedClaimsPrincipal();
-    }
-
-    private ClaimsPrincipal CreateNonAuthenticated()
-    {
-        return _fixture!.CreateNonAuthenticatedClaimsPrincipal();
+        return new IndexRequest(Guid.NewGuid(), executingAssembly ?? Assembly.GetExecutingAssembly(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext(_fixture!));
     }
 }

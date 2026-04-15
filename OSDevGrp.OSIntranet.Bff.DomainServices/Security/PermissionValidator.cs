@@ -7,6 +7,11 @@ internal class PermissionValidator : IPermissionValidator
 {
     #region Methods
 
+    public bool IsAuthenticated(ClaimsPrincipal user)
+    {
+        return user.Identity?.IsAuthenticated ?? false;
+    }
+
     public bool HasClaim(ClaimsPrincipal user, Predicate<Claim> match)
     {
         return user.HasClaim(match);

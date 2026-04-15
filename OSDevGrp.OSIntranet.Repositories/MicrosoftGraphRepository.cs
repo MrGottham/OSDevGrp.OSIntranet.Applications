@@ -4,7 +4,6 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
-using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.MicrosoftGraph;
 using OSDevGrp.OSIntranet.Repositories.Options;
@@ -40,8 +39,8 @@ namespace OSDevGrp.OSIntranet.Repositories
 
         #region Constructor
 
-        public MicrosoftGraphRepository(IOptions<MicrosoftSecurityOptions> microsoftSecurityOptions, ILoggerFactory loggerFactory)
-            : base(loggerFactory)
+        public MicrosoftGraphRepository(IOptions<MicrosoftSecurityOptions> microsoftSecurityOptions, IConverterFactory converterFactory, ILoggerFactory loggerFactory)
+            : base(converterFactory, loggerFactory)
         {
             NullGuard.NotNull(microsoftSecurityOptions, nameof(microsoftSecurityOptions));
 
@@ -83,7 +82,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(redirectUri, nameof(redirectUri))
                 .NotNullOrWhiteSpace(code, nameof(code));
 
-            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+            IConverter microsoftGraphModelConverter = ConverterFactory.CreateMicrosoftGraphModelConverter();
 
             TokenModel tokenModel = await AcquireTokenAsync<TokenModel>(redirectUri, Scope, code);
 
@@ -97,7 +96,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(redirectUri, nameof(redirectUri))
                 .NotNull(refreshableToken, nameof(refreshableToken));
 
-            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+            IConverter microsoftGraphModelConverter = ConverterFactory.CreateMicrosoftGraphModelConverter();
 
             TokenModel tokenModel = await RefreshTokenAsync<TokenModel>(redirectUri, Scope, refreshableToken);
 
@@ -110,7 +109,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken));
 
-            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+            IConverter microsoftGraphModelConverter = ConverterFactory.CreateMicrosoftGraphModelConverter();
 
             Token = refreshableToken;
 
@@ -133,7 +132,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNullOrWhiteSpace(identifier, nameof(identifier));
 
-            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+            IConverter microsoftGraphModelConverter = ConverterFactory.CreateMicrosoftGraphModelConverter();
 
             Token = refreshableToken;
 
@@ -151,7 +150,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNull(contact, nameof(contact));
 
-            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+            IConverter microsoftGraphModelConverter = ConverterFactory.CreateMicrosoftGraphModelConverter();
 
             Token = refreshableToken;
 
@@ -169,7 +168,7 @@ namespace OSDevGrp.OSIntranet.Repositories
             NullGuard.NotNull(refreshableToken, nameof(refreshableToken))
                 .NotNull(contact, nameof(contact));
 
-            IConverter microsoftGraphModelConverter = MicrosoftGraphModelConverter.Create();
+            IConverter microsoftGraphModelConverter = ConverterFactory.CreateMicrosoftGraphModelConverter();
 
             Token = refreshableToken;
 

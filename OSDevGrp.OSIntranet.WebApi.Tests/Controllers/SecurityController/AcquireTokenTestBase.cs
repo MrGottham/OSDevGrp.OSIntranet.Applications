@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using System;
 using System.Security.Claims;
 using System.Text;
@@ -61,7 +62,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             CommandBusMock.Setup(m => m.PublishAsync<IGenerateTokenCommand, IToken>(It.IsAny<IGenerateTokenCommand>()))
                 .Returns(Task.FromResult(hasToken ? token ?? Fixture.BuildTokenMock().Object : null));
 
-            return new Controller(CommandBusMock.Object, QueryBusMock.Object, DataProtectionProviderMock.Object, TimeProviderMock.Object)
+            return new Controller(CommandBusMock.Object, QueryBusMock.Object, DataProtectionProviderMock.Object, TimeProviderMock.Object, ConverterFactoryCreator.Create())
             {
                 ControllerContext =
                 {

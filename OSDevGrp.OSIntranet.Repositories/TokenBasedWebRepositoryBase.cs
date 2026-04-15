@@ -2,6 +2,7 @@
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ using System.Web;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal abstract class TokenBasedWebRepositoryBase<TToken>(ILoggerFactory loggerFactory) : WebRepositoryBase(loggerFactory) where TToken : IToken
+    internal abstract class TokenBasedWebRepositoryBase<TToken>(IConverterFactory converterFactory, ILoggerFactory loggerFactory) : WebRepositoryBase(converterFactory, loggerFactory) where TToken : IToken
     {
         #region Properties
 

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.CommonController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
@@ -79,7 +80,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<IDeleteLetterHeadCommand>()))
                 .Returns(Task.Run(() => { }));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

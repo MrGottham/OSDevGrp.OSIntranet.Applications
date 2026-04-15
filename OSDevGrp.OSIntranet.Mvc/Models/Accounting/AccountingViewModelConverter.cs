@@ -1,8 +1,11 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
@@ -19,7 +22,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
     {
         #region Private variables
 
-        private readonly IConverter _commonViewModelConverter = new CommonViewModelConverter();
+        private readonly IConverter _commonViewModelConverter;
         private readonly ITypeConverter<IAccountCollection, AccountDictionaryViewModel> _accountCollectionToAccountDictionaryViewModelTypeConverter = new AccountCollectionToAccountDictionaryViewModelTypeConverter();
         private readonly ITypeConverter<IBudgetAccountCollection, BudgetAccountDictionaryViewModel> _budgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter = new BudgetAccountCollectionToBudgetAccountDictionaryViewModelTypeConverter();
         private readonly ITypeConverter<ICreditInfoCollection, CreditInfoDictionaryViewModel> _creditInfoCollectionToCreditInfoDictionaryViewModelTypeConverter = new CreditInfoCollectionToCreditInfoDictionaryViewModelTypeConverter();
@@ -30,6 +33,16 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
         private readonly ITypeConverter<IPostingLineCollection, PostingLineCollectionViewModel> _postingLineCollectionToPostingLineCollectionViewModelTypeConverter = new PostingLineCollectionToPostingLineCollectionViewModelTypeConverter();
         private readonly ITypeConverter<IPostingWarningCollection, PostingWarningCollectionViewModel> _postingWarningCollectionToPostingWarningCollectionViewModelTypeConverter = new PostingWarningCollectionToPostingWarningCollectionViewModelTypeConverter();
         private readonly IValueConverter<ApplyPostingLineCollectionViewModel, IEnumerable<IApplyPostingLineCommand>> _applyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter = new ApplyPostingLineCollectionViewModelToApplyPostingLineCommandCollectionValueConverter();
+
+        #endregion
+
+        #region Constructor
+
+        private AccountingViewModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+            _commonViewModelConverter = CommonViewModelConverter.Create(licensesOptions, loggerFactory);
+        }
 
         #endregion
 
@@ -303,6 +316,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Accounting
             mapperConfiguration.CreateMap<PaymentTermViewModel, CreatePaymentTermCommand>();
             mapperConfiguration.CreateMap<PaymentTermViewModel, UpdatePaymentTermCommand>();
             mapperConfiguration.CreateMap<PaymentTermViewModel, DeletePaymentTermCommand>();
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new AccountingViewModelConverter(licensesOptions, loggerFactory);
         }
 
         private abstract class AccountCollectionToAccountDictionaryViewModelTypeConverterBase<TAccountGroup, TAccountCollection, TAccount, TAccountDictionaryViewModel, TAccountGroupViewModel, TAccountCollectionViewModel, TAccountViewModel> : ITypeConverter<TAccountCollection, TAccountDictionaryViewModel> where TAccountGroup : IAccountGroupBase where TAccountCollection : IAccountCollectionBase<TAccount> where TAccount : IAccountBase<TAccount> where TAccountDictionaryViewModel : AccountDictionaryViewModelBase<TAccountGroupViewModel, TAccountCollectionViewModel, TAccountViewModel>, new() where TAccountGroupViewModel : AccountGroupViewModelBase where TAccountCollectionViewModel : AccountCollectionViewModelBase<TAccountViewModel> where TAccountViewModel : AccountIdentificationViewModel

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Filters.ErrorHandling.ProblemDetailsFactory;
@@ -13,12 +15,13 @@ using System.Net.Mime;
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Security.SecurityController;
 
 [TestFixture]
-public class LogoutTests : SecurityControllerTestBase
+public class LogoutTests : SecurityControllerTestBase<AccessDeniedContentResponse>
 {
     #region Private variables
 
     private Mock<IProblemDetailsFactory>? _problemDetailsFactoryMock;
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
+    private Mock<ISecurityContextProvider>? _securityContextProviderMock;
     private Fixture? _fixture;
 
     #endregion
@@ -28,6 +31,7 @@ public class LogoutTests : SecurityControllerTestBase
     {
         _problemDetailsFactoryMock = new Mock<IProblemDetailsFactory>();
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
+        _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _fixture = new Fixture();
     }
 
@@ -347,8 +351,8 @@ public class LogoutTests : SecurityControllerTestBase
         Assert.That(result.Properties!.RedirectUri, Is.EqualTo(returnUrl));
     }
 
-    protected override WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true)
+    protected override WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, AccessDeniedContentResponse? accessDeniedContentResponse = null)
     {
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!,  _fixture!, httpContext, problemDetails, isTrustedDomain);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 }

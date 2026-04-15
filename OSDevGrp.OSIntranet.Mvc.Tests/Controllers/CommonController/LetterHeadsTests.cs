@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.CommonController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
@@ -96,7 +97,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.Run(() => letterHeadCollection ?? _fixture.CreateMany<ILetterHead>(_random.Next(5, 10)).ToList()));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

@@ -1,27 +1,32 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Core.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using AutoMapper;
 
 namespace OSDevGrp.OSIntranet.Core.TestHelpers
 {
     public class ConverterBaseTestHelper
     {
-        public IEnumerable<ConverterBase> GetConverters(Assembly assembly)
+        public IEnumerable<ConverterBase> GetConverters(Assembly assembly, IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            NullGuard.NotNull(assembly, nameof(assembly));
+            NullGuard.NotNull(assembly, nameof(assembly))
+                .NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
 
             return assembly.GetTypes()
-                .Where(type => type.BaseType != null && type.BaseType == typeof(ConverterBase) && type.GetConstructor(new Type[0]) != null)
-                .Select(converterBaseType =>
+                .Where(type => type.BaseType != null && type.BaseType == typeof(ConverterBase) && type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(IOptions<LicensesOptions>), typeof(ILoggerFactory)]) != null)
+                .Select(converterType =>
                 {
-                    ConstructorInfo constructorInfo = converterBaseType.GetConstructor(new Type[0]);
+                    ConstructorInfo constructorInfo = converterType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(IOptions<LicensesOptions>), typeof(ILoggerFactory)]);
                     try
                     {
                         // ReSharper disable PossibleNullReferenceException
-                        return (ConverterBase) constructorInfo.Invoke(new object[0]);
+                        return (ConverterBase) constructorInfo.Invoke([licensesOptions, loggerFactory]);
                         // ReSharper restore PossibleNullReferenceException
                     }
                     catch (TargetInvocationException ex)
@@ -29,7 +34,7 @@ namespace OSDevGrp.OSIntranet.Core.TestHelpers
                         throw ex.InnerException ?? ex;
                     }
                 })
-                .ToList();
+                .ToArray();
         }
 
         public string IsConfigurationValid(IEnumerable<ConverterBase> converterBaseCollection)

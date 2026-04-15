@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.CommonController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.CommonController
@@ -81,7 +82,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.CommonController
             _queryBusMock.Setup(m => m.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(It.IsAny<EmptyQuery>()))
                 .Returns(Task.FromResult(letterHeads ?? _fixture.CreateMany<ILetterHead>(_random.Next(5, 10)).ToList()));
 
-            return new Controller(_queryBusMock.Object);
+            return new Controller(_queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

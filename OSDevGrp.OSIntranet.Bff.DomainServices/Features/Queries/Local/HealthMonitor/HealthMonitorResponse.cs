@@ -1,4 +1,4 @@
-using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Local.HealthMonitor;
 

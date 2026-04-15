@@ -1,11 +1,22 @@
 ﻿@page
 <div id="swagger-ui"></div>
 @section Stylesheets {
-    <link rel="stylesheet" type="text/css" href="/lib/swagger-ui/dist/css/swagger-ui.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.29.1/swagger-ui.min.css"
+          integrity="sha512-QIJpSy6rqOKoEjIR+Pp7r5lTkNPJPJCRejWzG4jb12bCT1EeL/vcjZtk4NNKeEuVRXY+d34d/t9y1CHzZbgeJQ=="
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer" />
 }
 @section Scripts {
-    <script src="/lib/swagger-ui/dist/js/swagger-ui-bundle.js" charset="UTF-8"></script>
-    <script src="/lib/swagger-ui/dist/js/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.29.1/swagger-ui-bundle.min.js"
+            integrity="sha512-yfAKqi7F3JSDZA7V/XTql3caj2o8A81yg2EWIBykt2BJjLjNYnsd4CVAKvrFp/nYl9HQX7R06Z6e5KBn5aoj6g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.29.1/swagger-ui-standalone-preset.min.js"
+            integrity="sha512-Bhhnbk6zKqcSKnX/IONDmlcxgboSRfYsuIiOaxTs1x4vBrQwVWBN7KLwrOMiPnwKe/w815FZATtpJIYK8Psqxg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer">
+    </script>
     <script>
         window.onload = function() {
             // Create plugin for logout
@@ -49,7 +60,7 @@
                     if (response.obj.access_token === undefined || response.obj.access_token === null) {
                         return response;
                     }
-                    ui.preauthorizeApiKey(response.obj.token_type, response.obj.access_token);
+                    ui.preauthorizeApiKey(response.obj.token_type.toLowerCase(), response.obj.access_token);
                     return response;
                 }
             });

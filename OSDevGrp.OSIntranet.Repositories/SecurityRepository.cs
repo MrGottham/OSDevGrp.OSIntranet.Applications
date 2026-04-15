@@ -2,7 +2,6 @@
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Contexts;
-using OSDevGrp.OSIntranet.Repositories.Converters;
 using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal class SecurityRepository(RepositoryContext repositoryContext, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(repositoryContext, loggerFactory), ISecurityRepository
+    internal class SecurityRepository(RepositoryContext repositoryContext, IConverterFactory converterFactory, ILoggerFactory loggerFactory) : DatabaseRepositoryBase<RepositoryContext>(repositoryContext, converterFactory, loggerFactory), ISecurityRepository
     {
         #region Methods
 
@@ -20,7 +19,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await userIdentityModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -30,7 +29,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await userIdentityModelHandler.ReadAsync(userIdentityIdentifier);
                 },
                 MethodBase.GetCurrentMethod());
@@ -42,7 +41,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await userIdentityModelHandler.ReadAsync(externalUserIdentifier);
                 },
                 MethodBase.GetCurrentMethod());
@@ -54,7 +53,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await userIdentityModelHandler.CreateAsync(userIdentity);
                 },
                 MethodBase.GetCurrentMethod());
@@ -66,7 +65,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await userIdentityModelHandler.UpdateAsync(userIdentity);
                 },
                 MethodBase.GetCurrentMethod());
@@ -76,7 +75,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using UserIdentityModelHandler userIdentityModelHandler = new UserIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await userIdentityModelHandler.DeleteAsync(userIdentityIdentifier);
                 },
                 MethodBase.GetCurrentMethod());
@@ -86,7 +85,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await clientSecretIdentityModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());
@@ -96,7 +95,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await clientSecretIdentityModelHandler.ReadAsync(clientSecretIdentityIdentifier);
                 },
                 MethodBase.GetCurrentMethod());
@@ -108,7 +107,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await clientSecretIdentityModelHandler.ReadAsync(clientId);
                 },
                 MethodBase.GetCurrentMethod());
@@ -120,7 +119,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await clientSecretIdentityModelHandler.CreateAsync(clientSecretIdentity);
                 },
                 MethodBase.GetCurrentMethod());
@@ -132,7 +131,7 @@ namespace OSDevGrp.OSIntranet.Repositories
 
             return ExecuteAsync(async () =>
                 {
-                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await clientSecretIdentityModelHandler.UpdateAsync(clientSecretIdentity);
                 },
                 MethodBase.GetCurrentMethod());
@@ -142,7 +141,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClientSecretIdentityModelHandler clientSecretIdentityModelHandler = new ClientSecretIdentityModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await clientSecretIdentityModelHandler.DeleteAsync(clientSecretIdentityIdentifier);
                 },
                 MethodBase.GetCurrentMethod());
@@ -152,7 +151,7 @@ namespace OSDevGrp.OSIntranet.Repositories
         {
             return ExecuteAsync(async () =>
                 {
-                    using ClaimModelHandler claimModelHandler = new ClaimModelHandler(DbContext, SecurityModelConverter.Create());
+                    using ClaimModelHandler claimModelHandler = new ClaimModelHandler(DbContext, ConverterFactory.CreateSecurityModelConverter());
                     return await claimModelHandler.ReadAsync();
                 },
                 MethodBase.GetCurrentMethod());

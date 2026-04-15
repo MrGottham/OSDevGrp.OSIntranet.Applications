@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
@@ -142,7 +143,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             _queryBusMock.Setup(m => m.QueryAsync<IGetDebtorAccountCollectionQuery, IContactAccountCollection>(It.IsAny<IGetDebtorAccountCollectionQuery>()))
                 .Returns(Task.FromResult(debtorAccountCollection ?? _fixture.BuildContactAccountCollectionMock().Object));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.TokenKeyProvider;
 using System.Security.Claims;
@@ -83,7 +84,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenTokenWasResolvedByMemoryCache_AssertExpiresWasCalledOnTokenResolvedByMemoryCache()
     {
-        Mock<IToken> cachedTokenMock = _fixture!.CreateTokenMock(_random!);
+        Mock<IToken> cachedTokenMock = _fixture!.CreateTokenMock();
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedTokenMock.Object);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -96,7 +97,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenNonExpiredTokenWasResolvedByMemoryCache_AssertResolveAsyncWasNotCalledOnTokenProvider()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: false);
+        IToken cachedToken = _fixture!.CreateToken(expired: false);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -112,7 +113,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenNonExpiredTokenWasResolvedByMemoryCache_AssertCreateEntryWasNotCalledOnMemoryCache()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: false);
+        IToken cachedToken = _fixture!.CreateToken(expired: false);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -125,7 +126,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenNonExpiredTokenWasResolvedByMemoryCache_ReturnsTokenResolvedByMemoryCache()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: false);
+        IToken cachedToken = _fixture!.CreateToken(expired: false);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -140,7 +141,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [TestCase(false)]
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_AssertResolveAsyncWasCalledOnTokenProviderWithGivenClaimsPrincipal(bool authenticatedUser)
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken);
 
         ClaimsPrincipal user = authenticatedUser ? _fixture!.CreateAuthenticatedClaimsPrincipal() : _fixture!.CreateNonAuthenticatedClaimsPrincipal();
@@ -156,7 +157,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_AssertResolveAsyncWasCalledOnTokenProviderWithGivenCancellationToken()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -174,8 +175,8 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_AssertExpiresWasCalledOnTokenResolvedByTokenProvider()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
-        Mock<IToken> tokenResolvedByTokenProviderMock = _fixture!.CreateTokenMock(_random!);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
+        Mock<IToken> tokenResolvedByTokenProviderMock = _fixture!.CreateTokenMock();
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken, tokenResolvedByTokenProvider:tokenResolvedByTokenProviderMock.Object);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -189,7 +190,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_AssertCreateEntryWasCalledOnMemoryCacheWithTokenKeyResolvedByTokenKeyProvider()
     {
         string tokenKey = _fixture!.Create<string>();
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken, tokenKey: tokenKey);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -202,8 +203,8 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_AssertValueSetterWasCalledOnCacheEntryCreatedByMemoryCacheWithTokenResolvedByTokenProvider()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
-        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(_random!);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
+        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken();
         Mock<ICacheEntry> createdCacheEntryMock = CreateCacheEntryMock(_fixture!, _random!);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken, tokenResolvedByTokenProvider: tokenResolvedByTokenProvider, createdCacheEntry: createdCacheEntryMock.Object);
 
@@ -217,9 +218,9 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_AssertAbsoluteExpirationSetterWasCalledOnCacheEntryCreatedByMemoryCacheWithExpiresFromTokenResolvedByTokenProvider()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
         DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(_random!.Next(5, 60));
-        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(_random!, expires: expires);
+        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(expires: expires);
         Mock<ICacheEntry> createdCacheEntryMock = CreateCacheEntryMock(_fixture!, _random!);
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken, tokenResolvedByTokenProvider: tokenResolvedByTokenProvider, createdCacheEntry: createdCacheEntryMock.Object);
 
@@ -233,8 +234,8 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenExpiredTokenWasResolvedByMemoryCache_ReturnsTokenResolvedByTokenProvider()
     {
-        IToken cachedToken = _fixture!.CreateToken(_random!, expired: true);
-        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(_random!);
+        IToken cachedToken = _fixture!.CreateToken(expired: true);
+        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken();
         ITokenStorage sut = CreateSut(hasCachedToken: true, cachedToken: cachedToken, tokenResolvedByTokenProvider: tokenResolvedByTokenProvider);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -281,7 +282,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenNoTokenWasResolvedByMemoryCache_AssertExpiresWasCalledOnTokenResolvedByTokenProvider()
     {
-        Mock<IToken> tokenResolvedByTokenProviderMock = _fixture!.CreateTokenMock(_random!);
+        Mock<IToken> tokenResolvedByTokenProviderMock = _fixture!.CreateTokenMock();
         ITokenStorage sut = CreateSut(hasCachedToken: false, tokenResolvedByTokenProvider:tokenResolvedByTokenProviderMock.Object);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -307,7 +308,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenNoTokenWasResolvedByMemoryCache_AssertValueSetterWasCalledOnCacheEntryCreatedByMemoryCacheWithTokenResolvedByTokenProvider()
     {
-        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(_random!);
+        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken();
         Mock<ICacheEntry> createdCacheEntryMock = CreateCacheEntryMock(_fixture!, _random!);
         ITokenStorage sut = CreateSut(hasCachedToken: false, tokenResolvedByTokenProvider: tokenResolvedByTokenProvider, createdCacheEntry: createdCacheEntryMock.Object);
 
@@ -322,7 +323,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     public async Task GetTokenAsync_WhenNoTokenWasResolvedByMemoryCache_AssertAbsoluteExpirationSetterWasCalledOnCacheEntryCreatedByMemoryCacheWithExpiresFromTokenResolvedByTokenProvider()
     {
         DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(_random!.Next(5, 60));
-        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(_random!, expires: expires);
+        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(expires: expires);
         Mock<ICacheEntry> createdCacheEntryMock = CreateCacheEntryMock(_fixture!, _random!);
         ITokenStorage sut = CreateSut(hasCachedToken: false, tokenResolvedByTokenProvider: tokenResolvedByTokenProvider, createdCacheEntry: createdCacheEntryMock.Object);
 
@@ -336,7 +337,7 @@ public class GetTokenAsyncTests : TokenStorageTestBase
     [Category("UnitTest")]
     public async Task GetTokenAsync_WhenNoTokenWasResolvedByMemoryCache_ReturnsTokenResolvedByTokenProvider()
     {
-        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken(_random!);
+        IToken tokenResolvedByTokenProvider = _fixture!.CreateToken();
         ITokenStorage sut = CreateSut(hasCachedToken: false, tokenResolvedByTokenProvider: tokenResolvedByTokenProvider);
 
         ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
@@ -347,14 +348,14 @@ public class GetTokenAsyncTests : TokenStorageTestBase
 
     private ITokenStorage CreateSut(string? tokenKey = null, bool hasCachedToken = true, IToken? cachedToken = null, IToken? tokenResolvedByTokenProvider = null, ICacheEntry? createdCacheEntry = null)
     {
-        object? cachedObject = hasCachedToken ? cachedToken ?? _fixture!.CreateToken(_random!) : null;
+        object? cachedObject = hasCachedToken ? cachedToken ?? _fixture!.CreateToken() : null;
         _memoryCacheMock!.Setup(m => m.TryGetValue(It.IsAny<object>(), out cachedObject))
             .Returns(cachedObject != null);
         _memoryCacheMock!.Setup(m => m.CreateEntry(It.IsAny<object>()))
             .Returns(createdCacheEntry ?? CreateCacheEntry(_fixture!, _random!));
 
         _tokenKeyProviderMock!.Setup(_fixture!, tokenKey: tokenKey);
-        _tokenProviderMock!.Setup(_fixture!, _random!, token: tokenResolvedByTokenProvider);
+        _tokenProviderMock!.Setup(_fixture!, token: tokenResolvedByTokenProvider);
 
         return new WebApi.Security.TokenStorage(_memoryCacheMock!.Object, _tokenKeyProviderMock!.Object, _tokenProviderMock!.Object);
     }

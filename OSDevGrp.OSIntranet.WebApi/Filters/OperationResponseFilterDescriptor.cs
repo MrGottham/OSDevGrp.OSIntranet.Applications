@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.WebApi.Models.Core;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.WebApi.Models.Core;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
@@ -15,20 +16,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
     {
         #region Private variables
 
-        private readonly static Type[] EmptyResponseTypeCollection = new[] 
-        {
+        private static readonly Type[] EmptyResponseTypeCollection =
+        [
             typeof(void),
             typeof(IActionResult),
             typeof(ActionResult),
             typeof(EmptyResult),
             typeof(OkResult),
             typeof(Task)
-        };
-        private readonly static Type[] GenericResponseTypeCollection = new[]
-        {
+        ];
+        private static readonly Type[] GenericResponseTypeCollection =
+        [
             typeof(ActionResult<>),
             typeof(Task<>)
-        };
+        ];
 
         #endregion
 
@@ -51,22 +52,25 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 .NotNullOrWhiteSpace(description, nameof(description));
 
             string key = Convert.ToString((int) httpStatusCode);
-            if (operation.Responses.ContainsKey(key))
+            if (operation.Responses != null && operation.Responses.ContainsKey(key))
             {
                 return;
             }
 
             OpenApiResponse response = new OpenApiResponse
             {
-                Description = description,
+                Description = description
             };
 
-            if (responseType != null && response.Content.ContainsKey("application/json") == false)
+            if (responseType != null)
             {
-                response.Content.Add("application/json", new OpenApiMediaType { Schema = context.SchemaGenerator.GenerateSchema(responseType, context.SchemaRepository) });
+                response.Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    { "application/json", new OpenApiMediaType { Schema = context.SchemaGenerator.GenerateSchema(responseType, context.SchemaRepository) } }
+                };
             }
 
-            operation.Responses.Add(key, response);
+            operation.Responses?.Add(key, response);
         }
 
         private static Type GetResponseType(MethodInfo methodInfo)
@@ -89,7 +93,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
             }
 
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
-            if (genericTypeDefinition != null && GenericResponseTypeCollection.Contains(genericTypeDefinition))
+            if (GenericResponseTypeCollection.Contains(genericTypeDefinition))
             {
                 return GetResponseType(type.GetGenericArguments().Single());
             }

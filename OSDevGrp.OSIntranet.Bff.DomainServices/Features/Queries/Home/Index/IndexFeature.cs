@@ -1,7 +1,7 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using System.Globalization;
 using System.Security.Claims;
 
@@ -54,22 +54,30 @@ internal class IndexFeature : PageFeatureBase<IndexRequest, IndexResponse, Claim
         IBuildInfo buildInfo = _buildInfoProvider.GetBuildInfo(request.ExecutingAssembly);
         DateTimeOffset buildDateTime = buildInfo.BuildTime;
 
-        object[] noArguments = Array.Empty<object>();
-
         IDictionary<StaticTextKey, IEnumerable<object>> staticTextSpecifications = new Dictionary<StaticTextKey, IEnumerable<object>>();
         if (isAuthenticated)
         {
-            staticTextSpecifications.Add(StaticTextKey.OSDevelopmentGroup, noArguments);
+            staticTextSpecifications.Add(StaticTextKey.OSDevelopmentGroup, StaticTextKey.OSDevelopmentGroup.DefaultArguments());
         }
         else
         {
-            staticTextSpecifications.Add(StaticTextKey.MrGotthamsHomepage, noArguments);
+            staticTextSpecifications.Add(StaticTextKey.MrGotthamsHomepage, StaticTextKey.MrGotthamsHomepage.DefaultArguments());
         }
         staticTextSpecifications.Add(StaticTextKey.Copyright, [buildDateTime.Year]);
         staticTextSpecifications.Add(StaticTextKey.BuildInfo, [buildDateTime.ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture)]);
-        staticTextSpecifications.Add(StaticTextKey.Start, noArguments);
-        staticTextSpecifications.Add(StaticTextKey.Login, noArguments);
-        staticTextSpecifications.Add(StaticTextKey.Logout, noArguments);
+        staticTextSpecifications.Add(StaticTextKey.Start, StaticTextKey.Start.DefaultArguments());
+        staticTextSpecifications.Add(StaticTextKey.Login, StaticTextKey.Login.DefaultArguments());
+        staticTextSpecifications.Add(StaticTextKey.Logout, StaticTextKey.Logout.DefaultArguments());
+
+        if (isAuthenticated == false)
+        {
+            return staticTextSpecifications.AsReadOnly();
+        }
+
+        staticTextSpecifications.Add(StaticTextKey.MyOverview, StaticTextKey.MyOverview.DefaultArguments());
+        staticTextSpecifications.Add(StaticTextKey.FinancialManagement, StaticTextKey.FinancialManagement.DefaultArguments());
+        staticTextSpecifications.Add(StaticTextKey.Accountings, StaticTextKey.Accountings.DefaultArguments());
+        staticTextSpecifications.Add(StaticTextKey.CreateNewAccounting, StaticTextKey.CreateNewAccounting.DefaultArguments());
 
         return staticTextSpecifications.AsReadOnly();
     }

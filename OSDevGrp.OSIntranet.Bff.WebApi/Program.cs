@@ -21,7 +21,7 @@ applicationBuilder.WebHost.ConfigureKestrel(options => options.AddServerHeader =
 applicationBuilder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 
@@ -55,7 +55,17 @@ applicationBuilder.Services.AddDataProtection()
     .UseEphemeralDataProtectionProvider()
     .SetDefaultKeyLifetime(new TimeSpan(30, 0, 0, 0));
 
-applicationBuilder.Services.AddCors();
+applicationBuilder.Services.AddCors(options =>
+{
+    options.AddPolicy(ProgramHelper.GetReactFrontendPolicyName(), builder =>
+    {
+        CorsOptions corsOptions = applicationBuilder.Configuration.GetCorsOptions() ?? throw new InvalidOperationException($"Configuration was not provided for {nameof(CorsOptions)}.");
+        builder.WithOrigins(corsOptions.AsOrigins().ToArray())
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 applicationBuilder.Services.AddRazorPages();
 applicationBuilder.Services.AddControllers(options => 
@@ -84,6 +94,10 @@ authenticationBuilder.AddCookie(Schemes.Internal, options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.Name = ProgramHelper.GetInternalAuthenticationCookieName();
+    options.Events.OnSigningIn += context =>
+    {
+        return context.TransformAsync();
+    };
     options.Events.OnSigningOut += async context =>
     {
         ITokenStorage tokenStorage = context.HttpContext.RequestServices.GetRequiredService<ITokenStorage>();
@@ -153,6 +167,36 @@ applicationBuilder.Services.AddAuthorization(options =>
         policy.RequireClaim(ClaimTypes.Name);
         policy.RequireClaim(ClaimTypes.Email);
     });
+    options.AddPolicy(Policies.Accounting, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+    });
+    options.AddPolicy(Policies.AccountingCreator, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingCreatorClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.CommonDataClaimType);
+    });
+    options.AddPolicy(Policies.AccountingViewer, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingViewerClaimType);
+    });
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -160,7 +204,7 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 {
     options.AddDocumentTransformer((document, _, _) => 
     {
-        document.Info = new Microsoft.OpenApi.Models.OpenApiInfo
+        document.Info = new Microsoft.OpenApi.OpenApiInfo
         {
             Title = ProgramHelper.GetTitle(),
             Version = "v1",
@@ -173,16 +217,16 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 applicationBuilder.Services.AddHealthChecks()
     .AddServiceGatewayHealthCheck()
     .AddCheck<OpenIdConnectOptionsHealthCheck>(nameof(OpenIdConnectOptionsHealthCheck))
+    .AddCheck<CorsOptionsHealthCheck>(nameof(CorsOptionsHealthCheck))
     .AddCheck<TrustedDomainOptionsHealthCheck>(nameof(TrustedDomainOptionsHealthCheck));
 
-applicationBuilder.Services.AddHttpContextAccessor()
-    .AddMemoryCache();
+applicationBuilder.Services.AddHttpContextAccessor();
 
 applicationBuilder.Services.Configure<OSDevGrp.OSIntranet.Bff.WebApi.Options.OpenIdConnectOptions>(applicationBuilder.Configuration.GetOpenIdConnectSection())
+    .Configure<CorsOptions>(applicationBuilder.Configuration.GetCorsSection())
     .Configure<TrustedDomainOptions>(applicationBuilder.Configuration.GetTrustedDomainSection())
     .AddScoped<IProblemDetailsFactory, ProblemDetailsFactory>()
     .AddScoped<ISchemaValidator, SchemaValidator>()
-    .AddSingleton(TimeProvider.System)
     .AddSingleton<IFormatProvider>(_ => new CultureInfo("da-DK", false))
     .AddSingleton<ITokenKeyGenerator, TokenKeyGenerator>()
     .Configure<TokenKeyProviderOptions>(_ => { })
@@ -220,7 +264,7 @@ if (ProgramHelper.RunningInDocker() == false)
 
 webApplication.UseCookiePolicy();
 
-webApplication.UseCors("default");
+webApplication.UseCors(ProgramHelper.GetReactFrontendPolicyName());
 
 webApplication.UseAuthentication();
 webApplication.UseAuthorization();

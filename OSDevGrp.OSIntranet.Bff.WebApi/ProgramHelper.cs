@@ -71,5 +71,7 @@ internal static class ProgramHelper
 
     internal static string GetAccessDeniedPath() => "/api/security/accessdenied";
 
+    internal static string GetReactFrontendPolicyName() => "ReactFrontendPolicy";
+
     #endregion
 }

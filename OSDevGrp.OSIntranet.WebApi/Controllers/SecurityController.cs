@@ -17,6 +17,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Extensions;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
 using OSDevGrp.OSIntranet.WebApi.Security;
@@ -50,7 +51,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         private readonly IQueryBus _queryBus;
         private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly TimeProvider _timeProvider;
-        private readonly IConverter _securityModelConverter = new SecurityModelConverter();
+        private readonly IConverter _securityModelConverter;
         private static readonly Regex GrantTypeRegex = new("^(authorization_code|client_credentials){1}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
         private static readonly Regex AuthorizationRegex = new($"^(Basic){{1}}\\s+({Base64Pattern}){{1}}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
         private static readonly Regex AuthorizationParameterForClientIdAndClientSecretRegex = new("^([a-f0-9]{32}){1}:([a-f0-9]{32}){1}$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(32));
@@ -59,17 +60,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         #region Constructor
 
-        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider, TimeProvider timeProvider)
+        public SecurityController(ICommandBus commandBus, IQueryBus queryBus, IDataProtectionProvider dataProtectionProvider, TimeProvider timeProvider, IConverterFactory converterFactory)
         {
             NullGuard.NotNull(commandBus, nameof(commandBus))
                 .NotNull(queryBus, nameof(queryBus))
                 .NotNull(dataProtectionProvider, nameof(dataProtectionProvider))
-                .NotNull(timeProvider, nameof(timeProvider));
+                .NotNull(timeProvider, nameof(timeProvider))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _commandBus = commandBus;
             _queryBus = queryBus;
             _dataProtectionProvider = dataProtectionProvider;
             _timeProvider = timeProvider;
+            _securityModelConverter = converterFactory.CreateSecurityModelConverter();
+
         }
 
         #endregion

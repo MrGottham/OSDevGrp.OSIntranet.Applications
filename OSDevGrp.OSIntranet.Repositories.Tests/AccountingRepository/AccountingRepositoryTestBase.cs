@@ -17,7 +17,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         protected IAccountingRepository CreateSut()
         {
-            return new Repositories.AccountingRepository(CreateTestRepositoryContext(), CreateLoggerFactory(), CreateEventPublisher());
+            return new Repositories.AccountingRepository(CreateTestRepositoryContext(), CreateConverterFactory(), CreateLoggerFactory(), CreateEventPublisher());
         }
 
         protected int WithExistingAccountingNumber()

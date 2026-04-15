@@ -31,8 +31,6 @@ services:
 
   executor:
     image: executor-osintranet
-    depends_on:
-      - builder
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Executor.Dockerfile
@@ -46,20 +44,23 @@ services:
   reverseproxy:
     image: reverseproxy-osintranet
     depends_on:
-      - certificatebuilder
       - mvc
       - webapi
       - bff
+      - react
     build:
       context: .
       dockerfile: Nginx.Dockerfile
       args:
         certificateCommonName: ${certificateCommonName}
+      additional_contexts:
+        certificatebuilder-osintranet: "service:certificatebuilder"
     ports:
       - "80:80"
       - "443:443"
       - "8443:8443"
       - "8445:8445"
+      - "8447:8447"
     restart: always
 
   mvc:
@@ -82,18 +83,17 @@ services:
       - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
       - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenMvc}
       - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationMvc}
+      - Licenses__AutoMapper__LicenseKey=${licensesAutoMapperLicenseKey}
       - ExternalData__Dashboard__EndpointAddress=${externalDataDashboardEndpointAddress}
-    depends_on:
-      - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Mvc.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-      cache_from:
-        - builder-osintranet
-        - executor-osintranet
+      additional_contexts:
+        builder-osintranet: "service:builder"
+        executor-osintranet: "service:executor"
     expose:
       - "8080"
       - "2222"
@@ -126,17 +126,16 @@ services:
       - Security__JWT__Audience=${securityJwtAudience}
       - Security__AcmeChallenge__WellKnownChallengeToken=${securityAcmeChallengeWellKnownChallengeTokenWebApi}
       - Security__AcmeChallenge__ConstructedKeyAuthorization=${securityAcmeChallengeConstructedKeyAuthorizationWebApi}
-    depends_on:
-      - executor
+      - Licenses__AutoMapper__LicenseKey=${licensesAutoMapperLicenseKey}
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.WebApi.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-      cache_from:
-        - builder-osintranet
-        - executor-osintranet
+      additional_contexts:
+        builder-osintranet: "service:builder"
+        executor-osintranet: "service:executor"
     expose:
       - "8080"
       - "2222"
@@ -153,25 +152,47 @@ services:
       - Security__OIDC__Authority=${securityOidcAuthority}
       - Security__OIDC__ClientId=${securityOidcClientIdBff}
       - Security__OIDC__ClientSecret=${securityOidcClientSecretBff}
+      - Security__Cors__OriginCollection=${securityCorsOriginCollectionBff}
       - Security__TrustedDomainCollection=${securityTrustedDomainCollection}
       - ServiceGateways__WebApi__EndpointAddress=${serviceGatewaysWebApiEndpointAddress}
       - ServiceGateways__WebApi__ClientId=${securityOidcClientIdBff}
       - ServiceGateways__WebApi__ClientSecret=${securityOidcClientSecretBff}
-    depends_on:
-      - executor
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Bff.WebApi.Dockerfile
       args:
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
-      cache_from:
-        - builder-osintranet
-        - executor-osintranet
+      additional_contexts:
+        builder-osintranet: "service:builder"
+        executor-osintranet: "service:executor"
     expose:
       - "8080"
       - "2222"
     restart: always
+
+  react:
+    image: react-osintranet
+    environment: 
+      - RUNNING_IN_CONTAINER=true
+      - SERVER_PORT=8080
+      - NON_ROOT_USER=${nonRootUser}
+      - SUDO_ASKPASS=/usr/local/bin/askpw
+      - VITE_BFF_ENDPOINT=${bffEndpointAddress}
+    build:
+      context: .
+      dockerfile: OSDevGrp.OSIntranet.React.Dockerfile
+      args:
+        bffEndpointAddress: ${bffEndpointAddress}
+        appUserGroup: ${appUserGroup}
+        nonRootUser: ${nonRootUser}
+        nonRootPassword: ${nonRootPassword}
+        sshPassword: ${sshPasswordExecutor}
+        maxHttpHeaderSize: ${maxHttpHeaderSize}
+    expose:
+      - "8080"
+      - "2222"
+    restart: "always"
 
   certbot:
     image: certbot-osintranet

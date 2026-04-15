@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS applicationbuilder
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS applicationbuilder
 WORKDIR /src
 
 # Copy .sln and .csproj files and restore as distinct layers
@@ -26,12 +26,14 @@ COPY OSDevGrp.OSIntranet.WebApi.ClientApi/OSDevGrp.OSIntranet.WebApi.ClientApi.c
 COPY OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.WebApi.Tests/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways/OSDevGrp.OSIntranet.Bff.ServiceGateways.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways/
+COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData/OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData/
 COPY OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests.csproj ./OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/
 COPY OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/
 COPY OSDevGrp.OSIntranet.Bff.DomainServices/OSDevGrp.OSIntranet.Bff.DomainServices.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices/
 COPY OSDevGrp.OSIntranet.Bff.DomainServices.Tests/OSDevGrp.OSIntranet.Bff.DomainServices.Tests.csproj ./OSDevGrp.OSIntranet.Bff.DomainServices.Tests/
 COPY OSDevGrp.OSIntranet.Bff.WebApi/OSDevGrp.OSIntranet.Bff.WebApi.csproj ./OSDevGrp.OSIntranet.Bff.WebApi/
 COPY OSDevGrp.OSIntranet.Bff.WebApi.Tests/OSDevGrp.OSIntranet.Bff.WebApi.Tests.csproj ./OSDevGrp.OSIntranet.Bff.WebApi.Tests/
+COPY osdevgrp.osintranet.react/osdevgrp.osintranet.react.esproj ./osdevgrp.osintranet.react/
 RUN dotnet restore
 
 # Copy everything else and build app

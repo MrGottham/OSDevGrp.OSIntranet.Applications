@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.OpenApi;
+using OSDevGrp.OSIntranet.Core;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
-using OSDevGrp.OSIntranet.Core;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Nodes;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
@@ -14,7 +14,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
     {
         #region Methods
 
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
             NullGuard.NotNull(schema, nameof(schema))
                 .NotNull(context, nameof(context));
@@ -24,10 +24,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 return;
             }
 
-            schema.Type = "string";
-            schema.Format = "string";
-            schema.Enum = GetEnumValues(context.Type)
-                .Select(enumValue => (IOpenApiAny) new OpenApiString(enumValue))
+            if (schema is not OpenApiSchema openApiSchema)
+            {
+                return;
+            }
+
+            openApiSchema.Type = JsonSchemaType.String;
+            openApiSchema.Format = "string";
+            openApiSchema.Enum = GetEnumValues(context.Type)
+                .Select(enumValue => (JsonNode)JsonValue.Create(enumValue))
                 .ToList();
         }
 

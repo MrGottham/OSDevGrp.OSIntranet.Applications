@@ -24,7 +24,7 @@ internal class CommandFeaturePermissionVerifier<TRequest> : ICommandFeature<TReq
 
     public async Task ExecuteAsync(TRequest request, CancellationToken cancellationToken = default)
     {
-        if (this.GetInnerMostFeature() is IPermissionVerifiable permissionVerifiable)
+        if (this.GetInnerMostFeature() is IPermissionVerifiable<TRequest> permissionVerifiable)
         {
             if (await permissionVerifiable.VerifyPermissionAsync(request.SecurityContext, request, cancellationToken) == false)
             {

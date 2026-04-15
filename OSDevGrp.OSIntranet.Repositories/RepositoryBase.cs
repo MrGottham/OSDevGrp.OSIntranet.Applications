@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.Reflection;
 using System.Text;
@@ -12,16 +13,20 @@ namespace OSDevGrp.OSIntranet.Repositories
     {
         #region Constructor
 
-        protected RepositoryBase(ILoggerFactory loggerFactory)
+        protected RepositoryBase(IConverterFactory converterFactory,ILoggerFactory loggerFactory)
         {
-            NullGuard.NotNull(loggerFactory, nameof(loggerFactory));
+            NullGuard.NotNull(converterFactory, nameof(converterFactory))
+                .NotNull(loggerFactory, nameof(loggerFactory));
 
+            ConverterFactory = converterFactory;
             LoggerFactory = loggerFactory;
         }
 
         #endregion
 
         #region Properties
+
+        protected IConverterFactory ConverterFactory { get; }
 
         protected ILoggerFactory LoggerFactory { get; }
 

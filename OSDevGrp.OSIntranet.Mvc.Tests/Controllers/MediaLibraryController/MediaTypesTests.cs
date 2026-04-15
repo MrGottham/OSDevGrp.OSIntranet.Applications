@@ -9,6 +9,7 @@ using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -207,7 +208,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.MediaLibraryController
             _claimResolverMock.Setup(m => m.IsMediaLibraryModifier())
 	            .Returns(isMediaLibraryModifier ?? _fixture.Create<bool>());
 
-			return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object);
+			return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

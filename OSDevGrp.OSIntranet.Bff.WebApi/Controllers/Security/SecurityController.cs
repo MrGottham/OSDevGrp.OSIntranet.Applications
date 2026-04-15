@@ -2,6 +2,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Security.GenerateVerification;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.UserInfo;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.Verification;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using System.ComponentModel.DataAnnotations;
@@ -19,15 +26,19 @@ public class SecurityController : ControllerBase
 
     private readonly IProblemDetailsFactory _problemDetailsFactory;
     private readonly ITrustedDomainResolver _trustedDomainResolver;
+    private readonly IFormatProvider _formatProvider;
+    private readonly ISecurityContextProvider _securityContextProvider;
 
     #endregion
 
     #region Constructor
 
-    public SecurityController(IProblemDetailsFactory problemDetailsFactory, ITrustedDomainResolver trustedDomainResolver)
+    public SecurityController(IProblemDetailsFactory problemDetailsFactory, ITrustedDomainResolver trustedDomainResolver, IFormatProvider formatProvider, ISecurityContextProvider securityContextProvider)
     {
         _problemDetailsFactory = problemDetailsFactory;
         _trustedDomainResolver = trustedDomainResolver;
+        _formatProvider = formatProvider;
+        _securityContextProvider = securityContextProvider;
     }
 
     #endregion
@@ -74,6 +85,21 @@ public class SecurityController : ControllerBase
         return SignOut(authenticationProperties, OpenIdConnectDefaults.AuthenticationScheme, Schemes.Internal);
     }
 
+    [HttpGet("userinfo")]
+    [ProducesResponseType(typeof(UserInfoResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> UserInfoAsync([FromServices] IQueryFeature<UserInfoRequest, UserInfoResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        UserInfoRequest userInfoRequest = new UserInfoRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        UserInfoResponse userInfoResponse = await queryFeature.ExecuteAsync(userInfoRequest, cancellationToken);
+
+        return Ok(UserInfoResponseDto.Map(userInfoResponse));
+    }
+
     [AllowAnonymous]
     [HttpGet("accessdenied")]
     [ProducesResponseType((int) HttpStatusCode.Redirect)]
@@ -81,6 +107,63 @@ public class SecurityController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
     public IActionResult AccessDenied() => RedirectToPage("/AccessDenied");
+
+    [AllowAnonymous]
+    [HttpGet("accessdenied/content")]
+    [ProducesResponseType(typeof(AccessDeniedContentResponseDto), (int) HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AccessDeniedContentAsync([FromServices] IQueryFeature<AccessDeniedContentRequest, AccessDeniedContentResponse> queryFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AccessDeniedContentRequest accessDeniedContentRequest = new AccessDeniedContentRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        AccessDeniedContentResponse accessDeniedContentResponse = await queryFeature.ExecuteAsync(accessDeniedContentRequest, cancellationToken);
+
+        return Ok(AccessDeniedContentResponseDto.Map(accessDeniedContentResponse));
+    }
+
+    [HttpPost("verification")]
+    [ProducesResponseType(typeof(GenerateVerificationResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> GenerateVerificationAsync([FromServices] ICommandFeature<GenerateVerificationRequest> commandFeature, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        GenerateVerificationResponseDto? generateVerificationResponseDto = null;
+        Action<string, IReadOnlyCollection<byte>, DateTimeOffset> onVerificationCreated = (verificationKey, verificationImage, expires) =>
+        {
+            generateVerificationResponseDto = new GenerateVerificationResponseDto
+            {
+                VerificationKey = verificationKey,
+                VerificationImage = Convert.ToBase64String(verificationImage.ToArray()),
+                Expires = expires
+            };
+        };
+
+        GenerateVerificationRequest generateVerificationRequest = new GenerateVerificationRequest(Guid.NewGuid(), onVerificationCreated, securityContext);
+        await commandFeature.ExecuteAsync(generateVerificationRequest, cancellationToken);
+
+        return Ok(generateVerificationResponseDto!);
+    }
+
+    [HttpPost("verification/verify")]
+    [ProducesResponseType(typeof(VerificationResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> VerifyAsync([FromServices] IQueryFeature<VerificationRequest, VerificationResponse> queryFeature, [FromBody][Required] VerificationRequestDto verificationRequestDto, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        VerificationRequest verificationRequest = new VerificationRequest(Guid.NewGuid(), verificationRequestDto.VerificationKey, verificationRequestDto.VerificationCode, securityContext);
+        VerificationResponse verificationResponse = await queryFeature.ExecuteAsync(verificationRequest, cancellationToken);
+
+        return Ok(VerificationResponseDto.Map(verificationResponse));
+    }
 
     private Uri? GetValidatedReturnUri(string returnUrl, out IActionResult? actionResult)
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
 using System;
 using System.IO;
 using System.Net;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.Repositories
 {
-    internal abstract class WebRepositoryBase(ILoggerFactory loggerFactory) : RepositoryBase(loggerFactory)
+    internal abstract class WebRepositoryBase(IConverterFactory converterFactory, ILoggerFactory loggerFactory) : RepositoryBase(converterFactory, loggerFactory)
     {
         #region Properties
 

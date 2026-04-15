@@ -107,10 +107,9 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryHandlers.ExportToCsvQueryHandlerBa
             string headerContent = await streamReader.ReadLineAsync();
             Assert.That(allowCsvContentRegularExpression.IsMatch(headerContent ?? string.Empty), Is.True);
 
-            while (streamReader.EndOfStream == false)
+            while (await streamReader.ReadLineAsync() is { } dataContent)
             {
-                string dataContent = await streamReader.ReadLineAsync();
-                Assert.That(allowCsvContentRegularExpression.IsMatch(dataContent ?? string.Empty), Is.True);
+                Assert.That(allowCsvContentRegularExpression.IsMatch(dataContent), Is.True);
             }
 
             streamReader.Close();

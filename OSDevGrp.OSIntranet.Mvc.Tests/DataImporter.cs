@@ -365,9 +365,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests
             await using FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
             using StreamReader streamReader = new StreamReader(fileStream, encoding);
             int lineNumber = 0;
-            while (streamReader.EndOfStream == false)
+            while (await streamReader.ReadLineAsync() is { } buffer)
             {
-                await lineHandler(++lineNumber, await streamReader.ReadLineAsync());
+                await lineHandler(++lineNumber, buffer);
             }
         }
 

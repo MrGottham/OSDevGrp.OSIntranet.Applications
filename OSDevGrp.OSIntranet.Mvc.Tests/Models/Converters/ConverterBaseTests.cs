@@ -2,6 +2,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Models.Converters
@@ -25,7 +26,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Models.Converters
         [Category("UnitTest")]
         public void ConverterBase_ForAllConvertersBasedOnConverterBase_AssertMapperConfigurationIsValid()
         {
-            IEnumerable<ConverterBase> sutCollection = _converterBaseTestHelper.GetConverters(typeof(ErrorViewModel).Assembly);
+            IEnumerable<ConverterBase> sutCollection = _converterBaseTestHelper.GetConverters(typeof(ErrorViewModel).Assembly, ConverterFactoryCreator.GetLicensesOptions(), ConverterFactoryCreator.GetLoggerFactory());
 
             string result = _converterBaseTestHelper.IsConfigurationValid(sutCollection);
             if (string.IsNullOrWhiteSpace(result))

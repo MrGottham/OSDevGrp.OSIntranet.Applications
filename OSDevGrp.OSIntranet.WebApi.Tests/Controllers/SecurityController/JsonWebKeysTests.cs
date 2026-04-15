@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Security.Queries;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using System;
 using System.Linq;
 using System.Security.Cryptography;
@@ -135,7 +136,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
             _queryBusMock.Setup(m => m.QueryAsync<IGetJsonWebKeySetQuery, JsonWebKeySet>(It.IsAny<IGetJsonWebKeySetQuery>()))
                 .Returns(Task.FromResult(jsonWebKeySet));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object, ConverterFactoryCreator.Create());
         }
 
         private static JsonWebKey CreateJsonWebKey(Guid keyId)

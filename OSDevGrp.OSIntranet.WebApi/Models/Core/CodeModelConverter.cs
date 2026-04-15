@@ -1,8 +1,12 @@
+using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using OSDevGrp.OSIntranet.Core;
+using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Core.Options;
 using System;
 using System.Collections.Generic;
-using AutoMapper;
-using OSDevGrp.OSIntranet.Core;
-using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Core
 {
@@ -19,6 +23,15 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
             {typeof(IntranetBusinessException), "BusinessError"},
             {typeof(IntranetValidationException), "ValidationError"}
         };
+
+        #endregion
+
+        #region Constructor
+
+        private CoreModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+        }
 
         #endregion
 
@@ -83,6 +96,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Core
 
             mapperConfiguration.CreateMap<Type, string>()
                 .ConvertUsing(src => ErrorTypeDictionary[src]);
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new CoreModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion

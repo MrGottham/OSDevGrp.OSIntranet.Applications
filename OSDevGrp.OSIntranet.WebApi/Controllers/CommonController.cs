@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
+using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Models.Common;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System.Collections.Generic;
@@ -23,17 +24,19 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         #region Private variables
 
         private readonly IQueryBus _queryBus;
-        private readonly IConverter _commonModelConverter = new CommonModelConverter();
+        private readonly IConverter _commonModelConverter;
 
         #endregion
 
         #region Constructor
 
-        public CommonController(IQueryBus queryBus)
+        public CommonController(IQueryBus queryBus, IConverterFactory converterFactory)
         {
-            NullGuard.NotNull(queryBus, nameof(queryBus));
+            NullGuard.NotNull(queryBus, nameof(queryBus))
+                .NotNull(converterFactory, nameof(converterFactory));
 
             _queryBus = queryBus;
+            _commonModelConverter = converterFactory.CreateCommonModelConverter();
         }
 
         #endregion

@@ -101,6 +101,24 @@ public class CreateProblemDetailsTests : CreateProblemDetailsTestBase
 
     [Test]
     [Category("UnitTest")]
+    public void CreateProblemDetails_WhenCalledWithVerificationException_ReturnsExpectedProblemDeails()
+    {
+        IProblemDetailsFactory sut = CreateSut();
+
+        Uri requestUrl = CreateRequestUrl(_fixture!);
+        HttpRequest httpRequest = CreateHttpRequest(_fixture!, requestUrl: requestUrl);
+        VerificationException exception = new VerificationException();
+        ProblemDetails problemDetails = sut.CreateProblemDetails(httpRequest, exception);
+
+        VerifyProblemDetails(problemDetails, 
+            HttpStatusCode.BadRequest,
+            GetExpectedTitel(HttpStatusCode.BadRequest), 
+            exception.Message, 
+            requestUrl);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     public void CreateProblemDetails_WhenCalledWithSecurityException_ReturnsExpectedProblemDeails()
     {
         IProblemDetailsFactory sut = CreateSut();

@@ -11,6 +11,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.ExternalData;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Models.Home;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -252,7 +253,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _queryBusMock.Setup(m => m.QueryAsync<IGetNewsCollectionQuery, IEnumerable<INews>>(It.IsAny<IGetNewsCollectionQuery>()))
                 .Returns(Task.FromResult(hasNews ? newsCollection ?? _fixture.CreateMany<INews>(_random.Next(10, 25)) : null));
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object);
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, ConverterFactoryCreator.Create());
         }
     }
 }

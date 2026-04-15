@@ -1,15 +1,27 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
 using OSDevGrp.OSIntranet.Repositories.Models.Security;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Repositories.Converters
 {
     internal class SecurityModelConverter : ConverterBase
     {
+        #region Constructor
+
+        private SecurityModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+		{
+		}
+
+        #endregion
+
         #region Methods
 
         protected override void Initialize(IMapperConfigurationExpression mapperConfiguration)
@@ -68,9 +80,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ConvertUsing(claimModel => claimModel.ToDomain());
         }
 
-        internal static IConverter Create()
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            return new SecurityModelConverter();
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new SecurityModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion

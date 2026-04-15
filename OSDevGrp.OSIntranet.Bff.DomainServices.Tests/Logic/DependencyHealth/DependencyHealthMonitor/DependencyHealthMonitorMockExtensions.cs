@@ -1,7 +1,6 @@
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Models.Local;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DependencyHealth.DependencyHealthMonitor;
 

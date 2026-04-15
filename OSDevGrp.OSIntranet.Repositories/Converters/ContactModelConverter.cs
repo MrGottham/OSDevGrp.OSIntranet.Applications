@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
@@ -13,7 +16,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
     {
         #region Private variables
 
-        private readonly IConverter _accountingConverter = AccountingModelConverter.Create();
+        private readonly IConverter _accountingConverter;
+
+        #endregion
+
+        #region Constructor
+
+        private ContactModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+            _accountingConverter = AccountingModelConverter.Create(licensesOptions, loggerFactory);
+        }
 
         #endregion
 
@@ -77,9 +90,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
         }
 
-        internal static IConverter Create()
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            return new ContactModelConverter();
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new ContactModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion

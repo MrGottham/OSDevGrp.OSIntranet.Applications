@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Repositories.Models.Accounting;
@@ -15,7 +18,17 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
         #region Private variables
 
         private readonly MapperCache _mapperCache = new MapperCache();
-        private readonly IConverter _commonModelConverter = CommonModelConverter.Create();
+        private readonly IConverter _commonModelConverter;
+
+        #endregion
+
+        #region Constructor
+
+        private AccountingModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+            _commonModelConverter = CommonModelConverter.Create(licensesOptions, loggerFactory);
+        }
 
         #endregion
 
@@ -205,9 +218,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
                 .ForMember(dest => dest.ModifiedUtcDateTime, opt => opt.MapFrom(src => src.ModifiedDateTime.ToUniversalTime()));
         }
 
-        internal static IConverter Create()
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            return new AccountingModelConverter();
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new AccountingModelConverter(licensesOptions, loggerFactory);
         }
 
         private static MapperCache ResolveMapperCacheFromContext(IDictionary<string, object> stateDictionary)

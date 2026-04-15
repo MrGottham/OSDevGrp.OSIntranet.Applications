@@ -9,6 +9,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Mvc.Models.Common;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.Mvc.Controllers.CommonController;
 
 namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
@@ -207,7 +208,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
             _commandBusMock.Setup(m => m.PublishAsync(It.IsAny<ICreateLetterHeadCommand>()))
                 .Returns(Task.Run(() => { }));
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
             if (modelIsValid == false)
             {
                 controller.ModelState.AddModelError(_fixture.Create<string>(), _fixture.Create<string>());

@@ -1,6 +1,8 @@
 FROM builder-osintranet AS applicationbuilder
 
 FROM executor-osintranet AS applicationexecutor
+RUN apt-get install -y --no-install-recommends fonts-liberation
+
 WORKDIR /app
 COPY --from=applicationbuilder /src/OSDevGrp.OSIntranet.Bff.WebApi/out .
 COPY OSDevGrp.OSIntranet.Bff.WebApi.supervisord.conf /etc/supervisor/conf.d/supervisord.conf

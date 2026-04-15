@@ -12,6 +12,7 @@ using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security;
 using OSDevGrp.OSIntranet.Mvc.Helpers.Security.Enums;
 using OSDevGrp.OSIntranet.Mvc.Models.Home;
+using OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -757,7 +758,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
             _claimResolverMock.Setup(m => m.GetNumberOfNewsToCollect())
                 .Returns(hasNumberOfNewsToCollect ?? _random.Next(100) > 50 ? numberOfNewsToCollect ?? (int?) _fixture.Create<int>() : null);
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object)
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, _claimResolverMock.Object, _tokenHelperFactoryMock.Object, ConverterFactoryCreator.Create())
             {
                 ControllerContext = new ControllerContext
                 {

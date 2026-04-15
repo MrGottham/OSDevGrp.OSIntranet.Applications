@@ -17,6 +17,7 @@ using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using OSDevGrp.OSIntranet.WebApi.Tests.Helpers;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -2412,7 +2413,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
                     .Throws(exception);
             }
 
-            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object)
+            return new Controller(_commandBusMock.Object, _queryBusMock.Object, _dataProtectionProviderMock.Object, _timeProviderMock.Object, ConverterFactoryCreator.Create())
             {
                 ControllerContext =
                 {

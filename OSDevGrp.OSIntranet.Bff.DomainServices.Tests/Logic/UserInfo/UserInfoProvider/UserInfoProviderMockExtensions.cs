@@ -1,8 +1,7 @@
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Models.Home;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Models.Home.UserInfoModel;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoModel;
 using System.Security.Claims;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.UserInfo.UserInfoProvider;

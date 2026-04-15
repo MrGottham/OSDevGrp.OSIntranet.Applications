@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces.EventPublisher;
+using OSDevGrp.OSIntranet.Core.Options;
+using OSDevGrp.OSIntranet.Repositories.Converters;
+using OSDevGrp.OSIntranet.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Repositories.Tests
 {
@@ -46,6 +50,16 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests
             return new ConfigurationBuilder()
                 .AddUserSecrets<RepositoryTestBase>()
                 .Build();
+        }
+
+        protected IConverterFactory CreateConverterFactory()
+        {
+            return new ConverterFactory(CreateLicensesOptions(), CreateLoggerFactory());
+        }
+
+        protected IOptions<LicensesOptions> CreateLicensesOptions()
+        {
+            return Microsoft.Extensions.Options.Options.Create(CreateTestConfiguration().GetLicensesOptions());
         }
 
         protected ILoggerFactory CreateLoggerFactory()

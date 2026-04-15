@@ -13,6 +13,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
@@ -479,7 +480,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
             _commandBusMock.Setup(m => m.PublishAsync<IApplyPostingJournalCommand, IPostingJournalResult>(It.IsAny<IApplyPostingJournalCommand>()))
                 .Returns(Task.FromResult(hasPostingJournalResult ? postingJournalResult ?? _fixture.BuildPostingJournalResultMock().Object : null));
 
-            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object);
+            Controller controller = new Controller(_commandBusMock.Object, _queryBusMock.Object, ConverterFactoryCreator.Create());
             if (modelIsValid == false)
             {
                 controller.ModelState.AddModelError(errorKey ?? _fixture.Create<string>(), errorMessage ?? _fixture.Create<string>());

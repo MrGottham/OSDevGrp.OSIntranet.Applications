@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 {
@@ -15,8 +18,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         #region Private variables
 
-        private readonly IConverter _commonModelConverter = new CommonModelConverter();
+        private readonly IConverter _commonModelConverter;
         private readonly IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>> _applyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter = new ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter();
+
+        #endregion
+
+        #region Constructor
+
+        private AccountingModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+            _commonModelConverter = CommonModelConverter.Create(licensesOptions, loggerFactory);
+        }
 
         #endregion
 
@@ -32,21 +45,25 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
                 .ForMember(dest => dest.LetterHead, opt => opt.MapFrom(src => _commonModelConverter.Convert<ILetterHead, LetterHeadIdentificationModel>(src.LetterHead)))
                 .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.AccountCollection))
                 .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
-                .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection));
+                .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection))
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IAccountBase, AccountIdentificationModel>();
 
             mapperConfiguration.CreateMap<IAccount, AccountIdentificationModel>();
 
-            mapperConfiguration.CreateMap<IAccount, AccountCoreDataModel>();
+            mapperConfiguration.CreateMap<IAccount, AccountCoreDataModel>()
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IAccount, AccountModel>()
-                .ForMember(dest => dest.CreditInfos, opt => opt.MapFrom(src => src.CreditInfoCollection));
+                .ForMember(dest => dest.CreditInfos, opt => opt.MapFrom(src => src.CreditInfoCollection))
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IAccountCollection, AccountCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(account => account.AccountNumber).ToArray()));
 
-            mapperConfiguration.CreateMap<ICreditInfo, CreditInfoModel>();
+            mapperConfiguration.CreateMap<ICreditInfo, CreditInfoModel>()
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<ICreditInfoValues, CreditInfoValuesModel>();
 
@@ -55,15 +72,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 
             mapperConfiguration.CreateMap<IBudgetAccount, AccountIdentificationModel>();
 
-            mapperConfiguration.CreateMap<IBudgetAccount, AccountCoreDataModel>();
+            mapperConfiguration.CreateMap<IBudgetAccount, AccountCoreDataModel>()
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IBudgetAccount, BudgetAccountModel>()
-                .ForMember(dest => dest.BudgetInfos, opt => opt.MapFrom(src => src.BudgetInfoCollection));
+                .ForMember(dest => dest.BudgetInfos, opt => opt.MapFrom(src => src.BudgetInfoCollection))
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IBudgetAccountCollection, BudgetAccountCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(budgetAccount => budgetAccount.AccountNumber).ToArray()));
 
-            mapperConfiguration.CreateMap<IBudgetInfo, BudgetInfoModel>();
+            mapperConfiguration.CreateMap<IBudgetInfo, BudgetInfoModel>()
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IBudgetInfoValues, BudgetInfoValuesModel>();
 
@@ -72,15 +92,18 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
 
             mapperConfiguration.CreateMap<IContactAccount, AccountIdentificationModel>();
 
-            mapperConfiguration.CreateMap<IContactAccount, AccountCoreDataModel>();
+            mapperConfiguration.CreateMap<IContactAccount, AccountCoreDataModel>()
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountModel>()
-                .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection));
+                .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection))
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IContactAccountCollection, ContactAccountCollectionModel>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderBy(contactAccount => contactAccount.AccountName).ToArray()));
 
-            mapperConfiguration.CreateMap<IContactInfo, BalanceInfoModel>();
+            mapperConfiguration.CreateMap<IContactInfo, BalanceInfoModel>()
+                .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IContactInfoValues, BalanceInfoValuesModel>();
 
@@ -136,6 +159,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.AccountGroupType, AccountGroupType>();
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.PostingWarningReason, PostingWarningReason>();
+        }
+
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new AccountingModelConverter(licensesOptions, loggerFactory);
         }
 
         private class ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter : IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>>

@@ -2,6 +2,7 @@ using AutoFixture;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Security.TokenKeyProvider;
 using System.Security.Claims;
@@ -17,7 +18,6 @@ public class DeleteTokenAsyncTests : TokenStorageTestBase
     private Mock<ITokenKeyProvider>? _tokenKeyProviderMock;
     private Mock<ITokenProvider>? _tokenProviderMock;
     private Fixture? _fixture;
-    private Random? _random;
 
     #endregion
 
@@ -28,7 +28,6 @@ public class DeleteTokenAsyncTests : TokenStorageTestBase
         _tokenKeyProviderMock = new Mock<ITokenKeyProvider>();
         _tokenProviderMock = new Mock<ITokenProvider>();
         _fixture = new Fixture();
-        _random = new Random(_fixture.Create<int>());
     }
 
     [Test]
@@ -81,7 +80,7 @@ public class DeleteTokenAsyncTests : TokenStorageTestBase
     private ITokenStorage CreateSut(string? tokenKey = null)
     {
         _tokenKeyProviderMock!.Setup(_fixture!, tokenKey: tokenKey);
-        _tokenProviderMock!.Setup(_fixture!, _random!);
+        _tokenProviderMock!.Setup(_fixture!);
 
         return new WebApi.Security.TokenStorage(_memoryCacheMock!.Object, _tokenKeyProviderMock!.Object, _tokenProviderMock!.Object);
     }

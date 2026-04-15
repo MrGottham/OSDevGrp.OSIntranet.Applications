@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.Domain.Interfaces.MediaLibrary;
 using OSDevGrp.OSIntranet.Repositories.Models.Common;
@@ -15,12 +18,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 	    #region Private variables
 
 	    private readonly MapperCache _mapperCache = new();
-	    private readonly IConverter _commonModelConverter = CommonModelConverter.Create();
+	    private readonly IConverter _commonModelConverter;
 	    private readonly IValueConverter<IMedia, MovieModel> _mediaToMovieModelConverter = new MediaToMovieModelConverter();
 	    private readonly IValueConverter<IMedia, MusicModel> _mediaToMusicModelConverter = new MediaToMusicModelConverter();
 	    private readonly IValueConverter<IMedia, BookModel> _mediaToBookModelConverter = new MediaToBookModelConverter();
 
 		#endregion
+
+        #region Constructor
+
+        private MediaLibraryModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+		{
+			_commonModelConverter = CommonModelConverter.Create(licensesOptions, loggerFactory);
+		}
+
+        #endregion
 
 		#region Properties
 
@@ -179,9 +192,12 @@ namespace OSDevGrp.OSIntranet.Repositories.Converters
 	            .ForMember(dest => dest.CoreData, opt => opt.Ignore());
         }
 
-        internal static IConverter Create()
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
         {
-            return new MediaLibraryModelConverter();
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new MediaLibraryModelConverter(licensesOptions, loggerFactory);
         }
 
         private static MapperCache ResolveMapperCacheFromContext(IDictionary<string, object> stateDictionary)

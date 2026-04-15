@@ -14,6 +14,16 @@ internal static class ConfigurationExtensions
         return configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.OpenIdConnectSectionName}");
     }
 
+    internal static CorsOptions? GetCorsOptions(this IConfiguration configuration)
+    {
+        return configuration.GetCorsSection().Get<CorsOptions>();
+    }
+
+    internal static IConfigurationSection GetCorsSection(this IConfiguration configuration)
+    {
+        return configuration.GetSection($"{SecurityConfigurationKeys.SecuritySectionName}:{SecurityConfigurationKeys.CorsSectionName}");
+    }
+
     internal static TrustedDomainOptions? GetTrustedDomainOptions(this IConfiguration configuration)
     {
         return configuration.GetTrustedDomainSection().Get<TrustedDomainOptions>();

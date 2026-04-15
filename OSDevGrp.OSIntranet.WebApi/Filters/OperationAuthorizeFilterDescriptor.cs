@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
+using OSDevGrp.OSIntranet.Core;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using OSDevGrp.OSIntranet.Core;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace OSDevGrp.OSIntranet.WebApi.Filters
 {
@@ -16,8 +16,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
         #region Private variables
 
         private readonly AuthorizationOptions _authorizationOptions;
-        private readonly IDictionary<string, OpenApiSecurityScheme> _securitySchemes;
-        private readonly IList<OpenApiSecurityRequirement> _securityRequirements;
+        private readonly IDictionary<string, IOpenApiSecurityScheme> _securitySchemes;
 
         #endregion
 
@@ -30,7 +29,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
 
             _authorizationOptions = authorizationOptions.Value;
             _securitySchemes = swaggerGenOptions.Value.SwaggerGeneratorOptions.SecuritySchemes;
-            _securityRequirements = swaggerGenOptions.Value.SwaggerGeneratorOptions.SecurityRequirements;
         }
 
         #endregion
@@ -50,7 +48,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
             string primaryAuthenticationScheme = GetPrimaryAuthenticationScheme(GetAuthorizeAttribute(context.MethodInfo));
             if (string.IsNullOrWhiteSpace(primaryAuthenticationScheme) == false)
             {
-                Apply(operation, primaryAuthenticationScheme);
+                Apply(operation, primaryAuthenticationScheme, context.Document);
                 return;
             }
 
@@ -65,7 +63,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
                 return;
             }
 
-            Apply(operation, primaryAuthenticationScheme);
+            Apply(operation, primaryAuthenticationScheme, context.Document);
         }
 
         private string GetPrimaryAuthenticationScheme(IAuthorizeData authorizeData)
@@ -85,28 +83,36 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
             return string.IsNullOrWhiteSpace(authorizeData.AuthenticationSchemes) ? null : authorizeData.AuthenticationSchemes.Split(',').First();
         }
 
-        private void Apply(OpenApiOperation operation, string primaryAuthenticationScheme)
+        private void Apply(OpenApiOperation operation, string primaryAuthenticationScheme, OpenApiDocument document)
         {
             NullGuard.NotNull(operation, nameof(operation))
                 .NotNullOrWhiteSpace(primaryAuthenticationScheme, nameof(primaryAuthenticationScheme));
 
-            if (_securitySchemes.TryGetValue(primaryAuthenticationScheme, out OpenApiSecurityScheme securityScheme) == false)
+            if (operation.Responses != null && operation.Responses.ContainsKey(Convert.ToString((int)HttpStatusCode.Unauthorized)) == false)
+            {
+                operation.Responses.Add(Convert.ToString((int)HttpStatusCode.Unauthorized), new OpenApiResponse { Description = "Unauthorized" });
+            }
+
+            if (operation.Responses != null && operation.Responses.ContainsKey(Convert.ToString((int)HttpStatusCode.Forbidden)) == false)
+            {
+                operation.Responses.Add(Convert.ToString((int)HttpStatusCode.Forbidden), new OpenApiResponse { Description = "Forbidden" });
+            }
+
+            if (_securitySchemes.TryGetValue(primaryAuthenticationScheme, out IOpenApiSecurityScheme securityScheme) == false && _securitySchemes.TryGetValue(primaryAuthenticationScheme.ToLower(), out securityScheme) == false)
             {
                 return;
             }
 
-            if (operation.Responses.ContainsKey(Convert.ToString((int) HttpStatusCode.Unauthorized)) == false)
+            OpenApiSecuritySchemeReference securitySchemeReference = new OpenApiSecuritySchemeReference(securityScheme.Scheme!, document);
+            OpenApiSecurityRequirement securityRequirement = new OpenApiSecurityRequirement
             {
-                operation.Responses.Add(Convert.ToString((int) HttpStatusCode.Unauthorized), new OpenApiResponse {Description = "Unauthorized"});
-            }
+                { securitySchemeReference, new List<string>() }
+            };
 
-            if (operation.Responses.ContainsKey(Convert.ToString((int) HttpStatusCode.Forbidden)) == false)
-            {
-                operation.Responses.Add(Convert.ToString((int) HttpStatusCode.Forbidden), new OpenApiResponse {Description = "Forbidden"});
-            }
-
-            operation.Security ??= new List<OpenApiSecurityRequirement>();
-            operation.Security.Add(_securityRequirements.Single(securityRequirement => securityRequirement.ContainsKey(securityScheme)));
+            operation.Security =
+            [
+                securityRequirement
+            ];
         }
 
         private static AllowAnonymousAttribute GetAllowAnonymousAttribute(MemberInfo memberInfo)

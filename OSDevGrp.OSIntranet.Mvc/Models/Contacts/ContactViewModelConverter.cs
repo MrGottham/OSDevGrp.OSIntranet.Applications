@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.BusinessLogic.Contacts.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Contacts.Commands;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
+using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.Mvc.Models.Accounting;
 using OSDevGrp.OSIntranet.Mvc.Models.Core;
+using System;
+using System.Collections.Generic;
 
 namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
 {
@@ -22,7 +25,17 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
         private readonly IValueConverter<IAddress, AddressViewModel> _addressViewModelConverter = new AddressViewModelConverter();
         private readonly IValueConverter<AddressViewModel, IAddressCommand> _addressCommandConverter = new AddressCommandConverter();
         private readonly IValueConverter<IContactGroup, ContactGroupViewModel> _contactGroupViewModelConverter = new ContactGroupViewModelConverter();
-        private readonly IValueConverter<IPaymentTerm, PaymentTermViewModel> _paymentTermViewModelConverter = new PaymentTermViewModelConverter();
+        private readonly IConverter _accountingConverter;
+
+        #endregion
+
+        #region Constructor
+
+        private ContactViewModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+            : base(licensesOptions, loggerFactory)
+        {
+            _accountingConverter = AccountingViewModelConverter.Create(licensesOptions, loggerFactory);
+        }
 
         #endregion
 
@@ -56,7 +69,7 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.Address, opt => opt.ConvertUsing(_addressViewModelConverter))
                 .ForMember(dest => dest.ContactGroup, opt => opt.ConvertUsing(_contactGroupViewModelConverter))
                 .ForMember(dest => dest.HomePage, opt => opt.MapFrom(src => src.PersonalHomePage))
-                .ForMember(dest => dest.PaymentTerm, opt => opt.ConvertUsing(_paymentTermViewModelConverter))
+                .ForMember(dest => dest.PaymentTerm, opt => opt.MapFrom(src => src.PaymentTerm == null ? new PaymentTermViewModel() : _accountingConverter.Convert<IPaymentTerm, PaymentTermViewModel>(src.PaymentTerm)))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
                 .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => new List<CountryViewModel>(0)))
                 .ForMember(dest => dest.ContactGroups, opt => opt.MapFrom(src => new List<ContactGroupViewModel>(0)))
@@ -166,6 +179,14 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 .ForMember(dest => dest.PostalCode, opt => opt.MapFrom(src => src.Code));
         }
 
+        internal static IConverter Create(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        {
+            NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
+                .NotNull(loggerFactory, nameof(loggerFactory));
+
+            return new ContactViewModelConverter(licensesOptions, loggerFactory);
+        }
+
         #endregion
 
         #region Private classes
@@ -273,26 +294,6 @@ namespace OSDevGrp.OSIntranet.Mvc.Models.Contacts
                 NullGuard.NotNull(context, nameof(context));
 
                 return sourceMember == null ? new ContactGroupViewModel() : context.Mapper.Map<IContactGroup, ContactGroupViewModel>(sourceMember);
-            }
-
-            #endregion
-        }
-
-        private class PaymentTermViewModelConverter : IValueConverter<IPaymentTerm, PaymentTermViewModel>
-        {
-            #region Private variables
-
-            private readonly IConverter _accountingViewModelConverter = new AccountingViewModelConverter();
-
-            #endregion
-            
-            #region Methods
-
-            public PaymentTermViewModel Convert(IPaymentTerm sourceMember, ResolutionContext context)
-            {
-                NullGuard.NotNull(context, nameof(context));
-
-                return sourceMember == null ? new PaymentTermViewModel() : _accountingViewModelConverter.Convert<IPaymentTerm, PaymentTermViewModel>(sourceMember);
             }
 
             #endregion

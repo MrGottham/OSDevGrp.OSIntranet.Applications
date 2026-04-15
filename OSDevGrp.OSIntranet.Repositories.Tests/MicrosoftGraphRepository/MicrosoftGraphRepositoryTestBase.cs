@@ -21,7 +21,7 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 
         protected IMicrosoftGraphRepository CreateSut()
         {
-            return new Repositories.MicrosoftGraphRepository(CreateMicrosoftSecurityOptions(), CreateLoggerFactory());
+            return new Repositories.MicrosoftGraphRepository(CreateMicrosoftSecurityOptions(), CreateConverterFactory(), CreateLoggerFactory());
         }
 
         private IOptions<MicrosoftSecurityOptions> CreateMicrosoftSecurityOptions()
