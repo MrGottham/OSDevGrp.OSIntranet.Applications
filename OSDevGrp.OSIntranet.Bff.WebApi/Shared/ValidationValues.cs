@@ -41,6 +41,10 @@ internal static class ValidationValues
     internal const int BalanceSheetAtStatusDateLabelMinLength = 1;
     internal const int BalanceSheetAtEndOfLastMonthFromStatusDateLabelMinLength = 1;
     internal const int BalanceSheetAtEndOfLastYearFromStatusDateLabelMinLength = 1;
+    internal const int CreditLabelMinLength = 1;
+    internal const int CreditMinLength = 1;
+    internal const int BalanceLabelMinLength = 1;
+    internal const int BalanceMinLength = 1;
     internal const int AssetsLabelMinLength = 1;
     internal const int LiabilitiesLabelMinLength = 1;
     internal const int FullBalanceSheetLineIdentificationMinLength = 1;
@@ -67,6 +71,16 @@ internal static class ValidationValues
     internal const int PostedMinLength = 1;
     internal const int AvailableLabelMinLength = 1;
     internal const int AvailableMinLength = 1;
+
+    internal const int ChartOfAccountsLabelMinLength = 1;
+    internal const int ChartOfAccountsSectionIdentificationMinLength = 1;
+    internal const int ChartOfAccountsSectionDescriptionMinLength = 1;
+    internal const int ChartOfBudgetAccountsLabelMinLength = 1;
+    internal const int ChartOfBudgetAccountsSectionIdentificationMinLength = 1;
+    internal const int ChartOfBudgetAccountsSectionDescriptionMinLength = 1;
+    internal const int ChartOfContactAccountsLabelMinLength = 1;
+    internal const int AccountNumberLabelMinLength = 1;
+    internal const int AccountNameLabelMinLength = 1;
 
     internal const int LetterHeadNameMinLength = 1;
     internal const int LetterHeadNameMaxLength = 256;

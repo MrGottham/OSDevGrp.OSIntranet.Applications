@@ -3,9 +3,10 @@ import { useParams } from 'react-router';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
+import { Fragment } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
@@ -69,6 +70,9 @@ function Accounting() {
                         {getCurrentStatusContent('1', content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getIncomeStatementContent('2', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
                         {getFullBalanceSheetContent('3', content.dynamicTexts.balanceSheet, content.staticTexts, staticTextHelper)}
+                        {getChartOfAccountsContent('4', content.dynamicTexts.chartOfAccounts, content.number, content.staticTexts, staticTextHelper)}
+                        {getChartOfBudgetAccountsContent('5', content.dynamicTexts.chartOfBudgetAccounts, content.number, content.staticTexts, staticTextHelper)}
+                        {getChartOfContactAccountsContent('6', content.dynamicTexts.chartOfContactAccounts, content.number, content.staticTexts, staticTextHelper)}
                     </Accordion>
                 </Col>
             </Row>
@@ -445,6 +449,186 @@ function Accounting() {
                 <td className={isTotal ? 'fw-bold' : ''}>{fullBalanceSheetLineDisplayer.description}</td>
                 <td className={`${isTotal ? 'fw-bold' : ''} text-end`}>{balanceValueSelector(fullBalanceSheetLineDisplayer)}</td>
             </tr>
+        )
+    }
+
+    function getChartOfAccountsContent(eventKey, chartOfAccountsDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <Accordion.Item eventKey={eventKey}>
+                <Accordion.Header><h2>{staticTextHelper.getAccountsText(staticTexts)}</h2></Accordion.Header>
+                    <Accordion.Body>
+                        <Table className='p-0' responsive={true}>
+                            <thead>
+                                <tr>
+                                    <th className='text-nowrap'>{chartOfAccountsDisplayer.accountNumberLabel}</th>
+                                    <th>{chartOfAccountsDisplayer.accountNameLabel}</th>
+                                    <th className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfAccountsDisplayer.balanceLabel}</th>
+                                    <th>{chartOfAccountsDisplayer.accountCreationPossible !== undefined && chartOfAccountsDisplayer.accountCreationPossible !== null && chartOfAccountsDisplayer.accountCreationPossible === true ? <Link to={`/accountings/${accountingNumber}/accounts/add`}><FontAwesomeIcon icon={faPlus} /></Link> : <></>}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {chartOfAccountsDisplayer.sections.map(chartOfAccountsSectionDisplayer => getChartOfAccountsSectionContent(chartOfAccountsSectionDisplayer, accountingNumber, staticTexts, staticTextHelper))}
+                            </tbody>
+                        </Table>
+                    </Accordion.Body>
+                </Accordion.Item>
+        );
+    }
+
+    function getChartOfAccountsSectionContent(chartOfAccountsSectionDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <Fragment key={chartOfAccountsSectionDisplayer.identification}>
+                <tr>
+                    <td></td>
+                    <td className='fw-bold'>{chartOfAccountsSectionDisplayer.description}</td>
+                    <td className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell'></td>
+                    <td></td>
+                </tr>
+                {chartOfAccountsSectionDisplayer.lines.map(chartOfAccountsLineDisplayer => getChartOfAccountsLineContent(chartOfAccountsLineDisplayer, accountingNumber, staticTexts, staticTextHelper))}
+            </Fragment>
+        );
+    }
+
+    function getChartOfAccountsLineContent(chartOfAccountsLineDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <tr key={chartOfAccountsLineDisplayer.accountNumber}>
+                <td className='text-nowrap'>{chartOfAccountsLineDisplayer.accountNumber}</td>
+                <td>{chartOfAccountsLineDisplayer.accountName}</td>
+                <td className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfAccountsLineDisplayer.balance}</td>
+                <td>
+                    <span className='fa-stack'>
+                        {getEditAccountContent(chartOfAccountsLineDisplayer.modifiable, `/accountings/${accountingNumber}/accounts/${chartOfAccountsLineDisplayer.accountNumber}/edit`)}
+                        {getDeleteAccountContent(chartOfAccountsLineDisplayer.deletable, 'account', accountingNumber, chartOfAccountsLineDisplayer.accountNumber, staticTextHelper.getAccountDeletionQuestionText(staticTexts, chartOfAccountsLineDisplayer.accountName))}
+                    </span>
+                </td>
+            </tr>
+        );
+    }
+
+    function getChartOfBudgetAccountsContent(eventKey, chartOfBudgetAccountsDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <Accordion.Item eventKey={eventKey}>
+                <Accordion.Header><h2>{staticTextHelper.getBudgetAccountsText(staticTexts)}</h2></Accordion.Header>
+                    <Accordion.Body>
+                        <Table className='p-0' responsive={true}>
+                            <thead>
+                                <tr>
+                                    <th className='text-nowrap'>{chartOfBudgetAccountsDisplayer.accountNumberLabel}</th>
+                                    <th>{chartOfBudgetAccountsDisplayer.accountNameLabel}</th>
+                                    <th className='d-none d-sm-none d-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfBudgetAccountsDisplayer.budgetLabel}</th>
+                                    <th className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfBudgetAccountsDisplayer.postedLabel}</th>
+                                    <th>{chartOfBudgetAccountsDisplayer.budgetAccountCreationPossible !== undefined && chartOfBudgetAccountsDisplayer.budgetAccountCreationPossible !== null && chartOfBudgetAccountsDisplayer.budgetAccountCreationPossible === true ? <Link to={`/accountings/${accountingNumber}/budgetaccounts/add`}><FontAwesomeIcon icon={faPlus} /></Link> : <></>}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {chartOfBudgetAccountsDisplayer.sections.map(chartOfBudgetAccountsSectionDisplayer => getChartOfBudgetAccountsSectionContent(chartOfBudgetAccountsSectionDisplayer, accountingNumber, staticTexts, staticTextHelper))}
+                            </tbody>
+                        </Table>
+                    </Accordion.Body>
+                </Accordion.Item>
+        );
+    }
+
+    function getChartOfBudgetAccountsSectionContent(chartOfBudgetAccountsSectionDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <Fragment key={chartOfBudgetAccountsSectionDisplayer.identification}>
+                <tr>
+                    <td></td>
+                    <td className='fw-bold'>{chartOfBudgetAccountsSectionDisplayer.description}</td>
+                    <td className='d-none d-sm-none d-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell'></td>
+                    <td className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell'></td>
+                    <td></td>
+                </tr>
+                {chartOfBudgetAccountsSectionDisplayer.lines.map(chartOfBudgetAccountsLineDisplayer => getChartOfBudgetAccountsLineContent(chartOfBudgetAccountsLineDisplayer, accountingNumber, staticTexts, staticTextHelper))}
+            </Fragment>
+        );
+    }
+
+    function getChartOfBudgetAccountsLineContent(chartOfBudgetAccountsLineDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <tr key={chartOfBudgetAccountsLineDisplayer.accountNumber}>
+                <td className='text-nowrap'>{chartOfBudgetAccountsLineDisplayer.accountNumber}</td>
+                <td>{chartOfBudgetAccountsLineDisplayer.accountName}</td>
+                <td className='d-none d-sm-none d-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfBudgetAccountsLineDisplayer.budget}</td>
+                <td className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfBudgetAccountsLineDisplayer.posted}</td>
+                <td>
+                    <span className='fa-stack'>
+                        {getEditAccountContent(chartOfBudgetAccountsLineDisplayer.modifiable, `/accountings/${accountingNumber}/budgetaccounts/${chartOfBudgetAccountsLineDisplayer.accountNumber}/edit`)}
+                        {getDeleteAccountContent(chartOfBudgetAccountsLineDisplayer.deletable, 'budgetaccount', accountingNumber, chartOfBudgetAccountsLineDisplayer.accountNumber, staticTextHelper.getBudgetAccountDeletionQuestionText(staticTexts, chartOfBudgetAccountsLineDisplayer.accountName))}
+                    </span>
+                </td>
+            </tr>
+        );
+    }
+
+    function getChartOfContactAccountsContent(eventKey, chartOfContactAccountsDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <Accordion.Item eventKey={eventKey}>
+                <Accordion.Header><h2>{staticTextHelper.getContactAccountsText(staticTexts)}</h2></Accordion.Header>
+                    <Accordion.Body>
+                        <Table className='p-0' responsive={true}>
+                            <thead>
+                                <tr>
+                                    <th className='text-nowrap'>{chartOfContactAccountsDisplayer.accountNumberLabel}</th>
+                                    <th>{chartOfContactAccountsDisplayer.accountNameLabel}</th>
+                                    <th className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfContactAccountsDisplayer.balanceLabel}</th>
+                                    <th>{chartOfContactAccountsDisplayer.contactAccountCreationPossible !== undefined && chartOfContactAccountsDisplayer.contactAccountCreationPossible !== null && chartOfContactAccountsDisplayer.contactAccountCreationPossible === true ? <Link to={`/accountings/${accountingNumber}/contactaccounts/add`}><FontAwesomeIcon icon={faPlus} /></Link> : <></>}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {chartOfContactAccountsDisplayer.lines.map(chartOfContactAccountsLineDisplayer => getChartOfContactAccountsLineContent(chartOfContactAccountsLineDisplayer, accountingNumber, staticTexts, staticTextHelper))}
+                            </tbody>
+                        </Table>
+                    </Accordion.Body>
+                </Accordion.Item>
+        );
+    }
+
+    function getChartOfContactAccountsLineContent(chartOfContactAccountsLineDisplayer, accountingNumber, staticTexts, staticTextHelper) {
+        return (
+            <tr key={chartOfContactAccountsLineDisplayer.accountNumber}>
+                <td className='text-nowrap'>{chartOfContactAccountsLineDisplayer.accountNumber}</td>
+                <td>{chartOfContactAccountsLineDisplayer.accountName}</td>
+                <td className='d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{chartOfContactAccountsLineDisplayer.balance}</td>
+                <td>
+                    <span className='fa-stack'>
+                        {getEditAccountContent(chartOfContactAccountsLineDisplayer.modifiable, `/accountings/${accountingNumber}/contactaccounts/${chartOfContactAccountsLineDisplayer.accountNumber}/edit`)}
+                        {getDeleteAccountContent(chartOfContactAccountsLineDisplayer.deletable, 'contactaccount', accountingNumber, chartOfContactAccountsLineDisplayer.accountNumber, staticTextHelper.getContactAccountDeletionQuestionText(staticTexts, chartOfContactAccountsLineDisplayer.accountName))}
+                    </span>
+                </td>
+            </tr>
+        );
+    }
+
+    function getEditAccountContent(modifiable, link) {
+        if (modifiable === undefined || modifiable === null || modifiable !== true) {
+            return (
+                <>
+                </>
+            )
+        }
+
+        return (
+            <Link to={link}><FontAwesomeIcon icon={faPen} /></Link>
+        )
+    }
+
+    function getDeleteAccountContent(deletable, type, accountingNumber, accountNumber, deletionQuestion) {
+        if (deletable === undefined || deletable === null || deletable !== true) {
+            return (
+                <>
+                </>
+            )
+        }
+
+        const deleteContext = {
+            type: `${type}`,
+            accountingNumber: accountingNumber,
+            accountNumber: `${accountNumber}`
+        };
+
+        return (
+            <Link onClick={() => confirmDeletion(deletionQuestion, deleteContext)}><FontAwesomeIcon icon={faTrash} /></Link>
         )
     }
 

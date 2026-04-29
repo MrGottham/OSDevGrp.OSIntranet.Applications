@@ -31,4 +31,10 @@ public interface IAccountingTexts : IDynamicTexts
     IIncomeStatementDisplayer IncomeStatement { get; }
 
     IFullBalanceSheetDisplayer BalanceSheet { get; }
+
+    IChartOfAccountsDisplayer ChartOfAccounts { get; }
+
+    IChartOfBudgetAccountsDisplayer ChartOfBudgetAccounts { get; }
+
+    IChartOfContactAccountsDisplayer ChartOfContactAccounts { get; }
 }

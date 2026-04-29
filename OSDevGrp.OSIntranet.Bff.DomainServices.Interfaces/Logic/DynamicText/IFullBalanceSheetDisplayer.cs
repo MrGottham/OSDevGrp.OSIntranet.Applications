@@ -4,13 +4,13 @@ public interface IFullBalanceSheetDisplayer
 {
     string BalanceSheetLabel { get; }
 
-    string BalanceSheetAtStatusDateLabel { get;}
+    string BalanceSheetAtStatusDateLabel { get; }
 
     string BalanceSheetAtEndOfLastMonthFromStatusDateLabel { get; }
 
     string BalanceSheetAtEndOfLastYearFromStatusDateLabel { get; }
 
-    string AssetsLabel { get;}
+    string AssetsLabel { get; }
 
     string LiabilitiesLabel { get; }
 

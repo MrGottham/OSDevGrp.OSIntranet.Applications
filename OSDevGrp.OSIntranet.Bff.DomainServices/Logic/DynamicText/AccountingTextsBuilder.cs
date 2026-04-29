@@ -35,6 +35,9 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
         IObligeePartiesDisplayer? obligeePartiesAtEndOfLastYearFromStatusDate = null;
         IIncomeStatementDisplayer? incomeStatement = null;
         IFullBalanceSheetDisplayer? balanceSheet = null;
+        IChartOfAccountsDisplayer? chartOfAccounts = null;
+        IChartOfBudgetAccountsDisplayer? chartOfBudgetAccounts = null;
+        IChartOfContactAccountsDisplayer? chartOfContactAccounts = null;
 
         Task buildStatusDateTask = GetStatusDateAsync(model.StatusDate, "d. MMMM yyyy", formatProvider, cancellationToken).ContinueWith(task => statusDate = task.Result, cancellationToken);
         Task buildBalanceBelowZeroTask = BuildBalanceBelowZeroAsync(model, formatProvider, cancellationToken).ContinueWith(task => balanceBelowZero = task.Result, cancellationToken);
@@ -50,6 +53,9 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
         Task buildObligeePartiesAtEndOfLastYearFromStatusDateTask = ObligeePartiesDisplayer.CreateAsync(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, StaticTextKey.Debtors, StaticTextKey.Creditors, StaticTextProvider, model, m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastYearFromStatusDate).Where(v => v.IsDebtor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), m => m.ContactAccounts.Select(m => m.ValuesAtEndOfLastYearFromStatusDate).Where(v => v.IsCreditor(m.BalanceBelowZero)).Sum(v => (decimal)v.Balance), formatProvider, cancellationToken).ContinueWith(task => obligeePartiesAtEndOfLastYearFromStatusDate = task.Result, cancellationToken);
         Task buildIncomeStatementTask = IncomeStatementDisplayer.CreateAsync(StaticTextKey.Budget, StaticTextKey.Result, StaticTextKey.Available, StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => incomeStatement = task.Result, cancellationToken);
         Task buildBalanceSheetTask = FullBalanceSheetDisplayer.CreateAsync(StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => balanceSheet = task.Result, cancellationToken);
+        Task buildChartOfAccountsTask = ChartOfAccountsDisplayer.CreateAsync(StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => chartOfAccounts = task.Result, cancellationToken);
+        Task buildChartOfBudgetAccountsTask = ChartOfBudgetAccountsDisplayer.CreateAsync(StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => chartOfBudgetAccounts = task.Result, cancellationToken);
+        Task buildChartOfContactAccountsTask = ChartOfContactAccountsDisplayer.CreateAsync(StaticTextProvider, model, formatProvider, cancellationToken).ContinueWith(task => chartOfContactAccounts = task.Result);
         await Task.WhenAll(buildStatusDateTask,
             buildBalanceBelowZeroTask,
             buildBackDatingTask,
@@ -64,7 +70,10 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
             buildObligeePartiesAtEndOfLastMonthFromStatusDateTask,
             buildObligeePartiesAtEndOfLastYearFromStatusDateTask,
             buildIncomeStatementTask,
-            buildBalanceSheetTask);
+            buildBalanceSheetTask,
+            buildChartOfAccountsTask,
+            buildChartOfBudgetAccountsTask,
+            buildChartOfContactAccountsTask);
 
         return new AccountingTexts(
             model,
@@ -83,6 +92,9 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<AccountingModel,
             obligeePartiesAtEndOfLastYearFromStatusDate!,
             incomeStatement!,
             balanceSheet!,
+            chartOfAccounts!,
+            chartOfBudgetAccounts!,
+            chartOfContactAccounts!,
             formatProvider);
     }
 

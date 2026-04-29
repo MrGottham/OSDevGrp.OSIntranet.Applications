@@ -60,6 +60,9 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.UpdateAccounting, "Redigér regnskab");
         staticTexts.Add(StaticTextKey.DeleteAccounting, "Slet regnskab");
         staticTexts.Add(StaticTextKey.AccountingDeletionQuestion, "Er du sikker på, at du vil slette regnskabet med navnet {0}?");
+        staticTexts.Add(StaticTextKey.AccountDeletionQuestion, "Er du sikker på, at du vil slette kontoen med navnet [AccountName]?");
+        staticTexts.Add(StaticTextKey.BudgetAccountDeletionQuestion, "Er du sikker på, at du vil slette budgetkontoen med navnet [BudgetAccountName]?");
+        staticTexts.Add(StaticTextKey.ContactAccountDeletionQuestion, "Er du sikker på, at du vil slette kontaktkontoen med navnet [ContactAccountName]?");
         staticTexts.Add(StaticTextKey.MasterData, "Stamdata");
         staticTexts.Add(StaticTextKey.AccountingNumber, "Regnskabsnummer");
         staticTexts.Add(StaticTextKey.AccountingName, "Regnskabsnavn");
@@ -75,6 +78,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.BalanceSheetAtStatusDate, "Balance pr. dags dato");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, "Balance ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate, "Balance ved sidste års afslutning");
+        staticTexts.Add(StaticTextKey.Credit, "Kredit");
+        staticTexts.Add(StaticTextKey.Balance, "Saldo");
         staticTexts.Add(StaticTextKey.Assets, "Aktiver");
         staticTexts.Add(StaticTextKey.AssetsTotal, "Aktiver i alt");
         staticTexts.Add(StaticTextKey.Liabilities, "Passiver");
@@ -92,6 +97,11 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, "Saldi ved sidste års afslutning");
         staticTexts.Add(StaticTextKey.IncomeStatement, "Resultatopgørelse");
         staticTexts.Add(StaticTextKey.IncomeStatementTotal, "Resultat i alt");
+        staticTexts.Add(StaticTextKey.Accounts, "Konti");
+        staticTexts.Add(StaticTextKey.BudgetAccounts, "Budgetkonti");
+        staticTexts.Add(StaticTextKey.ContactAccounts, "Kontaktkonti");
+        staticTexts.Add(StaticTextKey.AccountNumberShort, "Kontonr.");
+        staticTexts.Add(StaticTextKey.AccountName, "Kontonavn");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");

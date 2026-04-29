@@ -19,10 +19,10 @@ public class AccountingTextsDto
     public required BalanceSheetDisplayerDto BalanceSheetAtStatusDate { get; init; }
 
     [Required]
-    public required BalanceSheetDisplayerDto BalanceSheetAtEndOfLastMonthFromStatusDate { get; init;  }
+    public required BalanceSheetDisplayerDto BalanceSheetAtEndOfLastMonthFromStatusDate { get; init; }
 
     [Required]
-    public required BalanceSheetDisplayerDto BalanceSheetAtEndOfLastYearFromStatusDate { get; init;  }
+    public required BalanceSheetDisplayerDto BalanceSheetAtEndOfLastYearFromStatusDate { get; init; }
 
     [Required]
     public required BudgetStatementDisplayerDto BudgetStatementForMonthOfStatusDate { get; init; }
@@ -40,16 +40,25 @@ public class AccountingTextsDto
     public required ObligeePartiesDisplayerDto ObligeePartiesAtStatusDate { get; init; }
 
     [Required]
-    public required ObligeePartiesDisplayerDto ObligeePartiesAtEndOfLastMonthFromStatusDate { get; init;  }
+    public required ObligeePartiesDisplayerDto ObligeePartiesAtEndOfLastMonthFromStatusDate { get; init; }
 
     [Required]
-    public required ObligeePartiesDisplayerDto ObligeePartiesAtEndOfLastYearFromStatusDate { get; init;  }
+    public required ObligeePartiesDisplayerDto ObligeePartiesAtEndOfLastYearFromStatusDate { get; init; }
 
     [Required]
-    public required IncomeStatementDisplayerDto IncomeStatement { get; init;  }
+    public required IncomeStatementDisplayerDto IncomeStatement { get; init; }
 
     [Required]
-    public required FullBalanceSheetDisplayerDto BalanceSheet { get; init;  }
+    public required FullBalanceSheetDisplayerDto BalanceSheet { get; init; }
+
+    [Required]
+    public required ChartOfAccountsDisplayerDto ChartOfAccounts { get; init; }
+
+    [Required]
+    public required ChartOfBudgetAccountsDisplayerDto ChartOfBudgetAccounts { get; init; }
+
+    [Required]
+    public required ChartOfContactAccountsDisplayerDto ChartOfContactAccounts { get; init; }
 
     internal static AccountingTextsDto Map(IAccountingTexts accountingTexts)
     {
@@ -69,7 +78,10 @@ public class AccountingTextsDto
             ObligeePartiesAtEndOfLastMonthFromStatusDate = ObligeePartiesDisplayerDto.Map(accountingTexts.ObligeePartiesAtEndOfLastMonthFromStatusDate),
             ObligeePartiesAtEndOfLastYearFromStatusDate = ObligeePartiesDisplayerDto.Map(accountingTexts.ObligeePartiesAtEndOfLastYearFromStatusDate),
             IncomeStatement = IncomeStatementDisplayerDto.Map(accountingTexts.IncomeStatement),
-            BalanceSheet = FullBalanceSheetDisplayerDto.Map(accountingTexts.BalanceSheet)
+            BalanceSheet = FullBalanceSheetDisplayerDto.Map(accountingTexts.BalanceSheet),
+            ChartOfAccounts = ChartOfAccountsDisplayerDto.Map(accountingTexts.ChartOfAccounts),
+            ChartOfBudgetAccounts = ChartOfBudgetAccountsDisplayerDto.Map(accountingTexts.ChartOfBudgetAccounts),
+            ChartOfContactAccounts = ChartOfContactAccountsDisplayerDto.Map(accountingTexts.ChartOfContactAccounts)
         };
     }
 }

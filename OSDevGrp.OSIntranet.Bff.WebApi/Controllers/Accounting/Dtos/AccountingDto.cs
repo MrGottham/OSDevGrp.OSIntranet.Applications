@@ -21,15 +21,6 @@ public class AccountingDto : AccountingInfoDto
     public required DateTimeOffset StatusDate { get; init; }
 
     [Required]
-    public required IReadOnlyCollection<AccountDto> Accounts { get; init; } = [];
-
-    [Required]
-    public required IReadOnlyCollection<BudgetAccountDto> BudgetAccounts { get; init; } = [];
-
-    [Required]
-    public required IReadOnlyCollection<ContactAccountDto> ContactAccounts { get; init; } = [];
-
-    [Required]
     public required bool Modifiable { get; init; }
 
     [Required]
@@ -45,9 +36,6 @@ public class AccountingDto : AccountingInfoDto
             BalanceBelowZero = Enum.Parse<BalanceBelowZeroType>(accountingModel.BalanceBelowZero.ToString()),
             BackDating = accountingModel.BackDating,
             StatusDate = accountingModel.StatusDate,
-            Accounts = accountingModel.Accounts.Select(AccountDto.Map).ToArray(),
-            BudgetAccounts = accountingModel.BudgetAccounts.Select(BudgetAccountDto.Map).ToArray(),
-            ContactAccounts = accountingModel.ContactAccounts.Select(ContactAccountDto.Map).ToArray(),
             Modifiable = accountingModel.Modifiable,
             Deletable = accountingModel.Deletable
         };

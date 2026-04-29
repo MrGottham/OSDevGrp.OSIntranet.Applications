@@ -111,6 +111,18 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'AccountingDeletionQuestion');
     }
 
+    getAccountDeletionQuestionText(staticTexts, accountName) {
+        return this.getStaticTextByKey(staticTexts, 'AccountDeletionQuestion').replace('[AccountName]', accountName);
+    }
+
+    getBudgetAccountDeletionQuestionText(staticTexts, budgetAccountName) {
+        return this.getStaticTextByKey(staticTexts, 'BudgetAccountDeletionQuestion').replace('[BudgetAccountName]', budgetAccountName);
+    }
+
+    getContactAccountDeletionQuestionText(staticTexts, contactAccountName) {
+        return this.getStaticTextByKey(staticTexts, 'ContactAccountDeletionQuestion').replace('[ContactAccountName]', contactAccountName);
+    }
+
     getAccountingNumberText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'AccountingNumber');
     }
@@ -153,6 +165,18 @@ export default class StaticTextHelper {
 
     getBalanceSheetText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'BalanceSheet');
+    }
+
+    getAccountsText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Accounts');
+    }
+
+    getBudgetAccountsText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'BudgetAccounts');
+    }
+
+    getContactAccountsText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'ContactAccounts');
     }
 
     getCommonDataText(staticTexts) {
