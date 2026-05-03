@@ -6,13 +6,14 @@ using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Security.SecurityController;
 
 [TestFixture]
-public class AccessDeniedTests : SecurityControllerTestBase<AccessDeniedContentResponse>
+public class GetAntiforgeryTokenTests : SecurityControllerTestBase<AccessDeniedContentResponse>
 {
     #region Private variables
 
@@ -36,39 +37,43 @@ public class AccessDeniedTests : SecurityControllerTestBase<AccessDeniedContentR
 
     [Test]
     [Category("UnitTest")]
-    public void AccessDenied_WhenCalled_ReturnsRedirectToPageResult()
+    public void GetAntiforgeryToken_WhenCalled_AssertGetAndStoreTokensWasCalledOnAntiforgeryWithHttpContext()
     {
-        WebApi.Controllers.Security.SecurityController sut = CreateSut();
+        HttpContext httpContext = CreateHttpContext();
+        WebApi.Controllers.Security.SecurityController sut = CreateSut(httpContext: httpContext);
 
-        IActionResult result = sut.AccessDenied();
+        sut.GetAntiforgeryToken();
 
-        Assert.That(result, Is.TypeOf<RedirectToPageResult>());
+        _antiforgeryMock!.Verify(m => m.GetAndStoreTokens(It.Is<HttpContext>(value => value == httpContext)), Times.Once);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void AccessDenied_WhenCalled_ReturnsRedirectToPageResultWherePageNameIsNotNull()
+    public void GetAntiforgeryToken_WhenCalled_ReturnsOkObjectResult()
     {
         WebApi.Controllers.Security.SecurityController sut = CreateSut();
 
-        RedirectToPageResult result = (RedirectToPageResult) sut.AccessDenied();
+        IActionResult result = sut.GetAntiforgeryToken();
 
-        Assert.That(result.PageName, Is.Not.Null);
+        Assert.That(result, Is.TypeOf<OkObjectResult>());
     }
 
     [Test]
     [Category("UnitTest")]
-    public void AccessDenied_WhenCalled_ReturnsRedirectToPageResultWherePageNameIsEqualToAccessDenied()
+    public void GetAntiforgeryToken_WhenCalled_ReturnsOkObjectResultWhereValueIsAntiforgeryTokenResponseDto()
     {
         WebApi.Controllers.Security.SecurityController sut = CreateSut();
 
-        RedirectToPageResult result = (RedirectToPageResult) sut.AccessDenied();
+        OkObjectResult result = (OkObjectResult) sut.GetAntiforgeryToken();
 
-        Assert.That(result.PageName, Is.EqualTo("/AccessDenied"));
+        Assert.That(result.Value, Is.TypeOf<AntiforgeryTokenResponseDto>());
     }
 
     protected override WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, AccessDeniedContentResponse? accessDeniedContentResponse = null)
     {
+        _antiforgeryMock!.Setup(m => m.GetAndStoreTokens(It.IsAny<HttpContext>()))
+            .Returns(new AntiforgeryTokenSet(_fixture!.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>()));
+
         return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _antiforgeryMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 }

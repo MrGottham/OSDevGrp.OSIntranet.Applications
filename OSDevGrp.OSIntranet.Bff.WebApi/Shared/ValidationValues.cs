@@ -8,6 +8,9 @@ internal static class ValidationValues
     internal const int CookieValueMinLength = 1;
     internal const int DaysUntilCookieExpiryMinValue = 0;
     internal const int DaysUntilCookieExpiryMaxValue = 365;
+    internal const int FormFieldNameMinLength = 1;
+    internal const int HeaderNameMinLength = 1;
+    internal const int RequestTokenMinLength = 1;
 
     internal const int StaticTextKeyMinLength = 1;
     internal const int StaticTextValueMinLength = 1;

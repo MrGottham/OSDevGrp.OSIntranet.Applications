@@ -1,4 +1,5 @@
 using AutoFixture;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -25,6 +26,7 @@ public class UserInfoAsyncTests : SecurityControllerTestBase<UserInfoResponse>
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
     private Mock<ISecurityContextProvider>? _securityContextProviderMock;
     private Mock<IQueryFeature<UserInfoRequest, UserInfoResponse>>? _queryFeatureMock;
+    private Mock<IAntiforgery>? _antiforgeryMock;
     private Fixture? _fixture;
     private Random? _random;
 
@@ -37,6 +39,7 @@ public class UserInfoAsyncTests : SecurityControllerTestBase<UserInfoResponse>
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _queryFeatureMock = new Mock<IQueryFeature<UserInfoRequest, UserInfoResponse>>();
+        _antiforgeryMock = new Mock<IAntiforgery>();
         _fixture = new Fixture();
         _random = new Random(_fixture.Create<int>());
     }
@@ -180,7 +183,7 @@ public class UserInfoAsyncTests : SecurityControllerTestBase<UserInfoResponse>
         _queryFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<UserInfoRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(userInfoResponse ?? CreateUserInfoResponse()));
 
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _antiforgeryMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 
     private UserInfoResponse CreateUserInfoResponse(IUserInfoModel? userInfoModel = null)

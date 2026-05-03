@@ -20,7 +20,9 @@ export default class SecurityService extends ServiceBase {
     }
 
     async generateVerification() {
-        const response = await fetch(this.resolveEndpoint('/api/security/verification'), { method: 'POST', credentials: 'include' });
+        const headers = await this.generateAntiforgeryHeader();
+
+        const response = await fetch(this.resolveEndpoint('/api/security/verification'), { method: 'POST', headers: headers, credentials: 'include' });
         if (response.ok) {
             return await response.json();
         }
@@ -37,12 +39,14 @@ export default class SecurityService extends ServiceBase {
             throw new Error('Verification code is required.');
         }
 
+        const headers = { ...this.generateContentTypeHeaderForJson(), ...await this.generateAntiforgeryHeader() };
+
         const body = {
             'verificationKey': `${verificationKey}`,
             'verificationCode': `${verificationCode}`
         };
 
-        const response = await fetch(this.resolveEndpoint('/api/security/verification/verify'), { method: 'POST', headers: this.makeHeadersForPostWithJsonContent(), body: JSON.stringify(body), credentials: 'include' });
+        const response = await fetch(this.resolveEndpoint('/api/security/verification/verify'), { method: 'POST', headers: headers, body: JSON.stringify(body), credentials: 'include' });
         if (response.ok) {
             return await response.json();
         }
