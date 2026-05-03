@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<IAccountTextsBuilder, AccountTextsBuilder>()
             .AddTransient<IBudgetAccountTextsBuilder, BudgetAccountTextsBuilder>()
             .AddTransient<IContactAccountTextsBuilder, ContactAccountTextsBuilder>()
+            .AddTransient<IPostingLineCollectionTextsBuilder, PostingLineCollectionTextsBuilder>()
             .AddTransient<IRequiredValueRuleFactory, RequiredValueRuleFactory>()
             .AddTransient<IMinLengthRuleFactory, MinLengthRuleFactory>()
             .AddTransient<IMaxLengthRuleFactory, MaxLengthRuleFactory>()

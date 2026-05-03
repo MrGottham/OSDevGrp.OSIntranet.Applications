@@ -4,6 +4,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DynamicText.PostingLineCollectionTextsBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
@@ -16,6 +17,7 @@ public class BuildAsyncTests
 {
     #region Private variables
 
+    private Mock<IPostingLineCollectionTextsBuilder>? _postingLineCollectionTextsBuilderMock;
     private Mock<IStaticTextProvider>? _staticTextProviderMock;
     private Fixture? _fixture;
     private Random? _random;
@@ -25,9 +27,30 @@ public class BuildAsyncTests
     [SetUp]
     public void SetUp()
     {
+        _postingLineCollectionTextsBuilderMock = new Mock<IPostingLineCollectionTextsBuilder>();
         _staticTextProviderMock = new Mock<IStaticTextProvider>();
         _fixture = new Fixture();
         _random = new Random(_fixture.Create<int>());
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_AssertBuildAsyncWasCalledOnPostingLineCollectionTextsBuilder()
+    {
+        IAccountingTextsBuilder sut = CreateSut();
+
+        PostingLineModel[] postingLineModels = _fixture!.CreatePostingLineModels(_random!);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(postingLineModels: postingLineModels);
+        IFormatProvider formatProvider = CultureInfo.InvariantCulture;
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        await sut.BuildAsync(model, formatProvider, cancellationToken);
+
+        _postingLineCollectionTextsBuilderMock!.Verify(m => m.BuildAsync(
+                It.Is<IReadOnlyCollection<PostingLineModel>>(value => value == postingLineModels),
+                It.Is<IFormatProvider>(value => value == formatProvider),
+                It.Is<CancellationToken>(value => value == cancellationToken)),
+            Times.Once);
     }
 
     [Test]
@@ -71,11 +94,11 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
-        await sut.BuildAsync(accountingModel, formatProvider, cancellationToken);
+        await sut.BuildAsync(model, formatProvider, cancellationToken);
 
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
                 It.Is<StaticTextKey>(value => value == staticTextKey),
@@ -91,8 +114,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result, Is.TypeOf<AccountingTexts>());
     }
@@ -103,8 +126,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
@@ -115,8 +138,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceBelowZero.Label, Does.StartWith($"{StaticTextKey.BalanceBelowZero}:"));
     }
@@ -131,7 +154,8 @@ public class BuildAsyncTests
         IAccountingTextsBuilder sut = CreateSut();
 
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, balanceBelowZeroType: balanceBelowZeroType);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceBelowZero.Value, Does.StartWith($"{staticTextKey}:"));
     }
@@ -142,8 +166,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BackDating.Label, Does.StartWith($"{StaticTextKey.BackDating}:"));
     }
@@ -160,7 +184,8 @@ public class BuildAsyncTests
         IAccountingTextsBuilder sut = CreateSut();
 
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, backDating: backDating);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BackDating.Value, Does.StartWith($"{backDating} {staticTextKey.ToString().ToLower()}:"));
     }
@@ -171,8 +196,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtStatusDate.Header, Does.StartWith($"{StaticTextKey.BalanceSheetAtStatusDate}:"));
     }
@@ -183,8 +208,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtStatusDate.Assets.Label, Does.StartWith($"{StaticTextKey.Assets}:"));
     }
@@ -195,8 +220,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtStatusDate.Liabilities.Label, Does.StartWith($"{StaticTextKey.Liabilities}:"));
     }
@@ -207,8 +232,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtEndOfLastMonthFromStatusDate.Header, Does.StartWith($"{StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate}:"));
     }
@@ -219,8 +244,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtEndOfLastMonthFromStatusDate.Assets.Label, Does.StartWith($"{StaticTextKey.Assets}:"));
     }
@@ -231,8 +256,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtEndOfLastMonthFromStatusDate.Liabilities.Label, Does.StartWith($"{StaticTextKey.Liabilities}:"));
     }
@@ -243,8 +268,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtEndOfLastYearFromStatusDate.Header, Does.StartWith($"{StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate}:"));
     }
@@ -255,8 +280,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtEndOfLastYearFromStatusDate.Assets.Label, Does.StartWith($"{StaticTextKey.Assets}:"));
     }
@@ -267,8 +292,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheetAtEndOfLastYearFromStatusDate.Liabilities.Label, Does.StartWith($"{StaticTextKey.Liabilities}:"));
     }
@@ -279,8 +304,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForMonthOfStatusDate.Header, Does.StartWith($"{StaticTextKey.BudgetStatementForMonthOfStatusDate}:"));
     }
@@ -291,8 +316,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForMonthOfStatusDate.Budget.Label, Does.StartWith($"{StaticTextKey.Budget}:"));
     }
@@ -303,8 +328,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForMonthOfStatusDate.Posted.Label, Does.StartWith($"{StaticTextKey.Result}:"));
     }
@@ -315,8 +340,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForMonthOfStatusDate.Available.Label, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -327,8 +352,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastMonthOfStatusDate.Header, Does.StartWith($"{StaticTextKey.BudgetStatementForLastMonthOfStatusDate}:"));
     }
@@ -339,8 +364,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastMonthOfStatusDate.Budget.Label, Does.StartWith($"{StaticTextKey.Budget}:"));
     }
@@ -351,8 +376,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastMonthOfStatusDate.Posted.Label, Does.StartWith($"{StaticTextKey.Result}:"));
     }
@@ -363,8 +388,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastMonthOfStatusDate.Available.Label, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -375,8 +400,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForYearToDateOfStatusDate.Header, Does.StartWith($"{StaticTextKey.BudgetStatementForYearToDateOfStatusDate}:"));
     }
@@ -387,8 +412,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForYearToDateOfStatusDate.Budget.Label, Does.StartWith($"{StaticTextKey.Budget}:"));
     }
@@ -399,8 +424,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForYearToDateOfStatusDate.Posted.Label, Does.StartWith($"{StaticTextKey.Result}:"));
     }
@@ -411,8 +436,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForYearToDateOfStatusDate.Available.Label, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -423,8 +448,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastYearOfStatusDate.Header, Does.StartWith($"{StaticTextKey.BudgetStatementForLastYearOfStatusDate}:"));
     }
@@ -435,8 +460,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastYearOfStatusDate.Budget.Label, Does.StartWith($"{StaticTextKey.Budget}:"));
     }
@@ -447,8 +472,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastYearOfStatusDate.Posted.Label, Does.StartWith($"{StaticTextKey.Result}:"));
     }
@@ -459,8 +484,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetStatementForLastYearOfStatusDate.Available.Label, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -471,8 +496,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtStatusDate.Header, Does.StartWith($"{StaticTextKey.ObligeePartiesAtStatusDate}:"));
     }
@@ -483,8 +508,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtStatusDate.Debtors.Label, Does.StartWith($"{StaticTextKey.Debtors}:"));
     }
@@ -495,8 +520,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtStatusDate.Creditors.Label, Does.StartWith($"{StaticTextKey.Creditors}:"));
     }
@@ -507,8 +532,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtEndOfLastMonthFromStatusDate.Header, Does.StartWith($"{StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate}:"));
     }
@@ -519,8 +544,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtEndOfLastMonthFromStatusDate.Debtors.Label, Does.StartWith($"{StaticTextKey.Debtors}:"));
     }
@@ -531,8 +556,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtEndOfLastMonthFromStatusDate.Creditors.Label, Does.StartWith($"{StaticTextKey.Creditors}:"));
     }
@@ -543,8 +568,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtEndOfLastYearFromStatusDate.Header, Does.StartWith($"{StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate}:"));
     }
@@ -555,8 +580,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtEndOfLastYearFromStatusDate.Debtors.Label, Does.StartWith($"{StaticTextKey.Debtors}:"));
     }
@@ -567,8 +592,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ObligeePartiesAtEndOfLastYearFromStatusDate.Creditors.Label, Does.StartWith($"{StaticTextKey.Creditors}:"));
     }
@@ -579,8 +604,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.IncomeStatementLabel, Does.StartWith($"{StaticTextKey.IncomeStatement}:"));
     }
@@ -591,8 +616,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.MonthOfStatusDateLabel, Does.StartWith($"{StaticTextKey.BudgetStatementForMonthOfStatusDate}:"));
     }
@@ -603,8 +628,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.LastMonthOfStatusDateLabel, Does.StartWith($"{StaticTextKey.BudgetStatementForLastMonthOfStatusDate}:"));
     }
@@ -615,8 +640,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.YearToDateOfStatusDateLabel, Does.StartWith($"{StaticTextKey.BudgetStatementForYearToDateOfStatusDate}:"));
     }
@@ -627,8 +652,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.LastYearOfStatusDateLabel, Does.StartWith($"{StaticTextKey.BudgetStatementForLastYearOfStatusDate}:"));
     }
@@ -639,8 +664,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.BudgetLabel, Does.StartWith($"{StaticTextKey.Budget}:"));
     }
@@ -651,8 +676,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.PostedLabel, Does.StartWith($"{StaticTextKey.Result}:"));
     }
@@ -663,8 +688,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.AvailableLabel, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -675,8 +700,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
@@ -692,7 +717,8 @@ public class BuildAsyncTests
 
         DateTimeOffset statusDate = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, statusDate: statusDate);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.StatusDate.Value, Is.EqualTo(statusDate.ToString("D", CultureInfo.InvariantCulture)));
     }
@@ -703,8 +729,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.IncomeStatement.Lines.Count, Is.GreaterThan(0));
     }
@@ -715,8 +741,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.BalanceSheetLabel, Does.StartWith($"{StaticTextKey.BalanceSheet}:"));
     }
@@ -727,8 +753,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.BalanceSheetAtStatusDateLabel, Does.StartWith($"{StaticTextKey.BalanceSheetAtStatusDate}:"));
     }
@@ -739,8 +765,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.BalanceSheetAtEndOfLastMonthFromStatusDateLabel, Does.StartWith($"{StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate}:"));
     }
@@ -751,8 +777,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.BalanceSheetAtEndOfLastYearFromStatusDateLabel, Does.StartWith($"{StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate}:"));
     }
@@ -763,8 +789,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.AssetsLabel, Does.StartWith($"{StaticTextKey.Assets}:"));
     }
@@ -775,8 +801,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.LiabilitiesLabel, Does.StartWith($"{StaticTextKey.Liabilities}:"));
     }
@@ -787,8 +813,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
@@ -804,7 +830,8 @@ public class BuildAsyncTests
 
         DateTimeOffset statusDate = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, statusDate: statusDate);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.BalanceSheet.StatusDate.Value, Is.EqualTo(statusDate.ToString("D", CultureInfo.InvariantCulture)));
     }
@@ -815,8 +842,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.ChartOfAccountsLabel, Does.StartWith($"{StaticTextKey.Accounts}:"));
     }
@@ -827,8 +854,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.AccountNumberLabel, Does.StartWith($"{StaticTextKey.AccountNumberShort}:"));
     }
@@ -839,8 +866,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.AccountNameLabel, Does.StartWith($"{StaticTextKey.AccountName}:"));
     }
@@ -851,8 +878,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.CreditLabel, Does.StartWith($"{StaticTextKey.Credit}:"));
     }
@@ -863,8 +890,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.BalanceLabel, Does.StartWith($"{StaticTextKey.Balance}:"));
     }
@@ -875,8 +902,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.AvailableLabel, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -887,8 +914,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
@@ -904,7 +931,8 @@ public class BuildAsyncTests
 
         DateTimeOffset statusDate = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, statusDate: statusDate);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.StatusDate.Value, Is.EqualTo(statusDate.ToString("D", CultureInfo.InvariantCulture)));
     }
@@ -918,7 +946,8 @@ public class BuildAsyncTests
         IAccountingTextsBuilder sut = CreateSut();
 
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, modifiable: modifiable);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.AccountCreationPossible, Is.EqualTo(modifiable));
     }
@@ -929,8 +958,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfAccounts.Sections, Is.Not.Empty);
     }
@@ -941,8 +970,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.ChartOfBudgetAccountsLabel, Does.StartWith($"{StaticTextKey.BudgetAccounts}:"));
     }
@@ -954,7 +983,8 @@ public class BuildAsyncTests
         IAccountingTextsBuilder sut = CreateSut();
 
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.AccountNumberLabel, Does.StartWith($"{StaticTextKey.AccountNumberShort}:"));
     }
@@ -965,8 +995,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.AccountNameLabel, Does.StartWith($"{StaticTextKey.AccountName}:"));
     }
@@ -977,8 +1007,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.BudgetLabel, Does.StartWith($"{StaticTextKey.Budget}:"));
     }
@@ -989,8 +1019,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.PostedLabel, Does.StartWith($"{StaticTextKey.Posted}:"));
     }
@@ -1001,8 +1031,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.AvailableLabel, Does.StartWith($"{StaticTextKey.Available}:"));
     }
@@ -1013,8 +1043,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
@@ -1030,7 +1060,8 @@ public class BuildAsyncTests
 
         DateTimeOffset statusDate = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, statusDate: statusDate);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.StatusDate.Value, Is.EqualTo(statusDate.ToString("D", CultureInfo.InvariantCulture)));
     }
@@ -1044,7 +1075,8 @@ public class BuildAsyncTests
         IAccountingTextsBuilder sut = CreateSut();
 
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, modifiable: modifiable);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.BudgetAccountCreationPossible, Is.EqualTo(modifiable));
     }
@@ -1055,8 +1087,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfBudgetAccounts.Sections, Is.Not.Empty);
     }
@@ -1067,8 +1099,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.ChartOfContactAccountsLabel, Does.StartWith($"{StaticTextKey.ContactAccounts}:"));
     }
@@ -1079,8 +1111,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.AccountNumberLabel, Does.StartWith($"{StaticTextKey.AccountNumberShort}:"));
     }
@@ -1091,8 +1123,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.AccountNameLabel, Does.StartWith($"{StaticTextKey.AccountName}:"));
     }
@@ -1103,8 +1135,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.BalanceLabel, Does.StartWith($"{StaticTextKey.Balance}:"));
     }
@@ -1115,8 +1147,8 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.StatusDate.Label, Does.StartWith($"{StaticTextKey.StatusDate}:"));
     }
@@ -1132,7 +1164,8 @@ public class BuildAsyncTests
 
         DateTimeOffset statusDate = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, statusDate: statusDate);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.StatusDate.Value, Is.EqualTo(statusDate.ToString("D", CultureInfo.InvariantCulture)));
     }
@@ -1146,7 +1179,8 @@ public class BuildAsyncTests
         IAccountingTextsBuilder sut = CreateSut();
 
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!, modifiable: modifiable);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel(accountingModel: accountingModel);
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.ContactAccountCreationPossible, Is.EqualTo(modifiable));
     }
@@ -1157,16 +1191,38 @@ public class BuildAsyncTests
     {
         IAccountingTextsBuilder sut = CreateSut();
 
-        AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
-        IAccountingTexts result = await sut.BuildAsync(accountingModel, CultureInfo.InvariantCulture);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
 
         Assert.That(result.ChartOfContactAccounts.Lines, Is.Not.Empty);
     }
 
-    private IAccountingTextsBuilder CreateSut()
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsAccountingTextsWherePostingLineCollectionIsEqualToPostingLineCollectionTextsFromPostingLineCollectionTextsBuilder()
     {
+        IPostingLineCollectionTexts postingLineCollectionTexts = new Mock<IPostingLineCollectionTexts>().Object;
+        IAccountingTextsBuilder sut = CreateSut(postingLineCollectionTexts);
+
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = CreateModel();
+        IAccountingTexts result = await sut.BuildAsync(model, CultureInfo.InvariantCulture);
+
+        Assert.That(result.PostingLineCollection, Is.EqualTo(postingLineCollectionTexts));
+    }
+
+    private IAccountingTextsBuilder CreateSut(IPostingLineCollectionTexts? postingLineCollectionTexts = null)
+    {
+        _postingLineCollectionTextsBuilderMock!.Setup(postingLineCollectionTexts: postingLineCollectionTexts);
         _staticTextProviderMock!.Setup(_fixture!);
 
-        return new DomainServices.Logic.DynamicText.AccountingTextsBuilder(_staticTextProviderMock!.Object);
+        return new DomainServices.Logic.DynamicText.AccountingTextsBuilder(_postingLineCollectionTextsBuilderMock!.Object, _staticTextProviderMock!.Object);
+    }
+
+    private Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> CreateModel(AccountingModel? accountingModel = null, IReadOnlyCollection<PostingLineModel>? postingLineModels = null, IReadOnlyCollection<LetterHeadIdentificationModel>? letterHeadIdentificationModels = null)
+    {
+        return new Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>(
+            accountingModel ?? _fixture!.CreateAccountingModel(_random!),
+            postingLineModels ?? _fixture!.CreatePostingLineModels(_random!),
+            letterHeadIdentificationModels ?? _fixture!.CreateLetterHeadIdentificationModels(_random!));
     }
 }

@@ -19,6 +19,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Loading from './Loading';
 import DeleteConfirmation from './DeleteConfirmation';
+import PostingLineCollection from './PostingLineCollection';
 
 function Accounting() {
     const { showBoundary } = useErrorBoundary();
@@ -32,10 +33,7 @@ function Accounting() {
     const accountingNumber = useParams().accountingNumber;
 
     useEffect(() => {
-        if (content !== undefined) {
-            setContent(undefined);
-        }
-        populateContent(accountingNumber)
+        populateContent(content, accountingNumber, 25)
             .catch(error => showBoundary(error));
     }, [accountingNumber]);
 
@@ -65,14 +63,15 @@ function Accounting() {
             {getOperationsContent(content.number, content.modifiable, content.deletable, content.staticTexts, staticTextHelper)}
             <Row className='mb-3'>
                 <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
-                    <Accordion defaultActiveKey={['0', '1']} alwaysOpen>
+                    <Accordion defaultActiveKey={['0', '1', '2']} alwaysOpen>
                         {getMasterDataContent('0', content, content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getCurrentStatusContent('1', content.dynamicTexts, content.staticTexts, staticTextHelper)}
-                        {getIncomeStatementContent('2', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
-                        {getFullBalanceSheetContent('3', content.dynamicTexts.balanceSheet, content.staticTexts, staticTextHelper)}
-                        {getChartOfAccountsContent('4', content.dynamicTexts.chartOfAccounts, content.number, content.staticTexts, staticTextHelper)}
-                        {getChartOfBudgetAccountsContent('5', content.dynamicTexts.chartOfBudgetAccounts, content.number, content.staticTexts, staticTextHelper)}
-                        {getChartOfContactAccountsContent('6', content.dynamicTexts.chartOfContactAccounts, content.number, content.staticTexts, staticTextHelper)}
+                        {getBookkeepingContent('2', content.dynamicTexts, content.staticTexts, staticTextHelper)}
+                        {getIncomeStatementContent('3', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
+                        {getFullBalanceSheetContent('4', content.dynamicTexts.balanceSheet, content.staticTexts, staticTextHelper)}
+                        {getChartOfAccountsContent('5', content.dynamicTexts.chartOfAccounts, content.number, content.staticTexts, staticTextHelper)}
+                        {getChartOfBudgetAccountsContent('6', content.dynamicTexts.chartOfBudgetAccounts, content.number, content.staticTexts, staticTextHelper)}
+                        {getChartOfContactAccountsContent('7', content.dynamicTexts.chartOfContactAccounts, content.number, content.staticTexts, staticTextHelper)}
                     </Accordion>
                 </Col>
             </Row>
@@ -279,6 +278,17 @@ function Accounting() {
                     </tbody>
                 </Table>
             </div>
+        );
+    }
+
+    function getBookkeepingContent(eventKey, dynamicTexts, staticTexts, staticTextHelper) {
+        return (
+            <Accordion.Item eventKey={eventKey}>
+                <Accordion.Header><h2>{staticTextHelper.getBookkeepingText(staticTexts)}</h2></Accordion.Header>
+                    <Accordion.Body>
+                        <PostingLineCollection postingLineCollection={dynamicTexts.postingLineCollection} />
+                    </Accordion.Body>
+                </Accordion.Item>
         );
     }
 
@@ -632,8 +642,11 @@ function Accounting() {
         )
     }
 
-    async function populateContent(accountingNumber) {
-        const json = await accountingService.getAccounting(accountingNumber);
+    async function populateContent(content, accountingNumber, numberOfPostingLines) {
+        if (content !== undefined) {
+            setContent(undefined);
+        }
+        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
         setContent(json);
     }
 

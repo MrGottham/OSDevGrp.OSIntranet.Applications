@@ -49,6 +49,26 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
         }
     }
 
+    public async Task<IEnumerable<PostingLineModel>> GetPostingLinesAsync(int accountingNumber, DateTimeOffset statusDate, int numberOfPostingLines, Predicate<PostingLineModel> filter, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            IEnumerable<PostingLineModel> postingLines = await WebApiClient.PostinglinesAllAsync(accountingNumber, statusDate, numberOfPostingLines, cancellationToken);
+
+            return postingLines
+                .Where(postingLine => filter(postingLine))
+                .ToArray();
+        }
+        catch (WebApiClientException<ErrorModel> ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+        catch (WebApiClientException ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+    }
+
     public async Task<IEnumerable<AccountGroupModel>> GetAccountGroupsAsync(CancellationToken cancellationToken = default)
     {
         try

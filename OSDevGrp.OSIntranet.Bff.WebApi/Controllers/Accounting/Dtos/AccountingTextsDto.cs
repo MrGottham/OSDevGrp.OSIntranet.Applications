@@ -60,6 +60,9 @@ public class AccountingTextsDto
     [Required]
     public required ChartOfContactAccountsDisplayerDto ChartOfContactAccounts { get; init; }
 
+    [Required]
+    public required PostingLineCollectionDto PostingLineCollection { get; init; }
+
     internal static AccountingTextsDto Map(IAccountingTexts accountingTexts)
     {
         return new AccountingTextsDto
@@ -81,7 +84,8 @@ public class AccountingTextsDto
             BalanceSheet = FullBalanceSheetDisplayerDto.Map(accountingTexts.BalanceSheet),
             ChartOfAccounts = ChartOfAccountsDisplayerDto.Map(accountingTexts.ChartOfAccounts),
             ChartOfBudgetAccounts = ChartOfBudgetAccountsDisplayerDto.Map(accountingTexts.ChartOfBudgetAccounts),
-            ChartOfContactAccounts = ChartOfContactAccountsDisplayerDto.Map(accountingTexts.ChartOfContactAccounts)
+            ChartOfContactAccounts = ChartOfContactAccountsDisplayerDto.Map(accountingTexts.ChartOfContactAccounts),
+            PostingLineCollection = PostingLineCollectionDto.Map(accountingTexts.PostingLineCollection)
         };
     }
 }

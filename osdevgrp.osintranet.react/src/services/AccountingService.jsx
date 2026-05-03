@@ -19,12 +19,16 @@ export default class AccountingService extends ServiceBase {
         throw await this.generateError(response);
     }
 
-    async getAccounting(accountingNumber) {
+    async getAccounting(accountingNumber, numberOfPostingLines) {
         if (accountingNumber === undefined || accountingNumber === null) {
             throw new Error('Accounting number is required.');
         }
 
-        const response = await fetch(this.resolveEndpoint(`/api/accounting/${accountingNumber}`), { credentials: 'include' });
+        if (numberOfPostingLines === undefined || numberOfPostingLines === null) {
+            throw new Error('Number of posting lines is required.');
+        }
+
+        const response = await fetch(this.resolveEndpoint(`/api/accounting/${accountingNumber}?numberOfPostingLines=${numberOfPostingLines}`), { credentials: 'include' });
         if (response.ok) {
             return await response.json();
         }
@@ -32,12 +36,16 @@ export default class AccountingService extends ServiceBase {
         throw await this.generateError(response);
     }
 
-    async getAccountingSummary(accountingNumber) {
+    async getAccountingSummary(accountingNumber, numberOfPostingLines) {
         if (accountingNumber === undefined || accountingNumber === null) {
             throw new Error('Accounting number is required.');
         }
 
-        const response = await fetch(this.resolveEndpoint(`/api/accounting/${accountingNumber}/summary`), { credentials: 'include' });
+        if (numberOfPostingLines === undefined || numberOfPostingLines === null) {
+            throw new Error('Number of posting lines is required.');
+        }
+
+        const response = await fetch(this.resolveEndpoint(`/api/accounting/${accountingNumber}/summary?numberOfPostingLines=${numberOfPostingLines}`), { credentials: 'include' });
         if (response.ok) {
             return await response.json();
         }

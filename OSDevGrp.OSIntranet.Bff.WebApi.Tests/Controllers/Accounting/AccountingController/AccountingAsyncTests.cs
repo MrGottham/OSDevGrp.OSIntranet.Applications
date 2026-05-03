@@ -175,6 +175,37 @@ public class AccountingAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    public async Task AccountingAsync_WhenNumberOfPostingLinesHasBeenGiven_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingRequestWhereNumberOfPostingLinesIsEqualToGivenNumberOfPostingLines()
+    {
+        WebApi.Controllers.Accounting.AccountingController sut = CreateSut();
+
+        int numberOfPostingLines = _fixture.Create<int>();
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.AccountingAsync(_queryFeatureMock!.Object, _fixture.Create<int>(), cancellationTokenSource.Token, numberOfPostingLines: numberOfPostingLines);
+
+        _queryFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<AccountingRequest>(value => value.NumberOfPostingLines == numberOfPostingLines),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task AccountingAsync_WhenNumberOfPostingLinesHasNotBeenGiven_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingRequestWhereNumberOfPostingLinesIsEqualToDefault()
+    {
+        WebApi.Controllers.Accounting.AccountingController sut = CreateSut();
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.AccountingAsync(_queryFeatureMock!.Object, _fixture.Create<int>(), cancellationTokenSource.Token);
+
+        _queryFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<AccountingRequest>(value => value.NumberOfPostingLines == 25),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     [TestCase(true)]
     [TestCase(false)]
     public async Task AccountingAsync_WhenCalled_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingRequestWhereFormatProviderIsEqualToFormatProviderFromDependencies(bool withStatusDate)
@@ -270,11 +301,16 @@ public class AccountingAsyncTests
         return new WebApi.Controllers.Accounting.AccountingController(_timeProviderMock!.Object, formatProvider ?? CultureInfo.InvariantCulture, _securityContextProviderMock!.Object);
     }
 
-    private AccountingResponse CreateAccountingResponse(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, IReadOnlyCollection<LetterHeadIdentificationModel>? letterHeads = null)
+    private AccountingResponse CreateAccountingResponse(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, IReadOnlyCollection<PostingLineModel>? postingLineModels = null, IReadOnlyCollection<LetterHeadIdentificationModel>? letterHeadIdentificationModels = null)
     {
         IReadOnlyDictionary<StaticTextKey, string> staticTexts = _fixture!.CreateStaticTexts(_random!);
         IReadOnlyCollection<IValidationRule> validationRuleSet = _fixture!.CreateValidationRuleSet();
 
-        return new AccountingResponse(accountingModel ?? _fixture!.CreateAccountingModel(_random!), accountingTexts ?? _fixture!.CreateAccountingTexts(_random!), letterHeads ?? _fixture!.CreateLetterHeadIdentificationModels(_random!), staticTexts, validationRuleSet);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = Tuple.Create(
+            accountingModel ?? _fixture!.CreateAccountingModel(_random!), 
+            postingLineModels ??_fixture!.CreatePostingLineModels(_random!), 
+            letterHeadIdentificationModels ?? _fixture!.CreateLetterHeadIdentificationModels(_random!));
+
+        return new AccountingResponse(model, accountingTexts ?? _fixture!.CreateAccountingTexts(_random!), staticTexts, validationRuleSet);
     }
 }

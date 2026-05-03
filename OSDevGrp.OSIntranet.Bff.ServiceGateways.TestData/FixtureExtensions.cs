@@ -349,6 +349,51 @@ public static class FixtureExtensions
             number ?? random.Next(1, 99));
     }
 
+    public static PostingLineModel[] CreatePostingLineModels(this Fixture fixture, Random random, AccountIdentificationModel? accountIdentificationModel = null, AccountIdentificationModel? budgetAccountIdentificationModel = null, AccountIdentificationModel? contactAccountIdentificationModel = null)
+    {
+        List<PostingLineModel> postingLineModels = new List<PostingLineModel>(random.Next(25, 50));
+        while (postingLineModels.Count < postingLineModels.Capacity)
+        {
+            postingLineModels.Add(fixture.CreatePostingLineModel(random, accountIdentificationModel, budgetAccountIdentificationModel, contactAccountIdentificationModel));
+        }
+        return postingLineModels.ToArray();
+    }
+
+    public static PostingLineModel CreatePostingLineModel(this Fixture fixture, Random random, AccountIdentificationModel? accountIdentificationModel = null, AccountIdentificationModel? budgetAccountIdentificationModel = null, AccountIdentificationModel? contactAccountIdentificationModel = null)
+    {
+        accountIdentificationModel ??= fixture.CreateAccountIdentificationModel(random);
+
+        bool withBudgetAccount = budgetAccountIdentificationModel != null || random.Next(100) > 50;
+        if (withBudgetAccount)
+        {
+            budgetAccountIdentificationModel ??= fixture.CreateAccountIdentificationModel(random);
+        }
+
+        bool withContactAccount = contactAccountIdentificationModel != null || random.Next(100) > 50;
+        if (withContactAccount)
+        {
+            contactAccountIdentificationModel ??= fixture.CreateAccountIdentificationModel(random);
+        }
+
+        double? debit = random.Next(100) > 50 ? fixture.Create<double>() : null;
+        double? credit = debit.HasValue == false ? fixture.Create<double>() : null;
+
+        return new PostingLineModel(
+            accountIdentificationModel,
+            fixture.CreateCreditInfoValuesModel(),
+            budgetAccountIdentificationModel,
+            budgetAccountIdentificationModel != null ? fixture.CreateBudgetInfoValuesModel() : null,
+            contactAccountIdentificationModel,
+            contactAccountIdentificationModel != null ? fixture.CreateBalanceInfoValuesModel() : null,
+            credit,
+            debit,
+            fixture.Create<string>(),
+            Guid.NewGuid(),
+            DateTimeOffset.Now.AddDays(random.Next(0, 31) * -1).Date,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            fixture.Create<int>());
+    }
+
     public static ISecurityContext CreateSecurityContext(this Fixture fixture, ClaimsPrincipal? user = null, IToken? token = null)
     {
         return fixture.CreateSecurityContextMock(user, token).Object;

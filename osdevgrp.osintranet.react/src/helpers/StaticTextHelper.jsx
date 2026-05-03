@@ -179,6 +179,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'ContactAccounts');
     }
 
+    getBookkeepingText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Bookkeeping');
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }

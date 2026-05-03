@@ -79,6 +79,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastMonthFromStatusDate, "Balance ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.BalanceSheetAtEndOfLastYearFromStatusDate, "Balance ved sidste års afslutning");
         staticTexts.Add(StaticTextKey.Credit, "Kredit");
+        staticTexts.Add(StaticTextKey.Debit, "Debit");
         staticTexts.Add(StaticTextKey.Balance, "Saldo");
         staticTexts.Add(StaticTextKey.Assets, "Aktiver");
         staticTexts.Add(StaticTextKey.AssetsTotal, "Aktiver i alt");
@@ -98,10 +99,19 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.IncomeStatement, "Resultatopgørelse");
         staticTexts.Add(StaticTextKey.IncomeStatementTotal, "Resultat i alt");
         staticTexts.Add(StaticTextKey.Accounts, "Konti");
+        staticTexts.Add(StaticTextKey.Account, "Konto");
         staticTexts.Add(StaticTextKey.BudgetAccounts, "Budgetkonti");
+        staticTexts.Add(StaticTextKey.BudgetAccount, "Budgetkonto");
         staticTexts.Add(StaticTextKey.ContactAccounts, "Kontaktkonti");
+        staticTexts.Add(StaticTextKey.ContactAccount, "Kontaktkonto");
         staticTexts.Add(StaticTextKey.AccountNumberShort, "Kontonr.");
         staticTexts.Add(StaticTextKey.AccountName, "Kontonavn");
+        staticTexts.Add(StaticTextKey.Bookkeeping, "Bogføring");
+        staticTexts.Add(StaticTextKey.LatestPostings, "Seneste posteringer");
+        staticTexts.Add(StaticTextKey.PostingDate, "Dato");
+        staticTexts.Add(StaticTextKey.PostingReference, "Bilag");
+        staticTexts.Add(StaticTextKey.PostingText, "Tekst");
+        staticTexts.Add(StaticTextKey.PostingValue, "Beløb");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");

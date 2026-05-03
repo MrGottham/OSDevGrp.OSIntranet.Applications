@@ -82,6 +82,32 @@ internal static class ValidationValues
     internal const int AccountNumberLabelMinLength = 1;
     internal const int AccountNameLabelMinLength = 1;
 
+    internal const int NumberOfPostingLinesMinValue = 0;
+    internal const int NumberOfPostingLinesMaxValue = 512;
+
+    internal const int LatestPostingsHeaderMinLength = 1;
+    internal const int PostingLineIdentificationMinLength = 1;
+    internal const int PostingLineIdentificationMaxLength = 36;
+    internal const string PostingLineIdentificationRegexPattern = "^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$";
+    internal const int PostingDateHeaderMinLength = 1;
+    internal const int PostingDateMinLength = 1;
+    internal const int PostingReferenceHeaderMinLength = 1;
+    internal const int PostingReferenceMinLength = 1;
+    internal const int PostingReferenceMaxLength = 16;
+    internal const int AccountHeaderMinLength = 1;
+    internal const int PostingTextHeaderMinLength = 1;
+    internal const int PostingTextMinLength = 1;
+    internal const int PostingTextMaxLength = 256;
+    internal const int BudgetAccountHeaderMinLength = 1;
+    internal const int DebitHeaderMinLength = 1;
+    internal const int DebitMinLength = 1;
+    internal const int CreditHeaderMinLength = 1;
+    internal const int PostingValueHeaderMinLength = 1;
+    internal const int PostingValueMinLength = 1;
+    internal const int ContactAccountHeaderMinLength = 1;
+    internal const int PostingLineSummaryHeaderMinLength = 1;
+    internal const int PostingLineSummaryMinLength = 1;
+
     internal const int LetterHeadNameMinLength = 1;
     internal const int LetterHeadNameMaxLength = 256;
 }

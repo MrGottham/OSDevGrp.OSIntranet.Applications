@@ -9,12 +9,11 @@ using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 
-internal class AccountingFeature : AccountingIdentificationFeatureBase<AccountingRequest, AccountingResponse, AccountingModel, IAccountingTexts, IAccountingTextsBuilder, IAccountingRuleSetBuilder>
+internal class AccountingFeature : AccountingIdentificationFeatureBase<AccountingRequest, AccountingResponse, Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>, IAccountingTexts, IAccountingTextsBuilder, IAccountingRuleSetBuilder>
 {
     #region Private variables
 
     private readonly ICommonGateway _commonGateway;
-    private readonly IList<LetterHeadIdentificationModel> _letterHeads = new List<LetterHeadIdentificationModel>();
 
     #endregion
 
@@ -30,27 +29,35 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
 
     #region Methods
 
-    protected override async Task<AccountingModel> GetModelAsync(AccountingRequest request, CancellationToken cancellationToken)
+    protected override async Task<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>> GetModelAsync(AccountingRequest request, CancellationToken cancellationToken)
     {
-        AccountingModel accountingModel = await AccountingGateway.GetAccountingAsync(request.AccountingNumber, request.StatusDate, cancellationToken);
+        AccountingModel? accountingModel = null;
+        IReadOnlyCollection<PostingLineModel> postingLineModels = [];
 
-        await ResolveLetterHeadsAsync(accountingModel, request.SecurityContext, cancellationToken);
+        Task getAccountingTask = AccountingGateway.GetAccountingAsync(request.AccountingNumber, request.StatusDate, cancellationToken).ContinueWith(task => accountingModel = task.Result, cancellationToken);
+        Task getPostingLinesTask = request.NumberOfPostingLines > 0
+            ? AccountingGateway.GetPostingLinesAsync(request.AccountingNumber, request.StatusDate, request.NumberOfPostingLines, _ => true, cancellationToken).ContinueWith(task => postingLineModels = task.Result.ToArray(), cancellationToken)
+            : Task.CompletedTask;
 
-        return accountingModel;
+        await Task.WhenAll(getAccountingTask, getPostingLinesTask);
+
+        IReadOnlyCollection<LetterHeadIdentificationModel> letterHeadIdentificationModels = await ResolveLetterHeadsAsync(accountingModel!, request.SecurityContext, cancellationToken);
+
+        return Tuple.Create(accountingModel!, postingLineModels, letterHeadIdentificationModels);
     }
 
-    protected override Task<AccountingResponse> BuildResponseAsync(AccountingModel accountingModel, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IAccountingTexts accountingTexts, IReadOnlyCollection<IValidationRule> validationRuleSet, CancellationToken cancellationToken)
+    protected override Task<AccountingResponse> BuildResponseAsync(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IAccountingTexts accountingTexts, IReadOnlyCollection<IValidationRule> validationRuleSet, CancellationToken cancellationToken)
     {
-        return Task.Run(() => new AccountingResponse(accountingModel, accountingTexts, _letterHeads.AsReadOnly(), staticTexts, validationRuleSet), cancellationToken);
+        return Task.Run(() => new AccountingResponse(model, accountingTexts, staticTexts, validationRuleSet), cancellationToken);
     }
 
-    protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(AccountingRequest request, AccountingModel accountingModel)
+    protected override IReadOnlyDictionary<StaticTextKey, IEnumerable<object>> GetStaticTextSpecifications(AccountingRequest request, Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model)
     {
         return new Dictionary<StaticTextKey, IEnumerable<object>>
         {
             { StaticTextKey.UpdateAccounting, StaticTextKey.UpdateAccounting.DefaultArguments() },
             { StaticTextKey.DeleteAccounting, StaticTextKey.DeleteAccounting.DefaultArguments() },
-            { StaticTextKey.AccountingDeletionQuestion, new [] {accountingModel.Name} },
+            { StaticTextKey.AccountingDeletionQuestion, new [] {model.Item1.Name} },
             { StaticTextKey.AccountDeletionQuestion, StaticTextKey.AccountDeletionQuestion.DefaultArguments() },
             { StaticTextKey.BudgetAccountDeletionQuestion, StaticTextKey.BudgetAccountDeletionQuestion.DefaultArguments() },
             { StaticTextKey.ContactAccountDeletionQuestion, StaticTextKey.ContactAccountDeletionQuestion.DefaultArguments() },
@@ -63,6 +70,7 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.Creditors, StaticTextKey.Creditors.DefaultArguments() },
             { StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments() },
             { StaticTextKey.CurrentStatus, StaticTextKey.CurrentStatus.DefaultArguments() },
+            { StaticTextKey.Bookkeeping, StaticTextKey.Bookkeeping.DefaultArguments() },
             { StaticTextKey.IncomeStatement, StaticTextKey.IncomeStatement.DefaultArguments() },
             { StaticTextKey.BalanceSheet, StaticTextKey.BalanceSheet.DefaultArguments() },
             { StaticTextKey.Accounts, StaticTextKey.Accounts.DefaultArguments() },
@@ -77,19 +85,16 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
         };
     }
 
-    private async Task ResolveLetterHeadsAsync(AccountingModel accountingModel, ISecurityContext securityContext, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<LetterHeadIdentificationModel>> ResolveLetterHeadsAsync(AccountingModel accountingModel, ISecurityContext securityContext, CancellationToken cancellationToken)
     {
         if (PermissionChecker.HasCommonDataAccess(securityContext.User) == false)
         {
-            _letterHeads.Add(accountingModel.LetterHead);
-            return;
+            return [accountingModel.LetterHead];
         }
 
-        IEnumerable<LetterHeadModel> letterHeadModels = await _commonGateway.GetLetterHeadsAsync(cancellationToken);
-        foreach (LetterHeadModel letterHeadModel in letterHeadModels)
-        {
-            _letterHeads.Add(new LetterHeadIdentificationModel(letterHeadModel.Name, letterHeadModel.Number));
-        }
+        return (await _commonGateway.GetLetterHeadsAsync(cancellationToken))
+            .Select(letterHeadModel => new LetterHeadIdentificationModel(letterHeadModel.Name, letterHeadModel.Number))
+            .ToArray();
     }
 
     #endregion

@@ -25,11 +25,7 @@ function EditAccounting() {
             return;
         }
 
-        if (content !== undefined) {
-            setContent(undefined);
-        }
-
-        populateContent(accountingNumber)
+        populateContent(accountingNumber, 0)
             .catch(error => showBoundary(error));
     }, [accountingNumber, submitting]);
 
@@ -72,8 +68,12 @@ function EditAccounting() {
         </>
     );
 
-    async function populateContent(accountingNumber) {
-        const json = await accountingService.getAccounting(accountingNumber);
+    async function populateContent(accountingNumber, numberOfPostingLines) {
+        if (content !== undefined) {
+            setContent(undefined);
+        }
+
+        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
         setContent(json);
     }
 

@@ -18,16 +18,20 @@ public class AccountingSummaryResponseDto : AccountingInfoDto
     [Required]
     public required ObligeePartiesDisplayerDto ObligeePartiesAtStatusDate { get; init; }
 
+    [Required]
+    public required PostingLineSummaryCollectionDto PostingLineSummaryCollection { get; init; }
+
     internal static AccountingSummaryResponseDto Map(AccountingSummaryResponse accountingSummaryResponse)
     {
         return new AccountingSummaryResponseDto
         {
-            Number = accountingSummaryResponse.Model.Number,
-            Name = accountingSummaryResponse.Model.Name,
+            Number = accountingSummaryResponse.Accounting.Number,
+            Name = accountingSummaryResponse.Accounting.Name,
             StatusDate = ValueDisplayerDto.Map(accountingSummaryResponse.DynamicTexts.StatusDate),
             BalanceSheetAtStatusDate = BalanceSheetDisplayerDto.Map(accountingSummaryResponse.DynamicTexts.BalanceSheetAtStatusDate),
             BudgetStatementForMonthOfStatusDate = BudgetStatementDisplayerDto.Map(accountingSummaryResponse.DynamicTexts.BudgetStatementForMonthOfStatusDate),
-            ObligeePartiesAtStatusDate = ObligeePartiesDisplayerDto.Map(accountingSummaryResponse.DynamicTexts.ObligeePartiesAtStatusDate)
+            ObligeePartiesAtStatusDate = ObligeePartiesDisplayerDto.Map(accountingSummaryResponse.DynamicTexts.ObligeePartiesAtStatusDate),
+            PostingLineSummaryCollection = PostingLineSummaryCollectionDto.Map(accountingSummaryResponse.DynamicTexts.PostingLineCollection)
         };
     }
 }

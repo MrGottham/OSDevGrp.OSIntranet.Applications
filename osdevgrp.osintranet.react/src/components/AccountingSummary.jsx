@@ -15,7 +15,7 @@ function AccountingSummary({ accountingNumber }) {
     const [content, setContent] = useState();
 
     useEffect(() => {
-        populateContent(accountingNumber)
+        populateContent(accountingNumber, 7)
             .catch(error => showBoundary(error));
     }, []);
 
@@ -41,7 +41,7 @@ function AccountingSummary({ accountingNumber }) {
             <Row>
                 <Col xs={12} sm={12} md={12} lg={6} xl={4} xxl={4}>
                     <Stack gap={3}>
-                        <p>Posting lines!</p>
+                        {getPostingLinesContent(content.postingLineSummaryCollection)}
                         {getBudgetStatementContent(content.budgetStatementForMonthOfStatusDate, 'd-block d-sm-block d-md-block d-lg-none d-xl-none d-xxl-none')}
                         {getBalanceSheetContent(content.balanceSheetAtStatusDate, 'd-block d-sm-block d-md-block d-lg-none d-xl-none d-xxl-none')}
                         {getObligeePartiesContent(content.obligeePartiesAtStatusDate, 'd-block d-sm-block d-md-block d-lg-none d-xl-none d-xxl-none')}
@@ -65,6 +65,28 @@ function AccountingSummary({ accountingNumber }) {
             </Row>
         </>
     );
+
+    function getPostingLinesContent(postingLineSummaryCollection) {
+        return (
+            <Stack gap={0}>
+                <p className='mb-1 fw-bold'>{postingLineSummaryCollection.summaryHeader}</p>
+                <Table className='p-0' borderless={true} size='sm' responsive={true}>
+                    <tbody>
+                        {postingLineSummaryCollection.postingLines.map(getPostingLineContent)}
+                    </tbody>
+                </Table>
+            </Stack>
+        )
+    }
+
+    function getPostingLineContent(postingLineSummaryDisplayer) {
+        return (
+            <tr key={postingLineSummaryDisplayer.identification}>
+                <td>{postingLineSummaryDisplayer.summary}</td>
+                <td className='text-end text-nowrap'>{postingLineSummaryDisplayer.postingValue}</td>
+            </tr>
+        )
+    }
 
     function getBalanceSheetContent(balanceSheetDisplayer, className) {
         if (balanceSheetDisplayer === undefined || balanceSheetDisplayer === null) {
@@ -147,8 +169,8 @@ function AccountingSummary({ accountingNumber }) {
         );
     }
 
-    async function populateContent(accountingNumber) {
-        const json = await accountingService.getAccountingSummary(accountingNumber);
+    async function populateContent(accountingNumber, numberOfPostingLines) {
+        const json = await accountingService.getAccountingSummary(accountingNumber, numberOfPostingLines);
         setContent(json);
     }
 }

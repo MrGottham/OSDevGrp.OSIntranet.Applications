@@ -47,6 +47,8 @@ internal static class FixtureExtensions
             .Returns(fixture.CreateChartOfBudgetAccountsDisplayer(random));
         accountingTextsMock.Setup(m => m.ChartOfContactAccounts)
             .Returns(fixture.CreateChartOfContactAccountsDisplayer(random));
+        accountingTextsMock.Setup(m => m.PostingLineCollection)
+            .Returns(fixture.CreatePostingLineCollectionTexts(random));
         return accountingTextsMock.Object;
     }
 
@@ -391,6 +393,70 @@ internal static class FixtureExtensions
         chartOfContactAccountsLineDisplayerMock.Setup(m => m.Deletable)
             .Returns(random.Next(100) > 50);
         return chartOfContactAccountsLineDisplayerMock.Object;
+    }
+
+    internal static IPostingLineCollectionTexts CreatePostingLineCollectionTexts(this Fixture fixture, Random random)
+    {
+        List<IPostingLineDisplayer> postingLines = new List<IPostingLineDisplayer>();
+        for (int i = 0; i < random.Next(25, 50); i++)
+        {
+            postingLines.Add(fixture.CreatePostingLineDisplayer(random));
+        }
+
+        Mock<IPostingLineCollectionTexts> postingLineCollectionTextsMock = new Mock<IPostingLineCollectionTexts>();
+        postingLineCollectionTextsMock.Setup(m => m.LatestPostingsHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingDateHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingReferenceHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.AccountHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingTextHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.BudgetAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.DebitHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.CreditHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingValueHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.ContactAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.SummaryHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingLines)
+            .Returns(postingLines);
+        return postingLineCollectionTextsMock.Object;
+    }
+
+    internal static IPostingLineDisplayer CreatePostingLineDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IPostingLineDisplayer> postingLineDisplayerMock = new Mock<IPostingLineDisplayer>();
+        postingLineDisplayerMock.Setup(m => m.Identification)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.PostingDate)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.PostingReference)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Account)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.PostingText)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.BudgetAccount)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Debit)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Credit)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.PostingValue)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.ContactAccount)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Summary)
+            .Returns(fixture.Create<string>());
+        return postingLineDisplayerMock.Object;
     }
 
     internal static IValueDisplayer CreateValueDisplayer(this Fixture fixture, Random random)
