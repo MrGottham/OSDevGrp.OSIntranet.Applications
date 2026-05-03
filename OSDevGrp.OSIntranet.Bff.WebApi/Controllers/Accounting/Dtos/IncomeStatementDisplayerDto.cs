@@ -9,7 +9,7 @@ public class IncomeStatementDisplayerDto
 {
     [Required]
     [MinLength(ValidationValues.IncomeStatementLabelMinLength)]
-    public required string IncomeStatementLabel { get; init;}
+    public required string IncomeStatementLabel { get; init; }
 
     [Required]
     [MinLength(ValidationValues.MonthOfStatusDateLabelMinLength)]

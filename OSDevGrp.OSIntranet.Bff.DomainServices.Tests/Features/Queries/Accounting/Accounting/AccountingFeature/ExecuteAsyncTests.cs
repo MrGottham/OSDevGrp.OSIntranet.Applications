@@ -8,6 +8,8 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DynamicText.AccountingTextsBuilder;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.DynamicText.PostingLineCollectionTextsBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.StaticText.StaticTextProvider;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingRuleSetBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.MaxLengthRuleFactory;
@@ -106,6 +108,115 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
 
     [Test]
     [Category("UnitTest")]
+    [TestCase(1)]
+    [TestCase(16)]
+    [TestCase(32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsGreaterThanZero_AssertGetPostingLinesAsyncWasCalledOnAccountingGatewayWithAccountingNumberFromAccountingRequest(int numberOfPostingLines)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
+
+        int accountingNumber = _fixture!.Create<int>();
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, accountingNumber: accountingNumber, numberOfPostingLines: numberOfPostingLines);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingLinesAsync(
+                It.Is<int>(value => value == accountingNumber),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<Predicate<PostingLineModel>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(1)]
+    [TestCase(16)]
+    [TestCase(32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsGreaterThanZero_AssertGetPostingLinesAsyncWasCalledOnAccountingGatewayWithStatusDateFromAccountingRequest(int numberOfPostingLines)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
+
+        DateTimeOffset statusDate = DateTimeOffset.Now.AddDays(_random!.Next(0, 7) * -1).Date;
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, statusDate: statusDate, numberOfPostingLines: numberOfPostingLines);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingLinesAsync(
+                It.IsAny<int>(),
+                It.Is<DateTimeOffset>(value => value == statusDate),
+                It.IsAny<int>(),
+                It.IsAny<Predicate<PostingLineModel>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(1)]
+    [TestCase(16)]
+    [TestCase(32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsGreaterThanZero_AssertGetPostingLinesAsyncWasCalledOnAccountingGatewayWithNumberOfPostingLinesFromAccountingRequest(int numberOfPostingLines)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, numberOfPostingLines: numberOfPostingLines);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingLinesAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTimeOffset>(),
+                It.Is<int>(value => value == numberOfPostingLines),
+                It.IsAny<Predicate<PostingLineModel>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(1)]
+    [TestCase(16)]
+    [TestCase(32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsGreaterThanZero_AssertGetPostingLinesAsyncWasCalledOnAccountingGatewayWithGivenCancellationToken(int numberOfPostingLines)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, numberOfPostingLines: numberOfPostingLines);
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        await sut.ExecuteAsync(accountingRequest, cancellationToken);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingLinesAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<Predicate<PostingLineModel>>(),
+                It.Is<CancellationToken>(value => value == cancellationToken)),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(0)]
+    [TestCase(-16)]
+    [TestCase(-32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsLessThanOrEqualToZero_AssertGetPostingLinesAsyncWasNotCalledOnAccountingGateway(int numberOfPostingLines)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, numberOfPostingLines: numberOfPostingLines);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingLinesAsync(
+                It.IsAny<int>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<Predicate<PostingLineModel>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     [TestCase(true)]
     [TestCase(false)]
     public async Task ExecuteAsync_WhenCalled_AssertUserWasCalledOnSecurityContextFromAccountingRequest(bool hasCommonDataAccess)
@@ -163,7 +274,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
 
     [Test]
     [Category("UnitTest")]
-    public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereModelIsEqualToAccountingModelResolvedByAccountingGateway()
+    public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereAccountingIsEqualToAccountingModelResolvedByAccountingGateway()
     {
         AccountingModel accountingModel = _fixture!.CreateAccountingModel(_random!);
         IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(accountingModel: accountingModel);
@@ -171,7 +282,40 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!);
         AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
 
-        Assert.That(result.Model, Is.EqualTo(accountingModel));
+        Assert.That(result.Accounting, Is.EqualTo(accountingModel));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(1)]
+    [TestCase(16)]
+    [TestCase(32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsGreaterThanZero_ReturnsAccountingResponseWherePostingLinesIsEqualToPostingLineModelsResolvedByAccountingGateway(int numberOfPostingLines)
+    {
+        PostingLineModel[] postingLineModels = _fixture!.CreatePostingLineModels(_random!);
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(postingLineModels: postingLineModels);
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, numberOfPostingLines: numberOfPostingLines);
+        AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
+
+        Assert.That(result.PostingLines, Is.EqualTo(postingLineModels));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(0)]
+    [TestCase(-16)]
+    [TestCase(-32)]
+    public async Task ExecuteAsync_WhenNumberOfPostingLinesInAccountingRequestIsLessThanOrEqualToZero_ReturnsAccountingResponseWherePostingLinesIsEmpty(int numberOfPostingLines)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, numberOfPostingLines: numberOfPostingLines);
+        await sut.ExecuteAsync(accountingRequest);
+
+        AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
+
+        Assert.That(result.PostingLines, Is.Empty);
     }
 
     [Test]
@@ -224,6 +368,9 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.UpdateAccounting)]
     [TestCase(StaticTextKey.DeleteAccounting)]
     [TestCase(StaticTextKey.AccountingDeletionQuestion)]
+    [TestCase(StaticTextKey.AccountDeletionQuestion)]
+    [TestCase(StaticTextKey.BudgetAccountDeletionQuestion)]
+    [TestCase(StaticTextKey.ContactAccountDeletionQuestion)]
     [TestCase(StaticTextKey.MasterData)]
     [TestCase(StaticTextKey.AccountingNumber)]
     [TestCase(StaticTextKey.AccountingName)]
@@ -233,8 +380,12 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.Creditors)]
     [TestCase(StaticTextKey.BackDating)]
     [TestCase(StaticTextKey.CurrentStatus)]
+    [TestCase(StaticTextKey.Bookkeeping)]
     [TestCase(StaticTextKey.IncomeStatement)]
     [TestCase(StaticTextKey.BalanceSheet)]
+    [TestCase(StaticTextKey.Accounts)]
+    [TestCase(StaticTextKey.BudgetAccounts)]
+    [TestCase(StaticTextKey.ContactAccounts)]
     [TestCase(StaticTextKey.Update)]
     [TestCase(StaticTextKey.Delete)]
     [TestCase(StaticTextKey.ConfirmDeletion)]
@@ -269,7 +420,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         Assert.That(result.ValidationRuleSet, Is.EqualTo(validationRuleSet));
     }
 
-    private IQueryFeature<AccountingRequest, AccountingResponse> CreateSut(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, bool hasCommonDataAccess = true, IEnumerable<LetterHeadModel>? letterHeadModels = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
+    private IQueryFeature<AccountingRequest, AccountingResponse> CreateSut(AccountingModel? accountingModel = null, IEnumerable<PostingLineModel>? postingLineModels = null, IAccountingTexts? accountingTexts = null, bool hasCommonDataAccess = true, IEnumerable<LetterHeadModel>? letterHeadModels = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
     {
         _permissionCheckerMock!.Setup(_fixture!, hasCommonDataAccess: hasCommonDataAccess);
         _staticTextProviderMock!.Setup(_fixture!);
@@ -278,14 +429,16 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
 
         _accountingGatewayMock!.Setup(m => m.GetAccountingAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(accountingModel ?? _fixture!.CreateAccountingModel(_random!)));
+        _accountingGatewayMock!.Setup(m => m.GetPostingLinesAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<Predicate<PostingLineModel>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult(postingLineModels ?? _fixture!.CreatePostingLineModels(_random!)));
         _commonGatewayMock!.Setup(m => m.GetLetterHeadsAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(letterHeadModels ?? _fixture!.CreateLetterHeadModels(_random!)));
 
         return new DomainServices.Features.Queries.Accounting.Accounting.AccountingFeature(_permissionCheckerMock!.Object, _accountingGatewayMock!.Object, _commonGatewayMock!.Object, _staticTextProviderMock!.Object, _accountingTextsBuilderMock!.Object, _accountingRuleSetBuilderMock!.Object);
     }
 
-    private static AccountingRequest CreateAccountingRequest(Fixture fixture, int? accountingNumber = null, DateTimeOffset? statusDate = null, ISecurityContext? securityContext = null)
+    private static AccountingRequest CreateAccountingRequest(Fixture fixture, int? accountingNumber = null, DateTimeOffset? statusDate = null, int? numberOfPostingLines = null, ISecurityContext? securityContext = null)
     {
-        return new AccountingRequest(Guid.NewGuid(), accountingNumber ?? fixture.Create<int>(), statusDate ?? DateTimeOffset.Now.Date, CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext(fixture));
+        return new AccountingRequest(Guid.NewGuid(), accountingNumber ?? fixture.Create<int>(), statusDate ?? DateTimeOffset.Now.Date, numberOfPostingLines ?? fixture.Create<int>(), CultureInfo.InvariantCulture, securityContext ?? CreateSecurityContext(fixture));
     }
 }

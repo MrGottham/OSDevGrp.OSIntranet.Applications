@@ -22,10 +22,23 @@ export default class ServiceBase {
         return this.#bffEndpoint + path;
     }
 
-    makeHeadersForPostWithJsonContent() {
-        return { 
+    generateContentTypeHeaderForJson() {
+        return {
             'Content-Type': 'application/json; charset=utf-8' 
         };
+    }
+
+    async generateAntiforgeryHeader() {
+        const response = await fetch(this.resolveEndpoint('/api/security/antiforgery/token'), { method: 'GET', credentials: 'include' });
+        if (response.ok) {
+            const json = await response.json();
+
+            return {
+               [json.headerName]: json.requestToken
+            };
+        }
+
+        throw await this.generateError(response);
     }
 
     async generateError(response) {

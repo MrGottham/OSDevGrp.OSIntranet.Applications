@@ -5,21 +5,24 @@ using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 
-public class AccountingResponse : AccountingIdentificationResponseBase<AccountingModel, IAccountingTexts>
+public class AccountingResponse : AccountingIdentificationResponseBase<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>, IAccountingTexts>
 {
     #region Constructor
 
-    public AccountingResponse(AccountingModel model, IAccountingTexts dynamicTexts, IReadOnlyCollection<LetterHeadIdentificationModel> letterHeads, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IReadOnlyCollection<IValidationRule> validationRuleSet)
+    public AccountingResponse(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model, IAccountingTexts dynamicTexts, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IReadOnlyCollection<IValidationRule> validationRuleSet)
         : base(model, dynamicTexts, staticTexts, validationRuleSet)
     {
-        LetterHeads = letterHeads;
     }
 
     #endregion
 
     #region Properties
 
-    public IReadOnlyCollection<LetterHeadIdentificationModel> LetterHeads { get; }
+    public AccountingModel Accounting => Model.Item1;
+
+    public IReadOnlyCollection<PostingLineModel> PostingLines => Model.Item2;
+
+    public IReadOnlyCollection<LetterHeadIdentificationModel> LetterHeads => Model.Item3;
 
     #endregion
 }

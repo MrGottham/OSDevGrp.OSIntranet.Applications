@@ -41,6 +41,14 @@ internal static class FixtureExtensions
             .Returns(fixture.CreateIncomeStatementDisplayer(random));
         accountingTextsMock.Setup(m => m.BalanceSheet)
             .Returns(fixture.CreateFullBalanceSheetDisplayer(random));
+        accountingTextsMock.Setup(m => m.ChartOfAccounts)
+            .Returns(fixture.CreateChartOfAccountsDisplayer(random));
+        accountingTextsMock.Setup(m => m.ChartOfBudgetAccounts)
+            .Returns(fixture.CreateChartOfBudgetAccountsDisplayer(random));
+        accountingTextsMock.Setup(m => m.ChartOfContactAccounts)
+            .Returns(fixture.CreateChartOfContactAccountsDisplayer(random));
+        accountingTextsMock.Setup(m => m.PostingLineCollection)
+            .Returns(fixture.CreatePostingLineCollectionTexts(random));
         return accountingTextsMock.Object;
     }
 
@@ -207,6 +215,248 @@ internal static class FixtureExtensions
         fullBalanceSheetLineDisplayerMock.Setup(m => m.AvailableAtEndOfLastYearFromStatusDate)
             .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
         return fullBalanceSheetLineDisplayerMock.Object;
+    }
+
+    internal static IChartOfAccountsDisplayer CreateChartOfAccountsDisplayer(this Fixture fixture, Random random)
+    {
+        List<IChartOfAccountsSectionDisplayer> sections = new List<IChartOfAccountsSectionDisplayer>();
+        for (int i = 0; i < random.Next(5, 10); i++)
+        {
+            sections.Add(fixture.CreateChartOfAccountsSectionDisplayer(random));
+        }
+
+        Mock<IChartOfAccountsDisplayer> chartOfAccountsDisplayerMock = new Mock<IChartOfAccountsDisplayer>();
+        chartOfAccountsDisplayerMock.Setup(m => m.ChartOfAccountsLabel)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsDisplayerMock.Setup(m => m.AccountNumberLabel)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsDisplayerMock.Setup(m => m.AccountNameLabel)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsDisplayerMock.Setup(m => m.CreditLabel)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsDisplayerMock.Setup(m => m.BalanceLabel)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsDisplayerMock.Setup(m => m.AvailableLabel)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsDisplayerMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        chartOfAccountsDisplayerMock.Setup(m => m.AccountCreationPossible)
+            .Returns(random.Next(100) > 50);
+        chartOfAccountsDisplayerMock.Setup(m => m.Sections)
+            .Returns(sections);
+        return chartOfAccountsDisplayerMock.Object;
+    }
+
+    internal static IChartOfAccountsSectionDisplayer CreateChartOfAccountsSectionDisplayer(this Fixture fixture, Random random)
+    {
+        List<IChartOfAccountsLineDisplayer> lines = new List<IChartOfAccountsLineDisplayer>();
+        for (int i = 0; i < random.Next(10, 15); i++)
+        {
+            lines.Add(fixture.CreateChartOfAccountsLineDisplayer(random));
+        }
+
+        Mock<IChartOfAccountsSectionDisplayer> chartOfAccountsSectionDisplayerMock = new Mock<IChartOfAccountsSectionDisplayer>();
+        chartOfAccountsSectionDisplayerMock.Setup(m => m.Identification)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsSectionDisplayerMock.Setup(m => m.Description)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsSectionDisplayerMock.Setup(m => m.Lines)
+            .Returns(lines);
+        return chartOfAccountsSectionDisplayerMock.Object;
+    }
+
+    internal static IChartOfAccountsLineDisplayer CreateChartOfAccountsLineDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IChartOfAccountsLineDisplayer> chartOfAccountsLineDisplayerMock = new Mock<IChartOfAccountsLineDisplayer>();
+        chartOfAccountsLineDisplayerMock.Setup(m => m.AccountNumber)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsLineDisplayerMock.Setup(m => m.AccountName)
+            .Returns(fixture.Create<string>());
+        chartOfAccountsLineDisplayerMock.Setup(m => m.Credit)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfAccountsLineDisplayerMock.Setup(m => m.Balance)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfAccountsLineDisplayerMock.Setup(m => m.Available)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfAccountsLineDisplayerMock.Setup(m => m.Modifiable)
+            .Returns(random.Next(100) > 50);
+        chartOfAccountsLineDisplayerMock.Setup(m => m.Deletable)
+            .Returns(random.Next(100) > 50);
+        return chartOfAccountsLineDisplayerMock.Object;
+    }
+
+    internal static IChartOfBudgetAccountsDisplayer CreateChartOfBudgetAccountsDisplayer(this Fixture fixture, Random random)
+    {
+        List<IChartOfBudgetAccountsSectionDisplayer> sections = new List<IChartOfBudgetAccountsSectionDisplayer>();
+        for (int i = 0; i < random.Next(5, 10); i++)
+        {
+            sections.Add(fixture.CreateChartOfBudgetAccountsSectionDisplayer(random));
+        }
+
+        Mock<IChartOfBudgetAccountsDisplayer> chartOfBudgetAccountsDisplayerMock = new Mock<IChartOfBudgetAccountsDisplayer>();
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.ChartOfBudgetAccountsLabel)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.AccountNumberLabel)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.AccountNameLabel)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.BudgetLabel)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.PostedLabel)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.AvailableLabel)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.BudgetAccountCreationPossible)
+            .Returns(random.Next(100) > 50);
+        chartOfBudgetAccountsDisplayerMock.Setup(m => m.Sections)
+            .Returns(sections);
+        return chartOfBudgetAccountsDisplayerMock.Object;
+    }
+
+    internal static IChartOfBudgetAccountsSectionDisplayer CreateChartOfBudgetAccountsSectionDisplayer(this Fixture fixture, Random random)
+    {
+        List<IChartOfBudgetAccountsLineDisplayer> lines = new List<IChartOfBudgetAccountsLineDisplayer>();
+        for (int i = 0; i < random.Next(10, 15); i++)
+        {
+            lines.Add(fixture.CreateChartOfBudgetAccountsLineDisplayer(random));
+        }
+
+        Mock<IChartOfBudgetAccountsSectionDisplayer> chartOfBudgetAccountsSectionDisplayerMock = new Mock<IChartOfBudgetAccountsSectionDisplayer>();
+        chartOfBudgetAccountsSectionDisplayerMock.Setup(m => m.Identification)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsSectionDisplayerMock.Setup(m => m.Description)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsSectionDisplayerMock.Setup(m => m.Lines)
+            .Returns(lines);
+        return chartOfBudgetAccountsSectionDisplayerMock.Object;
+    }
+
+    internal static IChartOfBudgetAccountsLineDisplayer CreateChartOfBudgetAccountsLineDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IChartOfBudgetAccountsLineDisplayer> chartOfBudgetAccountsLineDisplayerMock = new Mock<IChartOfBudgetAccountsLineDisplayer>();
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.AccountNumber)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.AccountName)
+            .Returns(fixture.Create<string>());
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.Budget)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.Posted)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.Available)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.Modifiable)
+            .Returns(random.Next(100) > 50);
+        chartOfBudgetAccountsLineDisplayerMock.Setup(m => m.Deletable)
+            .Returns(random.Next(100) > 50);
+        return chartOfBudgetAccountsLineDisplayerMock.Object;
+    }
+
+    internal static IChartOfContactAccountsDisplayer CreateChartOfContactAccountsDisplayer(this Fixture fixture, Random random)
+    {
+        List<IChartOfContactAccountsLineDisplayer> lines = new List<IChartOfContactAccountsLineDisplayer>();
+        for (int i = 0; i < random.Next(10, 15); i++)
+        {
+            lines.Add(fixture.CreateChartOfContactAccountsLineDisplayer(random));
+        }
+
+        Mock<IChartOfContactAccountsDisplayer> chartOfContactAccountsDisplayerMock = new Mock<IChartOfContactAccountsDisplayer>();
+        chartOfContactAccountsDisplayerMock.Setup(m => m.ChartOfContactAccountsLabel)
+            .Returns(fixture.Create<string>());
+        chartOfContactAccountsDisplayerMock.Setup(m => m.AccountNumberLabel)
+            .Returns(fixture.Create<string>());
+        chartOfContactAccountsDisplayerMock.Setup(m => m.AccountNameLabel)
+            .Returns(fixture.Create<string>());
+        chartOfContactAccountsDisplayerMock.Setup(m => m.BalanceLabel)
+            .Returns(fixture.Create<string>());
+        chartOfContactAccountsDisplayerMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        chartOfContactAccountsDisplayerMock.Setup(m => m.ContactAccountCreationPossible)
+            .Returns(random.Next(100) > 50);
+        chartOfContactAccountsDisplayerMock.Setup(m => m.Lines)
+            .Returns(lines);
+        return chartOfContactAccountsDisplayerMock.Object;
+    }
+
+    internal static IChartOfContactAccountsLineDisplayer CreateChartOfContactAccountsLineDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IChartOfContactAccountsLineDisplayer> chartOfContactAccountsLineDisplayerMock = new Mock<IChartOfContactAccountsLineDisplayer>();
+        chartOfContactAccountsLineDisplayerMock.Setup(m => m.AccountNumber)
+            .Returns(fixture.Create<string>());
+        chartOfContactAccountsLineDisplayerMock.Setup(m => m.AccountName)
+            .Returns(fixture.Create<string>());
+        chartOfContactAccountsLineDisplayerMock.Setup(m => m.Balance)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        chartOfContactAccountsLineDisplayerMock.Setup(m => m.Modifiable)
+            .Returns(random.Next(100) > 50);
+        chartOfContactAccountsLineDisplayerMock.Setup(m => m.Deletable)
+            .Returns(random.Next(100) > 50);
+        return chartOfContactAccountsLineDisplayerMock.Object;
+    }
+
+    internal static IPostingLineCollectionTexts CreatePostingLineCollectionTexts(this Fixture fixture, Random random)
+    {
+        List<IPostingLineDisplayer> postingLines = new List<IPostingLineDisplayer>();
+        for (int i = 0; i < random.Next(25, 50); i++)
+        {
+            postingLines.Add(fixture.CreatePostingLineDisplayer(random));
+        }
+
+        Mock<IPostingLineCollectionTexts> postingLineCollectionTextsMock = new Mock<IPostingLineCollectionTexts>();
+        postingLineCollectionTextsMock.Setup(m => m.LatestPostingsHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingDateHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingReferenceHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.AccountHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingTextHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.BudgetAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.DebitHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.CreditHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingValueHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.ContactAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.SummaryHeader)
+            .Returns(fixture.Create<string>());
+        postingLineCollectionTextsMock.Setup(m => m.PostingLines)
+            .Returns(postingLines);
+        return postingLineCollectionTextsMock.Object;
+    }
+
+    internal static IPostingLineDisplayer CreatePostingLineDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IPostingLineDisplayer> postingLineDisplayerMock = new Mock<IPostingLineDisplayer>();
+        postingLineDisplayerMock.Setup(m => m.Identification)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.PostingDate)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.PostingReference)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Account)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.PostingText)
+            .Returns(fixture.Create<string>());
+        postingLineDisplayerMock.Setup(m => m.BudgetAccount)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Debit)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Credit)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.PostingValue)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.ContactAccount)
+            .Returns(random.Next(100) > 50 ? fixture.Create<string>() : null);
+        postingLineDisplayerMock.Setup(m => m.Summary)
+            .Returns(fixture.Create<string>());
+        return postingLineDisplayerMock.Object;
     }
 
     internal static IValueDisplayer CreateValueDisplayer(this Fixture fixture, Random random)

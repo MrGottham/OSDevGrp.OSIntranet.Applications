@@ -1,4 +1,5 @@
 using AutoFixture;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ public class LoginTests : SecurityControllerTestBase<AccessDeniedContentResponse
     private Mock<IProblemDetailsFactory>? _problemDetailsFactoryMock;
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
     private Mock<ISecurityContextProvider>? _securityContextProviderMock;
+    private Mock<IAntiforgery>? _antiforgeryMock;
     private Fixture? _fixture;
 
     #endregion
@@ -32,6 +34,7 @@ public class LoginTests : SecurityControllerTestBase<AccessDeniedContentResponse
         _problemDetailsFactoryMock = new Mock<IProblemDetailsFactory>();
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
+        _antiforgeryMock = new Mock<IAntiforgery>();
         _fixture = new Fixture();
     }
 
@@ -341,6 +344,6 @@ public class LoginTests : SecurityControllerTestBase<AccessDeniedContentResponse
 
     protected override WebApi.Controllers.Security.SecurityController CreateSut(HttpContext? httpContext = null, ProblemDetails? problemDetails = null, bool isTrustedDomain = true, IFormatProvider? formatProvider = null, ISecurityContext? securityContext = null, AccessDeniedContentResponse? accessDeniedContentResponse = null)
     {
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _antiforgeryMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 }

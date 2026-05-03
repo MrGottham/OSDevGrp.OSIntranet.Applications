@@ -1,9 +1,9 @@
 using AutoFixture;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.AccessDeniedContent;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Security.Verification;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -11,7 +11,6 @@ using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
 using OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Security.Dtos;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Security;
-using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Security.SecurityController;
 
@@ -24,6 +23,7 @@ public class VerifyAsyncTests : SecurityControllerTestBase<VerificationResponse>
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
     private Mock<ISecurityContextProvider>? _securityContextProviderMock;
     private Mock<IQueryFeature<VerificationRequest, VerificationResponse>>? _queryFeatureMock;
+    private Mock<IAntiforgery>? _antiforgeryMock;
     private Fixture? _fixture;
 
     #endregion
@@ -35,6 +35,7 @@ public class VerifyAsyncTests : SecurityControllerTestBase<VerificationResponse>
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _queryFeatureMock = new Mock<IQueryFeature<VerificationRequest, VerificationResponse>>();
+        _antiforgeryMock = new Mock<IAntiforgery>();
         _fixture = new Fixture();
     }
 
@@ -170,7 +171,7 @@ public class VerifyAsyncTests : SecurityControllerTestBase<VerificationResponse>
         _queryFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<VerificationRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(verificationResponse ?? CreateVerificationResponse()));
 
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _antiforgeryMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 
     private VerificationRequestDto CreateVerificationRequestDto(string? verificationKey = null, string? verificationCode = null)

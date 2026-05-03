@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -28,17 +29,19 @@ public class SecurityController : ControllerBase
     private readonly ITrustedDomainResolver _trustedDomainResolver;
     private readonly IFormatProvider _formatProvider;
     private readonly ISecurityContextProvider _securityContextProvider;
+    private readonly IAntiforgery _antiforgery;
 
     #endregion
 
     #region Constructor
 
-    public SecurityController(IProblemDetailsFactory problemDetailsFactory, ITrustedDomainResolver trustedDomainResolver, IFormatProvider formatProvider, ISecurityContextProvider securityContextProvider)
+    public SecurityController(IProblemDetailsFactory problemDetailsFactory, ITrustedDomainResolver trustedDomainResolver, IFormatProvider formatProvider, ISecurityContextProvider securityContextProvider, IAntiforgery antiforgery)
     {
         _problemDetailsFactory = problemDetailsFactory;
         _trustedDomainResolver = trustedDomainResolver;
         _formatProvider = formatProvider;
         _securityContextProvider = securityContextProvider;
+        _antiforgery = antiforgery;
     }
 
     #endregion
@@ -125,6 +128,7 @@ public class SecurityController : ControllerBase
     }
 
     [HttpPost("verification")]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(GenerateVerificationResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
@@ -151,6 +155,7 @@ public class SecurityController : ControllerBase
     }
 
     [HttpPost("verification/verify")]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(VerificationResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
@@ -163,6 +168,19 @@ public class SecurityController : ControllerBase
         VerificationResponse verificationResponse = await queryFeature.ExecuteAsync(verificationRequest, cancellationToken);
 
         return Ok(VerificationResponseDto.Map(verificationResponse));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("antiforgery/token")]
+    [ProducesResponseType(typeof(AntiforgeryTokenResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public IActionResult GetAntiforgeryToken()
+    {
+        AntiforgeryTokenSet antiforgeryTokenSet = _antiforgery.GetAndStoreTokens(HttpContext);
+
+        return Ok(AntiforgeryTokenResponseDto.Map(antiforgeryTokenSet));
     }
 
     private Uri? GetValidatedReturnUri(string returnUrl, out IActionResult? actionResult)

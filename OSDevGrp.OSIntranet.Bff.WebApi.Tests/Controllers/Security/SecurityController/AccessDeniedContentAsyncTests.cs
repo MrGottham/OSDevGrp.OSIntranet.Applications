@@ -1,4 +1,5 @@
 using AutoFixture;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -24,6 +25,7 @@ public class AccessDeniedContentAsyncTests : SecurityControllerTestBase<AccessDe
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
     private Mock<ISecurityContextProvider>? _securityContextProviderMock;
     private Mock<IQueryFeature<AccessDeniedContentRequest, AccessDeniedContentResponse>>? _queryFeatureMock;
+    private Mock<IAntiforgery>? _antiforgeryMock;
     private Fixture? _fixture;
     private Random? _random;
 
@@ -36,6 +38,7 @@ public class AccessDeniedContentAsyncTests : SecurityControllerTestBase<AccessDe
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _queryFeatureMock = new Mock<IQueryFeature<AccessDeniedContentRequest, AccessDeniedContentResponse>>();
+        _antiforgeryMock = new Mock<IAntiforgery>();
         _fixture = new Fixture();
         _random = new Random(_fixture.Create<int>());
     }
@@ -145,7 +148,7 @@ public class AccessDeniedContentAsyncTests : SecurityControllerTestBase<AccessDe
         _queryFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<AccessDeniedContentRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(accessDeniedContentResponse ?? CreateAccessDeniedContentResponse()));
 
-        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
+        return CreateSut(_problemDetailsFactoryMock!, _trustedDomainResolverMock!, _securityContextProviderMock!, _antiforgeryMock!, _fixture!, httpContext, problemDetails, isTrustedDomain, formatProvider, securityContext);
     }
 
     private AccessDeniedContentResponse CreateAccessDeniedContentResponse()

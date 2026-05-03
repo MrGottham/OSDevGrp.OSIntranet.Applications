@@ -175,6 +175,37 @@ public class AccountingSummeryAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    public async Task AccountingSummeryAsync_WhenNumberOfPostingLinesHasBeenGiven_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingSummaryRequestWhereNumberOfPostingLinesIsEqualToGivenNumberOfPostingLines()
+    {
+        WebApi.Controllers.Accounting.AccountingController sut = CreateSut();
+
+        int numberOfPostingLines = _fixture.Create<int>();
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.AccountingSummeryAsync(_queryFeatureMock!.Object, _fixture.Create<int>(), cancellationTokenSource.Token, numberOfPostingLines: numberOfPostingLines);
+
+        _queryFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<AccountingSummaryRequest>(value => value.NumberOfPostingLines == numberOfPostingLines),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task AccountingSummeryAsync_WhenNumberOfPostingLinesHasNotBeenGiven_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingSummaryRequestWhereNumberOfPostingLinesIsEqualToDefault()
+    {
+        WebApi.Controllers.Accounting.AccountingController sut = CreateSut();
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.AccountingSummeryAsync(_queryFeatureMock!.Object, _fixture.Create<int>(), cancellationTokenSource.Token);
+
+        _queryFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<AccountingSummaryRequest>(value => value.NumberOfPostingLines == 5),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     [TestCase(true)]
     [TestCase(false)]
     public async Task AccountingSummeryAsync_WhenCalled_AssertExecuteAsyncWasCalledOnQueryFeatureWithAccountingSummaryRequestWhereFormatProviderIsEqualToFormatProviderFromDependencies(bool withStatusDate)
@@ -270,11 +301,15 @@ public class AccountingSummeryAsyncTests
         return new WebApi.Controllers.Accounting.AccountingController(_timeProviderMock!.Object, formatProvider ?? CultureInfo.InvariantCulture, _securityContextProviderMock!.Object);
     }
 
-    private AccountingSummaryResponse CreateAccountingSummaryResponse(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null)
+    private AccountingSummaryResponse CreateAccountingSummaryResponse(AccountingModel? accountingModel = null, IReadOnlyCollection<PostingLineModel>? postingLineModels = null, IAccountingTexts? accountingTexts = null)
     {
         IReadOnlyDictionary<StaticTextKey, string> staticTexts = _fixture!.CreateStaticTexts(_random!);
         IReadOnlyCollection<IValidationRule> validationRuleSet = _fixture!.CreateEmptyValidationRuleSet();
 
-        return new AccountingSummaryResponse(accountingModel ?? _fixture!.CreateAccountingModel(_random!), accountingTexts ?? _fixture!.CreateAccountingTexts(_random!), staticTexts, validationRuleSet);
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>> model = Tuple.Create(
+            accountingModel ?? _fixture!.CreateAccountingModel(_random!), 
+            postingLineModels ??_fixture!.CreatePostingLineModels(_random!));
+
+        return new AccountingSummaryResponse(model, accountingTexts ?? _fixture!.CreateAccountingTexts(_random!), staticTexts, validationRuleSet);
     }
 }

@@ -3,7 +3,7 @@ import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import Stack from 'react-bootstrap/Stack';
 import Image from 'react-bootstrap/Image';
-import VerificationInput from 'react-verification-input';
+import * as VerificationInputModule from 'react-verification-input';
 import Loading from './Loading';
 
 function HumanVerification({ verificationInfo, onVerificationGenerated, onVerificationExpires, onVerificationVerified, onVerificationFailed }) {
@@ -40,6 +40,8 @@ function HumanVerification({ verificationInfo, onVerificationGenerated, onVerifi
             <Loading />
         );
     }
+
+    const VerificationInput = VerificationInputModule.default.default ??  VerificationInputModule.default;
 
     return (
         <Stack>

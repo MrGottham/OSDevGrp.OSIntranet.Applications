@@ -1,4 +1,5 @@
 using AutoFixture;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
@@ -23,6 +24,7 @@ public class GenerateVerificationAsyncTests
     private Mock<ITrustedDomainResolver>? _trustedDomainResolverMock;
     private Mock<ISecurityContextProvider>? _securityContextProviderMock;
     private Mock<ICommandFeature<GenerateVerificationRequest>>? _commandFeatureMock;
+    private Mock<IAntiforgery>? _antiforgeryMock;
     private Fixture? _fixture;
     private Random? _random;
 
@@ -35,6 +37,7 @@ public class GenerateVerificationAsyncTests
         _trustedDomainResolverMock = new Mock<ITrustedDomainResolver>();
         _securityContextProviderMock = new Mock<ISecurityContextProvider>();
         _commandFeatureMock = new Mock<ICommandFeature<GenerateVerificationRequest>>();
+        _antiforgeryMock = new Mock<IAntiforgery>();
         _fixture = new Fixture();
         _random = new Random(_fixture!.Create<int>());
     }
@@ -145,6 +148,6 @@ public class GenerateVerificationAsyncTests
         _commandFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<GenerateVerificationRequest>(), It.IsAny<CancellationToken>()))
             .Callback<GenerateVerificationRequest, CancellationToken>((request, _) => request.OnVerificationCreated(_fixture!.Create<string>(), _fixture!.CreateMany<byte>(_random!.Next(1024, 4096)).ToArray(), DateTimeOffset.UtcNow.AddSeconds(_random!.Next(60, 120))));
 
-        return new WebApi.Controllers.Security.SecurityController(_problemDetailsFactoryMock!.Object, _trustedDomainResolverMock!.Object, CultureInfo.InvariantCulture, _securityContextProviderMock!.Object);
+        return new WebApi.Controllers.Security.SecurityController(_problemDetailsFactoryMock!.Object, _trustedDomainResolverMock!.Object, CultureInfo.InvariantCulture, _securityContextProviderMock!.Object, _antiforgeryMock!.Object);
     }
 }
