@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Common.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Common.Queries;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Commands;
 using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Accounting.Queries;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Commands;
+using OSDevGrp.OSIntranet.BusinessLogic.Interfaces.Common.Queries;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.CommandBus;
@@ -12,6 +16,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
@@ -324,6 +329,50 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             return ApplyPostingJournalAsync(applyPostingJournalCommand);
         }
 
+        [HttpGet("{accountingNumber}/postingjournal")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
+        public async Task<ActionResult<ApplyPostingJournalModel>> PostingJournalAsync(int accountingNumber)
+        {
+            string postingJournalKey = await GetPostingJournalKeyAsync(accountingNumber);
+
+            ApplyPostingJournalModel postingJournal =
+                await GetObjectFromKeyValueEntryAsync<ApplyPostingJournalModel>(postingJournalKey) ??
+                new ApplyPostingJournalModel
+                {
+                    AccountingNumber = accountingNumber,
+                    ApplyPostingLines = new ApplyPostingLineCollectionModel()
+                };
+
+            return Ok(postingJournal);
+        }
+
+        [HttpPost("{accountingNumber}/postingjournal")]
+        [Authorize(Policy = Policies.AccountingModifierPolicy)]
+        public async Task<ActionResult<ApplyPostingJournalModel>> SavePostingJournalAsync(int accountingNumber, [FromBody] ApplyPostingJournalModel postingJournal)
+        {
+            if (postingJournal == null)
+            {
+                throw new IntranetExceptionBuilder(ErrorCode.ValueCannotBeNull, nameof(postingJournal))
+                    .WithValidatingType(typeof(ApplyPostingJournalModel))
+                    .WithValidatingField(nameof(postingJournal))
+                    .Build();
+            }
+
+            SchemaValidator.Validate(ModelState);
+
+            postingJournal.AccountingNumber = accountingNumber;
+            ApplyPostingLineModel[] orderedPostingLines = postingJournal.ApplyPostingLines
+                .OrderByDescending(applyPostingLine => applyPostingLine.PostingDate.UtcDateTime.Date)
+                .ThenByDescending(applyPostingLine => applyPostingLine.SortOrder ?? 0)
+                .ToArray();
+            postingJournal.ApplyPostingLines = [.. orderedPostingLines];
+
+            string postingJournalKey = await GetPostingJournalKeyAsync(accountingNumber);
+            await SaveKeyValueEntryAsync(postingJournalKey, postingJournal);
+
+            return Ok(postingJournal);
+        }
+
         [HttpGet("accountgroups")]
         public async Task<ActionResult<IEnumerable<AccountGroupModel>>> AccountGroupsAsync()
         {
@@ -374,6 +423,44 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 : _accountingModelConverter.Convert<IPostingJournalResult, ApplyPostingJournalResultModel>(postingJournalResult);
 
             return Ok(applyPostingJournalResultModel);
+        }
+
+        private Task<string> GetPostingJournalKeyAsync(int accountingNumber)
+        {
+            IGetUserSpecificKeyQuery query = new GetUserSpecificKeyQuery
+            {
+                KeyElementCollection = new[] { nameof(ApplyPostingJournalModel), Convert.ToString(accountingNumber) }
+            };
+
+            return _queryBus.QueryAsync<IGetUserSpecificKeyQuery, string>(query);
+        }
+
+        private async Task<T> GetObjectFromKeyValueEntryAsync<T>(string key) where T : class
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key));
+
+            IPullKeyValueEntryQuery query = new PullKeyValueEntryQuery
+            {
+                Key = key
+            };
+            IKeyValueEntry keyValueEntry = await _queryBus.QueryAsync<IPullKeyValueEntryQuery, IKeyValueEntry>(query);
+
+            return keyValueEntry?.ToObject<T>();
+        }
+
+        private async Task<T> SaveKeyValueEntryAsync<T>(string key, T value) where T : class
+        {
+            NullGuard.NotNullOrWhiteSpace(key, nameof(key))
+                .NotNull(value, nameof(value));
+
+            IPushKeyValueEntryCommand command = new PushKeyValueEntryCommand
+            {
+                Key = key,
+                Value = value
+            };
+            await _commandBus.PublishAsync(command);
+
+            return value;
         }
 
         private static ApplyPostingJournalResultModel BuildEmptyApplyPostingJournalResultModel()

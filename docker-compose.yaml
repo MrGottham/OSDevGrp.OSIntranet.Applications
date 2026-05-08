@@ -7,6 +7,8 @@ services:
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile
+      args:
+        licensesAutoMapperLicenseKey: ${licensesAutoMapperLicenseKey}
     restart: "no"
 
   certificatebuilder:

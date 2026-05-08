@@ -30,7 +30,7 @@ internal class PostBuildExecutorContext
         _webApiVersion = webApiVersion;
         _logger = logger;
 
-        IsPostBuild = arguments.Count > 0 && arguments.ElementAt(0) == "postbuild";
+        IsPostBuild = arguments.IsPostBuild();
         RunningInDocker = runningInDockerCalculator();
         GeneratedCodeNamespace = generatedCodeNamespace;
         GeneratedCodeClassName = generatedCodeClassName;
