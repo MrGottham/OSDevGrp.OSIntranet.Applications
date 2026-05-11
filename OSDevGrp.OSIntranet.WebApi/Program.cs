@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using OSDevGrp.OSIntranet.WebApi.PostBuild;
 
 namespace OSDevGrp.OSIntranet.WebApi
@@ -14,6 +15,10 @@ namespace OSDevGrp.OSIntranet.WebApi
 		private static WebApplication CreateWebApplication(string[] args)
         {
             WebApplicationBuilder applicationBuilder = WebApplication.CreateBuilder(args);
+            if (args.IsPostBuild())
+            {
+                applicationBuilder.Configuration.AddUserSecrets<Program>();
+            }
             applicationBuilder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 			Startup startup = new Startup(applicationBuilder.Configuration);

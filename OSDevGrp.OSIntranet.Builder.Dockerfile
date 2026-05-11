@@ -40,7 +40,9 @@ RUN dotnet restore
 COPY . .
 
 # Tell the build enviroment that we are running in a container
+ARG licensesAutoMapperLicenseKey
 ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV Licenses__AutoMapper__LicenseKey=${licensesAutoMapperLicenseKey}
 
 # Build the MVC application
 WORKDIR /src/OSDevGrp.OSIntranet.Mvc
