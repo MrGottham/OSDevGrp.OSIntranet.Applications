@@ -394,6 +394,41 @@ public static class FixtureExtensions
             fixture.Create<int>());
     }
 
+    public static ApplyPostingJournalModel CreateApplyPostingJournalModel(this Fixture fixture, Random random, int? accountingNumber = null, IEnumerable<ApplyPostingLineModel>? applyPostingLines = null)
+    {
+        return new ApplyPostingJournalModel(
+            accountingNumber ?? random.Next(1, 99),
+            applyPostingLines?.ToArray() ?? fixture.CreateApplyPostingLineModels(random));
+    }
+
+    public static ApplyPostingLineModel[] CreateApplyPostingLineModels(this Fixture fixture, Random random)
+    {
+        List<ApplyPostingLineModel> applyPostingLineModels = new List<ApplyPostingLineModel>(random.Next(5, 15));
+        while (applyPostingLineModels.Count < applyPostingLineModels.Capacity)
+        {
+            applyPostingLineModels.Add(fixture.CreateApplyPostingLineModel(random));
+        }
+        return applyPostingLineModels.ToArray();
+    }
+
+    public static ApplyPostingLineModel CreateApplyPostingLineModel(this Fixture fixture, Random random, string? accountNumber = null, string? details = null, DateTimeOffset? postingDate = null, int? sortOrder = null)
+    {
+        double? debit = random.Next(100) > 50 ? fixture.Create<double>() : null;
+        double? credit = debit.HasValue == false ? fixture.Create<double>() : null;
+
+        return new ApplyPostingLineModel(
+            accountNumber ?? fixture.CreateAccountNumber(),
+            random.Next(100) > 50 ? fixture.CreateAccountNumber() : null,
+            random.Next(100) > 50 ? fixture.CreateAccountNumber() : null,
+            credit,
+            debit,
+            details ?? fixture.Create<string>(),
+            random.Next(100) > 50 ? Guid.NewGuid() : null,
+            postingDate ?? DateTimeOffset.Now.AddDays(random.Next(0, 31) * -1).Date,
+            random.Next(100) > 50 ? fixture.Create<string>() : null,
+            sortOrder ?? fixture.Create<int>());
+    }
+
     public static ISecurityContext CreateSecurityContext(this Fixture fixture, ClaimsPrincipal? user = null, IToken? token = null)
     {
         return fixture.CreateSecurityContextMock(user, token).Object;

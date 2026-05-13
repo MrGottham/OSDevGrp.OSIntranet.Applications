@@ -49,6 +49,38 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
         }
     }
 
+    public async Task<ApplyPostingJournalModel> GetPostingJournalAsync(int accountingNumber, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await WebApiClient.PostingjournalGETAsync(accountingNumber, cancellationToken);
+        }
+        catch (WebApiClientException<ErrorModel> ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+        catch (WebApiClientException ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+    }
+
+    public async Task<ApplyPostingJournalModel> SavePostingJournalAsync(int accountingNumber, ApplyPostingJournalModel postingJournal, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await WebApiClient.PostingjournalPOSTAsync(accountingNumber, postingJournal, cancellationToken);
+        }
+        catch (WebApiClientException<ErrorModel> ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+        catch (WebApiClientException ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+    }
+
     public async Task<IEnumerable<PostingLineModel>> GetPostingLinesAsync(int accountingNumber, DateTimeOffset statusDate, int numberOfPostingLines, Predicate<PostingLineModel> filter, CancellationToken cancellationToken = default)
     {
         try
