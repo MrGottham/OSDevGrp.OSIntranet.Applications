@@ -5,11 +5,11 @@ using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 
-public class AccountingResponse : AccountingIdentificationResponseBase<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>, IAccountingTexts>
+public class AccountingResponse : AccountingIdentificationResponseBase<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>>, IAccountingTexts>
 {
     #region Constructor
 
-    public AccountingResponse(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model, IAccountingTexts dynamicTexts, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IReadOnlyCollection<IValidationRule> validationRuleSet)
+    public AccountingResponse(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>> model, IAccountingTexts dynamicTexts, IReadOnlyDictionary<StaticTextKey, string> staticTexts, IReadOnlyCollection<IValidationRule> validationRuleSet)
         : base(model, dynamicTexts, staticTexts, validationRuleSet)
     {
     }
@@ -22,7 +22,9 @@ public class AccountingResponse : AccountingIdentificationResponseBase<Tuple<Acc
 
     public IReadOnlyCollection<PostingLineModel> PostingLines => Model.Item2;
 
-    public IReadOnlyCollection<LetterHeadIdentificationModel> LetterHeads => Model.Item3;
+    public ApplyPostingJournalModel PostingJournal => Model.Item3;
+
+    public IReadOnlyCollection<LetterHeadIdentificationModel> LetterHeads => Model.Item4;
 
     #endregion
 }

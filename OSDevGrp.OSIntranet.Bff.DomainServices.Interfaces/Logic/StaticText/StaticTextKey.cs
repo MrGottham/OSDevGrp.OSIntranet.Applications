@@ -101,5 +101,6 @@ public enum StaticTextKey
     ConfirmDeletion,
     DeleteVerificationInfo,
     Reset,
-    Cancel
+    Cancel,
+    PostingJournal
 }

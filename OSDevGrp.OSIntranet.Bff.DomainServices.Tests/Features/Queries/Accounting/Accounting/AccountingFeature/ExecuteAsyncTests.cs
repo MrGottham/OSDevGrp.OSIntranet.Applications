@@ -219,7 +219,75 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [Category("UnitTest")]
     [TestCase(true)]
     [TestCase(false)]
-    public async Task ExecuteAsync_WhenCalled_AssertUserWasCalledOnSecurityContextFromAccountingRequest(bool hasCommonDataAccess)
+    public async Task ExecuteAsync_WhenCalled_AssertIsAccountingModifierWasCalledOnPermissionCheckerWithUserFromSecurityContextInAccountingRequestAndAccountingNumber(bool isAccountingModifier)
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(isAccountingModifier: isAccountingModifier);
+
+        ClaimsPrincipal user = _fixture!.CreateAuthenticatedClaimsPrincipal();
+        int accountingNumber = _fixture.Create<int>();
+        ISecurityContext securityContext = _fixture!.CreateSecurityContext(user: user);
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, accountingNumber: accountingNumber, securityContext: securityContext);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _permissionCheckerMock!.Verify(m => m.IsAccountingModifier(
+                It.Is<ClaimsPrincipal>(value => value == user),
+                It.Is<int?>(value => value == accountingNumber)),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenUserIsAccountingModifier_AssertGetPostingJournalAsyncWasCalledOnAccountingGatewayWithAccountingNumberFromAccountingRequest()
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(isAccountingModifier: true);
+
+        int accountingNumber = _fixture!.Create<int>();
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, accountingNumber: accountingNumber);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingJournalAsync(
+                It.Is<int>(value => value == accountingNumber),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenUserIsAccountingModifier_AssertGetPostingJournalAsyncWasCalledOnAccountingGatewayWithGivenCancellationToken()
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(isAccountingModifier: true);
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!);
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        await sut.ExecuteAsync(accountingRequest, cancellationToken);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingJournalAsync(
+                It.IsAny<int>(),
+                It.Is<CancellationToken>(value => value == cancellationToken)),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenUserIsNotAccountingModifier_AssertGetPostingJournalAsyncWasNotCalledOnAccountingGateway()
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(isAccountingModifier: false);
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!);
+        await sut.ExecuteAsync(accountingRequest);
+
+        _accountingGatewayMock!.Verify(m => m.GetPostingJournalAsync(
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task ExecuteAsync_WhenCalled_AssertUserWasCalledTwiceOnSecurityContextFromAccountingRequest(bool hasCommonDataAccess)
     {
         IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(hasCommonDataAccess: hasCommonDataAccess);
 
@@ -227,7 +295,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, securityContext: securityContextMock.Object);
         await sut.ExecuteAsync(accountingRequest);
 
-        securityContextMock.Verify(m => m.User, Times.Once);
+        securityContextMock.Verify(m => m.User, Times.Exactly(2));
     }
 
     [Test]
@@ -316,6 +384,36 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
 
         Assert.That(result.PostingLines, Is.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenUserIsAccountingModifier_ReturnsAccountingResponseWherePostingJournalIsEqualToPostingJournalModelResolvedByAccountingGateway()
+    {
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(isAccountingModifier: true, postingJournalModel: postingJournalModel);
+
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!);
+        AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
+
+        Assert.That(result.PostingJournal, Is.EqualTo(postingJournalModel));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task ExecuteAsync_WhenUserIsNotAccountingModifier_ReturnsAccountingResponseWherePostingJournalContainsAccountingNumberFromAccountingRequestAndNoPostingLines()
+    {
+        IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut(isAccountingModifier: false);
+
+        int accountingNumber = _fixture!.Create<int>();
+        AccountingRequest accountingRequest = CreateAccountingRequest(_fixture!, accountingNumber: accountingNumber);
+        AccountingResponse result = await sut.ExecuteAsync(accountingRequest);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.PostingJournal.AccountingNumber, Is.EqualTo(accountingNumber));
+            Assert.That(result.PostingJournal.ApplyPostingLines, Is.Empty);
+        });
     }
 
     [Test]
@@ -420,9 +518,9 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
         Assert.That(result.ValidationRuleSet, Is.EqualTo(validationRuleSet));
     }
 
-    private IQueryFeature<AccountingRequest, AccountingResponse> CreateSut(AccountingModel? accountingModel = null, IEnumerable<PostingLineModel>? postingLineModels = null, IAccountingTexts? accountingTexts = null, bool hasCommonDataAccess = true, IEnumerable<LetterHeadModel>? letterHeadModels = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
+    private IQueryFeature<AccountingRequest, AccountingResponse> CreateSut(AccountingModel? accountingModel = null, IEnumerable<PostingLineModel>? postingLineModels = null, ApplyPostingJournalModel? postingJournalModel = null, IAccountingTexts? accountingTexts = null, bool hasCommonDataAccess = true, bool? isAccountingModifier = null, IEnumerable<LetterHeadModel>? letterHeadModels = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)
     {
-        _permissionCheckerMock!.Setup(_fixture!, hasCommonDataAccess: hasCommonDataAccess);
+        _permissionCheckerMock!.Setup(_fixture!, hasCommonDataAccess: hasCommonDataAccess, isAccountingModifier: isAccountingModifier);
         _staticTextProviderMock!.Setup(_fixture!);
         _accountingTextsBuilderMock!.Setup(accountingTexts: accountingTexts);
         _accountingRuleSetBuilderMock!.Setup(_fixture!, validationRuleSet: validationRuleSet);
@@ -431,6 +529,8 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
             .Returns(Task.FromResult(accountingModel ?? _fixture!.CreateAccountingModel(_random!)));
         _accountingGatewayMock!.Setup(m => m.GetPostingLinesAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<Predicate<PostingLineModel>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(postingLineModels ?? _fixture!.CreatePostingLineModels(_random!)));
+        _accountingGatewayMock!.Setup(m => m.GetPostingJournalAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Returns((int accountingNumber, CancellationToken _) => Task.FromResult(postingJournalModel ?? _fixture!.CreateApplyPostingJournalModel(_random!, accountingNumber: accountingNumber, applyPostingLines: [])));
         _commonGatewayMock!.Setup(m => m.GetLetterHeadsAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(letterHeadModels ?? _fixture!.CreateLetterHeadModels(_random!)));
 

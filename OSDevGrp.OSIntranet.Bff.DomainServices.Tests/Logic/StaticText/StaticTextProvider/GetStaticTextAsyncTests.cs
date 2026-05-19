@@ -124,6 +124,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.DeleteVerificationInfo, "Du skal indtaste nedenstående verifikationskode, før du kan gennemføre den ønskede sletning.", 0)]
     [TestCase(StaticTextKey.Reset, "Nulstil", 0)]
     [TestCase(StaticTextKey.Cancel, "Fortryd", 0)]
+    [TestCase(StaticTextKey.PostingJournal, "Bogføringskladde", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();
