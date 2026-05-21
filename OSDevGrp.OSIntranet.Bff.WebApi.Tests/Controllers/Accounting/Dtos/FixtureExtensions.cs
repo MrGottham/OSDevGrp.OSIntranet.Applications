@@ -1,6 +1,8 @@
 using AutoFixture;
 using Moq;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
+using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.Dtos;
 
@@ -49,6 +51,8 @@ internal static class FixtureExtensions
             .Returns(fixture.CreateChartOfContactAccountsDisplayer(random));
         accountingTextsMock.Setup(m => m.PostingLineCollection)
             .Returns(fixture.CreatePostingLineCollectionTexts(random));
+        accountingTextsMock.Setup(m => m.PostingJournal)
+            .Returns(fixture.CreatePostingJournalTexts(random));
         return accountingTextsMock.Object;
     }
 
@@ -457,6 +461,74 @@ internal static class FixtureExtensions
         postingLineDisplayerMock.Setup(m => m.Summary)
             .Returns(fixture.Create<string>());
         return postingLineDisplayerMock.Object;
+    }
+
+    internal static IPostingJournalTexts CreatePostingJournalTexts(this Fixture fixture, Random random)
+    {
+        List<IPostingJournalLineDisplayer> postingJournalLines = new List<IPostingJournalLineDisplayer>();
+        for (int i = 0; i < random.Next(5, 15); i++)
+        {
+            postingJournalLines.Add(fixture.CreatePostingJournalLineDisplayer(random));
+        }
+
+        Mock<IPostingJournalTexts> postingJournalTextsMock = new Mock<IPostingJournalTexts>();
+        postingJournalTextsMock.Setup(m => m.PostingJournalHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.PostingDateHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.PostingReferenceHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.AccountHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.PostingTextHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.BudgetAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.DebitHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.CreditHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.PostingValueHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.ContactAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.AccountingNumber)
+            .Returns(random.Next(1, 99));
+        postingJournalTextsMock.Setup(m => m.PostingJournalLines)
+            .Returns(postingJournalLines);
+        postingJournalTextsMock.Setup(m => m.Modifiable)
+            .Returns(random.Next(100) > 50);
+        return postingJournalTextsMock.Object;
+    }
+
+    internal static IPostingJournalLineDisplayer CreatePostingJournalLineDisplayer(this Fixture fixture, Random random)
+    {
+        ApplyPostingLineModel postingJournalLine = fixture.CreateApplyPostingLineModel(random);
+
+        Mock<IPostingJournalLineDisplayer> postingJournalLineDisplayerMock = new Mock<IPostingJournalLineDisplayer>();
+        postingJournalLineDisplayerMock.Setup(m => m.Identification)
+            .Returns(postingJournalLine.Identifier?.ToString("D") ?? string.Empty);
+        postingJournalLineDisplayerMock.Setup(m => m.PostingDate)
+            .Returns(postingJournalLine.PostingDate.ToString("d"));
+        postingJournalLineDisplayerMock.Setup(m => m.PostingReference)
+            .Returns(postingJournalLine.Reference);
+        postingJournalLineDisplayerMock.Setup(m => m.Account)
+            .Returns(postingJournalLine.AccountNumber);
+        postingJournalLineDisplayerMock.Setup(m => m.PostingText)
+            .Returns(postingJournalLine.Details);
+        postingJournalLineDisplayerMock.Setup(m => m.BudgetAccount)
+            .Returns(postingJournalLine.BudgetAccountNumber);
+        postingJournalLineDisplayerMock.Setup(m => m.Debit)
+            .Returns(postingJournalLine.Debit?.ToString("C"));
+        postingJournalLineDisplayerMock.Setup(m => m.Credit)
+            .Returns(postingJournalLine.Credit?.ToString("C"));
+        postingJournalLineDisplayerMock.Setup(m => m.PostingValue)
+            .Returns((postingJournalLine.Debit - postingJournalLine.Credit)?.ToString("C"));
+        postingJournalLineDisplayerMock.Setup(m => m.ContactAccount)
+            .Returns(postingJournalLine.ContactAccountNumber);
+        postingJournalLineDisplayerMock.Setup(m => m.PostingJournalLine)
+            .Returns(postingJournalLine);
+        return postingJournalLineDisplayerMock.Object;
     }
 
     internal static IValueDisplayer CreateValueDisplayer(this Fixture fixture, Random random)

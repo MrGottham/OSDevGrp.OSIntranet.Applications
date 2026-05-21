@@ -89,6 +89,7 @@ internal static class ValidationValues
     internal const int NumberOfPostingLinesMaxValue = 512;
 
     internal const int LatestPostingsHeaderMinLength = 1;
+    internal const int PostingJournalHeaderMinLength = 1;
     internal const int PostingLineIdentificationMinLength = 1;
     internal const int PostingLineIdentificationMaxLength = 36;
     internal const string PostingLineIdentificationRegexPattern = "^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$";
@@ -103,8 +104,12 @@ internal static class ValidationValues
     internal const int PostingTextMaxLength = 256;
     internal const int BudgetAccountHeaderMinLength = 1;
     internal const int DebitHeaderMinLength = 1;
+    internal const double DebitMinValue = 0D;
+    internal const double DebitMaxValue = 99999999D;
     internal const int DebitMinLength = 1;
     internal const int CreditHeaderMinLength = 1;
+    internal const double CreditMinValue = 0D;
+    internal const double CreditMaxValue = 99999999D;
     internal const int PostingValueHeaderMinLength = 1;
     internal const int PostingValueMinLength = 1;
     internal const int ContactAccountHeaderMinLength = 1;
