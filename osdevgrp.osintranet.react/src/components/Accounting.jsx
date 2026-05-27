@@ -19,6 +19,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Loading from './Loading';
 import DeleteConfirmation from './DeleteConfirmation';
+import PostingJournal from './PostingJournal';
 import PostingLineCollection from './PostingLineCollection';
 
 function Accounting() {
@@ -286,6 +287,9 @@ function Accounting() {
             <Accordion.Item eventKey={eventKey}>
                 <Accordion.Header><h2>{staticTextHelper.getBookkeepingText(staticTexts)}</h2></Accordion.Header>
                     <Accordion.Body>
+                        <PostingJournal
+                            postingJournal={dynamicTexts.postingJournal} 
+                            staticTexts={staticTexts} />
                         <PostingLineCollection postingLineCollection={dynamicTexts.postingLineCollection} />
                     </Accordion.Body>
                 </Accordion.Item>

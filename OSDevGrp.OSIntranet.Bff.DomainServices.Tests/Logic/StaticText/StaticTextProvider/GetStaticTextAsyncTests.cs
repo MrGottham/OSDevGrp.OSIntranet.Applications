@@ -106,6 +106,11 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.PostingReference, "Bilag", 0)]
     [TestCase(StaticTextKey.PostingText, "Tekst", 0)]
     [TestCase(StaticTextKey.PostingValue, "Beløb", 0)]
+    [TestCase(StaticTextKey.PostingJournal, "Bogføringskladde", 0)]
+    [TestCase(StaticTextKey.AddPostingJournalLine, "Opret postering", 0)]
+    [TestCase(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering", 0)]
+    [TestCase(StaticTextKey.DeletePostingJournalLine, "Slet postering", 0)]
+    [TestCase(StaticTextKey.PostingJournalLineDeletionQuestion, "Er du sikker på, at du vil slette posteringen med teksten [PostingText]?", 0)]
     [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
     [TestCase(StaticTextKey.LetterHead, "Brevhoved", 0)]
     [TestCase(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved", 0)]
@@ -124,7 +129,6 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.DeleteVerificationInfo, "Du skal indtaste nedenstående verifikationskode, før du kan gennemføre den ønskede sletning.", 0)]
     [TestCase(StaticTextKey.Reset, "Nulstil", 0)]
     [TestCase(StaticTextKey.Cancel, "Fortryd", 0)]
-    [TestCase(StaticTextKey.PostingJournal, "Bogføringskladde", 0)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();

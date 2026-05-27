@@ -183,6 +183,22 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'Bookkeeping');
     }
 
+    getAddPostingJournalLineText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'AddPostingJournalLine');
+    }
+
+    getUpdatePostingJournalLineText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'UpdatePostingJournalLine');
+    }
+
+    getDeletePostingJournalLineText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'DeletePostingJournalLine');
+    }
+
+    getPostingJournalLineDeletionQuestionText(staticTexts, postingText) {
+        return this.getStaticTextByKey(staticTexts, 'PostingJournalLineDeletionQuestion').replace('[PostingText]', postingText);
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }

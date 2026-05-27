@@ -84,6 +84,11 @@ public enum StaticTextKey
     PostingReference,
     PostingText,
     PostingValue,
+    PostingJournal,
+    AddPostingJournalLine,
+    UpdatePostingJournalLine,
+    DeletePostingJournalLine,
+    PostingJournalLineDeletionQuestion,
     CommonData,
     LetterHead,
     LetterHeadNumber,
@@ -101,6 +106,5 @@ public enum StaticTextKey
     ConfirmDeletion,
     DeleteVerificationInfo,
     Reset,
-    Cancel,
-    PostingJournal
+    Cancel
 }

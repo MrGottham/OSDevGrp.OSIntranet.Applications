@@ -112,6 +112,11 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.PostingReference, "Bilag");
         staticTexts.Add(StaticTextKey.PostingText, "Tekst");
         staticTexts.Add(StaticTextKey.PostingValue, "Beløb");
+        staticTexts.Add(StaticTextKey.PostingJournal, "Bogføringskladde");
+        staticTexts.Add(StaticTextKey.AddPostingJournalLine, "Opret postering");
+        staticTexts.Add(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering");
+        staticTexts.Add(StaticTextKey.DeletePostingJournalLine, "Slet postering");
+        staticTexts.Add(StaticTextKey.PostingJournalLineDeletionQuestion, "Er du sikker på, at du vil slette posteringen med teksten [PostingText]?");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");
@@ -130,7 +135,6 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.DeleteVerificationInfo, "Du skal indtaste nedenstående verifikationskode, før du kan gennemføre den ønskede sletning.");
         staticTexts.Add(StaticTextKey.Reset, "Nulstil");
         staticTexts.Add(StaticTextKey.Cancel, "Fortryd");
-        staticTexts.Add(StaticTextKey.PostingJournal, "Bogføringskladde");
         return staticTexts.AsReadOnly();
     }
 
