@@ -6,7 +6,7 @@ import { HelperContext } from '../contexts/HelperContext';
 import Alert from 'react-bootstrap/Alert';
 import Loading from './Loading';
 
-function Fallback({ error, resetErrorBoundary }) {
+function Fallback({ error }) {
     const homeService = useContext(ServiceContext).homeService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [errorContent, setErrorContent] = useState();
