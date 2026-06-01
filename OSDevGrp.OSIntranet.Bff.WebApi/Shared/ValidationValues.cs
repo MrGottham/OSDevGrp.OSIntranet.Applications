@@ -90,9 +90,6 @@ internal static class ValidationValues
 
     internal const int LatestPostingsHeaderMinLength = 1;
     internal const int PostingJournalHeaderMinLength = 1;
-    internal const int PostingLineIdentificationMinLength = 1;
-    internal const int PostingLineIdentificationMaxLength = 36;
-    internal const string PostingLineIdentificationRegexPattern = "^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$";
     internal const int PostingDateHeaderMinLength = 1;
     internal const int PostingDateMinLength = 1;
     internal const int PostingReferenceHeaderMinLength = 1;

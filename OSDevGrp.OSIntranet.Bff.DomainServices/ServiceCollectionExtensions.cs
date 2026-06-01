@@ -60,6 +60,8 @@ public static class ServiceCollectionExtensions
             .AddTransient<IBalanceBelowZeroRuleSetBuilder, BalanceBelowZeroRuleSetBuilder>()
             .AddTransient<IBackDatingRuleSetBuilder, BackDatingRuleSetBuilder>()
             .AddTransient<IAccountingRuleSetBuilder, AccountingRuleSetBuilder>()
+            .AddTransient<IPostingJournalLineIdentifierRuleSetBuilder, PostingJournalLineIdentifierRuleSetBuilder>()
+            .AddTransient<IPostingDateRuleSetBuilder, PostingDateRuleSetBuilder>()
             .AddTransient<ILetterHeadNumberRuleSetBuilder, LetterHeadNumberRuleSetBuilder>()
             .AddTransient<IEmptyRuleSetBuilder, EmptyRuleSetBuilder>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);

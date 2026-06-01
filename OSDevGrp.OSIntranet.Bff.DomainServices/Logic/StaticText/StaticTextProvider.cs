@@ -113,6 +113,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.PostingText, "Tekst");
         staticTexts.Add(StaticTextKey.PostingValue, "Beløb");
         staticTexts.Add(StaticTextKey.PostingJournal, "Bogføringskladde");
+        staticTexts.Add(StaticTextKey.PostingJournalIdentifier, "Identifikation");
         staticTexts.Add(StaticTextKey.AddPostingJournalLine, "Opret postering");
         staticTexts.Add(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering");
         staticTexts.Add(StaticTextKey.DeletePostingJournalLine, "Slet postering");

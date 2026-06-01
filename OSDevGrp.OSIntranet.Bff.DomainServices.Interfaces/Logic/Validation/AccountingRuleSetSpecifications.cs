@@ -13,4 +13,8 @@ public static class AccountingRuleSetSpecifications
 
     public const int BackDatingMinValue = 0;
     public const int BackDatingMaxValue = 365;
+
+    public const int PostingLineIdentificationMinLength = 1;
+    public const int PostingLineIdentificationMaxLength = 36;
+    public const string PostingLineIdentificationRegexPattern = "^([0-9A-Fa-f]{8}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{4}[-]?[0-9A-Fa-f]{12})$";
 }

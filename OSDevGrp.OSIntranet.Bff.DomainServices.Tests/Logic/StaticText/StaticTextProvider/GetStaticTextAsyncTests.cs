@@ -107,6 +107,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.PostingText, "Tekst", 0)]
     [TestCase(StaticTextKey.PostingValue, "Beløb", 0)]
     [TestCase(StaticTextKey.PostingJournal, "Bogføringskladde", 0)]
+    [TestCase(StaticTextKey.PostingJournalIdentifier, "Identifikation", 0)]
     [TestCase(StaticTextKey.AddPostingJournalLine, "Opret postering", 0)]
     [TestCase(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering", 0)]
     [TestCase(StaticTextKey.DeletePostingJournalLine, "Slet postering", 0)]

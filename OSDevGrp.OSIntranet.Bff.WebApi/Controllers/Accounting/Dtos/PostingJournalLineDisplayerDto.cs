@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,9 +11,9 @@ public class PostingJournalLineDisplayerDto
     public required Guid Identifier { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.PostingLineIdentificationMinLength)]
-    [MaxLength(ValidationValues.PostingLineIdentificationMaxLength)]
-    [RegularExpression(ValidationValues.PostingLineIdentificationRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.PostingLineIdentificationMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.PostingLineIdentificationMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.PostingLineIdentificationRegexPattern)]
     public required string IdentifierAsText { get; init; }
 
     [Required]
