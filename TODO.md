@@ -39,12 +39,14 @@ We need to create tests and test data for functionality in the following project
 
 ## Add validation rules for the posting date within a posting journal line
 
-* Add the interface IPostingDateRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* Implement PostingDateRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * a required value rule using WithRequiredValueRule for the PostingDate on the posting journal
-  * a DateTimeOffset rule using WithMinValueRule where the min value should be the date given by GetUtcNow on the class dependency TimeProvider minus the number days given by the constant BackDatingMaxValue at AccountingRuleSetSpecifications
-  * a DateTimeOffset rule using WithMaxValueRule where the max value should be the date given by GetUtcNow on the class dependency TimeProvider
-* Implement tests for the PostingDateRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* Implement PostingDateRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* Register IPostingDateRuleSetBuilder with PostingDateRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* Do not use the IPostingDateRuleSetBuilder in any logic yet
+**✓ IMPLEMENTED** - Commit: 3c6219af
+
+* ✓ Add the interface IPostingDateRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement PostingDateRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
+  * ✓ a required value rule using WithRequiredValueRule for the PostingDate on the posting journal
+  * ✓ a DateTimeOffset rule using WithMinValueRule where the min value should be the date given by GetUtcNow on the class dependency TimeProvider minus the number days given by the constant BackDatingMaxValue at AccountingRuleSetSpecifications
+  * ✓ a DateTimeOffset rule using WithMaxValueRule where the max value should be the date given by GetUtcNow on the class dependency TimeProvider
+* ✓ Implement tests for the PostingDateRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement PostingDateRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IPostingDateRuleSetBuilder with PostingDateRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IPostingDateRuleSetBuilder in any logic yet
