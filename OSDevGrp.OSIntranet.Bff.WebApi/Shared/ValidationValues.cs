@@ -93,8 +93,6 @@ internal static class ValidationValues
     internal const int PostingDateHeaderMinLength = 1;
     internal const int PostingDateMinLength = 1;
     internal const int PostingReferenceHeaderMinLength = 1;
-    internal const int PostingReferenceMinLength = 1;
-    internal const int PostingReferenceMaxLength = 16;
     internal const int AccountHeaderMinLength = 1;
     internal const int PostingTextHeaderMinLength = 1;
     internal const int PostingTextMinLength = 1;

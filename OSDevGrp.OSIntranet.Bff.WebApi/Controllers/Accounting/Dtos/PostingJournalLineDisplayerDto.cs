@@ -23,8 +23,8 @@ public class PostingJournalLineDisplayerDto
     [MinLength(ValidationValues.PostingDateMinLength)]
     public required string PostingDateAsText { get; init; }
 
-    [MinLength(ValidationValues.PostingReferenceMinLength)]
-    [MaxLength(ValidationValues.PostingReferenceMaxLength)]
+    [MinLength(AccountingRuleSetSpecifications.PostingReferenceMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.PostingReferenceMaxLength)]
     public string? PostingReference { get; init; }
 
     [Required]

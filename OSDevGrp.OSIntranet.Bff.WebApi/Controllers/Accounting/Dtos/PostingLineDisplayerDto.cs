@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,8 +11,8 @@ public class PostingLineDisplayerDto : PostingLineDisplayerBase
     [MinLength(ValidationValues.PostingDateMinLength)]
     public required string PostingDate { get; init; }
 
-    [MinLength(ValidationValues.PostingReferenceMinLength)]
-    [MaxLength(ValidationValues.PostingReferenceMaxLength)]
+    [MinLength(AccountingRuleSetSpecifications.PostingReferenceMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.PostingReferenceMaxLength)]
     public string? PostingReference { get; init; }
 
     [Required]
