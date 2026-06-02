@@ -34,8 +34,8 @@ We need to create tests and test data for functionality in the following project
   * ✓ a pattern rule using WithPatternRule for the Identifier on the posting journal where pattern is defined by the constant PostingLineIdentificationRegexPattern
 * ✓ Implement tests for the PostingJournalLineIdentifierRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
 * ✓ Implement PostingJournalLineIdentifierRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ⏳ Register IPostingJournalLineIdentifierRuleSetBuilder with PostingJournalLineIdentifierRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ⏳ Do not use the IPostingJournalLineIdentifierRuleSetBuilder in any logic yet
+* ✓ Register IPostingJournalLineIdentifierRuleSetBuilder with PostingJournalLineIdentifierRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IPostingJournalLineIdentifierRuleSetBuilder in any logic yet
 
 ## Add validation rules for the posting date within a posting journal line
 
@@ -50,3 +50,18 @@ We need to create tests and test data for functionality in the following project
 * ✓ Implement PostingDateRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
 * ✓ Register IPostingDateRuleSetBuilder with PostingDateRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
 * ✓ Do not use the IPostingDateRuleSetBuilder in any logic yet
+
+## Add validation rules for posting reference date within a posting journal line
+
+**✓ IMPLEMENTED** - Commit: 133f2a70
+
+* ✓ Move the constants PostingReferenceMinLength and PostingReferenceMaxLength from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
+* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
+* ✓ Add the interface IPostingReferenceRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement PostingReferenceRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
+  * ✓ a min length rule using WithMinLengthRule for the PostingReference on the posting journal where min length is defined by the constant PostingReferenceMinLength
+  * ✓ a max length rule using WithMaxLengthRule for the PostingReference on the posting journal where max length is defined by the constant PostingReferenceMaxLength
+* ✓ Implement tests for the PostingReferenceRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement PostingReferenceRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IPostingReferenceRuleSetBuilder with PostingReferenceRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IPostingReferenceRuleSetBuilder in any logic yet
