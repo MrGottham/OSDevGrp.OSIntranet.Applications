@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
     <PackageReference Include="NSwag.CodeGeneration" Version="14.7.1" />
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.7.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
   </ItemGroup>
 
 </Project>
