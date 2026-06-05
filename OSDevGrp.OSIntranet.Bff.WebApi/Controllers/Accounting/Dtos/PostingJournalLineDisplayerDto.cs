@@ -28,9 +28,9 @@ public class PostingJournalLineDisplayerDto
     public string? PostingReference { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public required string Account { get; init; }
 
     [Required]
@@ -38,9 +38,9 @@ public class PostingJournalLineDisplayerDto
     [MaxLength(ValidationValues.PostingTextMaxLength)]
     public required string PostingText { get; init; }
 
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? BudgetAccount { get; init; }
 
     [Range(ValidationValues.DebitMinValue, ValidationValues.DebitMaxValue)]
@@ -58,9 +58,9 @@ public class PostingJournalLineDisplayerDto
     [MinLength(ValidationValues.PostingValueMinLength)]
     public string? PostingValueAsText { get; init; }
 
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? ContactAccount { get; init; }
 
     internal static PostingJournalLineDisplayerDto Map(IPostingJournalLineDisplayer postingJournalLineDisplayer)

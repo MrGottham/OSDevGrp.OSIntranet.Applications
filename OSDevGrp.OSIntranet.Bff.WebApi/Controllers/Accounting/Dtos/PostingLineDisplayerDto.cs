@@ -16,9 +16,9 @@ public class PostingLineDisplayerDto : PostingLineDisplayerBase
     public string? PostingReference { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public required string Account { get; init; }
 
     [Required]
@@ -26,9 +26,9 @@ public class PostingLineDisplayerDto : PostingLineDisplayerBase
     [MaxLength(ValidationValues.PostingTextMaxLength)]
     public required string PostingText { get; init; }
 
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? BudgetAccount { get; init; }
 
     [MinLength(ValidationValues.DebitMinLength)]
@@ -37,9 +37,9 @@ public class PostingLineDisplayerDto : PostingLineDisplayerBase
     [MinLength(ValidationValues.CreditMinLength)]
     public string? Credit { get; init; }
 
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? ContactAccount { get; init; }
 
     internal static PostingLineDisplayerDto Map(IPostingLineDisplayer postingLineDisplayer)

@@ -20,4 +20,8 @@ public static class AccountingRuleSetSpecifications
 
     public const int PostingReferenceMinLength = 1;
     public const int PostingReferenceMaxLength = 16;
+
+    public const int AccountNumberMinLength = 1;
+    public const int AccountNumberMaxLength = 16;
+    public const string AccountNumberRegexPattern = @"^[0-9A-ZÆØÅ\-+]{1,16}$";
 }
