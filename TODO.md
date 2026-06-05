@@ -65,3 +65,32 @@ We need to create tests and test data for functionality in the following project
 * ✓ Implement PostingReferenceRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
 * ✓ Register IPostingReferenceRuleSetBuilder with PostingReferenceRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
 * ✓ Do not use the IPostingReferenceRuleSetBuilder in any logic yet
+
+## Add validation rules for account number, budget account number and contact account number within a posting journal line
+
+**✓ IMPLEMENTED** - Commit: d3d99ec2
+
+* ✓ Move the constants AccountNumberMinLength, AccountNumberMaxLength and AccountNumberRegexPattern from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
+* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
+* ✓ Implement the abstact AccountNumberRuleSetBuilderBase as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
+  * ✓ a required value rule using WithRequiredValueRule for the static text key given by the constructor when the required argument given in the contructor is true; otherwise ship this validation rule
+  * ✓ a min length rule using WithMinLengthRule for the static text key given by the constructor where min length is defined by the constant AccountNumberMinLength
+  * ✓ a max length rule using WithMaxLengthRule for the static text key given by the constructor where max length is defined by the constant AccountNumberMaxLength
+  * ✓ a pattern rule using WithPatternRule for the static text key given by the constructor where pattern is defined by the constant AccountNumberRegexPattern
+* ✓ Implement tests for the AccountNumberRuleSetBuilderBase in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Add the interface IAccountNumberRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement AccountNumberRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit AccountNumberRuleSetBuilderBase with the static text key Account and set required argument to true
+* ✓ Implement tests for the AccountNumberRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement AccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IAccountNumberRuleSetBuilder with AccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Add the interface IBudgetAccountNumberRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement BudgetAccountNumberRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit AccountNumberRuleSetBuilderBase with the static text key BudgetAccount and set required argument to false
+* ✓ Implement tests for the BudgetAccountNumberRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement BudgetAccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IBudgetAccountNumberRuleSetBuilder with BudgetAccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Add the interface IContactAccountNumberRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement ContactAccountNumberRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit AccountNumberRuleSetBuilderBase with the static text key ContactAccount and set required argument to false
+* ✓ Implement tests for the ContactAccountNumberRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement ContactAccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IContactAccountNumberRuleSetBuilder with ContactAccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IAccountNumberRuleSetBuilder, IBudgetAccountNumberRuleSetBuilder nor IContactAccountNumberRuleSetBuilder in any logic yet
