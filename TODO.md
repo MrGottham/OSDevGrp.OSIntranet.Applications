@@ -97,7 +97,7 @@ We need to create tests and test data for functionality in the following project
 
 ## Add validation rules for posting text date within a posting journal line
 
-**✓ IMPLEMENTED** - Commit: pending
+**✓ IMPLEMENTED** - Commit: 1f466506
 
 * ✓ Move the constants PostingTextMinLength and PostingTextMaxLength from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
 * ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
