@@ -24,4 +24,7 @@ public static class AccountingRuleSetSpecifications
     public const int AccountNumberMinLength = 1;
     public const int AccountNumberMaxLength = 16;
     public const string AccountNumberRegexPattern = @"^[0-9A-ZÆØÅ\-+]{1,16}$";
+
+    public const int PostingTextMinLength = 1;
+    public const int PostingTextMaxLength = 256;
 }

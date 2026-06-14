@@ -34,8 +34,8 @@ public class PostingJournalLineDisplayerDto
     public required string Account { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.PostingTextMinLength)]
-    [MaxLength(ValidationValues.PostingTextMaxLength)]
+    [MinLength(AccountingRuleSetSpecifications.PostingTextMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.PostingTextMaxLength)]
     public required string PostingText { get; init; }
 
     [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]

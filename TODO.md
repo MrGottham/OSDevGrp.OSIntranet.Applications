@@ -94,3 +94,19 @@ We need to create tests and test data for functionality in the following project
 * ✓ Implement ContactAccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
 * ✓ Register IContactAccountNumberRuleSetBuilder with ContactAccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
 * ✓ Do not use the IAccountNumberRuleSetBuilder, IBudgetAccountNumberRuleSetBuilder nor IContactAccountNumberRuleSetBuilder in any logic yet
+
+## Add validation rules for posting text date within a posting journal line
+
+**✓ IMPLEMENTED** - Commit: pending
+
+* ✓ Move the constants PostingTextMinLength and PostingTextMaxLength from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
+* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
+* ✓ Add the interface IPostingTextRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement PostingTextRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
+  * ✓ a required value rule using WithRequiredValueRule for the PostingText on the posting journal
+  * ✓ a min length rule using WithMinLengthRule for the PostingText on the posting journal where min length is defined by the constant PostingTextMinLength
+  * ✓ a max length rule using WithMaxLengthRule for the PostingText on the posting journal where max length is defined by the constant PostingTextMaxLength
+* ✓ Implement tests for the PostingTextRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement PostingTextRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IPostingTextRuleSetBuilder with PostingTextRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IPostingTextRuleSetBuilder in any logic yet
