@@ -113,7 +113,7 @@ We need to create tests and test data for functionality in the following project
 
 ## Add validation rules for debit and credit within a posting journal line
 
-**✓ IMPLEMENTED** - Commit: [pending]
+**✓ IMPLEMENTED** - Commit: 2e279c3f
 
 * ✓ Move the constants DebitMinValue, DebitMaxValue, CreditMinValue and CreditMaxValue from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
 * ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
