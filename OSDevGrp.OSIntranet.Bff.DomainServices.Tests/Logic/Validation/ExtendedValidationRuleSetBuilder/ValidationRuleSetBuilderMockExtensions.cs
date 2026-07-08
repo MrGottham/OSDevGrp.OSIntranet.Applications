@@ -22,6 +22,7 @@ internal static class ExtendedValidationRuleSetBuilderMockExtensions
         ];
 
         extendedValidationRuleSetBuilderMock.SetupComparableValueTypes<int>();
+        extendedValidationRuleSetBuilderMock.SetupComparableValueTypes<double>();
         extendedValidationRuleSetBuilderMock.SetupComparableValueTypes<DateTimeOffset>();
         extendedValidationRuleSetBuilderMock.SetupComparableReferenceTypes<string>();
  

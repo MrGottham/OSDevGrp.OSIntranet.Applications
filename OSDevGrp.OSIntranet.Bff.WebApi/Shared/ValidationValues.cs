@@ -94,12 +94,8 @@ internal static class ValidationValues
     internal const int PostingTextHeaderMinLength = 1;
     internal const int BudgetAccountHeaderMinLength = 1;
     internal const int DebitHeaderMinLength = 1;
-    internal const double DebitMinValue = 0D;
-    internal const double DebitMaxValue = 99999999D;
     internal const int DebitMinLength = 1;
     internal const int CreditHeaderMinLength = 1;
-    internal const double CreditMinValue = 0D;
-    internal const double CreditMaxValue = 99999999D;
     internal const int PostingValueHeaderMinLength = 1;
     internal const int PostingValueMinLength = 1;
     internal const int ContactAccountHeaderMinLength = 1;

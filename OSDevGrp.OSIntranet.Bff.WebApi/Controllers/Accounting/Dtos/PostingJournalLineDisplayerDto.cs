@@ -43,13 +43,13 @@ public class PostingJournalLineDisplayerDto
     [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? BudgetAccount { get; init; }
 
-    [Range(ValidationValues.DebitMinValue, ValidationValues.DebitMaxValue)]
+    [Range(AccountingRuleSetSpecifications.DebitMinValue, AccountingRuleSetSpecifications.DebitMaxValue)]
     public decimal? Debit { get; init; }
 
     [MinLength(ValidationValues.DebitMinLength)]
     public string? DebitAsText { get; init; }
 
-    [Range(ValidationValues.CreditMinValue, ValidationValues.CreditMaxValue)]
+    [Range(AccountingRuleSetSpecifications.CreditMinValue, AccountingRuleSetSpecifications.CreditMaxValue)]
     public decimal? Credit { get; init; }
 
     [MinLength(ValidationValues.CreditMinLength)]

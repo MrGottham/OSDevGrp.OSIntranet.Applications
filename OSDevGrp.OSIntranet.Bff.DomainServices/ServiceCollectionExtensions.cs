@@ -67,6 +67,8 @@ public static class ServiceCollectionExtensions
             .AddTransient<IBudgetAccountNumberRuleSetBuilder, BudgetAccountNumberRuleSetBuilder>()
             .AddTransient<IContactAccountNumberRuleSetBuilder, ContactAccountNumberRuleSetBuilder>()
             .AddTransient<IPostingTextRuleSetBuilder, PostingTextRuleSetBuilder>()
+            .AddTransient<IDebitRuleSetBuilder, DebitRuleSetBuilder>()
+            .AddTransient<ICreditRuleSetBuilder, CreditRuleSetBuilder>()
             .AddTransient<ILetterHeadNumberRuleSetBuilder, LetterHeadNumberRuleSetBuilder>()
             .AddTransient<IEmptyRuleSetBuilder, EmptyRuleSetBuilder>()
             .AddFeatures(featureSetupOptions => featureSetupOptions.AddPipelineExtensions(GetPipelineExtensions()), typeof(ServiceCollectionExtensions).Assembly);

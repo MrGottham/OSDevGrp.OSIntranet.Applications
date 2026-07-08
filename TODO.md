@@ -110,3 +110,25 @@ We need to create tests and test data for functionality in the following project
 * ✓ Implement PostingTextRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
 * ✓ Register IPostingTextRuleSetBuilder with PostingTextRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
 * ✓ Do not use the IPostingTextRuleSetBuilder in any logic yet
+
+## Add validation rules for debit and credit within a posting journal line
+
+**✓ IMPLEMENTED** - Commit: [pending]
+
+* ✓ Move the constants DebitMinValue, DebitMaxValue, CreditMinValue and CreditMaxValue from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
+* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
+* ✓ Implement the abstract PostingValueRuleSetBuilderBase as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
+  * ✓ a min value rule using WithMinValueRule for the static text key given by the constructor and min value (double) is given by the constructor
+  * ✓ a max value rule using WithMaxValueRule for the static text key given by the constructor and max value (double) is given by the constructor
+* ✓ Implement tests for the PostingValueRuleSetBuilderBase in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Add the interface IDebitRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement DebitRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit PostingValueRuleSetBuilderBase with the static text key Debit and use DebitMinValue as min value and DebitMaxValue as max value
+* ✓ Implement tests for the DebitRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement DebitRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IDebitRuleSetBuilder with DebitRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Add the interface ICreditRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement CreditRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit PostingValueRuleSetBuilderBase with the static text key Credit and use CreditMinValue as min value and CreditMaxValue as max value
+* ✓ Implement tests for the CreditRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement CreditRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register ICreditRuleSetBuilder with CreditRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IDebitRuleSetBuilder nor ICreditRuleSetBuilder in any logic yet

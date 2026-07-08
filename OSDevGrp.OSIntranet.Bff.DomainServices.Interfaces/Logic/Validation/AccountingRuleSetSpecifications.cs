@@ -27,4 +27,9 @@ public static class AccountingRuleSetSpecifications
 
     public const int PostingTextMinLength = 1;
     public const int PostingTextMaxLength = 256;
+
+    public const double DebitMinValue = 0D;
+    public const double DebitMaxValue = 99999999D;
+    public const double CreditMinValue = 0D;
+    public const double CreditMaxValue = 99999999D;
 }
