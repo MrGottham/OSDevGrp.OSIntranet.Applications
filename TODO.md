@@ -135,7 +135,7 @@ We need to create tests and test data for functionality in the following project
 
 ## Add validation rules for a posting journal
 
-**✓ IMPLEMENTED** - Commit: (awaiting commit)
+**✓ IMPLEMENTED** - Commit: 4bd809e5
 
 * ✓ Add the interface IPostingJournalRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
 * ✓ Implement PostingJournalRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and use the following rule set builders to build and combine rules:
