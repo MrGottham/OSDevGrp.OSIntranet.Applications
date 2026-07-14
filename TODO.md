@@ -132,3 +132,25 @@ We need to create tests and test data for functionality in the following project
 * ✓ Implement CreditRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
 * ✓ Register ICreditRuleSetBuilder with CreditRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
 * ✓ Do not use the IDebitRuleSetBuilder nor ICreditRuleSetBuilder in any logic yet
+
+## Add validation rules for a posting journal
+
+**✓ IMPLEMENTED** - Commit: (awaiting commit)
+
+* ✓ Add the interface IPostingJournalRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+* ✓ Implement PostingJournalRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and use the following rule set builders to build and combine rules:
+  * ✓ IAccountingNumberRuleSetBuilder
+  * ✓ IPostingJournalLineIdentifierRuleSetBuilder
+  * ✓ IPostingDateRuleSetBuilder
+  * ✓ IPostingReferenceRuleSetBuilder
+  * ✓ IAccountNumberRuleSetBuilder
+  * ✓ IPostingTextRuleSetBuilder
+  * ✓ IBudgetAccountNumberRuleSetBuilder
+  * ✓ IDebitRuleSetBuilder
+  * ✓ ICreditRuleSetBuilder
+  * ✓ IContactAccountNumberRuleSetBuilder
+* ✓ Make sure that PostingJournalRuleSetBuilder make a distinct collection of validation rules based on the name
+* ✓ Implement tests for the PostingJournalRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
+* ✓ Implement PostingJournalRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
+* ✓ Register IPostingJournalRuleSetBuilder with PostingJournalRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
+* ✓ Do not use the IPostingJournalRuleSetBuilder in any logic yet
