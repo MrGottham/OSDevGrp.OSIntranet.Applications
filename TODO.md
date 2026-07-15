@@ -154,3 +154,11 @@ We need to create tests and test data for functionality in the following project
 * ✓ Implement PostingJournalRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
 * ✓ Register IPostingJournalRuleSetBuilder with PostingJournalRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
 * ✓ Do not use the IPostingJournalRuleSetBuilder in any logic yet
+
+## Add validation rules for a posting journal to the accounting
+
+**✓ IMPLEMENTED** - Commit: 58d916fb
+
+* ✓ Extent AccountingRuleSetBuilder to use the IPostingJournalRuleSetBuilder so this combines it's current rule sets with the rule sets from the IPostingJournalRuleSetBuilder
+* ✓ Make sure that AccountingRuleSetBuilder make a distinct collection of validation rules based on the name
+* ✓ Extent tests for the AccountingRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so new functionalty will be tested
