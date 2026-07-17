@@ -31,53 +31,53 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public async Task BuildAsync_WhenCalled_AssertWithRequiredValueRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyForPostingJournalIdentifier()
+    public async Task BuildAsync_WhenCalled_AssertWithRequiredValueRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyForPostingJournalLineIdentifier()
     {
         IPostingJournalLineIdentifierRuleSetBuilder sut = CreateSut();
 
         await sut.BuildAsync(CultureInfo.InvariantCulture);
 
-        _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithRequiredValueRule(It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalIdentifier)), Times.Once);
+        _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithRequiredValueRule(It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalLineIdentifier)), Times.Once);
     }
 
     [Test]
     [Category("UnitTest")]
-    public async Task BuildAsync_WhenCalled_AssertWithMinLengthRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyAndMinLengthForPostingJournalIdentifier()
+    public async Task BuildAsync_WhenCalled_AssertWithMinLengthRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyAndMinLengthForPostingJournalLineIdentifier()
     {
         IPostingJournalLineIdentifierRuleSetBuilder sut = CreateSut();
 
         await sut.BuildAsync(CultureInfo.InvariantCulture);
 
         _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithMinLengthRule(
-                It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalIdentifier),
+                It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalLineIdentifier),
                 It.Is<int>(value => value == AccountingRuleSetSpecifications.PostingLineIdentificationMinLength)),
             Times.Once);
     }
 
     [Test]
     [Category("UnitTest")]
-    public async Task BuildAsync_WhenCalled_AssertWithMaxLengthRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyAndMaxLengthForPostingJournalIdentifier()
+    public async Task BuildAsync_WhenCalled_AssertWithMaxLengthRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyAndMaxLengthForPostingJournalLineIdentifier()
     {
         IPostingJournalLineIdentifierRuleSetBuilder sut = CreateSut();
 
         await sut.BuildAsync(CultureInfo.InvariantCulture);
 
         _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithMaxLengthRule(
-                It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalIdentifier),
+                It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalLineIdentifier),
                 It.Is<int>(value => value == AccountingRuleSetSpecifications.PostingLineIdentificationMaxLength)),
             Times.Once);
     }
 
     [Test]
     [Category("UnitTest")]
-    public async Task BuildAsync_WhenCalled_AssertWithPatternRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyAndPatternForPostingJournalIdentifier()
+    public async Task BuildAsync_WhenCalled_AssertWithPatternRuleWasCalledOnExtendedValidationRuleSetBuilderWithStaticTextKeyAndPatternForPostingJournalLineIdentifier()
     {
         IPostingJournalLineIdentifierRuleSetBuilder sut = CreateSut();
 
         await sut.BuildAsync(CultureInfo.InvariantCulture);
 
         _extendedValidationRuleSetBuilderMock!.Verify(m => m.WithPatternRule(
-                It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalIdentifier),
+                It.Is<StaticTextKey>(value => value == StaticTextKey.PostingJournalLineIdentifier),
                 It.Is<string>(value => value == AccountingRuleSetSpecifications.PostingLineIdentificationRegexPattern)),
             Times.Once);
     }

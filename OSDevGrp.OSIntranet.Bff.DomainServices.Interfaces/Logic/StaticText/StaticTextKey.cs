@@ -85,7 +85,7 @@ public enum StaticTextKey
     PostingText,
     PostingValue,
     PostingJournal,
-    PostingJournalIdentifier,
+    PostingJournalLineIdentifier,
     AddPostingJournalLine,
     UpdatePostingJournalLine,
     DeletePostingJournalLine,

@@ -18,10 +18,10 @@ internal class PostingJournalLineIdentifierRuleSetBuilder : ValidationRuleSetBui
 
     public override async Task<IReadOnlyCollection<IValidationRule>> BuildAsync(IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
-        return await ExtendedValidationRuleSetBuilder.WithRequiredValueRule(StaticTextKey.PostingJournalIdentifier)
-            .WithMinLengthRule(StaticTextKey.PostingJournalIdentifier, AccountingRuleSetSpecifications.PostingLineIdentificationMinLength)
-            .WithMaxLengthRule(StaticTextKey.PostingJournalIdentifier, AccountingRuleSetSpecifications.PostingLineIdentificationMaxLength)
-            .WithPatternRule(StaticTextKey.PostingJournalIdentifier, AccountingRuleSetSpecifications.PostingLineIdentificationRegexPattern)
+        return await ExtendedValidationRuleSetBuilder.WithRequiredValueRule(StaticTextKey.PostingJournalLineIdentifier)
+            .WithMinLengthRule(StaticTextKey.PostingJournalLineIdentifier, AccountingRuleSetSpecifications.PostingLineIdentificationMinLength)
+            .WithMaxLengthRule(StaticTextKey.PostingJournalLineIdentifier, AccountingRuleSetSpecifications.PostingLineIdentificationMaxLength)
+            .WithPatternRule(StaticTextKey.PostingJournalLineIdentifier, AccountingRuleSetSpecifications.PostingLineIdentificationRegexPattern)
             .BuildAsync(formatProvider, cancellationToken);
     }
 
