@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import Stack from 'react-bootstrap/Stack';
@@ -12,17 +12,31 @@ function HumanVerification({ verificationInfo, onVerificationGenerated, onVerifi
     const [verificationKey, setVerificationKey] = useState();
     const [verificationImage, setVerificationImage] = useState();
     const [expiresAt, setExpiresAt] = useState();
+    const populateVerification = useCallback(async () => {
+        const json = await securityService.generateVerification();
+        setVerificationKey(json.verificationKey);
+        setVerificationImage(json.verificationImage);
+        setExpiresAt(Date.parse(json.expires));
+        onVerificationGenerated(json.verificationKey);
+    }, [onVerificationGenerated, securityService]);
 
     useEffect(() => {
-        if (verificationKey !== undefined && verificationKey !== null &&  verificationImage !== undefined && verificationImage !== null) {
+        if (verificationKey !== undefined && verificationKey !== null && verificationImage !== undefined && verificationImage !== null) {
             return;
         }
 
-        populateVerification(onVerificationGenerated)
+        async function fetchVerification() {
+            populateVerification()
             .catch(error => showBoundary(error));
-    }, [verificationKey, verificationImage]);
+        }
+        fetchVerification();
+    }, [verificationKey, verificationImage, populateVerification, showBoundary]);
 
     useEffect(() => {
+        if (verificationKey === undefined || verificationKey === null || expiresAt === undefined || expiresAt === null) {
+            return;
+        }
+
         const intervalId = setInterval(() => {
             if (expiresAt !== undefined && expiresAt !== null && expiresAt <= Date.now()) {
                 onVerificationExpires(verificationKey);
@@ -33,7 +47,7 @@ function HumanVerification({ verificationInfo, onVerificationGenerated, onVerifi
         }, 250);
 
         return () => clearInterval(intervalId);
-    }, [expiresAt]);
+    }, [verificationKey, expiresAt, onVerificationExpires]);
 
     if (verificationKey === undefined || verificationImage === undefined || expiresAt === undefined) {
         return (
@@ -61,14 +75,6 @@ function HumanVerification({ verificationInfo, onVerificationGenerated, onVerifi
                 onComplete={value => handleComplete(value, onVerificationVerified, onVerificationFailed)}/>
         </Stack>
     );
-
-    async function populateVerification(onVerificationGenerated) {
-        const json = await securityService.generateVerification();
-        setVerificationKey(json.verificationKey);
-        setVerificationImage(json.verificationImage);
-        setExpiresAt(Date.parse(json.expires));
-        onVerificationGenerated(json.verificationKey);
-    }
 
     async function handleComplete(value, onVerificationVerified, onVerificationFailed) {
         if (value === undefined || value === null) {

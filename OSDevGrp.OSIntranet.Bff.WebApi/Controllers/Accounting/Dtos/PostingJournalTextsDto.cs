@@ -24,12 +24,44 @@ public class PostingJournalTextsDto
     public required string AccountHeader { get; init; }
 
     [Required]
+    [MinLength(ValidationValues.AccountNameLabelMinLength)]
+    public required string AccountNameLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.CreditLabelMinLength)]
+    public required string AccountCreditLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.BalanceLabelMinLength)]
+    public required string AccountBalanceLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.AvailableLabelMinLength)]
+    public required string AccountAvailableLabel { get; init; }
+
+    [Required]
     [MinLength(ValidationValues.PostingTextHeaderMinLength)]
     public required string PostingTextHeader { get; init; }
 
     [Required]
     [MinLength(ValidationValues.BudgetAccountHeaderMinLength)]
     public required string BudgetAccountHeader { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.AccountNameLabelMinLength)]
+    public required string BudgetAccountNameLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.BudgetLabelMinLength)]
+    public required string BudgetAccountBudgetLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.PostedLabelMinLength)]
+    public required string BudgetAccountPostedLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.AvailableLabelMinLength)]
+    public required string BudgetAccountAvailableLabel { get; init; }
 
     [Required]
     [MinLength(ValidationValues.DebitHeaderMinLength)]
@@ -46,6 +78,14 @@ public class PostingJournalTextsDto
     [Required]
     [MinLength(ValidationValues.ContactAccountHeaderMinLength)]
     public required string ContactAccountHeader { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.AccountNameLabelMinLength)]
+    public required string ContactAccountNameLabel { get; init; }
+
+    [Required]
+    [MinLength(ValidationValues.BalanceLabelMinLength)]
+    public required string ContactAccountBalanceLabel { get; init; }
 
     [Required]
     [Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)]
@@ -65,12 +105,22 @@ public class PostingJournalTextsDto
             PostingDateHeader = postingJournalTexts.PostingDateHeader,
             PostingReferenceHeader = postingJournalTexts.PostingReferenceHeader,
             AccountHeader = postingJournalTexts.AccountHeader,
+            AccountNameLabel = postingJournalTexts.AccountNameLabel,
+            AccountCreditLabel = postingJournalTexts.AccountCreditLabel,
+            AccountBalanceLabel = postingJournalTexts.AccountBalanceLabel,
+            AccountAvailableLabel = postingJournalTexts.AccountAvailableLabel,
             PostingTextHeader = postingJournalTexts.PostingTextHeader,
             BudgetAccountHeader = postingJournalTexts.BudgetAccountHeader,
+            BudgetAccountNameLabel = postingJournalTexts.BudgetAccountNameLabel,
+            BudgetAccountBudgetLabel = postingJournalTexts.BudgetAccountBudgetLabel,
+            BudgetAccountPostedLabel = postingJournalTexts.BudgetAccountPostedLabel,
+            BudgetAccountAvailableLabel = postingJournalTexts.BudgetAccountAvailableLabel,
             DebitHeader = postingJournalTexts.DebitHeader,
             CreditHeader = postingJournalTexts.CreditHeader,
             PostingValueHeader = postingJournalTexts.PostingValueHeader,
             ContactAccountHeader = postingJournalTexts.ContactAccountHeader,
+            ContactAccountNameLabel = postingJournalTexts.ContactAccountNameLabel,
+            ContactAccountBalanceLabel = postingJournalTexts.ContactAccountBalanceLabel,
             AccountingNumber = postingJournalTexts.AccountingNumber,
             PostingJournalLines = postingJournalTexts.PostingJournalLines.Select(PostingJournalLineDisplayerDto.Map).ToArray(),
             Modifiable = postingJournalTexts.Modifiable

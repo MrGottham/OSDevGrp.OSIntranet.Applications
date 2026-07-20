@@ -44,6 +44,7 @@ public enum StaticTextKey
     BackDating,
     Days,
     Day,
+    Today,
     CurrentStatus,
     StatusDate,
     BalanceSheet,

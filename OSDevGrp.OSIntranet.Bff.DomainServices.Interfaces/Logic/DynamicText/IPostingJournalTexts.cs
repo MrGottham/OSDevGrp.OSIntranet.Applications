@@ -10,9 +10,25 @@ public interface IPostingJournalTexts : IDynamicTexts
 
     string AccountHeader { get; }
 
+    string AccountNameLabel { get; }
+
+    string AccountCreditLabel { get; }
+
+    string AccountBalanceLabel { get; }
+
+    string AccountAvailableLabel { get; }
+
     string PostingTextHeader { get; }
 
     string BudgetAccountHeader { get; }
+
+    string BudgetAccountNameLabel { get; }
+
+    string BudgetAccountBudgetLabel { get; }
+
+    string BudgetAccountPostedLabel { get; }
+
+    string BudgetAccountAvailableLabel { get; }
 
     string DebitHeader { get; }
 
@@ -21,6 +37,10 @@ public interface IPostingJournalTexts : IDynamicTexts
     string PostingValueHeader { get; }
 
     string ContactAccountHeader { get; }
+
+    string ContactAccountNameLabel { get; }
+
+    string ContactAccountBalanceLabel { get; }
 
     int AccountingNumber { get; }
 

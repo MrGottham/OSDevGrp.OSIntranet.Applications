@@ -1,4 +1,30 @@
 export default class ValidationRuleSetHelper {
+    getMinValue(validationRuleSet, validationFor, minValueFormatter) {
+        if (validationRuleSet === undefined || validationRuleSet === null) {
+            throw new Error('Validation rule set is required.');
+        }
+
+        if (validationFor === undefined || validationFor === null || validationFor.trim() === '') {
+            throw new Error('Validation for is required.');
+        }
+
+        const minValueRule = this.getValidationRule(validationRuleSet, `${validationFor}:MinValueRule`);
+        return minValueFormatter(minValueRule.value);
+    }
+
+    getMaxValue(validationRuleSet, validationFor, maxValueFormatter) {
+        if (validationRuleSet === undefined || validationRuleSet === null) {
+            throw new Error('Validation rule set is required.');
+        }
+
+        if (validationFor === undefined || validationFor === null || validationFor.trim() === '') {
+            throw new Error('Validation for is required.');
+        }
+
+        const maxValueRule = this.getValidationRule(validationRuleSet, `${validationFor}:MaxValueRule`);
+        return maxValueFormatter(maxValueRule.value);
+    }
+
     getValidationRule(validationRuleSet, ruleName) {
         if (validationRuleSet === undefined || validationRuleSet === null) {
             throw new Error('Validation rule set is required.');

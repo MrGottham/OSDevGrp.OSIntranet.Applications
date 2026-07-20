@@ -147,6 +147,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'BackDating');
     }
 
+    getTodayText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Today');
+    }
+
     getMasterDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'MasterData');
     }

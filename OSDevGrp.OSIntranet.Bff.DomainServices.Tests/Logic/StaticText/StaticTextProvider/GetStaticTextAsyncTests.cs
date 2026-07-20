@@ -66,6 +66,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.BackDating, "Antal dage for tilbagedatering", 0)]
     [TestCase(StaticTextKey.Days, "Dage", 0)]
     [TestCase(StaticTextKey.Day, "Dag", 0)]
+    [TestCase(StaticTextKey.Today, "I dag", 0)]
     [TestCase(StaticTextKey.CurrentStatus, "Aktuel status", 0)]
     [TestCase(StaticTextKey.StatusDate, "Statusdato", 0)]
     [TestCase(StaticTextKey.BalanceSheet, "Balance", 0)]

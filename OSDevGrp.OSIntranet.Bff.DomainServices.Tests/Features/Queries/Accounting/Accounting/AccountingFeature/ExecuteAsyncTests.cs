@@ -479,6 +479,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.BackDating)]
     [TestCase(StaticTextKey.CurrentStatus)]
     [TestCase(StaticTextKey.Bookkeeping)]
+    [TestCase(StaticTextKey.Today)]
     [TestCase(StaticTextKey.AddPostingJournalLine)]
     [TestCase(StaticTextKey.UpdatePostingJournalLine)]
     [TestCase(StaticTextKey.DeletePostingJournalLine)]

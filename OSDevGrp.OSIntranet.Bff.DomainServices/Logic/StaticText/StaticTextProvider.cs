@@ -72,6 +72,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.BackDating, "Antal dage for tilbagedatering");
         staticTexts.Add(StaticTextKey.Days, "Dage");
         staticTexts.Add(StaticTextKey.Day, "Dag");
+        staticTexts.Add(StaticTextKey.Today, "I dag");
         staticTexts.Add(StaticTextKey.CurrentStatus, "Aktuel status");
         staticTexts.Add(StaticTextKey.StatusDate, "Statusdato");
         staticTexts.Add(StaticTextKey.BalanceSheet, "Balance");

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import {CookieConsent as CookieConsentForReact, OPTIONS } from 'react-cookie-consent';
 import { ServiceContext } from '../contexts/ServiceContext';
@@ -9,11 +9,18 @@ function CookieConsent() {
     const homeService = useContext(ServiceContext).homeService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [cookieConsent, setCookieConsent] = useState();
+    const populateContent = useCallback(async () => {
+        const json = await homeService.getCookieConsent('OSDevGrp.OSIntranet.React');
+        setCookieConsent(json);
+    }, [homeService]);
 
     useEffect(() => {
-        populateCookieConsent()
-            .catch(error => showBoundary(error));
-    }, []);
+        async function fetchContent() {
+            populateContent()
+                .catch(error => showBoundary(error));
+        }
+        fetchContent();
+    }, [populateContent, showBoundary]);
 
     if (cookieConsent === undefined) {
         return (
@@ -28,11 +35,6 @@ function CookieConsent() {
             <p className='small'>{staticTextHelper.getCookieConsentInformationText(cookieConsent.staticTexts)}</p>
         </CookieConsentForReact>
     );
-
-    async function populateCookieConsent() {
-        const json = await homeService.getCookieConsent('OSDevGrp.OSIntranet.React');
-        setCookieConsent(json);
-    }
 }
 
 export default CookieConsent;

@@ -36,11 +36,16 @@ public class BuildAsyncTests
     [TestCase(StaticTextKey.PostingDate, 1)]
     [TestCase(StaticTextKey.PostingReference, 1)]
     [TestCase(StaticTextKey.Account, 1)]
+    [TestCase(StaticTextKey.AccountName, 1)]
     [TestCase(StaticTextKey.PostingText, 1)]
     [TestCase(StaticTextKey.BudgetAccount, 1)]
     [TestCase(StaticTextKey.Debit, 1)]
     [TestCase(StaticTextKey.Credit, 1)]
     [TestCase(StaticTextKey.PostingValue, 1)]
+    [TestCase(StaticTextKey.Balance, 1)]
+    [TestCase(StaticTextKey.Budget, 1)]
+    [TestCase(StaticTextKey.Posted, 1)]
+    [TestCase(StaticTextKey.Available, 1)]
     [TestCase(StaticTextKey.ContactAccount, 1)]
     public async Task BuildAsync_WhenCalled_AssertGetStaticTextAsyncWasCalledOnStaticTextProviderWithExpectedStaticTextKeys(StaticTextKey staticTextKey, int expectedCalls)
     {
@@ -123,6 +128,55 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereAccountNameLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.AccountNameLabel, Does.StartWith($"{StaticTextKey.AccountName}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereAccountCreditLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.AccountCreditLabel, Does.StartWith($"{StaticTextKey.Credit}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereAccountBalanceLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.AccountBalanceLabel, Does.StartWith($"{StaticTextKey.Balance}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereAccountAvailableLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.AccountAvailableLabel, Does.StartWith($"{StaticTextKey.Available}:"));
+    }
+
+
+    [Test]
+    [Category("UnitTest")]
     public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWherePostingTextHeaderIsEqualToStaticTextFromStaticTextProvider()
     {
         IPostingJournalTextsBuilder sut = CreateSut();
@@ -143,6 +197,54 @@ public class BuildAsyncTests
         IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
 
         Assert.That(result.BudgetAccountHeader, Does.StartWith($"{StaticTextKey.BudgetAccount}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereBudgetAccountNameLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.BudgetAccountNameLabel, Does.StartWith($"{StaticTextKey.AccountName}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereBudgetAccountBudgetLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.BudgetAccountBudgetLabel, Does.StartWith($"{StaticTextKey.Budget}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereBudgetAccountPostedLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.BudgetAccountPostedLabel, Does.StartWith($"{StaticTextKey.Posted}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereBudgetAccountAvailableLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.BudgetAccountAvailableLabel, Does.StartWith($"{StaticTextKey.Available}:"));
     }
 
     [Test]
@@ -191,6 +293,30 @@ public class BuildAsyncTests
         IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
 
         Assert.That(result.ContactAccountHeader, Does.StartWith($"{StaticTextKey.ContactAccount}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereContactAccountNameLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.ContactAccountNameLabel, Does.StartWith($"{StaticTextKey.AccountName}:"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsPostingJournalTextsWhereContactAccountBalanceLabelIsEqualToStaticTextFromStaticTextProvider()
+    {
+        IPostingJournalTextsBuilder sut = CreateSut();
+
+        ApplyPostingJournalModel postingJournalModel = _fixture!.CreateApplyPostingJournalModel(_random!);
+        IPostingJournalTexts result = await sut.BuildAsync(Tuple.Create(postingJournalModel, new Predicate<int>(_ => true)), CultureInfo.InvariantCulture);
+
+        Assert.That(result.ContactAccountBalanceLabel, Does.StartWith($"{StaticTextKey.Balance}:"));
     }
 
     [Test]

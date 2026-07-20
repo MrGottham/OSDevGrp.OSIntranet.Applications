@@ -480,9 +480,25 @@ internal static class FixtureExtensions
             .Returns(fixture.Create<string>());
         postingJournalTextsMock.Setup(m => m.AccountHeader)
             .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.AccountNameLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.AccountCreditLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.AccountBalanceLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.AccountAvailableLabel)
+            .Returns(fixture.Create<string>());
         postingJournalTextsMock.Setup(m => m.PostingTextHeader)
             .Returns(fixture.Create<string>());
         postingJournalTextsMock.Setup(m => m.BudgetAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.BudgetAccountNameLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.BudgetAccountBudgetLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.BudgetAccountPostedLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.BudgetAccountAvailableLabel)
             .Returns(fixture.Create<string>());
         postingJournalTextsMock.Setup(m => m.DebitHeader)
             .Returns(fixture.Create<string>());
@@ -491,6 +507,10 @@ internal static class FixtureExtensions
         postingJournalTextsMock.Setup(m => m.PostingValueHeader)
             .Returns(fixture.Create<string>());
         postingJournalTextsMock.Setup(m => m.ContactAccountHeader)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.ContactAccountNameLabel)
+            .Returns(fixture.Create<string>());
+        postingJournalTextsMock.Setup(m => m.ContactAccountBalanceLabel)
             .Returns(fixture.Create<string>());
         postingJournalTextsMock.Setup(m => m.AccountingNumber)
             .Returns(random.Next(1, 99));

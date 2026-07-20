@@ -7,19 +7,29 @@ internal class PostingJournalTexts : DynamicTextsBase<ApplyPostingJournalModel>,
 {
     #region Constructor
 
-    public PostingJournalTexts(ApplyPostingJournalModel postingJournal, string postingJournalHeader, string postingDateHeader, string postingReferenceHeader, string accountHeader, string postingTextHeader, string budgetAccountHeader, string debitHeader, string creditHeader, string postingValueHeader, string contactAccountHeader, bool modifiable, IFormatProvider formatProvider)
+    public PostingJournalTexts(ApplyPostingJournalModel postingJournal, string postingJournalHeader, string postingDateHeader, string postingReferenceHeader, string accountHeader, string accountNameLabel, string accountCreditLabel, string accountBalanceLabel, string accountAvailableLabel, string postingTextHeader, string budgetAccountHeader, string budgetAccountNameLabel, string budgetAccountBudgetLabel, string budgetAccountPostedLabel, string budgetAccountAvailableLabel, string debitHeader, string creditHeader, string postingValueHeader, string contactAccountHeader, string contactAccountNameLabel, string contactAccountBalanceLabel, bool modifiable, IFormatProvider formatProvider)
         : base(postingJournal, formatProvider)
     {
         PostingJournalHeader = postingJournalHeader;
         PostingDateHeader = postingDateHeader;
         PostingReferenceHeader = postingReferenceHeader;
         AccountHeader = accountHeader;
+        AccountNameLabel = accountNameLabel;
+        AccountCreditLabel = accountCreditLabel;
+        AccountBalanceLabel = accountBalanceLabel;
+        AccountAvailableLabel = accountAvailableLabel;
         PostingTextHeader = postingTextHeader;
         BudgetAccountHeader = budgetAccountHeader;
+        BudgetAccountNameLabel = budgetAccountNameLabel;
+        BudgetAccountBudgetLabel = budgetAccountBudgetLabel;
+        BudgetAccountPostedLabel = budgetAccountPostedLabel;
+        BudgetAccountAvailableLabel = budgetAccountAvailableLabel;
         DebitHeader = debitHeader;
         CreditHeader = creditHeader;
         PostingValueHeader = postingValueHeader;
         ContactAccountHeader = contactAccountHeader;
+        ContactAccountNameLabel = contactAccountNameLabel;
+        ContactAccountBalanceLabel = contactAccountBalanceLabel;
         Modifiable = modifiable;
     }
 
@@ -35,9 +45,25 @@ internal class PostingJournalTexts : DynamicTextsBase<ApplyPostingJournalModel>,
 
     public string AccountHeader { get; }
 
+    public string AccountNameLabel { get; }
+
+    public string AccountCreditLabel { get; }
+
+    public string AccountBalanceLabel { get; }
+
+    public string AccountAvailableLabel { get; }
+
     public string PostingTextHeader { get; }
 
     public string BudgetAccountHeader { get; }
+
+    public string BudgetAccountNameLabel { get; }
+
+    public string BudgetAccountBudgetLabel { get; }
+
+    public string BudgetAccountPostedLabel { get; }
+
+    public string BudgetAccountAvailableLabel { get; }
 
     public string DebitHeader { get; }
 
@@ -46,6 +72,10 @@ internal class PostingJournalTexts : DynamicTextsBase<ApplyPostingJournalModel>,
     public string PostingValueHeader { get; }
 
     public string ContactAccountHeader { get; }
+
+    public string ContactAccountNameLabel { get; }
+
+    public string ContactAccountBalanceLabel { get; }
 
     public int AccountingNumber => Model.AccountingNumber;
 

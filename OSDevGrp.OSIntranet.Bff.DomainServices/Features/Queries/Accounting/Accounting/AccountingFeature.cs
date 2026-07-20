@@ -75,6 +75,7 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.BackDating, StaticTextKey.BackDating.DefaultArguments() },
             { StaticTextKey.CurrentStatus, StaticTextKey.CurrentStatus.DefaultArguments() },
             { StaticTextKey.Bookkeeping, StaticTextKey.Bookkeeping.DefaultArguments() },
+            { StaticTextKey.Today, StaticTextKey.Today.DefaultArguments() },
             { StaticTextKey.AddPostingJournalLine, StaticTextKey.AddPostingJournalLine.DefaultArguments() },
             { StaticTextKey.UpdatePostingJournalLine, StaticTextKey.UpdatePostingJournalLine.DefaultArguments() },
             { StaticTextKey.DeletePostingJournalLine, StaticTextKey.DeletePostingJournalLine.DefaultArguments() },

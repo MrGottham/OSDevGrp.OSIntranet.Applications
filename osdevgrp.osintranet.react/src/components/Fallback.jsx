@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 import { ServiceContext } from '../contexts/ServiceContext';
@@ -10,11 +10,18 @@ function Fallback({ error }) {
     const homeService = useContext(ServiceContext).homeService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [errorContent, setErrorContent] = useState();
+    const populateErrorContent = useCallback(async (errorMessage) => {
+        const json = await homeService.getErrorContent(errorMessage);
+        setErrorContent(json);
+    }, [homeService]);
 
     useEffect(() => {
-        populateErrorContent(error.message)
-            .catch(error => console.error('Error while populating error content:', error));
-    }, []);
+        async function fetchErrorContent() {
+            populateErrorContent(error.message)
+                .catch(error => console.error('Error while populating error content:', error));
+        }
+        fetchErrorContent();
+    }, [error, populateErrorContent]);
 
     if (errorContent === undefined) {
         return (
@@ -35,11 +42,6 @@ function Fallback({ error }) {
             <p>{errorContent.errorMessage}</p>
         </Alert>
     );
-
-    async function populateErrorContent(errorMessage) {
-        const json = await homeService.getErrorContent(errorMessage);
-        setErrorContent(json);
-    }
 }
 
 export default Fallback;

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router';
@@ -32,11 +32,18 @@ function Accounting() {
     const [deletionQuestion, setDeletionQuestion] = useState();
     const [deleteContext, setDeleteContext] = useState();
     const accountingNumber = useParams().accountingNumber;
+    const populateContent = useCallback(async (numberOfPostingLines) => {
+        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
+        setContent(json);
+    }, [accountingNumber, accountingService]);
 
     useEffect(() => {
-        populateContent(content, accountingNumber, 25)
-            .catch(error => showBoundary(error));
-    }, [accountingNumber]);
+        async function fetchContent() {
+            populateContent(25)
+                .catch(error => showBoundary(error));
+        }
+        fetchContent();
+    }, [accountingNumber, populateContent, showBoundary]);
 
     if (content === undefined) {
         return (
@@ -67,7 +74,7 @@ function Accounting() {
                     <Accordion defaultActiveKey={['0', '1', '2']} alwaysOpen>
                         {getMasterDataContent('0', content, content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getCurrentStatusContent('1', content.dynamicTexts, content.staticTexts, staticTextHelper)}
-                        {getBookkeepingContent('2', content.dynamicTexts, content.staticTexts, staticTextHelper)}
+                        {getBookkeepingContent('2', content.dynamicTexts, content.staticTexts, staticTextHelper, content.validationRuleSet)}
                         {getIncomeStatementContent('3', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
                         {getFullBalanceSheetContent('4', content.dynamicTexts.balanceSheet, content.staticTexts, staticTextHelper)}
                         {getChartOfAccountsContent('5', content.dynamicTexts.chartOfAccounts, content.number, content.staticTexts, staticTextHelper)}
@@ -115,7 +122,7 @@ function Accounting() {
     }
 
     function getDeleteAccountingContent(accountingNumber, deletable, staticTexts, staticTextHelper) {
-        if (deletable === undefined || deletable === null || deletable === false) {
+        if (deletable === undefined || deletable === null || deletable !== true) {
             return (
                 <>
                 </>
@@ -282,14 +289,15 @@ function Accounting() {
         );
     }
 
-    function getBookkeepingContent(eventKey, dynamicTexts, staticTexts, staticTextHelper) {
+    function getBookkeepingContent(eventKey, dynamicTexts, staticTexts, staticTextHelper, validationRuleSet) {
         return (
             <Accordion.Item eventKey={eventKey}>
                 <Accordion.Header><h2>{staticTextHelper.getBookkeepingText(staticTexts)}</h2></Accordion.Header>
                     <Accordion.Body>
                         <PostingJournal
                             postingJournal={dynamicTexts.postingJournal} 
-                            staticTexts={staticTexts} />
+                            staticTexts={staticTexts}
+                            validationRuleSet={validationRuleSet} />
                         <PostingLineCollection postingLineCollection={dynamicTexts.postingLineCollection} />
                     </Accordion.Body>
                 </Accordion.Item>
@@ -644,14 +652,6 @@ function Accounting() {
         return (
             <Link onClick={() => confirmDeletion(deletionQuestion, deleteContext)}><FontAwesomeIcon icon={faTrash} /></Link>
         )
-    }
-
-    async function populateContent(content, accountingNumber, numberOfPostingLines) {
-        if (content !== undefined) {
-            setContent(undefined);
-        }
-        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
-        setContent(json);
     }
 
     function confirmDeletion(deletionQuestion, deleteContext) {
