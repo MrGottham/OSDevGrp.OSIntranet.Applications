@@ -49,6 +49,54 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
         }
     }
 
+    public async Task<AccountModel> GetAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset statusDate, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await WebApiClient.AccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken);
+        }
+        catch (WebApiClientException<ErrorModel> ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+        catch (WebApiClientException ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+    }
+
+    public async Task<BudgetAccountModel> GetBudgetAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset statusDate, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await WebApiClient.BudgetaccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken);
+        }
+        catch (WebApiClientException<ErrorModel> ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+        catch (WebApiClientException ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+    }
+
+    public async Task<ContactAccountModel> GetContactAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset statusDate, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await WebApiClient.ContactaccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken);
+        }
+        catch (WebApiClientException<ErrorModel> ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+        catch (WebApiClientException ex)
+        {
+            throw ex.ToServiceGatewayException();
+        }
+    }
+
     public async Task<ApplyPostingJournalModel> GetPostingJournalAsync(int accountingNumber, CancellationToken cancellationToken = default)
     {
         try

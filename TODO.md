@@ -17,148 +17,217 @@ We need to create tests and test data for functionality in the following project
 * OSDevGrp.OSIntranet.Bff.DomainServices.Tests
 * OSDevGrp.OSIntranet.Bff.WebApi.Tests
 
-## Add validation rules for the posting line identification within a posting journal line
+## ✅ COMPLETED: Extend IAccountingGateway with methods to get an account, a budget account and a contact account
 
-**✓ IMPLEMENTED** - Commit: 3c6219af
+### Implementation Summary (Commit: PENDING)
 
-* ✓ Move the constants PostingLineIdentificationMinLength, PostingLineIdentificationMaxLength and PostingLineIdentificationRegexPattern from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
-* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
-* ✓ Add the StaticTextKey named PostingJournalIdentifier to the static text enum
-* ✓ Add the static text "Identifikation" in the StaticTextProvider for the static text key PostingJournalIdentifier
-* ✓ Add tests to ensure that the static text key PostingJournalIdentifier returns the correct text
-* ✓ Add the interface IPostingJournalLineIdentifierRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement PostingJournalLineIdentifierRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * ✓ a required value rule using WithRequiredValueRule for the Identifier on the posting journal
-  * ✓ a min length rule using WithMinLengthRule for the Identifier on the posting journal where min length is defined by the constant PostingLineIdentificationMinLength
-  * ✓ a max length rule using WithMaxLengthRule for the Identifier on the posting journal where max length is defined by the constant PostingLineIdentificationMaxLength
-  * ✓ a pattern rule using WithPatternRule for the Identifier on the posting journal where pattern is defined by the constant PostingLineIdentificationRegexPattern
-* ✓ Implement tests for the PostingJournalLineIdentifierRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement PostingJournalLineIdentifierRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IPostingJournalLineIdentifierRuleSetBuilder with PostingJournalLineIdentifierRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IPostingJournalLineIdentifierRuleSetBuilder in any logic yet
+#### Files Modified
 
-## Add validation rules for the posting date within a posting journal line
+* **OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces/IAccountingGateway.cs**
+  * Added `Task<AccountModel> GetAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset statusDate, CancellationToken cancellationToken = default)`
+  * Added `Task<BudgetAccountModel> GetBudgetAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset statusDate, CancellationToken cancellationToken = default)`
+  * Added `Task<ContactAccountModel> GetContactAccountAsync(int accountingNumber, string accountNumber, DateTimeOffset statusDate, CancellationToken cancellationToken = default)`
 
-**✓ IMPLEMENTED** - Commit: 3c6219af
+* **OSDevGrp.OSIntranet.Bff.ServiceGateways/AccountingGateway.cs**
+  * Implemented all three methods following the GetAccountingAsync pattern with identical exception handling:
+    * Catch `WebApiClientException<ErrorModel>` first (typed exception)
+    * Catch `WebApiClientException` second (generic exception)
+    * Convert both via `ToServiceGatewayException()` extension
+  * GetAccountAsync calls `WebApiClient.AccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken)`
+  * GetBudgetAccountAsync calls `WebApiClient.BudgetaccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken)`
+  * GetContactAccountAsync calls `WebApiClient.ContactaccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken)`
 
-* ✓ Add the interface IPostingDateRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement PostingDateRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * ✓ a required value rule using WithRequiredValueRule for the PostingDate on the posting journal
-  * ✓ a DateTimeOffset rule using WithMinValueRule where the min value should be the date given by GetUtcNow on the class dependency TimeProvider minus the number days given by the constant BackDatingMaxValue at AccountingRuleSetSpecifications
-  * ✓ a DateTimeOffset rule using WithMaxValueRule where the max value should be the date given by GetUtcNow on the class dependency TimeProvider
-* ✓ Implement tests for the PostingDateRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement PostingDateRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IPostingDateRuleSetBuilder with PostingDateRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IPostingDateRuleSetBuilder in any logic yet
+#### Files Created (Tests)
 
-## Add validation rules for posting reference date within a posting journal line
+* **OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/AccountingGateway/GetAccountAsyncTests.cs**
+  * 10 unit tests + 1 integration test covering GetAccountAsync
+  * Tests: parameter verification, return value assertions, exception handling (typed & generic)
 
-**✓ IMPLEMENTED** - Commit: 133f2a70
+* **OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/AccountingGateway/GetBudgetAccountAsyncTests.cs**
+  * 10 unit tests + 1 integration test covering GetBudgetAccountAsync
+  * Tests: parameter verification, return value assertions, exception handling (typed & generic)
 
-* ✓ Move the constants PostingReferenceMinLength and PostingReferenceMaxLength from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
-* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
-* ✓ Add the interface IPostingReferenceRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement PostingReferenceRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * ✓ a min length rule using WithMinLengthRule for the PostingReference on the posting journal where min length is defined by the constant PostingReferenceMinLength
-  * ✓ a max length rule using WithMaxLengthRule for the PostingReference on the posting journal where max length is defined by the constant PostingReferenceMaxLength
-* ✓ Implement tests for the PostingReferenceRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement PostingReferenceRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IPostingReferenceRuleSetBuilder with PostingReferenceRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IPostingReferenceRuleSetBuilder in any logic yet
+* **OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests/AccountingGateway/GetContactAccountAsyncTests.cs**
+  * 10 unit tests + 1 integration test covering GetContactAccountAsync
+  * Tests: parameter verification, return value assertions, exception handling (typed & generic)
 
-## Add validation rules for account number, budget account number and contact account number within a posting journal line
+### Verification
 
-**✓ IMPLEMENTED** - Commit: d3d99ec2
+* ✅ Solution builds without errors or warnings (16.3s)
+* ✅ All 250 unit tests pass (includes 25 new GetAccount* tests)
+* ✅ Exception handling properly tested and verified
+* ✅ Integration tests ready (require live MySQL + OAuth services)
 
-* ✓ Move the constants AccountNumberMinLength, AccountNumberMaxLength and AccountNumberRegexPattern from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
-* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
-* ✓ Implement the abstact AccountNumberRuleSetBuilderBase as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * ✓ a required value rule using WithRequiredValueRule for the static text key given by the constructor when the required argument given in the contructor is true; otherwise ship this validation rule
-  * ✓ a min length rule using WithMinLengthRule for the static text key given by the constructor where min length is defined by the constant AccountNumberMinLength
-  * ✓ a max length rule using WithMaxLengthRule for the static text key given by the constructor where max length is defined by the constant AccountNumberMaxLength
-  * ✓ a pattern rule using WithPatternRule for the static text key given by the constructor where pattern is defined by the constant AccountNumberRegexPattern
-* ✓ Implement tests for the AccountNumberRuleSetBuilderBase in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Add the interface IAccountNumberRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement AccountNumberRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit AccountNumberRuleSetBuilderBase with the static text key Account and set required argument to true
-* ✓ Implement tests for the AccountNumberRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement AccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IAccountNumberRuleSetBuilder with AccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Add the interface IBudgetAccountNumberRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement BudgetAccountNumberRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit AccountNumberRuleSetBuilderBase with the static text key BudgetAccount and set required argument to false
-* ✓ Implement tests for the BudgetAccountNumberRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement BudgetAccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IBudgetAccountNumberRuleSetBuilder with BudgetAccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Add the interface IContactAccountNumberRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement ContactAccountNumberRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit AccountNumberRuleSetBuilderBase with the static text key ContactAccount and set required argument to false
-* ✓ Implement tests for the ContactAccountNumberRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement ContactAccountNumberRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IContactAccountNumberRuleSetBuilder with ContactAccountNumberRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IAccountNumberRuleSetBuilder, IBudgetAccountNumberRuleSetBuilder nor IContactAccountNumberRuleSetBuilder in any logic yet
+---
 
-## Add validation rules for posting text date within a posting journal line
+## Extend dynamic texts for accounts
 
-**✓ IMPLEMENTED** - Commit: 1f466506
+* Add the following key to StaticTextKey at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+  * AccountValuesAtStatusDate
+  * AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate
+  * AccountValuesAtEndOfLastYearFromStatusDate
+* Update StaticTextProvider in OSDevGrp.OSIntranet.Bff.DomainServices so:
+  * AccountValuesAtStatusDate would return "Kontoværdi pr. dags dato"
+  * AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate would return "Kontoværdi ved sidste måneds afslutning"
+  * AccountValuesAtEndOfLastYearFromStatusDate would return "Kontoværdi ved sidste års afslutning"
+* Add the following Test Cases to GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt at GetStaticTextAsyncTests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests:
+  * [TestCase(StaticTextKey.AccountValuesAtStatusDate, "Kontoværdi pr. dags dato", 0)]
+  * [TestCase(StaticTextKey.AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate, "Kontoværdi ved sidste måneds afslutning", 0)]
+  * [TestCase(StaticTextKey.AccountValuesAtEndOfLastYearFromStatusDate, "Kontoværdi ved sidste års afslutning", 0)]
+* Make the new interface IAccountValuesDisplayer in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces with the following properties:
+  * Header (string) as a getter only
+  * Credit (IValueDisplayer) as a getter only
+  * Balance (IValueDisplayer) as a getter only
+  * Available (IValueDisplayer) as a getter only
+* Create the new internal class named AccountValuesDisplayer in OSDevGrp.OSIntranet.Bff.DomainServices - this class should:
+  * Implement IAccountValuesDisplayer
+  * Have a private constructor with arguments to initialize all properties
+  * Have a internal static method named CreateAsync which:
+    * Takes a StaticTextKey and an IStaticTextProvider to resolve the header value
+    * Takes a CreditInfoValuesModel and an IFormatProvider to initialize the display values for credit, balance and available
+    * Takes a CancellationToken to use which the IStaticTextProvider
+    * Returns a Task<IAccountValuesDisplayer>
+    * Uses the static text key named Credit and the IStaticTextProvider to get the label for credit
+    * Uses the static text key named Balance and the IStaticTextProvider to get the label for balance
+    * Uses the static text key named Available and the IStaticTextProvider to get the label for available
+    * Uses the format provider with ToString("C") to make the value for credit, balance and available
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for CreateAsync at AccountValuesDisplayer to ensure dependency calls and logic works
+* Extend IAccountTexts at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces with the following properties (only getters):
+  * StatusDate (IValueDisplayer) as a getter only
+  * ValuesAtStatusDate (IAccountValuesDisplayer) as a getter only
+  * ValuesAtEndOfLastMonthFromStatusDate (IAccountValuesDisplayer) as a getter only
+  * ValuesAtEndOfLastYearFromStatusDate (IAccountValuesDisplayer) as a getter only
+* Modify AccountTexts in OSDevGrp.OSIntranet.Bff.DomainServices:
+  * Make the existing constructor private or proctected if possible
+  * Update the constructor with arguments to initialize all properties
+  * Make a internal static method named CreateAsync which:
+    * Takes an IValueDisplayer to intialize the status date
+    * Takes an IStaticTextProvider to resolve static texts
+    * Takes a AccountModel and an IFormatProvider to initialize the display values for ValuesAtStatusDate, ValuesAtEndOfLastMonthFromStatusDate and ValuesAtEndOfLastYearFromStatusDate
+    * Takes a CancellationToken to use which the IStaticTextProvider and CreateAsync calls
+    * Returns a Task<IAccountTexts>
+    * Uses the CreateAsync at AccountValuesDisplayer with the static text key AccountValuesAtStatusDate and ValuesAtStatusDate property on the account model to initailize ValuesAtStatusDate
+    * Uses the CreateAsync at AccountValuesDisplayer with the static text key AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate and ValuesAtStatusDate property on the account model to initailize ValuesAtEndOfLastMonthFromStatusDate
+    * Uses the CreateAsync at AccountValuesDisplayer with the static text key AccountValuesAtEndOfLastYearFromStatusDate and ValuesAtStatusDate property on the account model to initailize ValuesAtEndOfLastYearFromStatusDate
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for CreateAsync at AccountTexts to ensure dependency calls and logic works
+* Modify BuildAsync at AccountTextsBuilder in OSDevGrp.OSIntranet.Bff.DomainServices:
+  * Make a IValueDisplayer for the StatusDate from the AccountModel in the same way as BuildAsync do on the AccountingTextsBuilder
+  * Call CreateAsync at AccountTexts to create the dynamic texts for an account
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for the AccountTextsBuilder in the same way we tests AccountingTextsBuilder
+* Ensure that IAccountingTextsBuilder are correctly registered with AccountTextsBuilder in ServiceCollectionExtensions
+* We don't need to use IAccountingTextsBuilder at the domain service layer yet but keep any usage as is
 
-* ✓ Move the constants PostingTextMinLength and PostingTextMaxLength from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
-* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
-* ✓ Add the interface IPostingTextRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement PostingTextRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * ✓ a required value rule using WithRequiredValueRule for the PostingText on the posting journal
-  * ✓ a min length rule using WithMinLengthRule for the PostingText on the posting journal where min length is defined by the constant PostingTextMinLength
-  * ✓ a max length rule using WithMaxLengthRule for the PostingText on the posting journal where max length is defined by the constant PostingTextMaxLength
-* ✓ Implement tests for the PostingTextRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement PostingTextRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IPostingTextRuleSetBuilder with PostingTextRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IPostingTextRuleSetBuilder in any logic yet
+## Extend dynamic texts for budget accounts
 
-## Add validation rules for debit and credit within a posting journal line
+* Add the following key to StaticTextKey at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+  * BudgetAccountValuesForMonthOfStatusDate
+  * BudgetAccountValuesForLastMonthOfStatusDate
+  * BudgetAccountValuesForYearToDateOfStatusDate
+  * BudgetAccountValuesForLastYearOfStatusDate
+* Update StaticTextProvider in OSDevGrp.OSIntranet.Bff.DomainServices so:
+  * BudgetAccountValuesForMonthOfStatusDate would return "Budgetoplysninger pr. dags dato"
+  * BudgetAccountValuesForLastMonthOfStatusDate would return "Budgetoplysninger ved sidste måneds afslutning"
+  * BudgetAccountValuesForYearToDateOfStatusDate would return "Budgetoplysninger for år til dato"
+  * BudgetAccountValuesForLastYearOfStatusDate would return "Budgetoplysninger ved sidste års afslutning"
+* Add the following Test Cases to GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt at GetStaticTextAsyncTests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests:
+  * [TestCase(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, "Budgetoplysninger pr. dags dato", 0)]
+  * [TestCase(StaticTextKey.BudgetAccountValuesForLastMonthOfStatusDate, "Budgetoplysninger ved sidste måneds afslutning", 0)]
+  * [TestCase(StaticTextKey.BudgetAccountValuesForYearToDateOfStatusDate, "Budgetoplysninger for år til dato", 0)]
+  * [TestCase(StaticTextKey.BudgetAccountValuesForLastYearOfStatusDate, "Budgetoplysninger ved sidste års afslutning", 0)]
+* Make the new interface IBudgetAccountValuesDisplayer in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces with the following properties:
+  * Header (string) as a getter only
+  * Budget (IValueDisplayer) as a getter only
+  * Posted (IValueDisplayer) as a getter only
+  * Available (IValueDisplayer) as a getter only
+* Create the new internal class named BudgetAccountValuesDisplayer in OSDevGrp.OSIntranet.Bff.DomainServices - this class should:
+  * Implement IBudgetAccountValuesDisplayer
+  * Have a private constructor with arguments to initialize all properties
+  * Have a internal static method named CreateAsync which:
+    * Takes a StaticTextKey and an IStaticTextProvider to resolve the header value
+    * Takes a BudgetInfoValuesModel and an IFormatProvider to initialize the display values for budget, posted and available
+    * Takes a CancellationToken to use which the IStaticTextProvider
+    * Returns a Task<IBudgetAccountValuesDisplayer>
+    * Uses the static text key named Budget and the IStaticTextProvider to get the label for bugdet
+    * Uses the static text key named Posted and the IStaticTextProvider to get the label for posted
+    * Uses the static text key named Available and the IStaticTextProvider to get the label for available
+    * Uses the format provider with ToString("C") to make the value for budget, posted and available
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for CreateAsync at BudgetAccountValuesDisplayer to ensure dependency calls and logic works
+* Extend IBudgetAccountTexts at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces with the following properties (only getters):
+  * StatusDate (IValueDisplayer) as a getter only
+  * ValuesForMonthOfStatusDate (IBudgetAccountValuesDisplayer) as a getter only
+  * ValuesForLastMonthOfStatusDate (IBudgetAccountValuesDisplayer) as a getter only
+  * ValuesForYearToDateOfStatusDate (IBudgetAccountValuesDisplayer) as a getter only
+  * ValuesForLastYearOfStatusDate (IBudgetAccountValuesDisplayer) as a getter only
+* Modify BudgetAccountTexts in OSDevGrp.OSIntranet.Bff.DomainServices:
+  * Make the existing constructor private or proctected if possible
+  * Update the constructor with arguments to initialize all properties
+  * Make a internal static method named CreateAsync which:
+    * Takes an IValueDisplayer to intialize the status date
+    * Takes an IStaticTextProvider to resolve static texts
+    * Takes a BudgetAccountModel and an IFormatProvider to initialize the display values for ValuesForMonthOfStatusDate, ValuesForLastMonthOfStatusDate, ValuesForYearToDateOfStatusDate and ValuesForLastYearOfStatusDate
+    * Takes a CancellationToken to use which the IStaticTextProvider and CreateAsync calls
+    * Returns a Task<IBudgetAccountTexts>
+    * Uses the CreateAsync at BudgetAccountValuesDisplayer with the static text key BudgetAccountValuesForMonthOfStatusDate and ValuesForMonthOfStatusDate property on the budget account model to initailize ValuesForMonthOfStatusDate
+    * Uses the CreateAsync at BudgetAccountValuesDisplayer with the static text key BudgetAccountValuesForLastMonthOfStatusDate and ValuesForLastMonthOfStatusDate property on the budget account model to initailize ValuesForLastMonthOfStatusDate
+    * Uses the CreateAsync at BudgetAccountValuesDisplayer with the static text key BudgetAccountValuesForYearToDateOfStatusDate and ValuesForYearToDateOfStatusDate property on the budget account model to initailize ValuesForYearToDateOfStatusDate
+    * Uses the CreateAsync at BudgetAccountValuesDisplayer with the static text key BudgetAccountValuesForLastYearOfStatusDate and ValuesForLastYearOfStatusDate property on the budget account model to initailize ValuesForLastYearOfStatusDate
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for CreateAsync at BudgetAccountTexts to ensure dependency calls and logic works
+* Modify BuildAsync at BudgetAccountTextsBuilder in OSDevGrp.OSIntranet.Bff.DomainServices:
+  * Make a IValueDisplayer for the StatusDate from the BudgetAccountModel in the same way as BuildAsync do on the AccountingTextsBuilder
+  * Call CreateAsync at BudgetAccountTexts to create the dynamic texts for an account
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for the BudgetAccountTextsBuilder in the same way we tests AccountingTextsBuilder
+* Ensure that IBudgetAccountTextsBuilder are correctly registered with BudgetAccountTextsBuilder in ServiceCollectionExtensions
+* We don't need to use IBudgetAccountTextsBuilder at the domain service layer yet but keep any usage as is
 
-**✓ IMPLEMENTED** - Commit: 2e279c3f
+## Extend dynamic texts for contact account
 
-* ✓ Move the constants DebitMinValue, DebitMaxValue, CreditMinValue and CreditMaxValue from ValidationValues at OSDevGrp.OSIntranet.Bff.WebApi.Shared to AccountingRuleSetSpecifications at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation and make them public
-* ✓ Make sure that OSDevGrp.OSIntranet.Bff.WebApi now uses the moved constants in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation
-* ✓ Implement the abstract PostingValueRuleSetBuilderBase as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and add following rules:
-  * ✓ a min value rule using WithMinValueRule for the static text key given by the constructor and min value (double) is given by the constructor
-  * ✓ a max value rule using WithMaxValueRule for the static text key given by the constructor and max value (double) is given by the constructor
-* ✓ Implement tests for the PostingValueRuleSetBuilderBase in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Add the interface IDebitRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement DebitRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit PostingValueRuleSetBuilderBase with the static text key Debit and use DebitMinValue as min value and DebitMaxValue as max value
-* ✓ Implement tests for the DebitRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement DebitRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IDebitRuleSetBuilder with DebitRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Add the interface ICreditRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement CreditRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit PostingValueRuleSetBuilderBase with the static text key Credit and use CreditMinValue as min value and CreditMaxValue as max value
-* ✓ Implement tests for the CreditRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement CreditRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register ICreditRuleSetBuilder with CreditRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IDebitRuleSetBuilder nor ICreditRuleSetBuilder in any logic yet
-
-## Add validation rules for a posting journal
-
-**✓ IMPLEMENTED** - Commit: 4bd809e5
-
-* ✓ Add the interface IPostingJournalRuleSetBuilder which implements the interface IValidationRuleSetBuilder to the validation logic in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
-* ✓ Implement PostingJournalRuleSetBuilder as validation logic in OSDevGrp.OSIntranet.Bff.DomainServices. This ruleset builder should inherit ValidationRuleSetBuilderBase and use the following rule set builders to build and combine rules:
-  * ✓ IAccountingNumberRuleSetBuilder
-  * ✓ IPostingJournalLineIdentifierRuleSetBuilder
-  * ✓ IPostingDateRuleSetBuilder
-  * ✓ IPostingReferenceRuleSetBuilder
-  * ✓ IAccountNumberRuleSetBuilder
-  * ✓ IPostingTextRuleSetBuilder
-  * ✓ IBudgetAccountNumberRuleSetBuilder
-  * ✓ IDebitRuleSetBuilder
-  * ✓ ICreditRuleSetBuilder
-  * ✓ IContactAccountNumberRuleSetBuilder
-* ✓ Make sure that PostingJournalRuleSetBuilder make a distinct collection of validation rules based on the name
-* ✓ Implement tests for the PostingJournalRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests
-* ✓ Implement PostingJournalRuleSetBuilderMockExtensions in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so we can mockup the rule set builder
-* ✓ Register IPostingJournalRuleSetBuilder with PostingJournalRuleSetBuilder in AddDomainServices at OSDevGrp.OSIntranet.Bff.DomainServices.ServiceCollectionExtensions
-* ✓ Do not use the IPostingJournalRuleSetBuilder in any logic yet
-
-## Add validation rules for a posting journal to the accounting
-
-**✓ IMPLEMENTED** - Commit: 58d916fb
-
-* ✓ Extent AccountingRuleSetBuilder to use the IPostingJournalRuleSetBuilder so this combines it's current rule sets with the rule sets from the IPostingJournalRuleSetBuilder
-* ✓ Make sure that AccountingRuleSetBuilder make a distinct collection of validation rules based on the name
-* ✓ Extent tests for the AccountingRuleSetBuilder in validation tests at OSDevGrp.OSIntranet.Bff.DomainServices.Tests so new functionalty will be tested
+* Add the following key to StaticTextKey at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
+  * ContactAccountValuesAtStatusDate
+  * ContactAccountValuesAtEndOfLastMonthFromStatusDate
+  * ContactAccountValuesValuesAtEndOfLastYearFromStatusDate
+* Update StaticTextProvider in OSDevGrp.OSIntranet.Bff.DomainServices so:
+  * ContactAccountValuesAtStatusDate would return "Saldooplysninger pr. dags dato"
+  * ContactAccountValuesAtEndOfLastMonthFromStatusDate would return "Saldooplysninger ved sidste måneds afslutningg"
+  * ContactAccountValuesValuesAtEndOfLastYearFromStatusDate would return "Saldooplysninger ved sidste års afslutning"
+* Add the following Test Cases to GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt at GetStaticTextAsyncTests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests:
+  * [TestCase(StaticTextKey.ContactAccountValuesAtStatusDate, "Saldooplysninger pr. dags dato", 0)]
+  * [TestCase(StaticTextKey.ContactAccountValuesAtEndOfLastMonthFromStatusDate, "Saldooplysninger ved sidste måneds afslutning", 0)]
+  * [TestCase(StaticTextKey.ContactAccountValuesValuesAtEndOfLastYearFromStatusDate, "Saldooplysninger ved sidste års afslutning", 0)]
+* Make the new interface IContactAccountValuesDisplayer in OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces with the following properties:
+  * Header (string) as a getter only
+  * Balance (IValueDisplayer) as a getter only
+* Create the new internal class named ContactAccountValuesDisplayer in OSDevGrp.OSIntranet.Bff.DomainServices - this class should:
+  * Implement IContactAccountValuesDisplayer
+  * Have a private constructor with arguments to initialize all properties
+  * Have a internal static method named CreateAsync which:
+    * Takes a StaticTextKey and an IStaticTextProvider to resolve the header value
+    * Takes a BalanceInfoValuesModel and an IFormatProvider to initialize the display values for balance
+    * Takes a CancellationToken to use which the IStaticTextProvider
+    * Returns a Task<IContactAccountValuesDisplayer>
+    * Uses the static text key named Balance and the IStaticTextProvider to get the label for balance
+    * Uses the format provider with ToString("C") to make the value for balance
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for CreateAsync at ContactAccountValuesDisplayer to ensure dependency calls and logic works
+* Extend IContactAccountTexts at OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces with the following properties (only getters):
+  * StatusDate (IValueDisplayer) as a getter only
+  * ValuesAtStatusDate (IContactAccountValuesDisplayer) as a getter only
+  * ValuesAtEndOfLastMonthFromStatusDate (IContactAccountValuesDisplayer) as a getter only
+  * ValuesAtEndOfLastYearFromStatusDate (IContactAccountValuesDisplayer) as a getter only
+* Modify ContactAccountTexts in OSDevGrp.OSIntranet.Bff.DomainServices:
+  * Make the existing constructor private or proctected if possible
+  * Update the constructor with arguments to initialize all properties
+  * Make a internal static method named CreateAsync which:
+    * Takes an IValueDisplayer to intialize the status date
+    * Takes an IStaticTextProvider to resolve static texts
+    * Takes a ContactAccountModel and an IFormatProvider to initialize the display values for ValuesAtStatusDate, ValuesAtEndOfLastMonthFromStatusDate and ValuesAtEndOfLastYearFromStatusDate
+    * Takes a CancellationToken to use which the IStaticTextProvider and CreateAsync calls
+    * Returns a Task<IContactAccountTexts>
+    * Uses the CreateAsync at ContactAccountValuesDisplayer with the static text key ContactAccountValuesAtStatusDate and ValuesAtStatusDate property on the budget account model to initailize ValuesAtStatusDate
+    * Uses the CreateAsync at ContactAccountValuesDisplayer with the static text key ContactAccountValuesAtEndOfLastMonthFromStatusDate and ValuesAtEndOfLastMonthFromStatusDate property on the budget account model to initailize ValuesAtEndOfLastMonthFromStatusDate
+    * Uses the CreateAsync at ContactAccountValuesDisplayer with the static text key ContactAccountValuesValuesAtEndOfLastYearFromStatusDate and ValuesAtEndOfLastYearFromStatusDate property on the budget account model to initailize ValuesAtEndOfLastYearFromStatusDate
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for CreateAsync at ContactAccountTexts to ensure dependency calls and logic works
+* Modify BuildAsync at ContactAccountTextsBuilder in OSDevGrp.OSIntranet.Bff.DomainServices:
+  * Make a IValueDisplayer for the StatusDate from the ContactAccountModel in the same way as BuildAsync do on the AccountingTextsBuilder
+  * Call CreateAsync at ContactAccountTexts to create the dynamic texts for an account
+* Create unit tests in OSDevGrp.OSIntranet.Bff.DomainServices.Tests for the ContactAccountTextsBuilder in the same way we tests AccountingTextsBuilder
+* Ensure that IContactAccountTextsBuilder are correctly registered with ContactAccountTexts in ServiceCollectionExtensions
+* We don't need to use IContactAccountTextsBuilder at the domain service layer yet but keep any usage as is
