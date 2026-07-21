@@ -19,7 +19,7 @@ We need to create tests and test data for functionality in the following project
 
 ## ✅ COMPLETED: Extend IAccountingGateway with methods to get an account, a budget account and a contact account
 
-### Implementation Summary (Commit: PENDING)
+### Implementation Summary (Commit: 269f8226f904acf7adba4b7f64e76eb6281189b5)
 
 #### Files Modified
 
