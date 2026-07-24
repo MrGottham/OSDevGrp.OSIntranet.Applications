@@ -94,6 +94,9 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Posted, "Bogført");
         staticTexts.Add(StaticTextKey.Result, "Resultat");
         staticTexts.Add(StaticTextKey.Available, "Disponibel");
+        staticTexts.Add(StaticTextKey.AccountValuesAtStatusDate, "Kontoværdi pr. dags dato");
+        staticTexts.Add(StaticTextKey.AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate, "Kontoværdi ved sidste måneds afslutning");
+        staticTexts.Add(StaticTextKey.AccountValuesAtEndOfLastYearFromStatusDate, "Kontoværdi ved sidste års afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtStatusDate, "Saldi pr. dags dato");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, "Saldi ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, "Saldi ved sidste års afslutning");
