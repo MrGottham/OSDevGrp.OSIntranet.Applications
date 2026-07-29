@@ -97,6 +97,13 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.AccountValuesAtStatusDate, "Kontoværdi pr. dags dato");
         staticTexts.Add(StaticTextKey.AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate, "Kontoværdi ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.AccountValuesAtEndOfLastYearFromStatusDate, "Kontoværdi ved sidste års afslutning");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, "Budgetoplysninger pr. dags dato");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForLastMonthOfStatusDate, "Budgetoplysninger ved sidste måneds afslutning");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForYearToDateOfStatusDate, "Budgetoplysninger for år til dato");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForLastYearOfStatusDate, "Budgetoplysninger ved sidste års afslutning");
+        staticTexts.Add(StaticTextKey.ContactAccountValuesAtStatusDate, "Saldooplysninger pr. dags dato");
+        staticTexts.Add(StaticTextKey.ContactAccountValuesAtEndOfLastMonthFromStatusDate, "Saldooplysninger ved sidste måneds afslutning");
+        staticTexts.Add(StaticTextKey.ContactAccountValuesAtEndOfLastYearFromStatusDate, "Saldooplysninger ved sidste års afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtStatusDate, "Saldi pr. dags dato");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, "Saldi ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, "Saldi ved sidste års afslutning");
