@@ -171,7 +171,7 @@ We need to create tests and test data for functionality in the following project
 
 ## ✅ COMPLETED: Extend dynamic texts for budget accounts (Phase 2) and contact accounts (Phase 3)
 
-### Implementation Summary (Phases 2 & 3 Combined, Commit: [pending])
+### Implementation Summary (Phases 2 & 3 Combined, Commit: 6a016f5d)
 
 #### Files Created (Implementation)
 
