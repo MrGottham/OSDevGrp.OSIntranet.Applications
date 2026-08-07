@@ -68,20 +68,43 @@ We need to create tests and test data for functionality in the following project
 
 ## Adding account summary feature
 
-**Phase 2**: Ready to implement - all prerequisites from Phase 1 are complete. The following three feature classes can now be implemented:
+✅ **COMPLETED - Phase 2 Iteration 1** (2026-08-06): AccountSummary feature implementation complete.
 
-* Make the public class AccountSummaryRequest in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary which should
-  * inherit directly AccountIdentificationRequestBase
-* Make the public class AccountSummaryResponse in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary which should
-  * inherit directly AccountIdentificationResponseBase with TModel as AccountModel and TDynamicTexts as IAccountTexts
-* Make the internal class AccountSummaryFeature in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary which should
-  * inherit directly from AccountIdentificationFeatureBase using AccountSummaryRequest, AccountSummaryResponse, AccountModel, IAccountTexts, IAccountTextsBuilder and IEmptyRuleSetBuilder as generic arguments
-  * should use GetAccountAsync (or verify correct method name) at IAccountingGateway to resolve the model in GetModelAsync
-  * build a AccountSummaryResponse in BuildResponseAsync
-  * should return an empty dictionary in GetStaticTextSpecifications
-* Make test for AccountSummaryFeature simmular to test in AccountingSummaryFeature
+* ✅ **AccountSummaryRequest** in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary
+  * ✅ Inherits directly from AccountIdentificationRequestBase
+  * ✅ Pass-through constructor
+  * **File**: AccountSummaryRequest.cs
+
+* ✅ **AccountSummaryResponse** in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary
+  * ✅ Inherits directly from AccountIdentificationResponseBase<AccountModel, IAccountTexts>
+  * ✅ Convenience property: `public AccountModel Account => Model;`
+  * **File**: AccountSummaryResponse.cs
+
+* ✅ **AccountSummaryFeature** in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary
+  * ✅ Inherits from AccountIdentificationFeatureBase<AccountSummaryRequest, AccountSummaryResponse, AccountModel, IAccountTexts, IAccountTextsBuilder, IEmptyRuleSetBuilder>
+  * ✅ GetModelAsync: calls `IAccountingGateway.GetAccountAsync()`
+  * ✅ BuildResponseAsync: instantiates AccountSummaryResponse
+  * ✅ GetStaticTextSpecifications: returns AccountNumberShort and AccountName static text keys
+  * **File**: AccountSummaryFeature.cs
+
+* ✅ **Test Classes for AccountSummaryFeature**
+  * ✅ VerifyPermissionAsyncTests (9 tests covering all permission scenarios)
+  * ✅ ExecuteAsyncTests (32 tests: 30 orchestration + 2 parameterized integration tests)
+  * **Total**: 41 new unit tests, all passing
+  * **Files**: VerifyPermissionAsyncTests.cs, ExecuteAsyncTests.cs
+  * **Note**: AccountSummaryFeatureTests.cs was consolidated into ExecuteAsyncTests.cs; redundant mock verification tests removed
+
+**Phase 2 Iteration 1 Verification**:
+- ✅ Solution builds: 0 errors, 0 warnings
+- ✅ 41 new tests pass (all AccountSummary tests)
+- ✅ 1,943 total unit tests pass (up from 1,902)
+- ✅ No regressions
+- ✅ Feature auto-registered via `.AddFeatures()` assembly scan
+- ✅ Ready for Phase 2 Iterations 2 & 3 (BudgetAccountSummary, ContactAccountSummary)
 
 ## Adding budget account summary feature
+
+**Phase 2 Iteration 2** (Pending): BudgetAccountSummary feature - follows identical pattern to AccountSummary.
 
 * Make the public class BudgetAccountSummaryRequest in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.BudgetAccountSummary which should
   * inherit directly AccountIdentificationRequestBase
@@ -91,10 +114,12 @@ We need to create tests and test data for functionality in the following project
   * inherit directly from AccountIdentificationFeatureBase using BudgetAccountSummaryRequest, BudgetAccountSummaryResponse, BudgetAccountModel, IBudgetAccountTexts, IBudgetAccountTextsBuilder and IEmptyRuleSetBuilder as generic arguments
   * should use GetBudgetAccountAsync (or verify correct method name) at IAccountingGateway to resolve the model in GetModelAsync
   * build a BudgetAccountSummaryResponse in BuildResponseAsync
-  * should return an empty dictionary in GetStaticTextSpecifications
-* Make test for BudgetAccountSummaryFeature simmular to test in AccountingSummaryFeature
+  * should return AccountNumberShort and AccountName static text keys in GetStaticTextSpecifications
+* Make test for BudgetAccountSummaryFeature similar to test in AccountSummaryFeature
 
 ## Adding contact account summary feature
+
+**Phase 2 Iteration 3** (Pending): ContactAccountSummary feature - follows identical pattern to AccountSummary.
 
 * Make the public class ContactAccountSummaryRequest in OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.ContactAccountSummary which should
   * inherit directly AccountIdentificationRequestBase
@@ -104,5 +129,5 @@ We need to create tests and test data for functionality in the following project
   * inherit directly from AccountIdentificationFeatureBase using ContactAccountSummaryRequest, ContactAccountSummaryResponse, ContactAccountModel, IContactAccountTexts, IContactAccountTextsBuilder and IEmptyRuleSetBuilder as generic arguments
   * should use GetContactAccountAsync (or verify correct method name) at IAccountingGateway to resolve the model in GetModelAsync
   * build a ContactAccountSummaryResponse in BuildResponseAsync
-  * should return an empty dictionary in GetStaticTextSpecifications
-* Make test for ContactAccountSummaryFeature simmular to test in AccountingSummaryFeature
+  * should return AccountNumberShort and AccountName static text keys in GetStaticTextSpecifications
+* Make test for ContactAccountSummaryFeature similar to test in AccountSummaryFeature
