@@ -5,6 +5,8 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Account
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accountings;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountingSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.BudgetAccountSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.ContactAccountSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -121,6 +123,38 @@ public class AccountingController : ControllerBase
         AccountSummaryResponse accountSummaryResponse = await queryFeature.ExecuteAsync(accountSummaryRequest, cancellationToken);
 
         return Ok(AccountSummaryResponseDto.Map(accountSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingViewer)]
+    [HttpGet("{accountingNumber:int}/budgetaccounts/{accountNumber}/summary")]
+    [ProducesResponseType(typeof(BudgetAccountSummaryResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> BudgetAccountSummeryAsync([FromServices] IQueryFeature<BudgetAccountSummaryRequest, BudgetAccountSummaryResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required][MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)][MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)][RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)] string accountNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        BudgetAccountSummaryRequest budgetAccountSummaryRequest = new BudgetAccountSummaryRequest(Guid.NewGuid(), accountingNumber, accountNumber, ResolveStatusDate(statusDate), _formatProvider, securityContext);
+        BudgetAccountSummaryResponse budgetAccountSummaryResponse = await queryFeature.ExecuteAsync(budgetAccountSummaryRequest, cancellationToken);
+
+        return Ok(BudgetAccountSummaryResponseDto.Map(budgetAccountSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingViewer)]
+    [HttpGet("{accountingNumber:int}/contactaccounts/{accountNumber}/summary")]
+    [ProducesResponseType(typeof(ContactAccountSummaryResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> ContactAccountSummeryAsync([FromServices] IQueryFeature<ContactAccountSummaryRequest, ContactAccountSummaryResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required][MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)][MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)][RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)] string accountNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        ContactAccountSummaryRequest contactAccountSummaryRequest = new ContactAccountSummaryRequest(Guid.NewGuid(), accountingNumber, accountNumber, ResolveStatusDate(statusDate), _formatProvider, securityContext);
+        ContactAccountSummaryResponse contactAccountSummaryResponse = await queryFeature.ExecuteAsync(contactAccountSummaryRequest, cancellationToken);
+
+        return Ok(ContactAccountSummaryResponseDto.Map(contactAccountSummaryResponse));
     }
 
     private DateTimeOffset ResolveStatusDate(DateTimeOffset? value)

@@ -589,5 +589,59 @@ internal static class FixtureExtensions
         return accountValuesDisplayerMock.Object;
     }
 
+    internal static IBudgetAccountTexts CreateBudgetAccountTexts(this Fixture fixture, Random random)
+    {
+        Mock<IBudgetAccountTexts> budgetAccountTextsMock = new Mock<IBudgetAccountTexts>();
+        budgetAccountTextsMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        budgetAccountTextsMock.Setup(m => m.ValuesForMonthOfStatusDate)
+            .Returns(fixture.CreateBudgetAccountValuesDisplayer(random));
+        budgetAccountTextsMock.Setup(m => m.ValuesForLastMonthOfStatusDate)
+            .Returns(fixture.CreateBudgetAccountValuesDisplayer(random));
+        budgetAccountTextsMock.Setup(m => m.ValuesForYearToDateOfStatusDate)
+            .Returns(fixture.CreateBudgetAccountValuesDisplayer(random));
+        budgetAccountTextsMock.Setup(m => m.ValuesForLastYearOfStatusDate)
+            .Returns(fixture.CreateBudgetAccountValuesDisplayer(random));
+        return budgetAccountTextsMock.Object;
+    }
+
+    internal static IBudgetAccountValuesDisplayer CreateBudgetAccountValuesDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IBudgetAccountValuesDisplayer> budgetAccountValuesDisplayerMock = new Mock<IBudgetAccountValuesDisplayer>();
+        budgetAccountValuesDisplayerMock.Setup(m => m.Header)
+            .Returns(fixture.Create<string>());
+        budgetAccountValuesDisplayerMock.Setup(m => m.Budget)
+            .Returns(fixture.CreateValueDisplayer(random));
+        budgetAccountValuesDisplayerMock.Setup(m => m.Posted)
+            .Returns(fixture.CreateValueDisplayer(random));
+        budgetAccountValuesDisplayerMock.Setup(m => m.Available)
+            .Returns(fixture.CreateValueDisplayer(random));
+        return budgetAccountValuesDisplayerMock.Object;
+    }
+
+    internal static IContactAccountTexts CreateContactAccountTexts(this Fixture fixture, Random random)
+    {
+        Mock<IContactAccountTexts> contactAccountTextsMock = new Mock<IContactAccountTexts>();
+        contactAccountTextsMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        contactAccountTextsMock.Setup(m => m.ValuesAtStatusDate)
+            .Returns(fixture.CreateContactAccountValuesDisplayer(random));
+        contactAccountTextsMock.Setup(m => m.ValuesAtEndOfLastMonthFromStatusDate)
+            .Returns(fixture.CreateContactAccountValuesDisplayer(random));
+        contactAccountTextsMock.Setup(m => m.ValuesAtEndOfLastYearFromStatusDate)
+            .Returns(fixture.CreateContactAccountValuesDisplayer(random));
+        return contactAccountTextsMock.Object;
+    }
+
+    internal static IContactAccountValuesDisplayer CreateContactAccountValuesDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IContactAccountValuesDisplayer> contactAccountValuesDisplayerMock = new Mock<IContactAccountValuesDisplayer>();
+        contactAccountValuesDisplayerMock.Setup(m => m.Header)
+            .Returns(fixture.Create<string>());
+        contactAccountValuesDisplayerMock.Setup(m => m.Balance)
+            .Returns(fixture.CreateValueDisplayer(random));
+        return contactAccountValuesDisplayerMock.Object;
+    }
+
     #endregion
 }
