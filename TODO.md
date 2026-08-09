@@ -261,7 +261,10 @@ We need to create tests and test data for functionality in the following project
 - ✅ StatusDate defaults to current local date when not provided
 - ✅ Security context verified per request
 - ✅ Error handling via existing ErrorHandlerFilter
-- ✅ Git commit ready: "Phase 3 Iteration 1: Expose Account Summary feature via WebApi endpoint with comprehensive tests"
+- ✅ Git commit: `76cf1f9f02a50004a40a81eeaae86f226d0c8cb8` — "Phase 3 Iteration 1: Expose Account Summary feature via WebApi endpoint with comprehensive tests"
+  - Files: 8 files changed, 689 insertions(+), 1 deletion(-)
+  - Created: AccountValuesDisplayerDto.cs, AccountSummaryResponseDto.cs, AccountSummeryAsyncTests.cs, 2026-08-09-expose-account-summary-webapi.md
+  - Modified: AccountingController.cs, ValidationValues.cs, FixtureExtensions.cs
 
 **Note**: This method is added to the existing `AccountingController` class in `OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/AccountingController.cs` (not a new file). The controller already has required dependencies: `_securityContextProvider`, `_formatProvider`, and `ResolveStatusDate(statusDate)` helper method.
 
