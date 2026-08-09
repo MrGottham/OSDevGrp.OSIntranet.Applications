@@ -390,6 +390,7 @@ We need to create tests and test data for functionality in the following project
 - ✅ All AccountingController tests pass: 136/136 (88 existing + 24 new + 24 Contact)
 - ✅ No regressions; Feature auto-registered via `.AddFeatures()` assembly scan
 - ✅ Endpoint fully operational: returns 200 OK with BudgetAccountSummaryResponseDto
+- ✅ Git commit: `b0fd5141` — "Phase 3 Iterations 2 & 3: Expose Budget & Contact Account Summary endpoints with DTOs and 48 tests"
 
 ---
 
@@ -444,6 +445,7 @@ We need to create tests and test data for functionality in the following project
 - ✅ Full test suite passes: 17,559/17,559 unit tests (0 failures, 0 skipped)
 - ✅ No regressions; Feature auto-registered via `.AddFeatures()` assembly scan
 - ✅ Endpoint fully operational: returns 200 OK with ContactAccountSummaryResponseDto
+- ✅ Git commit: `b0fd5141` — "Phase 3 Iterations 2 & 3: Expose Budget & Contact Account Summary endpoints with DTOs and 48 tests"
 
 ---
 
