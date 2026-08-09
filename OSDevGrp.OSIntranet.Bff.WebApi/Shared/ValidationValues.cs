@@ -36,6 +36,8 @@ internal static class ValidationValues
     internal const int AccountNameMinLength = 1;
     internal const int AccountNameMaxLength = 256;
 
+    internal const int AccountValuesDisplayerHeaderMinLength = 1;
+
     internal const int BalanceSheetDisplayerHeaderMinLength = 1;
     internal const int BalanceSheetLabelMinLength = 1;
     internal const int BalanceSheetAtStatusDateLabelMinLength = 1;

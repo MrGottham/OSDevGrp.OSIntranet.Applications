@@ -561,5 +561,33 @@ internal static class FixtureExtensions
         return valueDisplayerMock.Object;
     }
 
+    internal static IAccountTexts CreateAccountTexts(this Fixture fixture, Random random)
+    {
+        Mock<IAccountTexts> accountTextsMock = new Mock<IAccountTexts>();
+        accountTextsMock.Setup(m => m.StatusDate)
+            .Returns(fixture.CreateValueDisplayer(random));
+        accountTextsMock.Setup(m => m.ValuesAtStatusDate)
+            .Returns(fixture.CreateAccountValuesDisplayer(random));
+        accountTextsMock.Setup(m => m.ValuesAtEndOfLastMonthFromStatusDate)
+            .Returns(fixture.CreateAccountValuesDisplayer(random));
+        accountTextsMock.Setup(m => m.ValuesAtEndOfLastYearFromStatusDate)
+            .Returns(fixture.CreateAccountValuesDisplayer(random));
+        return accountTextsMock.Object;
+    }
+
+    internal static IAccountValuesDisplayer CreateAccountValuesDisplayer(this Fixture fixture, Random random)
+    {
+        Mock<IAccountValuesDisplayer> accountValuesDisplayerMock = new Mock<IAccountValuesDisplayer>();
+        accountValuesDisplayerMock.Setup(m => m.Header)
+            .Returns(fixture.Create<string>());
+        accountValuesDisplayerMock.Setup(m => m.Credit)
+            .Returns(fixture.CreateValueDisplayer(random));
+        accountValuesDisplayerMock.Setup(m => m.Balance)
+            .Returns(fixture.CreateValueDisplayer(random));
+        accountValuesDisplayerMock.Setup(m => m.Available)
+            .Returns(fixture.CreateValueDisplayer(random));
+        return accountValuesDisplayerMock.Object;
+    }
+
     #endregion
 }
