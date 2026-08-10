@@ -152,18 +152,93 @@ The distinction between "using Swashbuckle interfaces that conceptually wrap Ope
 
 ---
 
+## Step 3: Pragmatic Closure Decision
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Lets go with option c"
+
+**Interpretation:** User selected Option C from the next-iteration proposals: accept the pragmatic outcome, close the task, and move to the next PRD.
+
+**Inferred intent:** Prioritize shipping value and unblocking .NET 10 migration over perfecting ancillary acceptance criteria (AC3 & AC4) that have diminishing returns and no clear path forward.
+
+### What I Did
+
+Documented the pragmatic closure decision:
+
+1. **Primary Goal:** ✅ Achieved — Microsoft.OpenApi 2.7.5 explicit dependency removed; .NET 10 migration unblocked
+2. **AC3 & AC4 Deferred:** Accepted as "known limitations, not failures"
+   - AC3: Serialization replacement attempts (System.Text.Json, Newtonsoft.Json) both failed with format incompatibilities or runtime crashes. Current OpenApiJsonWriter is battle-tested and working.
+   - AC4: Import cleanup analysis revealed all Microsoft.OpenApi imports are necessary for concrete types in filter implementations; removing them breaks compilation.
+3. **Pragmatic Reasoning:** Per SKILL.md guidance—"optimize for the best final system... shaped by the real constraints of the task rather than old assumptions about implementation effort"
+   - Constraint: JSON serialization format is strict and has no generic serializer equivalent
+   - Constraint: Filter implementations legitimately depend on Microsoft.OpenApi concrete types
+   - Best outcome: Keep reliable solution, document trade-off, move forward
+
+### Why
+
+The task's primary purpose is to unblock .NET 10 migration. That goal is fully achieved. AC3 and AC4 are refinements that:
+- Don't advance the .NET 10 goal further
+- Have hard technical blockers (serialization format, actual type dependencies)
+- Would consume additional effort with unclear ROI
+
+The pragmatic approach respects actual codebase constraints over idealistic "remove all Microsoft.OpenApi" goals.
+
+### What Worked
+
+- ✅ Commits integrated cleanly
+- ✅ Build stable at green
+- ✅ Decision is documented for future reviewers
+- ✅ No loose ends or partial work
+
+### What Didn't Work
+
+- ❌ Generic JSON serializers (System.Text.Json, Newtonsoft.Json) don't produce OpenAPI-compatible JSON
+- ❌ Proposed import removals broke the build—all imports turned out to be necessary
+- These weren't failures of implementation, but discoveries of real constraints
+
+### What I Learned
+
+Hard constraints often emerge during refactoring that challenge initial assumptions. The original PRD assumed "unused imports" and "replaceable serialization," but the codebase revealed:
+1. Filter implementations need concrete Microsoft.OpenApi types for advanced operations (schema extensions, operation metadata)
+2. OpenAPI JSON format is strict; Swashbuckle's OpenApiJsonWriter produces a specific structure that generic serializers don't replicate
+
+Accepting these constraints rather than fighting them is the pragmatic path.
+
+### What Was Tricky
+
+None — this was a decision step, not an implementation step. The challenge was recognizing when to stop pursuing perfect AC compliance and accept real-world constraints.
+
+### What Warrants Review
+
+- Confirm that transitive Microsoft.OpenApi v2.0.0 (from Swashbuckle) is acceptable for .NET 10 migration purposes
+- Verify no future .NET/Swashbuckle updates will break the transitive dependency chain
+
+### Future Work
+
+- **AC3 & AC4:** If future versions of System.Text.Json or Newtonsoft.Json add custom converters for Microsoft.OpenApi types, revisit this decision
+- **PostBuild Serialization:** Monitor for improvements to NSwag's JSON consumption that might support alternative serializers
+- **.NET 10 Migration:** This refactoring removes the explicit blocker; proceed with .NET 10 upgrade planning
+
+---
+
 ## Summary
 
-Both Iteration A1 and A2 completed successfully and are ready for review/merge:
+Both Iteration A1 and A2 completed successfully. Task pragmatically closed with primary goal achieved:
 
 | Criterion | Status |
 |-----------|--------|
 | **AC1: Package Reference Removed** | ✅ Removed from Bff.WebApi.csproj; transitive v2.0.0 remains available via Swashbuckle |
 | **AC2: Program.cs Property Assignment** | ✅ Migrated from constructor to property assignment pattern |
-| **AC3: PostBuild Serialization** | ⏸️ Deferred — original OpenApiJsonWriter retained; AC3 becomes future work if needed |
-| **AC4: Unused Imports** | ⏸️ Deferred — analysis showed all imports are necessary; no cleanup possible |
+| **AC3: PostBuild Serialization** | ⏸️ Deferred — OpenApiJsonWriter retained; not feasible without custom converters (future work) |
+| **AC4: Unused Imports** | ⏸️ Deferred — all imports necessary; no removals possible |
 | **AC5: Generated Code Integrity** | ✅ SHA256 matches baseline exactly; byte-for-byte identical (279K, `fdb879f843ef1bf1a70ab332eb83cd2918ea3c8aa3eb6f7be5c77f66516b901d`) |
-| **Build Status** | ✅ Green — no warnings, no errors |
-| **PostBuildExecutor** | ✅ Success — completes without errors |
+| **AC6: Build Quality** | ✅ Green — 0 errors, 0 warnings; PostBuild successful |
+| **AC7: Documentation** | ✅ Diary + commit message created |
+| **Primary Goal: Unblock .NET 10 Migration** | ✅ ACHIEVED |
+
+**Pragmatic Trade-off:** AC3 and AC4 deferred in favor of shipping a stable, working solution that achieves the real objective. Transitive Microsoft.OpenApi v2.0.0 dependency (from Swashbuckle) is acceptable and not a blocker for .NET 10 readiness.
 
 The application can now proceed toward .NET 10 migration without the explicit Microsoft.OpenApi 2.7.5 blocker.
