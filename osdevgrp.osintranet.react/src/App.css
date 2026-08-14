@@ -9,3 +9,33 @@ main > .container {
 .react-datepicker__input-container {
     width: 100%;
 }
+
+.posting-journal__toast-container {
+    position: fixed !important;
+    z-index: 9999 !important;
+}
+
+.posting-journal__toast {
+    min-width: 280px;
+    max-width: 90vw;
+}
+
+.posting-journal__toast-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0.5rem !important;
+}
+
+@media (min-width: 576px) {
+    .posting-journal__toast {
+        min-width: 320px;
+        max-width: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .posting-journal__toast {
+        min-width: 350px;
+    }
+}

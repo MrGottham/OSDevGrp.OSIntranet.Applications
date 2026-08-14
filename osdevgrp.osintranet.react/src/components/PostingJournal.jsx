@@ -1,16 +1,20 @@
 import { useContext, useState, useEffect, useRef, useCallback, useTransition, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Formik } from 'formik';
 import { object } from 'yup';
 import { v7 as newGuid, parse as parseGuid } from 'uuid';
 import { HelperContext } from '../contexts/HelperContext';
+import { ServiceContext } from '../contexts/ServiceContext';
 import Table from 'react-bootstrap/Table'
 import Stack from 'react-bootstrap/Stack';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Toast from 'react-bootstrap/Toast';
+import ToastContainer from 'react-bootstrap/ToastContainer';
 import DatePicker from "react-datepicker";
 import SubmitToolbar from './SubmitToolbar';
 import DeleteConfirmation from './DeleteConfirmation';
@@ -21,6 +25,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     const formHelper = useContext(HelperContext).formHelper;
     const validationSchemaHelper = useContext(HelperContext).validationSchemaHelper;
     const validationRuleSetHelper = useContext(HelperContext).validationRuleSetHelper;
+    const accountingService = useContext(ServiceContext).accountingService;
     const [postingJournal] = useState(initialPostingJournal);
     const [accountingNumber, setAccountingNumber] = useState(initialPostingJournal.accountingNumber);
     const [formData, setFormData] = useState({
@@ -35,9 +40,9 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
         contactAccountNumber: undefined,
     });
     const [computedData, setComputedData] = useState({
-        account: { name: undefined, credit: undefined, available: undefined },
-        budgetAccount: { name: undefined, posted: undefined, available: undefined },
-        contactAccount: { name: undefined, balance: undefined },
+        account: { name: '', credit: '', available: '' },
+        budgetAccount: { name: '', posted: '', available: '' },
+        contactAccount: { name: '', balance: '' },
     });
     const [modalState, setModalState] = useState({
         showEditModal: false,
@@ -50,6 +55,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
         question: undefined,
         context: undefined,
     });
+    const [toasts, setToasts] = useState([]);
     const changeTimeout = 750;
     const accountNumberChangeTimer = useRef(null);
     const budgetAccountNumberChangeTimer = useRef(null);
@@ -57,8 +63,17 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     const [isAccountPending, startAccountTransition] = useTransition();
     const [isBudgetAccountPending, startBudgetAccountTransition] = useTransition();
     const [isContactAccountPending, startContactAccountTransition] = useTransition();
+    const addToast = useCallback((body) => {
+        const toastId = newGuid();
+        setToasts(prev => [...prev, { id: toastId, body }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== toastId));
+        }, 5000);
+    }, []);
     const populateAccountDetails = useCallback(async () => {
-        setComputedData(prev => ({...prev, account: { name: undefined, credit: undefined, available: undefined }}));
+        flushSync(() => {
+            setComputedData(prev => ({...prev, account: { name: '', credit: '', available: '' }}));
+        });
 
         if (accountingNumber === undefined || accountingNumber === null)  {
             return;
@@ -72,13 +87,25 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
             return;
         }
 
-        console.debug('populateAccountDetails');
-        console.debug(`- accountingNumber=${accountingNumber}`);
-        console.debug(`- accountNumber=${formData.accountNumber}`);
-        console.debug(`- postingDate=${formData.postingDate}`);
-    }, [accountingNumber, formData.accountNumber, formData.postingDate]);
+        try {
+            const isoDateString = dateHelper.convertToIsoString(formData.postingDate);
+            const response = await accountingService.getAccountSummary(accountingNumber, formData.accountNumber, isoDateString);
+            setComputedData(prev => ({
+                ...prev,
+                account: {
+                    name: response.accountName,
+                    credit: response.valuesAtStatusDate?.credit?.value,
+                    available: response.valuesAtStatusDate?.available?.value,
+                }
+            }));
+        } catch (error) {
+            addToast(error?.message || 'Unknown error');
+        }
+    }, [accountingNumber, formData.accountNumber, formData.postingDate, dateHelper, accountingService, addToast]);
     const populateBudgetAccountDetails = useCallback(async () => {
-        setComputedData(prev => ({ ...prev, budgetAccount: { name: undefined, posted: undefined, available: undefined }}));
+        flushSync(() => {
+            setComputedData(prev => ({ ...prev, budgetAccount: { name: '', posted: '', available: '' }}));
+        });
 
         if (accountingNumber === undefined || accountingNumber === null)  {
             return;
@@ -92,13 +119,25 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
             return;
         }
 
-        console.debug('populateBudgetAccountDetails');
-        console.debug(`- accountingNumber=${accountingNumber}`);
-        console.debug(`- budgetAccountNumber=${formData.budgetAccountNumber}`);
-        console.debug(`- postingDate=${formData.postingDate}`);
-    }, [accountingNumber, formData.budgetAccountNumber, formData.postingDate]);
+        try {
+            const isoDateString = dateHelper.convertToIsoString(formData.postingDate);
+            const response = await accountingService.getBudgetAccountSummary(accountingNumber, formData.budgetAccountNumber, isoDateString);
+            setComputedData(prev => ({
+                ...prev,
+                budgetAccount: {
+                    name: response.accountName,
+                    posted: response.valuesForMonthOfStatusDate?.posted?.value,
+                    available: response.valuesForMonthOfStatusDate?.available?.value,
+                }
+            }));
+        } catch (error) {
+            addToast(error.message);
+        }
+    }, [accountingNumber, formData.budgetAccountNumber, formData.postingDate, dateHelper, accountingService, addToast]);
     const populateContactAccountDetails = useCallback(async () => {
-        setComputedData(prev => ({ ...prev, contactAccount: { name: undefined, balance: undefined }}));
+        flushSync(() => {
+            setComputedData(prev => ({ ...prev, contactAccount: { name: '', balance: '' }}));
+        });
 
         if (accountingNumber === undefined || accountingNumber === null)  {
             return;
@@ -112,41 +151,41 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
             return;
         }
 
-        console.debug('populateContactAccountDetails');
-        console.debug(`- accountingNumber=${accountingNumber}`);
-        console.debug(`- contactAccountNumber=${formData.contactAccountNumber}`);
-        console.debug(`- postingDate=${formData.postingDate}`);
-    }, [accountingNumber, formData.contactAccountNumber, formData.postingDate]);
+        try {
+            const isoDateString = dateHelper.convertToIsoString(formData.postingDate);
+            const response = await accountingService.getContactAccountSummary(accountingNumber, formData.contactAccountNumber, isoDateString);
+            setComputedData(prev => ({
+                ...prev,
+                contactAccount: {
+                    name: response.accountName,
+                    balance: response.valuesAtStatusDate?.balance?.value,
+                }
+            }));
+        } catch (error) {
+            addToast(error.message);
+        }
+    }, [accountingNumber, formData.contactAccountNumber, formData.postingDate, dateHelper, accountingService, addToast]);
 
     useEffect(() => {
         return () => setFormData(prev => ({ ...prev, accountNumber: undefined, budgetAccountNumber: undefined, contactAccountNumber: undefined }));
     }, [accountingNumber]);
 
     useEffect(() => {
-        async function fetchAccountDetails() {
-            startAccountTransition(async () => {
-                await populateAccountDetails();
-            });
-        }
-        fetchAccountDetails();
+        startAccountTransition(async () => {
+            await populateAccountDetails();
+        });
     }, [accountingNumber, formData.accountNumber, formData.postingDate, startAccountTransition, populateAccountDetails]);
 
     useEffect(() => {
-        async function fetchBudgetAccountDetails() {
-            startBudgetAccountTransition(async () => {
-                await populateBudgetAccountDetails();
-            });
-        }
-        fetchBudgetAccountDetails();
+        startBudgetAccountTransition(async () => {
+            await populateBudgetAccountDetails();
+        });
     }, [accountingNumber, formData.budgetAccountNumber, formData.postingDate, startBudgetAccountTransition, populateBudgetAccountDetails]);
 
     useEffect(() => {
-        async function fetchContactAccountDetails() {
-            startContactAccountTransition(async () => {
-                await populateContactAccountDetails();
-            });
-        }
-        fetchContactAccountDetails();
+        startContactAccountTransition(async () => {
+            await populateContactAccountDetails();
+        });
     }, [accountingNumber, formData.contactAccountNumber, formData.postingDate, startContactAccountTransition, populateContactAccountDetails]);
 
     useEffect(() => {
@@ -186,6 +225,20 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     return (
         <Stack gap={3}>
             <p className='mb-1 fw-bold'>{postingJournal.postingJournalHeader}</p>
+            <ToastContainer position='top-end' className='p-3 posting-journal__toast-container'>
+                {toasts.map(toast => (
+                    <Toast 
+                        key={toast.id} 
+                        onClose={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} 
+                        show={true}
+                        bg='warning'
+                        className='posting-journal__toast'
+                    >
+                        <Toast.Header closeButton className='posting-journal__toast-header' />
+                        <Toast.Body className='text-dark'>{toast.body}</Toast.Body>
+                    </Toast>
+                ))}
+            </ToastContainer>
             <Modal show={modalState.showEditModal} onHide={() => setModalState(prev => ({...prev, showEditModal: false}))}>
                 <Formik validationSchema={validationSchema} initialValues={{ accountingNumber: accountingNumber, ...formData }} onSubmit={modalState.okCallback}>
                     {({ handleSubmit, handleReset, handleChange, setFieldValue, setFieldTouched, values, touched, errors }) => {
@@ -203,7 +256,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                         <Form.Group as={Col} xs={12} sm={12} md={12} lg={12} xl={12} xxl={12} controlId='formikPostingDate'>
                                             <Form.Label>{postingJournal.postingDateHeader}</Form.Label>
                                             <DatePicker name='postingDate' locale='da' dateFormat='dd-MM-yyyy' todayButton={staticTextHelper.getTodayText(staticTexts)}
-                                                selected={dateHelper.getDateOnly(values.postingDate)}
+                                                selected={values.postingDate instanceof Date ? dateHelper.getDateOnly(values.postingDate) : null}
                                                 minDate={validationRuleSetHelper.getMinValue(validationRuleSet, 'PostingDate', value => dateHelper.getDateOnly(value))}
                                                 maxDate={validationRuleSetHelper.getMaxValue(validationRuleSet, 'PostingDate', value => dateHelper.getDateOnly(value))}
                                                 onChange={(date) => {
@@ -212,7 +265,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                                     setFormData(prev => ({...prev, postingDate: dateOnly}));
                                                 }}
                                                 onBlur={() => setFieldTouched('postingDate', true, true)}
-                                                className={`form-control ${touched.postingDate && errors.postingDate ? 'is-invalid' : ''} ${isAccountPending || isBudgetAccountPending || isContactAccountPending ? 'opacity-50 pe-none' : ''}`} wrapperClassName='w-100' />
+                                                className={`form-control ${touched.postingDate && errors.postingDate ? 'is-invalid' : ''}`} wrapperClassName='w-100' disabled={isAccountPending || isBudgetAccountPending || isContactAccountPending} />
                                             {postingDateInvalid && (
                                                 <Form.Control.Feedback type='invalid' className='d-block'>{errors.postingDate}</Form.Control.Feedback>
                                             )}
@@ -428,6 +481,11 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
             credit: credit,
             contactAccountNumber: contactAccountNumber,
         });
+        setComputedData({
+            account: { name: '', credit: '', available: '' },
+            budgetAccount: { name: '', posted: '', available: '' },
+            contactAccount: { name: '', balance: '' },
+        });
         setModalState({
             showEditModal: true,
             title: editModalTitle,
@@ -455,6 +513,11 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
             debit: debit,
             credit: credit,
             contactAccountNumber: contactAccountNumber,
+        });
+        setComputedData({
+            account: { name: '', credit: '', available: '' },
+            budgetAccount: { name: '', posted: '', available: '' },
+            contactAccount: { name: '', balance: '' },
         });
         setModalState({
             showEditModal: true,
