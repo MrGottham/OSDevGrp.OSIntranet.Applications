@@ -16,6 +16,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingNa
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.LetterHeadNumberRuleSetBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.BalanceBelowZeroRuleSetBuilder;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.BackDatingRuleSetBuilder;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.PostingJournalRuleSetBuilder;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Logic.Validation.AccountingRuleSetBuilder;
 
@@ -30,6 +31,7 @@ public class BuildAsyncTests
     private Mock<ILetterHeadNumberRuleSetBuilder>? _letterHeadNumberRuleSetBuilderMock;
     private Mock<IBalanceBelowZeroRuleSetBuilder>? _balanceBelowZeroRuleSetBuilderMock;
     private Mock<IBackDatingRuleSetBuilder>? _backDatingRuleSetBuilderMock;
+    private Mock<IPostingJournalRuleSetBuilder>? _postingJournalRuleSetBuilderMock;
     private Fixture? _fixture;
 
     #endregion
@@ -43,6 +45,7 @@ public class BuildAsyncTests
         _letterHeadNumberRuleSetBuilderMock = new Mock<ILetterHeadNumberRuleSetBuilder>();
         _balanceBelowZeroRuleSetBuilderMock = new Mock<IBalanceBelowZeroRuleSetBuilder>();
         _backDatingRuleSetBuilderMock = new Mock<IBackDatingRuleSetBuilder>();
+        _postingJournalRuleSetBuilderMock = new Mock<IPostingJournalRuleSetBuilder>();
         _fixture = new Fixture();
     }
 
@@ -203,6 +206,37 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_AssertBuildAsyncWasCalledOnPostingJournalRuleSetBuilderWithGivenFormatProvider()
+    {
+        IAccountingRuleSetBuilder sut = CreateSut();
+
+        IFormatProvider formatProvider = CultureInfo.InvariantCulture;
+        await sut.BuildAsync(formatProvider);
+
+        _postingJournalRuleSetBuilderMock!.Verify(m => m.BuildAsync(
+                It.Is<IFormatProvider>(value => value == formatProvider),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_AssertBuildAsyncWasCalledOnPostingJournalRuleSetBuilderWithGivenCancellationToken()
+    {
+        IAccountingRuleSetBuilder sut = CreateSut();
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        await sut.BuildAsync(CultureInfo.InvariantCulture, cancellationToken);
+
+        _postingJournalRuleSetBuilderMock!.Verify(m => m.BuildAsync(
+                It.IsAny<IFormatProvider>(),
+                It.Is<CancellationToken>(value => value == cancellationToken)),
+            Times.Once);
+    }
+
+    [Test]
+    [Category("UnitTest")]
     public async Task BuildAsync_WhenCalled_ReturnsNonEmptyValidationRuleSet()
     {
         IAccountingRuleSetBuilder sut = CreateSut();
@@ -210,6 +244,19 @@ public class BuildAsyncTests
         IReadOnlyCollection<IValidationRule> result = await sut.BuildAsync(CultureInfo.InvariantCulture);
 
         Assert.That(result, Is.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public async Task BuildAsync_WhenCalled_ReturnsDistinctValidationRules()
+    {
+        IAccountingRuleSetBuilder sut = CreateSut();
+
+        IReadOnlyCollection<IValidationRule> result = await sut.BuildAsync(CultureInfo.InvariantCulture);
+
+        int validationRuleCount = result.Count;
+        int distinctValidationRuleCount = result.DistinctBy(validationRule => validationRule.Name).Count();
+        Assert.That(validationRuleCount, Is.EqualTo(distinctValidationRuleCount));
     }
 
     private IAccountingRuleSetBuilder CreateSut()
@@ -220,7 +267,8 @@ public class BuildAsyncTests
         _letterHeadNumberRuleSetBuilderMock!.Setup(_fixture!);
         _balanceBelowZeroRuleSetBuilderMock!.Setup(_fixture!);
         _backDatingRuleSetBuilderMock!.Setup(_fixture!);
+        _postingJournalRuleSetBuilderMock!.Setup(_fixture!);
 
-        return new DomainServices.Logic.Validation.AccountingRuleSetBuilder(_extendedValidationRuleSetBuilderMock!.Object, _accountingNumberRuleSetBuilderMock!.Object, _accountingNameRuleSetBuilderMock!.Object, _letterHeadNumberRuleSetBuilderMock!.Object, _balanceBelowZeroRuleSetBuilderMock!.Object, _backDatingRuleSetBuilderMock!.Object);
+        return new DomainServices.Logic.Validation.AccountingRuleSetBuilder(_extendedValidationRuleSetBuilderMock!.Object, _accountingNumberRuleSetBuilderMock!.Object, _accountingNameRuleSetBuilderMock!.Object, _letterHeadNumberRuleSetBuilderMock!.Object, _balanceBelowZeroRuleSetBuilderMock!.Object, _backDatingRuleSetBuilderMock!.Object, _postingJournalRuleSetBuilderMock!.Object);
     }
 }

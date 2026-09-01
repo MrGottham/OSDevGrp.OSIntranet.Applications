@@ -204,12 +204,10 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 {
     options.AddDocumentTransformer((document, _, _) => 
     {
-        document.Info = new Microsoft.OpenApi.OpenApiInfo
-        {
-            Title = ProgramHelper.GetTitle(),
-            Version = "v1",
-            Description = ProgramHelper.GetDescription()
-        };
+        document.Info ??= new();
+        document.Info.Title = ProgramHelper.GetTitle();
+        document.Info.Version = "v1";
+        document.Info.Description = ProgramHelper.GetDescription();
         return Task.CompletedTask;
     });
 });

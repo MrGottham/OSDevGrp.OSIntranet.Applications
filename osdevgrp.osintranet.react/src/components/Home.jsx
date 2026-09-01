@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { HelperContext } from '../contexts/HelperContext';
@@ -14,11 +14,18 @@ function Home() {
     const authorizationHelper = useContext(HelperContext).authorizationHelper;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [layoutContext, setLayoutContext] = useState();
+    const populateLayoutContext = useCallback(async () => {
+        const json = await homeService.getLayoutContext();
+        setLayoutContext(json);
+    }, [homeService]);
 
     useEffect(() => {
-        populateLayoutContext()
-            .catch(error => showBoundary(error));
-    }, []);
+        async function fetchLayoutContext() {
+            populateLayoutContext()
+                .catch(error => showBoundary(error));
+        }
+        fetchLayoutContext();
+    }, [populateLayoutContext, showBoundary]);
 
     if (layoutContext === undefined) {
         return (
@@ -79,11 +86,6 @@ function Home() {
             <>
             </>
         );
-    }
-
-    async function populateLayoutContext() {
-        const json = await homeService.getLayoutContext();
-        setLayoutContext(json);
     }
 }
 

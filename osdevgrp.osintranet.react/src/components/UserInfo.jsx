@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -16,11 +16,18 @@ function UserInfo() {
     const authorizationHelper = useContext(HelperContext).authorizationHelper;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [userInfo, setUserInfo] = useState();
+    const populateUserInfo = useCallback(async () => {
+        const json = await securityService.getUserInfo();
+        setUserInfo(json);
+    }, [securityService]);
 
     useEffect(() => {
-        populateUserInfo()
+        async function fetchUserInfo() {
+            populateUserInfo()
             .catch(error => showBoundary(error));
-    }, []);
+        }
+        fetchUserInfo();
+    }, [populateUserInfo, showBoundary]);
 
     if (userInfo === undefined) {
         return (
@@ -195,11 +202,6 @@ function UserInfo() {
                 </AccountingCard>
             </Col>
         );
-    }
-
-    async function populateUserInfo() {
-        const json = await securityService.getUserInfo();
-        setUserInfo(json);
     }
 }
 

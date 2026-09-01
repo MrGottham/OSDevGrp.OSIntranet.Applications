@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
@@ -12,11 +12,18 @@ function NotImplemented() {
     const homeService = useContext(ServiceContext).homeService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [content, setContent] = useState();
+    const populateContent = useCallback(async () => {
+        const json = await homeService.getNotImplementedContent();
+        setContent(json);
+    }, [homeService]);
 
     useEffect(() => {
-        populateContent()
+        async function fetchContent() {
+            populateContent()
             .catch(error => showBoundary(error));
-    }, []);
+        }
+        fetchContent();
+    }, [populateContent, showBoundary]);
 
     if (content === undefined) {
         return (
@@ -37,11 +44,6 @@ function NotImplemented() {
             <p>{staticTextHelper.getFunctionalityNotImplmentedDetailsText(content.staticTexts)}</p>
         </Alert>
     );
-
-    async function populateContent() {
-        const json = await homeService.getNotImplementedContent();
-        setContent(json);
-    }
 }
 
 export default NotImplemented;
