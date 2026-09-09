@@ -181,3 +181,115 @@ Nothing particularly tricky. The refactoring was a textbook virtual-override pat
 
 2. **Document the pattern** — Add comments to `AccountingIdentificationFeatureBase` explaining when and how to override `VerifyPermissionAsync`.
 
+---
+
+## Step 2: Implement Iterations 2 & 3 (Stories 6-9) — WebApi Layer & Tests
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Make a plan for both iteration 2 and 3" ... "Start implementation"
+
+**Interpretation:** Design and implement the complete WebApi layer (authorization policy, response DTO, endpoint method) plus comprehensive endpoint unit tests, split into two coherent iterations for reviewability.
+
+**Inferred intent:** Complete the remaining user stories (6-9) that expose the PostingJournal feature via REST API, with full test coverage and proper authorization enforcement using the new `AccountingModifier` policy.
+
+### What I did
+
+Created 3 new files and modified 2 existing files for a total of ~275 LOC of implementation and tests:
+
+**Story 6 & 6.2: Add AccountingModifier Authorization Policy**
+1. Modified `/OSDevGrp.OSIntranet.Bff.WebApi/Security/Policies.cs` — Added `AccountingModifier` constant after `AccountingViewer`
+2. Modified `/OSDevGrp.OSIntranet.Bff.WebApi/Program.cs` — Added policy builder configuration after `AccountingViewer` policy:
+   - Requires `Internal` authentication scheme
+   - Requires 6 claims: NameIdentifier, Name, Email, AccountingClaimType, **AccountingModifierClaimType** (differs from viewer)
+
+**Story 7: Create PostingJournalResponseDto**
+3. Created `/OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/Dtos/PostingJournalResponseDto.cs` (~25 LOC):
+   - Inherits from `AccountingIdentificationDto` (provides `Number` property)
+   - Three [Required] properties: `PostingJournalTextsDto DynamicTexts`, `IReadOnlyCollection<StaticTextDto> StaticTexts`, `ValidationRuleSetDto ValidationRuleSet`
+   - Static `internal Map()` method converts `PostingJournalResponse` to DTO
+
+**Story 8: Add GET Endpoint to AccountingController**
+4. Modified `/OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/AccountingController.cs`:
+   - Added using statement: `using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.PostingJournal;`
+   - Added `PostingJournalAsync()` method (~20 LOC):
+     - Route: `[HttpGet("{accountingNumber:int}/postingjournal")]`
+     - Authorization: `[Authorize(Policy = Policies.AccountingModifier)]`
+     - All 4 ProducesResponseType attributes (OK, BadRequest, Unauthorized, InternalServerError)
+     - Orchestrates: security context resolution → creates `PostingJournalRequest` → executes query feature → maps & returns DTO
+     - StatusDate always = today via `ResolveStatusDate(null)` (no query parameter)
+
+**Story 9: Create Comprehensive Endpoint Tests**
+5. Created `/OSDevGrp.OSIntranet.Bff.WebApi.Tests/Controllers/Accounting/AccountingController/PostingJournalAsyncTests.cs` (~195 LOC):
+   - 9 [Category("UnitTest")] test methods validating all orchestration paths
+   - Tests verify: security context resolution, request ID generation, accounting number routing, status date calculation, format provider injection, security context propagation, cancellation token propagation, response type (OkObjectResult), DTO mapping
+   - All 9 tests passing (657 ms)
+
+### Why
+
+The WebApi layer is the public contract for the PostingJournal feature. Stories 6-8 deliver the HTTP API that React applications will call to retrieve posting journals, while Story 9 ensures the endpoint correctly orchestrates all dependencies and produces the correct response.
+
+Three design decisions:
+
+1. **`AccountingModifier` policy (not viewer):** PostingJournal is accessed for write operations (users add/update/delete posting lines), so the policy requires write-level permissions, not read-only.
+
+2. **Status date hardcoded to today:** The endpoint always uses today's date (via `ResolveStatusDate(null)`), matching UI requirements where users see current posting journal state. No query parameter variation.
+
+3. **Separate iterations (2 & 3):** Bundling policy + DTO + endpoint (~80 LOC) into Iteration 2 keeps related infrastructure together and reviewable. Separating tests (Iteration 3, ~195 LOC) allows reviewers to focus on unit test comprehensiveness without mixing infrastructure details.
+
+### What worked
+
+- Build succeeded first try: 0 errors, 0 warnings after code completion
+- All 9 tests passed immediately after test file creation (minor fixture extension method name issue corrected quickly)
+- Test pattern reused from `AccountingPreCreationAsyncTests` — minimal custom logic needed
+- DTO mapping reused existing StaticTextDto, PostingJournalTextsDto, ValidationRuleSetDto — no new DTO types needed
+- Policy configuration followed exact pattern from `AccountingViewer` — predictable and consistent
+
+### What didn't work
+
+Two minor issues resolved quickly:
+
+1. **Missing fixture extension method names** — Initial test used `CreatePostingJournalTexts()` without the `Random` parameter, and called non-existent `CreateEmptyValidationRuleSet()`. Fixed by discovering correct method signatures:
+   - `CreateApplyPostingJournalModel(this Fixture fixture, Random random, ...)`
+   - `CreatePostingJournalTexts(this Fixture fixture, Random random)`
+   - `CreateValidationRuleSet(this Fixture fixture)`
+
+2. **Missing using statement** — Tests initially failed with `CS1061: 'Fixture' does not contain a definition for 'CreatePostingJournalTexts'`. Fixed by adding `using OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.Dtos;` to enable the fixture extension methods.
+
+### What I learned
+
+1. **Fixture extension method discovery** — Different test projects have fixture extensions in different namespaces. The pattern is:
+   - `OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData` — service gateway test data builders
+   - `OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.Dtos` — controller-specific DTO builders
+   - `OSDevGrp.OSIntranet.Bff.WebApi.Tests.Shared.Dtos` — shared DTO helpers
+
+2. **Policy-driven authorization** — Adding a new policy is three steps: (1) add constant to Policies.cs, (2) add builder to Program.cs, (3) use attribute on endpoint. This is well-established and requires no surprises.
+
+3. **Endpoint tests are simpler than feature tests** — Controller tests focus on orchestration (correct dependencies called in right order, right types returned) rather than business logic. The 9 tests capture all paths without needing complex test cases.
+
+### What was tricky
+
+1. **Fixture method parameter requirements** — Not obvious that `CreateApplyPostingJournalModel()` requires a `Random` parameter while other fixtures don't. Error message was clear once discovered, but required exploration of fixture extension files.
+
+2. **Namespace depth for DTO fixtures** — Fixture extension methods for DTOs live in a controller-specific namespace, not in shared utilities. Had to search to find the right import.
+
+### What warrants review
+
+1. **Policy scope** — The `AccountingModifier` policy now allows any endpoint decorated with it to require write-level accounting permissions. Reviewers should confirm this is the right semantic for future endpoints.
+
+2. **Endpoint route collision** — The new route `/api/accounting/{accountingNumber:int}/postingjournal` sits alongside other account-specific endpoints. Confirm no routing ambiguity.
+
+3. **DTO inheritance** — `PostingJournalResponseDto` inherits from `AccountingIdentificationDto` which only provides `Number`. Confirm this is the intended base hierarchy (not `AccountingInfoDto` which adds `Name`).
+
+4. **Test coverage** — 9 tests cover the happy path and parameter orchestration. Confirm this is sufficient without adding error-case tests (e.g., unauthorized access, missing parameters).
+
+### Future work
+
+1. **Story 10-12** — Run full solution build verification, regenerate OpenAPI/NSwag client, update implementation diary (complete).
+
+2. **Manual testing** — After NSwag regeneration, test endpoint with real HTTP requests (requires running BFF service).
+
+3. **Integration tests** — Current tests mock all dependencies. Integration tests with real service gateway could validate data flow end-to-end.
+

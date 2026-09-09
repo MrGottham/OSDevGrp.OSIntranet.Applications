@@ -197,6 +197,16 @@ applicationBuilder.Services.AddAuthorization(options =>
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingViewerClaimType);
     });
+    options.AddPolicy(Policies.AccountingModifier, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingModifierClaimType);
+    });
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

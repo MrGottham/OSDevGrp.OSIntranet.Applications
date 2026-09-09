@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Account
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.BudgetAccountSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.ContactAccountSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.PostingJournal;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -155,6 +156,22 @@ public class AccountingController : ControllerBase
         ContactAccountSummaryResponse contactAccountSummaryResponse = await queryFeature.ExecuteAsync(contactAccountSummaryRequest, cancellationToken);
 
         return Ok(ContactAccountSummaryResponseDto.Map(contactAccountSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpGet("{accountingNumber:int}/postingjournal")]
+    [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> PostingJournalAsync([FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
+        PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
+
+        return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
     }
 
     private DateTimeOffset ResolveStatusDate(DateTimeOffset? value)
