@@ -1,5 +1,7 @@
 import { ErrorBoundary } from 'react-error-boundary';
 import { BrowserRouter as Router} from 'react-router';
+import { registerLocale } from  "react-datepicker";
+import { da } from 'date-fns/locale/da';
 import './App.css';
 import { ServiceProvider } from './contexts/ServiceContext';
 import { HelperProvider } from './contexts/HelperContext';
@@ -9,6 +11,8 @@ import CookieConsent from './components/CookieConsent';
 import Home from './components/Home';
 
 function App() {
+    registerLocale('da', da);
+
     return (
         <ServiceProvider>
             <HelperProvider>

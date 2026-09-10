@@ -72,6 +72,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.BackDating, "Antal dage for tilbagedatering");
         staticTexts.Add(StaticTextKey.Days, "Dage");
         staticTexts.Add(StaticTextKey.Day, "Dag");
+        staticTexts.Add(StaticTextKey.Today, "I dag");
         staticTexts.Add(StaticTextKey.CurrentStatus, "Aktuel status");
         staticTexts.Add(StaticTextKey.StatusDate, "Statusdato");
         staticTexts.Add(StaticTextKey.BalanceSheet, "Balance");
@@ -93,6 +94,16 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Posted, "Bogført");
         staticTexts.Add(StaticTextKey.Result, "Resultat");
         staticTexts.Add(StaticTextKey.Available, "Disponibel");
+        staticTexts.Add(StaticTextKey.AccountValuesAtStatusDate, "Kontoværdi pr. dags dato");
+        staticTexts.Add(StaticTextKey.AccountValuesAtEndOfLastMonthFromStatusDateAtStatusDate, "Kontoværdi ved sidste måneds afslutning");
+        staticTexts.Add(StaticTextKey.AccountValuesAtEndOfLastYearFromStatusDate, "Kontoværdi ved sidste års afslutning");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, "Budgetoplysninger pr. dags dato");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForLastMonthOfStatusDate, "Budgetoplysninger ved sidste måneds afslutning");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForYearToDateOfStatusDate, "Budgetoplysninger for år til dato");
+        staticTexts.Add(StaticTextKey.BudgetAccountValuesForLastYearOfStatusDate, "Budgetoplysninger ved sidste års afslutning");
+        staticTexts.Add(StaticTextKey.ContactAccountValuesAtStatusDate, "Saldooplysninger pr. dags dato");
+        staticTexts.Add(StaticTextKey.ContactAccountValuesAtEndOfLastMonthFromStatusDate, "Saldooplysninger ved sidste måneds afslutning");
+        staticTexts.Add(StaticTextKey.ContactAccountValuesAtEndOfLastYearFromStatusDate, "Saldooplysninger ved sidste års afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtStatusDate, "Saldi pr. dags dato");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastMonthFromStatusDate, "Saldi ved sidste måneds afslutning");
         staticTexts.Add(StaticTextKey.ObligeePartiesAtEndOfLastYearFromStatusDate, "Saldi ved sidste års afslutning");
@@ -112,6 +123,12 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.PostingReference, "Bilag");
         staticTexts.Add(StaticTextKey.PostingText, "Tekst");
         staticTexts.Add(StaticTextKey.PostingValue, "Beløb");
+        staticTexts.Add(StaticTextKey.PostingJournal, "Bogføringskladde");
+        staticTexts.Add(StaticTextKey.PostingJournalLineIdentifier, "Identifikation");
+        staticTexts.Add(StaticTextKey.AddPostingJournalLine, "Opret postering");
+        staticTexts.Add(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering");
+        staticTexts.Add(StaticTextKey.DeletePostingJournalLine, "Slet postering");
+        staticTexts.Add(StaticTextKey.PostingJournalLineDeletionQuestion, "Er du sikker på, at du vil slette posteringen med teksten [PostingText]?");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");

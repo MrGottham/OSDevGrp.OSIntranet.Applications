@@ -1,4 +1,4 @@
-using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,8 +10,8 @@ public abstract class AccountIdentificationBase
     public required AccountingIdentificationDto Accounting { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public required string AccountNumber { get; init; }
 }

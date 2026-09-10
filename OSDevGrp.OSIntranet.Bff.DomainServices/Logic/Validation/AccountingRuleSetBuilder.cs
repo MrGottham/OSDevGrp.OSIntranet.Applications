@@ -11,12 +11,13 @@ internal class AccountingRuleSetBuilder : ValidationRuleSetBuilderBase, IAccount
     private readonly ILetterHeadNumberRuleSetBuilder _letterHeadNumberRuleSetBuilder;
     private readonly IBalanceBelowZeroRuleSetBuilder _balanceBelowZeroRuleSetBuilder;
     private readonly IBackDatingRuleSetBuilder _backDatingRuleSetBuilder;
+    private readonly IPostingJournalRuleSetBuilder _postingJournalRuleSetBuilder;
 
     #endregion
 
     #region Constructor
 
-    public AccountingRuleSetBuilder(IExtendedValidationRuleSetBuilder extendedValidationRuleSetBuilder, IAccountingNumberRuleSetBuilder accountingNumberRuleSetBuilder, IAccountingNameRuleSetBuilder accountingNameRuleSetBuilder, ILetterHeadNumberRuleSetBuilder letterHeadNumberRuleSetBuilder, IBalanceBelowZeroRuleSetBuilder balanceBelowZeroRuleSetBuilder, IBackDatingRuleSetBuilder backDatingRuleSetBuilder)
+    public AccountingRuleSetBuilder(IExtendedValidationRuleSetBuilder extendedValidationRuleSetBuilder, IAccountingNumberRuleSetBuilder accountingNumberRuleSetBuilder, IAccountingNameRuleSetBuilder accountingNameRuleSetBuilder, ILetterHeadNumberRuleSetBuilder letterHeadNumberRuleSetBuilder, IBalanceBelowZeroRuleSetBuilder balanceBelowZeroRuleSetBuilder, IBackDatingRuleSetBuilder backDatingRuleSetBuilder, IPostingJournalRuleSetBuilder postingJournalRuleSetBuilder)
         : base(extendedValidationRuleSetBuilder)
     {
         _accountingNumberRuleSetBuilder = accountingNumberRuleSetBuilder;
@@ -24,6 +25,7 @@ internal class AccountingRuleSetBuilder : ValidationRuleSetBuilderBase, IAccount
         _letterHeadNumberRuleSetBuilder = letterHeadNumberRuleSetBuilder;
         _balanceBelowZeroRuleSetBuilder = balanceBelowZeroRuleSetBuilder;
         _backDatingRuleSetBuilder = backDatingRuleSetBuilder;
+        _postingJournalRuleSetBuilder = postingJournalRuleSetBuilder;
     }
 
     #endregion
@@ -37,9 +39,10 @@ internal class AccountingRuleSetBuilder : ValidationRuleSetBuilderBase, IAccount
             _accountingNameRuleSetBuilder.BuildAsync(formatProvider, cancellationToken),
             _letterHeadNumberRuleSetBuilder.BuildAsync(formatProvider, cancellationToken),
             _balanceBelowZeroRuleSetBuilder.BuildAsync(formatProvider, cancellationToken),
-            _backDatingRuleSetBuilder.BuildAsync(formatProvider, cancellationToken));
+            _backDatingRuleSetBuilder.BuildAsync(formatProvider, cancellationToken),
+            _postingJournalRuleSetBuilder.BuildAsync(formatProvider, cancellationToken));
 
-        return validationRuleSets.SelectMany(validationRuleSet => validationRuleSet).ToArray();
+        return validationRuleSets.SelectMany(validationRuleSet => validationRuleSet).DistinctBy(validationRule => validationRule.Name).ToArray();
     }
 
     #endregion

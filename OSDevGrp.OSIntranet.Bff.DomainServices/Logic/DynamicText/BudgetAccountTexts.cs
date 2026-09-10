@@ -7,10 +7,29 @@ internal class BudgetAccountTexts : DynamicTextsBase<BudgetAccountModel>, IBudge
 {
     #region Constructor
 
-    public BudgetAccountTexts(BudgetAccountModel model, IFormatProvider formatProvider) 
+    public BudgetAccountTexts(BudgetAccountModel model, IValueDisplayer statusDate, IBudgetAccountValuesDisplayer valuesForMonthOfStatusDate, IBudgetAccountValuesDisplayer valuesForLastMonthOfStatusDate, IBudgetAccountValuesDisplayer valuesForYearToDateOfStatusDate, IBudgetAccountValuesDisplayer valuesForLastYearOfStatusDate, IFormatProvider formatProvider) 
         : base(model, formatProvider)
     {
+        StatusDate = statusDate;
+        ValuesForMonthOfStatusDate = valuesForMonthOfStatusDate;
+        ValuesForLastMonthOfStatusDate = valuesForLastMonthOfStatusDate;
+        ValuesForYearToDateOfStatusDate = valuesForYearToDateOfStatusDate;
+        ValuesForLastYearOfStatusDate = valuesForLastYearOfStatusDate;
     }
+
+    #endregion
+
+    #region Properties
+
+    public IValueDisplayer StatusDate { get; }
+
+    public IBudgetAccountValuesDisplayer ValuesForMonthOfStatusDate { get; }
+
+    public IBudgetAccountValuesDisplayer ValuesForLastMonthOfStatusDate { get; }
+
+    public IBudgetAccountValuesDisplayer ValuesForYearToDateOfStatusDate { get; }
+
+    public IBudgetAccountValuesDisplayer ValuesForLastYearOfStatusDate { get; }
 
     #endregion
 }

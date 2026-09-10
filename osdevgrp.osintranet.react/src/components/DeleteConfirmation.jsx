@@ -77,6 +77,9 @@ function DeleteConfirmation({ show, title, deletionQuestion, verificationInfo, c
             setDeletionEnabled(false);
 
             const returnUrl = await onDelete(deleteContext, verificationKey, verificationCode);
+            if (returnUrl === undefined || returnUrl === null) {
+                return;
+            }
 
             navigate(returnUrl, { replace: true, preventScrollReset: true });
         }

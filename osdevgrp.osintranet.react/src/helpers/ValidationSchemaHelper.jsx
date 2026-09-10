@@ -1,4 +1,4 @@
-import { setLocale, string, number } from 'yup';
+import { setLocale, string, number, date } from 'yup';
 import { da } from 'yup-locales';
 import ValidationRuleSetHelper from './ValidationRuleSetHelper';
 
@@ -53,6 +53,54 @@ export default class ValidationSchemaHelper {
         schema = this.#withMinValueRule(validationRuleSet, validationFor, schema, options.withMinValueRule, value => parseInt(value));
         schema = this.#withMaxValueRule(validationRuleSet, validationFor, schema, options.withMaxValueRule, value => parseInt(value));
         schema = this.#withOneOfRule(validationRuleSet, validationFor, schema, options.withOneOfRule, value => parseInt(value));
+
+        return schema;
+    }
+
+    forCurrency(validationRuleSet, validationFor, options) {
+        if (validationRuleSet === undefined || validationRuleSet === null) {
+            throw new Error('Validation rule set is required.');
+        }
+
+        if (validationFor === undefined || validationFor === null || validationFor.trim() === '') {
+            throw new Error('Validation for is required.');
+        }
+
+        if (options === undefined || options === null) {
+            throw new Error('Options is required.');
+        }
+
+        let schema = this.#localizedNumber();
+
+        schema = this.#withRequiredValueRule(validationRuleSet, validationFor, schema, options.withRequiredValueRule);
+        schema = this.#withMinValueRule(validationRuleSet, validationFor, schema, options.withMinValueRule, value => parseFloat(value));
+        schema = this.#withMaxValueRule(validationRuleSet, validationFor, schema, options.withMaxValueRule, value => parseFloat(value));
+
+        return schema;
+    }
+
+    forGuid(validationRuleSet, validationFor, options) {
+        return this.forString(validationRuleSet, validationFor, options)
+    }
+
+    forDate(validationRuleSet, validationFor, options) {
+        if (validationRuleSet === undefined || validationRuleSet === null) {
+            throw new Error('Validation rule set is required.');
+        }
+
+        if (validationFor === undefined || validationFor === null || validationFor.trim() === '') {
+            throw new Error('Validation for is required.');
+        }
+
+        if (options === undefined || options === null) {
+            throw new Error('Options is required.');
+        }
+
+        let schema = date();
+
+        schema = this.#withRequiredValueRule(validationRuleSet, validationFor, schema, options.withRequiredValueRule);
+        schema = this.#withMinValueRule(validationRuleSet, validationFor, schema, options.withMinValueRule, value => new Date(value));
+        schema = this.#withMaxValueRule(validationRuleSet, validationFor, schema, options.withMaxValueRule, value => new Date(value));
 
         return schema;
     }

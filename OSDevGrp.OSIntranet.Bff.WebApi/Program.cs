@@ -197,6 +197,16 @@ applicationBuilder.Services.AddAuthorization(options =>
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingViewerClaimType);
     });
+    options.AddPolicy(Policies.AccountingModifier, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingModifierClaimType);
+    });
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -204,12 +214,10 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 {
     options.AddDocumentTransformer((document, _, _) => 
     {
-        document.Info = new Microsoft.OpenApi.OpenApiInfo
-        {
-            Title = ProgramHelper.GetTitle(),
-            Version = "v1",
-            Description = ProgramHelper.GetDescription()
-        };
+        document.Info ??= new();
+        document.Info.Title = ProgramHelper.GetTitle();
+        document.Info.Version = "v1";
+        document.Info.Description = ProgramHelper.GetDescription();
         return Task.CompletedTask;
     });
 });

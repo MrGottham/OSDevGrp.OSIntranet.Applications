@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,24 +11,24 @@ public class PostingLineDisplayerDto : PostingLineDisplayerBase
     [MinLength(ValidationValues.PostingDateMinLength)]
     public required string PostingDate { get; init; }
 
-    [MinLength(ValidationValues.PostingReferenceMinLength)]
-    [MaxLength(ValidationValues.PostingReferenceMaxLength)]
+    [MinLength(AccountingRuleSetSpecifications.PostingReferenceMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.PostingReferenceMaxLength)]
     public string? PostingReference { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public required string Account { get; init; }
 
     [Required]
-    [MinLength(ValidationValues.PostingTextMinLength)]
-    [MaxLength(ValidationValues.PostingTextMaxLength)]
+    [MinLength(AccountingRuleSetSpecifications.PostingTextMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.PostingTextMaxLength)]
     public required string PostingText { get; init; }
 
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? BudgetAccount { get; init; }
 
     [MinLength(ValidationValues.DebitMinLength)]
@@ -36,9 +37,9 @@ public class PostingLineDisplayerDto : PostingLineDisplayerBase
     [MinLength(ValidationValues.CreditMinLength)]
     public string? Credit { get; init; }
 
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public string? ContactAccount { get; init; }
 
     internal static PostingLineDisplayerDto Map(IPostingLineDisplayer postingLineDisplayer)
