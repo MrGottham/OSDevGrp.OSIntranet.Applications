@@ -29,8 +29,8 @@ using System.Threading.Tasks;
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
 	[Authorize(Policy = Policies.AccountingPolicy)]
-    [ApiVersion("0.1")]
-    [ApiVersionNeutral]
+    [ApiController]
+    [ApiVersion("1.0")]
     [Route("api/[controller]")]
     public class AccountingController : ControllerBase
     {

@@ -108,7 +108,13 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
 
-            services.AddApiVersioning(opt => opt.ApiVersionReader = new HeaderApiVersionReader());
+            services.AddApiVersioning(opt =>
+            {
+                opt.ApiVersionReader = new HeaderApiVersionReader();
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+            })
+            .AddMvc();
 
             services.AddAuthentication(opt => 
             {

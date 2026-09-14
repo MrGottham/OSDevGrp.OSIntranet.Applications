@@ -34,8 +34,8 @@ using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
+    [ApiController]
     [ApiVersion("1.0")]
-    [ApiVersionNeutral]
     [Route("api/[controller]")]
     public class SecurityController : ControllerBase
     {
