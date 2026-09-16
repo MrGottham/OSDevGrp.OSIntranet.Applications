@@ -21,7 +21,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.AccountingsAsync(cancellationToken);
+            return await WebApiClient.AccountingsAsync(ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -37,7 +37,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.AccountingAsync(accountingNumber, statusDate, cancellationToken);
+            return await WebApiClient.AccountingAsync(accountingNumber, statusDate, ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -53,7 +53,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.AccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken);
+            return await WebApiClient.AccountsAsync(accountingNumber, accountNumber, statusDate, ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -69,7 +69,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.BudgetaccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken);
+            return await WebApiClient.BudgetaccountsAsync(accountingNumber, accountNumber, statusDate, ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -85,7 +85,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.ContactaccountsAsync(accountingNumber, accountNumber, statusDate, cancellationToken);
+            return await WebApiClient.ContactaccountsAsync(accountingNumber, accountNumber, statusDate, ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -101,7 +101,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.PostingjournalGETAsync(accountingNumber, cancellationToken);
+            return await WebApiClient.PostingjournalGETAsync(accountingNumber, ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -117,7 +117,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.PostingjournalPOSTAsync(accountingNumber, postingJournal, cancellationToken);
+            return await WebApiClient.PostingjournalPOSTAsync(accountingNumber, ApiVersions.Version1_0, postingJournal, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -133,7 +133,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            IEnumerable<PostingLineModel> postingLines = await WebApiClient.PostinglinesAllAsync(accountingNumber, statusDate, numberOfPostingLines, cancellationToken);
+            IEnumerable<PostingLineModel> postingLines = await WebApiClient.PostinglinesAllAsync(accountingNumber, statusDate, numberOfPostingLines, ApiVersions.Version1_0, cancellationToken);
 
             return postingLines
                 .Where(postingLine => filter(postingLine))
@@ -153,7 +153,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.AccountgroupsAsync(cancellationToken);
+            return await WebApiClient.AccountgroupsAsync(ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -169,7 +169,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.BudgetaccountgroupsAsync(cancellationToken);
+            return await WebApiClient.BudgetaccountgroupsAsync(ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {
@@ -185,7 +185,7 @@ internal class AccountingGateway : ServiceGatewayBase, IAccountingGateway
     {
         try
         {
-            return await WebApiClient.PaymenttermsAsync(cancellationToken);
+            return await WebApiClient.PaymenttermsAsync(ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {

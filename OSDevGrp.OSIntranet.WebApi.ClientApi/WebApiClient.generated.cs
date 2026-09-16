@@ -29,203 +29,247 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial interface IWebApiClient
     {
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync();
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync(string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync(string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync();
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync(System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync(string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync(string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate);
+        System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate);
+        System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate);
+        System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(ApplyPostingJournalModel? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, ApplyPostingJournalModel? body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync();
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync();
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync(System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync();
+        System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync();
+        System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines, string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines, string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, string api_version, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, string api_version, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(string api_version, ApplyPostingJournalModel? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(string api_version, ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber, string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber, string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, string api_version, ApplyPostingJournalModel? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, string api_version, ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync(string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync(string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync(string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync(string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync(string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync(string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync(string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync(string api_version, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
@@ -306,17 +350,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync(string api_version)
         {
-            return AccountingsAsync(System.Threading.CancellationToken.None);
+            return AccountingsAsync(api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingsAsync(string api_version, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -324,6 +370,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -416,17 +466,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync(string api_version)
         {
-            return AccountingAllAsync(System.Threading.CancellationToken.None);
+            return AccountingAllAsync(api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountingModel>> AccountingAllAsync(string api_version, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -434,6 +486,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -526,17 +582,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return AccountingAsync(accountingNumber, statusDate, System.Threading.CancellationToken.None);
+            return AccountingAsync(accountingNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AccountingModel> AccountingAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -547,6 +605,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -646,17 +708,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return AccountsAllAsync(accountingNumber, statusDate, System.Threading.CancellationToken.None);
+            return AccountsAllAsync(accountingNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountModel>> AccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -667,6 +731,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -767,17 +835,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return AccountsAsync(accountingNumber, accountNumber, statusDate, System.Threading.CancellationToken.None);
+            return AccountsAsync(accountingNumber, accountNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AccountModel> AccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -791,6 +861,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -892,17 +966,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return BudgetaccountsAllAsync(accountingNumber, statusDate, System.Threading.CancellationToken.None);
+            return BudgetaccountsAllAsync(accountingNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountModel>> BudgetaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -913,6 +989,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1013,17 +1093,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return BudgetaccountsAsync(accountingNumber, accountNumber, statusDate, System.Threading.CancellationToken.None);
+            return BudgetaccountsAsync(accountingNumber, accountNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BudgetAccountModel> BudgetaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1037,6 +1119,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1138,17 +1224,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return ContactaccountsAllAsync(accountingNumber, statusDate, System.Threading.CancellationToken.None);
+            return ContactaccountsAllAsync(accountingNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> ContactaccountsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1159,6 +1247,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1259,17 +1351,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return DebtorsAllAsync(accountingNumber, statusDate, System.Threading.CancellationToken.None);
+            return DebtorsAllAsync(accountingNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> DebtorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1280,6 +1374,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1380,17 +1478,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return CreditorsAllAsync(accountingNumber, statusDate, System.Threading.CancellationToken.None);
+            return CreditorsAllAsync(accountingNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactAccountModel>> CreditorsAllAsync(int accountingNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1401,6 +1501,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1501,17 +1605,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return ContactaccountsAsync(accountingNumber, accountNumber, statusDate, System.Threading.CancellationToken.None);
+            return ContactaccountsAsync(accountingNumber, accountNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ContactAccountModel> ContactaccountsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1525,6 +1631,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1626,17 +1736,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return DebtorsAsync(accountingNumber, accountNumber, statusDate, System.Threading.CancellationToken.None);
+            return DebtorsAsync(accountingNumber, accountNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ContactAccountModel> DebtorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1650,6 +1762,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1751,17 +1867,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate)
+        public virtual System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version)
         {
-            return CreditorsAsync(accountingNumber, accountNumber, statusDate, System.Threading.CancellationToken.None);
+            return CreditorsAsync(accountingNumber, accountNumber, statusDate, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ContactAccountModel> CreditorsAsync(int accountingNumber, string accountNumber, DateTimeOffset? statusDate, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1775,6 +1893,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -1876,17 +1998,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines, string api_version)
         {
-            return PostinglinesAllAsync(accountingNumber, statusDate, numberOfPostingLines, System.Threading.CancellationToken.None);
+            return PostinglinesAllAsync(accountingNumber, statusDate, numberOfPostingLines, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PostingLineModel>> PostinglinesAllAsync(int accountingNumber, DateTimeOffset? statusDate, int? numberOfPostingLines, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -1897,6 +2021,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -2001,17 +2129,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body)
+        public virtual System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, string api_version, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body)
         {
-            return PostinglinesAsync(accountingNumber, body, System.Threading.CancellationToken.None);
+            return PostinglinesAsync(accountingNumber, api_version, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalResultModel> PostinglinesAsync(int accountingNumber, string api_version, System.Collections.Generic.IEnumerable<ApplyPostingLineModel>? body, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -2022,6 +2152,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
                     var content_ = new System.Net.Http.ByteArrayContent(json_);
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
@@ -2120,17 +2254,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(ApplyPostingJournalModel? body)
+        public virtual System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(string api_version, ApplyPostingJournalModel? body)
         {
-            return Postinglines2Async(body, System.Threading.CancellationToken.None);
+            return Postinglines2Async(api_version, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalResultModel> Postinglines2Async(string api_version, ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2138,6 +2274,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
                     var content_ = new System.Net.Http.ByteArrayContent(json_);
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
@@ -2234,17 +2374,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber)
+        public virtual System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber, string api_version)
         {
-            return PostingjournalGETAsync(accountingNumber, System.Threading.CancellationToken.None);
+            return PostingjournalGETAsync(accountingNumber, api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalGETAsync(int accountingNumber, string api_version, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -2255,6 +2397,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -2349,17 +2495,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, ApplyPostingJournalModel? body)
+        public virtual System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, string api_version, ApplyPostingJournalModel? body)
         {
-            return PostingjournalPOSTAsync(accountingNumber, body, System.Threading.CancellationToken.None);
+            return PostingjournalPOSTAsync(accountingNumber, api_version, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ApplyPostingJournalModel> PostingjournalPOSTAsync(int accountingNumber, string api_version, ApplyPostingJournalModel? body, System.Threading.CancellationToken cancellationToken)
         {
             if (accountingNumber == null)
                 throw new System.ArgumentNullException("accountingNumber");
@@ -2370,6 +2518,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
                     var content_ = new System.Net.Http.ByteArrayContent(json_);
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
@@ -2468,17 +2620,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync(string api_version)
         {
-            return AccountgroupsAsync(System.Threading.CancellationToken.None);
+            return AccountgroupsAsync(api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AccountGroupModel>> AccountgroupsAsync(string api_version, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2486,6 +2640,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -2578,17 +2736,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync(string api_version)
         {
-            return BudgetaccountgroupsAsync(System.Threading.CancellationToken.None);
+            return BudgetaccountgroupsAsync(api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BudgetAccountGroupModel>> BudgetaccountgroupsAsync(string api_version, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2596,6 +2756,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -2688,17 +2852,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync(string api_version)
         {
-            return PaymenttermsAsync(System.Threading.CancellationToken.None);
+            return PaymenttermsAsync(api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> PaymenttermsAsync(string api_version, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2706,6 +2872,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
@@ -2798,17 +2968,19 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync(string api_version)
         {
-            return LetterheadsAsync(System.Threading.CancellationToken.None);
+            return LetterheadsAsync(api_version, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<LetterHeadModel>> LetterheadsAsync(string api_version, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2816,6 +2988,10 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 

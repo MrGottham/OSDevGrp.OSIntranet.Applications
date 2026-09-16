@@ -108,6 +108,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
 
+#pragma warning disable AV0016
             services.AddApiVersioning(opt =>
             {
                 opt.ApiVersionReader = new HeaderApiVersionReader();
@@ -115,6 +116,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 opt.DefaultApiVersion = new ApiVersion(1, 0);
             })
             .AddMvc();
+#pragma warning restore AV0016
 
             services.AddAuthentication(opt => 
             {
@@ -226,6 +228,7 @@ namespace OSDevGrp.OSIntranet.WebApi
                 });
 
                 options.OperationFilter<OperationAuthorizeFilterDescriptor>();
+                options.OperationFilter<OperationApiVersionFilterDescriptor>();
                 options.OperationFilter<OperationResponseFilterDescriptor>();
                 options.SchemaFilter<EnumToStringSchemeFilterDescriptor>();
                 options.SchemaFilter<ErrorCodeSchemeFilterDescriptor>(); 

@@ -16,6 +16,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.Enums;
 using OSDevGrp.OSIntranet.Core.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.WebApi.Filters;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Extensions;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Resolvers;
@@ -83,6 +84,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [AllowAnonymous]
         [HttpGet("/api/oauth/authorize")]
         [ApiExplorerSettings(IgnoreApi = true)]
+        [ExcludeApiVersionRequirement]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Authorize([Required][FromQuery(Name = "response_type")] string responseType, [Required][FromQuery(Name = "client_id")] string clientId, [Required][FromQuery(Name = "redirect_uri")] string redirectUri, [Required][FromQuery(Name = "scope")] string scope, [FromQuery(Name = "state")] string state, [FromQuery(Name = "nonce")] string nonce)
@@ -138,6 +140,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         [AllowAnonymous]
         [HttpGet("/api/oauth/authorize/callback")]
         [ApiExplorerSettings(IgnoreApi = true)]
+        [ExcludeApiVersionRequirement]
         [ProducesResponseType(StatusCodes.Status308PermanentRedirect)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status401Unauthorized)]
@@ -226,6 +229,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("/api/oauth/token")]
+        [ExcludeApiVersionRequirement]
         [ProducesResponseType(typeof(AccessTokenModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status401Unauthorized)]
@@ -292,6 +296,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [Authorize(Policy = Policies.UserInfoPolicy)]
         [HttpGet("/api/oauth/userinfo")]
+        [ExcludeApiVersionRequirement]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK, "application/jwt")]
         public async Task<IActionResult> UserInfo()
         {
@@ -309,6 +314,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("/api/oauth/jwks")]
+        [ExcludeApiVersionRequirement]
         public async Task<ActionResult<JsonWebKeySetModel>> JsonWebKeys()
         {
             IGetJsonWebKeySetQuery query = SecurityQueryFactory.BuildGetJsonWebKeySetQuery();
@@ -319,6 +325,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("/.well-known/openid-configuration")]
+        [ExcludeApiVersionRequirement]
         public async Task<ActionResult<OpenIdProviderConfigurationModel>> OpenIdProviderConfiguration()
         {
             IGetOpenIdProviderConfigurationQuery query = SecurityQueryFactory.BuildGetOpenIdProviderConfigurationQuery(
@@ -333,6 +340,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("/.well-known/acme-challenge/{challengeToken}")]
+        [ExcludeApiVersionRequirement]
         [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
         public async Task<IActionResult> AcmeChallenge(string challengeToken)
         {
