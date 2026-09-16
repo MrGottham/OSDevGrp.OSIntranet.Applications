@@ -41,6 +41,7 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -58,6 +59,7 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
                 It.Is<int>(value => value == accountingNumber),
                 It.IsAny<string>(),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -75,6 +77,7 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.Is<string>(value => value == accountNumber),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -92,6 +95,7 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.Is<DateTimeOffset?>(value => value != null && value == statusDate),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -109,6 +113,7 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.IsAny<string>(),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.Is<CancellationToken>(value => value == cancellationToken)), 
             Times.Once);
     }
@@ -175,12 +180,12 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.ContactaccountsAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.ContactaccountsAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.ContactaccountsAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.ContactaccountsAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<DateTimeOffset?>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(contactAccountModel ?? CreateContactAccountModel()));
         }
 

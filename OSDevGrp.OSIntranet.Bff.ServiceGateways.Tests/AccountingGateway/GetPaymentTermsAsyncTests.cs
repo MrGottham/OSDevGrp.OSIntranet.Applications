@@ -36,7 +36,7 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
 
         await sut.GetPaymentTermsAsync();
 
-        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
         CancellationToken cancellationToken = CancellationToken.None;
         await sut.GetPaymentTermsAsync(cancellationToken);
 
-        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
+        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
     }
 
     [Test]
@@ -108,12 +108,12 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(paymentTermModels ?? CreatePaymentTermModels()));
         }
 

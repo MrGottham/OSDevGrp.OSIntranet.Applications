@@ -36,7 +36,7 @@ public class GetLetterHeadsAsyncTests : ServiceGatewayTestBase
 
         await sut.GetLetterHeadsAsync();
 
-        _webApiClientMock!.Verify(m => m.LetterheadsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _webApiClientMock!.Verify(m => m.LetterheadsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class GetLetterHeadsAsyncTests : ServiceGatewayTestBase
         CancellationToken cancellationToken = CancellationToken.None;
         await sut.GetLetterHeadsAsync(cancellationToken);
 
-        _webApiClientMock!.Verify(m => m.LetterheadsAsync(It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
+        _webApiClientMock!.Verify(m => m.LetterheadsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
     }
 
     [Test]
@@ -108,12 +108,12 @@ public class GetLetterHeadsAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.LetterheadsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.LetterheadsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.LetterheadsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.LetterheadsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(letterHeadModels ?? CreateLetterHeadModels()));
         }
 

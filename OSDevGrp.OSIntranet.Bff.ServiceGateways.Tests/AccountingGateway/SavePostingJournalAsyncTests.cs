@@ -36,6 +36,7 @@ public class SavePostingJournalAsyncTests : ServiceGatewayTestBase
 
         _webApiClientMock!.Verify(m => m.PostingjournalPOSTAsync(
                 It.IsAny<int>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<ApplyPostingJournalModel>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -52,6 +53,7 @@ public class SavePostingJournalAsyncTests : ServiceGatewayTestBase
 
         _webApiClientMock!.Verify(m => m.PostingjournalPOSTAsync(
                 It.Is<int>(value => value == accountingNumber),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<ApplyPostingJournalModel>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -68,6 +70,7 @@ public class SavePostingJournalAsyncTests : ServiceGatewayTestBase
 
         _webApiClientMock!.Verify(m => m.PostingjournalPOSTAsync(
                 It.IsAny<int>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.Is<ApplyPostingJournalModel>(value => value == postingJournal),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -84,6 +87,7 @@ public class SavePostingJournalAsyncTests : ServiceGatewayTestBase
 
         _webApiClientMock!.Verify(m => m.PostingjournalPOSTAsync(
                 It.IsAny<int>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<ApplyPostingJournalModel>(),
                 It.Is<CancellationToken>(value => value == cancellationToken)),
             Times.Once);
@@ -129,12 +133,12 @@ public class SavePostingJournalAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.PostingjournalPOSTAsync(It.IsAny<int>(), It.IsAny<ApplyPostingJournalModel>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PostingjournalPOSTAsync(It.IsAny<int>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<ApplyPostingJournalModel>(), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.PostingjournalPOSTAsync(It.IsAny<int>(), It.IsAny<ApplyPostingJournalModel>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PostingjournalPOSTAsync(It.IsAny<int>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<ApplyPostingJournalModel>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(postingJournalModel ?? CreateApplyPostingJournalModel()));
         }
 
