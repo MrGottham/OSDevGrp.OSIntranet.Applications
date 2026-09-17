@@ -101,6 +101,8 @@ public enum StaticTextKey
     UpdatePostingJournalLine,
     DeletePostingJournalLine,
     PostingJournalLineDeletionQuestion,
+    IdentifierAlreadyExists,
+    UnknownIdentifier,
     CommonData,
     LetterHead,
     LetterHeadNumber,

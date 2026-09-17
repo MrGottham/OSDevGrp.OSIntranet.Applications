@@ -129,6 +129,8 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering");
         staticTexts.Add(StaticTextKey.DeletePostingJournalLine, "Slet postering");
         staticTexts.Add(StaticTextKey.PostingJournalLineDeletionQuestion, "Er du sikker på, at du vil slette posteringen med teksten [PostingText]?");
+        staticTexts.Add(StaticTextKey.IdentifierAlreadyExists, "Den angivne identifier eksisterer allerede.");
+        staticTexts.Add(StaticTextKey.UnknownIdentifier, "Den angivne identifier er ukendt.");
         staticTexts.Add(StaticTextKey.CommonData, "Fælles data");
         staticTexts.Add(StaticTextKey.LetterHead, "Brevhoved");
         staticTexts.Add(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved");

@@ -123,6 +123,8 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.UpdatePostingJournalLine, "Opdatér postering", 0)]
     [TestCase(StaticTextKey.DeletePostingJournalLine, "Slet postering", 0)]
     [TestCase(StaticTextKey.PostingJournalLineDeletionQuestion, "Er du sikker på, at du vil slette posteringen med teksten [PostingText]?", 0)]
+    [TestCase(StaticTextKey.IdentifierAlreadyExists, "Den angivne identifier eksisterer allerede.", 0)]
+    [TestCase(StaticTextKey.UnknownIdentifier, "Den angivne identifier er ukendt.", 0)]
     [TestCase(StaticTextKey.CommonData, "Fælles data", 0)]
     [TestCase(StaticTextKey.LetterHead, "Brevhoved", 0)]
     [TestCase(StaticTextKey.LetterHeadNumber, "Nummer på brevhoved", 0)]

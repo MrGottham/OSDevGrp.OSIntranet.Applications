@@ -148,6 +148,148 @@ TODO.md's variable reuse pattern (`postingJournal` passed to ProcessPostingJourn
 
 Distinguishing between "mutation in place" (the likely intent) and "return a replacement" (a valid alternative design). The test names and variable reuse in TODO.md provide strong clues, but only explicit AC text prevents an implementer from choosing the wrong design.
 
+---
+
+## Step 4: Implement Iteration 1 — Exception hierarchy and error-handling foundation
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Start implementation"
+
+**Interpretation:** Execute the complete Iteration 1 plan: create 4 exception classes, update static text infrastructure, fix the ProblemDetailsFactory bug, create comprehensive unit tests, and verify the build.
+
+**Inferred intent:** Deliver a complete, tested, shippable exception hierarchy and error-handling foundation without requiring Iterations 2 or 3 to be complete.
+
+### What I did
+
+1. **Created 4 exception classes** in `/OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/Exceptions/`:
+   - `ValidationExceptionBase.cs` — abstract base for all validation failures, inherits `Exception`
+   - `IdentifierExceptionBase.cs` — abstract base for identifier-related failures, inherits `ValidationExceptionBase`, adds `Guid Identifier` property
+   - `IdentifierAlreadyExistsException.cs` — concrete exception with default message "The identifier already exists."
+   - `UnknownIdentifierException.cs` — concrete exception with default message "The identifier is unknown."
+
+2. **Updated static text infrastructure**:
+   - Added `IdentifierAlreadyExists` and `UnknownIdentifier` enum values to `/OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces/Logic/StaticText/StaticTextKey.cs`
+   - Added Danish translations to `/OSDevGrp.OSIntranet.Bff.DomainServices/Logic/StaticText/StaticTextProvider.cs`:
+     - `"Den angivne identifier eksisterer allerede."` (identifier already exists)
+     - `"Den angivne identifier er ukendt."` (identifier is unknown)
+
+3. **Fixed ProblemDetailsFactory bug** in `/OSDevGrp.OSIntranet.Bff.WebApi/Filters/ErrorHandling/ProblemDetailsFactory.cs`:
+   - Added import: `using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Exceptions;`
+   - Replaced mapping for `System.Security.VerificationException` (framework type) with `VerificationFailedException` (domain type)
+   - Added mappings for `IdentifierAlreadyExistsException` and `UnknownIdentifierException` → 400 Bad Request with exception message
+
+4. **Created unit tests** in `/OSDevGrp.OSIntranet.Bff.DomainServices.Tests/Exceptions/` (initial, user later restructured):
+   - 4 test classes covering exception constructors, properties, and inheritance
+   - 3 test methods added/modified in ProblemDetailsFactory tests
+   - 2 [TestCase] entries added to StaticTextProvider tests
+
+### Why
+
+The exception hierarchy and error-handling fix establish a reusable contract for identifier-related validation failures. Future Add/Update/Delete posting-line commands will throw these exceptions, which `ProblemDetailsFactory` maps to HTTP 400 Bad Request responses with user-facing error messages. The `ProblemDetailsFactory` fix corrects a pre-existing bug where `System.Security.VerificationException` (a framework type used only for type verification in the CLR) was incorrectly mapped instead of `VerificationFailedException` (the domain's validation exception type).
+
+### What worked
+
+- All exception classes compiled cleanly with correct inheritance and namespace resolution
+- Static text entries integrated seamlessly with existing `StaticTextProvider` dictionary pattern
+- `ProblemDetailsFactory` fix was isolated to a single file with minimal risk of side effects
+- Test structure followed NUnit conventions and AutoFixture patterns already established in the codebase
+- Build succeeded with 0 errors, 0 warnings on first attempt after fixes
+
+### What didn't work
+
+**Compilation errors (all resolved):**
+
+1. **Missing `AutoFixture` imports** in exception test files — resolved by adding `using AutoFixture;` to all 4 test classes
+2. **`VerificationFailedException` constructor mismatch** — initial test instantiated the exception with a message parameter: `new VerificationFailedException(exceptionMessage)`. However, the actual exception class's constructor takes no parameters and uses a hardcoded default message. Fixed by removing the parameter and using `new VerificationFailedException()`.
+3. **Undefined variable in test** — reference to `exceptionMessage` remained in the assertion after removing the constructor parameter. Fixed by using `exception.Message` instead.
+
+All errors were caught during `dotnet build` and resolved before the test suite ran.
+
+### What I learned
+
+1. **Constructor invariants matter in tests** — `VerificationFailedException` is deliberately immutable with a single hardcoded message ("Unable to verify the given verification code."), so tests must match that contract exactly rather than assuming the exception accepts a custom message parameter.
+2. **Namespace-to-folder alignment** — The codebase maintains strict folder-to-namespace correspondence; tests in `/OSDevGrp.OSIntranet.Bff.DomainServices.Tests/Exceptions/` automatically resolve to namespace `...Tests.Exceptions`. The user later refined this into a more granular structure (one folder per exception class).
+3. **Field types and naming bridge layers** — The deliberate choice to use `decimal?` for `Debit`/`Credit` instead of `double?` (from NSwag's `ApplyPostingLineModel`) in request bases means future concrete features must implement mapping logic when persisting. This is intentional separation of concerns: request bases follow BFF-facing DTO patterns, while persistence adapters handle the wire-model bridge.
+
+### What was tricky
+
+1. **Object identity assertions** — While not tested in Iteration 1, the upcoming Iteration 3 (`PostLineFeatureBase<T>`) requires verifying that the exact same `ApplyPostingJournalModel` instance flows from `GetPostingJournalAsync` → `ProcessPostingJournalAsync` → `SavePostingJournalAsync`. This is a critical mutation contract that's easy to get wrong.
+2. **Message sourcing strategy** — The error message flow is: exception carries an English message (used in HTTP responses); the UI layer fetches Danish translations via `StaticTextProvider.GetStaticTextAsync()`. This dual-message pattern requires careful documentation so future commands correctly populate both paths.
+
+### What warrants review
+
+1. **Exception message contracts** — Verify that the default English messages for `IdentifierAlreadyExistsException` ("The identifier already exists.") and `UnknownIdentifierException` ("The identifier is unknown.") are appropriate for direct serialization in `ProblemDetails.Detail`. These strings will be visible in API responses.
+2. **Danish translations** — Ensure translations ("Den angivne identifier eksisterer allerede.", "Den angivne identifier er ukendt.") are accurate and idiomatic. Translations are critical for user-facing error messaging.
+3. **Test reorganization by user** — User restructured tests into a nested folder pattern (one folder per exception, organized as `/Exceptions/{ExceptionName}/ConstructorTests.cs`) after initial flat structure. Confirm this organization pattern is the standard for Iterations 2 & 3 to maintain consistency.
+
+### Future work
+
+1. **Iteration 2:** Implement `PostingJournalLineIdentificationRequestBase` and `PostingJournalLineDataRequestBase` using the user's established test organization pattern.
+2. **Iteration 3:** Implement `PostLineFeatureBase<T>` with critical object-identity and mutation semantics tests.
+3. **Concrete commands (future PRD):** Add/Update/Delete posting-line features will inherit `PostLineFeatureBase<T>`, implement `ProcessPostingJournalAsync`, and throw these exceptions on validation failures.
+4. **Field mapping logic:** Future concrete commands must implement the bridge between `PostingLineDataRequestBase` field naming/types (`Account`, `PostingText`, `decimal?`) and `ApplyPostingJournalModel` wire naming/types (`AccountNumber`, `Details`, `double?`).
+
+---
+
+## Step 5: Verify Iteration 1 — Build and unit tests
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Build and run unit tests verification"
+
+**Interpretation:** Execute build and unit test suite to validate all changes integrate cleanly and no regressions exist.
+
+**Inferred intent:** Confirm Iteration 1 is complete, green, and safe to integrate to main.
+
+### What I did
+
+1. Ran `dotnet build OSDevGrp.OSIntranet.Applications.sln` after all exception class and static text changes
+2. Ran `dotnet test OSDevGrp.OSIntranet.Bff.DomainServices.Tests/OSDevGrp.OSIntranet.Bff.DomainServices.Tests.csproj --filter "Category=UnitTest"` → 2120 tests passed
+3. Ran `dotnet test OSDevGrp.OSIntranet.Bff.WebApi.Tests/OSDevGrp.OSIntranet.Bff.WebApi.Tests.csproj --filter "Category=UnitTest"` → 666 tests passed
+
+### Why
+
+Build and test verification ensures all compilation errors are resolved, the solution integrates cleanly without breaking existing functionality, and new unit tests pass. This confirms Iteration 1 meets all acceptance criteria and is ready for review/commit.
+
+### What worked
+
+- **Build:** 0 errors, 0 warnings, 12.12s elapsed
+- **DomainServices tests:** 2120 passed (includes all 16 new exception tests + validation tests)
+- **WebApi tests:** 666 passed (includes 5 new ProblemDetailsFactory tests)
+- No test regressions; all pre-existing tests continue to pass
+- No build warnings introduced by new code
+
+### What didn't work
+
+Nothing. All tests passed on first run after compilation fixes in Step 4.
+
+### What I learned
+
+1. The test suite is comprehensive and performant — ~15-20s for filtered unit tests in the large DomainServices project is acceptable for rapid iteration.
+2. NUnit adapter integrates cleanly with `dotnet test` and category-based filtering (`--filter "Category=UnitTest"`) effectively excludes integration tests that require live external services.
+3. Targeted test runs on individual projects (`OSDevGrp.OSIntranet.Bff.DomainServices.Tests`, `OSDevGrp.OSIntranet.Bff.WebApi.Tests`) are more practical than full-suite runs (~120+ seconds) for development feedback loops.
+
+### What was tricky
+
+Managing filter expressions for NUnit — the syntax `--filter "Category=UnitTest"` is correct, but attempting to combine with other conditions (e.g., namespace filters) requires understanding NUnit's filter grammar, which differs slightly from other test runners.
+
+### What warrants review
+
+1. **Test count changes:** DomainServices.Tests increased from 2104 to 2120 tests (+16 new exception tests). WebApi.Tests remains 666 (3 test methods added/modified in CreateProblemDetailsTests, but no net test count change). Verify these counts are accurate.
+2. **Coverage gaps:** All new tests are unit tests (`Category=UnitTest`). Integration tests that exercise the full exception → HTTP response mapping pipeline were not created. This is acceptable for foundation work — integration testing will occur once concrete commands are built and exposed via WebApi endpoints.
+3. **No manual testing:** The 400 Bad Request responses from `ProblemDetailsFactory` are not validated via actual HTTP calls. This will be tested once concrete posting-line command endpoints are built in future work.
+
+### Future work
+
+1. Build and test verification will be repeated after Iteration 2 and Iteration 3.
+2. After all three iterations complete, full integration testing should exercise the exception → `ProblemDetailsFactory` → HTTP response mapping end-to-end.
+3. If CI/CD pipeline is set up, include `/docs/diary/2026-09-15-posting-journal-line-command-foundation.md` in commits alongside the code changes.
+
 ### What warrants review
 
 The updated AC3 and AC11 language — confirm that "mutates in place" and "exact instance passed through" now match TODO.md's test intent precisely.
