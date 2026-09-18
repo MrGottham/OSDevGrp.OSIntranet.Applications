@@ -371,3 +371,113 @@ Produced a complete, precise PRD that establishes the foundation for future post
 - Test assertions include object-identity checks to validate the mutation contract.
 
 The PRD is now the authoritative specification; TODO.md remains available as implementation reference detail.
+
+---
+
+## Step 5: Implement Iteration 2 — Request Base Classes
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Start implementation"
+
+**Interpretation:** Execute Iteration 2 implementation plan: create two abstract request base classes (`PostingJournalLineIdentificationRequestBase` and `PostingJournalLineDataRequestBase`) with corresponding unit tests.
+
+**Inferred intent:** Deliver the request foundation classes that future concrete commands (Add/Update/Delete) will inherit from. These are pure data containers — no orchestration or gateway logic — making them independently reviewable and shippable.
+
+### What I did
+
+1. **Created `/OSDevGrp.OSIntranet.Bff.DomainServices/Features/Commands/Accounting/PostingJournalLineIdentificationRequestBase.cs`:**
+   - `public abstract class` inheriting `AccountingIdentificationRequestBase`
+   - Constructor: `protected PostingJournalLineIdentificationRequestBase(Guid requestId, int accountingNumber, Guid identifier, ISecurityContext securityContext)`
+   - Passes first three parameters to base, stores `identifier` in get-only property
+   - Region structure: `#region Constructor`, `#region Properties`
+
+2. **Created `/OSDevGrp.OSIntranet.Bff.DomainServices/Features/Commands/Accounting/PostingJournalLineDataRequestBase.cs`:**
+   - `public abstract class` inheriting `PostingJournalLineIdentificationRequestBase`
+   - Constructor: `protected PostingJournalLineDataRequestBase(Guid requestId, int accountingNumber, Guid identifier, DateTimeOffset postingDate, string? postingReference, string account, string postingText, string? budgetAccount, decimal? debit, decimal? credit, string? contactAccount, ISecurityContext securityContext)`
+   - Passes identifier-level params to base, stores all 8 data fields as get-only properties
+   - Field names and types aligned exactly with `PostingLineDisplayerDto`: `PostingDate` (DateTimeOffset), `PostingReference` (string?), `Account` (string), `PostingText` (string), `BudgetAccount` (string?), `Debit` (decimal?), `Credit` (decimal?), `ContactAccount` (string?)
+   - Intentionally excludes `SortOrder` (deferred to concrete command implementations per AC2)
+   - Region structure: `#region Constructor`, `#region Properties`
+
+3. **Created unit tests following user's preferred test organization pattern:**
+   - `/OSDevGrp.OSIntranet.Bff.DomainServices.Tests/Features/Commands/Accounting/PostingJournalLineIdentificationRequestBase/ConstructorTests.cs`
+     - `[TestFixture]` on class (no category)
+     - `[Category("UnitTest")]` on each individual test method
+     - Test class name: `ConstructorTests` (not full class name)
+     - Nested concrete test double: `TestPostingJournalLineIdentificationRequest : DomainServices.Features.Commands.Accounting.PostingJournalLineIdentificationRequestBase`
+     - Tests: Constructor assigns `Identifier`, inherits `AccountingNumber`, inherits `RequestId`, is instance of `AccountingIdentificationRequestBase`
+
+   - `/OSDevGrp.OSIntranet.Bff.DomainServices.Tests/Features/Commands/Accounting/PostingJournalLineDataRequestBase/ConstructorTests.cs`
+     - Same pattern: `[TestFixture]` class, `[Category("UnitTest")]` per method
+     - Nested concrete test double: `TestPostingJournalLineDataRequest : DomainServices.Features.Commands.Accounting.PostingJournalLineDataRequestBase`
+     - Tests: Constructor assigns all 8 data properties (`PostingDate`, `PostingReference`, `Account`, `PostingText`, `BudgetAccount`, `Debit`, `Credit`, `ContactAccount`), is instance of `PostingJournalLineIdentificationRequestBase`
+     - 9 test methods total (8 property assignments + inheritance chain)
+
+4. **Verified build and test suite:**
+   - Ran `dotnet build OSDevGrp.OSIntranet.Applications.sln` → 0 errors, 0 warnings in ~11.2s
+   - Ran `dotnet test OSDevGrp.OSIntranet.Bff.DomainServices.Tests --filter "Category=UnitTest"` → 2,133 tests passed (includes 13 new request base tests)
+
+### Why
+
+Iteration 2 establishes the request data container hierarchy that future Add/Update/Delete posting-line commands will inherit. By building these classes independently from the orchestration logic (`PostingLineFeatureBase<T>` in Iteration 3), we can validate the request structure in isolation, test it thoroughly, and commit it to main without blocking Iteration 3. This separation of concerns also allows concrete commands to inherit independently — each new command (Add, Update, Delete) will inherit `PostingLineFeatureBase<T>` and implement only the `ProcessPostingJournalAsync` method specific to that command.
+
+Field naming alignment with `PostingLineDisplayerDto` ensures that the request classes carry data in the BFF-facing naming convention (`Account`, `PostingText`, `decimal?`), while the mapping to the NSwag wire model (`AccountNumber`, `Details`, `double?`) is deferred to concrete command implementations. This keeps concerns clean: request bases are DTO-aligned, future commands handle the mapping.
+
+### What worked
+
+1. **No namespace conflicts:** Classes added to existing `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting` namespace integrate cleanly; no collisions with existing `AccountingIdentificationRequestBase` or other classes.
+
+2. **Test organization follows user pattern:** Initial tests created with simpler naming/structure; user demonstrated preferred pattern in existing codebase. Tests were then reorganized into the folder-per-class structure with `ConstructorTests` class name and `[Category("UnitTest")]` on each method. This pattern is now confirmed and will be applied consistently to Iteration 3.
+
+3. **Inheritance chain works as designed:** `PostingJournalLineDataRequestBase` → `PostingJournalLineIdentificationRequestBase` → `AccountingIdentificationRequestBase` → `RequestBase`. All tests verify the chain is intact; properties from all levels are accessible and correctly initialized.
+
+4. **Property immutability:** All properties are get-only (no setters), matching the request base pattern established by `AccountingIdentificationRequestBase`. This enforces immutability after construction, which is correct for request objects that should not be mutated during processing.
+
+### What didn't work
+
+**Initial compiler errors (resolved):**
+
+1. **Namespace-to-type ambiguity:** Initial test classes in a folder named `PostingJournalLineIdentificationRequestBase/` created a namespace `...PostingJournalLineIdentificationRequestBase` that shadowed the class name. When the test tried to use `new TestPostingJournalLineIdentificationRequest : PostingJournalLineIdentificationRequestBase`, the compiler interpreted the base class as a namespace, not a type. 
+   - **Resolution:** Use fully qualified names in nested class inheritance: `DomainServices.Features.Commands.Accounting.PostingJournalLineIdentificationRequestBase` and `DomainServices.Features.Commands.Accounting.PostingJournalLineDataRequestBase`.
+
+2. **Missing using statements:** Initial test file for `PostingJournalLineDataRequestBase` omitted `using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting;`, causing the fully qualified name to fail resolution.
+   - **Resolution:** Added the using statement to both test files.
+
+3. **Import order sensitivity:** The import statement needs to come before the namespace declaration so the fully qualified names in nested classes resolve correctly. This is a quirk of C# scoping but doesn't affect functionality once the using is in place.
+
+All errors were caught during `dotnet build` and resolved within the same iteration. Full build completed cleanly after fixes.
+
+### What I learned
+
+1. **Folder-based test organization creates namespace shadowing:** When a test folder is named after the class under test (e.g., `PostingJournalLineIdentificationRequestBase/`), the namespace mirrors the folder structure. This creates a naming collision if the test class tries to inherit from the same-named class in an outer namespace. Workaround: use fully qualified names or flatten the folder structure. User's pattern (folder per class, with `ConstructorTests.cs` as the leaf file) is a clean solution that avoids this collision by nesting the class name.
+
+2. **Test class names should be concept-focused, not class-focused:** Instead of `PostingJournalLineIdentificationRequestBaseTests`, the user prefers `ConstructorTests` (grouped by test concern, not by the class under test). This makes the test organization clearer: all constructor-related tests live in one file, organized by test type (`ConstructorTests`, `EqualsTests`, `ValidationTests`, etc.). This is a sensible pattern for avoiding massive test classes.
+
+3. **Field type alignment is intentional:** The choice to use `decimal?` instead of the NSwag wire model's `double?` for `Debit`/`Credit` is deliberate: the request base represents what comes from the user/form layer (BFF-facing), while the persistence adapter (in concrete commands) handles the conversion to the wire model. This keeps the request classes focused on their role as DTOs for form data, not wire format data.
+
+### What was tricky
+
+1. **Fully qualified names in nested classes:** Fixing the namespace shadowing required understanding the scoping rules for nested class inheritance. The syntax `private class TestClass : fully.qualified.ClassName` is valid C# but isn't immediately intuitive when the unqualified name is shadowed by the enclosing namespace.
+
+2. **Test file organization:** Choosing between a single large test class per request base vs. splitting by test concern (constructor, validation, etc.) — the user's pattern (folder per class, concept-focused test files) is clean and extensible. As more test concerns emerge (validation, serialization, etc.), new files like `ValidationTests.cs`, `SerializationTests.cs` can be added to the same folder without bloating a single file.
+
+### What warrants review
+
+1. **Test coverage completeness:** Are 4 tests for `PostingJournalLineIdentificationRequestBase` and 9 tests for `PostingJournalLineDataRequestBase` sufficient? Current tests cover constructor parameter assignment and inheritance chain, but do not cover edge cases (null parameters, invalid types). This is acceptable for foundation work — edge case validation will be handled by concrete command implementations when they invoke these constructors.
+
+2. **Property initialization semantics:** All properties are initialized in the constructor and then locked (get-only). Tests verify assignment, but do not test mutation attempts (e.g., via reflection). This is acceptable — C#'s get-only properties are immutable by design.
+
+3. **Fully qualified names in test doubles:** The nested test classes use fully qualified base class names (`DomainServices.Features.Commands.Accounting.PostingJournalLineIdentificationRequestBase`). While this works, it's verbose. A future refactor could move test doubles to a separate `TestHelpers` class or remove the folder-per-class nesting to simplify this. For now, it's an acceptable trade-off given the namespace shadowing issue it solves.
+
+### Future work
+
+1. **Iteration 3:** Implement `PostingLineFeatureBase<T>` (internal abstract feature class) with sealed override of `ExecuteAsync` and abstract `ProcessPostingJournalAsync` method. This class will inherit `AccountingIdentificationFeatureBase<TPostingJournalLineRequest>` and orchestrate the fetch-process-save cycle.
+
+2. **Iteration 3 tests:** Create `ExecuteAsyncTests.cs` in `/OSDevGrp.OSIntranet.Bff.DomainServices.Tests/Features/Commands/Accounting/PostingLineFeatureBase/` with 8 test methods verifying gateway call order, parameter passing, and **object identity** (same `ApplyPostingJournalModel` instance flows through all three calls).
+
+3. **Concrete Add/Update/Delete commands (future PR):** Each command will inherit `PostingLineFeatureBase<T>`, provide a concrete request class inheriting `PostingJournalLineDataRequestBase`, and implement `ProcessPostingJournalAsync` with the add/update/delete-specific mutation logic.
+
+4. **Field mapping layer:** Future commands must implement the bridge from `PostingJournalLineDataRequestBase` field names/types (`Account`, `PostingText`, `decimal?`) to `ApplyPostingJournalModel` wire names/types (`AccountNumber`, `Details`, `double?`). This mapping logic lives in the concrete command's `ProcessPostingJournalAsync` implementation.
