@@ -130,45 +130,40 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public async Task ExecuteAsync_WhenCalled_ReturnsPostingJournalResponseWhereStaticTextsContainsAllRequiredStaticTextKeys()
+    [TestCase(StaticTextKey.PostingJournal)]
+    [TestCase(StaticTextKey.PostingDate)]
+    [TestCase(StaticTextKey.PostingReference)]
+    [TestCase(StaticTextKey.Account)]
+    [TestCase(StaticTextKey.PostingText)]
+    [TestCase(StaticTextKey.BudgetAccount)]
+    [TestCase(StaticTextKey.Debit)]
+    [TestCase(StaticTextKey.Credit)]
+    [TestCase(StaticTextKey.ContactAccount)]
+    [TestCase(StaticTextKey.AccountName)]
+    [TestCase(StaticTextKey.Posted)]
+    [TestCase(StaticTextKey.Available)]
+    [TestCase(StaticTextKey.Balance)]
+    [TestCase(StaticTextKey.PostingValue)]
+    [TestCase(StaticTextKey.AddPostingJournalLine)]
+    [TestCase(StaticTextKey.UpdatePostingJournalLine)]
+    [TestCase(StaticTextKey.DeletePostingJournalLine)]
+    [TestCase(StaticTextKey.PostingJournalLineDeletionQuestion)]
+    [TestCase(StaticTextKey.Create)]
+    [TestCase(StaticTextKey.Update)]
+    [TestCase(StaticTextKey.Delete)]
+    [TestCase(StaticTextKey.ConfirmDeletion)]
+    [TestCase(StaticTextKey.DeleteVerificationInfo)]
+    [TestCase(StaticTextKey.Reset)]
+    [TestCase(StaticTextKey.Cancel)]
+    [TestCase(StaticTextKey.Warning)]
+    public async Task ExecuteAsync_WhenCalled_ReturnsPostingJournalResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IQueryFeature<PostingJournalRequest, PostingJournalResponse> sut = CreateSut();
 
         PostingJournalRequest postingJournalRequest = CreatePostingJournalRequest(_fixture!);
         PostingJournalResponse result = await sut.ExecuteAsync(postingJournalRequest);
 
-        // Field headers
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.PostingJournal), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.PostingDate), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.PostingReference), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Account), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.PostingText), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.BudgetAccount), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Debit), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Credit), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.ContactAccount), Is.True);
-
-        // Field labels
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.AccountName), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Posted), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Available), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Balance), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.PostingValue), Is.True);
-
-        // Action texts
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.AddPostingJournalLine), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.UpdatePostingJournalLine), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.DeletePostingJournalLine), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.PostingJournalLineDeletionQuestion), Is.True);
-
-        // Dialog/button texts
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Create), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Update), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Delete), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.ConfirmDeletion), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.DeleteVerificationInfo), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Reset), Is.True);
-        Assert.That(result.StaticTexts.ContainsKey(StaticTextKey.Cancel), Is.True);
+        Assert.That(result.StaticTexts.ContainsKey(staticTextKey), Is.True);
     }
 
     private IQueryFeature<PostingJournalRequest, PostingJournalResponse> CreateSut(ApplyPostingJournalModel? postingJournalModel = null, IPostingJournalTexts? postingJournalTexts = null, IReadOnlyCollection<IValidationRule>? validationRuleSet = null)

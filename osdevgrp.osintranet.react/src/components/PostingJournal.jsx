@@ -1,5 +1,4 @@
 import { useContext, useState, useEffect, useRef, useCallback, useTransition, useMemo } from 'react';
-import { flushSync } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Formik } from 'formik';
@@ -63,18 +62,15 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     const [isAccountPending, startAccountTransition] = useTransition();
     const [isBudgetAccountPending, startBudgetAccountTransition] = useTransition();
     const [isContactAccountPending, startContactAccountTransition] = useTransition();
-    const addToast = useCallback((body) => {
+    const [isModelFormSubmitting, startModelFormTransition] = useTransition();
+    const addToast = useCallback((header, body) => {
         const toastId = newGuid();
-        setToasts(prev => [...prev, { id: toastId, body }]);
+        setToasts(prev => [...prev, { id: toastId, header, body }]);
         setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== toastId));
         }, 5000);
     }, []);
     const populateAccountDetails = useCallback(async () => {
-        flushSync(() => {
-            setComputedData(prev => ({...prev, account: { name: '', credit: '', available: '' }}));
-        });
-
         if (accountingNumber === undefined || accountingNumber === null)  {
             return;
         }
@@ -99,14 +95,10 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 }
             }));
         } catch (error) {
-            addToast(error?.message || 'Unknown error');
+            addToast(staticTextHelper.getWarningText(staticTexts), error.message);
         }
-    }, [accountingNumber, formData.accountNumber, formData.postingDate, dateHelper, accountingService, addToast]);
+    }, [accountingNumber, formData.accountNumber, formData.postingDate, dateHelper, accountingService, addToast, staticTextHelper, staticTexts]);
     const populateBudgetAccountDetails = useCallback(async () => {
-        flushSync(() => {
-            setComputedData(prev => ({ ...prev, budgetAccount: { name: '', posted: '', available: '' }}));
-        });
-
         if (accountingNumber === undefined || accountingNumber === null)  {
             return;
         }
@@ -131,14 +123,10 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 }
             }));
         } catch (error) {
-            addToast(error.message);
+            addToast(staticTextHelper.getWarningText(staticTexts), error.message);
         }
-    }, [accountingNumber, formData.budgetAccountNumber, formData.postingDate, dateHelper, accountingService, addToast]);
+    }, [accountingNumber, formData.budgetAccountNumber, formData.postingDate, dateHelper, accountingService, addToast, staticTextHelper, staticTexts]);
     const populateContactAccountDetails = useCallback(async () => {
-        flushSync(() => {
-            setComputedData(prev => ({ ...prev, contactAccount: { name: '', balance: '' }}));
-        });
-
         if (accountingNumber === undefined || accountingNumber === null)  {
             return;
         }
@@ -162,9 +150,9 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 }
             }));
         } catch (error) {
-            addToast(error.message);
+            addToast(staticTextHelper.getWarningText(staticTexts), error.message);
         }
-    }, [accountingNumber, formData.contactAccountNumber, formData.postingDate, dateHelper, accountingService, addToast]);
+    }, [accountingNumber, formData.contactAccountNumber, formData.postingDate, dateHelper, accountingService, addToast, staticTextHelper, staticTexts]);
 
     useEffect(() => {
         return () => setFormData(prev => ({ ...prev, accountNumber: undefined, budgetAccountNumber: undefined, contactAccountNumber: undefined }));
@@ -234,12 +222,15 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                         bg='warning'
                         className='posting-journal__toast'
                     >
-                        <Toast.Header closeButton className='posting-journal__toast-header' />
+                        <Toast.Header closeButton className='posting-journal__toast-header'>{toast.header}</Toast.Header>
                         <Toast.Body className='text-dark'>{toast.body}</Toast.Body>
                     </Toast>
                 ))}
             </ToastContainer>
-            <Modal show={modalState.showEditModal} onHide={() => setModalState(prev => ({...prev, showEditModal: false}))}>
+            <Modal show={modalState.showEditModal} onHide={() => {
+                if (isModelFormSubmitting) return;
+                setModalState(prev => ({...prev, showEditModal: false}));
+            }}>
                 <Formik validationSchema={validationSchema} initialValues={{ accountingNumber: accountingNumber, ...formData }} onSubmit={modalState.okCallback}>
                     {({ handleSubmit, handleReset, handleChange, setFieldValue, setFieldTouched, values, touched, errors }) => {
                         const postingDateInvalid = touched.postingDate && Boolean(errors.postingDate);                        
@@ -263,9 +254,14 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                                     const dateOnly = dateHelper.getDateOnly(date);
                                                     setFieldValue('postingDate', dateOnly, true);
                                                     setFormData(prev => ({...prev, postingDate: dateOnly}));
+                                                    setComputedData({
+                                                        account: { name: '', credit: '', available: '' },
+                                                        budgetAccount: { name: '', posted: '', available: '' },
+                                                        contactAccount: { name: '', balance: '' },
+                                                    });
                                                 }}
                                                 onBlur={() => setFieldTouched('postingDate', true, true)}
-                                                className={`form-control ${touched.postingDate && errors.postingDate ? 'is-invalid' : ''}`} wrapperClassName='w-100' disabled={isAccountPending || isBudgetAccountPending || isContactAccountPending} />
+                                                className={`form-control ${touched.postingDate && errors.postingDate ? 'is-invalid' : ''}`} wrapperClassName='w-100' disabled={isModelFormSubmitting || isAccountPending || isBudgetAccountPending || isContactAccountPending} />
                                             {postingDateInvalid && (
                                                 <Form.Control.Feedback type='invalid' className='d-block'>{errors.postingDate}</Form.Control.Feedback>
                                             )}
@@ -274,17 +270,18 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                     <Row className='mb-3'>
                                         <Form.Group as={Col} xs={12} sm={12} md={12} lg={12} xl={12} xxl={12} controlId='formikPostingReference'>
                                             <Form.Label>{postingJournal.postingReferenceHeader}</Form.Label>
-                                            <Form.Control type='text' name='postingReference' value={values.postingReference} onChange={handleChange} isValid={touched.postingReference && !errors.postingReference} isInvalid={!!errors.postingReference} />
+                                            <Form.Control type='text' name='postingReference' value={values.postingReference} onChange={handleChange} disabled={isModelFormSubmitting} isValid={touched.postingReference && !errors.postingReference} isInvalid={!!errors.postingReference} />
                                             <Form.Control.Feedback type='invalid'>{errors.postingReference}</Form.Control.Feedback>
                                         </Form.Group>
                                     </Row>
                                     <Row className='mb-2'>
                                         <Form.Group as={Col} xs={6} sm={6} md={6} lg={4} xl={4} xxl={4} controlId='formikAccountNumber'>
                                             <Form.Label>{postingJournal.accountHeader}</Form.Label>
-                                            <Form.Control type='text' name='accountNumber' value={values.accountNumber} readOnly={isAccountPending}
+                                            <Form.Control type='text' name='accountNumber' value={values.accountNumber} disabled={isAccountPending || isModelFormSubmitting}
                                                 onChange={(e) => {
                                                     const upperValue = e.target.value.toUpperCase();
                                                     setFieldValue('accountNumber', upperValue, true);
+                                                    setComputedData(prev => ({...prev, account: { name: '', credit: '', available: '' }}));
 
                                                     if (accountNumberChangeTimer.current) {
                                                         clearTimeout(accountNumberChangeTimer.current);
@@ -315,17 +312,18 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                     <Row className='mb-3'>
                                         <Form.Group as={Col} xs={12} sm={12} md={12} lg={12} xl={12} xxl={12} controlId='formikPostingText'>
                                             <Form.Label>{postingJournal.postingTextHeader}</Form.Label>
-                                            <Form.Control type='text' name='postingText' value={values.postingText} onChange={handleChange} isValid={touched.postingText && !errors.postingText} isInvalid={!!errors.postingText} />
+                                            <Form.Control type='text' name='postingText' value={values.postingText} onChange={handleChange} disabled={isModelFormSubmitting} isValid={touched.postingText && !errors.postingText} isInvalid={!!errors.postingText} />
                                             <Form.Control.Feedback type='invalid'>{errors.postingText}</Form.Control.Feedback>
                                         </Form.Group>
                                     </Row>
                                     <Row className='mb-2'>
                                         <Form.Group as={Col} xs={6} sm={6} md={6} lg={4} xl={4} xxl={4} controlId='formikBudgetAccountNumber'>
                                             <Form.Label>{postingJournal.budgetAccountHeader}</Form.Label>
-                                            <Form.Control type='text' name='budgetAccountNumber' value={values.budgetAccountNumber} readOnly={isBudgetAccountPending}
+                                            <Form.Control type='text' name='budgetAccountNumber' value={values.budgetAccountNumber} disabled={isBudgetAccountPending || isModelFormSubmitting}
                                                 onChange={(e) => {
                                                     const upperValue = e.target.value.toUpperCase();
                                                     setFieldValue('budgetAccountNumber', upperValue, true);
+                                                    setComputedData(prev => ({...prev, budgetAccount: { name: '', posted: '', available: '' }}));
 
                                                     if (budgetAccountNumberChangeTimer.current) {
                                                         clearTimeout(budgetAccountNumberChangeTimer.current);
@@ -356,22 +354,23 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                     <Row className='mb-3'>
                                         <Form.Group as={Col} xs={6} sm={6} md={6} lg={6} xl={6} xxl={6} controlId='formikDebit'>
                                             <Form.Label>{postingJournal.debitHeader}</Form.Label>
-                                            <Form.Control type='number' name='debit' value={values.debit} onChange={handleChange} isValid={touched.debit && !errors.debit} isInvalid={!!errors.debit} />
+                                            <Form.Control type='number' name='debit' value={values.debit} onChange={handleChange} disabled={isModelFormSubmitting} isValid={touched.debit && !errors.debit} isInvalid={!!errors.debit} />
                                             <Form.Control.Feedback type='invalid'>{errors.debit}</Form.Control.Feedback>
                                         </Form.Group>
                                         <Form.Group as={Col} xs={6} sm={6} md={6} lg={6} xl={6} xxl={6} controlId='formikCredit'>
                                             <Form.Label>{postingJournal.creditHeader}</Form.Label>
-                                            <Form.Control type='number' name='credit' value={values.credit} onChange={handleChange} isValid={touched.credit && !errors.credit} isInvalid={!!errors.credit} />
+                                            <Form.Control type='number' name='credit' value={values.credit} onChange={handleChange} disabled={isModelFormSubmitting} isValid={touched.credit && !errors.credit} isInvalid={!!errors.credit} />
                                             <Form.Control.Feedback type='invalid'>{errors.credit}</Form.Control.Feedback>
                                         </Form.Group>
                                     </Row>
                                     <Row className='mb-2'>
                                         <Form.Group as={Col} xs={6} sm={6} md={6} lg={4} xl={4} xxl={4} controlId='formikContactAccountNumber'>
                                             <Form.Label>{postingJournal.contactAccountHeader}</Form.Label>
-                                            <Form.Control type='text' name='contactAccountNumber' value={values.contactAccountNumber} readOnly={isContactAccountPending}
+                                            <Form.Control type='text' name='contactAccountNumber' value={values.contactAccountNumber} disabled={isContactAccountPending || isModelFormSubmitting}
                                                 onChange={(e) => {
                                                     const upperValue = e.target.value.toUpperCase();
                                                     setFieldValue('contactAccountNumber', upperValue, true);
+                                                    setComputedData(prev => ({...prev, contactAccount: { name: '', balance: '' }}));
 
                                                     if (contactAccountNumberChangeTimer.current) {
                                                         clearTimeout(contactAccountNumberChangeTimer.current);
@@ -399,7 +398,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                                     </Row>
                                 </Modal.Body>
                                 <Modal.Footer>
-                                    <SubmitToolbar submitText={modalState.okText} submitVariant='primary' staticTexts={staticTexts} onReset={handleReset} onCancel={() => setModalState(prev => ({...prev, showEditModal: false}))} />
+                                    <SubmitToolbar submitText={modalState.okText} submitVariant='primary' staticTexts={staticTexts} onReset={handleReset} onCancel={() => setModalState(prev => ({...prev, showEditModal: false}))} isDisabled={isModelFormSubmitting || isAccountPending || isBudgetAccountPending || isContactAccountPending} />
                                 </Modal.Footer>
                             </Form>
                         );
@@ -495,8 +494,11 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     }
 
     function handleCreatePostingJournalLine(values) {
-        console.debug('handleCreatePostingJournalLine');
-        console.debug(`- values=${JSON.stringify(values)}`);
+        startModelFormTransition(async () => {
+            console.debug('handleCreatePostingJournalLine');
+            console.debug(`- values=${JSON.stringify(values)}`);
+            setModalState(prev => ({...prev, showEditModal: false}));
+        });
 
         return undefined;
     }
@@ -528,8 +530,11 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     }
 
     function handleUpdatePostingJournalLine(values) {
-        console.debug('handleUpdatePostingJournalLine');
-        console.debug(`- values=${JSON.stringify(values)}`);
+        startModelFormTransition(async () => {
+            console.debug('handleUpdatePostingJournalLine');
+            console.debug(`- values=${JSON.stringify(values)}`);
+            setModalState(prev => ({...prev, showEditModal: false}));
+        });
 
         return undefined;
     }

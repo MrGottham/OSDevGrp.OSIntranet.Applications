@@ -68,7 +68,8 @@ internal class PostingJournalFeature : AccountingIdentificationFeatureBase<Posti
             { StaticTextKey.ConfirmDeletion, StaticTextKey.ConfirmDeletion.DefaultArguments() },
             { StaticTextKey.DeleteVerificationInfo, StaticTextKey.DeleteVerificationInfo.DefaultArguments() },
             { StaticTextKey.Reset, StaticTextKey.Reset.DefaultArguments() },
-            { StaticTextKey.Cancel, StaticTextKey.Cancel.DefaultArguments() }
+            { StaticTextKey.Cancel, StaticTextKey.Cancel.DefaultArguments() },
+            { StaticTextKey.Warning, StaticTextKey.Warning.DefaultArguments() }
         };
     }
 
