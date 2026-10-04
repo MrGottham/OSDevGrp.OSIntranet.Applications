@@ -25,7 +25,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     const validationSchemaHelper = useContext(HelperContext).validationSchemaHelper;
     const validationRuleSetHelper = useContext(HelperContext).validationRuleSetHelper;
     const accountingService = useContext(ServiceContext).accountingService;
-    const [postingJournal] = useState(initialPostingJournal);
+    const [postingJournal, setPostingJournal] = useState(initialPostingJournal);
     const [accountingNumber, setAccountingNumber] = useState(initialPostingJournal.accountingNumber);
     const [formData, setFormData] = useState({
         postingJournalLineIdentifier: undefined,
@@ -63,9 +63,9 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     const [isBudgetAccountPending, startBudgetAccountTransition] = useTransition();
     const [isContactAccountPending, startContactAccountTransition] = useTransition();
     const [isModelFormSubmitting, startModelFormTransition] = useTransition();
-    const addToast = useCallback((header, body) => {
+    const addToast = useCallback((header, body, variant) => {
         const toastId = newGuid();
-        setToasts(prev => [...prev, { id: toastId, header, body }]);
+        setToasts(prev => [...prev, { id: toastId, header, body, variant }]);
         setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== toastId));
         }, 5000);
@@ -84,8 +84,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
         }
 
         try {
-            const isoDateString = dateHelper.convertToIsoString(formData.postingDate);
-            const response = await accountingService.getAccountSummary(accountingNumber, formData.accountNumber, isoDateString);
+            const response = await accountingService.getAccountSummary(accountingNumber, formData.accountNumber, dateHelper.convertToIsoString(formData.postingDate));
             setComputedData(prev => ({
                 ...prev,
                 account: {
@@ -95,7 +94,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 }
             }));
         } catch (error) {
-            addToast(staticTextHelper.getWarningText(staticTexts), error.message);
+            addToast(staticTextHelper.getWarningText(staticTexts), error.message, 'warning');
         }
     }, [accountingNumber, formData.accountNumber, formData.postingDate, dateHelper, accountingService, addToast, staticTextHelper, staticTexts]);
     const populateBudgetAccountDetails = useCallback(async () => {
@@ -112,8 +111,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
         }
 
         try {
-            const isoDateString = dateHelper.convertToIsoString(formData.postingDate);
-            const response = await accountingService.getBudgetAccountSummary(accountingNumber, formData.budgetAccountNumber, isoDateString);
+            const response = await accountingService.getBudgetAccountSummary(accountingNumber, formData.budgetAccountNumber, dateHelper.convertToIsoString(formData.postingDate));
             setComputedData(prev => ({
                 ...prev,
                 budgetAccount: {
@@ -123,7 +121,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 }
             }));
         } catch (error) {
-            addToast(staticTextHelper.getWarningText(staticTexts), error.message);
+            addToast(staticTextHelper.getWarningText(staticTexts), error.message, 'warning');
         }
     }, [accountingNumber, formData.budgetAccountNumber, formData.postingDate, dateHelper, accountingService, addToast, staticTextHelper, staticTexts]);
     const populateContactAccountDetails = useCallback(async () => {
@@ -140,8 +138,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
         }
 
         try {
-            const isoDateString = dateHelper.convertToIsoString(formData.postingDate);
-            const response = await accountingService.getContactAccountSummary(accountingNumber, formData.contactAccountNumber, isoDateString);
+            const response = await accountingService.getContactAccountSummary(accountingNumber, formData.contactAccountNumber, dateHelper.convertToIsoString(formData.postingDate));
             setComputedData(prev => ({
                 ...prev,
                 contactAccount: {
@@ -150,13 +147,9 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 }
             }));
         } catch (error) {
-            addToast(staticTextHelper.getWarningText(staticTexts), error.message);
+            addToast(staticTextHelper.getWarningText(staticTexts), error.message, 'warning');
         }
     }, [accountingNumber, formData.contactAccountNumber, formData.postingDate, dateHelper, accountingService, addToast, staticTextHelper, staticTexts]);
-
-    useEffect(() => {
-        return () => setFormData(prev => ({ ...prev, accountNumber: undefined, budgetAccountNumber: undefined, contactAccountNumber: undefined }));
-    }, [accountingNumber]);
 
     useEffect(() => {
         startAccountTransition(async () => {
@@ -219,7 +212,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                         key={toast.id} 
                         onClose={() => setToasts(prev => prev.filter(t => t.id !== toast.id))} 
                         show={true}
-                        bg='warning'
+                        bg={toast.variant}
                         className='posting-journal__toast'
                     >
                         <Toast.Header closeButton className='posting-journal__toast-header'>{toast.header}</Toast.Header>
@@ -495,9 +488,25 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
 
     function handleCreatePostingJournalLine(values) {
         startModelFormTransition(async () => {
-            console.debug('handleCreatePostingJournalLine');
-            console.debug(`- values=${JSON.stringify(values)}`);
-            setModalState(prev => ({...prev, showEditModal: false}));
+            try {
+                const response = await accountingService.appendPostingLineToPostingLineJournal(
+                    formHelper.convertToInteger(values.accountingNumber),
+                    formHelper.convertToUuid(values.postingJournalLineIdentifier),
+                    dateHelper.convertToIsoString(values.postingDate),
+                    formHelper.convertToString(values.postingReference, true),
+                    formHelper.convertToString(values.accountNumber),
+                    formHelper.convertToString(values.postingText),
+                    formHelper.convertToString(values.budgetAccountNumber, true),
+                    formHelper.convertToDecimal(values.debit, true, true),
+                    formHelper.convertToDecimal(values.credit, true, true),
+                    formHelper.convertToString(values.contactAccountNumber, true)
+                );
+
+                setModalState(prev => ({...prev, showEditModal: false}));
+                setPostingJournal(response.dynamicTexts);
+            } catch (error) {
+                addToast(staticTextHelper.getErrorText(staticTexts), error.message, 'danger');
+            }
         });
 
         return undefined;

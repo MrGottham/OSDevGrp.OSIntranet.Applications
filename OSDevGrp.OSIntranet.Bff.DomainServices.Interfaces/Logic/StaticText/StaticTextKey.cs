@@ -121,5 +121,6 @@ public enum StaticTextKey
     DeleteVerificationInfo,
     Reset,
     Cancel,
-    Warning
+    Warning,
+    Error
 }

@@ -295,6 +295,7 @@ function Accounting() {
                 <Accordion.Header><h2>{staticTextHelper.getBookkeepingText(staticTexts)}</h2></Accordion.Header>
                     <Accordion.Body>
                         <PostingJournal
+                            key={dynamicTexts.postingJournal.accountingNumber}
                             postingJournal={dynamicTexts.postingJournal} 
                             staticTexts={staticTexts}
                             validationRuleSet={validationRuleSet} />

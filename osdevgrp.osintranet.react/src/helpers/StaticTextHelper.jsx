@@ -239,6 +239,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'Warning');
     }
 
+    getErrorText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Error');
+    }
+
     getStaticTextByKey(staticTexts, key) {
         if (staticTexts === undefined || staticTexts === null || Array.isArray(staticTexts) === false) {
             throw new Error('An array of static texts is required.');

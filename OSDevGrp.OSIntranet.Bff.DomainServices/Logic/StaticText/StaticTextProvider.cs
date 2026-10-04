@@ -150,6 +150,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Reset, "Nulstil");
         staticTexts.Add(StaticTextKey.Cancel, "Fortryd");
         staticTexts.Add(StaticTextKey.Warning, "Advarsel");
+        staticTexts.Add(StaticTextKey.Error, "Fejl");
         return staticTexts.AsReadOnly();
     }
 

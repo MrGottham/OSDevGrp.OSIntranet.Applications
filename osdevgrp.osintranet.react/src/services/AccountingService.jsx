@@ -115,4 +115,71 @@ export default class AccountingService extends ServiceBase {
 
         throw await this.generateError(response);
     }
+
+    async appendPostingLineToPostingLineJournal(accountingNumber, identifier, isoPostingDateString, postingReference, account, postingText, budgetAccount, debit, credit, contactAccount) {
+        if (accountingNumber === undefined || accountingNumber === null) {
+            throw new Error('Accounting number is required.');
+        }
+
+        if (identifier === undefined || identifier === null) {
+            throw new Error('Identifier is required.');
+        }
+
+        if (isoPostingDateString === undefined || isoPostingDateString === null) {
+            throw new Error('ISO posting date string is required.');
+        }
+
+        if (account === undefined || account === null || account.trim() === '') {
+            throw new Error('Account is required.');
+        }
+
+        if (postingText === undefined || postingText === null || postingText.trim() === '') {
+            throw new Error('Posting text is required.');
+        }
+
+        const postingLineData = {
+            identifier,
+            postingDate: isoPostingDateString,
+            account,
+            postingText
+        };
+
+        if (postingReference !== null && postingReference !== undefined) {
+            postingLineData.postingReference = postingReference;
+        }
+
+        if (budgetAccount !== null && budgetAccount !== undefined) {
+            postingLineData.budgetAccount = budgetAccount;
+        }
+
+        if (debit !== null && debit !== undefined) {
+            postingLineData.debit = debit;
+        }
+
+        if (credit !== null && credit !== undefined) {
+            postingLineData.credit = credit;
+        }
+
+        if (contactAccount !== null && contactAccount !== undefined) {
+            postingLineData.contactAccount = contactAccount;
+        }
+
+        const headers = { ...this.generateContentTypeHeaderForJson(), ...await this.generateAntiforgeryHeader() };
+
+        const response = await fetch(
+            this.resolveEndpoint(`/api/accounting/${accountingNumber}/postingjournal/postinglines`),
+            {
+                method: 'POST',
+                headers: headers,
+                credentials: 'include',
+                body: JSON.stringify(postingLineData)
+            }
+        );
+
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw await this.generateError(response);
+    }
 }

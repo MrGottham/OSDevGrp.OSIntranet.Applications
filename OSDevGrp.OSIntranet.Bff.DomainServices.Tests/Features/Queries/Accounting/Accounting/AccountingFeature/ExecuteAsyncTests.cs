@@ -497,6 +497,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.Reset)]
     [TestCase(StaticTextKey.Cancel)]
     [TestCase(StaticTextKey.Warning)]
+    [TestCase(StaticTextKey.Error)]
     public async Task ExecuteAsync_WhenCalled_ReturnsAccountingResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IQueryFeature<AccountingRequest, AccountingResponse> sut = CreateSut();

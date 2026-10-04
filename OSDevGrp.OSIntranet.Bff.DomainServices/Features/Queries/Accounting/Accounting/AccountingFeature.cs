@@ -92,7 +92,8 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.DeleteVerificationInfo, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.Reset, StaticTextKey.Reset.DefaultArguments() },
             { StaticTextKey.Cancel, StaticTextKey.Cancel.DefaultArguments() },
-            { StaticTextKey.Warning, StaticTextKey.Warning.DefaultArguments() }
+            { StaticTextKey.Warning, StaticTextKey.Warning.DefaultArguments() },
+            { StaticTextKey.Error, StaticTextKey.Error.DefaultArguments() }
         };
     }
 

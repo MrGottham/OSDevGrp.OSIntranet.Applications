@@ -144,7 +144,8 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.Reset, "Nulstil", 0)]
     [TestCase(StaticTextKey.Cancel, "Fortryd", 0)]
     [TestCase(StaticTextKey.Warning, "Advarsel", 0)]
-    public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticTesxt(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
+    [TestCase(StaticTextKey.Error, "Fejl", 0)]
+    public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();
 

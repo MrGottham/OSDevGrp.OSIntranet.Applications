@@ -16,19 +16,43 @@ public static class WebApiClientExceptionExtensions
     #region Methods
 
     public static ServiceGatewayExceptionBase ToServiceGatewayException(this WebApiClientException webApiClientException)
-    {  
+    {
         return webApiClientException.ToServiceGatewayException(webApiClientException.Message, webApiClientException);
     }
 
     public static ServiceGatewayExceptionBase ToServiceGatewayException(this WebApiClientException<ErrorModel> webApiClientException)
-    {  
-        return webApiClientException.ToServiceGatewayException(webApiClientException.Result.ErrorMessage, webApiClientException);
+    {
+        string message = ExtractErrorMessage(webApiClientException.Result?.ErrorMessage);
+        return webApiClientException.ToServiceGatewayException(message, webApiClientException);
     }
 
     public static ServiceGatewayExceptionBase ToServiceGatewayException(this WebApiClientException<ErrorResponseModel> webApiClientException)
-    {  
-        ErrorResponseModel errorResponseModel = webApiClientException.Result;
-        return webApiClientException.ToServiceGatewayException($"{errorResponseModel.Error}{Environment.NewLine}{errorResponseModel.Error_description}", webApiClientException);
+    {
+        ErrorResponseModel? errorResponseModel = webApiClientException.Result;
+        string message = BuildErrorResponseMessage(errorResponseModel);
+        return webApiClientException.ToServiceGatewayException(message, webApiClientException);
+    }
+
+    private static string ExtractErrorMessage(string? errorMessage)
+    {
+        return string.IsNullOrWhiteSpace(errorMessage) ? "An error occurred from the external service." : errorMessage;
+    }
+
+    private static string BuildErrorResponseMessage(ErrorResponseModel? errorResponseModel)
+    {
+        if (errorResponseModel == null)
+        {
+            return "An error response was received from the external service.";
+        }
+
+        string error = string.IsNullOrWhiteSpace(errorResponseModel.Error) ? "unknown_error" : errorResponseModel.Error;
+
+        if (string.IsNullOrWhiteSpace(errorResponseModel.Error_description))
+        {
+            return error;
+        }
+
+        return $"{error}{Environment.NewLine}{errorResponseModel.Error_description}";
     }
 
     private static ServiceGatewayExceptionBase ToServiceGatewayException(this WebApiClientException webApiClientException, string message, Exception innerException)

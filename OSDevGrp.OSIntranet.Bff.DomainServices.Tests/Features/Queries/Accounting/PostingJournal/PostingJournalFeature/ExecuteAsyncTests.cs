@@ -156,6 +156,7 @@ public class ExecuteAsyncTests
     [TestCase(StaticTextKey.Reset)]
     [TestCase(StaticTextKey.Cancel)]
     [TestCase(StaticTextKey.Warning)]
+    [TestCase(StaticTextKey.Error)]
     public async Task ExecuteAsync_WhenCalled_ReturnsPostingJournalResponseWhereStaticTextsContainsExpectedStaticTextKey(StaticTextKey staticTextKey)
     {
         IQueryFeature<PostingJournalRequest, PostingJournalResponse> sut = CreateSut();
