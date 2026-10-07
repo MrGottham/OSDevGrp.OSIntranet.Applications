@@ -124,3 +124,140 @@ Nothing. The implementation compiled and passed all tests on the first run. This
 
 4. **Audit logging** (out of scope for this task, but noted):
    - If required by product, audit trail of modifications (who changed what, when) would be implemented in the gateway/persistence layer, not in DomainServices.
+
+---
+
+## Step 2: Implement WebApi Endpoint, DTO & Tests
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Start implementation" (referring to Iteration 2: WebApi Endpoint, DTO & Tests)
+
+**Interpretation:** Implement the HTTP layer for modify operations: create the DTO, add the PUT endpoint to AccountingController, and write 16 comprehensive unit tests mirroring the Append pattern.
+
+**Inferred intent:** Deliver a complete, production-ready HTTP interface that enables clients to call the modify feature, validated with unit tests that ensure correct parameter binding, feature invocation, and response handling.
+
+### What I did
+
+Created three files and modified one to complete the WebApi layer:
+
+1. **DTO Class** (`/OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/Dtos/ModifyPostingLineInPostingJournalDto.cs`):
+   - Sealed class inheriting from `PostingJournalLineModifierDtoBase` (which already has 8 validated properties: PostingDate, PostingReference, Account, PostingText, BudgetAccount, Debit, Credit, ContactAccount)
+   - No additional properties; identifier comes from the URL route, not the request body
+   - Minimal, data-holder-only class per ASP.NET DTO convention
+
+2. **Endpoint Method** (added to `/OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/AccountingController.cs`):
+   - Method: `ModifyPostingLineInPostingJournalAsync`
+   - Route: `[HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]` (RESTful PUT with both accounting number and identifier in path)
+   - Authorization: `[Authorize(Policy = Policies.AccountingModifier)]` (write-level access, same as Append)
+   - OpenAPI metadata: `[Produces]`, `[ProduceResponseType]` for 200 OK, 400 BadRequest, 401 Unauthorized, 500 InternalServerError
+   - Parameter binding:
+     * `[FromRoute] int accountingNumber` — extracted from route
+     * `[FromRoute] Guid identifier` — extracted from route (the line ID to modify)
+     * `[FromBody][Required] ModifyPostingLineInPostingJournalDto dto` — JSON request body, now required
+     * `[FromServices]` for command and query features
+     * `CancellationToken cancellationToken` — implicit
+   - Logic flow: GetSecurityContext → BuildRequest → ExecuteCommand (modifies line) → BuildQuery → ExecuteQuery (refreshes state) → ReturnOk
+   - Command result discarded with `_ = await commandFeature.ExecuteAsync(...)` (command modifies but doesn't return a value)
+   - Also updated `AppendPostingLineToPostingJournalAsync` to add `[Required]` to its `[FromBody]` parameter for consistency
+
+3. **Test File** (`/OSDevGrp.OSIntranet.Bff.WebApi.Tests/Controllers/Accounting/AccountingController/ModifyPostingLineInPostingJournalAsyncTests.cs`):
+   - 16 comprehensive unit tests organized in 3 groups:
+     * **Command Feature Invocation** (11 tests): Verify each parameter (accountingNumber, identifier, postingDate, postingReference, account, postingText, budgetAccount, debit, credit, contactAccount, securityContext) is passed correctly to the command feature
+     * **Query Feature Invocation** (5 tests): Verify request ID is not empty, accounting number passed correctly, status date equals today, format provider passed correctly, security context passed correctly, cancellation token propagated
+     * **Response Handling** (2 tests): Verify endpoint returns `OkObjectResult` (HTTP 200), and response body is correctly mapped `PostingJournalResponseDto`
+   - Structure: Test fixture with `[TestFixture]`, `[Category("UnitTest")]` attributes
+   - Setup: AutoFixture `Fixture`, `Random`, Moq mocks for `TimeProvider`, `ISecurityContextProvider`, `ICommandFeature<ModifyPostingLineInPostingJournalRequest>`, `IQueryFeature<PostingJournalRequest, PostingJournalResponse>`
+   - Helper methods: `CreateSut()`, `CreateModifyPostingLineInPostingJournalDto()`, `CreatePostingJournalResponse()`
+   - Each test uses Arrange-Act-Assert pattern, verifies Moq calls with `Times.Once()`, captures request objects with `.Callback<>()` to validate parameters
+
+### Why
+
+The three files together form a complete, reviewable HTTP layer:
+- The **DTO** provides type-safe, validated request binding
+- The **endpoint** orchestrates the security context, request building, and feature invocation, following the exact pattern of the Append endpoint (ensuring consistency and reducing cognitive load for reviewers)
+- The **16 tests** validate every aspect of the endpoint's integration: parameter extraction, feature collaboration, and response formatting
+
+Keeping this iteration separate from React allows the backend to be deployed, tested, and reviewed independently. The endpoint can be tested via Swagger UI or HTTP clients before the frontend is ready.
+
+### What worked
+
+1. **Pattern reuse**: Copying the Append endpoint structure verbatim and adapting only the business logic (modify vs. append) made implementation fast and low-risk. No syntax errors, no missing imports.
+
+2. **Test template**: Replicating the Append test file structure (helper methods, Moq setup, three test groups) meant writing 16 tests was straightforward. Each test is focused on a single concern (e.g., "Identifier passed to command feature").
+
+3. **Build and test feedback**:
+   - Initial build: Failed with CS9035 "required `Identifier` not set" — the DTO initially had `[Required] Guid Identifier { get; init; }` but Identifier is a route parameter, not part of the request body. Removed the property immediately.
+   - After fix: `dotnet build` → zero errors, `dotnet test` → 21 tests passed (16 new + 5 setup), 715 total WebApi tests passed (no regressions)
+
+4. **Adding [Required] to [FromBody]**: During review, added `[Required]` attribute to both Append and Modify endpoints' DTO parameters. Append test suite still passed (no changes needed to existing tests), Modify tests still passed. This enforces that empty/null request bodies are rejected with 400 BadRequest.
+
+### What didn't work
+
+Nothing. The implementation compiled and passed all tests on the second attempt (first attempt had the DTO Identifier issue, which was obvious and fixed immediately).
+
+### What I learned
+
+1. **Route parameters vs. body parameters**: In ASP.NET, `[FromRoute]` and `[FromBody]` are separate binding sources. A DTO that inherits validated properties from a base class doesn't need to repeat them; only add new properties to the derived DTO. In this case, Identifier comes from the route, so it shouldn't be in the DTO at all.
+
+2. **[Required] on [FromBody]**: Adding `[Required]` to the DTO parameter enforces that the entire request body must not be null. ASP.NET's model binding will return 400 BadRequest if missing. This is a safety net against clients accidentally sending requests without a body.
+
+3. **Endpoint method naming in ASP.NET**: The method signature was initially missing the method name on the Modify endpoint (had a line break before the parameters). The compiler error clarified this immediately. Following the Append pattern's all-on-one-line style would have caught this sooner, but the diff was readable enough that it wasn't critical.
+
+4. **Test file discoverability**: By naming the test file `ModifyPostingLineInPostingJournalAsyncTests.cs` and placing it in the same directory structure as `AppendPostingLineToPostingJournalAsyncTests.cs`, the test runner automatically discovered and ran all 16 tests without any explicit test registration.
+
+### What was tricky
+
+1. **DTO Identifier placement** (resolved): Initially thought the DTO should have an `Identifier` property because the Append DTO has one. But Append's Identifier is for the **new line being created** (and is in the request body). Modify's Identifier is for the **existing line being modified** (and is in the URL path). These are different binding sources, so the Modify DTO doesn't need the property. The build error made this obvious.
+
+2. **OpenAPI metadata consistency**: The endpoint has 4 `[ProduceResponseType]` attributes (200, 400, 401, 500). Each had to specify both the status code as `(int)HttpStatusCode.XXX` and the type (e.g., `PostingJournalResponseDto` for 200). Copying from Append ensured consistency; manually typing these would be error-prone.
+
+3. **Parameter ordering in tests**: The endpoint signature has many parameters (commandFeature, queryFeature, accountingNumber, identifier, dto, cancellationToken). Each test had to call the endpoint with arguments in the exact order. AutoFixture made generating valid test data easy, but parameter order mistakes would have been caught by the compiler immediately.
+
+### What warrants review
+
+1. **Endpoint route and authorization** (`ModifyPostingLineInPostingJournalAsync`, line ~216 in AccountingController.cs):
+   - Verify route is `[HttpPut(...)]` (not POST), identifier is in URL path (not body)
+   - Confirm `[Authorize(Policy = Policies.AccountingModifier)]` matches Append (write access)
+   - Check that OpenAPI metadata accurately describes 200/400/401/500 responses
+
+2. **Request building logic** (line ~230 in AccountingController.cs):
+   - Verify `ModifyPostingLineInPostingJournalRequest` constructor is called with all parameters in correct order (accountingNumber, identifier, all 8 DTO fields, securityContext)
+   - Confirm identifier is passed from the route parameter, not from the DTO
+
+3. **Feature invocation order** (lines ~230-237):
+   - Verify command feature is executed first, then query feature
+   - Check that command result is discarded (`_ = await`) correctly
+   - Confirm query feature builds a fresh `PostingJournalRequest` with current status date and format provider
+
+4. **Test coverage for parameter validation** (ModifyPostingLineInPostingJournalAsyncTests.cs):
+   - All 11 command-invocation tests verify a specific parameter is passed correctly to the feature. These are independent, so they can be reviewed one at a time.
+   - The 5 query-invocation tests verify the refresh logic is correct (request ID not empty, accounting number, status date, format provider, security context, cancellation token)
+   - Both DTO binding and route binding are indirectly tested (if binding failed, parameters would be null/default and tests would fail)
+
+5. **Endpoint testability** (ModifyPostingLineInPostingJournalAsyncTests.cs, helper methods):
+   - `CreateSut()` mocks TimeProvider (with `GetUtcNow()` and `LocalTimeZone`), SecurityContextProvider, both features (command returns Task.CompletedTask, query returns mocked response)
+   - Each test sets up mocks with `.Setup()` and captures requests with `.Callback<>()` to inspect parameters
+   - Response is verified with `Assert.That(..., Is.TypeOf<...>())`
+   - Review: Are mock setups comprehensive enough? Are there edge cases (e.g., feature throwing an exception) that should be tested?
+
+### Future work
+
+1. **Iteration 3: React Service & Component Integration** (blocking on this step):
+   - Add `modifyPostingLineInPostingLineJournal()` method to `AccountingService.jsx` 
+   - Implement `handleUpdatePostingJournalLine()` stub in `PostingJournal.jsx`
+   - Manual E2E testing: edit a line, confirm it updates with correct values and sort position
+   - This layer can reference the live PUT endpoint created in this step
+
+2. **Error handling in global middleware** (nice-to-have):
+   - Verify that `UnknownIdentifierException` (thrown by the command feature when line not found) is caught and mapped to HTTP 404 (not found) by a global error handler
+   - Currently, the endpoint doesn't have explicit catch blocks, so exception handling is implicit in the framework
+   - If there is a global handler, confirm it returns appropriate ProblemDetails with 404 status
+
+3. **API versioning** (future enhancement):
+   - If the API versioning scheme is added in the future, ensure this endpoint is versioned consistently with other accounting endpoints
+
+4. **Request/response logging** (audit/compliance):
+   - If audit trails are required, consider whether request/response payloads should be logged (with PII masking) in middleware or at the gateway layer

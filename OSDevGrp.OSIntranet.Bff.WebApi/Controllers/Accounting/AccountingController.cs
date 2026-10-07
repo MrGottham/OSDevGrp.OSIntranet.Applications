@@ -181,7 +181,7 @@ public class AccountingController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
-    public async Task<IActionResult> AppendPostingLineToPostingJournalAsync([FromServices] ICommandFeature<AppendPostingLineToPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromBody] AppendPostingLineToPostingJournalDto dto, CancellationToken cancellationToken)
+    public async Task<IActionResult> AppendPostingLineToPostingJournalAsync([FromServices] ICommandFeature<AppendPostingLineToPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromBody][Required] AppendPostingLineToPostingJournalDto dto, CancellationToken cancellationToken)
     {
         ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
 
@@ -200,6 +200,38 @@ public class AccountingController : ControllerBase
             securityContext);
 
         await commandFeature.ExecuteAsync(appendRequest, cancellationToken);
+
+        PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
+        PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
+
+        return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]
+    [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> ModifyPostingLineInPostingJournalAsync([FromServices] ICommandFeature<ModifyPostingLineInPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required] Guid identifier, [FromBody][Required] ModifyPostingLineInPostingJournalDto dto, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        ModifyPostingLineInPostingJournalRequest modifyRequest = new ModifyPostingLineInPostingJournalRequest(
+            Guid.NewGuid(),
+            accountingNumber,
+            identifier,
+            dto.PostingDate,
+            dto.PostingReference,
+            dto.Account,
+            dto.PostingText,
+            dto.BudgetAccount,
+            dto.Debit,
+            dto.Credit,
+            dto.ContactAccount,
+            securityContext);
+
+        await commandFeature.ExecuteAsync(modifyRequest, cancellationToken);
 
         PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
         PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
