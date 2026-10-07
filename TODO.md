@@ -20,11 +20,34 @@ We need to create tests for functionality in the following projects:
 
 Note: No automated tests are needed for osdevgrp.osintranet.react as the React component will be validated through manual testing.
 
+## Resolve verification failure messages through static text
+
+### Business Goal
+
+Verification failures should expose a Danish message resolved through the static text provider instead of a hard-coded English exception message.
+
+### Implementation Bullets
+
+#### BFF DomainServices.Interfaces
+
+- [ ] Add `VerificationFailed` to `StaticTextKey`.
+- [ ] Update `VerificationFailedException` to accept the localized message instead of using a hard-coded English message.
+
+#### BFF DomainServices
+
+- [ ] Add the Danish text `Den angivne bekræftelseskode kunne ikke godkendes.` for `StaticTextKey.VerificationFailed` in `StaticTextProvider`.
+- [ ] Update `CommandFeatureHumanVerifier` and `QueryFeatureHumanVerifier` to resolve the message through `IStaticTextProvider` when verification fails, then throw `VerificationFailedException` with that message.
+
+#### BFF DomainServices.Tests
+
+- [ ] Add `[TestCase(StaticTextKey.VerificationFailed, "Den angivne bekræftelseskode kunne ikke godkendes.", 0)]` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
+- [ ] Verify both human-verifier decorators resolve the new key and pass the localized message to `VerificationFailedException` when verification fails.
+
 ## Expose logic to modify a posting line within a given accounting's posting journal from the BFF WebApi
 
 ### Business Goal
 
-The WebApi should expose logic to add a posting line to a given accounting's posting journal. This should support the React application to add a posting line to a given accounting's posting journal then reload the posting journal.
+The WebApi should expose logic to modify an existing posting line within a given accounting's posting journal. This should support the React application to modify an existing posting line within a given accounting's posting journal then reload the posting journal.
 
 ### Implementation Bullets
 
@@ -88,3 +111,9 @@ The WebApi should expose logic to add a posting line to a given accounting's pos
 - [ ] Implement `handleUpdatePostingJournalLine` in `PostingJournal.jsx` using the same field conversions as the create handler: integer accounting number, UUID line identifier, ISO posting date, nullable strings for posting reference/budget/contact account, strings for account and posting text, and nullable decimals for debit and credit.
 - [ ] On successful modification, close the edit modal and update the journal from `response.dynamicTexts`; on failure, show the same danger toast as the create handler and keep the modal open.
 - [ ] Remove temporary `console.debug` calls from the update handler.
+
+## Expose logic to delete a posting line within a given accounting's posting journal from the BFF WebApi
+
+### Business Goal
+
+The WebApi should expose logic to delete an existing posting line within a given accounting's posting journal. This should support the React application to delete an existing posting line within a given accounting's posting journal then reload the posting journal.
