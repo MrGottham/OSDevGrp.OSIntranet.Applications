@@ -32,16 +32,46 @@ Verification failures should expose a Danish message resolved through the static
 
 - [ ] Add `VerificationFailed` to `StaticTextKey`.
 - [ ] Update `VerificationFailedException` to accept the localized message instead of using a hard-coded English message.
+- [ ] Add `IFormatProvider FormatProvider { get; }` property to `IHumanVerifiableRequest` to enable culture-aware error message localization.
 
 #### BFF DomainServices
 
 - [ ] Add the Danish text `Den angivne bekræftelseskode kunne ikke godkendes.` for `StaticTextKey.VerificationFailed` in `StaticTextProvider`.
-- [ ] Update `CommandFeatureHumanVerifier` and `QueryFeatureHumanVerifier` to resolve the message through `IStaticTextProvider` when verification fails, then throw `VerificationFailedException` with that message.
+- [ ] Update `CommandFeatureHumanVerifier` and `QueryFeatureHumanVerifier` to resolve the message through `IStaticTextProvider` using `request.FormatProvider` when verification fails, then throw `VerificationFailedException` with that localized message.
 
 #### BFF DomainServices.Tests
 
 - [ ] Add `[TestCase(StaticTextKey.VerificationFailed, "Den angivne bekræftelseskode kunne ikke godkendes.", 0)]` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
 - [ ] Verify both human-verifier decorators resolve the new key and pass the localized message to `VerificationFailedException` when verification fails.
+
+## Upgrade SixLabors ImageSharp packages and configure build licensing
+
+### BFF DomainServices
+
+- [ ] Upgrade the direct `SixLabors.ImageSharp` reference in `OSDevGrp.OSIntranet.Bff.DomainServices.csproj` from `3.1.12` to `4.1.2`.
+- [ ] Upgrade the direct `SixLabors.ImageSharp.Drawing` reference from `2.1.7` to a version compatible with ImageSharp 4, such as `3.1.2`.
+- [ ] Review and update `CaptchaGenerator` for API changes in ImageSharp 4 and ImageSharp.Drawing 3.
+- [ ] Confirm the selected package versions support the project's `net10.0` target.
+
+### Licensing and Build Configuration
+
+- [ ] Keep the acquired license file at `licenses/sixlabors.lic` in the solution root; retain the `.gitignore` rule so the license is not committed.
+- [ ] Add `SixLaborsLicenseFile` to the `BFF.DomainServices.csproj` property group using `$(MSBuildThisFileDirectory)../licenses/sixlabors.lic` for local builds.
+- [ ] Add `/licenses/` to `.dockerignore` so the license is not copied into the Docker build context by `COPY . .`.
+- [ ] Declare a top-level `sixlabors_license` file secret in `docker-compose.yaml`, sourced from `./licenses/sixlabors.lic`, and attach it to the `builder` service's build configuration.
+- [ ] Mount the `sixlabors_license` BuildKit secret only for the `dotnet publish` step that builds BFF DomainServices, and pass `/run/secrets/sixlabors.lic` through `-p:SixLaborsLicenseFile=...` to override the project-relative path in the container.
+- [ ] Ensure Docker Compose uses a BuildKit-capable builder and document `docker compose build builder` as the command for building with the license secret.
+- [ ] Ensure the license file is not copied into a Docker image layer or included in published application output.
+
+### BFF DomainServices.Tests
+
+- [ ] Run the focused `CaptchaGenerator` tests and update them if the package API changes affect expected behavior.
+- [ ] Run the BFF DomainServices unit tests and confirm the project builds with the license configuration.
+
+### Build Verification
+
+- [ ] Verify local builds find the license using the project-relative `SixLaborsLicenseFile` path.
+- [ ] Verify `docker compose build builder` successfully publishes the BFF WebApi with the BuildKit license secret, and confirm the license file is absent from the resulting image and publish output.
 
 ## Expose logic to modify a posting line within a given accounting's posting journal from the BFF WebApi
 
