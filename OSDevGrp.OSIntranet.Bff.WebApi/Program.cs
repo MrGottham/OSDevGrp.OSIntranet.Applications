@@ -125,7 +125,7 @@ authenticationBuilder.AddOpenIdConnect(options =>
     options.SaveTokens = true;
     options.ResponseType = OpenIdConnectResponseType.Code;
     options.UsePkce = true;
-    options.UseTokenLifetime = true;
+    options.UseTokenLifetime = false;
     options.GetClaimsFromUserInfoEndpoint = true; 
     options.MapInboundClaims = true;
     options.Scope.Clear();
@@ -141,7 +141,7 @@ authenticationBuilder.AddOpenIdConnect(options =>
 
         string tokenType = context.TokenEndpointResponse!.TokenType;
         string accessToken = context.TokenEndpointResponse!.AccessToken;
-        DateTimeOffset expires = new DateTimeOffset(context.SecurityToken.ValidTo, TimeSpan.Zero);
+        DateTimeOffset expires = AccessTokenExpirationResolver.Resolve(context.TokenEndpointResponse.ExpiresIn, timeProvider);
         IToken token = new LocalToken(tokenType, accessToken, expires, timeProvider);
 
         ITokenStorage tokenStorage = context.HttpContext.RequestServices.GetRequiredService<ITokenStorage>();
