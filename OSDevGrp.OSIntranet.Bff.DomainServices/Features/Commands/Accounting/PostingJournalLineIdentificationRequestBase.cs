@@ -6,10 +6,11 @@ public abstract class PostingJournalLineIdentificationRequestBase : AccountingId
 {
     #region Constructor
 
-    protected PostingJournalLineIdentificationRequestBase(Guid requestId, int accountingNumber, Guid identifier, ISecurityContext securityContext)
+    protected PostingJournalLineIdentificationRequestBase(Guid requestId, int accountingNumber, Guid identifier, IFormatProvider formatProvider, ISecurityContext securityContext)
         : base(requestId, accountingNumber, securityContext)
     {
         Identifier = identifier;
+        FormatProvider = formatProvider ?? throw new ArgumentNullException(nameof(formatProvider));
     }
 
     #endregion
@@ -17,6 +18,8 @@ public abstract class PostingJournalLineIdentificationRequestBase : AccountingId
     #region Properties
 
     public Guid Identifier { get; }
+
+    public IFormatProvider FormatProvider { get; }
 
     #endregion
 }

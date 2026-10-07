@@ -2,6 +2,7 @@ using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.AppendPostingLineToPostingJournal.AppendPostingLineToPostingJournalRequest;
 
@@ -41,6 +42,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -68,6 +70,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -95,6 +98,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -122,6 +126,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -149,6 +154,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -176,6 +182,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -203,6 +210,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -230,6 +238,7 @@ public class ConstructorTests
             expectedDebit,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -257,6 +266,7 @@ public class ConstructorTests
             0m,
             expectedCredit,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -284,6 +294,7 @@ public class ConstructorTests
             100m,
             0m,
             expectedContactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -310,6 +321,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             expectedSecurityContext);
 
         // Assert
@@ -337,6 +349,7 @@ public class ConstructorTests
             100m,
             0m,
             _fixture.Create<string>(),
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -363,6 +376,7 @@ public class ConstructorTests
             null,
             null,
             null,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert

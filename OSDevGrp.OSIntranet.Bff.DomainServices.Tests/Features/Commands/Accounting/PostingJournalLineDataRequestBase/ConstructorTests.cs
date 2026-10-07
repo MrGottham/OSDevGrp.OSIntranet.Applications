@@ -2,6 +2,7 @@ using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
+using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.PostingJournalLineDataRequestBase;
 
@@ -57,6 +58,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -94,6 +96,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -131,6 +134,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -168,6 +172,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -205,6 +210,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -242,6 +248,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -279,6 +286,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -316,6 +324,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -353,6 +362,7 @@ public class ConstructorTests
             debit,
             credit,
             contactAccount,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -377,6 +387,7 @@ public class ConstructorTests
             decimal? debit,
             decimal? credit,
             string? contactAccount,
+            IFormatProvider formatProvider,
             ISecurityContext securityContext)
             : base(
                 requestId,
@@ -390,6 +401,7 @@ public class ConstructorTests
                 debit,
                 credit,
                 contactAccount,
+                formatProvider,
                 securityContext)
         {
         }

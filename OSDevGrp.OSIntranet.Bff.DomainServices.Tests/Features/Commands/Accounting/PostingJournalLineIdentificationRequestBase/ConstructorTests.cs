@@ -3,6 +3,7 @@ using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData;
+using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.PostingJournalLineIdentificationRequestBase;
 
@@ -42,6 +43,7 @@ public class ConstructorTests
             requestId,
             accountingNumber,
             identifier,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -63,6 +65,7 @@ public class ConstructorTests
             requestId,
             accountingNumber,
             identifier,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -84,6 +87,7 @@ public class ConstructorTests
             requestId,
             accountingNumber,
             identifier,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -105,6 +109,7 @@ public class ConstructorTests
             requestId,
             accountingNumber,
             identifier,
+            _fixture.Create<CultureInfo>(),
             securityContext);
 
         // Assert
@@ -121,8 +126,9 @@ public class ConstructorTests
             Guid requestId,
             int accountingNumber,
             Guid identifier,
+            IFormatProvider formatProvider,
             ISecurityContext securityContext)
-            : base(requestId, accountingNumber, identifier, securityContext)
+            : base(requestId, accountingNumber, identifier, formatProvider, securityContext)
         {
         }
     }

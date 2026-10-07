@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Exceptions;
+using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.ModifyPostingLineInPostingJournal.ModifyPostingLineInPostingJournalFeature;
 
@@ -620,6 +621,7 @@ public class ExecuteAsyncTests
         decimal? debit = null,
         decimal? credit = null,
         string? contactAccount = null,
+        IFormatProvider? formatProvider = null,
         ISecurityContext? securityContext = null)
     {
         return new DomainServices.Features.Commands.Accounting.ModifyPostingLineInPostingJournalRequest(
@@ -634,6 +636,7 @@ public class ExecuteAsyncTests
             debit,  // Keep null if not provided
             credit,  // Keep null if not provided
             contactAccount,  // Keep null if not provided
+            formatProvider ?? _fixture!.Create<CultureInfo>(),
             securityContext ?? CreateSecurityContext());
     }
 

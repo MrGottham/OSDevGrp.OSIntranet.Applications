@@ -18,6 +18,7 @@ public sealed class ModifyPostingLineInPostingJournalRequest : PostingJournalLin
         decimal? debit,
         decimal? credit,
         string? contactAccount,
+        IFormatProvider formatProvider,
         ISecurityContext securityContext)
         : base(
             requestId,
@@ -31,6 +32,7 @@ public sealed class ModifyPostingLineInPostingJournalRequest : PostingJournalLin
             debit,
             credit,
             contactAccount,
+            formatProvider,
             securityContext)
     {
     }

@@ -273,6 +273,24 @@ public class ModifyPostingLineInPostingJournalAsyncTests
             Times.Once);
     }
 
+    [Test]
+    [Category("UnitTest")]
+    public async Task ModifyPostingLineInPostingJournalAsync_WhenCalled_AssertExecuteAsyncWasCalledOnCommandFeatureWithModifyPostingLineInPostingJournalRequestWhereFormatProviderIsEqualToFormatProviderFromDependencies()
+    {
+        IFormatProvider formatProvider = _fixture!.Create<CultureInfo>();
+        WebApi.Controllers.Accounting.AccountingController sut = CreateSut(formatProvider: formatProvider);
+        ModifyPostingLineInPostingJournalDto dto = CreateModifyPostingLineInPostingJournalDto();
+        Guid identifier = _fixture!.Create<Guid>();
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.ModifyPostingLineInPostingJournalAsync(_commandFeatureMock!.Object, _queryFeatureMock!.Object, _fixture!.Create<int>(), identifier, dto, cancellationTokenSource.Token);
+
+        _commandFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<ModifyPostingLineInPostingJournalRequest>(value => value.FormatProvider == formatProvider),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     #endregion
 
     #region Query Feature Invocation Tests

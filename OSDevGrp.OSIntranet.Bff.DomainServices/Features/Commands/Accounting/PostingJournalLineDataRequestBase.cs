@@ -18,8 +18,9 @@ public abstract class PostingJournalLineDataRequestBase : PostingJournalLineIden
         decimal? debit,
         decimal? credit,
         string? contactAccount,
+        IFormatProvider formatProvider,
         ISecurityContext securityContext)
-        : base(requestId, accountingNumber, identifier, securityContext)
+        : base(requestId, accountingNumber, identifier, formatProvider, securityContext)
     {
         PostingDate = postingDate;
         PostingReference = postingReference;

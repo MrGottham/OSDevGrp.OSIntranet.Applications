@@ -34,7 +34,7 @@ internal sealed class AppendPostingLineToPostingJournalFeature : PostingLineFeat
             string errorMessage = await StaticTextProvider.GetStaticTextAsync(
                 StaticTextKey.IdentifierAlreadyExists,
                 StaticTextKey.IdentifierAlreadyExists.DefaultArguments(),
-                CultureInfo.InvariantCulture,
+                request.FormatProvider,
                 cancellationToken);
 
             throw new IdentifierAlreadyExistsException(request.Identifier, errorMessage);

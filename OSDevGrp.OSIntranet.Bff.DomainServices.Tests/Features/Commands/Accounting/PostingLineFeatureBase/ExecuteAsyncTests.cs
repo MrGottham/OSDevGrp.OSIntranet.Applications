@@ -6,6 +6,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
+using System.Globalization;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.PostingLineFeatureBase;
 
@@ -337,8 +338,9 @@ public class ExecuteAsyncTests
             Guid requestId,
             int accountingNumber,
             Guid identifier,
+            IFormatProvider formatProvider,
             ISecurityContext securityContext)
-            : base(requestId, accountingNumber, identifier, securityContext)
+            : base(requestId, accountingNumber, identifier, formatProvider, securityContext)
         {
         }
     }
@@ -397,12 +399,14 @@ public class ExecuteAsyncTests
         Guid? requestId = null,
         int? accountingNumber = null,
         Guid? identifier = null,
+        IFormatProvider? formatProvider = null,
         ISecurityContext? securityContext = null)
     {
         return new TestPostingLineFeatureRequest(
             requestId ?? _fixture!.Create<Guid>(),
             accountingNumber ?? _fixture!.Create<int>(),
             identifier ?? _fixture!.Create<Guid>(),
+            formatProvider ?? _fixture!.Create<CultureInfo>(),
             securityContext ?? CreateSecurityContext());
     }
 

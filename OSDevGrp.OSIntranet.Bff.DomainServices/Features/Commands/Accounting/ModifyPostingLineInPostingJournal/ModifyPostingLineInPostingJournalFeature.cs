@@ -37,7 +37,7 @@ internal sealed class ModifyPostingLineInPostingJournalFeature : PostingLineFeat
             string errorMessage = await StaticTextProvider.GetStaticTextAsync(
                 StaticTextKey.UnknownIdentifier,
                 StaticTextKey.UnknownIdentifier.DefaultArguments(),
-                CultureInfo.InvariantCulture,
+                request.FormatProvider,
                 cancellationToken);
 
             throw new UnknownIdentifierException(request.Identifier, errorMessage);

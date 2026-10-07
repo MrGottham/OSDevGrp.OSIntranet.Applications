@@ -261,6 +261,23 @@ public class AppendPostingLineToPostingJournalAsyncTests
             Times.Once);
     }
 
+    [Test]
+    [Category("UnitTest")]
+    public async Task AppendPostingLineToPostingJournalAsync_WhenCalled_AssertExecuteAsyncWasCalledOnCommandFeatureWithAppendPostingLineToPostingJournalRequestWhereFormatProviderIsEqualToFormatProviderFromDependencies()
+    {
+        IFormatProvider formatProvider = _fixture!.Create<CultureInfo>();
+        WebApi.Controllers.Accounting.AccountingController sut = CreateSut(formatProvider: formatProvider);
+        AppendPostingLineToPostingJournalDto dto = CreateAppendPostingLineToPostingJournalDto();
+
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        await sut.AppendPostingLineToPostingJournalAsync(_commandFeatureMock!.Object, _queryFeatureMock!.Object, _fixture!.Create<int>(), dto, cancellationTokenSource.Token);
+
+        _commandFeatureMock!.Verify(m => m.ExecuteAsync(
+                It.Is<AppendPostingLineToPostingJournalRequest>(value => value.FormatProvider == formatProvider),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     #endregion
 
     #region Query Feature Invocation Tests

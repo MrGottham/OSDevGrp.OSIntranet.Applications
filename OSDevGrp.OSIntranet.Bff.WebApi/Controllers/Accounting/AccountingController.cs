@@ -197,6 +197,7 @@ public class AccountingController : ControllerBase
             dto.Debit,
             dto.Credit,
             dto.ContactAccount,
+            _formatProvider,
             securityContext);
 
         await commandFeature.ExecuteAsync(appendRequest, cancellationToken);
@@ -229,6 +230,7 @@ public class AccountingController : ControllerBase
             dto.Debit,
             dto.Credit,
             dto.ContactAccount,
+            _formatProvider,
             securityContext);
 
         await commandFeature.ExecuteAsync(modifyRequest, cancellationToken);
