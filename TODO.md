@@ -83,57 +83,57 @@ The WebApi should expose logic to modify an existing posting line within a given
 
 #### BFF DomainServices
 
-- [ ] Create `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalRequest.cs` with namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting` and inherit from `PostingJournalLineDataRequestBase`.
-- [ ] Create `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalFeature.cs` with namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting`, inheriting from `PostingLineFeatureBase<ModifyPostingLineInPostingJournalRequest>`.
-- [ ] Find the existing posting line by the request identifier.
-- [ ] If no line matches, throw `UnknownIdentifierException` with the request identifier and localized text from `StaticTextKey.UnknownIdentifier`.
-- [ ] Since generated `ApplyPostingLineModel` properties are immutable, construct a replacement line with request values, preserving the matched line's identifier and `SortOrder`.
-- [ ] Replace only the matched line in the collection; leave other lines unchanged and return the cloned journal through `SortAndClonePostingJournal`.
+- [x] Create `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalRequest.cs` with namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting` and inherit from `PostingJournalLineDataRequestBase`.
+- [x] Create `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalFeature.cs` with namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting`, inheriting from `PostingLineFeatureBase<ModifyPostingLineInPostingJournalRequest>`.
+- [x] Find the existing posting line by the request identifier.
+- [x] If no line matches, throw `UnknownIdentifierException` with the request identifier and localized text from `StaticTextKey.UnknownIdentifier`.
+- [x] Since generated `ApplyPostingLineModel` properties are immutable, construct a replacement line with request values, preserving the matched line's identifier and `SortOrder`.
+- [x] Replace only the matched line in the collection; leave other lines unchanged and return the cloned journal through `SortAndClonePostingJournal`.
 
 #### BFF DomainServices Tests
 
-- [ ] Add `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalFeature/ExecuteAsyncTests.cs` in namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.ModifyPostingLineInPostingJournal.ModifyPostingLineInPostingJournalFeature`, following the fixture and mock conventions of the Append feature's `ExecuteAsyncTests`.
-- [ ] Verify a matching line is replaced with all request fields while retaining its identifier and `SortOrder`.
-- [ ] Verify a missing identifier throws `UnknownIdentifierException`, includes the requested identifier, and retrieves the message from `StaticTextKey.UnknownIdentifier`.
-- [ ] Verify other lines remain unchanged and the saved journal is cloned, sorted by posting date and sort order, and retains its accounting number.
-- [ ] Verify `SavePostingJournalAsync` is called with the updated journal and the request accounting number/cancellation token.
+- [x] Add `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalFeature/ExecuteAsyncTests.cs` in namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.ModifyPostingLineInPostingJournal.ModifyPostingLineInPostingJournalFeature`, following the fixture and mock conventions of the Append feature's `ExecuteAsyncTests`.
+- [x] Verify a matching line is replaced with all request fields while retaining its identifier and `SortOrder`.
+- [x] Verify a missing identifier throws `UnknownIdentifierException`, includes the requested identifier, and retrieves the message from `StaticTextKey.UnknownIdentifier`.
+- [x] Verify other lines remain unchanged and the saved journal is cloned, sorted by posting date and sort order, and retains its accounting number.
+- [x] Verify `SavePostingJournalAsync` is called with the updated journal and the request accounting number/cancellation token.
 
 #### BFF WebApi DTO
 
-- [ ] Create `OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/Dtos/ModifyPostingLineInPostingJournalDto.cs` in namespace `OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos`, inheriting from `PostingJournalLineModifierDtoBase` with no additional properties.
+- [x] Create `OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/Dtos/ModifyPostingLineInPostingJournalDto.cs` in namespace `OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos`, inheriting from `PostingJournalLineModifierDtoBase` with no additional properties.
 
 #### BFF WebApi Endpoint
 
-- [ ] Add `ModifyPostingLineInPostingJournalAsync` to `AccountingController` as an authorized `PUT` endpoint using `[HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]`.
-- [ ] Add `[Authorize(Policy = Policies.AccountingModifier)]`.
-- [ ] Add `[ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]`.
-- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]`.
-- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]`.
-- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]`.
-- [ ] Accept `[FromServices] ICommandFeature<ModifyPostingLineInPostingJournalRequest> commandFeature` and `[FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature`.
-- [ ] Bind and validate `accountingNumber` from the route, bind the required GUID `identifier` from the route, bind `ModifyPostingLineInPostingJournalDto` from the body, and accept a `CancellationToken`.
-- [ ] Resolve the security context and create `ModifyPostingLineInPostingJournalRequest` with the route values, DTO fields, and security context.
-- [ ] Execute the modify command, query the refreshed journal with the accounting number, current status date, format provider, and security context, then return `PostingJournalResponseDto.Map` in an `OK` result.
+- [x] Add `ModifyPostingLineInPostingJournalAsync` to `AccountingController` as an authorized `PUT` endpoint using `[HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]`.
+- [x] Add `[Authorize(Policy = Policies.AccountingModifier)]`.
+- [x] Add `[ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]`.
+- [x] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]`.
+- [x] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]`.
+- [x] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]`.
+- [x] Accept `[FromServices] ICommandFeature<ModifyPostingLineInPostingJournalRequest> commandFeature` and `[FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature`.
+- [x] Bind and validate `accountingNumber` from the route, bind the required GUID `identifier` from the route, bind `ModifyPostingLineInPostingJournalDto` from the body, and accept a `CancellationToken`.
+- [x] Resolve the security context and create `ModifyPostingLineInPostingJournalRequest` with the route values, DTO fields, and security context.
+- [x] Execute the modify command, query the refreshed journal with the accounting number, current status date, format provider, and security context, then return `PostingJournalResponseDto.Map` in an `OK` result.
 
 #### BFF WebApi Tests
 
-- [ ] Add `Controllers/Accounting/AccountingController/ModifyPostingLineInPostingJournalAsyncTests.cs` in namespace `OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.AccountingController`, following `AppendPostingLineToPostingJournalAsyncTests` fixture and mock conventions.
-- [ ] Verify `GetCurrentSecurityContextAsync` is called once with the given cancellation token.
-- [ ] Verify the command feature is called exactly once with a `ModifyPostingLineInPostingJournalRequest` whose:
-  - [ ] `RequestId` is not `Guid.Empty`.
-  - [ ] `AccountingNumber` matches the route value.
-  - [ ] `Identifier` matches the required GUID from the route.
-  - [ ] `PostingDate` matches the DTO value.
-  - [ ] `PostingReference` matches the DTO value.
-  - [ ] `Account` matches the DTO value.
-  - [ ] `PostingText` matches the DTO value.
-  - [ ] `BudgetAccount` matches the DTO value.
-  - [ ] `Debit` matches the DTO value.
-  - [ ] `Credit` matches the DTO value.
-  - [ ] `ContactAccount` matches the DTO value.
-  - [ ] `SecurityContext` is the context resolved by the security context provider.
-- [ ] Verify the query feature is called once with a non-empty request ID, accounting number, current local status date, format provider, resolved security context, and cancellation token.
-- [ ] Verify the method returns `OkObjectResult` containing a `PostingJournalResponseDto`.
+- [x] Add `Controllers/Accounting/AccountingController/ModifyPostingLineInPostingJournalAsyncTests.cs` in namespace `OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.AccountingController`, following `AppendPostingLineToPostingJournalAsyncTests` fixture and mock conventions.
+- [x] Verify `GetCurrentSecurityContextAsync` is called once with the given cancellation token.
+- [x] Verify the command feature is called exactly once with a `ModifyPostingLineInPostingJournalRequest` whose:
+  - [x] `RequestId` is not `Guid.Empty`.
+  - [x] `AccountingNumber` matches the route value.
+  - [x] `Identifier` matches the required GUID from the route.
+  - [x] `PostingDate` matches the DTO value.
+  - [x] `PostingReference` matches the DTO value.
+  - [x] `Account` matches the DTO value.
+  - [x] `PostingText` matches the DTO value.
+  - [x] `BudgetAccount` matches the DTO value.
+  - [x] `Debit` matches the DTO value.
+  - [x] `Credit` matches the DTO value.
+  - [x] `ContactAccount` matches the DTO value.
+  - [x] `SecurityContext` is the context resolved by the security context provider.
+- [x] Verify the query feature is called once with a non-empty request ID, accounting number, current local status date, format provider, resolved security context, and cancellation token.
+- [x] Verify the method returns `OkObjectResult` containing a `PostingJournalResponseDto`.
 
 #### React Application
 
