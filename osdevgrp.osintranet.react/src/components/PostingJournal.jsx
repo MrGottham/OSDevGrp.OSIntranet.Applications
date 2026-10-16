@@ -224,9 +224,9 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 if (isModelFormSubmitting) return;
                 setModalState(prev => ({...prev, showEditModal: false}));
             }}>
-                <Formik validationSchema={validationSchema} initialValues={{ accountingNumber: accountingNumber, ...formData }} onSubmit={modalState.okCallback}>
+                <Formik validationSchema={validationSchema} initialValues={{ accountingNumber: accountingNumber, ...formData }} onSubmit={(values) => modalState.okCallback?.(values)}>
                     {({ handleSubmit, handleReset, handleChange, setFieldValue, setFieldTouched, values, touched, errors }) => {
-                        const postingDateInvalid = touched.postingDate && Boolean(errors.postingDate);                        
+                        const postingDateInvalid = touched.postingDate && Boolean(errors.postingDate);
 
                         return (
                             <Form noValidate onSubmit={handleSubmit}>
@@ -434,10 +434,11 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     );
 
     function getPostingJournalLineContent(accountingNumber, postingJournalLineDisplayer) {
-        const postingJournalLineIdentifier = parseGuid(postingJournalLineDisplayer.identifier ?? postingJournalLineDisplayer.identifierAsText);
+        const postingJournalLineIdentifierBinary = parseGuid(postingJournalLineDisplayer.identifier ?? postingJournalLineDisplayer.identifierAsText);
+        const postingJournalLineIdentifierString = postingJournalLineDisplayer.identifier ?? postingJournalLineDisplayer.identifierAsText;
 
         return (
-            <tr key={postingJournalLineIdentifier}>
+            <tr key={postingJournalLineIdentifierBinary}>
                 <td className='text-nowrap'>{postingJournalLineDisplayer.postingDateAsText}</td>
                 <td className='d-none d-sm-none d-md-none d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-nowrap'>{postingJournalLineDisplayer.postingReference}</td>
                 <td className='d-none d-sm-table-cell d-md-table-cell d-lg-table-cell d-xl-table-cell d-xxl-table-cell text-nowrap'>{postingJournalLineDisplayer.account}</td>
@@ -448,10 +449,10 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 <td className='d-table-cell d-sm-table-cell d-md-table-cell d-lg-table-cell d-xl-none d-xxl-none text-end text-nowrap'>{postingJournalLineDisplayer.postingValueAsText}</td>
                 <td className='text-nowrap text-end'>
                     <span className='fa-stack'>
-                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none me-2' onClick={() => handleModifyPostingJournalLine(accountingNumber, postingJournalLineIdentifier, dateHelper.getDateOnly(postingJournalLineDisplayer.postingDate), formHelper.asNullableString(postingJournalLineDisplayer.postingReference), postingJournalLineDisplayer.account, postingJournalLineDisplayer.postingText, formHelper.asNullableString(postingJournalLineDisplayer.budgetAccount), formHelper.asCurrency(postingJournalLineDisplayer.debit, true), formHelper.asCurrency(postingJournalLineDisplayer.credit, true), formHelper.asNullableString(postingJournalLineDisplayer.contactAccount), staticTextHelper.getUpdatePostingJournalLineText(staticTexts), staticTextHelper.getUpdateText(staticTexts))}>
+                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none me-2' onClick={() => handleModifyPostingJournalLine(accountingNumber, postingJournalLineIdentifierString, dateHelper.getDateOnly(postingJournalLineDisplayer.postingDate), formHelper.asNullableString(postingJournalLineDisplayer.postingReference), postingJournalLineDisplayer.account, postingJournalLineDisplayer.postingText, formHelper.asNullableString(postingJournalLineDisplayer.budgetAccount), formHelper.asCurrency(postingJournalLineDisplayer.debit, true), formHelper.asCurrency(postingJournalLineDisplayer.credit, true), formHelper.asNullableString(postingJournalLineDisplayer.contactAccount), staticTextHelper.getUpdatePostingJournalLineText(staticTexts), staticTextHelper.getUpdateText(staticTexts))}>  
                             <FontAwesomeIcon icon={faPen} />
                         </button>
-                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' onClick={() => confirmDeletion(staticTextHelper.getPostingJournalLineDeletionQuestionText(staticTexts, postingJournalLineDisplayer.postingText), { accoutingNumber: accountingNumber, postingJournalLineIdentifier: postingJournalLineIdentifier })}>
+                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' onClick={() => confirmDeletion(staticTextHelper.getPostingJournalLineDeletionQuestionText(staticTexts, postingJournalLineDisplayer.postingText), { accoutingNumber: accountingNumber, postingJournalLineIdentifier: postingJournalLineIdentifierString })}>
                             <FontAwesomeIcon icon={faTrash} />
                         </button>
                     </span>
@@ -540,9 +541,25 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
 
     function handleUpdatePostingJournalLine(values) {
         startModelFormTransition(async () => {
-            console.debug('handleUpdatePostingJournalLine');
-            console.debug(`- values=${JSON.stringify(values)}`);
-            setModalState(prev => ({...prev, showEditModal: false}));
+            try {
+                const response = await accountingService.modifyPostingLineInPostingLineJournal(
+                    formHelper.convertToInteger(values.accountingNumber),
+                    formHelper.convertToUuid(values.postingJournalLineIdentifier),
+                    dateHelper.convertToIsoString(values.postingDate),
+                    formHelper.convertToString(values.postingReference, true),
+                    formHelper.convertToString(values.accountNumber),
+                    formHelper.convertToString(values.postingText),
+                    formHelper.convertToString(values.budgetAccountNumber, true),
+                    formHelper.convertToDecimal(values.debit, true, true),
+                    formHelper.convertToDecimal(values.credit, true, true),
+                    formHelper.convertToString(values.contactAccountNumber, true)
+                );
+
+                setModalState(prev => ({...prev, showEditModal: false}));
+                setPostingJournal(response.dynamicTexts);
+            } catch (error) {
+                addToast(staticTextHelper.getErrorText(staticTexts), error.message, 'danger');
+            }
         });
 
         return undefined;
