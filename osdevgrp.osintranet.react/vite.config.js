@@ -3,6 +3,7 @@ import plugin from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
+import process from 'process';
 
 function buildServerProxy(target) {
     return {

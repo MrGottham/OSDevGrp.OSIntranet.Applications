@@ -7,7 +7,7 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
 {
     #region Constructor
 
-    public AccountingTexts(AccountingModel model, IValueDisplayer statusDate, IValueDisplayer balanceBelowZero, IValueDisplayer backDating, IBalanceSheetDisplayer balanceSheetAtStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastMonthFromStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastYearFromStatusDate, IBudgetStatementDisplayer budgetStatementForMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForYearToDateOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastYearOfStatusDate, IObligeePartiesDisplayer obligeePartiesAtStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastMonthFromStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastYearFromStatusDate, IIncomeStatementDisplayer incomeStatement, IFullBalanceSheetDisplayer balanceSheet, IChartOfAccountsDisplayer chartOfAccounts, IChartOfBudgetAccountsDisplayer chartOfBudgetAccounts, IChartOfContactAccountsDisplayer chartOfContactAccounts, IPostingLineCollectionTexts postingLineCollection, IFormatProvider formatProvider)
+    public AccountingTexts(AccountingModel model, IValueDisplayer statusDate, IValueDisplayer balanceBelowZero, IValueDisplayer backDating, IBalanceSheetDisplayer balanceSheetAtStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastMonthFromStatusDate, IBalanceSheetDisplayer balanceSheetAtEndOfLastYearFromStatusDate, IBudgetStatementDisplayer budgetStatementForMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastMonthOfStatusDate, IBudgetStatementDisplayer budgetStatementForYearToDateOfStatusDate, IBudgetStatementDisplayer budgetStatementForLastYearOfStatusDate, IObligeePartiesDisplayer obligeePartiesAtStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastMonthFromStatusDate, IObligeePartiesDisplayer obligeePartiesAtEndOfLastYearFromStatusDate, IIncomeStatementDisplayer incomeStatement, IFullBalanceSheetDisplayer balanceSheet, IChartOfAccountsDisplayer chartOfAccounts, IChartOfBudgetAccountsDisplayer chartOfBudgetAccounts, IChartOfContactAccountsDisplayer chartOfContactAccounts, IPostingLineCollectionTexts postingLineCollection, IPostingJournalTexts postingJournal, IFormatProvider formatProvider)
         : base(model, formatProvider)
     {
         StatusDate = statusDate;
@@ -29,6 +29,7 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
         ChartOfBudgetAccounts = chartOfBudgetAccounts;
         ChartOfContactAccounts = chartOfContactAccounts;
         PostingLineCollection = postingLineCollection;
+        PostingJournal = postingJournal;
     }
 
     #endregion
@@ -72,6 +73,8 @@ internal class AccountingTexts : DynamicTextsBase<AccountingModel>, IAccountingT
     public IChartOfContactAccountsDisplayer ChartOfContactAccounts { get; }
 
     public IPostingLineCollectionTexts PostingLineCollection { get; }
+
+    public IPostingJournalTexts PostingJournal { get; }
 
     #endregion
 }

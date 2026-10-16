@@ -24,7 +24,7 @@ internal static class FixtureExtensions
 
     internal static ErrorResponseModel CreateErrorResponseModel(this Fixture fixture, string? error = null, string? errorDescription = null)
     {
-        return new ErrorResponseModel(error ?? fixture.Create<string>(), errorDescription ?? fixture.Create<string>(), null, null);
+        return new ErrorResponseModel(error ?? fixture.Create<string>(), errorDescription, null, null);
     }
 
     #endregion

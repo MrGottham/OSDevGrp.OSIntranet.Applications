@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accounting;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountingPreCreation;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Accountings;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountingSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.AccountSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.BudgetAccountSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.ContactAccountSummary;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.PostingJournal;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -104,6 +109,136 @@ public class AccountingController : ControllerBase
         AccountingSummaryResponse accountingSummaryResponse = await queryFeature.ExecuteAsync(accountingSummaryRequest, cancellationToken);
 
         return Ok(AccountingSummaryResponseDto.Map(accountingSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingViewer)]
+    [HttpGet("{accountingNumber:int}/accounts/{accountNumber}/summary")]
+    [ProducesResponseType(typeof(AccountSummaryResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AccountSummeryAsync([FromServices] IQueryFeature<AccountSummaryRequest, AccountSummaryResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required][MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)][MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)][RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)] string accountNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AccountSummaryRequest accountSummaryRequest = new AccountSummaryRequest(Guid.NewGuid(), accountingNumber, accountNumber, ResolveStatusDate(statusDate), _formatProvider, securityContext);
+        AccountSummaryResponse accountSummaryResponse = await queryFeature.ExecuteAsync(accountSummaryRequest, cancellationToken);
+
+        return Ok(AccountSummaryResponseDto.Map(accountSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingViewer)]
+    [HttpGet("{accountingNumber:int}/budgetaccounts/{accountNumber}/summary")]
+    [ProducesResponseType(typeof(BudgetAccountSummaryResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> BudgetAccountSummeryAsync([FromServices] IQueryFeature<BudgetAccountSummaryRequest, BudgetAccountSummaryResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required][MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)][MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)][RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)] string accountNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        BudgetAccountSummaryRequest budgetAccountSummaryRequest = new BudgetAccountSummaryRequest(Guid.NewGuid(), accountingNumber, accountNumber, ResolveStatusDate(statusDate), _formatProvider, securityContext);
+        BudgetAccountSummaryResponse budgetAccountSummaryResponse = await queryFeature.ExecuteAsync(budgetAccountSummaryRequest, cancellationToken);
+
+        return Ok(BudgetAccountSummaryResponseDto.Map(budgetAccountSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingViewer)]
+    [HttpGet("{accountingNumber:int}/contactaccounts/{accountNumber}/summary")]
+    [ProducesResponseType(typeof(ContactAccountSummaryResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> ContactAccountSummeryAsync([FromServices] IQueryFeature<ContactAccountSummaryRequest, ContactAccountSummaryResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required][MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)][MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)][RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)] string accountNumber, CancellationToken cancellationToken, [FromQuery] DateTimeOffset? statusDate = null)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        ContactAccountSummaryRequest contactAccountSummaryRequest = new ContactAccountSummaryRequest(Guid.NewGuid(), accountingNumber, accountNumber, ResolveStatusDate(statusDate), _formatProvider, securityContext);
+        ContactAccountSummaryResponse contactAccountSummaryResponse = await queryFeature.ExecuteAsync(contactAccountSummaryRequest, cancellationToken);
+
+        return Ok(ContactAccountSummaryResponseDto.Map(contactAccountSummaryResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpGet("{accountingNumber:int}/postingjournal")]
+    [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> PostingJournalAsync([FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
+        PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
+
+        return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpPost("{accountingNumber:int}/postingjournal/postinglines")]
+    [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> AppendPostingLineToPostingJournalAsync([FromServices] ICommandFeature<AppendPostingLineToPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromBody][Required] AppendPostingLineToPostingJournalDto dto, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        AppendPostingLineToPostingJournalRequest appendRequest = new AppendPostingLineToPostingJournalRequest(
+            Guid.NewGuid(),
+            accountingNumber,
+            dto.Identifier,
+            dto.PostingDate,
+            dto.PostingReference,
+            dto.Account,
+            dto.PostingText,
+            dto.BudgetAccount,
+            dto.Debit,
+            dto.Credit,
+            dto.ContactAccount,
+            _formatProvider,
+            securityContext);
+
+        await commandFeature.ExecuteAsync(appendRequest, cancellationToken);
+
+        PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
+        PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
+
+        return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]
+    [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> ModifyPostingLineInPostingJournalAsync([FromServices] ICommandFeature<ModifyPostingLineInPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required] Guid identifier, [FromBody][Required] ModifyPostingLineInPostingJournalDto dto, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        ModifyPostingLineInPostingJournalRequest modifyRequest = new ModifyPostingLineInPostingJournalRequest(
+            Guid.NewGuid(),
+            accountingNumber,
+            identifier,
+            dto.PostingDate,
+            dto.PostingReference,
+            dto.Account,
+            dto.PostingText,
+            dto.BudgetAccount,
+            dto.Debit,
+            dto.Credit,
+            dto.ContactAccount,
+            _formatProvider,
+            securityContext);
+
+        await commandFeature.ExecuteAsync(modifyRequest, cancellationToken);
+
+        PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
+        PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
+
+        return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
     }
 
     private DateTimeOffset ResolveStatusDate(DateTimeOffset? value)

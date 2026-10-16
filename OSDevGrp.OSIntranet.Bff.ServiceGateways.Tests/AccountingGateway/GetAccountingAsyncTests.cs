@@ -40,6 +40,7 @@ public class GetAccountingAsyncTests : ServiceGatewayTestBase
         _webApiClientMock!.Verify(m => m.AccountingAsync(
                 It.IsAny<int>(),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -56,6 +57,7 @@ public class GetAccountingAsyncTests : ServiceGatewayTestBase
         _webApiClientMock!.Verify(m => m.AccountingAsync(
                 It.Is<int>(value => value == accountingNumber),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -72,6 +74,7 @@ public class GetAccountingAsyncTests : ServiceGatewayTestBase
         _webApiClientMock!.Verify(m => m.AccountingAsync(
                 It.IsAny<int>(),
                 It.Is<DateTimeOffset?>(value => value != null && value == statusDate),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -88,6 +91,7 @@ public class GetAccountingAsyncTests : ServiceGatewayTestBase
         _webApiClientMock!.Verify(m => m.AccountingAsync(
                 It.IsAny<int>(),
                 It.IsAny<DateTimeOffset?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.Is<CancellationToken>(value => value == cancellationToken)), 
             Times.Once);
     }
@@ -152,12 +156,12 @@ public class GetAccountingAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.AccountingAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.AccountingAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.AccountingAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.AccountingAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(accountingModel ?? CreateAccountingModel()));
         }
 

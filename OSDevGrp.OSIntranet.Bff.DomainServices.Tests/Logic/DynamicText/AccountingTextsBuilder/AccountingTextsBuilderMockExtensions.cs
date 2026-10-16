@@ -12,7 +12,7 @@ internal static class AccountingTextsBuilderMockExtensions
     {
         accountingTextsBuilderMock.Setup(m => m.BuildAsync(It.IsAny<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>>>(), It.IsAny<IFormatProvider>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(accountingTexts ?? new Mock<IAccountingTexts>().Object));
-        accountingTextsBuilderMock.Setup(m => m.BuildAsync(It.IsAny<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>>(), It.IsAny<IFormatProvider>(), It.IsAny<CancellationToken>()))
+        accountingTextsBuilderMock.Setup(m => m.BuildAsync(It.IsAny<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>>>(), It.IsAny<IFormatProvider>(), It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult(accountingTexts ?? new Mock<IAccountingTexts>().Object));
     }
 

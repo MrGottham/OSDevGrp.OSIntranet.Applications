@@ -1,0 +1,41 @@
+using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
+
+namespace OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting;
+
+public sealed class AppendPostingLineToPostingJournalRequest : PostingJournalLineDataRequestBase
+{
+    #region Constructor
+
+    public AppendPostingLineToPostingJournalRequest(
+        Guid requestId,
+        int accountingNumber,
+        Guid identifier,
+        DateTimeOffset postingDate,
+        string? postingReference,
+        string account,
+        string postingText,
+        string? budgetAccount,
+        decimal? debit,
+        decimal? credit,
+        string? contactAccount,
+        IFormatProvider formatProvider,
+        ISecurityContext securityContext)
+        : base(
+            requestId,
+            accountingNumber,
+            identifier,
+            postingDate,
+            postingReference,
+            account,
+            postingText,
+            budgetAccount,
+            debit,
+            credit,
+            contactAccount,
+            formatProvider,
+            securityContext)
+    {
+    }
+
+    #endregion
+}

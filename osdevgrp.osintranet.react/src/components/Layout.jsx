@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import Loading from './Loading';
@@ -10,11 +10,19 @@ function Layout({ children }) {
     const { showBoundary } = useErrorBoundary();
     const homeService = useContext(ServiceContext).homeService;
     const [layoutContext, setLayoutContext] = useState();
+    const populateLayoutContext = useCallback(async () => {
+        const json = await homeService.getLayoutContext();
+        document.title = json.title;
+        setLayoutContext(json);
+    }, [homeService]);
 
     useEffect(() => {
-        populateLayoutContext()
-            .catch(error => showBoundary(error));
-    }, []);
+        async function fetchLayoutContext() {
+            populateLayoutContext()
+                .catch(error => showBoundary(error));
+        }
+        fetchLayoutContext();
+    }, [populateLayoutContext, showBoundary]);
 
     if (layoutContext === undefined) {
         return (
@@ -31,12 +39,6 @@ function Layout({ children }) {
             <Footer layoutContext={layoutContext} />
         </>
     );
-
-    async function populateLayoutContext() {
-        const json = await homeService.getLayoutContext();
-        document.title = json.title;
-        setLayoutContext(json);
-    }
 }
 
 export default Layout;

@@ -2,6 +2,7 @@ using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.Exceptions;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.ErrorHandling;
 using OSDevGrp.OSIntranet.Bff.WebApi.Filters.SchemaValidation;
@@ -101,13 +102,51 @@ public class CreateProblemDetailsTests : CreateProblemDetailsTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void CreateProblemDetails_WhenCalledWithVerificationException_ReturnsExpectedProblemDeails()
+    public void CreateProblemDetails_WhenCalledWithVerificationFailedException_ReturnsExpectedProblemDeails()
     {
         IProblemDetailsFactory sut = CreateSut();
 
         Uri requestUrl = CreateRequestUrl(_fixture!);
         HttpRequest httpRequest = CreateHttpRequest(_fixture!, requestUrl: requestUrl);
-        VerificationException exception = new VerificationException();
+        VerificationFailedException exception = new VerificationFailedException();
+        ProblemDetails problemDetails = sut.CreateProblemDetails(httpRequest, exception);
+
+        VerifyProblemDetails(problemDetails, 
+            HttpStatusCode.BadRequest,
+            GetExpectedTitel(HttpStatusCode.BadRequest), 
+            exception.Message, 
+            requestUrl);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void CreateProblemDetails_WhenCalledWithIdentifierAlreadyExistsException_ReturnsExpectedProblemDeails()
+    {
+        IProblemDetailsFactory sut = CreateSut();
+
+        Uri requestUrl = CreateRequestUrl(_fixture!);
+        HttpRequest httpRequest = CreateHttpRequest(_fixture!, requestUrl: requestUrl);
+        Guid identifier = _fixture!.Create<Guid>();
+        IdentifierAlreadyExistsException exception = new IdentifierAlreadyExistsException(identifier);
+        ProblemDetails problemDetails = sut.CreateProblemDetails(httpRequest, exception);
+
+        VerifyProblemDetails(problemDetails, 
+            HttpStatusCode.BadRequest,
+            GetExpectedTitel(HttpStatusCode.BadRequest), 
+            exception.Message, 
+            requestUrl);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void CreateProblemDetails_WhenCalledWithUnknownIdentifierException_ReturnsExpectedProblemDeails()
+    {
+        IProblemDetailsFactory sut = CreateSut();
+
+        Uri requestUrl = CreateRequestUrl(_fixture!);
+        HttpRequest httpRequest = CreateHttpRequest(_fixture!, requestUrl: requestUrl);
+        Guid identifier = _fixture!.Create<Guid>();
+        UnknownIdentifierException exception = new UnknownIdentifierException(identifier);
         ProblemDetails problemDetails = sut.CreateProblemDetails(httpRequest, exception);
 
         VerifyProblemDetails(problemDetails, 

@@ -36,7 +36,7 @@ public class GetBudgetAccountGroupsAsyncTests : ServiceGatewayTestBase
 
         await sut.GetBudgetAccountGroupsAsync();
 
-        _webApiClientMock!.Verify(m => m.BudgetaccountgroupsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _webApiClientMock!.Verify(m => m.BudgetaccountgroupsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class GetBudgetAccountGroupsAsyncTests : ServiceGatewayTestBase
         CancellationToken cancellationToken = CancellationToken.None;
         await sut.GetBudgetAccountGroupsAsync(cancellationToken);
 
-        _webApiClientMock!.Verify(m => m.BudgetaccountgroupsAsync(It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
+        _webApiClientMock!.Verify(m => m.BudgetaccountgroupsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
     }
 
     [Test]
@@ -108,12 +108,12 @@ public class GetBudgetAccountGroupsAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.BudgetaccountgroupsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.BudgetaccountgroupsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.BudgetaccountgroupsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.BudgetaccountgroupsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(budgetAccountGroupModels ?? CreateBudgetAccountGroupModels()));
         }
 

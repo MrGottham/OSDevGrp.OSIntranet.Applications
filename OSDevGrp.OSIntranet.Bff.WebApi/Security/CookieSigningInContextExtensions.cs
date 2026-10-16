@@ -58,15 +58,6 @@ internal static class CookieSigningInContextExtensions
     private static void CleanUp(this AuthenticationProperties authenticationProperties, out DateTimeOffset? expiresAt)
     {
         expiresAt = authenticationProperties.ExpiresUtc;
-
-        if (authenticationProperties.Items.TryGetValue(".Token.expires_at", out string? value))
-        {
-            if (string.IsNullOrWhiteSpace(value) == false)
-            {
-                expiresAt = DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
-            }
-        }
-
         authenticationProperties.Items.Clear();
     }
 

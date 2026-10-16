@@ -247,3 +247,6 @@ _Pvt_Extensions
 
 # Environment files
 .env
+
+# Licenses
+[Ll]icenses/
