@@ -137,10 +137,10 @@ The WebApi should expose logic to modify an existing posting line within a given
 
 #### React Application
 
-- [ ] Add `modifyPostingLineInPostingLineJournal` to `AccountingService`, following the Append method's required-value checks, request headers and credentials, and error handling; send a `PUT` request to the modify endpoint with the modifier fields as JSON and return `response.json()` on success.
-- [ ] Implement `handleUpdatePostingJournalLine` in `PostingJournal.jsx` using the same field conversions as the create handler: integer accounting number, UUID line identifier, ISO posting date, nullable strings for posting reference/budget/contact account, strings for account and posting text, and nullable decimals for debit and credit.
-- [ ] On successful modification, close the edit modal and update the journal from `response.dynamicTexts`; on failure, show the same danger toast as the create handler and keep the modal open.
-- [ ] Remove temporary `console.debug` calls from the update handler.
+- [x] Add `modifyPostingLineInPostingLineJournal` to `AccountingService`, following the Append method's required-value checks, request headers and credentials, and error handling; send a `PUT` request to the modify endpoint with the modifier fields as JSON and return `response.json()` on success.
+- [x] Implement `handleUpdatePostingJournalLine` in `PostingJournal.jsx` using the same field conversions as the create handler: integer accounting number, UUID line identifier, ISO posting date, nullable strings for posting reference/budget/contact account, strings for account and posting text, and nullable decimals for debit and credit.
+- [x] On successful modification, close the edit modal and update the journal from `response.dynamicTexts`; on failure, show the same danger toast as the create handler and keep the modal open.
+- [x] Remove temporary `console.debug` calls from the update handler.
 
 ## Expose logic to delete a posting line within a given accounting's posting journal from the BFF WebApi
 
