@@ -73,77 +73,53 @@ Verification failures should expose a Danish message resolved through the static
 - [ ] Verify local builds find the license using the project-relative `SixLaborsLicenseFile` path.
 - [ ] Verify `docker compose build builder` successfully publishes the BFF WebApi with the BuildKit license secret, and confirm the license file is absent from the resulting image and publish output.
 
-## Expose logic to modify a posting line within a given accounting's posting journal from the BFF WebApi
-
-### Business Goal
-
-The WebApi should expose logic to modify an existing posting line within a given accounting's posting journal. This should support the React application to modify an existing posting line within a given accounting's posting journal then reload the posting journal.
-
-### Implementation Bullets
-
-#### BFF DomainServices
-
-- [x] Create `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalRequest.cs` with namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting` and inherit from `PostingJournalLineDataRequestBase`.
-- [x] Create `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalFeature.cs` with namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Features.Commands.Accounting`, inheriting from `PostingLineFeatureBase<ModifyPostingLineInPostingJournalRequest>`.
-- [x] Find the existing posting line by the request identifier.
-- [x] If no line matches, throw `UnknownIdentifierException` with the request identifier and localized text from `StaticTextKey.UnknownIdentifier`.
-- [x] Since generated `ApplyPostingLineModel` properties are immutable, construct a replacement line with request values, preserving the matched line's identifier and `SortOrder`.
-- [x] Replace only the matched line in the collection; leave other lines unchanged and return the cloned journal through `SortAndClonePostingJournal`.
-
-#### BFF DomainServices Tests
-
-- [x] Add `Features/Commands/Accounting/ModifyPostingLineInPostingJournal/ModifyPostingLineInPostingJournalFeature/ExecuteAsyncTests.cs` in namespace `OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Features.Commands.Accounting.ModifyPostingLineInPostingJournal.ModifyPostingLineInPostingJournalFeature`, following the fixture and mock conventions of the Append feature's `ExecuteAsyncTests`.
-- [x] Verify a matching line is replaced with all request fields while retaining its identifier and `SortOrder`.
-- [x] Verify a missing identifier throws `UnknownIdentifierException`, includes the requested identifier, and retrieves the message from `StaticTextKey.UnknownIdentifier`.
-- [x] Verify other lines remain unchanged and the saved journal is cloned, sorted by posting date and sort order, and retains its accounting number.
-- [x] Verify `SavePostingJournalAsync` is called with the updated journal and the request accounting number/cancellation token.
-
-#### BFF WebApi DTO
-
-- [x] Create `OSDevGrp.OSIntranet.Bff.WebApi/Controllers/Accounting/Dtos/ModifyPostingLineInPostingJournalDto.cs` in namespace `OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos`, inheriting from `PostingJournalLineModifierDtoBase` with no additional properties.
-
-#### BFF WebApi Endpoint
-
-- [x] Add `ModifyPostingLineInPostingJournalAsync` to `AccountingController` as an authorized `PUT` endpoint using `[HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]`.
-- [x] Add `[Authorize(Policy = Policies.AccountingModifier)]`.
-- [x] Add `[ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]`.
-- [x] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]`.
-- [x] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]`.
-- [x] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]`.
-- [x] Accept `[FromServices] ICommandFeature<ModifyPostingLineInPostingJournalRequest> commandFeature` and `[FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature`.
-- [x] Bind and validate `accountingNumber` from the route, bind the required GUID `identifier` from the route, bind `ModifyPostingLineInPostingJournalDto` from the body, and accept a `CancellationToken`.
-- [x] Resolve the security context and create `ModifyPostingLineInPostingJournalRequest` with the route values, DTO fields, and security context.
-- [x] Execute the modify command, query the refreshed journal with the accounting number, current status date, format provider, and security context, then return `PostingJournalResponseDto.Map` in an `OK` result.
-
-#### BFF WebApi Tests
-
-- [x] Add `Controllers/Accounting/AccountingController/ModifyPostingLineInPostingJournalAsyncTests.cs` in namespace `OSDevGrp.OSIntranet.Bff.WebApi.Tests.Controllers.Accounting.AccountingController`, following `AppendPostingLineToPostingJournalAsyncTests` fixture and mock conventions.
-- [x] Verify `GetCurrentSecurityContextAsync` is called once with the given cancellation token.
-- [x] Verify the command feature is called exactly once with a `ModifyPostingLineInPostingJournalRequest` whose:
-  - [x] `RequestId` is not `Guid.Empty`.
-  - [x] `AccountingNumber` matches the route value.
-  - [x] `Identifier` matches the required GUID from the route.
-  - [x] `PostingDate` matches the DTO value.
-  - [x] `PostingReference` matches the DTO value.
-  - [x] `Account` matches the DTO value.
-  - [x] `PostingText` matches the DTO value.
-  - [x] `BudgetAccount` matches the DTO value.
-  - [x] `Debit` matches the DTO value.
-  - [x] `Credit` matches the DTO value.
-  - [x] `ContactAccount` matches the DTO value.
-  - [x] `SecurityContext` is the context resolved by the security context provider.
-- [x] Verify the query feature is called once with a non-empty request ID, accounting number, current local status date, format provider, resolved security context, and cancellation token.
-- [x] Verify the method returns `OkObjectResult` containing a `PostingJournalResponseDto`.
-
-#### React Application
-
-- [x] Add `modifyPostingLineInPostingLineJournal` to `AccountingService`, following the Append method's required-value checks, request headers and credentials, and error handling; send a `PUT` request to the modify endpoint with the modifier fields as JSON and return `response.json()` on success.
-- [x] Implement `handleUpdatePostingJournalLine` in `PostingJournal.jsx` using the same field conversions as the create handler: integer accounting number, UUID line identifier, ISO posting date, nullable strings for posting reference/budget/contact account, strings for account and posting text, and nullable decimals for debit and credit.
-- [x] On successful modification, close the edit modal and update the journal from `response.dynamicTexts`; on failure, show the same danger toast as the create handler and keep the modal open.
-- [x] Remove temporary `console.debug` calls from the update handler.
-
 ## Expose logic to delete a posting line within a given accounting's posting journal from the BFF WebApi
 
 ### Business Goal
 
 The WebApi should expose logic to delete an existing posting line within a given accounting's posting journal. This should support the React application to delete an existing posting line within a given accounting's posting journal then reload the posting journal.
+
+### Implementation Bullets
+
+#### BFF DomainServices
+
+- [ ] Add `DeletePostingLineFromPostingJournalRequest.cs` in `OSDevGrp.OSIntranet.Bff.DomainServices/Features/Commands/Accounting/DeletePostingLineFromPostingJournal/`, inheriting from `PostingJournalLineIdentificationRequestBase` and implementing `IHumanVerifiableRequest` with the verification key and code, so the command feature pipeline performs human verification.
+- [ ] Add `DeletePostingLineFromPostingJournalFeature.cs` in `OSDevGrp.OSIntranet.Bff.DomainServices/Features/Commands/Accounting/DeletePostingLineFromPostingJournal/`, inheriting from `PostingLineFeatureBase<DeletePostingLineFromPostingJournalRequest>`.
+- [ ] Remove only the posting line matching the request identifier; if none matches, throw `UnknownIdentifierException` with the requested identifier and localized text from `StaticTextKey.UnknownIdentifier`.
+- [ ] Because `ApplyPostingLineModel` is immutable, construct a new posting line collection containing every existing line except the one being deleted, then pass it to `SortAndClonePostingJournal` to sort, clone, and return the updated journal.
+
+#### BFF DomainServices.Tests
+
+- [ ] Add `Features/Commands/Accounting/DeletePostingLineFromPostingJournal/DeletePostingLineFromPostingJournalFeature/ExecuteAsyncTests.cs`, following the Append and Modify feature test conventions.
+- [ ] Verify the matching posting line is removed and all other lines remain unchanged.
+- [ ] Verify a missing identifier throws `UnknownIdentifierException` with the requested identifier and retrieves its message from `StaticTextKey.UnknownIdentifier`.
+- [ ] Verify the updated journal is saved with the request accounting number and cancellation token, and the returned journal is cloned and sorted.
+
+#### BFF WebApi Request Contract
+
+- [ ] Use the required `X-Verification-Key` and `X-Verification-Code` headers for the verification key and code; keep both values out of the URL and request body, and ensure they are redacted from logs.
+
+#### BFF WebApi Endpoint
+
+- [ ] Add `DeletePostingLineFromPostingJournalAsync` to `AccountingController` as an authorized `DELETE` endpoint using `[HttpDelete("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]`, with the standard response metadata used by the posting journal command endpoints.
+- [ ] Add `[Authorize(Policy = Policies.AccountingModifier)]`.
+- [ ] Add `[ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]`.
+- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]`.
+- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]`.
+- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]`.
+- [ ] Bind and validate the accounting number and posting line identifier from the route, require the `X-Verification-Key` and `X-Verification-Code` headers, and accept a cancellation token.
+- [ ] Accept `[FromServices] ICommandFeature<DeletePostingLineFromPostingJournalRequest> commandFeature` and `[FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature`.
+- [ ] Resolve the security context, create `DeletePostingLineFromPostingJournalRequest`, execute the delete command, then execute the query feature for the refreshed journal and return `PostingJournalResponseDto.Map` in an `OK` result.
+
+#### BFF WebApi Tests
+
+- [ ] Add `Controllers/Accounting/AccountingController/DeletePostingLineFromPostingJournalAsyncTests.cs`, following the Modify endpoint test conventions.
+- [ ] Verify the security context is resolved once and the command receives the route values, verification key and code, format provider, security context, and cancellation token.
+- [ ] Verify the refreshed journal is queried with the accounting number, current local status date, format provider, security context, and cancellation token, and the method returns `OkObjectResult` containing a `PostingJournalResponseDto`.
+
+#### React Application
+
+- [ ] Add `deletePostingLineFromPostingLineJournal` to `AccountingService`, following the required-value checks in the append and modify methods; send a `DELETE` request to the endpoint with `X-Verification-Key` and `X-Verification-Code` headers, use the existing antiforgery, credentials, and error-handling conventions, and return `response.json()` on success.
+- [ ] Implement `handleDelete` in `PostingJournal.jsx` to convert the accounting number with `formHelper.convertToInteger` and the posting line identifier with `formHelper.convertToUuid`, then call the service with those values and the verification key and code.
+- [ ] On successful deletion, close the confirmation modal and update the journal from `response.dynamicTexts`; on failure, show the same danger toast as the create handler and keep the confirmation modal open.
+- [ ] Remove the temporary `console.debug` calls from the delete handler.
