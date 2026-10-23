@@ -1,8 +1,6 @@
 FROM node:24.22-slim AS reactbase
-ARG bffEndpointAddress
 ENV SERVER_PORT=8080
 ENV RUNNING_IN_CONTAINER=true
-ENV VITE_BFF_ENDPOINT=${bffEndpointAddress}
 
 FROM reactbase AS reactbuilder
 WORKDIR /src
@@ -49,6 +47,7 @@ ENV NODE_OPTIONS=--max-http-header-size=${maxHttpHeaderSize}
 
 WORKDIR /app
 COPY --from=reactbuilder /src/dist .
+COPY osdevgrp.osintranet.react/containerEntryPoint.mjs /usr/local/bin/react-entrypoint.mjs
 COPY OSDevGrp.OSIntranet.React.supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ARG appUserGroup
@@ -59,4 +58,5 @@ EXPOSE 8080 2222
 
 USER ${nonRootUser}
 
+ENTRYPOINT ["node", "/usr/local/bin/react-entrypoint.mjs"]
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

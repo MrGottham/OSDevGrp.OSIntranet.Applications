@@ -1,3 +1,5 @@
+import { getBffEndpoint } from '../config/RuntimeConfiguration';
+
 export default class ServiceBase {
     #bffEndpoint = null;
 
@@ -6,12 +8,7 @@ export default class ServiceBase {
             return;
         }
 
-        const bffEndpoint = import.meta.env.VITE_BFF_ENDPOINT;
-        if (bffEndpoint === undefined || bffEndpoint === null) {
-            throw new Error('Endpoint to the Backend for Frontend application is not defined.');
-        }
-
-        this.#bffEndpoint = bffEndpoint;
+        this.#bffEndpoint = getBffEndpoint(window.location.hostname);
     }
 
     resolveEndpoint(path) {
