@@ -104,11 +104,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateClientSecretIdentity_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateClientSecretIdentity_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateClientSecretIdentity(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateClientSecretIdentity(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("clientSecretIdentityViewModel"));

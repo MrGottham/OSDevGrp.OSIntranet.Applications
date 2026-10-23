@@ -65,24 +65,24 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetPaymentTermsAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPaymentTermsAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetPaymentTermsAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPaymentTermsAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }

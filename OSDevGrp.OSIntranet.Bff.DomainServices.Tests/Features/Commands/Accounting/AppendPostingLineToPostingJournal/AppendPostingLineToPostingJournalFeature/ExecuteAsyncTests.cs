@@ -49,7 +49,7 @@ public class ExecuteAsyncTests
         DomainServices.Features.Commands.Accounting.AppendPostingLineToPostingJournalFeature sut = CreateSut(postingJournalModel: journalWithExistingLine);
 
         // Act & Assert
-        Assert.ThrowsAsync<IdentifierAlreadyExistsException>(
+        await Assert.ThrowsAsync<IdentifierAlreadyExistsException>(
             async () => await sut.ExecuteAsync(request));
     }
 
@@ -66,8 +66,8 @@ public class ExecuteAsyncTests
         DomainServices.Features.Commands.Accounting.AppendPostingLineToPostingJournalFeature sut = CreateSut(postingJournalModel: journalWithExistingLine);
 
         // Act & Assert
-        IdentifierAlreadyExistsException? exception = Assert.ThrowsAsync<IdentifierAlreadyExistsException>(
-            async () => await sut.ExecuteAsync(request));
+        IdentifierAlreadyExistsException? exception = (await Assert.ThrowsAsync<IdentifierAlreadyExistsException>(
+            async () => await sut.ExecuteAsync(request)))!;
         
         Assert.That(exception!.Identifier, Is.EqualTo(duplicateIdentifier));
     }
@@ -93,7 +93,7 @@ public class ExecuteAsyncTests
             .ReturnsAsync("Duplicate identifier");
 
         // Act & Assert
-        Assert.ThrowsAsync<IdentifierAlreadyExistsException>(
+        await Assert.ThrowsAsync<IdentifierAlreadyExistsException>(
             async () => await sut.ExecuteAsync(request));
 
         _staticTextProviderMock.Verify(
@@ -120,7 +120,7 @@ public class ExecuteAsyncTests
         DomainServices.Features.Commands.Accounting.AppendPostingLineToPostingJournalFeature sut = CreateSut(postingJournalModel: journalWithExistingLine);
 
         // Act & Assert
-        Assert.DoesNotThrowAsync(async () => await sut.ExecuteAsync(request));
+        await Assert.DoesNotThrowAsync(async () => await sut.ExecuteAsync(request));
     }
 
     #endregion
@@ -390,7 +390,7 @@ public class ExecuteAsyncTests
             .ReturnsAsync(journalWithEmptyLines);
 
         // Act & Assert
-        Assert.DoesNotThrowAsync(async () => await sut.ExecuteAsync(request));
+        await Assert.DoesNotThrowAsync(async () => await sut.ExecuteAsync(request));
         Assert.That(savedJournal!.ApplyPostingLines, Has.Count.EqualTo(1));
         Assert.That(savedJournal.ApplyPostingLines.First().Identifier, Is.EqualTo(request.Identifier));
     }

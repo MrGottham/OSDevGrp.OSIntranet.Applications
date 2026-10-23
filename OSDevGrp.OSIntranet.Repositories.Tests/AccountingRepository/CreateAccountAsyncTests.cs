@@ -29,11 +29,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         [Test]
         [Category("UnitTest")]
-        public void CreateAccountAsync_WhenAccountIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateAccountAsync_WhenAccountIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateAccountAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateAccountAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("account"));
         }

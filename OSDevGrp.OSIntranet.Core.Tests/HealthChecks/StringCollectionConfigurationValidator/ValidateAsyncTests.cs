@@ -40,67 +40,67 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemException()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemException()
         {
             IConfigurationValueValidator sut = CreateSut(hasKey: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereMessageIsNotNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasKey: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty()
         {
             IConfigurationValueValidator sut = CreateSut(hasKey: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Empty);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereMessageContainsKey()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereMessageContainsKey()
         {
             string key = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(key, false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConfiguration()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConfiguration()
         {
             IConfigurationValueValidator sut = CreateSut(hasKey: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConfiguration));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotContainKey_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasKey: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.InnerException, Is.Null);
         }
@@ -111,11 +111,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemException(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemException(string value)
         {
             IConfigurationValueValidator sut = CreateSut(value: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
@@ -126,11 +126,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value)
         {
             IConfigurationValueValidator sut = CreateSut(value: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Null);
         }
@@ -141,11 +141,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value)
         {
             IConfigurationValueValidator sut = CreateSut(value: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Empty);
         }
@@ -156,12 +156,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereMessageContainsKey(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereMessageContainsKey(string value)
         {
             string key = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(key, value: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
@@ -172,11 +172,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConfiguration(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConfiguration(string value)
         {
             IConfigurationValueValidator sut = CreateSut(value: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConfiguration));
         }
@@ -187,11 +187,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithoutValue_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value)
         {
             IConfigurationValueValidator sut = CreateSut(value: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.InnerException, Is.Null);
         }
@@ -201,11 +201,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 2)]
         [TestCase("XXX;YYY", 3)]
         [TestCase("XXX;YYY;ZZZ", 4)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemException(string value, int minLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemException(string value, int minLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, minLength: minLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
@@ -215,11 +215,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 2)]
         [TestCase("XXX;YYY", 3)]
         [TestCase("XXX;YYY;ZZZ", 4)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value, int minLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value, int minLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, minLength: minLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Null);
         }
@@ -229,11 +229,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 2)]
         [TestCase("XXX;YYY", 3)]
         [TestCase("XXX;YYY;ZZZ", 4)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value, int minLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value, int minLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, minLength: minLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Empty);
         }
@@ -243,12 +243,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 2)]
         [TestCase("XXX;YYY", 3)]
         [TestCase("XXX;YYY;ZZZ", 4)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereMessageContainsKey(string value, int minLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereMessageContainsKey(string value, int minLength)
         {
             string key = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(key, value: value, minLength: minLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
@@ -258,11 +258,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 2)]
         [TestCase("XXX;YYY", 3)]
         [TestCase("XXX;YYY;ZZZ", 4)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInvalidConfigurationValue(string value, int minLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInvalidConfigurationValue(string value, int minLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, minLength: minLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.InvalidConfigurationValue));
         }
@@ -272,11 +272,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 2)]
         [TestCase("XXX;YYY", 3)]
         [TestCase("XXX;YYY;ZZZ", 4)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value, int minLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsLowerThanMinLength_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value, int minLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, minLength: minLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.InnerException, Is.Null);
         }
@@ -286,11 +286,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 0)]
         [TestCase("XXX;YYY", 1)]
         [TestCase("XXX;YYY;ZZZ", 2)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemException(string value, int maxLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemException(string value, int maxLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, maxLength: maxLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
@@ -300,11 +300,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 0)]
         [TestCase("XXX;YYY", 1)]
         [TestCase("XXX;YYY;ZZZ", 2)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value, int maxLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value, int maxLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, maxLength: maxLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Null);
         }
@@ -314,11 +314,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 0)]
         [TestCase("XXX;YYY", 1)]
         [TestCase("XXX;YYY;ZZZ", 2)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value, int maxLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value, int maxLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, maxLength: maxLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message, Is.Not.Empty);
         }
@@ -328,12 +328,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 0)]
         [TestCase("XXX;YYY", 1)]
         [TestCase("XXX;YYY;ZZZ", 2)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereMessageContainsKey(string value, int maxLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereMessageContainsKey(string value, int maxLength)
         {
             string key = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(key, value: value, maxLength: maxLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.Message.Contains($"'{key}'"), Is.True);
         }
@@ -343,11 +343,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 0)]
         [TestCase("XXX;YYY", 1)]
         [TestCase("XXX;YYY;ZZZ", 2)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInvalidConfigurationValue(string value, int maxLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInvalidConfigurationValue(string value, int maxLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, maxLength: maxLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.InvalidConfigurationValue));
         }
@@ -357,11 +357,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.StringCollectionConfigurat
         [TestCase("XXX", 0)]
         [TestCase("XXX;YYY", 1)]
         [TestCase("XXX;YYY;ZZZ", 2)]
-        public void ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value, int maxLength)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationContainsKeyWithValueWhichHasElementsMoreThanMaxLength_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value, int maxLength)
         {
             IConfigurationValueValidator sut = CreateSut(value: value, maxLength: maxLength);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result.InnerException, Is.Null);
         }

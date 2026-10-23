@@ -88,24 +88,24 @@ public class GetPostingJournalAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetPostingJournalAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPostingJournalAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingJournalAsync(_fixture.Create<int>()));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingJournalAsync(_fixture.Create<int>())))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetPostingJournalAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPostingJournalAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingJournalAsync(_fixture.Create<int>()));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingJournalAsync(_fixture.Create<int>())))!;
 
         Assert.That(result, Is.Not.Null);
     }

@@ -13,11 +13,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void GetContactsAsync_WhenRefreshableTokenIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetContactsAsync_WhenRefreshableTokenIsNull_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactsAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactsAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("refreshableToken"));
         }

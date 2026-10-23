@@ -55,11 +55,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void BorrowerExistsAsync_WhenCalledWithFullNameWhereFullNameIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task BorrowerExistsAsync_WhenCalledWithFullNameWhereFullNameIsNull_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BorrowerExistsAsync(null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BorrowerExistsAsync(null)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("fullName"));
@@ -67,11 +67,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void BorrowerExistsAsync_WhenCalledWithFullNameWhereFullNameIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task BorrowerExistsAsync_WhenCalledWithFullNameWhereFullNameIsEmpty_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BorrowerExistsAsync(string.Empty));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BorrowerExistsAsync(string.Empty)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("fullName"));
@@ -79,11 +79,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void BorrowerExistsAsync_WhenCalledWithFullNameWhereFullNameIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task BorrowerExistsAsync_WhenCalledWithFullNameWhereFullNameIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BorrowerExistsAsync(" "));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BorrowerExistsAsync(" ")))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("fullName"));

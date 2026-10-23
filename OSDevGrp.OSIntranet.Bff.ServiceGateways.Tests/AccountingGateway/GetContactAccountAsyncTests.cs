@@ -132,24 +132,24 @@ public class GetContactAccountAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetContactAccountAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetContactAccountAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1)));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1))))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetContactAccountAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetContactAccountAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1)));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1))))!;
 
         Assert.That(result, Is.Not.Null);
     }

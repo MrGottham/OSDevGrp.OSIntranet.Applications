@@ -12,22 +12,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 	{
 		[Test]
 		[Category("UnitTest")]
-		public void DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsIntranetRepositoryException()
+		public async System.Threading.Tasks.Task DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsIntranetRepositoryException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid())))!;
 
 			Assert.That(result, Is.Not.Null);
 		}
 
 		[Test]
 		[Category("UnitTest")]
-		public void DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsNotSupportedExceptionWhereErrorCodeIsEqualToRepositoryError()
+		public async System.Threading.Tasks.Task DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsNotSupportedExceptionWhereErrorCodeIsEqualToRepositoryError()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.RepositoryError));
@@ -36,11 +36,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotNull()
+		public async System.Threading.Tasks.Task DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotNull()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.InnerException, Is.Not.Null);
@@ -49,11 +49,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotSupportedException()
+		public async System.Threading.Tasks.Task DeleteMediaAsync_WhenGenericMediaIsMedia_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotSupportedException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.DeleteMediaAsync<IMedia>(Guid.NewGuid())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.InnerException, Is.TypeOf<NotSupportedException>());

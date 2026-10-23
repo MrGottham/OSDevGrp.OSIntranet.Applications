@@ -36,11 +36,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteAccount_WhenAccountNumberIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteAccount_WhenAccountNumberIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccount(_fixture.Create<int>(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccount(_fixture.Create<int>(), null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
@@ -49,11 +49,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteAccount_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteAccount_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccount(_fixture.Create<int>(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccount(_fixture.Create<int>(), string.Empty)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
@@ -62,11 +62,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteAccount_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteAccount_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccount(_fixture.Create<int>(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccount(_fixture.Create<int>(), " ")))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));

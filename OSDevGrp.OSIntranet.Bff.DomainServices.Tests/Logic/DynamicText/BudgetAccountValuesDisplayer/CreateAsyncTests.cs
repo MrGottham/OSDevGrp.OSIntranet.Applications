@@ -33,34 +33,34 @@ public class BudgetAccountValuesDisplayerCreateAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void CreateAsync_WhenValuesIsNull_ThrowsArgumentNullException()
+    public async System.Threading.Tasks.Task CreateAsync_WhenValuesIsNull_ThrowsArgumentNullException()
     {
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
 
-        ArgumentNullException? result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BudgetAccountValuesDisplayerImpl.CreateAsync(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, null!, _staticTextProviderMock!.Object, formatProvider));
+        ArgumentNullException? result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BudgetAccountValuesDisplayerImpl.CreateAsync(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, null!, _staticTextProviderMock!.Object, formatProvider)))!;
 
         Assert.That(result?.ParamName, Is.EqualTo("values"));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void CreateAsync_WhenStaticTextProviderIsNull_ThrowsArgumentNullException()
+    public async System.Threading.Tasks.Task CreateAsync_WhenStaticTextProviderIsNull_ThrowsArgumentNullException()
     {
         BudgetInfoValuesModel values = _fixture!.Create<BudgetInfoValuesModel>();
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
 
-        ArgumentNullException? result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BudgetAccountValuesDisplayerImpl.CreateAsync(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, values, null!, formatProvider));
+        ArgumentNullException? result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BudgetAccountValuesDisplayerImpl.CreateAsync(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, values, null!, formatProvider)))!;
 
         Assert.That(result?.ParamName, Is.EqualTo("staticTextProvider"));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void CreateAsync_WhenFormatProviderIsNull_ThrowsArgumentNullException()
+    public async System.Threading.Tasks.Task CreateAsync_WhenFormatProviderIsNull_ThrowsArgumentNullException()
     {
         BudgetInfoValuesModel values = _fixture!.Create<BudgetInfoValuesModel>();
 
-        ArgumentNullException? result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BudgetAccountValuesDisplayerImpl.CreateAsync(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, values, _staticTextProviderMock!.Object, null!));
+        ArgumentNullException? result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BudgetAccountValuesDisplayerImpl.CreateAsync(StaticTextKey.BudgetAccountValuesForMonthOfStatusDate, values, _staticTextProviderMock!.Object, null!)))!;
 
         Assert.That(result?.ParamName, Is.EqualTo("formatProvider"));
     }

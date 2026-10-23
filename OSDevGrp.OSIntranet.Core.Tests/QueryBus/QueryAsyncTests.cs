@@ -39,12 +39,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenCalledWithUnsupportedQueryType_ThrowsIntranetQueryBusException()
+        public async System.Threading.Tasks.Task QueryAsync_WhenCalledWithUnsupportedQueryType_ThrowsIntranetQueryBusException()
         {
             IQueryBus sut = CreateSut(new List<IQueryHandler>(0));
 
             Mock<IQuery> commandMock = new Mock<IQuery>();
-            IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<IQuery, object>(commandMock.Object));
+            IntranetQueryBusException result = (await Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<IQuery, object>(commandMock.Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.NoQueryHandlerSupportingQuery));
@@ -80,14 +80,14 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenSupportingQueryHandlerThrowsIntranetExceptionBase_ThrowsIntranetExceptionBase()
+        public async System.Threading.Tasks.Task QueryAsync_WhenSupportingQueryHandlerThrowsIntranetExceptionBase_ThrowsIntranetExceptionBase()
         {
             IntranetRepositoryException intranetException = _fixture.Create<IntranetRepositoryException>();
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), intranetException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
 
-            IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
+            IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.EqualTo(intranetException));
@@ -95,7 +95,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsIntranetExceptionBase_ThrowsIntranetExceptionBase()
+        public async System.Threading.Tasks.Task QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsIntranetExceptionBase_ThrowsIntranetExceptionBase()
         {
             IntranetRepositoryException innerException = _fixture.Create<IntranetRepositoryException>();
             AggregateException aggregateException = new AggregateException(innerException);
@@ -103,7 +103,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), aggregateException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
 
-            IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
+            IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.EqualTo(innerException));
@@ -111,14 +111,14 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetQueryBusExceptionWithCorrectErrorCode()
+        public async System.Threading.Tasks.Task QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetQueryBusExceptionWithCorrectErrorCode()
         {
             AggregateException aggregateException = new AggregateException(_fixture.Create<Exception>());
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), aggregateException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
 
-            IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
+            IntranetQueryBusException result = (await Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ErrorWhileQueryingQuery));
@@ -126,7 +126,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetQueryBusExceptionWithCorrectInnerException()
+        public async System.Threading.Tasks.Task QueryAsync_WhenSupportingQueryHandlerThrowsAggregateExceptionWhereInnerExceptionIsNotIntranetExceptionBase_ThrowsIntranetQueryBusExceptionWithCorrectInnerException()
         {
             Exception innerException = _fixture.Create<Exception>();
             AggregateException aggregateException = new AggregateException(innerException);
@@ -134,7 +134,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), aggregateException);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
 
-            IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
+            IntranetQueryBusException result = (await Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.EqualTo(innerException));
@@ -142,14 +142,14 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenSupportingQueryHandlerThrowsException_ThrowsIntranetQueryBusExceptionWithCorrectErrorCode()
+        public async System.Threading.Tasks.Task QueryAsync_WhenSupportingQueryHandlerThrowsException_ThrowsIntranetQueryBusExceptionWithCorrectErrorCode()
         {
             Exception exception = _fixture.Create<Exception>();
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), exception);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
 
-            IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
+            IntranetQueryBusException result = (await Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ErrorWhileQueryingQuery));
@@ -157,14 +157,14 @@ namespace OSDevGrp.OSIntranet.Core.Tests.QueryBus
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenSupportingQueryHandlerThrowsException_ThrowsIntranetQueryBusExceptionWithCorrectInnerException()
+        public async System.Threading.Tasks.Task QueryAsync_WhenSupportingQueryHandlerThrowsException_ThrowsIntranetQueryBusExceptionWithCorrectInnerException()
         {
             Exception exception = _fixture.Create<Exception>();
 
             Mock<IQueryHandler<TestQuery, object>> queryHandlerMock = CreateQueryHandlerMock<TestQuery, object>(_fixture.Create<object>(), exception);
             IQueryBus sut = CreateSut(CreateQueryHandlerMockCollection(queryHandlerMock.Object));
 
-            IntranetQueryBusException result = Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery()));
+            IntranetQueryBusException result = (await Assert.ThrowsAsync<IntranetQueryBusException>(async () => await sut.QueryAsync<TestQuery, object>(new TestQuery())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.EqualTo(exception));

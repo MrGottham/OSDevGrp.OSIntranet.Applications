@@ -27,9 +27,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaIdenti
 
 		[Test]
 		[Category("UnitTest")]
-		public void IsNonExistingMediaIdentifierAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task IsNonExistingMediaIdentifierAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
 		{
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaIdentifierHelper.IsNonExistingMediaIdentifierAsync(Guid.NewGuid(), null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaIdentifierHelper.IsNonExistingMediaIdentifierAsync(Guid.NewGuid(), null)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("mediaLibraryRepository"));

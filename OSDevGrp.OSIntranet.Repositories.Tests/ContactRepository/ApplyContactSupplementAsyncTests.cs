@@ -11,22 +11,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void ApplyContactSupplementAsync_WhenContactIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ApplyContactSupplementAsync_WhenContactIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyContactSupplementAsync((IContact) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyContactSupplementAsync((IContact) null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contact"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyContactSupplementAsync_WhenContactCollectionIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ApplyContactSupplementAsync_WhenContactCollectionIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyContactSupplementAsync((IEnumerable<IContact>) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyContactSupplementAsync((IEnumerable<IContact>) null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contacts"));
         }

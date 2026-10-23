@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 	{
 		[Test]
 		[Category("UnitTest")]
-		public void UpdateLendingAsync_WhenLendingIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task UpdateLendingAsync_WhenLendingIsNull_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateLendingAsync(null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateLendingAsync(null)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("lending"));

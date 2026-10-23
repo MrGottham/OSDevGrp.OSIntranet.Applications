@@ -132,24 +132,24 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetPostingLinesAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPostingLinesAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter()));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter())))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetPostingLinesAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPostingLinesAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter()));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter())))!;
 
         Assert.That(result, Is.Not.Null);
     }

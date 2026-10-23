@@ -270,7 +270,7 @@ public class ExecuteAsyncTests
         DomainServices.Features.Commands.Accounting.ModifyPostingLineInPostingJournalFeature sut = CreateSut(postingJournalModel: journalWithLines);
 
         // Act & Assert
-        Assert.ThrowsAsync<UnknownIdentifierException>(
+        await Assert.ThrowsAsync<UnknownIdentifierException>(
             async () => await sut.ExecuteAsync(request));
     }
 
@@ -289,8 +289,8 @@ public class ExecuteAsyncTests
         DomainServices.Features.Commands.Accounting.ModifyPostingLineInPostingJournalFeature sut = CreateSut(postingJournalModel: journalWithLines);
 
         // Act & Assert
-        UnknownIdentifierException? exception = Assert.ThrowsAsync<UnknownIdentifierException>(
-            async () => await sut.ExecuteAsync(request));
+        UnknownIdentifierException? exception = (await Assert.ThrowsAsync<UnknownIdentifierException>(
+            async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(exception!.Identifier, Is.EqualTo(missingIdentifier));
     }
@@ -318,7 +318,7 @@ public class ExecuteAsyncTests
             .ReturnsAsync("Unknown identifier");
 
         // Act & Assert
-        Assert.ThrowsAsync<UnknownIdentifierException>(
+        await Assert.ThrowsAsync<UnknownIdentifierException>(
             async () => await sut.ExecuteAsync(request));
 
         _staticTextProviderMock.Verify(
@@ -343,7 +343,7 @@ public class ExecuteAsyncTests
         DomainServices.Features.Commands.Accounting.ModifyPostingLineInPostingJournalFeature sut = CreateSut(postingJournalModel: emptyJournal);
 
         // Act & Assert
-        Assert.ThrowsAsync<UnknownIdentifierException>(
+        await Assert.ThrowsAsync<UnknownIdentifierException>(
             async () => await sut.ExecuteAsync(request));
     }
 

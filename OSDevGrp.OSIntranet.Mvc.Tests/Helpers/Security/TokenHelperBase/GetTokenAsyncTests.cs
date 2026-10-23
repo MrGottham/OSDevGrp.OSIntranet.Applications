@@ -42,11 +42,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void GetTokenAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetTokenAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelper<IRefreshableToken> sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetTokenAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetTokenAsync(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));

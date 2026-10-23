@@ -42,22 +42,22 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemException()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemException()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereMessageIsNotNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
@@ -66,11 +66,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
@@ -79,12 +79,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereMessageContainsName()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereMessageContainsName()
         {
             string name = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(name, false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains($"'{name}'"), Is.True);
@@ -93,11 +93,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConnectionString()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConnectionString()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConnectionString));
@@ -106,11 +106,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNotNull()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNotNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Not.Null);
@@ -119,11 +119,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNullReferenceException()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationDoesNotHaveConfigurationSectionForConnectionStrings_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNullReferenceException()
         {
             IConfigurationValueValidator sut = CreateSut(hasConfigurationSectionForConnectionStrings: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.TypeOf<NullReferenceException>());
@@ -144,22 +144,22 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemException()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemException()
         {
             IConfigurationValueValidator sut = CreateSut(hasConnectionString: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereMessageIsNotNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasConnectionString: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
@@ -168,11 +168,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty()
         {
             IConfigurationValueValidator sut = CreateSut(hasConnectionString: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
@@ -181,12 +181,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereMessageContainsName()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereMessageContainsName()
         {
             string name = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(name, hasConnectionString: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains($"'{name}'"), Is.True);
@@ -195,11 +195,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConnectionString()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConnectionString()
         {
             IConfigurationValueValidator sut = CreateSut(hasConnectionString: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConnectionString));
@@ -208,11 +208,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
 
         [Test]
         [Category("UnitTest")]
-        public void ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task ValidateAsync_WhenConfigurationSectionForConnectionStringsDoesNotContainName_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
         {
             IConfigurationValueValidator sut = CreateSut(hasConnectionString: false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);
@@ -225,11 +225,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemException(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemException(string value)
         {
             IConfigurationValueValidator sut = CreateSut(connectionString: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             Assert.That(result, Is.Not.Null);
         }
@@ -240,11 +240,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereMessageIsNotNull(string value)
         {
             IConfigurationValueValidator sut = CreateSut(connectionString: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
@@ -257,11 +257,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereMessageIsNotEmpty(string value)
         {
             IConfigurationValueValidator sut = CreateSut(connectionString: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
@@ -274,12 +274,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereMessageContainsName(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereMessageContainsName(string value)
         {
             string name = _fixture.Create<string>();
             IConfigurationValueValidator sut = CreateSut(name, connectionString: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains($"'{name}'"), Is.True);
@@ -292,11 +292,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConnectionString(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToMissingConnectionString(string value)
         {
             IConfigurationValueValidator sut = CreateSut(connectionString: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.MissingConnectionString));
@@ -309,11 +309,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConnectionStringValidator
         [TestCase(" ")]
         [TestCase("  ")]
         [TestCase("   ")]
-        public void ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value)
+        public async System.Threading.Tasks.Task ValidateAsync_WhenValueForNamedConnectionStringIsEmptyOrWhiteSpace_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull(string value)
         {
             IConfigurationValueValidator sut = CreateSut(connectionString: value);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync());
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ValidateAsync()))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);

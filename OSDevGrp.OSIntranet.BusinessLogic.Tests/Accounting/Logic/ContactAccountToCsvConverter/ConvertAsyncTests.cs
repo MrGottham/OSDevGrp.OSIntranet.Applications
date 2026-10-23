@@ -32,11 +32,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Logic.ContactAccoun
 
         [Test]
         [Category("UnitTest")]
-        public void ConvertAsync_WhenContactAccountIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ConvertAsync_WhenContactAccountIsNull_ThrowsArgumentNullException()
         {
             IContactAccountToCsvConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("contactAccount"));

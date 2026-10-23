@@ -40,20 +40,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
@@ -61,11 +61,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -73,11 +73,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("accountNumber"));
@@ -85,20 +85,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
@@ -106,11 +106,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -118,11 +118,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("accountNumber"));
@@ -130,20 +130,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " "));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " "));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " "));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
@@ -151,11 +151,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " "));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -163,11 +163,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " "));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), " ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("accountNumber"));
@@ -202,20 +202,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut(false);
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>()));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>()));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueShouldBeKnown()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueShouldBeKnown()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldBeKnown));
@@ -223,11 +223,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -235,11 +235,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
+        public async System.Threading.Tasks.Task ContactAccountAsync_WhenContactAccountWasNotReturnedFromQueryBus_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToAccountNumber()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ContactAccountAsync(_fixture.Create<int>(), _fixture.Create<string>())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("accountNumber"));

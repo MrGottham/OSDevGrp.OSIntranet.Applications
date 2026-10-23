@@ -42,11 +42,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Authe
 
 	    [Test]
 	    [Category("UnitTest")]
-	    public void ExecuteAsync_WhenAuthenticateUserCommandIsNull_ThrowsArgumentNullException()
+	    public async System.Threading.Tasks.Task ExecuteAsync_WhenAuthenticateUserCommandIsNull_ThrowsArgumentNullException()
 	    {
 		    ICommandHandler<IAuthenticateUserCommand, ClaimsPrincipal> sut = CreateSut();
 
-		    ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+		    ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null)))!;
 
 		    Assert.That(result, Is.Not.Null);
 		    Assert.That(result.ParamName, Is.EqualTo("authenticateCommand"));

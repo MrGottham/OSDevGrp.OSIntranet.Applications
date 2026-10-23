@@ -30,9 +30,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreMicrosoftToken_WhenTokenHelperFactoryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreMicrosoftToken_WhenTokenHelperFactoryIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await Mvc.Helpers.Security.TokenHelperFactoryExtensions.StoreMicrosoftToken(null, CreateHttpContext(), _fixture.BuildRefreshableTokenMock().Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await Mvc.Helpers.Security.TokenHelperFactoryExtensions.StoreMicrosoftToken(null, CreateHttpContext(), _fixture.BuildRefreshableTokenMock().Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("tokenHelperFactory"));
@@ -40,11 +40,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreMicrosoftToken_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreMicrosoftToken_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreMicrosoftToken(null, _fixture.BuildRefreshableTokenMock().Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreMicrosoftToken(null, _fixture.BuildRefreshableTokenMock().Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
@@ -52,11 +52,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreMicrosoftToken_WhenMicrosoftTokenIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreMicrosoftToken_WhenMicrosoftTokenIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreMicrosoftToken(CreateHttpContext(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreMicrosoftToken(CreateHttpContext(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("microsoftToken"));

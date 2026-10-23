@@ -27,11 +27,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateContactAccountAsync_WhenContactAccountIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateContactAccountAsync_WhenContactAccountIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccountAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccountAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contactAccount"));
         }

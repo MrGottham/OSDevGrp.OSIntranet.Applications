@@ -34,24 +34,24 @@ public class BuildAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void BuildAsync_WhenModelIsNull_ThrowsArgumentNullException()
+    public async System.Threading.Tasks.Task BuildAsync_WhenModelIsNull_ThrowsArgumentNullException()
     {
         IAccountTextsBuilder sut = CreateSut();
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
 
-        ArgumentNullException? result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BuildAsync((AccountModel)null!, formatProvider));
+        ArgumentNullException? result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BuildAsync((AccountModel)null!, formatProvider)))!;
 
         Assert.That(result?.ParamName, Is.EqualTo("model"));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void BuildAsync_WhenFormatProviderIsNull_ThrowsArgumentNullException()
+    public async System.Threading.Tasks.Task BuildAsync_WhenFormatProviderIsNull_ThrowsArgumentNullException()
     {
         IAccountTextsBuilder sut = CreateSut();
         AccountModel model = _fixture!.Create<AccountModel>();
 
-        ArgumentNullException? result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BuildAsync(model, null!));
+        ArgumentNullException? result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.BuildAsync(model, null!)))!;
 
         Assert.That(result?.ParamName, Is.EqualTo("formatProvider"));
     }

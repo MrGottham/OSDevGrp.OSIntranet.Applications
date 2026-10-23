@@ -232,23 +232,23 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.HomeController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenFromAcmeChallengeCommandThrowsException_ThrowsException()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenFromAcmeChallengeCommandThrowsException_ThrowsException()
         {
             Controller sut = CreateSut(exception: _fixture.Create<Exception>());
 
-            Exception result = Assert.ThrowsAsync<Exception>(async () => await sut.AcmeChallenge(_fixture.Create<string>()));
+            Exception result = (await Assert.ThrowsAsync<Exception>(async () => await sut.AcmeChallenge(_fixture.Create<string>())))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenFromAcmeChallengeCommandThrowsException_ThrowsSameException()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenFromAcmeChallengeCommandThrowsException_ThrowsSameException()
         {
             Exception exception = _fixture.Create<Exception>();
             Controller sut = CreateSut(exception: exception);
 
-            Exception result = Assert.ThrowsAsync<Exception>(async () => await sut.AcmeChallenge(_fixture.Create<string>()));
+            Exception result = (await Assert.ThrowsAsync<Exception>(async () => await sut.AcmeChallenge(_fixture.Create<string>())))!;
 
             Assert.That(result, Is.SameAs(exception));
         }

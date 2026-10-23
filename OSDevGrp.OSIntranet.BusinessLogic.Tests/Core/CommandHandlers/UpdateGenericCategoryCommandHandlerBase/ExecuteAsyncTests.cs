@@ -27,11 +27,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Core.CommandHandlers.UpdateGen
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
         {
             CommandHandler sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("command"));

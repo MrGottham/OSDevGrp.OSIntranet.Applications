@@ -175,12 +175,12 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertExecuteAsyncWasNotCalledOnInnerFeature()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertExecuteAsyncWasNotCalledOnInnerFeature()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
-        Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
 
         _innerFeatureMock!.Verify(m => m.ExecuteAsync(
                 It.IsAny<IRequest>(),
@@ -190,13 +190,13 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithVerificationKeyFromHumanVerifiableRequest()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithVerificationKeyFromHumanVerifiableRequest()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         string verificationKey = _fixture!.Create<string>();
         IRequest request = CreateRequest(isHumanVerifiable: true, verificationKey: verificationKey);
-        Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
 
         _verificationCodeStorageMock!.Verify(m => m.RemoveVerificationCodeAsync(
                 It.Is<string>(value => value == verificationKey),
@@ -206,14 +206,14 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithGivenCancellationToken()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithGivenCancellationToken()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token; 
-        Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request, cancellationToken));
+        await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request, cancellationToken));
 
         _verificationCodeStorageMock!.Verify(m => m.RemoveVerificationCodeAsync(
                 It.IsAny<string>(),
@@ -223,25 +223,25 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedException()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedException()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
-        VerificationFailedException? result = Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        VerificationFailedException? result = (await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithSpecificMessage()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithSpecificMessage()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IFormatProvider formatProvider = CultureInfo.InvariantCulture;
         IRequest request = CreateRequest(isHumanVerifiable: true, formatProvider: formatProvider);
-        VerificationFailedException? result = Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        VerificationFailedException? result = (await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(result!.Message, Is.EqualTo("Den angivne bekræftelseskode kunne ikke godkendes."));
         _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
@@ -254,12 +254,12 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithInnerExceptionEqualToNull()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithInnerExceptionEqualToNull()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
-        VerificationFailedException? result = Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        VerificationFailedException? result = (await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(result!.InnerException, Is.Null);
     }

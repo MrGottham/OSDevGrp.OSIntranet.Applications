@@ -35,11 +35,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.CommandHandlers.D
 
 		[Test]
 		[Category("UnitTest")]
-		public void ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
 		{
 			ICommandHandler<IDeleteMovieGenreCommand> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null)))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("command"));

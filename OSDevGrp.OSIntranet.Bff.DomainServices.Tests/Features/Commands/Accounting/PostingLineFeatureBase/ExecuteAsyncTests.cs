@@ -240,8 +240,8 @@ public class ExecuteAsyncTests
         });
 
         // Act & Assert
-        InvalidOperationException caughtException = Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await sut.ExecuteAsync(request))!;
+        InvalidOperationException caughtException = (await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(caughtException, Is.SameAs(testException));
 
@@ -265,8 +265,8 @@ public class ExecuteAsyncTests
             .ThrowsAsync(testException);
 
         // Act & Assert
-        InvalidOperationException caughtException = Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await sut.ExecuteAsync(request))!;
+        InvalidOperationException caughtException = (await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(caughtException, Is.SameAs(testException));
 
@@ -290,8 +290,8 @@ public class ExecuteAsyncTests
             .ThrowsAsync(testException);
 
         // Act & Assert
-        InvalidOperationException caughtException = Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await sut.ExecuteAsync(request))!;
+        InvalidOperationException caughtException = (await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(caughtException, Is.SameAs(testException));
     }

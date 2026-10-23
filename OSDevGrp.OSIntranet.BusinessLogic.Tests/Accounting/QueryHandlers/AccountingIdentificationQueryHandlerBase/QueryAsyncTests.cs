@@ -37,11 +37,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.QueryHandlers.Accou
 
         [Test]
         [Category("UnitTest")]
-        public void QueryAsync_WhenQueryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task QueryAsync_WhenQueryIsNull_ThrowsArgumentNullException()
         {
             QueryHandler sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));

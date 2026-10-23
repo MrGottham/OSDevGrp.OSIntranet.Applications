@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void CreateMusicGenreAsync_WhenMusicGenreIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateMusicGenreAsync_WhenMusicGenreIsNull_ThrowsArgumentNullException()
         {
             IMediaLibraryRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateMusicGenreAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateMusicGenreAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("musicGenre"));

@@ -184,11 +184,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountGroupStatus
 
         [Test]
         [Category("UnitTest")]
-        public void CalculateAsync_WhenCalledWithStatusDateAndAccountCollection_ThrowNotSupportedException()
+        public async System.Threading.Tasks.Task CalculateAsync_WhenCalledWithStatusDateAndAccountCollection_ThrowNotSupportedException()
         {
             IAccountGroupStatus sut = CreateSut();
 
-            Assert.ThrowsAsync<NotSupportedException>(async () => await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1), _fixture.BuildAccountCollectionMock().Object));
+            await Assert.ThrowsAsync<NotSupportedException>(async () => await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(1, 365) * -1), _fixture.BuildAccountCollectionMock().Object));
         }
 
         private IAccountGroupStatus CreateSut(IAccountCollection accountCollection = null)
