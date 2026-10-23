@@ -147,6 +147,7 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Delete, "Slet");
         staticTexts.Add(StaticTextKey.ConfirmDeletion, "Bekræft sletning");
         staticTexts.Add(StaticTextKey.DeleteVerificationInfo, "Du skal indtaste nedenstående verifikationskode, før du kan gennemføre den ønskede sletning.");
+        staticTexts.Add(StaticTextKey.VerificationFailed, "Den angivne bekræftelseskode kunne ikke godkendes.");
         staticTexts.Add(StaticTextKey.Reset, "Nulstil");
         staticTexts.Add(StaticTextKey.Cancel, "Fortryd");
         staticTexts.Add(StaticTextKey.Warning, "Advarsel");

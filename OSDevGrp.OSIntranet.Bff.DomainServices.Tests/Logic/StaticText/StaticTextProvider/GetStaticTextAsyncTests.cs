@@ -141,6 +141,7 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.Delete, "Slet", 0)]
     [TestCase(StaticTextKey.ConfirmDeletion, "Bekræft sletning", 0)]
     [TestCase(StaticTextKey.DeleteVerificationInfo, "Du skal indtaste nedenstående verifikationskode, før du kan gennemføre den ønskede sletning.", 0)]
+    [TestCase(StaticTextKey.VerificationFailed, "Den angivne bekræftelseskode kunne ikke godkendes.", 0)]
     [TestCase(StaticTextKey.Reset, "Nulstil", 0)]
     [TestCase(StaticTextKey.Cancel, "Fortryd", 0)]
     [TestCase(StaticTextKey.Warning, "Advarsel", 0)]

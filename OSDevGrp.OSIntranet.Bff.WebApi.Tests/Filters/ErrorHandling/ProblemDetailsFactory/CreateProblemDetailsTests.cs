@@ -108,7 +108,8 @@ public class CreateProblemDetailsTests : CreateProblemDetailsTestBase
 
         Uri requestUrl = CreateRequestUrl(_fixture!);
         HttpRequest httpRequest = CreateHttpRequest(_fixture!, requestUrl: requestUrl);
-        VerificationFailedException exception = new VerificationFailedException();
+        string exceptionMessage = _fixture!.Create<string>();
+        VerificationFailedException exception = new VerificationFailedException(exceptionMessage);
         ProblemDetails problemDetails = sut.CreateProblemDetails(httpRequest, exception);
 
         VerifyProblemDetails(problemDetails, 
