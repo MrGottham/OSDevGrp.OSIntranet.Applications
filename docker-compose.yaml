@@ -9,6 +9,8 @@ services:
       dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile
       args:
         licensesAutoMapperLicenseKey: ${licensesAutoMapperLicenseKey}
+      secrets:
+        - sixlabors_license
     restart: "no"
 
   certificatebuilder:
@@ -213,3 +215,7 @@ services:
 volumes:
   letsencrypt-config:
   letsencrypt-data:
+
+secrets:
+  sixlabors_license:
+    file: ./licenses/sixlabors.lic

@@ -1,5 +1,6 @@
 # Directories
 .git/
+/licenses/
 .vs/
 .vscode/
 **/[Bb]in/
