@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-react-route
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - {{ .Values.ingress.secureEntryPoint }}
+  routes:
+    - kind: Rule
+      match: Host(`{{ .Values.deployments.react.ingress.host }}`)
+      services:
+        - name: {{ .Release.Name }}-react-service
+          passHostHeader: true
+          port: {{ .Values.deployments.react.containerPort }}
+          scheme: http
+  tls:
+    secretName: {{ .Release.Name }}-tls-secret

@@ -1,8 +1,9 @@
 # Directories
 .git/
-/licenses/
 .vs/
 .vscode/
+charts/
+licenses/
 **/[Bb]in/
 **/[Oo]bj/
 **/[Oo]ut/

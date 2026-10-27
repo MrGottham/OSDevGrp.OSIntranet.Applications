@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-react-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.deployments.react.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-react-selector
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-react-selector
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-react
+          image: {{ .Values.deployments.react.containerImage }}
+          imagePullPolicy: {{ .Values.deployments.react.containerImagePullPolicy }}
+          ports:
+            - name: {{ .Values.deployments.react.containerPortName }}
+              containerPort: {{ .Values.deployments.react.containerPort }}
+              protocol: TCP
+          env:
+            - name: RUNNING_IN_CONTAINER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: RUNNING_IN_CONTAINER
+            - name: SERVER_PORT
+              value: {{ .Values.deployments.react.containerPort | quote }}
+            - name: NON_ROOT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: NON_ROOT_USER
+            - name: SUDO_ASKPASS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: SUDO_ASKPASS
+            - name: BFF_ENDPOINT_MAPPINGS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: bffEndpointMappings
