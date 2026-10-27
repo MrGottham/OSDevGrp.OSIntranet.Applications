@@ -241,6 +241,33 @@ public class AccountingController : ControllerBase
         return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
     }
 
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpDelete("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]
+    [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> DeletePostingLineFromPostingJournalAsync([FromServices] ICommandFeature<DeletePostingLineFromPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, [FromRoute][Required] Guid identifier, [FromHeader(Name = "X-Verification-Key")][Required] string verificationKey, [FromHeader(Name = "X-Verification-Code")][Required] string verificationCode, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        DeletePostingLineFromPostingJournalRequest deleteRequest = new DeletePostingLineFromPostingJournalRequest(
+            Guid.NewGuid(),
+            accountingNumber,
+            identifier,
+            verificationKey,
+            verificationCode,
+            _formatProvider,
+            securityContext);
+
+        await commandFeature.ExecuteAsync(deleteRequest, cancellationToken);
+
+        PostingJournalRequest postingJournalRequest = new PostingJournalRequest(Guid.NewGuid(), accountingNumber, ResolveStatusDate(null), _formatProvider, securityContext);
+        PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
+
+        return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
+    }
+
     private DateTimeOffset ResolveStatusDate(DateTimeOffset? value)
     {
         return new DateTimeOffset((value ?? _timeProvider.GetLocalNow()).Date);
