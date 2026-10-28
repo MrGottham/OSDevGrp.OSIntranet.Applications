@@ -177,6 +177,7 @@ public class AccountingController : ControllerBase
 
     [Authorize(Policy = Policies.AccountingModifier)]
     [HttpPost("{accountingNumber:int}/postingjournal/postinglines")]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
@@ -210,6 +211,7 @@ public class AccountingController : ControllerBase
 
     [Authorize(Policy = Policies.AccountingModifier)]
     [HttpPut("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
@@ -243,6 +245,7 @@ public class AccountingController : ControllerBase
 
     [Authorize(Policy = Policies.AccountingModifier)]
     [HttpDelete("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
     [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]

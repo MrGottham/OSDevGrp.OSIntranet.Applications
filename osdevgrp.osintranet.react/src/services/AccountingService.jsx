@@ -248,4 +248,34 @@ export default class AccountingService extends ServiceBase {
 
         throw await this.generateError(response);
     }
+
+    async deletePostingLineFromPostingLineJournal(accountingNumber, identifier, verificationKey, verificationCode) {
+        if (accountingNumber === undefined || accountingNumber === null) {
+            throw new Error('Accounting number is required.');
+        }
+
+        if (identifier === undefined || identifier === null) {
+            throw new Error('Identifier is required.');
+        }
+
+        const headers = {
+            ...await this.generateAntiforgeryHeader(),
+            ...this.generateVerificationHeaders(verificationKey, verificationCode)
+        };
+
+        const response = await fetch(
+            this.resolveEndpoint(`/api/accounting/${accountingNumber}/postingjournal/postinglines/${identifier}`),
+            {
+                method: 'DELETE',
+                headers: headers,
+                credentials: 'include'
+            }
+        );
+
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw await this.generateError(response);
+    }
 }

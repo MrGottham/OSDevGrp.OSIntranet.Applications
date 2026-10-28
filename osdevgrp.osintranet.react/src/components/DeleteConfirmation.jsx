@@ -78,6 +78,7 @@ function DeleteConfirmation({ show, title, deletionQuestion, verificationInfo, c
 
             const returnUrl = await onDelete(deleteContext, verificationKey, verificationCode);
             if (returnUrl === undefined || returnUrl === null) {
+                setDeletionEnabled(true);
                 return;
             }
 

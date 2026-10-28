@@ -452,7 +452,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                         <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none me-2' onClick={() => handleModifyPostingJournalLine(accountingNumber, postingJournalLineIdentifierString, dateHelper.getDateOnly(postingJournalLineDisplayer.postingDate), formHelper.asNullableString(postingJournalLineDisplayer.postingReference), postingJournalLineDisplayer.account, postingJournalLineDisplayer.postingText, formHelper.asNullableString(postingJournalLineDisplayer.budgetAccount), formHelper.asCurrency(postingJournalLineDisplayer.debit, true), formHelper.asCurrency(postingJournalLineDisplayer.credit, true), formHelper.asNullableString(postingJournalLineDisplayer.contactAccount), staticTextHelper.getUpdatePostingJournalLineText(staticTexts), staticTextHelper.getUpdateText(staticTexts))}>  
                             <FontAwesomeIcon icon={faPen} />
                         </button>
-                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' onClick={() => confirmDeletion(staticTextHelper.getPostingJournalLineDeletionQuestionText(staticTexts, postingJournalLineDisplayer.postingText), { accoutingNumber: accountingNumber, postingJournalLineIdentifier: postingJournalLineIdentifierString })}>
+                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' onClick={() => confirmDeletion(staticTextHelper.getPostingJournalLineDeletionQuestionText(staticTexts, postingJournalLineDisplayer.postingText), { accountingNumber: accountingNumber, postingJournalLineIdentifier: postingJournalLineIdentifierString })}>
                             <FontAwesomeIcon icon={faTrash} />
                         </button>
                     </span>
@@ -574,12 +574,19 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     }
 
     async function handleDelete(deleteContext, verificationKey, verificationCode) {
-        console.debug('handleDelete');
-        console.debug(`- deleteContext=${deleteContext}`);
-        console.debug(`- verificationKey=${verificationKey}`);
-        console.debug(`- verificationCode=${verificationCode}`);
+        try {
+            const response = await accountingService.deletePostingLineFromPostingLineJournal(
+                formHelper.convertToInteger(deleteContext.accountingNumber),
+                formHelper.convertToUuid(deleteContext.postingJournalLineIdentifier),
+                verificationKey,
+                verificationCode
+            );
 
-        setDeleteState(prev => ({...prev, show: false}));
+            setDeleteState(prev => ({...prev, show: false}));
+            setPostingJournal(response.dynamicTexts);
+        } catch (error) {
+            addToast(staticTextHelper.getErrorText(staticTexts), error.message, 'danger');
+        }
 
         return undefined;
     }

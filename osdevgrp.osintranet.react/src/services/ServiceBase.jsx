@@ -25,6 +25,21 @@ export default class ServiceBase {
         };
     }
 
+    generateVerificationHeaders(verificationKey, verificationCode) {
+        if (verificationKey === undefined || verificationKey === null || verificationKey.trim() === '') {
+            throw new Error('Verification key is required.');
+        }
+
+        if (verificationCode === undefined || verificationCode === null || verificationCode.trim() === '') {
+            throw new Error('Verification code is required.');
+        }
+
+        return {
+            'X-Verification-Key': verificationKey,
+            'X-Verification-Code': verificationCode
+        };
+    }
+
     async generateAntiforgeryHeader() {
         const response = await fetch(this.resolveEndpoint('/api/security/antiforgery/token'), { method: 'GET', credentials: 'include' });
         if (response.ok) {
