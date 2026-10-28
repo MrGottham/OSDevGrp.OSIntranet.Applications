@@ -4,8 +4,8 @@
 
 We need to append/implement functionality in the following projects:
 
-* **OUT OF SCOPE:** OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces
-* **OUT OF SCOPE:** OSDevGrp.OSIntranet.Bff.ServiceGateways
+* OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces
+* OSDevGrp.OSIntranet.Bff.ServiceGateways
 * OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces
 * OSDevGrp.OSIntranet.Bff.DomainServices
 * OSDevGrp.OSIntranet.Bff.WebApi
@@ -13,113 +13,107 @@ We need to append/implement functionality in the following projects:
 
 We need to create tests for functionality in the following projects:
 
-* **OUT OF SCOPE:** OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests
-* **OUT OF SCOPE:** OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData
+* OSDevGrp.OSIntranet.Bff.ServiceGateways.Tests
+* OSDevGrp.OSIntranet.Bff.ServiceGateways.TestData
 * OSDevGrp.OSIntranet.Bff.DomainServices.Tests
 * OSDevGrp.OSIntranet.Bff.WebApi.Tests
 
 Note: No automated tests are needed for osdevgrp.osintranet.react as the React component will be validated through manual testing.
 
-## Resolve verification failure messages through static text
+## Adding notifications in the BFF domain service layer
 
 ### Business Goal
 
-Verification failures should expose a Danish message resolved through the static text provider instead of a hard-coded English exception message.
+Command features should be able to publish notifications which a controller method in the WebApi could retrieve and expose to the react application. The notification should include a notification format (markdown), header and content.
 
 ### Implementation Bullets
 
 #### BFF DomainServices.Interfaces
 
-- [ ] Add `VerificationFailed` to `StaticTextKey`.
-- [ ] Update `VerificationFailedException` to accept the localized message instead of using a hard-coded English message.
-- [ ] Add `IFormatProvider FormatProvider { get; }` property to `IHumanVerifiableRequest` to enable culture-aware error message localization.
+- [ ] Add `INotification` under `Logic/Notification` with `NotificationFormat`, `Header`, and `Content` getters, and define the `NotificationFormat` enum in the same folder with `Markdown` as a supported value.
+- [ ] Add `INotificationPublisher` in `Logic/Notification` with `Task PublishAsync(INotification notification)`.
+- [ ] Add `INotificationRetriever` in `Logic/Notification` with `Task<IReadOnlyCollection<INotification>> RetrieveAsync()`.
+- [ ] Add `Notifications` to `StaticTextKey`.
 
 #### BFF DomainServices
 
-- [ ] Add the Danish text `Den angivne bekræftelseskode kunne ikke godkendes.` for `StaticTextKey.VerificationFailed` in `StaticTextProvider`.
-- [ ] Update `CommandFeatureHumanVerifier` and `QueryFeatureHumanVerifier` to resolve the message through `IStaticTextProvider` using `request.FormatProvider` when verification fails, then throw `VerificationFailedException` with that localized message.
+- [ ] Add the internal `MarkdownNotification` class under `Logic/Notification`, implementing `INotification`; accept the header and Markdown content in its constructor, return `NotificationFormat.Markdown`, and expose the supplied header and content.
+- [ ] Add internal `NotificationPublisher` and `NotificationRetriever` classes under `Logic/Notification`, implementing `INotificationPublisher` and `INotificationRetriever` respectively, sharing a thread-safe request-scoped notification collection.
+- [ ] Register `NotificationPublisher` and `NotificationRetriever` as scoped services in `AddDomainServices` so notifications are isolated between requests.
+- [ ] Add the Danish text `Notifikationer` for `StaticTextKey.Notifications` in `StaticTextProvider`.
+- [ ] Add `Features/Queries/Notification/Notifications/NotificationsRequest.cs` as a public `NotificationsRequest` inheriting from `PageRequestBase`.
+- [ ] Add `Features/Queries/Notification/Notifications/NotificationsResponse.cs` as a public `NotificationsResponse` inheriting from `PageResponseBase` with an `IReadOnlyCollection<INotification> Notifications` getter.
+- [ ] Add `Features/Queries/Notification/Notifications/NotificationsFeature.cs` as an internal query feature inheriting from `PageFeatureBase<NotificationsRequest, NotificationsResponse, object>`; have `ExecuteAsync` use `INotificationRetriever` to retrieve published notifications and return them in `NotificationsResponse`, and specify `StaticTextKey.Notifications` in `GetStaticTextSpecifications`.
 
 #### BFF DomainServices.Tests
 
-- [ ] Add `[TestCase(StaticTextKey.VerificationFailed, "Den angivne bekræftelseskode kunne ikke godkendes.", 0)]` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
-- [ ] Verify both human-verifier decorators resolve the new key and pass the localized message to `VerificationFailedException` when verification fails.
+- [ ] In `OSDevGrp.OSIntranet.Bff.DomainServices.Tests`, add `CreateNotification` to `FixtureExtensions`, following the existing two-method fixture-extension pattern and mocking `INotification`.
+- [ ] Add `Logic/Notification/MarkdownNotification/ConstructorTests.cs` in `OSDevGrp.OSIntranet.Bff.DomainServices.Tests` to verify the `MarkdownNotification` constructor sets the Markdown format, header, and content.
+- [ ] Add `Logic/Notification/NotificationPublisher/PublishAsyncTests.cs` to test `NotificationPublisher.PublishAsync`, including publication order and safe concurrent publication.
+- [ ] Add `Logic/Notification/NotificationRetriever/RetrieveAsyncTests.cs` to test `NotificationRetriever.RetrieveAsync`, including retrieval order, safe concurrent access, and isolation between request scopes.
+- [ ] Add a test case for `StaticTextKey.Notifications` with expected text `Notifikationer` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
+- [ ] Add `Features/Queries/Notification/Notifications/NotificationsFeature/ExecuteAsyncTests.cs` in `OSDevGrp.OSIntranet.Bff.DomainServices.Tests`, following the existing `ExecuteAsyncTests` pattern; verify `INotificationRetriever.RetrieveAsync` is called and the response contains the expected static text values, with each static-text expectation covered by a test case.
 
-## Upgrade SixLabors ImageSharp packages and configure build licensing
+#### BFF WebApi
 
-### BFF DomainServices
+- [ ] Add `Shared/Dtos/NotificationDto.cs` with string `Format`, `Header`, and `Content` properties, each with `get` and `init`, and decorate each property with `[Required]` and `[MinLength(...)]`; define a separate minimum-length constant with value `1` for each property in `ValidationValues`.
+- [ ] Add a `ValidationValues` regex pattern that permits only `Markdown`, and apply it to `NotificationDto.Format` with `[RegularExpression(...)]`.
+- [ ] Add an internal static `NotificationDto.Map` method that accepts an `INotification` and maps its format, header, and content to the DTO.
 
-- [ ] Upgrade the direct `SixLabors.ImageSharp` reference in `OSDevGrp.OSIntranet.Bff.DomainServices.csproj` from `3.1.12` to `4.1.2`.
-- [ ] Upgrade the direct `SixLabors.ImageSharp.Drawing` reference from `2.1.7` to a version compatible with ImageSharp 4, such as `3.1.2`.
-- [ ] Review and update `CaptchaGenerator` for API changes in ImageSharp 4 and ImageSharp.Drawing 3.
-- [ ] Confirm the selected package versions support the project's `net10.0` target.
+#### BFF WebApi.Tests
 
-### Licensing and Build Configuration
+- [ ] Add `CreateNotification` to `FixtureExtensions`, following the existing two-method fixture-extension pattern and mocking `INotification`.
 
-- [ ] Keep the acquired license file at `licenses/sixlabors.lic` in the solution root; retain the `.gitignore` rule so the license is not committed.
-- [ ] Add `SixLaborsLicenseFile` to the `BFF.DomainServices.csproj` property group using `$(MSBuildThisFileDirectory)../licenses/sixlabors.lic` for local builds.
-- [ ] Add `/licenses/` to `.dockerignore` so the license is not copied into the Docker build context by `COPY . .`.
-- [ ] Declare a top-level `sixlabors_license` file secret in `docker-compose.yaml`, sourced from `./licenses/sixlabors.lic`, and attach it to the `builder` service's build configuration.
-- [ ] Mount the `sixlabors_license` BuildKit secret only for the `dotnet publish` step that builds BFF DomainServices, and pass `/run/secrets/sixlabors.lic` through `-p:SixLaborsLicenseFile=...` to override the project-relative path in the container.
-- [ ] Ensure Docker Compose uses a BuildKit-capable builder and document `docker compose build builder` as the command for building with the license secret.
-- [ ] Ensure the license file is not copied into a Docker image layer or included in published application output.
-
-### BFF DomainServices.Tests
-
-- [ ] Run the focused `CaptchaGenerator` tests and update them if the package API changes affect expected behavior.
-- [ ] Run the BFF DomainServices unit tests and confirm the project builds with the license configuration.
-
-### Build Verification
-
-- [ ] Verify local builds find the license using the project-relative `SixLaborsLicenseFile` path.
-- [ ] Verify `docker compose build builder` successfully publishes the BFF WebApi with the BuildKit license secret, and confirm the license file is absent from the resulting image and publish output.
-
-## Expose logic to delete a posting line within a given accounting's posting journal from the BFF WebApi
+## Apply posting journal for a given accounting
 
 ### Business Goal
 
-The WebApi should expose logic to delete an existing posting line within a given accounting's posting journal. This should support the React application to delete an existing posting line within a given accounting's posting journal then reload the posting journal.
+In the react application an user should be able to apply the posting journal for a given accounting. When the posting journal has been successfully applied the react application should reload the accounting and if some warnings has been returned from the backend then they should be converter to notifications and be presentet for the user in the react application.
 
 ### Implementation Bullets
 
+#### BFF ServiceGateways.Interfaces
+
+- [ ] Add an accounting gateway operation for applying a posting journal and returning the backend apply result, including any warnings.
+
+#### BFF ServiceGateways
+
+- [ ] Implement the apply operation using the generated WebApi client and follow the existing service-gateway exception translation pattern.
+
+#### BFF ServiceGateways.Tests and TestData
+
+- [ ] Add test data for the posting-journal apply result and its warnings.
+- [ ] Verify the gateway calls the generated client with the correct accounting and posting-journal data, returns the apply result, and translates client errors consistently.
+
+#### BFF DomainServices.Interfaces
+
+- [ ] Define the request data needed by the posting-journal apply command, following the existing accounting command request patterns.
+
 #### BFF DomainServices
 
-- [ ] Add `DeletePostingLineFromPostingJournalRequest.cs` in `OSDevGrp.OSIntranet.Bff.DomainServices/Features/Commands/Accounting/DeletePostingLineFromPostingJournal/`, inheriting from `PostingJournalLineIdentificationRequestBase` and implementing `IHumanVerifiableRequest` with the verification key and code, so the command feature pipeline performs human verification.
-- [ ] Add `DeletePostingLineFromPostingJournalFeature.cs` in `OSDevGrp.OSIntranet.Bff.DomainServices/Features/Commands/Accounting/DeletePostingLineFromPostingJournal/`, inheriting from `PostingLineFeatureBase<DeletePostingLineFromPostingJournalRequest>`.
-- [ ] Remove only the posting line matching the request identifier; if none matches, throw `UnknownIdentifierException` with the requested identifier and localized text from `StaticTextKey.UnknownIdentifier`.
-- [ ] Because `ApplyPostingLineModel` is immutable, construct a new posting line collection containing every existing line except the one being deleted, then pass it to `SortAndClonePostingJournal` to sort, clone, and return the updated journal.
+- [ ] Add an apply-posting-journal command feature that validates and authorizes the accounting operation, then calls the accounting gateway.
+- [ ] Convert warnings from the apply result into Markdown notifications using the notification publisher.
+- [ ] After a successful apply, allow the WebApi to query and return the refreshed accounting.
 
 #### BFF DomainServices.Tests
 
-- [ ] Add `Features/Commands/Accounting/DeletePostingLineFromPostingJournal/DeletePostingLineFromPostingJournalFeature/ExecuteAsyncTests.cs`, following the Append and Modify feature test conventions.
-- [ ] Verify the matching posting line is removed and all other lines remain unchanged.
-- [ ] Verify a missing identifier throws `UnknownIdentifierException` with the requested identifier and retrieves its message from `StaticTextKey.UnknownIdentifier`.
-- [ ] Verify the updated journal is saved with the request accounting number and cancellation token, and the returned journal is cloned and sorted.
+- [ ] Verify the command invokes the gateway with the requested accounting and posting journal.
+- [ ] Verify returned warnings are published as notifications with the expected Markdown format, header, and content.
+- [ ] Verify gateway failures are propagated and do not produce success notifications.
 
-#### BFF WebApi Request Contract
+#### BFF WebApi
 
-- [ ] Use the required `X-Verification-Key` and `X-Verification-Code` headers for the verification key and code; keep both values out of the URL and request body, and ensure they are redacted from logs.
+- [ ] Add an authorized endpoint to apply the posting journal for an accounting, using the established route, validation, and response conventions.
+- [ ] Execute the apply command, retrieve the refreshed accounting after success, and expose both the refreshed response and published notifications to the React application.
 
-#### BFF WebApi Endpoint
+#### BFF WebApi.Tests
 
-- [ ] Add `DeletePostingLineFromPostingJournalAsync` to `AccountingController` as an authorized `DELETE` endpoint using `[HttpDelete("{accountingNumber:int}/postingjournal/postinglines/{identifier}")]`, with the standard response metadata used by the posting journal command endpoints.
-- [ ] Add `[Authorize(Policy = Policies.AccountingModifier)]`.
-- [ ] Add `[ProducesResponseType(typeof(PostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]`.
-- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]`.
-- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]`.
-- [ ] Add `[ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]`.
-- [ ] Bind and validate the accounting number and posting line identifier from the route, require the `X-Verification-Key` and `X-Verification-Code` headers, and accept a cancellation token.
-- [ ] Accept `[FromServices] ICommandFeature<DeletePostingLineFromPostingJournalRequest> commandFeature` and `[FromServices] IQueryFeature<PostingJournalRequest, PostingJournalResponse> queryFeature`.
-- [ ] Resolve the security context, create `DeletePostingLineFromPostingJournalRequest`, execute the delete command, then execute the query feature for the refreshed journal and return `PostingJournalResponseDto.Map` in an `OK` result.
-
-#### BFF WebApi Tests
-
-- [ ] Add `Controllers/Accounting/AccountingController/DeletePostingLineFromPostingJournalAsyncTests.cs`, following the Modify endpoint test conventions.
-- [ ] Verify the security context is resolved once and the command receives the route values, verification key and code, format provider, security context, and cancellation token.
-- [ ] Verify the refreshed journal is queried with the accounting number, current local status date, format provider, security context, and cancellation token, and the method returns `OkObjectResult` containing a `PostingJournalResponseDto`.
+- [ ] Verify the endpoint executes the apply command for the requested accounting, queries the refreshed accounting after success, and returns the result with notifications.
+- [ ] Verify command or refresh-query failures are surfaced using the existing WebApi error behavior.
 
 #### React Application
 
-- [ ] Add `deletePostingLineFromPostingLineJournal` to `AccountingService`, following the required-value checks in the append and modify methods; send a `DELETE` request to the endpoint with `X-Verification-Key` and `X-Verification-Code` headers, use the existing antiforgery, credentials, and error-handling conventions, and return `response.json()` on success.
-- [ ] Implement `handleDelete` in `PostingJournal.jsx` to convert the accounting number with `formHelper.convertToInteger` and the posting line identifier with `formHelper.convertToUuid`, then call the service with those values and the verification key and code.
-- [ ] On successful deletion, close the confirmation modal and update the journal from `response.dynamicTexts`; on failure, show the same danger toast as the create handler and keep the confirmation modal open.
-- [ ] Remove the temporary `console.debug` calls from the delete handler.
+- [ ] Add an AccountingService operation for applying the posting journal and handle unsuccessful responses using existing service conventions.
+- [ ] Add the user action to apply the posting journal for the selected accounting.
+- [ ] On success, reload the accounting and present any returned warning notifications to the user.
+- [ ] Manually verify the apply flow, accounting refresh, and warning notification presentation.
