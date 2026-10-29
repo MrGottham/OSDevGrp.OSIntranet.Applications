@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-bff-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.deployments.bff.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-bff-selector
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-bff-selector
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-bff
+          image: {{ .Values.deployments.bff.containerImage }}
+          imagePullPolicy: {{ .Values.deployments.bff.containerImagePullPolicy }}
+          ports:
+            - name: {{ .Values.deployments.bff.containerPortName }}
+              containerPort: {{ .Values.deployments.bff.containerPort }}
+              protocol: TCP
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: TZ
+            - name: DOTNET_RUNNING_IN_CONTAINER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: RUNNING_IN_CONTAINER
+            - name: ASPNETCORE_HTTP_PORTS
+              value: {{ .Values.deployments.bff.containerPort | quote }}
+            - name: NON_ROOT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: NON_ROOT_USER
+            - name: SUDO_ASKPASS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: SUDO_ASKPASS
+            - name: Security__OIDC__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: securityOidcAuthorityBff
+            - name: Security__OIDC__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityOidcClientIdBff
+            - name: Security__OIDC__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityOidcClientSecretBff
+            - name: Security__TrustedDomainCollection
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: securityTrustedDomainCollectionBff
+            - name: Security__Cors__OriginCollection
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: securityCorsOriginCollectionBff
+            - name: ServiceGateways__WebApi__EndpointAddress
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: serviceGatewaysWebApiEndpointAddress
+            - name: ServiceGateways__WebApi__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityOidcClientIdBff
+            - name: ServiceGateways__WebApi__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityOidcClientSecretBff
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.deployments.bff.containerPort }}
+              path: {{ .Values.deployments.bff.healthCheck.endpoint }}
+            periodSeconds: {{ .Values.deployments.bff.healthCheck.readinessProbe.checkInterval }}
+            timeoutSeconds: {{ .Values.deployments.bff.healthCheck.readinessProbe.timeout }}
+            successThreshold: {{ .Values.deployments.bff.healthCheck.readinessProbe.successThreshold }}
+            failureThreshold:  {{ .Values.deployments.bff.healthCheck.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.deployments.bff.containerPort }}
+              path: {{ .Values.deployments.bff.healthCheck.endpoint }}
+            periodSeconds: {{ .Values.deployments.bff.healthCheck.livenessProbe.checkInterval }}
+            timeoutSeconds: {{ .Values.deployments.bff.healthCheck.livenessProbe.timeout }}
+            successThreshold: {{ .Values.deployments.bff.healthCheck.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployments.bff.healthCheck.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.deployments.bff.containerPort }}
+              path: {{ .Values.deployments.bff.healthCheck.endpoint }}
+            periodSeconds: {{ .Values.deployments.bff.healthCheck.startupProbe.checkInterval }}
+            timeoutSeconds: {{ .Values.deployments.bff.healthCheck.startupProbe.timeout }}
+            successThreshold: {{ .Values.deployments.bff.healthCheck.startupProbe.successThreshold }}
+            failureThreshold:  {{ .Values.deployments.bff.healthCheck.startupProbe.failureThreshold }}

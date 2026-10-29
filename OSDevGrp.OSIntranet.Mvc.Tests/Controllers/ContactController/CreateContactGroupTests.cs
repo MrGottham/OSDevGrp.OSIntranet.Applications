@@ -81,11 +81,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContactGroup_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateContactGroup_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContactGroup(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContactGroup(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contactGroupViewModel"));
         }

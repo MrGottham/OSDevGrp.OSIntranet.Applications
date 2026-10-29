@@ -36,7 +36,7 @@ public class GetAccountingsAsyncTests : ServiceGatewayTestBase
 
         await sut.GetAccountingsAsync();
 
-        _webApiClientMock!.Verify(m => m.AccountingsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _webApiClientMock!.Verify(m => m.AccountingsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class GetAccountingsAsyncTests : ServiceGatewayTestBase
         CancellationToken cancellationToken = CancellationToken.None;
         await sut.GetAccountingsAsync(cancellationToken);
 
-        _webApiClientMock!.Verify(m => m.AccountingsAsync(It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
+        _webApiClientMock!.Verify(m => m.AccountingsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
     }
 
     [Test]
@@ -65,24 +65,24 @@ public class GetAccountingsAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetAccountingsAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetAccountingsAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetAccountingsAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetAccountingsAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetAccountingsAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetAccountingsAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetAccountingsAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetAccountingsAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
@@ -108,12 +108,12 @@ public class GetAccountingsAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.AccountingsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.AccountingsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.AccountingsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.AccountingsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(accountingModels ?? CreateAccountingModels()));
         }
 

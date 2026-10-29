@@ -47,11 +47,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void StoreTokenAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreTokenAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(null, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(null, _fixture.Create<string>())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
@@ -59,11 +59,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void StoreTokenAsync_WhenBase64TokenIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreTokenAsync_WhenBase64TokenIsNull_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(CreateHttpContext(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(CreateHttpContext(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("base64Token"));
@@ -71,11 +71,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void StoreTokenAsync_WhenBase64TokenIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreTokenAsync_WhenBase64TokenIsEmpty_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(CreateHttpContext(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(CreateHttpContext(), string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("base64Token"));
@@ -83,11 +83,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void StoreTokenAsync_WhenBase64TokenIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreTokenAsync_WhenBase64TokenIsWhiteSpace_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(CreateHttpContext(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreTokenAsync(CreateHttpContext(), " ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("base64Token"));

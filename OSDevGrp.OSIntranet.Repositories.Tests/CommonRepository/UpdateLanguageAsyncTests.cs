@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void UpdateLanguageAsync_WhenLanguageIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateLanguageAsync_WhenLanguageIsNull_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateLanguageAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateLanguageAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("language"));

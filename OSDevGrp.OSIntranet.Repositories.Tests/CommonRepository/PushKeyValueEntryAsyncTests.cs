@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void PushKeyValueEntryAsync_WhenKeyIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task PushKeyValueEntryAsync_WhenKeyIsNull_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PushKeyValueEntryAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PushKeyValueEntryAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("keyValueEntry"));

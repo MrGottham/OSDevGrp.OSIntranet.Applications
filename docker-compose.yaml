@@ -9,6 +9,8 @@ services:
       dockerfile: OSDevGrp.OSIntranet.Builder.Dockerfile
       args:
         licensesAutoMapperLicenseKey: ${licensesAutoMapperLicenseKey}
+      secrets:
+        - sixlabors_license
     restart: "no"
 
   certificatebuilder:
@@ -180,12 +182,11 @@ services:
       - SERVER_PORT=8080
       - NON_ROOT_USER=${nonRootUser}
       - SUDO_ASKPASS=/usr/local/bin/askpw
-      - VITE_BFF_ENDPOINT=${bffEndpointAddress}
+      - BFF_ENDPOINT_MAPPINGS=${bffEndpointMappings}
     build:
       context: .
       dockerfile: OSDevGrp.OSIntranet.React.Dockerfile
       args:
-        bffEndpointAddress: ${bffEndpointAddress}
         appUserGroup: ${appUserGroup}
         nonRootUser: ${nonRootUser}
         nonRootPassword: ${nonRootPassword}
@@ -213,3 +214,7 @@ services:
 volumes:
   letsencrypt-config:
   letsencrypt-data:
+
+secrets:
+  sixlabors_license:
+    file: ./licenses/sixlabors.lic

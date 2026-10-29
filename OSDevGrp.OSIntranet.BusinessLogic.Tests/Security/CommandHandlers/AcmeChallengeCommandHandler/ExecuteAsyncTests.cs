@@ -34,11 +34,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AcmeC
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
         {
             ICommandHandler<IAcmeChallengeCommand, byte[]> sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("command"));
@@ -83,22 +83,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AcmeC
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolverWithChallengeTokenFromAcmeChallengeCommand_ThrowsIntranetBusinessException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolverWithChallengeTokenFromAcmeChallengeCommand_ThrowsIntranetBusinessException()
         {
             ICommandHandler<IAcmeChallengeCommand, byte[]> sut = CreateSut(hasConstructedKeyAuthorization: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(CreateAcmeChallengeCommand()));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(CreateAcmeChallengeCommand())))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolverWithChallengeTokenFromAcmeChallengeCommand_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToCannotRetrieveAcmeChallengeForToken()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolverWithChallengeTokenFromAcmeChallengeCommand_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToCannotRetrieveAcmeChallengeForToken()
         {
             ICommandHandler<IAcmeChallengeCommand, byte[]> sut = CreateSut(hasConstructedKeyAuthorization: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(CreateAcmeChallengeCommand()));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(CreateAcmeChallengeCommand())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.CannotRetrieveAcmeChallengeForToken));
@@ -106,11 +106,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.AcmeC
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolverWithChallengeTokenFromAcmeChallengeCommand_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNotNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenNoConstructedKeyAuthorizationWasReturnedFromAcmeChallengeResolverWithChallengeTokenFromAcmeChallengeCommand_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNotNull()
         {
             ICommandHandler<IAcmeChallengeCommand, byte[]> sut = CreateSut(hasConstructedKeyAuthorization: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(CreateAcmeChallengeCommand()));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(CreateAcmeChallengeCommand())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);

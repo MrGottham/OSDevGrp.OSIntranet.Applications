@@ -13,33 +13,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void GetPostalCodesAsync_WhenCountryCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetPostalCodesAsync_WhenCountryCodeIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetPostalCodesAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetPostalCodesAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetPostalCodesAsync_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetPostalCodesAsync_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetPostalCodesAsync(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetPostalCodesAsync(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetPostalCodesAsync_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetPostalCodesAsync_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetPostalCodesAsync(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetPostalCodesAsync(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }

@@ -27,11 +27,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.HashKeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void ComputeHashAsync_WhenByteCollectionIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ComputeHashAsync_WhenByteCollectionIsNull_ThrowsArgumentNullException()
         {
             IHashKeyGenerator sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ComputeHashAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ComputeHashAsync(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("byteCollection"));

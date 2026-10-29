@@ -41,11 +41,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Prepa
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenCommandIsNull_ThrowsArgumentNullException()
         {
             ICommandHandler<IPrepareAuthorizationCodeFlowCommand, string> sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("command"));

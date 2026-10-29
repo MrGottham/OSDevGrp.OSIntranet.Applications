@@ -78,11 +78,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateBudgetAccountGroup_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateBudgetAccountGroup_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateBudgetAccountGroup(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateBudgetAccountGroup(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("budgetAccountGroupViewModel"));
         }

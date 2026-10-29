@@ -39,11 +39,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContactAccount_WhenContactAccountViewModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateContactAccount_WhenContactAccountViewModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContactAccount(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContactAccount(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("contactAccountViewModel"));
@@ -52,11 +52,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContactAccount_WhenContactAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInternalError()
+        public async System.Threading.Tasks.Task CreateContactAccount_WhenContactAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInternalError()
         {
             Controller sut = CreateSut(false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateContactAccount(CreateContactAccountViewModel()));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateContactAccount(CreateContactAccountViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.InternalError));
@@ -65,12 +65,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContactAccount_WhenContactAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereMessageEndsWithErrorMessagesFromModelState()
+        public async System.Threading.Tasks.Task CreateContactAccount_WhenContactAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereMessageEndsWithErrorMessagesFromModelState()
         {
             string errorMessage = _fixture.Create<string>();
             Controller sut = CreateSut(false, errorMessage: errorMessage);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateContactAccount(CreateContactAccountViewModel()));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateContactAccount(CreateContactAccountViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.EndsWith(errorMessage), Is.True);
@@ -79,11 +79,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContactAccount_WhenContactAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task CreateContactAccount_WhenContactAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
         {
             Controller sut = CreateSut(false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateContactAccount(CreateContactAccountViewModel()));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateContactAccount(CreateContactAccountViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);

@@ -83,11 +83,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateCountry_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateCountry_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateCountry(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateCountry(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryViewModel"));
         }

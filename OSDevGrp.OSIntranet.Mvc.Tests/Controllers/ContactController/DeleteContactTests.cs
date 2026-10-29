@@ -45,33 +45,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContact_WhenExternalIdentifierIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContact_WhenExternalIdentifierIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContact(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContact(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContact_WhenExternalIdentifierIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContact_WhenExternalIdentifierIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContact(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContact(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContact_WhenExternalIdentifierIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContact_WhenExternalIdentifierIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContact(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContact(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
         }

@@ -11,33 +11,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void GetContactAccountAsync_WhenAccountNumberIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetContactAccountAsync_WhenAccountNumberIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAccountAsync(WithExistingAccountingNumber(), null, DateTime.Today));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAccountAsync(WithExistingAccountingNumber(), null, DateTime.Today)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetContactAccountAsync_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAccountAsync(WithExistingAccountingNumber(), string.Empty, DateTime.Today));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAccountAsync(WithExistingAccountingNumber(), string.Empty, DateTime.Today)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetContactAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAccountAsync(WithExistingAccountingNumber(), " ", DateTime.Today));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetContactAccountAsync(WithExistingAccountingNumber(), " ", DateTime.Today)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }

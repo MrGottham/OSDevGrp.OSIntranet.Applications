@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { HelperContext } from '../contexts/HelperContext';
 import { Formik } from 'formik';
@@ -13,13 +13,13 @@ function AccountingForm({accountingNumber, readonlyAccountingNumber, accountingN
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const validationSchemaHelper = useContext(HelperContext).validationSchemaHelper;
 
-    const validationSchema = object().shape({
+    const validationSchema = useMemo(() => object().shape({
         accountingNumber: validationSchemaHelper.forInteger(validationRuleSet, 'AccountingNumber', { withRequiredValueRule: true, withMinValueRule: true, withMaxValueRule: true }),
         accountingName: validationSchemaHelper.forString(validationRuleSet, 'AccountingName', { withRequiredValueRule: true, withMinLengthRule: true, withMaxLengthRule: true }),
         letterHeadNumber: validationSchemaHelper.forInteger(validationRuleSet, 'LetterHeadNumber', { withRequiredValueRule: true, withMinValueRule: true, withMaxValueRule: true }),
         balanceBelowZero: validationSchemaHelper.forInteger(validationRuleSet, 'BalanceBelowZero', { withRequiredValueRule: true, withOneOfRule: true }),
         backDating: validationSchemaHelper.forInteger(validationRuleSet, 'BackDating', { withRequiredValueRule: true, withMinValueRule: true, withMaxValueRule: true })
-    });
+    }), [validationRuleSet, validationSchemaHelper]);
 
     return (
         <Formik validationSchema={validationSchema} initialValues={{ accountingNumber: accountingNumber, accountingName: accountingName, letterHeadNumber: letterHeadNumber, balanceBelowZero: balanceBelowZero, backDating: backDating }} onSubmit={onSubmit} >

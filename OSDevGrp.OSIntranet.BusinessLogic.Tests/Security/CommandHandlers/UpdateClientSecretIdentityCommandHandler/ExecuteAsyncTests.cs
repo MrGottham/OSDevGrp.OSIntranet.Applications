@@ -59,12 +59,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Updat
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenCalledAndExistingClientIdentifierDoesNotExist_ThrowsIntranetSystemException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenCalledAndExistingClientIdentifierDoesNotExist_ThrowsIntranetSystemException()
         {
             CommandHandler sut = CreateSut(false);
 
             IUpdateClientSecretIdentityCommand command = CreateCommandMock().Object;
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ExecuteAsync(command));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.ExecuteAsync(command)))!;
 
             Assert.That(result.Message.Contains("existingClientSecretIdentity"), Is.True);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ObjectIsNull));

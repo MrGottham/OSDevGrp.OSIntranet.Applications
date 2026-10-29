@@ -78,11 +78,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreatePaymentTerm_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreatePaymentTerm_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreatePaymentTerm(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreatePaymentTerm(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("paymentTermViewModel"));
         }

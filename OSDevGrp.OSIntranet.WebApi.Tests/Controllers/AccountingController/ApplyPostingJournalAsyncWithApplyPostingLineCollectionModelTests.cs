@@ -49,20 +49,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNull()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNull));
@@ -70,11 +70,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfApplyPostingLineCollectionModel()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfApplyPostingLineCollectionModel()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(ApplyPostingLineCollectionModel)));
@@ -82,11 +82,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToApplyPostingLineCollection()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToApplyPostingLineCollection()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("applyPostingLineCollection"));
@@ -94,20 +94,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut(modelIsValid: false);
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNull()
         {
             Controller sut = CreateSut(modelIsValid: false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.SubmittedMessageInvalid));
@@ -115,12 +115,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageContainsErrorKey()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageContainsErrorKey()
         {
             string errorKey = _fixture.Create<string>();
             Controller sut = CreateSut(modelIsValid: false, errorKey: errorKey);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -129,12 +129,12 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageContainsErrorMessage()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageContainsErrorMessage()
         {
             string errorMessage = _fixture.Create<string>();
             Controller sut = CreateSut(modelIsValid: false, errorMessage: errorMessage);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -143,11 +143,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingTypeIsNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingTypeIsNull()
         {
             Controller sut = CreateSut(modelIsValid: false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.Null);
@@ -155,11 +155,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenApplyPostingLineCollectionModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsNull()
         {
             Controller sut = CreateSut(modelIsValid: false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournalAsync(_fixture.Create<int>(), CreateApplyPostingLineCollectionModel())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.Null);

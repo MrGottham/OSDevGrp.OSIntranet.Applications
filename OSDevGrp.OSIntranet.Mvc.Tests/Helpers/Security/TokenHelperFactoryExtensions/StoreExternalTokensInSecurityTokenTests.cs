@@ -34,9 +34,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreExternalTokensInSecurityToken_WhenTokenHelperFactoryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreExternalTokensInSecurityToken_WhenTokenHelperFactoryIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await Mvc.Helpers.Security.TokenHelperFactoryExtensions.StoreExternalTokensInSecurityToken(null, CreateHttpContext(), CreateSecurityToken()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await Mvc.Helpers.Security.TokenHelperFactoryExtensions.StoreExternalTokensInSecurityToken(null, CreateHttpContext(), CreateSecurityToken())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("tokenHelperFactory"));
@@ -44,11 +44,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreExternalTokensInSecurityToken_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreExternalTokensInSecurityToken_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreExternalTokensInSecurityToken(null, CreateSecurityToken()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreExternalTokensInSecurityToken(null, CreateSecurityToken())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
@@ -56,11 +56,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreExternalTokensInSecurityToken_WhenSecurityTokenIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreExternalTokensInSecurityToken_WhenSecurityTokenIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreExternalTokensInSecurityToken(CreateHttpContext(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreExternalTokensInSecurityToken(CreateHttpContext(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("securityToken"));

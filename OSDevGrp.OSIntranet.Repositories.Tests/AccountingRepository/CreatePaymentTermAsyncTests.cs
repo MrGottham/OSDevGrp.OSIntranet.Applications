@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void CreatePaymentTermAsync_WhenPaymentTermIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreatePaymentTermAsync_WhenPaymentTermIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreatePaymentTermAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreatePaymentTermAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("paymentTerm"));
         }

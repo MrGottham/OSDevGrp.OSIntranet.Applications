@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void UpdateMediaTypeAsync_WhenMediaTypeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateMediaTypeAsync_WhenMediaTypeIsNull_ThrowsArgumentNullException()
         {
             IMediaLibraryRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateMediaTypeAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateMediaTypeAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("mediaType"));

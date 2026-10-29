@@ -37,22 +37,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Commands.UpdateContac
 
         [Test]
         [Category("UnitTest")]
-        public void GetExistingContactAsync_WhenMicrosoftGraphRepositoryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetExistingContactAsync_WhenMicrosoftGraphRepositoryIsNull_ThrowsArgumentNullException()
         {
             IUpdateContactCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetExistingContactAsync(null, _contactRepositoryMock.Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetExistingContactAsync(null, _contactRepositoryMock.Object)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("microsoftGraphRepository"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetExistingContactAsync_WhenContactRepositoryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetExistingContactAsync_WhenContactRepositoryIsNull_ThrowsArgumentNullException()
         {
             IUpdateContactCommand sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetExistingContactAsync(_microsoftGraphRepositoryMock.Object, null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetExistingContactAsync(_microsoftGraphRepositoryMock.Object, null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contactRepository"));
         }

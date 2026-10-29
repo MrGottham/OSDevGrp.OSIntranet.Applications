@@ -41,11 +41,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
 
         [Test]
         [Category("UnitTest")]
-        public void ToAuthorizationCodeAsync_WhenKeyValueEntryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ToAuthorizationCodeAsync_WhenKeyValueEntryIsNull_ThrowsArgumentNullException()
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToAuthorizationCodeAsync(null, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToAuthorizationCodeAsync(null, out IReadOnlyCollection<Claim> _, out IReadOnlyDictionary<string, string> _)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("keyValueEntry"));

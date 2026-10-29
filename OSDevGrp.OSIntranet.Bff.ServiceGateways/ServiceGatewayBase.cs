@@ -19,7 +19,4 @@ internal abstract class ServiceGatewayBase : IServiceGateway
     protected IWebApiClient WebApiClient { get; }
 
     #endregion
-
-    #region Methods
-    #endregion
 }

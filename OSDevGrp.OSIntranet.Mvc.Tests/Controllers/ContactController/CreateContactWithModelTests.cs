@@ -46,11 +46,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContact_WhenContactViewModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateContact_WhenContactViewModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact((ContactViewModel) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact((ContactViewModel) null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contactViewModel"));
         }

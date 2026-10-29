@@ -92,22 +92,22 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsIntranetRepositoryException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsIntranetRepositoryException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid())))!;
 
 			Assert.That(result, Is.Not.Null);
 		}
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsNotSupportedExceptionWhereErrorCodeIsEqualToRepositoryError()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsNotSupportedExceptionWhereErrorCodeIsEqualToRepositoryError()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.RepositoryError));
@@ -116,11 +116,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotNull()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotNull()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.InnerException, Is.Not.Null);
@@ -129,11 +129,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotSupportedException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndMediaIdentifierIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotSupportedException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(Guid.NewGuid())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.InnerException, Is.TypeOf<NotSupportedException>());
@@ -142,11 +142,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMovieAndTitleIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMovieAndTitleIsNull_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMovie>(null, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMovie>(null, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -154,11 +154,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMovieAndTitleIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMovieAndTitleIsEmpty_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMovie>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMovie>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -166,11 +166,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMovieAndTitleIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMovieAndTitleIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMovie>(" ", _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMovie>(" ", _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -178,11 +178,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMusicAndTitleIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMusicAndTitleIsNull_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMusic>(null, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMusic>(null, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -190,11 +190,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMusicAndTitleIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMusicAndTitleIsEmpty_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMusic>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMusic>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -202,11 +202,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMusicAndTitleIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMusicAndTitleIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMusic>(" ", _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMusic>(" ", _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -214,11 +214,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsBookAndTitleIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsBookAndTitleIsNull_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IBook>(null, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IBook>(null, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -226,11 +226,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsBookAndTitleIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsBookAndTitleIsEmpty_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IBook>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IBook>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -238,11 +238,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsBookAndTitleIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsBookAndTitleIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IBook>(" ", _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IBook>(" ", _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -250,11 +250,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsNull_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMedia>(null, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMedia>(null, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -262,11 +262,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsEmpty_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMedia>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMedia>(string.Empty, _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -274,11 +274,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 
 		[Test]
 		[Category("UnitTest")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMedia>(" ", _fixture.Create<string>(), _fixture.Create<int>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaExistsAsync<IMedia>(" ", _fixture.Create<string>(), _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("title"));
@@ -534,11 +534,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase(" ")]
 		[TestCase("  ")]
 		[TestCase("Nulla non hendrerit justo")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsIntranetRepositoryException(string subtitle)
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsIntranetRepositoryException(string subtitle)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>())))!;
 
 			Assert.That(result, Is.Not.Null);
 		}
@@ -550,11 +550,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase(" ")]
 		[TestCase("  ")]
 		[TestCase("Nulla non hendrerit justo")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsNotSupportedExceptionWhereErrorCodeIsEqualToRepositoryError(string subtitle)
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsNotSupportedExceptionWhereErrorCodeIsEqualToRepositoryError(string subtitle)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.RepositoryError));
@@ -568,11 +568,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase(" ")]
 		[TestCase("  ")]
 		[TestCase("Nulla non hendrerit justo")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotNull(string subtitle)
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotNull(string subtitle)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.InnerException, Is.Not.Null);
@@ -586,11 +586,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase(" ")]
 		[TestCase("  ")]
 		[TestCase("Nulla non hendrerit justo")]
-		public void MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotSupportedException(string subtitle)
+		public async System.Threading.Tasks.Task MediaExistsAsync_WhenGenericMediaIsMediaAndTitleIsAnything_ThrowsNotSupportedExceptionWhereInnerExceptionIsNotSupportedException(string subtitle)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			IntranetRepositoryException result = Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>()));
+			IntranetRepositoryException result = (await Assert.ThrowsAsync<IntranetRepositoryException>(async () => await sut.MediaExistsAsync<IMedia>(_fixture.Create<string>(), subtitle, _fixture.Create<int>())))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.InnerException, Is.TypeOf<NotSupportedException>());

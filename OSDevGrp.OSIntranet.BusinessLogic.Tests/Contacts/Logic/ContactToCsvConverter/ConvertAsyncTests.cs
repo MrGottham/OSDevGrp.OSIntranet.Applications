@@ -26,11 +26,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Contacts.Logic.ContactToCsvCon
 
         [Test]
         [Category("UnitTest")]
-        public void ConvertAsync_WhenContactIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ConvertAsync_WhenContactIsNull_ThrowsArgumentNullException()
         {
             IContactToCsvConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contact"));
         }

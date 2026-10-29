@@ -55,22 +55,22 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessException()
+        public async System.Threading.Tasks.Task UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessException()
         {
             Controller sut = CreateSut(hasToken: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo);
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToErrorCodeForCannotRetrieveJwtBearerTokenForAuthenticatedUser()
+        public async System.Threading.Tasks.Task UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToErrorCodeForCannotRetrieveJwtBearerTokenForAuthenticatedUser()
         {
             Controller sut = CreateSut(hasToken: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo);
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser));
@@ -78,11 +78,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
         {
             Controller sut = CreateSut(hasToken: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo);
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -90,11 +90,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
         {
             Controller sut = CreateSut(hasToken: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo);
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
@@ -102,11 +102,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereMessageIsEqualToMessageForCannotRetrieveJwtBearerTokenForAuthenticatedUser()
+        public async System.Threading.Tasks.Task UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereMessageIsEqualToMessageForCannotRetrieveJwtBearerTokenForAuthenticatedUser()
         {
             Controller sut = CreateSut(hasToken: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo);
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.EqualTo(ErrorDescriptionResolver.Resolve(ErrorCode.CannotRetrieveJwtBearerTokenForAuthenticatedUser)));
@@ -114,11 +114,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task UserInfo_WhenNoTokenForUserInfoWasReturnedFromQueryBus_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
         {
             Controller sut = CreateSut(hasToken: false);
 
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo);
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(sut.UserInfo))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);

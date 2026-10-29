@@ -48,11 +48,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateContactAccount_WhenAccountingNumberIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateContactAccount_WhenAccountingNumberIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccount(_fixture.Create<int>(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccount(_fixture.Create<int>(), null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
@@ -61,11 +61,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateContactAccount_WhenAccountingNumberIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateContactAccount_WhenAccountingNumberIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccount(_fixture.Create<int>(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccount(_fixture.Create<int>(), string.Empty)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
@@ -74,11 +74,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateContactAccount_WhenAccountingNumberIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateContactAccount_WhenAccountingNumberIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccount(_fixture.Create<int>(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateContactAccount(_fixture.Create<int>(), " ")))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
