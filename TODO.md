@@ -31,8 +31,8 @@ Command features should be able to publish notifications which a controller meth
 #### BFF DomainServices.Interfaces
 
 - [ ] Add `INotification` under `Logic/Notification` with `NotificationFormat`, `Header`, and `Content` getters, and define the `NotificationFormat` enum in the same folder with `Markdown` as a supported value.
-- [ ] Add `INotificationPublisher` in `Logic/Notification` with `Task PublishAsync(INotification notification)`.
-- [ ] Add `INotificationRetriever` in `Logic/Notification` with `Task<IReadOnlyCollection<INotification>> RetrieveAsync()`.
+- [ ] Add `INotificationPublisher` in `Logic/Notification` with `Task PublishAsync(INotification notification, CancellationToken cancellationToken = default)`.
+- [ ] Add `INotificationRetriever` in `Logic/Notification` with `Task<IReadOnlyCollection<INotification>> RetrieveAsync(CancellationToken cancellationToken = default)`.
 - [ ] Add `Notifications` to `StaticTextKey`.
 
 #### BFF DomainServices
@@ -43,7 +43,7 @@ Command features should be able to publish notifications which a controller meth
 - [ ] Add the Danish text `Notifikationer` for `StaticTextKey.Notifications` in `StaticTextProvider`.
 - [ ] Add `Features/Queries/Notification/Notifications/NotificationsRequest.cs` as a public `NotificationsRequest` inheriting from `PageRequestBase`.
 - [ ] Add `Features/Queries/Notification/Notifications/NotificationsResponse.cs` as a public `NotificationsResponse` inheriting from `PageResponseBase` with an `IReadOnlyCollection<INotification> Notifications` getter.
-- [ ] Add `Features/Queries/Notification/Notifications/NotificationsFeature.cs` as an internal query feature inheriting from `PageFeatureBase<NotificationsRequest, NotificationsResponse, object>`; have `ExecuteAsync` use `INotificationRetriever` to retrieve published notifications and return them in `NotificationsResponse`, and specify `StaticTextKey.Notifications` in `GetStaticTextSpecifications`.
+- [ ] Add `Features/Queries/Notification/Notifications/NotificationsFeature.cs` as an internal query feature inheriting from `PageFeatureBase<NotificationsRequest, NotificationsResponse, object>`; have `ExecuteAsync` pass its cancellation token to `INotificationRetriever.RetrieveAsync`, return the published notifications in `NotificationsResponse`, and specify `StaticTextKey.Notifications` in `GetStaticTextSpecifications`.
 
 #### BFF DomainServices.Tests
 
@@ -74,46 +74,76 @@ In the react application an user should be able to apply the posting journal for
 
 #### BFF ServiceGateways.Interfaces
 
-- [ ] Add an accounting gateway operation for applying a posting journal and returning the backend apply result, including any warnings.
+- [ ] Add `Task<ApplyPostingJournalResultModel> ApplyPostingJournalAsync(int accountingNumber, ApplyPostingJournalModel postingJournal, CancellationToken cancellationToken = default)` to `IAccountingGateway`.
 
 #### BFF ServiceGateways
 
-- [ ] Implement the apply operation using the generated WebApi client and follow the existing service-gateway exception translation pattern.
+- [ ] Implement `AccountingGateway.ApplyPostingJournalAsync` by calling the generated client's `PostinglinesAsync` with the supplied accounting number, the posting lines from `postingJournal`, and the cancellation token; return the apply result and follow the existing service-gateway exception translation pattern.
 
 #### BFF ServiceGateways.Tests and TestData
 
-- [ ] Add test data for the posting-journal apply result and its warnings.
-- [ ] Verify the gateway calls the generated client with the correct accounting and posting-journal data, returns the apply result, and translates client errors consistently.
+- [ ] Extend `FixtureExtensions` with methods for creating test data for `ApplyPostingJournalResultModel`, including its `PostingLines` and `PostingWarnings`, following the existing helper patterns in the class.
+- [ ] Add unit and integration tests for `ApplyPostingJournalAsync` in the `AccountingGateway` folder, in a test class named `ApplyPostingJournalAsyncTests`, following the patterns used to test the other gateway methods.
+- [ ] Verify the tests cover forwarding the requested accounting number, posting lines, and cancellation token to `PostinglinesAsync`, returning its `ApplyPostingJournalResultModel`, and consistently translating client errors.
+- [ ] In the integration test, apply a posting journal with two matching lines, each with `PostingText` set to `"Test"`: set `Debit` to `1000` on the first line and `Credit` to `1000` on the second. Resolve the accounting number, account number, budget account number, and contact account number from `AccountingTestOptions`, following the integration-test pattern in `GetAccountAsyncTests`.
+- [ ] Once the integration scenario has successfully verified the logic, mark that integration test as ignored so it is skipped in subsequent test runs; keep the unit tests active.
 
 #### BFF DomainServices.Interfaces
 
-- [ ] Define the request data needed by the posting-journal apply command, following the existing accounting command request patterns.
+- [ ] Add the public `IPostingWarningModelToNotificationConverter` in `Logic/Notification` with `Task<INotification> ConvertAsync(PostingWarningModel postingWarningModel, IFormatProvider formatProvider, CancellationToken cancellationToken = default)`.
+- [ ] Add `ApplyPostingJournal` to `StaticTextKey`.
+- [ ] Add `AccountIsOverdrawn`, `ExpectedIncomeHasNotBeenReachedYet`, and `ExpectedExpensesHaveAlreadyBeenReached` to `StaticTextKey` for posting-warning notifications.
+- [ ] Include `StaticTextKey.ApplyPostingJournal` in `GetStaticTextSpecifications` in both `AccountingFeature` and `PostingJournalFeature`.
 
 #### BFF DomainServices
 
-- [ ] Add an apply-posting-journal command feature that validates and authorizes the accounting operation, then calls the accounting gateway.
-- [ ] Convert warnings from the apply result into Markdown notifications using the notification publisher.
-- [ ] After a successful apply, allow the WebApi to query and return the refreshed accounting.
+- [ ] Add the internal `PostingWarningModelToNotificationConverter` in `Logic/Notification`, implementing `IPostingWarningModelToNotificationConverter`.
+- [ ] Implement `ConvertAsync` to return a `MarkdownNotification` for `AccountIsOverdrawn`, `ExpectedIncomeHasNotBeenReachedYet`, and `ExpectedExpensesHaveAlreadyBeenReached`. Use `IStaticTextProvider` with the supplied `formatProvider` to resolve the header specified by `PostingWarningModel.Warning` and the Danish Markdown content for the matching reason. Supply the posting-line date as a short date formatted with `formatProvider` as argument 1, the `Account.AccountName` as argument 2, and the `Amount` formatted as currency with `formatProvider` as argument 3; pass the cancellation token to the text lookups. Throw `NotSupportedException` with information about the unknown reason for any unsupported reason.
+- [ ] Register `PostingWarningModelToNotificationConverter` for `IPostingWarningModelToNotificationConverter` in `AddDomainServices`, following the existing service-lifetime conventions.
+- [ ] Configure `StaticTextProvider` to return `Bogfør kladde` for `StaticTextKey.ApplyPostingJournal`.
+- [ ] Configure `StaticTextProvider` to return `{0}: Kontoen med navnet **{1}** er i overtræk med **{2}**.` for `StaticTextKey.AccountIsOverdrawn`.
+- [ ] Configure `StaticTextProvider` to return `{0}: Budgetkontoen med navnet **{1}** har endnu ikke nået sit budgetterede mål på **{2}**.` for `StaticTextKey.ExpectedIncomeHasNotBeenReachedYet`.
+- [ ] Configure `StaticTextProvider` to return `{0}: Budgetkontoen med navnet **{1}** har overskredet sit budgetterede mål på **{2}**.` for `StaticTextKey.ExpectedExpensesHaveAlreadyBeenReached`.
+- [ ] Add the public `ApplyPostingJournalRequest` in `Features/Commands/Accounting/ApplyPostingJournal`, inheriting from `AccountingIdentificationRequestBase` and exposing a constructor-initialized `IFormatProvider FormatProvider` getter.
+- [ ] Add the internal `ApplyPostingJournalFeature` in `Features/Commands/Accounting/ApplyPostingJournal`, inheriting from `AccountingIdentificationFeatureBase` and using `ApplyPostingJournalRequest` as `TAccountingIdentificationRequest`; inject `IPostingWarningModelToNotificationConverter` and `INotificationPublisher` through its constructor.
+- [ ] Do not override `VerifyPermissionAsync` in `ApplyPostingJournalFeature`; use its inherited implementation.
+- [ ] In `ExecuteAsync`, retrieve the posting journal for the requested accounting number with `IAccountingGateway.GetPostingJournalAsync`, then call `IAccountingGateway.ApplyPostingJournalAsync` with that accounting number and the retrieved journal; pass the request cancellation token to both calls.
+- [ ] Use the applied-line identifiers in the apply result to exclude those lines from the retrieved posting journal; refactor `SortAndClonePostingJournal` as needed so it can clone the journal while excluding specified lines.
+- [ ] Save the cloned journal without the applied lines through `IAccountingGateway.SavePostingJournalAsync`, using the requested accounting number and cancellation token.
+- [ ] After saving the posting journal, use the injected converter and publisher to convert each `PostingWarningModel` from the apply result into an `INotification` and publish it, passing the cancellation token to both async calls.
 
 #### BFF DomainServices.Tests
 
-- [ ] Verify the command invokes the gateway with the requested accounting and posting journal.
-- [ ] Verify returned warnings are published as notifications with the expected Markdown format, header, and content.
+- [ ] Add `Logic/Notification/PostingWarningModelToNotificationConverter/ConvertAsyncTests.cs` with a `ConvertAsyncTests` class. Cover all three supported reasons and the unknown-reason `NotSupportedException`; verify `IStaticTextProvider` is called with the correct keys, short-date/account-name/currency arguments, supplied `IFormatProvider`, and cancellation token.
+- [ ] Add a test case for `StaticTextKey.ApplyPostingJournal` with expected text `Bogfør kladde` and argument count `0` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
+- [ ] Add a `StaticTextKey.ApplyPostingJournal` test case to the `ExecuteAsyncTests` for both `AccountingFeature` and `PostingJournalFeature`, verifying the key is included in each feature's static-text specifications.
+- [ ] Add a test case for `StaticTextKey.AccountIsOverdrawn` with expected text `{0}: Kontoen med navnet **{1}** er i overtræk med **{2}**.` and argument count `3` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
+- [ ] Add a test case for `StaticTextKey.ExpectedIncomeHasNotBeenReachedYet` with expected text `{0}: Budgetkontoen med navnet **{1}** har endnu ikke nået sit budgetterede mål på **{2}**.` and argument count `3` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
+- [ ] Add a test case for `StaticTextKey.ExpectedExpensesHaveAlreadyBeenReached` with expected text `{0}: Budgetkontoen med navnet **{1}** har overskredet sit budgetterede mål på **{2}**.` and argument count `3` to `GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText`.
+- [ ] Add `Features/Commands/Accounting/ApplyPostingJournal/ApplyPostingJournalFeature/ExecuteAsyncTests.cs` with an `ExecuteAsyncTests` class, following the existing command-feature test pattern.
+- [ ] Verify `ExecuteAsync` calls `GetPostingJournalAsync`, `ApplyPostingJournalAsync`, and `SavePostingJournalAsync` with the requested accounting number, the retrieved journal, the cloned journal with applied lines removed, and the cancellation token as appropriate.
+- [ ] Mock `IPostingWarningModelToNotificationConverter` and verify `ConvertAsync` is called for each returned warning with the request's `FormatProvider` and cancellation token; verify `INotificationPublisher.PublishAsync` receives each exact notification returned by the converter, with the cancellation token.
 - [ ] Verify gateway failures are propagated and do not produce success notifications.
 
 #### BFF WebApi
 
-- [ ] Add an authorized endpoint to apply the posting journal for an accounting, using the established route, validation, and response conventions.
-- [ ] Execute the apply command, retrieve the refreshed accounting after success, and expose both the refreshed response and published notifications to the React application.
+- [ ] Add `ApplyPostingJournalResponseDto` inheriting from `AccountingIdentificationDto`, with an init-only `IReadOnlyCollection<NotificationDto> Notifications` property and an internal `Map` method accepting an accounting number and `NotificationsResponse`; map the accounting number and the response's notifications to the DTO.
+- [ ] Add `ApplyPostingJournalAsync` to `AccountingController` with `[Authorize(Policy = Policies.AccountingModifier)]`, `[HttpPost("{accountingNumber:int}/postingjournal/apply")]`, `[ValidateAntiForgeryToken]`, the specified response metadata for `ApplyPostingJournalResponseDto` (200) and `ProblemDetails` (400, 401, 500), and injected `ICommandFeature<ApplyPostingJournalRequest>` and `IQueryFeature<NotificationsRequest, NotificationsResponse>` dependencies, a validated accounting-number route parameter, and a cancellation token.
+- [ ] In the endpoint, execute the apply command and, on success, query `NotificationsResponse`; return `ApplyPostingJournalResponseDto` mapped from the accounting number and notifications.
 
 #### BFF WebApi.Tests
 
-- [ ] Verify the endpoint executes the apply command for the requested accounting, queries the refreshed accounting after success, and returns the result with notifications.
-- [ ] Verify command or refresh-query failures are surfaced using the existing WebApi error behavior.
+- [ ] Add `Controllers/Accounting/AccountingController/ApplyPostingJournalAsyncTests.cs` with an `ApplyPostingJournalAsyncTests` class, following the endpoint test pattern in `DeletePostingLineFromPostingJournalAsyncTests`.
+- [ ] Verify the endpoint executes the apply command for the requested accounting, queries notifications after success, and returns `ApplyPostingJournalResponseDto` with the accounting number and notifications.
+- [ ] Verify command or notifications-query failures are surfaced using the existing WebApi error behavior.
 
 #### React Application
 
-- [ ] Add an AccountingService operation for applying the posting journal and handle unsuccessful responses using existing service conventions.
-- [ ] Add the user action to apply the posting journal for the selected accounting.
-- [ ] On success, reload the accounting and present any returned warning notifications to the user.
+- [ ] Add `getApplyPostingJournalText` to `StaticTextHelper`, resolving the static text for `ApplyPostingJournal`.
+- [ ] Add the async `applyPostingJournal` function to `AccountingService`, accepting an accounting number. Validate the accounting number following `deletePostingLineFromPostingLineJournal`, then POST to `{accountingNumber}/postingjournal/apply` with `generateAntiforgeryHeader` and `credentials`; use the existing error handling and return the JSON response when successful.
+- [ ] In `Accounting.jsx`, add an `onPostingJournalApplied` function that accepts and retains the notifications while forcing the current accounting to reload; pass it to `PostingJournal` as its `onPostingJournalApplied` prop.
+- [ ] Add a React component named `Notifications` that accepts a `notifications` prop containing items with `format`, `header`, and `content`. Display each notification as a toast on the right side of the screen, show its header, and render its content as Markdown when `format` is `Markdown`; require users to close each toast manually.
+- [ ] In `PostingJournal`, add a right-aligned button group after the `Table`; show it only when the posting journal contains at least one posting line, and include an apply button whose text is resolved by `getApplyPostingJournalText` from `StaticTextHelper`.
+- [ ] Add an `applyPostingJournal` function in `PostingJournal.jsx`, called by the apply button. Have it disable the apply, add, modify, and delete buttons while the operation is in progress, call `AccountingService.applyPostingJournal`, and use the same error handling as `handleDelete`. On success, pass the notifications from the JSON response to the `onPostingJournalApplied` callback supplied to the `PostingJournal` component as a prop.
+- [ ] After the accounting reload completes, display the retained notifications using the `Notifications` component.
 - [ ] Manually verify the apply flow, accounting refresh, and warning notification presentation.
