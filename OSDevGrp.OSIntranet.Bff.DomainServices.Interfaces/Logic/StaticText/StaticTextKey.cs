@@ -123,5 +123,10 @@ public enum StaticTextKey
     Reset,
     Cancel,
     Warning,
-    Error
+    Error,
+    Notifications,
+    ApplyPostingJournal,
+    AccountIsOverdrawn,
+    ExpectedIncomeHasNotBeenReachedYet,
+    ExpectedExpensesHaveAlreadyBeenReached
 }

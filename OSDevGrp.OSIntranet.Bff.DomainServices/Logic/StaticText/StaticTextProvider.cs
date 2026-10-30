@@ -152,6 +152,11 @@ internal class StaticTextProvider : IStaticTextProvider
         staticTexts.Add(StaticTextKey.Cancel, "Fortryd");
         staticTexts.Add(StaticTextKey.Warning, "Advarsel");
         staticTexts.Add(StaticTextKey.Error, "Fejl");
+        staticTexts.Add(StaticTextKey.Notifications, "Notifikationer");
+        staticTexts.Add(StaticTextKey.ApplyPostingJournal, "Bogfør kladde");
+        staticTexts.Add(StaticTextKey.AccountIsOverdrawn, "Kontoen med navnet **{0}** er i overtræk med **{1}**{2}{3}{4}: {5}");
+        staticTexts.Add(StaticTextKey.ExpectedIncomeHasNotBeenReachedYet, "Budgetkontoen med navnet **{0}** har endnu ikke nået sit budgetterede mål på **{1}**{2}{3}{4}: {5}");
+        staticTexts.Add(StaticTextKey.ExpectedExpensesHaveAlreadyBeenReached, "Budgetkontoen med navnet **{0}** har overskredet sit budgetterede mål på **{1}**.{2}{3}{4}: {5}");
         return staticTexts.AsReadOnly();
     }
 

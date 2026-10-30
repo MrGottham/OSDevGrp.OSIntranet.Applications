@@ -84,15 +84,15 @@ The BFF also provides reusable notification publishing and draining within a sin
 
 12. DomainServices.Interfaces exposes `IPostingWarningModelToNotificationConverter.ConvertAsync(PostingWarningModel postingWarningModel, IFormatProvider formatProvider, CancellationToken cancellationToken = default)` returning `Task<INotification>`. Its internal implementation is registered using the existing helper-lifetime conventions.
 13. All three supported warning reasons produce Markdown notifications. Each header comes from `StaticTextKey.Warning`, currently `Advarsel`; it does not depend on a nonexistent warning-model property. Unsupported reasons throw `NotSupportedException` identifying the unsupported reason.
-14. Warning content uses the matching static-text key and the supplied format provider. The three arguments, in order, are the posting-line date formatted as a short date, `Account.AccountName`, and `Amount` formatted as currency. Both header and content lookups receive the supplied format provider and cancellation token.
+14. Warning content uses the matching static-text key and the supplied format provider. Its six arguments, in order, are `Account.AccountName`, `Amount` formatted as currency, `Environment.NewLine`, `Environment.NewLine`, `PostingLine.PostingDate` formatted as a short date with the supplied format provider, and `PostingLine.Details`. Both header and content lookups receive the supplied format provider and cancellation token.
 15. The added static-text keys resolve to these exact Danish values:
 
    | Key | Text | Argument count |
    | --- | --- | --- |
    | `ApplyPostingJournal` | `Bogfør kladde` | 0 |
-   | `AccountIsOverdrawn` | `{0}: Kontoen med navnet **{1}** er i overtræk med **{2}**.` | 3 |
-   | `ExpectedIncomeHasNotBeenReachedYet` | `{0}: Budgetkontoen med navnet **{1}** har endnu ikke nået sit budgetterede mål på **{2}**.` | 3 |
-   | `ExpectedExpensesHaveAlreadyBeenReached` | `{0}: Budgetkontoen med navnet **{1}** har overskredet sit budgetterede mål på **{2}**.` | 3 |
+   | `AccountIsOverdrawn` | `Kontoen med navnet **{0}** er i overtræk med **{1}**{2}{3}{4}: {5}` | 6 |
+   | `ExpectedIncomeHasNotBeenReachedYet` | `Budgetkontoen med navnet **{0}** har endnu ikke nået sit budgetterede mål på **{1}**{2}{3}{4}: {5}` | 6 |
+   | `ExpectedExpensesHaveAlreadyBeenReached` | `Budgetkontoen med navnet **{0}** har overskredet sit budgetterede mål på **{1}**.{2}{3}{4}: {5}` | 6 |
 
 16. Both `AccountingFeature` and `PostingJournalFeature` include `StaticTextKey.ApplyPostingJournal` in their static-text specifications.
 

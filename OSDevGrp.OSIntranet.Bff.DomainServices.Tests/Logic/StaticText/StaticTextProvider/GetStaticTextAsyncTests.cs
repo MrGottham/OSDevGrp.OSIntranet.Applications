@@ -146,6 +146,11 @@ public class GetStaticTextAsyncTests
     [TestCase(StaticTextKey.Cancel, "Fortryd", 0)]
     [TestCase(StaticTextKey.Warning, "Advarsel", 0)]
     [TestCase(StaticTextKey.Error, "Fejl", 0)]
+    [TestCase(StaticTextKey.Notifications, "Notifikationer", 0)]
+    [TestCase(StaticTextKey.ApplyPostingJournal, "Bogfør kladde", 0)]
+    [TestCase(StaticTextKey.AccountIsOverdrawn, "Kontoen med navnet **{0}** er i overtræk med **{1}**{2}{3}{4}: {5}", 6)]
+    [TestCase(StaticTextKey.ExpectedIncomeHasNotBeenReachedYet, "Budgetkontoen med navnet **{0}** har endnu ikke nået sit budgetterede mål på **{1}**{2}{3}{4}: {5}", 6)]
+    [TestCase(StaticTextKey.ExpectedExpensesHaveAlreadyBeenReached, "Budgetkontoen med navnet **{0}** har overskredet sit budgetterede mål på **{1}**.{2}{3}{4}: {5}", 6)]
     public async Task GetStaticTextAsync_WhenCalledWithSpecificStaticTextKey_ReturnsExpectedStaticText(StaticTextKey staticTextKey, string expectedStaticText, int numberOfArguments)
     {
         IStaticTextProvider sut = CreateSut();
@@ -204,6 +209,6 @@ public class GetStaticTextAsyncTests
             return Array.Empty<object>();
         }
 
-        return _fixture!.CreateMany<string>(numberOfArguments ?? _random!.Next(5, 10)).ToArray();
+        return _fixture!.CreateMany<string>(numberOfArguments ?? _random!.Next(6, 10)).ToArray();
     }
 }

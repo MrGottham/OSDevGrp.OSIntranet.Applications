@@ -7,6 +7,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Cqs.PipelineExtensions.FeaturePermi
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Notification;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
@@ -14,6 +15,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.BuildInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DependencyHealth;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Notification;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Validation;
@@ -32,6 +34,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IVerificationCodeStorage, VerificationCodeStorage>()
             .AddSingleton<IBuildInfoProvider, BuildInfoProvider>()
             .AddSingleton<IStaticTextProvider, StaticTextProvider>()
+            .AddScoped<NotificationCollection>()
+            .AddScoped<INotificationPublisher, NotificationPublisher>()
+            .AddScoped<INotificationRetriever, NotificationRetriever>()
             .AddTransient<IUserInfoProvider, UserInfoProvider>()
             .AddTransient<IPermissionValidator, PermissionValidator>()
             .AddTransient<IPermissionChecker, UserHelper>()
@@ -46,6 +51,7 @@ public static class ServiceCollectionExtensions
             .AddTransient<IContactAccountTextsBuilder, ContactAccountTextsBuilder>()
             .AddTransient<IPostingLineCollectionTextsBuilder, PostingLineCollectionTextsBuilder>()
             .AddTransient<IPostingJournalTextsBuilder, PostingJournalTextsBuilder>()
+            .AddTransient<IPostingWarningModelToNotificationConverter, PostingWarningModelToNotificationConverter>()
             .AddTransient<IRequiredValueRuleFactory, RequiredValueRuleFactory>()
             .AddTransient<IMinLengthRuleFactory, MinLengthRuleFactory>()
             .AddTransient<IMaxLengthRuleFactory, MaxLengthRuleFactory>()
