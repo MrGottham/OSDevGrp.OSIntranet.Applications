@@ -484,6 +484,7 @@ public class ExecuteAsyncTests : AccountingPageFeatureTestBase
     [TestCase(StaticTextKey.UpdatePostingJournalLine)]
     [TestCase(StaticTextKey.DeletePostingJournalLine)]
     [TestCase(StaticTextKey.PostingJournalLineDeletionQuestion)]
+    [TestCase(StaticTextKey.ApplyPostingJournal)]
     [TestCase(StaticTextKey.IncomeStatement)]
     [TestCase(StaticTextKey.BalanceSheet)]
     [TestCase(StaticTextKey.Accounts)]

@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Logic.Accounting;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces;
 using OSDevGrp.OSIntranet.WebApi.ClientApi;
@@ -45,19 +46,7 @@ internal abstract class PostingLineFeatureBase<TPostingJournalLineRequest> : Acc
 
     protected ApplyPostingJournalModel SortAndClonePostingJournal(ApplyPostingJournalModel existingJournal, IEnumerable<ApplyPostingLineModel> updatedLines)
     {
-        ArgumentNullException.ThrowIfNull(existingJournal);
-        ArgumentNullException.ThrowIfNull(updatedLines);
-
-        var sortedLines = updatedLines
-            .OrderByDescending(line => line.PostingDate)
-            .ThenByDescending(line => line.SortOrder ?? 0)
-            .ToList();
-
-        var clonedJournal = new ApplyPostingJournalModel(
-            existingJournal.AccountingNumber,
-            (System.Collections.Generic.ICollection<ApplyPostingLineModel>)sortedLines);
-
-        return clonedJournal;
+        return PostingJournalCloner.SortAndClonePostingJournal(existingJournal, updatedLines);
     }
 
     #endregion

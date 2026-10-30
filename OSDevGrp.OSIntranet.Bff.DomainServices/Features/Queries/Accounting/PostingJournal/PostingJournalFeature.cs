@@ -62,6 +62,7 @@ internal class PostingJournalFeature : AccountingIdentificationFeatureBase<Posti
             { StaticTextKey.UpdatePostingJournalLine, StaticTextKey.UpdatePostingJournalLine.DefaultArguments() },
             { StaticTextKey.DeletePostingJournalLine, StaticTextKey.DeletePostingJournalLine.DefaultArguments() },
             { StaticTextKey.PostingJournalLineDeletionQuestion, StaticTextKey.PostingJournalLineDeletionQuestion.DefaultArguments() },
+            { StaticTextKey.ApplyPostingJournal, StaticTextKey.ApplyPostingJournal.DefaultArguments() },
             { StaticTextKey.Create, StaticTextKey.Create.DefaultArguments() },
             { StaticTextKey.Update, StaticTextKey.Update.DefaultArguments() },
             { StaticTextKey.Delete, StaticTextKey.Delete.DefaultArguments() },

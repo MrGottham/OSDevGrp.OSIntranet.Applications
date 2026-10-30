@@ -148,6 +148,7 @@ public class ExecuteAsyncTests
     [TestCase(StaticTextKey.UpdatePostingJournalLine)]
     [TestCase(StaticTextKey.DeletePostingJournalLine)]
     [TestCase(StaticTextKey.PostingJournalLineDeletionQuestion)]
+    [TestCase(StaticTextKey.ApplyPostingJournal)]
     [TestCase(StaticTextKey.Create)]
     [TestCase(StaticTextKey.Update)]
     [TestCase(StaticTextKey.Delete)]

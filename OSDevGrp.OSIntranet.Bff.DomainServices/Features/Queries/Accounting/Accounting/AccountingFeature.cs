@@ -80,6 +80,7 @@ internal class AccountingFeature : AccountingIdentificationFeatureBase<Accountin
             { StaticTextKey.UpdatePostingJournalLine, StaticTextKey.UpdatePostingJournalLine.DefaultArguments() },
             { StaticTextKey.DeletePostingJournalLine, StaticTextKey.DeletePostingJournalLine.DefaultArguments() },
             { StaticTextKey.PostingJournalLineDeletionQuestion, StaticTextKey.PostingJournalLineDeletionQuestion.DefaultArguments() },
+            { StaticTextKey.ApplyPostingJournal, StaticTextKey.ApplyPostingJournal.DefaultArguments() },
             { StaticTextKey.IncomeStatement, StaticTextKey.IncomeStatement.DefaultArguments() },
             { StaticTextKey.BalanceSheet, StaticTextKey.BalanceSheet.DefaultArguments() },
             { StaticTextKey.Accounts, StaticTextKey.Accounts.DefaultArguments() },
