@@ -30,14 +30,14 @@ Command features should be able to publish notifications which a controller meth
 
 #### BFF DomainServices.Interfaces
 
-- [ ] Add `INotification` under `Logic/Notification` with `NotificationFormat`, `Header`, and `Content` getters, and define the `NotificationFormat` enum in the same folder with `Markdown` as a supported value.
+- [ ] Add `INotification` under `Logic/Notification` with `Format` (`NotificationFormat`), `Type` (`NotificationType`), `Header`, and `Content` getters. Define `NotificationFormat` with `Markdown` and `NotificationType` with `Information`, `Warning`, and `Error` in the same folder.
 - [ ] Add `INotificationPublisher` in `Logic/Notification` with `Task PublishAsync(INotification notification, CancellationToken cancellationToken = default)`.
 - [ ] Add `INotificationRetriever` in `Logic/Notification` with `Task<IReadOnlyCollection<INotification>> RetrieveAsync(CancellationToken cancellationToken = default)`.
 - [ ] Add `Notifications` to `StaticTextKey`.
 
 #### BFF DomainServices
 
-- [ ] Add the internal `MarkdownNotification` class under `Logic/Notification`, implementing `INotification`; accept the header and Markdown content in its constructor, return `NotificationFormat.Markdown`, and expose the supplied header and content.
+- [ ] Add the internal `MarkdownNotification` class under `Logic/Notification`, implementing `INotification`; inject `NotificationType` through its constructor, report `NotificationFormat.Markdown` through `Format`, and expose the supplied type, header, and Markdown content.
 - [ ] Add internal `NotificationPublisher` and `NotificationRetriever` classes under `Logic/Notification`, implementing `INotificationPublisher` and `INotificationRetriever` respectively, sharing a thread-safe request-scoped notification collection.
 - [ ] Register `NotificationPublisher` and `NotificationRetriever` as scoped services in `AddDomainServices` so notifications are isolated between requests.
 - [ ] Add the Danish text `Notifikationer` for `StaticTextKey.Notifications` in `StaticTextProvider`.
@@ -56,9 +56,9 @@ Command features should be able to publish notifications which a controller meth
 
 #### BFF WebApi
 
-- [ ] Add `Shared/Dtos/NotificationDto.cs` with string `Format`, `Header`, and `Content` properties, each with `get` and `init`, and decorate each property with `[Required]` and `[MinLength(...)]`; define a separate minimum-length constant with value `1` for each property in `ValidationValues`.
+- [ ] Add `Shared/Dtos/NotificationDto.cs` with string `Format`, `Type`, `Header`, and `Content` properties, each with `get` and `init`, and decorate each property with `[Required]` and `[MinLength(...)]`; define a separate minimum-length constant with value `1` for each property in `ValidationValues`.
 - [ ] Add a `ValidationValues` regex pattern that permits only `Markdown`, and apply it to `NotificationDto.Format` with `[RegularExpression(...)]`.
-- [ ] Add an internal static `NotificationDto.Map` method that accepts an `INotification` and maps its format, header, and content to the DTO.
+- [ ] Add validation permitting only `Information`, `Warning`, or `Error` for `NotificationDto.Type`; map the notification type, format, header, and content in the internal static `NotificationDto.Map` method.
 
 #### BFF WebApi.Tests
 
@@ -139,11 +139,14 @@ In the react application an user should be able to apply the posting journal for
 
 #### React Application
 
+Notification receipt, retention, and toast rendering are deferred to a later React iteration.
+
 - [ ] Add `getApplyPostingJournalText` to `StaticTextHelper`, resolving the static text for `ApplyPostingJournal`.
 - [ ] Add the async `applyPostingJournal` function to `AccountingService`, accepting an accounting number. Validate the accounting number following `deletePostingLineFromPostingLineJournal`, then POST to `{accountingNumber}/postingjournal/apply` with `generateAntiforgeryHeader` and `credentials`; use the existing error handling and return the JSON response when successful.
-- [ ] In `Accounting.jsx`, add an `onPostingJournalApplied` function that accepts and retains the notifications while forcing the current accounting to reload; pass it to `PostingJournal` as its `onPostingJournalApplied` prop.
-- [ ] Add a React component named `Notifications` that accepts a `notifications` prop containing items with `format`, `header`, and `content`. Display each notification as a toast on the right side of the screen, show its header, and render its content as Markdown when `format` is `Markdown`; require users to close each toast manually.
+- [ ] (Later React iteration) In `Accounting.jsx`, retain notifications returned after apply and pass them to `PostingJournal` while forcing the current accounting to reload.
+- [ ] (Later React iteration) Add a React component named `Notifications` that accepts a `notifications` prop containing items with `format`, `type`, `header`, and `content`. Display each notification as a toast on the right side of the screen, show its header, and render its content as Markdown when `format` is `Markdown`; require users to close each toast manually.
+- [ ] (Later React iteration) Use each notification's `type` when rendering its toast: `Information` uses the informational style, `Warning` the warning style, and `Error` the error style.
 - [ ] In `PostingJournal`, add a right-aligned button group after the `Table`; show it only when the posting journal contains at least one posting line, and include an apply button whose text is resolved by `getApplyPostingJournalText` from `StaticTextHelper`.
-- [ ] Add an `applyPostingJournal` function in `PostingJournal.jsx`, called by the apply button. Have it disable the apply, add, modify, and delete buttons while the operation is in progress, call `AccountingService.applyPostingJournal`, and use the same error handling as `handleDelete`. On success, pass the notifications from the JSON response to the `onPostingJournalApplied` callback supplied to the `PostingJournal` component as a prop.
-- [ ] After the accounting reload completes, display the retained notifications using the `Notifications` component.
-- [ ] Manually verify the apply flow, accounting refresh, and warning notification presentation.
+- [ ] Add an `applyPostingJournal` function in `PostingJournal.jsx`, called by the apply button. Have it disable the apply, add, modify, and delete buttons while the operation is in progress, call `AccountingService.applyPostingJournal`, and use the same error handling as `handleDelete`. (Passing response notifications to a React callback is deferred to a later iteration.)
+- [ ] (Later React iteration) After the accounting reload completes, display the retained notifications using the `Notifications` component.
+- [ ] Manually verify the apply flow and accounting refresh. Verify warning notification presentation in a later React iteration.

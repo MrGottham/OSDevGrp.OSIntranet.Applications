@@ -50,7 +50,7 @@ internal class PostingWarningModelToNotificationConverter : IPostingWarningModel
         string header = await _staticTextProvider.GetStaticTextAsync(StaticTextKey.Warning, StaticTextKey.Warning.DefaultArguments(), formatProvider, cancellationToken);
         string content = await _staticTextProvider.GetStaticTextAsync(contentStaticTextKey, contentArguments, formatProvider, cancellationToken);
 
-        return new MarkdownNotification(header, content);
+        return new MarkdownNotification(NotificationType.Warning, header, content);
     }
 
     #endregion

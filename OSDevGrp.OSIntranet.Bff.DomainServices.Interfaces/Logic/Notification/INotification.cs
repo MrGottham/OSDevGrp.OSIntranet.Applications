@@ -4,6 +4,8 @@ public interface INotification
 {
     NotificationFormat Format { get; }
 
+    NotificationType Type { get; }
+
     string Header { get; }
 
     string Content { get; }

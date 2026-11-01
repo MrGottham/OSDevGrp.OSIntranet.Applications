@@ -15,7 +15,7 @@ public class PublishAsyncTests
     {
         NotificationCollection notificationCollection = new();
         INotificationPublisher sut = CreateSut(notificationCollection);
-        INotification notification = new MarkdownNotification("Header", "Content");
+        INotification notification = new MarkdownNotification(NotificationType.Information, "Header", "Content");
         INotificationRetriever notificationRetriever = new NotificationRetriever(notificationCollection);
         using CancellationTokenSource cancellationTokenSource = new();
 
@@ -32,7 +32,7 @@ public class PublishAsyncTests
         using CancellationTokenSource cancellationTokenSource = new();
         cancellationTokenSource.Cancel();
 
-        Assert.That(async () => await sut.PublishAsync(new MarkdownNotification("Header", "Content"), cancellationTokenSource.Token), Throws.TypeOf<OperationCanceledException>());
+        Assert.That(async () => await sut.PublishAsync(new MarkdownNotification(NotificationType.Information, "Header", "Content"), cancellationTokenSource.Token), Throws.TypeOf<OperationCanceledException>());
     }
 
     private INotificationPublisher CreateSut(NotificationCollection notificationCollection)

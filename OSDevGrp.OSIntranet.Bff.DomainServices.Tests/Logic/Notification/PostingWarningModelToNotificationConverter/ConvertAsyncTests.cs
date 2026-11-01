@@ -48,6 +48,18 @@ public class ConvertAsyncTests
 
     [Test]
     [Category("UnitTest")]
+    public async Task ConvertAsync_WhenCalled_ReturnsWarningType()
+    {
+        PostingWarningModel postingWarningModel = CreatePostingWarningModel(PostingWarningReason.AccountIsOverdrawn);
+        IPostingWarningModelToNotificationConverter sut = CreateSut();
+
+        INotification result = await sut.ConvertAsync(postingWarningModel, CultureInfo.GetCultureInfo("da-DK"));
+
+        Assert.That(result.Type, Is.EqualTo(NotificationType.Warning));
+    }
+
+    [Test]
+    [Category("UnitTest")]
     public async Task ConvertAsync_WhenCalled_ReturnsHeaderFromStaticTextProvider()
     {
         PostingWarningModel postingWarningModel = CreatePostingWarningModel(PostingWarningReason.AccountIsOverdrawn);

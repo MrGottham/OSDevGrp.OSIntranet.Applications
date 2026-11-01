@@ -39,7 +39,7 @@ public class ExecuteAsyncTests : PageFeatureTestBase
         using CancellationTokenSource cancellationTokenSource = new();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
         NotificationsRequest request = new(Guid.NewGuid(), formatProvider, CreateSecurityContext(_fixture!));
-        INotification[] notifications = [new MarkdownNotification("Header", "Content")];
+        INotification[] notifications = [new MarkdownNotification(NotificationType.Warning, "Header", "Content")];
         IQueryFeature<NotificationsRequest, NotificationsResponse> sut = CreateSut(notifications);
 
         NotificationsResponse result = await sut.ExecuteAsync(request, cancellationToken);

@@ -6,8 +6,9 @@ internal class MarkdownNotification : INotification
 {
     #region Constructor
 
-    public MarkdownNotification(string header, string content)
+    public MarkdownNotification(NotificationType type, string header, string content)
     {
+        Type = type;
         Header = header ?? throw new ArgumentNullException(nameof(header));
         Content = content ?? throw new ArgumentNullException(nameof(content));
     }
@@ -17,6 +18,8 @@ internal class MarkdownNotification : INotification
     #region Properties
 
     public NotificationFormat Format => NotificationFormat.Markdown;
+
+    public NotificationType Type { get; }
 
     public string Header { get; }
 

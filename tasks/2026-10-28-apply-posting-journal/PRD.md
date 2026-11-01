@@ -62,11 +62,12 @@ The BFF also provides reusable notification publishing and draining within a sin
 ### Notification infrastructure
 
 1. `Logic/Notification` in DomainServices.Interfaces contains:
-   - `INotification` with `NotificationFormat`, `Header`, and `Content` getters.
+   - `INotification` with `Format` (`NotificationFormat`), `Type` (`NotificationType`), `Header`, and `Content` getters.
    - A `NotificationFormat` enum supporting `Markdown`.
+   - A `NotificationType` enum supporting `Information`, `Warning`, and `Error`.
    - `INotificationPublisher.PublishAsync(INotification notification, CancellationToken cancellationToken = default)`.
    - `INotificationRetriever.RetrieveAsync(CancellationToken cancellationToken = default)` returning `Task<IReadOnlyCollection<INotification>>`.
-2. The internal `MarkdownNotification` accepts a header and Markdown content, exposes both supplied values, and reports the Markdown format.
+2. The internal `MarkdownNotification` accepts `NotificationType` in its constructor, reports `NotificationFormat.Markdown` through `Format`, exposes the supplied type through `Type`, and exposes the supplied header and Markdown content.
 3. Internal publisher and retriever implementations share a thread-safe request-scoped collection and are registered as scoped services by `AddDomainServices`. Separate requests/scopes never observe each other's notifications.
 4. Retrieval drains notifications in publication order. A subsequent retrieval does not return items already retrieved. Concurrent publishing and retrieval do not duplicate or lose notifications; items not included in one drain remain available for a later drain. Simultaneous publications have the collection's publication order, not a prescribed ordering between concurrent callers.
 5. Public `NotificationsRequest` and `NotificationsResponse` inherit from `PageRequestBase` and `PageResponseBase`. The response exposes `IReadOnlyCollection<INotification> Notifications`. The internal `NotificationsFeature` inherits from `PageFeatureBase<NotificationsRequest, NotificationsResponse, object>`, forwards cancellation to retrieval, returns the drained notifications, and includes `StaticTextKey.Notifications` in its static-text specifications.
@@ -83,7 +84,7 @@ The BFF also provides reusable notification publishing and draining within a sin
 ### Warning conversion and static texts
 
 12. DomainServices.Interfaces exposes `IPostingWarningModelToNotificationConverter.ConvertAsync(PostingWarningModel postingWarningModel, IFormatProvider formatProvider, CancellationToken cancellationToken = default)` returning `Task<INotification>`. Its internal implementation is registered using the existing helper-lifetime conventions.
-13. All three supported warning reasons produce Markdown notifications. Each header comes from `StaticTextKey.Warning`, currently `Advarsel`; it does not depend on a nonexistent warning-model property. Unsupported reasons throw `NotSupportedException` identifying the unsupported reason.
+13. All three supported warning reasons produce Markdown notifications with `Type.Warning`. Each header comes from `StaticTextKey.Warning`, currently `Advarsel`; it does not depend on a nonexistent warning-model property. Unsupported reasons throw `NotSupportedException` identifying the unsupported reason.
 14. Warning content uses the matching static-text key and the supplied format provider. Its six arguments, in order, are `Account.AccountName`, `Amount` formatted as currency, `Environment.NewLine`, `Environment.NewLine`, `PostingLine.PostingDate` formatted as a short date with the supplied format provider, and `PostingLine.Details`. Both header and content lookups receive the supplied format provider and cancellation token.
 15. The added static-text keys resolve to these exact Danish values:
 
@@ -98,8 +99,8 @@ The BFF also provides reusable notification publishing and draining within a sin
 
 ### BFF HTTP contract
 
-17. Shared `NotificationDto` exposes init-only string properties `Format`, `Header`, and `Content`. Each has `[Required]` and `[MinLength(...)]`, with a separate minimum-length constant of `1` in `ValidationValues`. `Format` also has a regular-expression constraint permitting only the exact value `Markdown`. Its internal static mapper maps an `INotification` to these values.
-18. `ApplyPostingJournalResponseDto` inherits from `AccountingIdentificationDto`, exposes an init-only `IReadOnlyCollection<NotificationDto> Notifications`, and maps the requested accounting number and `NotificationsResponse`. The JSON uses the inherited `number` field and a `notifications` array whose items contain `format`, `header`, and `content`.
+17. Shared `NotificationDto` exposes init-only string properties `Format`, `Type`, `Header`, and `Content`. Each has `[Required]` and `[MinLength(...)]`, with a separate minimum-length constant of `1` in `ValidationValues`. `Format` permits only `Markdown`; `Type` permits only `Information`, `Warning`, or `Error`. Its internal static mapper maps an `INotification` to these values.
+18. `ApplyPostingJournalResponseDto` inherits from `AccountingIdentificationDto`, exposes an init-only `IReadOnlyCollection<NotificationDto> Notifications`, and maps the requested accounting number and `NotificationsResponse`. The JSON uses the inherited `number` field and a `notifications` array whose items contain `format`, `type`, `header`, and `content`.
 19. `AccountingController.ApplyPostingJournalAsync` is exposed as `POST {accountingNumber:int}/postingjournal/apply`, with accounting-modifier authorization, antiforgery validation, and existing accounting-number route validation. It declares `ApplyPostingJournalResponseDto` for HTTP 200 and `ProblemDetails` for HTTP 400, 401, and 500.
 20. The endpoint resolves the current security context and executes the apply command for the requested accounting using the controller's format provider and cancellation token. Only after command success does it execute the notifications query within the same request and return the mapped response. No request-body journal or human-verification challenge is added.
 21. Command or notifications-query failures surface through existing WebApi error behavior rather than becoming HTTP 200 responses. Gateway failures propagate and do not produce success notifications.
@@ -108,11 +109,11 @@ The BFF also provides reusable notification publishing and draining within a sin
 
 22. `StaticTextHelper.getApplyPostingJournalText` resolves `ApplyPostingJournal`. `AccountingService.applyPostingJournal(accountingNumber)` validates the required accounting number using the existing delete-service pattern, sends a credentialed POST with the generated antiforgery header, returns successful JSON, and uses existing error generation for failures.
 23. `PostingJournal` displays a right-aligned button group after its table only when at least one draft line exists. Its apply button uses the static-text helper. Apply, add, modify, and delete buttons are disabled while applying, preventing another mutation from being started through those controls during submission.
-24. Applying uses the accounting service and the same error presentation as `handleDelete`. On successful application, the component passes the response notifications to its `onPostingJournalApplied` callback.
-25. `Accounting` retains those notifications and reloads the full current accounting. After successful refresh, accounting figures, posted lines, and the displayed draft reflect the response, including removal of applied draft lines despite the child's local state.
-26. `Notifications` accepts items containing `format`, `header`, and `content`. Each notification appears as a toast on the right side of the screen with its header and Markdown-rendered content when the format is `Markdown`. Each toast requires individual manual dismissal; there is no automatic timeout.
-27. New warnings append to undismissed notifications for the current accounting. Notifications survive the successful accounting refresh, but are cleared when leaving the accounting page or switching accounting and are not persisted across browser reloads. No-warning success still refreshes the accounting and does not create a synthetic notification.
-28. If the accounting refresh fails after applying, the existing accounting error boundary handles the error. Returned notifications are not displayed unless the refresh succeeds.
+24. Applying uses the accounting service and the same error presentation as `handleDelete`. Notification handoff from the apply response to React is deferred to a later iteration.
+25. `Accounting` reloads the full current accounting after application. After successful refresh, accounting figures, posted lines, and the displayed draft reflect the response, including removal of applied draft lines despite the child's local state.
+26. (Later React iteration) `Notifications` accepts items containing `format`, `type`, `header`, and `content`. Each notification appears as a toast on the right side of the screen with its header and Markdown-rendered content when the format is `Markdown`. `Information`, `Warning`, and `Error` select the corresponding toast style. Each toast requires individual manual dismissal; there is no automatic timeout.
+27. (Later React iteration) New warnings append to undismissed notifications for the current accounting. Notifications survive the successful accounting refresh, but are cleared when leaving the accounting page or switching accounting and are not persisted across browser reloads. No-warning success still refreshes the accounting and does not create a synthetic notification.
+28. (Later React iteration) If the accounting refresh fails after applying, the existing accounting error boundary handles the error. Returned notifications are not displayed unless the refresh succeeds.
 
 ### Verification
 
@@ -121,17 +122,17 @@ The BFF also provides reusable notification publishing and draining within a sin
 31. DomainServices tests cover Markdown construction, publication and draining order, concurrent access, isolation between scopes, all warning reasons and unsupported reasons, exact formatting inputs and cancellation forwarding, notifications-query results/static texts, apply-command sequencing and arguments, exact published converter outputs, retained-line correctness, and gateway failure propagation without success notifications. Related existing journal-command behavior remains covered.
 32. The existing parameterized static-text tests include `Notifications`, `ApplyPostingJournal`, and the three warning texts with their expected values and argument counts. Accounting and posting-journal query tests verify inclusion of the apply label.
 33. DomainServices and WebApi test fixtures provide notification mock helpers following their existing two-method fixture-extension pattern. WebApi tests cover command invocation, notification querying only after success, response accounting number and notification mapping, cancellation, and surfaced command/query failures.
-34. React acceptance is verified manually: nonempty/empty journal controls, disabled mutations during submission, successful application with and without warnings, refreshed accounting and draft, Markdown display, manual dismissal, appending warnings across applies, clearing on navigation/account changes, and existing failure presentation. No automated React tests are required.
+34. React acceptance for this iteration is verified manually: nonempty/empty journal controls, disabled mutations during submission, successful application, refreshed accounting and draft, and existing failure presentation. React notification handoff, rendering, and dismissal are verified in a later iteration. No automated React tests are required.
 
 ## Scope
 
 ### In scope
 
-- The complete notification and posting-journal apply functionality described above across BFF ServiceGateways.Interfaces, ServiceGateways, DomainServices.Interfaces, DomainServices, WebApi, and React.
+- The notification backend and posting-journal apply functionality described above across BFF ServiceGateways.Interfaces, ServiceGateways, DomainServices.Interfaces, DomainServices, and WebApi, plus the apply flow in React.
 - Corresponding backend coverage in ServiceGateways.Tests, ServiceGateways.TestData, DomainServices.Tests, and WebApi.Tests.
 - Request-scoped notification contracts, publishing, draining, query feature, mapping, Danish static texts, and the three existing warning reasons.
 - Existing permission enforcement, antiforgery protection, validation, cancellation, and error conventions.
-- Full-accounting refresh and correct React journal-state refresh, with page-local, manually dismissed notifications.
+- Full-accounting refresh and correct React journal-state refresh.
 - The specified integration verification and subsequent ignored-test state, plus manual frontend acceptance.
 
 ### Out of scope
@@ -140,6 +141,7 @@ The BFF also provides reusable notification publishing and draining within a sin
 - Changes to the MVC application.
 - A separate notifications HTTP endpoint, cross-request notification storage, push delivery, or browser-persistent notifications.
 - Notification formats or posting-warning reasons beyond those specified here.
+- React notification handoff, retention, toast rendering, and dismissal; these are deferred to a later iteration.
 - A new confirmation dialog or human-verification challenge for applying.
 - Transactional rollback across posting and draft persistence, automatic retries, duplicate-post prevention, or recovery workflows after partial success.
 - Automated React tests, frontend test-runner setup, and unrelated refactoring.
