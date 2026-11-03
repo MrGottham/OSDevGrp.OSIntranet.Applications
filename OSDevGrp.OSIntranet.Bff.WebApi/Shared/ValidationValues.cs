@@ -108,4 +108,11 @@ internal static class ValidationValues
 
     internal const int LetterHeadNameMinLength = 1;
     internal const int LetterHeadNameMaxLength = 256;
+
+    internal const int NotificationFormatMinLength = 1;
+    internal const string NotificationFormatRegexPattern = @"^Markdown$";
+    internal const int NotificationTypeMinLength = 1;
+    internal const string NotificationTypeRegexPattern = @"^(Information|Warning|Error)$";
+    internal const int NotificationHeaderMinLength = 1;
+    internal const int NotificationContentMinLength = 1;
 }

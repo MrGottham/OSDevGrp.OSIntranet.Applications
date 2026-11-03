@@ -1,5 +1,6 @@
 using AutoFixture;
 using Moq;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Notification;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.UserInfo;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
@@ -299,6 +300,25 @@ internal static class FixtureExtensions
         valueSpecificationMock.Setup(m => m.Description)
             .Returns(fixture.Create<string>());
         return valueSpecificationMock;
+    }
+
+    internal static INotification CreateNotification(this Fixture fixture)
+    {
+        return fixture.CreateNotificationMock().Object;
+    }
+
+    internal static Mock<INotification> CreateNotificationMock(this Fixture fixture)
+    {
+        Mock<INotification> notificationMock = new Mock<INotification>();
+        notificationMock.Setup(m => m.Format)
+            .Returns(NotificationFormat.Markdown);
+        notificationMock.Setup(m => m.Type)
+            .Returns(fixture.Create<NotificationType>());
+        notificationMock.Setup(m => m.Header)
+            .Returns(fixture.Create<string>());
+        notificationMock.Setup(m => m.Content)
+            .Returns(fixture.Create<string>());
+        return notificationMock;
     }
 
     #endregion

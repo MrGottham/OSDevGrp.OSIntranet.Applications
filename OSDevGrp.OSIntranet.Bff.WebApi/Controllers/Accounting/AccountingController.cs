@@ -9,6 +9,7 @@ using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.Account
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.BudgetAccountSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.ContactAccountSummary;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Accounting.PostingJournal;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Features.Queries.Notifications;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.ServiceGateways.Interfaces.SecurityContext;
@@ -207,6 +208,27 @@ public class AccountingController : ControllerBase
         PostingJournalResponse postingJournalResponse = await queryFeature.ExecuteAsync(postingJournalRequest, cancellationToken);
 
         return Ok(PostingJournalResponseDto.Map(postingJournalResponse));
+    }
+
+    [Authorize(Policy = Policies.AccountingModifier)]
+    [HttpPost("{accountingNumber:int}/postingjournal/apply")]
+    [ValidateAntiForgeryToken]
+    [ProducesResponseType(typeof(ApplyPostingJournalResponseDto), (int)HttpStatusCode.OK, MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.Unauthorized, MediaTypeNames.Application.ProblemJson)]
+    [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.InternalServerError, MediaTypeNames.Application.ProblemJson)]
+    public async Task<IActionResult> ApplyPostingJournalAsync([FromServices] ICommandFeature<ApplyPostingJournalRequest> commandFeature, [FromServices] IQueryFeature<NotificationsRequest, NotificationsResponse> queryFeature, [FromRoute][Required][Range(AccountingRuleSetSpecifications.AccountingNumberMinValue, AccountingRuleSetSpecifications.AccountingNumberMaxValue)] int accountingNumber, CancellationToken cancellationToken)
+    {
+        ISecurityContext securityContext = await _securityContextProvider.GetCurrentSecurityContextAsync(cancellationToken);
+
+        ApplyPostingJournalRequest applyRequest = new ApplyPostingJournalRequest(Guid.NewGuid(), accountingNumber, _formatProvider, securityContext);
+
+        await commandFeature.ExecuteAsync(applyRequest, cancellationToken);
+
+        NotificationsRequest notificationsRequest = new NotificationsRequest(Guid.NewGuid(), _formatProvider, securityContext);
+        NotificationsResponse notificationsResponse = await queryFeature.ExecuteAsync(notificationsRequest, cancellationToken);
+
+        return Ok(ApplyPostingJournalResponseDto.Map(accountingNumber, notificationsResponse));
     }
 
     [Authorize(Policy = Policies.AccountingModifier)]
