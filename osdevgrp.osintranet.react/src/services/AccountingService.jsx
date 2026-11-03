@@ -249,6 +249,27 @@ export default class AccountingService extends ServiceBase {
         throw await this.generateError(response);
     }
 
+    async applyPostingJournal(accountingNumber) {
+        if (accountingNumber === undefined || accountingNumber === null) {
+            throw new Error('Accounting number is required.');
+        }
+
+        const response = await fetch(
+            this.resolveEndpoint(`/api/accounting/${accountingNumber}/postingjournal/apply`),
+            {
+                method: 'POST',
+                headers: await this.generateAntiforgeryHeader(),
+                credentials: 'include'
+            }
+        );
+
+        if (response.ok) {
+            return await response.json();
+        }
+
+        throw await this.generateError(response);
+    }
+
     async deletePostingLineFromPostingLineJournal(accountingNumber, identifier, verificationKey, verificationCode) {
         if (accountingNumber === undefined || accountingNumber === null) {
             throw new Error('Accounting number is required.');

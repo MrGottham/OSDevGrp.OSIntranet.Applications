@@ -298,7 +298,8 @@ function Accounting() {
                             key={dynamicTexts.postingJournal.accountingNumber}
                             postingJournal={dynamicTexts.postingJournal} 
                             staticTexts={staticTexts}
-                            validationRuleSet={validationRuleSet} />
+                            validationRuleSet={validationRuleSet}
+                            onPostingJournalApplied={handlePostingJournalApplied} />
                         <PostingLineCollection postingLineCollection={dynamicTexts.postingLineCollection} />
                     </Accordion.Body>
                 </Accordion.Item>
@@ -667,6 +668,15 @@ function Accounting() {
         console.debug(`verificationCode=${verificationCode}`);
 
         return urlHelper.getNotImplementedUrl();
+    }
+
+    async function handlePostingJournalApplied() {
+        try {
+            setContent(undefined);
+            await populateContent(25);
+        } catch (error) {
+            showBoundary(error);
+        }
     }
 }
 

@@ -187,6 +187,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'Bookkeeping');
     }
 
+    getApplyPostingJournalText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'ApplyPostingJournal');
+    }
+
     getAddPostingJournalLineText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'AddPostingJournalLine');
     }

@@ -14,11 +14,13 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import DatePicker from "react-datepicker";
 import SubmitToolbar from './SubmitToolbar';
 import DeleteConfirmation from './DeleteConfirmation';
 
-function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, validationRuleSet }) {
+function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, validationRuleSet, onPostingJournalApplied }) {
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const dateHelper = useContext(HelperContext).dateHelper;
     const formHelper = useContext(HelperContext).formHelper;
@@ -63,6 +65,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
     const [isBudgetAccountPending, startBudgetAccountTransition] = useTransition();
     const [isContactAccountPending, startContactAccountTransition] = useTransition();
     const [isModelFormSubmitting, startModelFormTransition] = useTransition();
+    const [isApplyingPostingJournal, startApplyPostingJournalTransition] = useTransition();
     const addToast = useCallback((header, body, variant) => {
         const toastId = newGuid();
         setToasts(prev => [...prev, { id: toastId, header, body, variant }]);
@@ -420,7 +423,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                         <th className='d-none d-sm-none d-md-none d-lg-none d-xl-table-cell d-xxl-table-cell text-end text-nowrap'>{postingJournal.creditHeader}</th>
                         <th className='d-table-cell d-sm-table-cell d-md-table-cell d-lg-table-cell d-xl-none d-xxl-none text-end text-nowrap'>{postingJournal.postingValueHeader}</th>
                         <th className='text-nowrap text-end'>
-                            <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' onClick={() => handleAddPostingJournalLine(accountingNumber, newGuid(), dateHelper.getCurrentDate(), formHelper.asNullableString(undefined), formHelper.asNullableString(undefined), formHelper.asNullableString(undefined), formHelper.asNullableString(undefined), formHelper.asCurrency(0, true), formHelper.asCurrency(0, true), formHelper.asNullableString(undefined), staticTextHelper.getAddPostingJournalLineText(staticTexts), staticTextHelper.getCreateText(staticTexts))}>
+                            <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' disabled={isApplyingPostingJournal} onClick={() => handleAddPostingJournalLine(accountingNumber, newGuid(), dateHelper.getCurrentDate(), formHelper.asNullableString(undefined), formHelper.asNullableString(undefined), formHelper.asNullableString(undefined), formHelper.asNullableString(undefined), formHelper.asCurrency(0, true), formHelper.asCurrency(0, true), formHelper.asNullableString(undefined), staticTextHelper.getAddPostingJournalLineText(staticTexts), staticTextHelper.getCreateText(staticTexts))}>
                                 <FontAwesomeIcon icon={faPlus} />
                             </button>
                         </th>
@@ -430,6 +433,11 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                     {postingJournal.postingJournalLines.map(postingJournalLineDisplayer => getPostingJournalLineContent(accountingNumber, postingJournalLineDisplayer))}
                 </tbody>
             </Table>
+            {postingJournal.postingJournalLines.length > 0 && (
+                <ButtonToolbar className='justify-content-end'>
+                    <Button variant='primary' disabled={isApplyingPostingJournal} onClick={applyPostingJournal}>{staticTextHelper.getApplyPostingJournalText(staticTexts)}</Button>
+                </ButtonToolbar>
+            )}
         </Stack>
     );
 
@@ -449,10 +457,10 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 <td className='d-table-cell d-sm-table-cell d-md-table-cell d-lg-table-cell d-xl-none d-xxl-none text-end text-nowrap'>{postingJournalLineDisplayer.postingValueAsText}</td>
                 <td className='text-nowrap text-end'>
                     <span className='fa-stack'>
-                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none me-2' onClick={() => handleModifyPostingJournalLine(accountingNumber, postingJournalLineIdentifierString, dateHelper.getDateOnly(postingJournalLineDisplayer.postingDate), formHelper.asNullableString(postingJournalLineDisplayer.postingReference), postingJournalLineDisplayer.account, postingJournalLineDisplayer.postingText, formHelper.asNullableString(postingJournalLineDisplayer.budgetAccount), formHelper.asCurrency(postingJournalLineDisplayer.debit, true), formHelper.asCurrency(postingJournalLineDisplayer.credit, true), formHelper.asNullableString(postingJournalLineDisplayer.contactAccount), staticTextHelper.getUpdatePostingJournalLineText(staticTexts), staticTextHelper.getUpdateText(staticTexts))}>  
+                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none me-2' disabled={isApplyingPostingJournal} onClick={() => handleModifyPostingJournalLine(accountingNumber, postingJournalLineIdentifierString, dateHelper.getDateOnly(postingJournalLineDisplayer.postingDate), formHelper.asNullableString(postingJournalLineDisplayer.postingReference), postingJournalLineDisplayer.account, postingJournalLineDisplayer.postingText, formHelper.asNullableString(postingJournalLineDisplayer.budgetAccount), formHelper.asCurrency(postingJournalLineDisplayer.debit, true), formHelper.asCurrency(postingJournalLineDisplayer.credit, true), formHelper.asNullableString(postingJournalLineDisplayer.contactAccount), staticTextHelper.getUpdatePostingJournalLineText(staticTexts), staticTextHelper.getUpdateText(staticTexts))}>  
                             <FontAwesomeIcon icon={faPen} />
                         </button>
-                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' onClick={() => confirmDeletion(staticTextHelper.getPostingJournalLineDeletionQuestionText(staticTexts, postingJournalLineDisplayer.postingText), { accountingNumber: accountingNumber, postingJournalLineIdentifier: postingJournalLineIdentifierString })}>
+                        <button type='button' className='btn btn-link p-0 border-0 align-baseline text-decoration-none' disabled={isApplyingPostingJournal} onClick={() => confirmDeletion(staticTextHelper.getPostingJournalLineDeletionQuestionText(staticTexts, postingJournalLineDisplayer.postingText), { accountingNumber: accountingNumber, postingJournalLineIdentifier: postingJournalLineIdentifierString })}>
                             <FontAwesomeIcon icon={faTrash} />
                         </button>
                     </span>
@@ -587,6 +595,23 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
         } catch (error) {
             addToast(staticTextHelper.getErrorText(staticTexts), error.message, 'danger');
         }
+
+        return undefined;
+    }
+
+    function applyPostingJournal() {
+        startApplyPostingJournalTransition(async () => {
+            try {
+                await accountingService.applyPostingJournal(
+                    formHelper.convertToInteger(postingJournal.accountingNumber)
+                );
+            } catch (error) {
+                addToast(staticTextHelper.getErrorText(staticTexts), error.message, 'danger');
+                return;
+            }
+
+            await onPostingJournalApplied();
+        });
 
         return undefined;
     }
