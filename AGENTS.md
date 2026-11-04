@@ -1,108 +1,20 @@
-# AGENTS.md - Developer Guide for Agentic Coding
+# Repository notes for agents
 
-## Build & Test Commands
+## Verify changes
 
-### C# / .NET
+- .NET projects target `net10.0`. From the root: `dotnet build OSDevGrp.OSIntranet.Applications.sln`; run service-independent NUnit tests with `dotnet test OSDevGrp.OSIntranet.Applications.sln --filter "Category=UnitTest"` (unfiltered tests include integrations needing MySQL and external auth/services).
+- For a focused test: `dotnet test OSDevGrp.OSIntranet.Domain.Tests/OSDevGrp.OSIntranet.Domain.Tests.csproj --filter "FullyQualifiedName~MethodName&Category=UnitTest"`; substitute the owning `*.Tests.csproj`. Test categories are on individual test methods. Reuse builders in `Core.TestHelpers`, `Domain.TestHelpers`, or `Bff.ServiceGateways.TestData` where applicable.
+- Run frontend commands in `osdevgrp.osintranet.react/`: `npm ci`, `npm run lint`, `npm run build`, `npm run dev`. `package.json` has no frontend test or typecheck script. `vite.config.js` requires `VITE_BFF_ENDPOINT` for `dev` and proxies `/api` to it; outside containers it calls `dotnet dev-certs https` for HTTPS even during `build` (requires the .NET SDK).
 
-```bash
-dotnet build OSDevGrp.OSIntranet.Applications.sln
-dotnet test OSDevGrp.OSIntranet.Applications.sln
+## Boundaries and generated files
 
-# Single test project
-dotnet test OSDevGrp.OSIntranet.Domain.Tests/OSDevGrp.OSIntranet.Domain.Tests.csproj
+- `Core`/`Domain` hold shared and domain logic; `Repositories` uses EF Core with Oracle's MySQL provider; `BusinessLogic` is the application layer. Contracts live in the corresponding `*.Interfaces` projects, not the implementation projects.
+- `WebApi` is the main REST API; `Mvc` is the server-rendered app. `Bff.WebApi` uses `Bff.DomainServices` and `Bff.ServiceGateways` to serve the React frontend; their interfaces are separate projects. React starts at `osdevgrp.osintranet.react/src/main.jsx`.
+- `OSDevGrp.OSIntranet.WebApi/OSDevGrp.OSIntranet.WebApi.csproj` runs `postbuild` automatically after a build, generating `OSDevGrp.OSIntranet.WebApi.ClientApi/WebApiClient.generated.cs` via `WebApi.PostBuild` (Swashbuckle document -> NSwag client). Do not hand-edit the generated file. When changing API contracts, build `WebApi` before `WebApi.ClientApi`; the latter also builds a NuGet package.
+- EF migrations target `Repositories` with the executable `Repositories.Migration` as startup project: `dotnet ef migrations add <Name> --project OSDevGrp.OSIntranet.Repositories --startup-project OSDevGrp.OSIntranet.Repositories.Migration` (same flags for `dotnet ef database update`). `RepositoryContext`'s parameterless design-time constructor reads .NET user secrets; its `OnConfiguring` requires `ConnectionStrings:OSIntranet`.
 
-# Single test by name
-dotnet test OSDevGrp.OSIntranet.Domain.Tests/OSDevGrp.OSIntranet.Domain.Tests.csproj --filter "FullyQualifiedName~TestMethodName"
+## Local configuration and conventions
 
-# Unit tests only (safe without external services)
-dotnet test OSDevGrp.OSIntranet.Applications.sln --filter "Category=UnitTest"
-
-# Watch mode for a test project
-dotnet watch test OSDevGrp.OSIntranet.Domain.Tests/OSDevGrp.OSIntranet.Domain.Tests.csproj
-```
-
-### EF Core Migrations (MySQL)
-
-The startup project for migrations is `OSDevGrp.OSIntranet.Repositories.Migration` (standalone executable host):
-
-```bash
-dotnet ef migrations add <MigrationName> \
-  --project OSDevGrp.OSIntranet.Repositories \
-  --startup-project OSDevGrp.OSIntranet.Repositories.Migration
-
-dotnet ef database update \
-  --project OSDevGrp.OSIntranet.Repositories \
-  --startup-project OSDevGrp.OSIntranet.Repositories.Migration
-```
-
-### React / JavaScript
-
-All npm commands run from `osdevgrp.osintranet.react/`:
-
-```bash
-npm install
-npm run dev        # Vite HMR dev server
-npm run build      # Production build
-npm run preview    # Preview production build locally
-npm run lint       # ESLint only — no test runner configured
-```
-
-## Project Structure
-
-Every layer has three companion projects: `*.Interfaces` (contracts), the implementation, and `*.TestHelpers` (shared mock builders for tests). Never put interfaces in the implementation project or test helpers in the `*.Tests` project.
-
-| Directory pattern | Role |
-|---|---|
-| `OSDevGrp.OSIntranet.Core*` | Shared utilities, `NullGuard`, `IntranetExceptionBuilder` |
-| `OSDevGrp.OSIntranet.Domain*` | Domain entities and logic |
-| `OSDevGrp.OSIntranet.Repositories*` | EF Core / MySQL data access + migrations |
-| `OSDevGrp.OSIntranet.BusinessLogic*` | Application service layer (AutoMapper) |
-| `OSDevGrp.OSIntranet.WebApi*` | Main REST API + NSwag-generated client package |
-| `OSDevGrp.OSIntranet.Mvc*` | MVC web application |
-| `OSDevGrp.OSIntranet.Bff*` | BFF services (DomainServices, ServiceGateways, WebApi — each with own Interfaces/TestHelpers) |
-| `osdevgrp.osintranet.react/` | React 19 + Vite 8 frontend |
-
-## Testing Conventions
-
-- Frameworks: **NUnit 4.6.1**, NUnit3TestAdapter 6.2.0, Moq 4.20.72, AutoFixture 4.18.1
-- Every test class: `[TestFixture]`, `[SetUp]` creates a fresh `Fixture` and `Random`
-- Tests are tagged `[Category("UnitTest")]` or `[Category("IntegrationTest")]`
-- Integration tests require live MySQL and external OAuth/Graph services — always filter to `Category=UnitTest` in isolated environments
-- Shared mock builders live in `*.TestHelpers` projects (e.g., `_fixture.BuildAuthorizationCodeMock(...)`). Use these instead of building mocks inline
-- Abstract `*TestBase` classes group related test fixtures — follow the pattern when adding tests
-
-## Code Style
-
-**C#:**
-- `OSDevGrp.OSIntranet.[Layer].[Feature]` namespace must match directory structure
-- Interfaces prefix `I`, base classes/interfaces suffix `Base`
-- Methods: PascalCase; private fields: `_underscore`; async methods: `MethodAsync()`
-- `#region` blocks are **mandatory**: `Constructor`, `Properties`, `Methods`, `Nested classes`
-- Guard: `NullGuard.NotNull(param, nameof(param))` / `NullGuard.NotNullOrWhiteSpace(...)`
-- Exceptions: `throw new IntranetExceptionBuilder(ErrorCode.Code, context).Build();`
-- Catch order: `IntranetExceptionBase` → `AggregateException` → `Exception`
-- System imports first, then third-party alphabetically, then local
-- Check per-project `<Nullable>enable</Nullable>` and `<ImplicitUsings>enable</ImplicitUsings>` in the target `.csproj` — not all projects have both
-
-**React:**
-- Components: PascalCase `.jsx` (one per file); utils: camelCase `.js`
-- Functional components with hooks only
-- ESLint: no unused variables except `^[A-Z_]` pattern
-- Use `react-error-boundary` for error boundaries; `yup` for validation; optional chaining throughout
-
-## Toolchain Quirks
-
-**AutoMapper requires a commercial license key.** Version 16.x throws at runtime without `licensesAutoMapperLicenseKey` in environment config. Unit tests that mock AutoMapper are fine; tests that exercise real mapping need the key from `.env`.
-
-**MySQL only — not SQL Server.** ORM is `MySql.EntityFrameworkCore` (Oracle provider). Connection strings and migration commands are MySQL-specific.
-
-**NSwag post-build codegen:** `OSDevGrp.OSIntranet.WebApi.PostBuild` generates `WebApiClient.generated.cs` in `OSDevGrp.OSIntranet.WebApi.ClientApi/` after the WebApi builds. Do not manually edit the generated file. Rebuild order when changing controller signatures:
-1. Build `WebApi`
-2. Build `WebApi.PostBuild` (regenerates client)
-3. Build `WebApi.ClientApi`
-
-**`WebApi.ClientApi` is also a NuGet package** (`GeneratePackageOnBuild=true`). It is referenced as a project reference internally but published as a NuGet package externally.
-
-**No CI automation.** `.github/workflows/` is empty. No pre-commit hooks are active (only `.sample` files).
-
-**Full stack requires Docker Compose.** The `.env` file at the root contains credentials for MySQL, OIDC, Microsoft Graph, Google OAuth, JWT keys, and AutoMapper license. Running individual services with `dotnet run` works; the integrated stack needs `docker-compose up`.
+- Root `.env`, frontend `.env`, `licenses/`, and `charts/osintranet/values.local.yaml` are gitignored local configuration; do not copy credentials into tracked files. `docker-compose.yaml` wires the full MVC/WebApi/BFF/React stack and requires those env values plus `licenses/sixlabors.lic` for the builder. `Bff.DomainServices.csproj` points `SixLaborsLicenseFile` at that license by default. AutoMapper mappings take `Licenses:AutoMapper:LicenseKey` from configuration.
+- In development React uses the Vite `/api` proxy; production `src/main.jsx` loads `/runtime-config.json` before rendering, and `containerEntryPoint.mjs` generates it from `BFF_ENDPOINT_MAPPINGS`. Don't bake BFF endpoints into the frontend bundle.
+- Existing C# code groups members in `#region` blocks and uses `NullGuard` and `IntranetExceptionBuilder` for guards/errors; match nearby files. Nullable and implicit usings vary by `.csproj` (do not assume solution-wide defaults).
