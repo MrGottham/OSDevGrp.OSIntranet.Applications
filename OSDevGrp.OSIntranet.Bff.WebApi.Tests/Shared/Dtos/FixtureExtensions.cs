@@ -310,6 +310,8 @@ internal static class FixtureExtensions
     internal static Mock<INotification> CreateNotificationMock(this Fixture fixture)
     {
         Mock<INotification> notificationMock = new Mock<INotification>();
+        notificationMock.Setup(m => m.Identifier)
+            .Returns(fixture.Create<Guid>());
         notificationMock.Setup(m => m.Format)
             .Returns(NotificationFormat.Markdown);
         notificationMock.Setup(m => m.Type)

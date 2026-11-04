@@ -6,6 +6,9 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Shared.Dtos;
 public class NotificationDto
 {
     [Required]
+    public required Guid Identifier { get; init; }
+
+    [Required]
     [MinLength(ValidationValues.NotificationFormatMinLength)]
     [RegularExpression(ValidationValues.NotificationFormatRegexPattern)]
     public required string Format { get; init; }
@@ -27,6 +30,7 @@ public class NotificationDto
     {
         return new NotificationDto
         {
+            Identifier = notification.Identifier,
             Format = notification.Format.ToString(),
             Type = notification.Type.ToString(),
             Header = notification.Header,

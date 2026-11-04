@@ -22,7 +22,7 @@ public class AddDomainServicesTests
         INotificationPublisher firstPublisher = firstScope.ServiceProvider.GetRequiredService<INotificationPublisher>();
         INotificationRetriever firstRetriever = firstScope.ServiceProvider.GetRequiredService<INotificationRetriever>();
         INotificationRetriever secondRetriever = secondScope.ServiceProvider.GetRequiredService<INotificationRetriever>();
-        INotification notification = new MarkdownNotification(NotificationType.Information, "Header", "Content");
+        INotification notification = new MarkdownNotification(Guid.NewGuid(), NotificationType.Information, "Header", "Content");
 
         await firstPublisher.PublishAsync(notification);
 

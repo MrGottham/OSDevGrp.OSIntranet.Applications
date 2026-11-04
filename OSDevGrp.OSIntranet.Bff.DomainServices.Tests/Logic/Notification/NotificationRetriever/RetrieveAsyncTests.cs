@@ -17,9 +17,9 @@ public class RetrieveAsyncTests
         INotificationRetriever sut = CreateSut(notificationCollection);
         INotification[] notifications =
         [
-            new MarkdownNotification(NotificationType.Information, "Header 1", "Content 1"),
-            new MarkdownNotification(NotificationType.Information, "Header 2", "Content 2"),
-            new MarkdownNotification(NotificationType.Information, "Header 3", "Content 3")
+            new MarkdownNotification(Guid.NewGuid(), NotificationType.Information, "Header 1", "Content 1"),
+            new MarkdownNotification(Guid.NewGuid(), NotificationType.Information, "Header 2", "Content 2"),
+            new MarkdownNotification(Guid.NewGuid(), NotificationType.Information, "Header 3", "Content 3")
         ];
         using CancellationTokenSource cancellationTokenSource = new();
 
@@ -39,7 +39,7 @@ public class RetrieveAsyncTests
     {
         NotificationCollection notificationCollection = new();
         INotificationRetriever sut = CreateSut(notificationCollection);
-        notificationCollection.Publish(new MarkdownNotification(NotificationType.Information, "Header", "Content"));
+        notificationCollection.Publish(new MarkdownNotification(Guid.NewGuid(), NotificationType.Information, "Header", "Content"));
         using CancellationTokenSource cancellationTokenSource = new();
 
         await sut.RetrieveAsync(cancellationTokenSource.Token);
@@ -57,7 +57,7 @@ public class RetrieveAsyncTests
         INotificationPublisher notificationPublisher = new NotificationPublisher(notificationCollection);
 
         Task[] publishingTasks = Enumerable.Range(0, notificationCount)
-            .Select(index => Task.Run(async () => await notificationPublisher.PublishAsync(new MarkdownNotification(NotificationType.Information, "Header", index.ToString()))))
+            .Select(index => Task.Run(async () => await notificationPublisher.PublishAsync(new MarkdownNotification(Guid.NewGuid(), NotificationType.Information, "Header", index.ToString()))))
             .ToArray();
         Task<IReadOnlyCollection<INotification>>[] retrievingTasks = Enumerable.Range(0, 2)
             .Select(_ => Task.Run(async () => await sut.RetrieveAsync()))

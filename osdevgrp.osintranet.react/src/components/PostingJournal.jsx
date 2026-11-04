@@ -601,8 +601,9 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
 
     function applyPostingJournal() {
         startApplyPostingJournalTransition(async () => {
+            let applyResponse;
             try {
-                await accountingService.applyPostingJournal(
+                applyResponse = await accountingService.applyPostingJournal(
                     formHelper.convertToInteger(postingJournal.accountingNumber)
                 );
             } catch (error) {
@@ -610,7 +611,7 @@ function PostingJournal({ postingJournal: initialPostingJournal, staticTexts, va
                 return;
             }
 
-            await onPostingJournalApplied();
+            await onPostingJournalApplied(applyResponse.notifications);
         });
 
         return undefined;

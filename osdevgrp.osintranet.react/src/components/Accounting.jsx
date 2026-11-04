@@ -21,8 +21,17 @@ import Loading from './Loading';
 import DeleteConfirmation from './DeleteConfirmation';
 import PostingJournal from './PostingJournal';
 import PostingLineCollection from './PostingLineCollection';
+import Notifications from './Notifications';
 
 function Accounting() {
+    const accountingNumber = useParams().accountingNumber;
+
+    return (
+        <AccountingContent key={accountingNumber} />
+    );
+}
+
+function AccountingContent() {
     const { showBoundary } = useErrorBoundary();
     const accountingService = useContext(ServiceContext).accountingService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
@@ -31,6 +40,7 @@ function Accounting() {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [deletionQuestion, setDeletionQuestion] = useState();
     const [deleteContext, setDeleteContext] = useState();
+    const [notificationContext, setNotificationContext] = useState([]);
     const accountingNumber = useParams().accountingNumber;
     const populateContent = useCallback(async (numberOfPostingLines) => {
         const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
@@ -53,6 +63,9 @@ function Accounting() {
 
     return (
         <>
+            <Notifications
+                notifications={notificationContext}
+                onDismiss={handleNotificationDismissed} />
             <Row>
                 <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
                     <h1>{content.name}</h1>
@@ -670,13 +683,20 @@ function Accounting() {
         return urlHelper.getNotImplementedUrl();
     }
 
-    async function handlePostingJournalApplied() {
+    async function handlePostingJournalApplied(notifications) {
         try {
             setContent(undefined);
             await populateContent(25);
         } catch (error) {
             showBoundary(error);
+            return;
         }
+
+        setNotificationContext(prev => [...prev, ...notifications]);
+    }
+
+    function handleNotificationDismissed(identifier) {
+        setNotificationContext(prev => prev.filter(notification => notification.identifier !== identifier));
     }
 }
 

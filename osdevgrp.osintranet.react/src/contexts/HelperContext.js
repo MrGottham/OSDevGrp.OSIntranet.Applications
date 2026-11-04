@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, createElement } from 'react';
 import AccountingHelper from '../helpers/AccountingHelper';
 import AuthorizationHelper from '../helpers/AuthorizationHelper';
 import StaticTextHelper from '../helpers/StaticTextHelper';
@@ -21,10 +21,9 @@ const helpers = {
 
 const HelperContext = createContext();
 
+// createElement instead of JSX because this file is .js, so the react-refresh rule only checks .jsx components.
 function HelperProvider({ children }) {
-    return (
-        <HelperContext.Provider value={helpers}>{children}</HelperContext.Provider>
-    )
+    return createElement(HelperContext.Provider, { value: helpers }, children);
 }
 
-export { HelperContext, HelperProvider }
+export { HelperContext, HelperProvider };
