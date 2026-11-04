@@ -27,11 +27,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingLineCollection
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyCalculationAsync_WhenCalculatedBudgetAccountIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ApplyCalculationAsync_WhenCalculatedBudgetAccountIsNull_ThrowsArgumentNullException()
         {
             IPostingLineCollection sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyCalculationAsync((IBudgetAccount)null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyCalculationAsync((IBudgetAccount)null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("calculatedBudgetAccount"));

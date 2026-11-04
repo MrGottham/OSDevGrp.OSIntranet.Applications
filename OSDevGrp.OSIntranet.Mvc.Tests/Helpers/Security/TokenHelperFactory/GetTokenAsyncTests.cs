@@ -29,36 +29,36 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactory
 
         [Test]
         [Category("UnitTest")]
-        public void GetTokenAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetTokenAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetTokenAsync<IRefreshableToken>(_fixture.Create<TokenType>(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetTokenAsync<IRefreshableToken>(_fixture.Create<TokenType>(), null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetTokenAsync_WhenCalledWithUnsupportedTokenType_ThrowsNotSupportedException()
+        public async System.Threading.Tasks.Task GetTokenAsync_WhenCalledWithUnsupportedTokenType_ThrowsNotSupportedException()
         {
             ITokenHelperFactory sut = CreateSut();
 
             TokenType tokenType = _fixture.Create<TokenType>();
-            NotSupportedException result = Assert.ThrowsAsync<NotSupportedException>(async () => await sut.GetTokenAsync<IRefreshableToken>(tokenType, CreateHttpContext()));
+            NotSupportedException result = (await Assert.ThrowsAsync<NotSupportedException>(async () => await sut.GetTokenAsync<IRefreshableToken>(tokenType, CreateHttpContext())))!;
 
             Assert.That(result.Message, Is.EqualTo($"The token type '{tokenType}' is not supported within the method 'GetTokenAsync'."));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetTokenAsync_WhenCalledWithSupportedTokenTypeButUnsupportedGenericToken_ThrowsNotSupportedException()
+        public async System.Threading.Tasks.Task GetTokenAsync_WhenCalledWithSupportedTokenTypeButUnsupportedGenericToken_ThrowsNotSupportedException()
         {
             TokenType tokenType = _fixture.Create<TokenType>();
             ITokenHelper<IToken> tokenHelper = BuildTokenHelperMock<IToken>(tokenType).Object;
             ITokenHelperFactory sut = CreateSut(new[] {tokenHelper});
 
-            NotSupportedException result = Assert.ThrowsAsync<NotSupportedException>(async () => await sut.GetTokenAsync<IRefreshableToken>(tokenType, CreateHttpContext()));
+            NotSupportedException result = (await Assert.ThrowsAsync<NotSupportedException>(async () => await sut.GetTokenAsync<IRefreshableToken>(tokenType, CreateHttpContext())))!;
 
             Assert.That(result.Message, Is.EqualTo($"The helper logic for the token type '{tokenType}' does not support the generic type 'IRefreshableToken' within the method 'GetTokenAsync'."));
         }

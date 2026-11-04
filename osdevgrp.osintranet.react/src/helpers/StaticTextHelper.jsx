@@ -147,6 +147,10 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'BackDating');
     }
 
+    getTodayText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Today');
+    }
+
     getMasterDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'MasterData');
     }
@@ -183,6 +187,26 @@ export default class StaticTextHelper {
         return this.getStaticTextByKey(staticTexts, 'Bookkeeping');
     }
 
+    getApplyPostingJournalText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'ApplyPostingJournal');
+    }
+
+    getAddPostingJournalLineText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'AddPostingJournalLine');
+    }
+
+    getUpdatePostingJournalLineText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'UpdatePostingJournalLine');
+    }
+
+    getDeletePostingJournalLineText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'DeletePostingJournalLine');
+    }
+
+    getPostingJournalLineDeletionQuestionText(staticTexts, postingText) {
+        return this.getStaticTextByKey(staticTexts, 'PostingJournalLineDeletionQuestion').replace('[PostingText]', postingText);
+    }
+
     getCommonDataText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'CommonData');
     }
@@ -213,6 +237,14 @@ export default class StaticTextHelper {
 
     getCancelText(staticTexts) {
         return this.getStaticTextByKey(staticTexts, 'Cancel');
+    }
+
+    getWarningText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Warning');
+    }
+
+    getErrorText(staticTexts) {
+        return this.getStaticTextByKey(staticTexts, 'Error');
     }
 
     getStaticTextByKey(staticTexts, key) {

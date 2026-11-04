@@ -7,10 +7,26 @@ internal class ContactAccountTexts : DynamicTextsBase<ContactAccountModel>, ICon
 {
     #region Constructor
 
-    public ContactAccountTexts(ContactAccountModel model, IFormatProvider formatProvider) 
+    public ContactAccountTexts(ContactAccountModel model, IValueDisplayer statusDate, IContactAccountValuesDisplayer valuesAtStatusDate, IContactAccountValuesDisplayer valuesAtEndOfLastMonthFromStatusDate, IContactAccountValuesDisplayer valuesAtEndOfLastYearFromStatusDate, IFormatProvider formatProvider) 
         : base(model, formatProvider)
     {
+        StatusDate = statusDate;
+        ValuesAtStatusDate = valuesAtStatusDate;
+        ValuesAtEndOfLastMonthFromStatusDate = valuesAtEndOfLastMonthFromStatusDate;
+        ValuesAtEndOfLastYearFromStatusDate = valuesAtEndOfLastYearFromStatusDate;
     }
+
+    #endregion
+
+    #region Properties
+
+    public IValueDisplayer StatusDate { get; }
+
+    public IContactAccountValuesDisplayer ValuesAtStatusDate { get; }
+
+    public IContactAccountValuesDisplayer ValuesAtEndOfLastMonthFromStatusDate { get; }
+
+    public IContactAccountValuesDisplayer ValuesAtEndOfLastYearFromStatusDate { get; }
 
     #endregion
 }

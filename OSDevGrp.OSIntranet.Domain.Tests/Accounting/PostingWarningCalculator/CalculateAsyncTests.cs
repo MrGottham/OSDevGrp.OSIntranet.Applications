@@ -28,11 +28,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingWarningCalculator
 
         [Test]
         [Category("UnitTest")]
-        public void CalculateAsync_WhenPostingLineIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CalculateAsync_WhenPostingLineIsNull_ThrowsArgumentNullException()
         {
             IPostingWarningCalculator sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CalculateAsync((IPostingLine) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CalculateAsync((IPostingLine) null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("postingLine"));
@@ -540,11 +540,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.PostingWarningCalculator
 
         [Test]
         [Category("UnitTest")]
-        public void CalculateAsync_WhenPostingLineCollectionIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CalculateAsync_WhenPostingLineCollectionIsNull_ThrowsArgumentNullException()
         {
             IPostingWarningCalculator sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CalculateAsync((IPostingLineCollection) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CalculateAsync((IPostingLineCollection) null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("postingLineCollection"));

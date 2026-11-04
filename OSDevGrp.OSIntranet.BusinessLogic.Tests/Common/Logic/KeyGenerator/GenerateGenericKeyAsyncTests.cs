@@ -37,11 +37,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.KeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsNull_ThrowsArgumentNullException()
         {
             IKeyGenerator sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GenerateGenericKeyAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GenerateGenericKeyAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("keyElementCollection"));
@@ -50,22 +50,22 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.KeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationException()
         {
             IKeyGenerator sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>())))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereMessageContainsKeyElementCollection()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereMessageContainsKeyElementCollection()
         {
             IKeyGenerator sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains("keyElementCollection"), Is.True);
@@ -74,11 +74,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.KeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueShouldContainSomeItems()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueShouldContainSomeItems()
         {
             IKeyGenerator sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueShouldContainSomeItems));
@@ -87,11 +87,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.KeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsEqualToStringEnumerable()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsEqualToStringEnumerable()
         {
             IKeyGenerator sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(IEnumerable<string>)));
@@ -100,11 +100,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.KeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToKeyElementCollection()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToKeyElementCollection()
         {
             IKeyGenerator sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingField, Is.EqualTo("keyElementCollection"));
@@ -113,11 +113,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Common.Logic.KeyGenerator
 
         [Test]
         [Category("UnitTest")]
-        public void GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task GenerateGenericKeyAsync_WhenKeyElementCollectionIsEmpty_ThrowsIntranetValidationExceptionWhereInnerExceptionIsNull()
         {
             IKeyGenerator sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.GenerateGenericKeyAsync(Array.Empty<string>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);

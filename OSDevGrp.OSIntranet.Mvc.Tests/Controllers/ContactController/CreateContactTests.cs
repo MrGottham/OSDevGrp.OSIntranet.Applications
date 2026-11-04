@@ -57,33 +57,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContact_WhenCountryCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateContact_WhenCountryCodeIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact((string) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact((string) null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContact_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateContact_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void CreateContact_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateContact_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateContact(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }

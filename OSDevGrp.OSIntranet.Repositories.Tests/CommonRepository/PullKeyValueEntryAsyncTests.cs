@@ -29,11 +29,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
         [Test]
         [Category("UnitTest")]
-        public void PullKeyValueEntryAsync_WhenKeyIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task PullKeyValueEntryAsync_WhenKeyIsNull_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("key"));
@@ -41,11 +41,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
         [Test]
         [Category("UnitTest")]
-        public void PullKeyValueEntryAsync_WhenKeyIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task PullKeyValueEntryAsync_WhenKeyIsEmpty_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("key"));
@@ -53,11 +53,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
 
         [Test]
         [Category("UnitTest")]
-        public void PullKeyValueEntryAsync_WhenKeyIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task PullKeyValueEntryAsync_WhenKeyIsWhiteSpace_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PullKeyValueEntryAsync(" ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("key"));

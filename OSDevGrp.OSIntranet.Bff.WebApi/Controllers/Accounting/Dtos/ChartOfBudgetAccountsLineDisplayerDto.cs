@@ -1,4 +1,5 @@
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.DynamicText;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.Validation;
 using OSDevGrp.OSIntranet.Bff.WebApi.Shared;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,9 +8,9 @@ namespace OSDevGrp.OSIntranet.Bff.WebApi.Controllers.Accounting.Dtos;
 public class ChartOfBudgetAccountsLineDisplayerDto
 {
     [Required]
-    [MinLength(ValidationValues.AccountNumberMinLength)]
-    [MaxLength(ValidationValues.AccountNumberMaxLength)]
-    [RegularExpression(ValidationValues.AccountNumberRegexPattern)]
+    [MinLength(AccountingRuleSetSpecifications.AccountNumberMinLength)]
+    [MaxLength(AccountingRuleSetSpecifications.AccountNumberMaxLength)]
+    [RegularExpression(AccountingRuleSetSpecifications.AccountNumberRegexPattern)]
     public required string AccountNumber { get; init; }
 
     [Required]

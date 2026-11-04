@@ -28,11 +28,11 @@ namespace OSDevGrp.OSIntranet.Domain.Tests.Accounting.AccountGroup
 
         [Test]
         [Category("UnitTest")]
-        public void CalculateAsync_WhenAccountCollectionIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CalculateAsync_WhenAccountCollectionIsNull_ThrowsArgumentNullException()
         {
             IAccountGroup sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(0, 365) * -1), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CalculateAsync(DateTime.Now.AddDays(_random.Next(0, 365) * -1), null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("accountCollection"));

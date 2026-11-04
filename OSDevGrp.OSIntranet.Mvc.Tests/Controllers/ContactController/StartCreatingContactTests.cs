@@ -43,33 +43,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void StartCreatingContact_WhenCountryCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StartCreatingContact_WhenCountryCodeIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StartCreatingContact(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StartCreatingContact(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void StartCreatingContact_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StartCreatingContact_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StartCreatingContact(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StartCreatingContact(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void StartCreatingContact_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StartCreatingContact_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StartCreatingContact(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StartCreatingContact(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }

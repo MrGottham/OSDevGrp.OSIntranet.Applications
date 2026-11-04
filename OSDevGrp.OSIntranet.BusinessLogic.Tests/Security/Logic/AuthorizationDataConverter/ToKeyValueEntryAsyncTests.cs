@@ -36,11 +36,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
 
         [Test]
         [Category("UnitTest")]
-        public void ToKeyValueEntryAsync_WhenAuthorizationCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ToKeyValueEntryAsync_WhenAuthorizationCodeIsNull_ThrowsArgumentNullException()
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(null, Fixture.CreateClaims(Random), CreateAuthorizationData()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(null, Fixture.CreateClaims(Random), CreateAuthorizationData())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("authorizationCode"));
@@ -48,11 +48,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
 
         [Test]
         [Category("UnitTest")]
-        public void ToKeyValueEntryAsync_WhenClaimsIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ToKeyValueEntryAsync_WhenClaimsIsNull_ThrowsArgumentNullException()
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, null, CreateAuthorizationData()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, null, CreateAuthorizationData())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("claims"));
@@ -60,11 +60,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthorizationDa
 
         [Test]
         [Category("UnitTest")]
-        public void ToKeyValueEntryAsync_WhenAuthorizationDataIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ToKeyValueEntryAsync_WhenAuthorizationDataIsNull_ThrowsArgumentNullException()
         {
             IAuthorizationDataConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, Fixture.CreateClaims(Random), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToKeyValueEntryAsync(_fixture.BuildAuthorizationCodeMock().Object, Fixture.CreateClaims(Random), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("authorizationData"));

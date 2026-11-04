@@ -38,11 +38,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.Authenticate
 
         [Test]
         [Category("UnitTest")]
-        public void IsMatchAsync_WhenAuthorizationDataIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task IsMatchAsync_WhenAuthorizationDataIsNull_ThrowsArgumentNullException()
         {
             IAuthenticateAuthorizationCodeCommand sut = CreateSut(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.CreateEndpoint());
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.IsMatchAsync(null, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.IsMatchAsync(null, _securityRepositoryMock.Object, _trustedDomainResolverMock.Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("authorizationData"));
@@ -50,11 +50,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.Authenticate
 
         [Test]
         [Category("UnitTest")]
-        public void IsMatchAsync_WhenSecurityRepositoryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task IsMatchAsync_WhenSecurityRepositoryIsNull_ThrowsArgumentNullException()
         {
             IAuthenticateAuthorizationCodeCommand sut = CreateSut(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.CreateEndpoint());
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.IsMatchAsync(CreateAuthorizationData(), null, _trustedDomainResolverMock.Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.IsMatchAsync(CreateAuthorizationData(), null, _trustedDomainResolverMock.Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("securityRepository"));
@@ -62,11 +62,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Commands.Authenticate
 
         [Test]
         [Category("UnitTest")]
-        public void IsMatchAsync_WhenTrustedDomainResolverIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task IsMatchAsync_WhenTrustedDomainResolverIsNull_ThrowsArgumentNullException()
         {
             IAuthenticateAuthorizationCodeCommand sut = CreateSut(_fixture.Create<string>(), _fixture.Create<string>(), _fixture.CreateEndpoint());
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.IsMatchAsync(CreateAuthorizationData(), _securityRepositoryMock.Object, null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.IsMatchAsync(CreateAuthorizationData(), _securityRepositoryMock.Object, null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("trustedDomainResolver"));

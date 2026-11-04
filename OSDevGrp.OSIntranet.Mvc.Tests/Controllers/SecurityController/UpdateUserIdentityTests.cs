@@ -168,11 +168,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateUserIdentity_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateUserIdentity_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateUserIdentity(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateUserIdentity(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("userIdentityViewModel"));

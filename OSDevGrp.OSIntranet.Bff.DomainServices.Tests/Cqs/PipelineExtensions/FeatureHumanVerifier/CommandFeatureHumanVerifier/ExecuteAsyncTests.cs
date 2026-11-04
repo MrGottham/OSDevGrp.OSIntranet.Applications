@@ -1,8 +1,10 @@
+using System.Globalization;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Cqs;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Exceptions;
+using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Logic.StaticText;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Interfaces.Security;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.VerificationCodeStorage;
 using OSDevGrp.OSIntranet.Bff.DomainServices.Tests.Security.VerificationCodeVerifier;
@@ -17,6 +19,7 @@ public class ExecuteAsyncTests
     private Mock<ICommandFeature<IRequest>>? _innerFeatureMock;
     private Mock<IVerificationCodeVerifier>? _verificationCodeVerifierMock;
     private Mock<IVerificationCodeStorage>? _verificationCodeStorageMock;
+    private Mock<IStaticTextProvider>? _staticTextProviderMock;
     private Fixture? _fixture;
 
     #endregion
@@ -27,6 +30,7 @@ public class ExecuteAsyncTests
         _innerFeatureMock = new Mock<ICommandFeature<IRequest>>();
         _verificationCodeVerifierMock = new Mock<IVerificationCodeVerifier>();
         _verificationCodeStorageMock = new Mock<IVerificationCodeStorage>();
+        _staticTextProviderMock = new Mock<IStaticTextProvider>();
         _fixture = new Fixture();
     }
 
@@ -171,12 +175,12 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertExecuteAsyncWasNotCalledOnInnerFeature()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertExecuteAsyncWasNotCalledOnInnerFeature()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
-        Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
 
         _innerFeatureMock!.Verify(m => m.ExecuteAsync(
                 It.IsAny<IRequest>(),
@@ -186,13 +190,13 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithVerificationKeyFromHumanVerifiableRequest()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithVerificationKeyFromHumanVerifiableRequest()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         string verificationKey = _fixture!.Create<string>();
         IRequest request = CreateRequest(isHumanVerifiable: true, verificationKey: verificationKey);
-        Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
 
         _verificationCodeStorageMock!.Verify(m => m.RemoveVerificationCodeAsync(
                 It.Is<string>(value => value == verificationKey),
@@ -202,14 +206,14 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithGivenCancellationToken()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_AssertRemoveVerificationCodeAsyncWasCalledOnVerificationCodeStorageWithGivenCancellationToken()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token; 
-        Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request, cancellationToken));
+        await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request, cancellationToken));
 
         _verificationCodeStorageMock!.Verify(m => m.RemoveVerificationCodeAsync(
                 It.IsAny<string>(),
@@ -219,36 +223,43 @@ public class ExecuteAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedException()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedException()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
-        VerificationFailedException? result = Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        VerificationFailedException? result = (await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithSpecificMessage()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithSpecificMessage()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
-        IRequest request = CreateRequest(isHumanVerifiable: true);
-        VerificationFailedException? result = Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        IFormatProvider formatProvider = CultureInfo.InvariantCulture;
+        IRequest request = CreateRequest(isHumanVerifiable: true, formatProvider: formatProvider);
+        VerificationFailedException? result = (await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request)))!;
 
-        Assert.That(result!.Message, Is.EqualTo("Unable to verify the given verification code."));
+        Assert.That(result!.Message, Is.EqualTo("Den angivne bekræftelseskode kunne ikke godkendes."));
+        _staticTextProviderMock!.Verify(m => m.GetStaticTextAsync(
+                It.Is<StaticTextKey>(value => value == StaticTextKey.VerificationFailed),
+                It.Is<IEnumerable<object>>(arguments => arguments.Any() == false),
+                It.Is<IFormatProvider>(value => ReferenceEquals(value, formatProvider)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithInnerExceptionEqualToNull()
+    public async System.Threading.Tasks.Task ExecuteAsync_WhenVerificationCodeNotVerifiedByVerificationCodeVerifier_ThrowsVerificationFailedExceptionWithInnerExceptionEqualToNull()
     {
         ICommandFeature<IRequest> sut = CreateSut(verifyResult: false);
 
         IRequest request = CreateRequest(isHumanVerifiable: true);
-        VerificationFailedException? result = Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request));
+        VerificationFailedException? result = (await Assert.ThrowsAsync<VerificationFailedException>(async () => await sut.ExecuteAsync(request)))!;
 
         Assert.That(result!.InnerException, Is.Null);
     }
@@ -326,15 +337,18 @@ public class ExecuteAsyncTests
         _innerFeatureMock!.Setup(m => m.ExecuteAsync(It.IsAny<IRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        return new DomainServices.Cqs.PipelineExtensions.FeatureHumanVerifier.CommandFeatureHumanVerifier<IRequest>(_innerFeatureMock!.Object, _verificationCodeVerifierMock!.Object, _verificationCodeStorageMock!.Object);
+        _staticTextProviderMock!.Setup(m => m.GetStaticTextAsync(It.IsAny<StaticTextKey>(), It.IsAny<IEnumerable<object>>(), It.IsAny<IFormatProvider>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Den angivne bekræftelseskode kunne ikke godkendes.");
+
+        return new DomainServices.Cqs.PipelineExtensions.FeatureHumanVerifier.CommandFeatureHumanVerifier<IRequest>(_innerFeatureMock!.Object, _verificationCodeVerifierMock!.Object, _verificationCodeStorageMock!.Object, _staticTextProviderMock!.Object);
     }
 
-    private IRequest CreateRequest(bool isHumanVerifiable = true, string? verificationKey = null, string? verificationCode = null)
+    private IRequest CreateRequest(bool isHumanVerifiable = true, string? verificationKey = null, string? verificationCode = null, IFormatProvider? formatProvider = null)
     {
-        return CreateRequestMock(isHumanVerifiable, verificationKey, verificationCode).Object;
+        return CreateRequestMock(isHumanVerifiable, verificationKey, verificationCode, formatProvider).Object;
     }
 
-    private Mock<IRequest> CreateRequestMock(bool isHumanVerifiable = true, string? verificationKey = null, string? verificationCode = null)
+    private Mock<IRequest> CreateRequestMock(bool isHumanVerifiable = true, string? verificationKey = null, string? verificationCode = null, IFormatProvider? formatProvider = null)
     {
         Mock<IRequest> requestMock = new Mock<IRequest>();
         if (isHumanVerifiable == false)
@@ -343,6 +357,8 @@ public class ExecuteAsyncTests
         }
 
         Mock<IHumanVerifiableRequest> humanVerifiableRequestMock = requestMock.As<IHumanVerifiableRequest>();
+        humanVerifiableRequestMock.Setup(m => m.FormatProvider)
+            .Returns(formatProvider ?? CultureInfo.InvariantCulture);
         humanVerifiableRequestMock.Setup(m => m.VerificationKey)
             .Returns(verificationKey ?? _fixture!.Create<string>());
         humanVerifiableRequestMock.Setup(m => m.VerificationCode)

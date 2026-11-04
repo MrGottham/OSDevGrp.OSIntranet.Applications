@@ -42,7 +42,7 @@ internal abstract class AccountingIdentificationFeatureBase<TAccountingIdentific
 
     #region Methods
 
-    public Task<bool> VerifyPermissionAsync(ISecurityContext securityContext, TAccountingIdentificationRequest request, CancellationToken cancellationToken)
+    public virtual Task<bool> VerifyPermissionAsync(ISecurityContext securityContext, TAccountingIdentificationRequest request, CancellationToken cancellationToken)
     {
         return Task.Run(() => VerifyPermission(securityContext.User, request.AccountingNumber), cancellationToken);
     }

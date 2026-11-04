@@ -28,9 +28,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenItemsIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenItemsIsNull_ThrowsArgumentNullException()
 		{
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.Security.Logic.AuthenticationSessionPreparer.PrepareAsync(null, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.Security.Logic.AuthenticationSessionPreparer.PrepareAsync(null, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("items"));
@@ -39,11 +39,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenExternalTokenClaimTypeIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenExternalTokenClaimTypeIsNull_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(null, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(null, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("externalTokenClaimType"));
@@ -52,11 +52,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenExternalTokenClaimTypeIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenExternalTokenClaimTypeIsEmpty_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(string.Empty, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(string.Empty, _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("externalTokenClaimType"));
@@ -65,11 +65,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenExternalTokenClaimTypeIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenExternalTokenClaimTypeIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(" ", _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(" ", _fixture.Create<string>(), _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("externalTokenClaimType"));
@@ -78,11 +78,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenTokenTypeIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenTokenTypeIsNull_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), null, _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), null, _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("tokenType"));
@@ -91,11 +91,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenTokenTypeIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenTokenTypeIsEmpty_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), string.Empty, _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), string.Empty, _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("tokenType"));
@@ -104,11 +104,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenTokenTypeIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenTokenTypeIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), " ", _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), " ", _fixture.Create<string>(), _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("tokenType"));
@@ -117,11 +117,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenAccessTokenIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenAccessTokenIsNull_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), _fixture.Create<string>(), null, _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("accessToken"));
@@ -130,11 +130,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenAccessTokenIsEmpty_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenAccessTokenIsEmpty_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), _fixture.Create<string>(), string.Empty, _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), _fixture.Create<string>(), string.Empty, _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("accessToken"));
@@ -143,11 +143,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.Logic.AuthenticationS
 
 		[Test]
 		[Category("UnitTest")]
-		public void PrepareAsync_WhenAccessTokenIsWhiteSpace_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task PrepareAsync_WhenAccessTokenIsWhiteSpace_ThrowsArgumentNullException()
 		{
 			IDictionary<string, string> sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), _fixture.Create<string>(), " ", _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600))));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PrepareAsync(_fixture.Create<string>(), _fixture.Create<string>(), " ", _fixture.Create<string>(), TimeSpan.FromSeconds(_random.Next(60, 3600)))))!;
 
 			// ReSharper disable PossibleNullReferenceException
 			Assert.That(result.ParamName, Is.EqualTo("accessToken"));

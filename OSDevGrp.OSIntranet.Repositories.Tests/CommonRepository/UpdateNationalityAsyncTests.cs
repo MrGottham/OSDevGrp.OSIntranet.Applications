@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void UpdateNationalityAsync_WhenNationalityIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateNationalityAsync_WhenNationalityIsNull_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateNationalityAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateNationalityAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("nationality"));

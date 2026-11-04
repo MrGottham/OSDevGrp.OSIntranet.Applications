@@ -28,44 +28,44 @@ public class GenerateAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentException()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentException()
     {
         ITokenKeyGenerator sut = CreateSut();
 
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>()));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>())))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentExceptionWhereParamNameIsEqualToValues()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentExceptionWhereParamNameIsEqualToValues()
     {
         ITokenKeyGenerator sut = CreateSut();
 
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>()));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>())))!;
 
         Assert.That(result!.ParamName, Is.EqualTo("values"));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentExceptionWithSpecificMessage()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentExceptionWithSpecificMessage()
     {
         ITokenKeyGenerator sut = CreateSut();
 
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>()));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>())))!;
 
         Assert.That(result!.Message, Does.StartWith("The given collection does not contain any items."));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentExceptionWhereInnerExceptionIsNull()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenValuesIsEmpty_ThrowsArgumentExceptionWhereInnerExceptionIsNull()
     {
         ITokenKeyGenerator sut = CreateSut();
 
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>()));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<string>())))!;
 
         Assert.That(result!.InnerException, Is.Null);
     }

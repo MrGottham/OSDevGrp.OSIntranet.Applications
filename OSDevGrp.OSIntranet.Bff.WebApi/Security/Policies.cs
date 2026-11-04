@@ -8,6 +8,7 @@ internal static class Policies
     internal const string Accounting = "Accounting";
     internal const string AccountingCreator = "AccountingCreator";
     internal const string AccountingViewer = "AccountingViewer";
+    internal const string AccountingModifier = "AccountingModifier";
 
     #endregion
 }

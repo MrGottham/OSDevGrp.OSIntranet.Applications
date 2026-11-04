@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void CreatePostalCodeAsync_WhenPostalCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreatePostalCodeAsync_WhenPostalCodeIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreatePostalCodeAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreatePostalCodeAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("postalCode"));
         }

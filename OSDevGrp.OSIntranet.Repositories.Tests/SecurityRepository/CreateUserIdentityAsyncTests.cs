@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.SecurityRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void CreateUserIdentityAsync_WhenUserIdentityIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateUserIdentityAsync_WhenUserIdentityIsNull_ThrowsArgumentNullException()
         {
             ISecurityRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateUserIdentityAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateUserIdentityAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("userIdentity"));
         }

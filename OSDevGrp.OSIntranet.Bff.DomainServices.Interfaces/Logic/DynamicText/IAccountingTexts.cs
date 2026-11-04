@@ -39,4 +39,6 @@ public interface IAccountingTexts : IDynamicTexts
     IChartOfContactAccountsDisplayer ChartOfContactAccounts { get; }
 
     IPostingLineCollectionTexts PostingLineCollection { get; }
+
+    IPostingJournalTexts PostingJournal { get; }
 }

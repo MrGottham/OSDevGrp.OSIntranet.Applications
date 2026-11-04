@@ -25,22 +25,22 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.ExportDataContentBuilderBase
 
         [Test]
         [Category("UnitTest")]
-        public void WithContentAsync_WhenQueryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task WithContentAsync_WhenQueryIsNull_ThrowsArgumentNullException()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, object>(null, _fixture.Create<object>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, object>(null, _fixture.Create<object>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("query"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void WithContentAsync_WhenDataIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task WithContentAsync_WhenDataIsNull_ThrowsArgumentNullException()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, object>(CreateExportQuery(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, object>(CreateExportQuery(), null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("data"));
         }

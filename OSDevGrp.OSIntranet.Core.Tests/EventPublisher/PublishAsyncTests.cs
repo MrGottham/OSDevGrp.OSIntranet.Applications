@@ -10,11 +10,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.EventPublisher
     {
         [Test]
         [Category("UnitTest")]
-        public void PublishAsync_WhenEventHandlerIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task PublishAsync_WhenEventHandlerIsNull_ThrowsArgumentNullException()
         {
             IEventPublisher sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PublishAsync<TestEvent>(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.PublishAsync<TestEvent>(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("e"));

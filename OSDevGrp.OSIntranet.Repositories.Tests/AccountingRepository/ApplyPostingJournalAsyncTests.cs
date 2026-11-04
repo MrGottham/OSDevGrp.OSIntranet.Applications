@@ -28,11 +28,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenPostingJournalIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenPostingJournalIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyPostingJournalAsync(null, _fixture.BuildPostingWarningCalculatorMock().Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyPostingJournalAsync(null, _fixture.BuildPostingWarningCalculatorMock().Object)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("postingJournal"));
@@ -41,11 +41,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournalAsync_WhenPostingWarningCalculatorIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ApplyPostingJournalAsync_WhenPostingWarningCalculatorIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyPostingJournalAsync(_fixture.BuildPostingJournalMock().Object, null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyPostingJournalAsync(_fixture.BuildPostingJournalMock().Object, null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("postingWarningCalculator"));

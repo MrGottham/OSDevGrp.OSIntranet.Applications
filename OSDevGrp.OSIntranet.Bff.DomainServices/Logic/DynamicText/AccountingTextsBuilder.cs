@@ -5,20 +5,22 @@ using OSDevGrp.OSIntranet.WebApi.ClientApi;
 
 namespace OSDevGrp.OSIntranet.Bff.DomainServices.Logic.DynamicText;
 
-internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>, IAccountingTexts>, IAccountingTextsBuilder
+internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>>, IAccountingTexts>, IAccountingTextsBuilder
 {
     #region Private variables
 
     private readonly IPostingLineCollectionTextsBuilder _postingLineCollectionTextsBuilder;
+    private readonly IPostingJournalTextsBuilder _postingJournalTextsBuilder;
 
     #endregion
 
     #region Constructor
 
-    public AccountingTextsBuilder(IPostingLineCollectionTextsBuilder postingLineCollectionTextsBuilder, IStaticTextProvider staticTextProvider)
+    public AccountingTextsBuilder(IPostingLineCollectionTextsBuilder postingLineCollectionTextsBuilder, IPostingJournalTextsBuilder postingJournalTextsBuilder, IStaticTextProvider staticTextProvider)
         : base(staticTextProvider)
     {
         _postingLineCollectionTextsBuilder = postingLineCollectionTextsBuilder;
+        _postingJournalTextsBuilder = postingJournalTextsBuilder;
     }
 
     #endregion
@@ -27,7 +29,9 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<Accounting
 
     public Task<IAccountingTexts> BuildAsync(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>> model, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
-        return BuildAsync(Tuple.Create<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>>(model.Item1, model.Item2, [model.Item1.LetterHead]), formatProvider, cancellationToken);
+        ApplyPostingJournalModel emptyPostingJournal = new ApplyPostingJournalModel(model.Item1.Number, []);
+
+        return BuildAsync(Tuple.Create<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>>(model.Item1, model.Item2, emptyPostingJournal, [model.Item1.LetterHead]), formatProvider, cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<IAccountingTexts>> BuildAsync(IEnumerable<Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>>> models, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
@@ -35,7 +39,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<Accounting
         return await Task.WhenAll(models.Select(model => BuildAsync(model, formatProvider, cancellationToken)));
     }
 
-    public override async Task<IAccountingTexts> BuildAsync(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
+    public override async Task<IAccountingTexts> BuildAsync(Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>> model, IFormatProvider formatProvider, CancellationToken cancellationToken = default)
     {
         IValueDisplayer? statusDate = null;
         IValueDisplayer? balanceBelowZero = null;
@@ -56,6 +60,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<Accounting
         IChartOfBudgetAccountsDisplayer? chartOfBudgetAccounts = null;
         IChartOfContactAccountsDisplayer? chartOfContactAccounts = null;
         IPostingLineCollectionTexts? postingLineCollection = null;
+        IPostingJournalTexts? postingJournal = null;
 
         Task buildStatusDateTask = GetStatusDateAsync(model.Item1.StatusDate, "d. MMMM yyyy", formatProvider, cancellationToken).ContinueWith(task => statusDate = task.Result, cancellationToken);
         Task buildBalanceBelowZeroTask = BuildBalanceBelowZeroAsync(model.Item1, formatProvider, cancellationToken).ContinueWith(task => balanceBelowZero = task.Result, cancellationToken);
@@ -76,6 +81,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<Accounting
         Task buildChartOfBudgetAccountsTask = ChartOfBudgetAccountsDisplayer.CreateAsync(StaticTextProvider, model.Item1, formatProvider, cancellationToken).ContinueWith(task => chartOfBudgetAccounts = task.Result, cancellationToken);
         Task buildChartOfContactAccountsTask = ChartOfContactAccountsDisplayer.CreateAsync(StaticTextProvider, model.Item1, formatProvider, cancellationToken).ContinueWith(task => chartOfContactAccounts = task.Result);
         Task buildPostingLineCollectionTask = _postingLineCollectionTextsBuilder.BuildAsync(model.Item2, formatProvider, cancellationToken).ContinueWith(task => postingLineCollection = task.Result, cancellationToken);
+        Task buildPostingJournalTask = _postingJournalTextsBuilder.BuildAsync(Tuple.Create(model.Item3, new Predicate<int>(_ => model.Item1.Modifiable)), formatProvider, cancellationToken).ContinueWith(task => postingJournal = task.Result, cancellationToken);
         await Task.WhenAll(buildStatusDateTask,
             buildBalanceBelowZeroTask,
             buildBackDatingTask,
@@ -94,7 +100,8 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<Accounting
             buildChartOfAccountsTask,
             buildChartOfBudgetAccountsTask,
             buildChartOfContactAccountsTask,
-            buildPostingLineCollectionTask);
+            buildPostingLineCollectionTask,
+            buildPostingJournalTask);
 
         return new AccountingTexts(
             model.Item1,
@@ -117,6 +124,7 @@ internal class AccountingTextsBuilder : DynamicTextsBuilderBase<Tuple<Accounting
             chartOfBudgetAccounts!,
             chartOfContactAccounts!,
             postingLineCollection!,
+            postingJournal!,
             formatProvider);
     }
 

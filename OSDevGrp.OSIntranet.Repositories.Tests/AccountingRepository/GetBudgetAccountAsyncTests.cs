@@ -11,33 +11,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void GetBudgetAccountAsync_WhenAccountNumberIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetBudgetAccountAsync_WhenAccountNumberIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), null, DateTime.Today));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), null, DateTime.Today)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetBudgetAccountAsync_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetBudgetAccountAsync_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), string.Empty, DateTime.Today));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), string.Empty, DateTime.Today)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetBudgetAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetBudgetAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), " ", DateTime.Today));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetBudgetAccountAsync(WithExistingAccountingNumber(), " ", DateTime.Today)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }

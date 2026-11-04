@@ -45,66 +45,66 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void ResolvePostalCode_WhenCalledWithCountryCodeEqualToNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ResolvePostalCode_WhenCalledWithCountryCodeEqualToNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(null, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(null, _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ResolvePostalCode_WhenCalledWithCountryCodeEqualToEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ResolvePostalCode_WhenCalledWithCountryCodeEqualToEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(string.Empty, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(string.Empty, _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ResolvePostalCode_WhenCalledWithCountryCodeEqualToWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ResolvePostalCode_WhenCalledWithCountryCodeEqualToWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(" ", _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(" ", _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ResolvePostalCode_WhenCalledWithPostalCodeEqualToNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ResolvePostalCode_WhenCalledWithPostalCodeEqualToNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(_fixture.Create<string>(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(_fixture.Create<string>(), null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("postalCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ResolvePostalCode_WhenCalledWithPostalCodeEqualToEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ResolvePostalCode_WhenCalledWithPostalCodeEqualToEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(_fixture.Create<string>(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(_fixture.Create<string>(), string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("postalCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ResolvePostalCode_WhenCalledWithPostalCodeEqualToWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ResolvePostalCode_WhenCalledWithPostalCodeEqualToWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(_fixture.Create<string>(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ResolvePostalCode(_fixture.Create<string>(), " ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("postalCode"));
         }

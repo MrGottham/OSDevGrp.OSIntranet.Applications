@@ -28,9 +28,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 		[Test]
 		[Category("UnitTest")]
-		public void IsExistingTitleAsync_WhenMediaDataCommandIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task IsExistingTitleAsync_WhenMediaDataCommandIsNull_ThrowsArgumentNullException()
 		{
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(null, CreateMediaLibraryRepository<IMedia>()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(null, CreateMediaLibraryRepository<IMedia>())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("mediaDataCommand"));
@@ -38,9 +38,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaDataCo
 
 		[Test]
 		[Category("UnitTest")]
-		public void IsExistingTitleAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task IsExistingTitleAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
 		{
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(CreateMediaDataCommand<IMedia>(), null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaDataCommandExtensions.IsExistingTitleAsync<IMediaDataCommand<IMedia>, IMedia>(CreateMediaDataCommand<IMedia>(), null)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("mediaLibraryRepository"));

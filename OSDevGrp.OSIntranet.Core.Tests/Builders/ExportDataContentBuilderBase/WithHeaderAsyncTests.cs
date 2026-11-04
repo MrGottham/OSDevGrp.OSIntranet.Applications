@@ -12,11 +12,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.ExportDataContentBuilderBase
     {
         [Test]
         [Category("UnitTest")]
-        public void WithHeaderAsync_WhenQueryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task WithHeaderAsync_WhenQueryIsNull_ThrowsArgumentNullException()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithHeaderAsync<IExportQuery>(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithHeaderAsync<IExportQuery>(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("query"));
         }

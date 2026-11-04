@@ -11,33 +11,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void DeleteAccountAsync_WhenAccountNumberIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteAccountAsync_WhenAccountNumberIsNull_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccountAsync(WithExistingAccountingNumber(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccountAsync(WithExistingAccountingNumber(), null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteAccountAsync_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteAccountAsync_WhenAccountNumberIsEmpty_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccountAsync(WithExistingAccountingNumber(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccountAsync(WithExistingAccountingNumber(), string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteAccountAsync_WhenAccountNumberIsWhiteSpace_ThrowsArgumentNullException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccountAsync(WithExistingAccountingNumber(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteAccountAsync(WithExistingAccountingNumber(), " ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accountNumber"));
         }

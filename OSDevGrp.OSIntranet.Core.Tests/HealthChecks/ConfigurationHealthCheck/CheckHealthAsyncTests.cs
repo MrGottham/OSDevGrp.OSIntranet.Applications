@@ -36,12 +36,12 @@ namespace OSDevGrp.OSIntranet.Core.Tests.HealthChecks.ConfigurationHealthCheck
 
         [Test]
         [Category("UnitTest")]
-        public void CheckHealthAsync_WhenContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CheckHealthAsync_WhenContextIsNull_ThrowsArgumentNullException()
         {
             IHealthCheck sut = CreateSut();
 
             // ReSharper disable AssignNullToNotNullAttribute
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CheckHealthAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CheckHealthAsync(null)))!;
             // ReSharper restore AssignNullToNotNullAttribute
 
             // ReSharper disable PossibleNullReferenceException

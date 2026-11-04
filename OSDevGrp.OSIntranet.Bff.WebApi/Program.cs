@@ -125,7 +125,7 @@ authenticationBuilder.AddOpenIdConnect(options =>
     options.SaveTokens = true;
     options.ResponseType = OpenIdConnectResponseType.Code;
     options.UsePkce = true;
-    options.UseTokenLifetime = true;
+    options.UseTokenLifetime = false;
     options.GetClaimsFromUserInfoEndpoint = true; 
     options.MapInboundClaims = true;
     options.Scope.Clear();
@@ -141,7 +141,7 @@ authenticationBuilder.AddOpenIdConnect(options =>
 
         string tokenType = context.TokenEndpointResponse!.TokenType;
         string accessToken = context.TokenEndpointResponse!.AccessToken;
-        DateTimeOffset expires = new DateTimeOffset(context.SecurityToken.ValidTo, TimeSpan.Zero);
+        DateTimeOffset expires = AccessTokenExpirationResolver.Resolve(context.TokenEndpointResponse.ExpiresIn, timeProvider);
         IToken token = new LocalToken(tokenType, accessToken, expires, timeProvider);
 
         ITokenStorage tokenStorage = context.HttpContext.RequestServices.GetRequiredService<ITokenStorage>();
@@ -197,6 +197,16 @@ applicationBuilder.Services.AddAuthorization(options =>
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
         policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingViewerClaimType);
     });
+    options.AddPolicy(Policies.AccountingModifier, policy =>
+    {
+        policy.AddAuthenticationSchemes(Schemes.Internal);
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim(ClaimTypes.NameIdentifier);
+        policy.RequireClaim(ClaimTypes.Name);
+        policy.RequireClaim(ClaimTypes.Email);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingClaimType);
+        policy.RequireClaim(OSDevGrp.OSIntranet.Bff.DomainServices.Security.ClaimTypes.AccountingModifierClaimType);
+    });
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -204,12 +214,10 @@ applicationBuilder.Services.AddOpenApi(ProgramHelper.GetOpenApiDocumentName(), o
 {
     options.AddDocumentTransformer((document, _, _) => 
     {
-        document.Info = new Microsoft.OpenApi.OpenApiInfo
-        {
-            Title = ProgramHelper.GetTitle(),
-            Version = "v1",
-            Description = ProgramHelper.GetDescription()
-        };
+        document.Info ??= new();
+        document.Info.Title = ProgramHelper.GetTitle();
+        document.Info.Version = "v1";
+        document.Info.Description = ProgramHelper.GetDescription();
         return Task.CompletedTask;
     });
 });

@@ -58,66 +58,66 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void LoadContact_WhenExternalIdentifierIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task LoadContact_WhenExternalIdentifierIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(null, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(null, _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void LoadContact_WhenExternalIdentifierIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task LoadContact_WhenExternalIdentifierIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(string.Empty, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(string.Empty, _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void LoadContact_WhenExternalIdentifierIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task LoadContact_WhenExternalIdentifierIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(" ", _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(" ", _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("externalIdentifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void LoadContact_WhenCountryCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task LoadContact_WhenCountryCodeIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(_fixture.Create<string>(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(_fixture.Create<string>(), null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void LoadContact_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task LoadContact_WhenCountryCodeIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(_fixture.Create<string>(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(_fixture.Create<string>(), string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void LoadContact_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task LoadContact_WhenCountryCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(_fixture.Create<string>(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.LoadContact(_fixture.Create<string>(), " ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryCode"));
         }

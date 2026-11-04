@@ -39,7 +39,7 @@ internal class CaptchaGenerator : ICaptchaGenerator
     private static Image<Rgba32> CreateImage(int width, int height)
     {
         Image<Rgba32> image = new Image<Rgba32>(width, height);
-        image.Mutate(context => context.Fill(Color.LightSkyBlue));
+        image.Mutate(context => context.Paint(canvas => canvas.Fill(Brushes.Solid(Color.LightSkyBlue))));
         return image;
     }
 
@@ -47,33 +47,41 @@ internal class CaptchaGenerator : ICaptchaGenerator
     {
         image.Mutate(context =>
         {
-            for (int i = 0; i < noiseLines; i++)
+            context.Paint(canvas =>
             {
-                Point startingPoint = new Point(RandomNumberGenerator.GetInt32(0, image.Width + 1), RandomNumberGenerator.GetInt32(0, image.Height + 1));
-                Point endingPoint = new Point(RandomNumberGenerator.GetInt32(startingPoint.X, image.Width + 1), RandomNumberGenerator.GetInt32(startingPoint.Y, image.Height + 1));
-                context.DrawLine(Color.WhiteSmoke.WithAlpha(0.5f), 2, startingPoint, endingPoint);
-            }
+                for (int i = 0; i < noiseLines; i++)
+                {
+                    Point startingPoint = new Point(RandomNumberGenerator.GetInt32(0, image.Width + 1), RandomNumberGenerator.GetInt32(0, image.Height + 1));
+                    Point endingPoint = new Point(RandomNumberGenerator.GetInt32(startingPoint.X, image.Width + 1), RandomNumberGenerator.GetInt32(startingPoint.Y, image.Height + 1));
+                    canvas.DrawLine(Pens.Solid(Color.WhiteSmoke.WithAlpha(0.5f), 2), startingPoint, endingPoint);
+                }
+            });
         });
     }
 
     private static void AddCode(Image<Rgba32> image, string code, Font font)
     {
-        TextMeasurer.TryMeasureCharacterSizes(code, new TextOptions(font), out ReadOnlySpan<GlyphBounds> characterSizes);
-        float maxWidth = characterSizes.ToArray().Max(c => c.Bounds.Width) + 10;
-        float maxHeight = characterSizes.ToArray().Max(c => c.Bounds.Height) + 20;
+        TextOptions textOptions = new TextOptions(font);
+        FontRectangle[] characterBounds = code.Select(character => TextMeasurer.MeasureBounds(character.ToString(), textOptions)).ToArray();
+        float maxWidth = characterBounds.Max(bounds => bounds.Width) + 10;
+        float maxHeight = characterBounds.Max(bounds => bounds.Height) + 20;
 
         float minX = Math.Max(0, (image.Width - (maxWidth * code.Length)) / 2);
         float minY = Math.Max(0, (image.Height - maxHeight) / 2);
 
-        image.Mutate(conntext =>
+        image.Mutate(context => context.Paint(canvas =>
         {
             for (int i = 0; i < code.Length; i++)
             {
                 float x = minX + (i * maxWidth) + RandomNumberGenerator.GetInt32(0, 11);
                 float y = minY + RandomNumberGenerator.GetInt32(0, 21);
-                conntext.DrawText(code[i].ToString(), font, Color.DarkGray.WithAlpha(0.8f), new PointF(x, y));
+                RichTextOptions richTextOptions = new RichTextOptions(font)
+                {
+                    Origin = new PointF(x, y)
+                };
+                canvas.DrawText(richTextOptions, code.AsSpan(i, 1), Brushes.Solid(Color.DarkGray.WithAlpha(0.8f)), null);
             }
-        });
+        }));
     }
 
     #endregion

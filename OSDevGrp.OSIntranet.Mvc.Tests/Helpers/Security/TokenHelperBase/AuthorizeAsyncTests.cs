@@ -48,11 +48,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(null, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(null, _fixture.Create<string>())))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
@@ -60,11 +60,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenReturnUrlIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenReturnUrlIsNull_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(CreateHttpContext(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(CreateHttpContext(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("returnUrl"));
@@ -72,11 +72,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenReturnUrlIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenReturnUrlIsEmpty_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(CreateHttpContext(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(CreateHttpContext(), string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("returnUrl"));
@@ -84,11 +84,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperBase
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenReturnUrlIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenReturnUrlIsWhiteSpace_ThrowsArgumentNullException()
         {
             ITokenHelper sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(CreateHttpContext(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(CreateHttpContext(), " ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("returnUrl"));

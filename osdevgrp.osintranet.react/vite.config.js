@@ -3,6 +3,7 @@ import plugin from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 import child_process from 'child_process';
+import process from 'process';
 
 function buildServerProxy(target) {
     return {
@@ -52,24 +53,26 @@ function buildServerHttps(env) {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
 
-    const bffEndpoint = env.VITE_BFF_ENDPOINT;
-    if (bffEndpoint === undefined || bffEndpoint === null) {
-        throw new Error('Endpoint to the Backend for Frontend application is not defined.');
-    }
+    const server = {
+        port: buildServerPort(env)
+    };
 
-    const serverProxy = buildServerProxy(bffEndpoint);
-    const serverPort = buildServerPort(env);
+    if (command === 'serve') {
+        const bffEndpoint = env.VITE_BFF_ENDPOINT;
+        if (bffEndpoint === undefined || bffEndpoint === null || bffEndpoint.trim() === '') {
+            throw new Error('Endpoint to the Backend for Frontend application is not defined.');
+        }
+
+        server.proxy = buildServerProxy(bffEndpoint);
+    }
 
     if (/^true$/i.test(env.RUNNING_IN_CONTAINER)) {
         return {
             plugins: [plugin()],
-            server: {
-                proxy: serverProxy,
-                port: serverPort
-            }
+            server
         }
     }
 
@@ -78,8 +81,7 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [plugin()],
         server: {
-            proxy: serverProxy,
-            port: serverPort,
+            ...server,
             https: serverHttps,
             cors: {
                 "origin": "https://localhost:5003",

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,11 +18,18 @@ function Accountings() {
     const accountingService = useContext(ServiceContext).accountingService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [content, setContent] = useState();
+    const populateContent = useCallback(async () => {
+        const json = await accountingService.getAccountings();
+        setContent(json);
+    }, [accountingService]);
 
     useEffect(() => {
-        populateContent()
-            .catch(error => showBoundary(error));
-    }, []);
+        async function fetchContent() {
+            populateContent()
+                .catch(error => showBoundary(error));
+        }
+        fetchContent();
+    }, [populateContent, showBoundary]);
 
     if (content === undefined) {
         return (
@@ -71,11 +78,6 @@ function Accountings() {
                 <AccountingCard accounting={accounting} />
             </Col>
         );
-    }
-
-    async function populateContent() {
-        const json = await accountingService.getAccountings();
-        setContent(json);
     }
 }
 

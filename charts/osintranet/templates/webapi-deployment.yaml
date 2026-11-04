@@ -1,0 +1,173 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-webapi-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.deployments.webapi.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-webapi-selector
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-webapi-selector
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-webapi
+          image: {{ .Values.deployments.webapi.containerImage }}
+          imagePullPolicy: {{ .Values.deployments.webapi.containerImagePullPolicy }}
+          ports:
+            - name: {{ .Values.deployments.webapi.containerPortName }}
+              containerPort: {{ .Values.deployments.webapi.containerPort }}
+              protocol: TCP
+          env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: TZ
+            - name: DOTNET_RUNNING_IN_CONTAINER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: RUNNING_IN_CONTAINER
+            - name: ASPNETCORE_HTTP_PORTS
+              value: {{ .Values.deployments.webapi.containerPort | quote }}
+            - name: NON_ROOT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: NON_ROOT_USER
+            - name: SUDO_ASKPASS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: SUDO_ASKPASS
+            - name: connectionStrings__OSIntranet
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: connectingStringWebApi
+            - name: Security__JWT__Key__kty
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyKty
+            - name: Security__JWT__Key__n
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyN
+            - name: Security__JWT__Key__e
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyE
+            - name: Security__JWT__Key__d
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyD
+            - name: Security__JWT__Key__dp
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyDP
+            - name: Security__JWT__Key__dq
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyDQ
+            - name: Security__JWT__Key__p
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyP
+            - name: Security__JWT__Key__q
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyQ
+            - name: Security__JWT__Key__qi
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityJwtKeyQI
+            - name: Security__JWT__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: securityJwtIssuer
+            - name: Security__JWT__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: securityJwtAudience
+            - name: Security__Microsoft__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityMicrosoftClientId
+            - name: Security__Microsoft__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityMicrosoftClientSecret
+            - name: Security__Google__ClientId
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityGoogleClientId
+            - name: Security__Google__ClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityGoogleClientSecret
+            - name: Security__TrustedDomainCollection
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: securityTrustedDomainCollectionWebApi
+            - name: Security__AcmeChallenge__WellKnownChallengeToken
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityAcmeChallengeWellKnownChallengeTokenWebApi
+            - name: Security__AcmeChallenge__ConstructedKeyAuthorization
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: securityAcmeChallengeConstructedKeyAuthorizationWebApi
+            - name: Licenses__AutoMapper__LicenseKey
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: licensesAutoMapperLicenseKey
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.deployments.webapi.containerPort }}
+              path: {{ .Values.deployments.webapi.healthCheck.endpoint }}
+            periodSeconds: {{ .Values.deployments.webapi.healthCheck.readinessProbe.checkInterval }}
+            timeoutSeconds: {{ .Values.deployments.webapi.healthCheck.readinessProbe.timeout }}
+            successThreshold: {{ .Values.deployments.webapi.healthCheck.readinessProbe.successThreshold }}
+            failureThreshold:  {{ .Values.deployments.webapi.healthCheck.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.deployments.webapi.containerPort }}
+              path: {{ .Values.deployments.webapi.healthCheck.endpoint }}
+            periodSeconds: {{ .Values.deployments.webapi.healthCheck.livenessProbe.checkInterval }}
+            timeoutSeconds: {{ .Values.deployments.webapi.healthCheck.livenessProbe.timeout }}
+            successThreshold: {{ .Values.deployments.webapi.healthCheck.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployments.webapi.healthCheck.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              scheme: HTTP
+              port: {{ .Values.deployments.webapi.containerPort }}
+              path: {{ .Values.deployments.webapi.healthCheck.endpoint }}
+            periodSeconds: {{ .Values.deployments.webapi.healthCheck.startupProbe.checkInterval }}
+            timeoutSeconds: {{ .Values.deployments.webapi.healthCheck.startupProbe.timeout }}
+            successThreshold: {{ .Values.deployments.webapi.healthCheck.startupProbe.successThreshold }}
+            failureThreshold:  {{ .Values.deployments.webapi.healthCheck.startupProbe.failureThreshold }}

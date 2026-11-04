@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  TZ: {{ .Values.infrastructure.dotnet.TZ }}
+  RUNNING_IN_CONTAINER: {{ .Values.infrastructure.images.RUNNING_IN_CONTAINER | quote }}
+  NON_ROOT_USER: {{ .Values.infrastructure.images.NON_ROOT_USER }}
+  SUDO_ASKPASS: {{ .Values.infrastructure.images.SUDO_ASKPASS }}
+  securityJwtIssuer: {{ required "settings.security.jwt.issuer is required" .Values.settings.security.jwt.issuer | quote }}
+  securityJwtAudience: {{ required "settings.security.jwt.audience is required" .Values.settings.security.jwt.audience | quote }}
+  securityOidcAuthorityMvc: {{ required "settings.security.oidc.mvc.authority is required" .Values.settings.security.oidc.mvc.authority | quote }}
+  securityOidcAuthorityBff: {{ required "settings.security.oidc.bff.authority is required" .Values.settings.security.oidc.bff.authority | quote }}
+  securityCorsOriginCollectionBff: {{ .Values.settings.security.cors.originCollection.bff }}
+  securityTrustedDomainCollectionWebApi: {{ .Values.settings.security.trustedDomainCollection.webapi }}
+  securityTrustedDomainCollectionMvc: {{ .Values.settings.security.trustedDomainCollection.mvc }}
+  securityTrustedDomainCollectionBff: {{ .Values.settings.security.trustedDomainCollection.bff }}
+  licensesAutoMapperLicenseKey: {{ required "settings.licenses.autoMapper.licenseKey is required" .Values.settings.licenses.autoMapper.licenseKey | quote }}
+  externalDataDashboardEndpointAddress: {{ .Values.settings.externalData.dashboard.endpointAddress }}
+  serviceGatewaysWebApiEndpointAddress: {{ .Values.settings.serviceGateway.webapi.endpointAddress }}
+  bffEndpointMappings: {{ .Values.deployments.react.bffEndpointMappings | toJson | quote}}

@@ -39,7 +39,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.ExportDataContentBuilderBase
 
         [Test]
         [Category("UnitTest")]
-        public void Dispose_WhenCalled_AssertWriterHasBeenDisposed()
+        public async System.Threading.Tasks.Task Dispose_WhenCalled_AssertWriterHasBeenDisposed()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
@@ -47,7 +47,7 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.ExportDataContentBuilderBase
 
             sut.Dispose();
 
-            Assert.ThrowsAsync<ObjectDisposedException>(async () => await writer.WriteAsync(_fixture.Create<string>()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(async () => await writer.WriteAsync(_fixture.Create<string>()));
         }
 
         private IExportDataContentBuilder CreateSut()

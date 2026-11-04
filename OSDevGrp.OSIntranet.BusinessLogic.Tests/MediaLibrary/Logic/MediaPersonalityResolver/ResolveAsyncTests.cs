@@ -31,9 +31,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaPerson
 
 		[Test]
 		[Category("UnitTest")]
-		public void ResolveAsync_WhenMediaPersonalityIdentifiersIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task ResolveAsync_WhenMediaPersonalityIdentifiersIsNull_ThrowsArgumentNullException()
 		{
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaPersonalityResolver.ResolveAsync(null, CreateMediaLibraryRepository()));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaPersonalityResolver.ResolveAsync(null, CreateMediaLibraryRepository())))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("mediaPersonalityIdentifiers"));
@@ -41,9 +41,9 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Logic.MediaPerson
 
 		[Test]
 		[Category("UnitTest")]
-		public void ResolveAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task ResolveAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
 		{
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaPersonalityResolver.ResolveAsync(CreateMediaPersonalityIdentifiers(), null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await BusinessLogic.MediaLibrary.Logic.MediaPersonalityResolver.ResolveAsync(CreateMediaPersonalityIdentifiers(), null)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("mediaLibraryRepository"));

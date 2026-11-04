@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.CommonRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void CreateLetterHeadAsync_WhenLetterHeadIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateLetterHeadAsync_WhenLetterHeadIsNull_ThrowsArgumentNullException()
         {
             ICommonRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateLetterHeadAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateLetterHeadAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("letterHead"));

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
@@ -12,11 +12,18 @@ function AccessDenied() {
     const securityService = useContext(ServiceContext).securityService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
     const [accessDeniedContent, setAccessDeniedContent] = useState();
+    const populateAccessDeniedContent = useCallback(async () => {
+        const json = await securityService.getAccessDeniedContent();
+        setAccessDeniedContent(json);
+    }, [securityService]);
 
     useEffect(() => {
-        populateAccessDeniedContent()
-            .catch(error => showBoundary(error));
-    }, []);
+        async function fetchAccessDeniedContent() {
+            populateAccessDeniedContent()
+                .catch(error => showBoundary(error));
+        }
+        fetchAccessDeniedContent();
+    }, [populateAccessDeniedContent, showBoundary]);
 
     if (accessDeniedContent === undefined) {
         return (
@@ -38,11 +45,6 @@ function AccessDenied() {
             <p>{staticTextHelper.getCheckYourCredentialsText(accessDeniedContent.staticTexts)}</p>
         </Alert>
     );
-
-    async function populateAccessDeniedContent() {
-        const json = await securityService.getAccessDeniedContent();
-        setAccessDeniedContent(json);
-    }
 }
 
 export default AccessDenied;

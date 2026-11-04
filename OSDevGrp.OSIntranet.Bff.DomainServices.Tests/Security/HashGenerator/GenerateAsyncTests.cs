@@ -24,48 +24,48 @@ public class GenerateAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentException()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentException()
     {
         using IHashGenerator sut = CreateSut();
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token)))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentExceptionWhereParamNameIsEqualToData()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentExceptionWhereParamNameIsEqualToData()
     {
         using IHashGenerator sut = CreateSut();
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token)))!;
 
         Assert.That(result!.ParamName, Is.EqualTo("buffer"));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentExceptionWithSpecificMessage()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentExceptionWithSpecificMessage()
     {
         using IHashGenerator sut = CreateSut();
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token)))!;
 
         Assert.That(result!.Message, Does.StartWith("The buffer is empty."));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentExceptionWhereInnerExceptionIsNull()
+    public async System.Threading.Tasks.Task GenerateAsync_WhenBufferIsEmpty_ThrowsArgumentExceptionWhereInnerExceptionIsNull()
     {
         using IHashGenerator sut = CreateSut();
 
         using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        ArgumentException? result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token));
+        ArgumentException? result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.GenerateAsync(Array.Empty<byte>(), cancellationTokenSource.Token)))!;
 
         Assert.That(result!.InnerException, Is.Null);
     }

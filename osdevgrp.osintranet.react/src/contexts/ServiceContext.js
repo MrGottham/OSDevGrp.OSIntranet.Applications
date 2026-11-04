@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, createElement } from 'react';
 import HomeService from '../services/HomeService';
 import AccountingService from '../services/AccountingService';
 import AuthenticateService from '../services/AuthenticateService';
@@ -13,10 +13,9 @@ const services = {
 
 const ServiceContext = createContext();
 
+// createElement instead of JSX because this file is .js, so the react-refresh rule only checks .jsx components.
 function ServiceProvider({ children }) {
-    return (
-        <ServiceContext.Provider value={ services }>{children}</ServiceContext.Provider>
-    )
+    return createElement(ServiceContext.Provider, { value: services }, children);
 }
 
-export { ServiceContext, ServiceProvider }
+export { ServiceContext, ServiceProvider };

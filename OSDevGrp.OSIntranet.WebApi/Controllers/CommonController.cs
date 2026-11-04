@@ -16,8 +16,8 @@ using System.Threading.Tasks;
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
 {
 	[Authorize(Policy = Policies.CommonDataPolicy)]
+    [ApiController]
     [ApiVersion("1.0")]
-    [ApiVersionNeutral]
     [Route("api/[controller]")]
     public class CommonController : ControllerBase
     {

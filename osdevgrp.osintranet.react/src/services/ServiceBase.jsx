@@ -1,3 +1,5 @@
+import { getBffEndpoint } from '../config/RuntimeConfiguration';
+
 export default class ServiceBase {
     #bffEndpoint = null;
 
@@ -6,12 +8,7 @@ export default class ServiceBase {
             return;
         }
 
-        const bffEndpoint = import.meta.env.VITE_BFF_ENDPOINT;
-        if (bffEndpoint === undefined || bffEndpoint === null) {
-            throw new Error('Endpoint to the Backend for Frontend application is not defined.');
-        }
-
-        this.#bffEndpoint = bffEndpoint;
+        this.#bffEndpoint = getBffEndpoint(window.location.hostname);
     }
 
     resolveEndpoint(path) {
@@ -25,6 +22,21 @@ export default class ServiceBase {
     generateContentTypeHeaderForJson() {
         return {
             'Content-Type': 'application/json; charset=utf-8' 
+        };
+    }
+
+    generateVerificationHeaders(verificationKey, verificationCode) {
+        if (verificationKey === undefined || verificationKey === null || verificationKey.trim() === '') {
+            throw new Error('Verification key is required.');
+        }
+
+        if (verificationCode === undefined || verificationCode === null || verificationCode.trim() === '') {
+            throw new Error('Verification code is required.');
+        }
+
+        return {
+            'X-Verification-Key': verificationKey,
+            'X-Verification-Code': verificationCode
         };
     }
 

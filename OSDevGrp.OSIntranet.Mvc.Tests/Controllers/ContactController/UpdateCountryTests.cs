@@ -44,33 +44,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateCountry_WhenCalledWithCodeWhereCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateCountry_WhenCalledWithCodeWhereCodeIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry((string) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry((string) null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateCountry_WhenCalledWithCodeWhereCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateCountry_WhenCalledWithCodeWhereCodeIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateCountry_WhenCalledWithCodeWhereCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateCountry_WhenCalledWithCodeWhereCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
@@ -136,11 +136,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void UpdateCountry_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateCountry_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry((CountryViewModel) null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountry((CountryViewModel) null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("countryViewModel"));
         }

@@ -26,11 +26,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Converters.DomainObjectToMarkdownConver
 
         [Test]
         [Category("UnitTest")]
-        public void ConvertAsync_WhenDomainObjectIsNull_ArgumentNullException()
+        public async System.Threading.Tasks.Task ConvertAsync_WhenDomainObjectIsNull_ArgumentNullException()
         {
             IDomainObjectToMarkdownConverter<object> sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("domainObject"));

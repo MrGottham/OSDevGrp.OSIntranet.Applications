@@ -36,11 +36,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Accounting.Logic.AccountingToM
 
         [Test]
         [Category("UnitTest")]
-        public void ConvertAsync_WhenAccountingIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ConvertAsync_WhenAccountingIsNull_ThrowsArgumentNullException()
         {
             IAccountingToMarkdownConverter sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ConvertAsync(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("domainObject"));

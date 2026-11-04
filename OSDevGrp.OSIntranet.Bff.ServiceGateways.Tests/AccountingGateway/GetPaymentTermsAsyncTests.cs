@@ -36,7 +36,7 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
 
         await sut.GetPaymentTermsAsync();
 
-        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -48,7 +48,7 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
         CancellationToken cancellationToken = CancellationToken.None;
         await sut.GetPaymentTermsAsync(cancellationToken);
 
-        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
+        _webApiClientMock!.Verify(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.Is<CancellationToken>(value => value == cancellationToken)), Times.Once);
     }
 
     [Test]
@@ -65,24 +65,24 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetPaymentTermsAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPaymentTermsAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetPaymentTermsAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPaymentTermsAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPaymentTermsAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
@@ -108,12 +108,12 @@ public class GetPaymentTermsAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PaymenttermsAsync(It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(paymentTermModels ?? CreatePaymentTermModels()));
         }
 

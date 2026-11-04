@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void CreateOrUpdateContactSupplementAsync_WhenContactIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateOrUpdateContactSupplementAsync_WhenContactIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateOrUpdateContactSupplementAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateOrUpdateContactSupplementAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("contact"));
         }

@@ -28,56 +28,56 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactory
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), null, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), null, _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenReturnUrlIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenReturnUrlIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), CreateHttpContext(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), CreateHttpContext(), null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("returnUrl"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenReturnUrlIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenReturnUrlIsEmpty_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), CreateHttpContext(), string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), CreateHttpContext(), string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("returnUrl"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenReturnUrlIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenReturnUrlIsWhiteSpace_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), CreateHttpContext(), " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.AuthorizeAsync(_fixture.Create<TokenType>(), CreateHttpContext(), " ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("returnUrl"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AuthorizeAsync_WhenCalledWithUnsupportedTokenType_ThrowsNotSupportedException()
+        public async System.Threading.Tasks.Task AuthorizeAsync_WhenCalledWithUnsupportedTokenType_ThrowsNotSupportedException()
         {
             ITokenHelperFactory sut = CreateSut();
 
             TokenType tokenType = _fixture.Create<TokenType>();
-            NotSupportedException result = Assert.ThrowsAsync<NotSupportedException>(async () => await sut.AuthorizeAsync(tokenType, CreateHttpContext(), _fixture.Create<string>()));
+            NotSupportedException result = (await Assert.ThrowsAsync<NotSupportedException>(async () => await sut.AuthorizeAsync(tokenType, CreateHttpContext(), _fixture.Create<string>())))!;
 
             Assert.That(result.Message, Is.EqualTo($"The token type '{tokenType}' is not supported within the method 'AuthorizeAsync'."));
         }

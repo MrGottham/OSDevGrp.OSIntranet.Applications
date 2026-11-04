@@ -11,33 +11,33 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void GetCountryAsync_WhenCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetCountryAsync_WhenCodeIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetCountryAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetCountryAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetCountryAsync_WhenCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetCountryAsync_WhenCodeIsEmpty_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetCountryAsync(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetCountryAsync(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void GetCountryAsync_WhenCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task GetCountryAsync_WhenCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetCountryAsync(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.GetCountryAsync(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }

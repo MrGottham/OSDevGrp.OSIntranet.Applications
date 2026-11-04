@@ -41,11 +41,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateBudgetAccount_WhenBudgetAccountViewModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateBudgetAccount_WhenBudgetAccountViewModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateBudgetAccount(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateBudgetAccount(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("budgetAccountViewModel"));
@@ -54,11 +54,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateBudgetAccount_WhenBudgetAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInternalError()
+        public async System.Threading.Tasks.Task CreateBudgetAccount_WhenBudgetAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereErrorCodeIsEqualToInternalError()
         {
             Controller sut = CreateSut(false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateBudgetAccount(CreateBudgetAccountViewModel()));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateBudgetAccount(CreateBudgetAccountViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.InternalError));
@@ -67,12 +67,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateBudgetAccount_WhenBudgetAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereMessageEndsWithErrorMessagesFromModelState()
+        public async System.Threading.Tasks.Task CreateBudgetAccount_WhenBudgetAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereMessageEndsWithErrorMessagesFromModelState()
         {
             string errorMessage = _fixture.Create<string>();
             Controller sut = CreateSut(false, errorMessage: errorMessage);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateBudgetAccount(CreateBudgetAccountViewModel()));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateBudgetAccount(CreateBudgetAccountViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.EndsWith(errorMessage), Is.True);
@@ -81,11 +81,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateBudgetAccount_WhenBudgetAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task CreateBudgetAccount_WhenBudgetAccountViewModelIsInvalid_ThrowsIntranetSystemExceptionWhereInnerExceptionIsNull()
         {
             Controller sut = CreateSut(false);
 
-            IntranetSystemException result = Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateBudgetAccount(CreateBudgetAccountViewModel()));
+            IntranetSystemException result = (await Assert.ThrowsAsync<IntranetSystemException>(async () => await sut.CreateBudgetAccount(CreateBudgetAccountViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);

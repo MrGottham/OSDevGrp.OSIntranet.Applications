@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.ContactRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void UpdateCountryAsync_WhenCountryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task UpdateCountryAsync_WhenCountryIsNull_ThrowsArgumentNullException()
         {
             IContactRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountryAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateCountryAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("country"));
         }

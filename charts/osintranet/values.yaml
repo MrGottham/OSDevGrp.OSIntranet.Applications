@@ -1,0 +1,162 @@
+settings:
+  connectionStrings:
+    webapi: ''
+    mvc: ''
+  security:
+    jwt:
+      key:
+        kty: ''
+        n_value: ''
+        e_value: ''
+        d_value: ''
+        dp_value: ''
+        dq_value: ''
+        p_value: ''
+        q_value: ''
+        qi_value: ''
+      issuer: ''
+      audience: ''
+    oidc:
+      mvc:
+        authority: ''
+        clientId: ''
+        clientSecret: ''
+      bff:
+        authority: ''
+        clientId: ''
+        clientSecret: ''
+    microsoft:
+      clientId: ''
+      clientSecret: ''
+      tenant: ''
+    google:
+      clientId: ''
+      clientSecret: ''
+    cors:
+      originCollection: 
+        bff: https://next.osdevgrp.localhost;https://localhost:5003
+    trustedDomainCollection: 
+      webapi: osdevgrp.localhost;api.osdevgrp.localhost;bff.osdevgrp.localhost;localhost
+      mvc: osdevgrp.localhost;localhost
+      bff: bff.osdevgrp.localhost;next.osdevgrp.localhost;localhost
+    acmeChallenge:
+      webapi:
+        wellKnownChallengeToken: ''
+        constructedKeyAuthorization: ''
+      mvc:
+        wellKnownChallengeToken: ''
+        constructedKeyAuthorization: ''
+  licenses:
+    autoMapper:
+      licenseKey: ''
+  externalData:
+    dashboard:
+      endpointAddress: https://dashboard.osdevgrp.dk
+  serviceGateway:
+    webapi:
+      endpointAddress: https://api.osdevgrp.dk
+
+infrastructure:
+  dotnet:
+    TZ: Europe/Copenhagen
+  images:
+    RUNNING_IN_CONTAINER: true
+    NON_ROOT_USER: apprunner
+    SUDO_ASKPASS: /usr/local/bin/askpw
+
+tls:
+  certFile: 'files/osdevgrp.localhost.crt'
+  keyFile: 'files/osdevgrp.localhost.key'
+
+ingress:
+  secureEntryPoint: websecure
+
+deployments:
+  webapi:
+    replicaCount: 1
+    containerImage: webapi-osintranet
+    containerImagePullPolicy: Never
+    containerServiceType: ClusterIP
+    containerPortName: http
+    containerPort: 8080
+    healthCheck:
+      endpoint: /health
+      readinessProbe:
+        checkInterval: 15
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+      livenessProbe:
+        checkInterval: 300
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+      startupProbe:
+        checkInterval: 15
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+    ingress:
+      host: api.osdevgrp.localhost
+  mvc:
+    replicaCount: 1
+    containerImage: mvc-osintranet
+    containerImagePullPolicy: Never
+    containerServiceType: ClusterIP
+    containerPortName: http
+    containerPort: 8080
+    healthCheck:
+      endpoint: /health
+      readinessProbe:
+        checkInterval: 15
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+      livenessProbe:
+        checkInterval: 300
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+      startupProbe:
+        checkInterval: 15
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+    ingress:
+      host: osdevgrp.localhost
+  bff:
+    replicaCount: 1
+    containerImage: bff-osintranet
+    containerImagePullPolicy: Never
+    containerServiceType: ClusterIP
+    containerPortName: http
+    containerPort: 8080
+    healthCheck:
+      endpoint: /health
+      readinessProbe:
+        checkInterval: 15
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+      livenessProbe:
+        checkInterval: 300
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+      startupProbe:
+        checkInterval: 15
+        timeout: 10
+        successThreshold: 1
+        failureThreshold: 3
+    ingress:
+      host: bff.osdevgrp.localhost
+  react:
+    replicaCount: 1
+    containerImage: react-osintranet
+    containerImagePullPolicy: Never
+    containerServiceType: ClusterIP
+    containerPortName: http
+    containerPort: 8080
+    ingress:
+      host: next.osdevgrp.localhost
+    bffEndpointMappings: {"next.osdevgrp.localhost":"https://bff.osdevgrp.localhost"}

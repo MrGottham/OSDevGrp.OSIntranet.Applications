@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-bff-route
+  namespace: {{ .Release.Namespace }}
+spec:
+  entryPoints:
+    - {{ .Values.ingress.secureEntryPoint }}
+  routes:
+    - kind: Rule
+      match: Host(`{{ .Values.deployments.bff.ingress.host }}`)
+      services:
+        - name: {{ .Release.Name }}-bff-service
+          passHostHeader: true
+          port: {{ .Values.deployments.bff.containerPort }}
+          scheme: http
+  tls:
+    secretName: {{ .Release.Name }}-tls-secret

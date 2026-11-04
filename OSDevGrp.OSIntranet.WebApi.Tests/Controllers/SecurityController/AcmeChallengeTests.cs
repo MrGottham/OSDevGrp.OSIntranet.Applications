@@ -43,20 +43,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
@@ -64,11 +64,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -76,11 +76,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsNull_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
@@ -88,20 +88,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
@@ -109,11 +109,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -121,11 +121,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsEmpty_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(string.Empty)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));
@@ -133,20 +133,20 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationException()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationException()
         {
             Controller sut = CreateSut();
 
-            Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" "));
+            await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" "));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToValueCannotBeNullOrWhiteSpace()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" "));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.ValueCannotBeNullOrWhiteSpace));
@@ -154,11 +154,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingTypeIsTypeOfString()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" "));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(string)));
@@ -166,11 +166,11 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.SecurityController
 
         [Test]
         [Category("UnitTest")]
-        public void AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
+        public async System.Threading.Tasks.Task AcmeChallenge_WhenChallengeTokenIsWhiteSpace_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToChallengeToken()
         {
             Controller sut = CreateSut();
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" "));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.AcmeChallenge(" ")))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ValidatingField, Is.EqualTo("challengeToken"));

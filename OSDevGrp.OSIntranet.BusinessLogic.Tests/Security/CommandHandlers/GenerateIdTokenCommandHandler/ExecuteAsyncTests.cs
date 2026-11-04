@@ -58,11 +58,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenGenerateIdTokenCommandIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenGenerateIdTokenCommandIsNull_ThrowsArgumentNullException()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ExecuteAsync(null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("command"));
@@ -112,94 +112,94 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertAuthenticationTimeWasNotCalledOnGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertAuthenticationTimeWasNotCalledOnGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             Mock<IGenerateIdTokenCommand> generateIdTokenCommandMock = CreateGenerateIdTokenCommandMock(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommandMock.Object));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommandMock.Object));
 
             generateIdTokenCommandMock.Verify(m => m.AuthenticationTime, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertScopesWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertScopesWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal, toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.Scopes, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertNonceWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertNonceWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal, toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.Nonce, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertClientIdWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertClientIdWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal, toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.ClientId, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertFromPrincipalWasNotCalledOnUserInfoFactory()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertFromPrincipalWasNotCalledOnUserInfoFactory()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _userInfoFactoryMock.Verify(m => m.FromPrincipal(It.IsAny<ClaimsPrincipal>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertSupportedScopesWasNotCalledOnSupportedScopesProvider()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertSupportedScopesWasNotCalledOnSupportedScopesProvider()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _supportedScopesProviderMock.Verify(m => m.SupportedScopes, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertCreateWasNotCalledOnIdTokenContentFactory()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertCreateWasNotCalledOnIdTokenContentFactory()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _idTokenContentFactoryMock.Verify(m => m.Create(
                     It.IsAny<string>(),
@@ -212,13 +212,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertGenerateWasNotCalledOnTokenGenerator()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_AssertGenerateWasNotCalledOnTokenGenerator()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsAny<ClaimsIdentity>(),
@@ -229,26 +229,26 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessException()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser));
@@ -256,13 +256,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -270,13 +270,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
@@ -284,13 +284,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandDoesNotContainNameIdentifierClaim_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);
@@ -298,94 +298,94 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertAuthenticationTimeWasNotCalledOnGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertAuthenticationTimeWasNotCalledOnGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             Mock<IGenerateIdTokenCommand> generateIdTokenCommandMock = CreateGenerateIdTokenCommandMock(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommandMock.Object));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommandMock.Object));
 
             generateIdTokenCommandMock.Verify(m => m.AuthenticationTime, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertScopesWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertScopesWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal, toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.Scopes, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertNonceWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertNonceWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal, toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.Nonce, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertClientIdWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertClientIdWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal, toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.ClientId, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertFromPrincipalWasNotCalledOnUserInfoFactory()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertFromPrincipalWasNotCalledOnUserInfoFactory()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _userInfoFactoryMock.Verify(m => m.FromPrincipal(It.IsAny<ClaimsPrincipal>()), Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertSupportedScopesWasNotCalledOnSupportedScopesProvider()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertSupportedScopesWasNotCalledOnSupportedScopesProvider()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _supportedScopesProviderMock.Verify(m => m.SupportedScopes, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertCreateWasNotCalledOnIdTokenContentFactory()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertCreateWasNotCalledOnIdTokenContentFactory()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _idTokenContentFactoryMock.Verify(m => m.Create(
                     It.IsAny<string>(),
@@ -398,13 +398,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertGenerateWasNotCalledOnTokenGenerator()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_AssertGenerateWasNotCalledOnTokenGenerator()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsAny<ClaimsIdentity>(),
@@ -415,26 +415,26 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessException()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser));
@@ -442,13 +442,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -456,13 +456,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
@@ -470,13 +470,13 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenClaimsPrincipalFromGenerateIdTokenCommandContainsNameIdentifierClaimWithoutValue_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut();
 
             ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(hasNameIdentifierClaim: true, hasNameIdentifierClaimValue: false);
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(claimsPrincipal: claimsPrincipal);
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);
@@ -497,75 +497,75 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertAuthenticationTimeWasNotCalledOnGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertAuthenticationTimeWasNotCalledOnGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             Mock<IGenerateIdTokenCommand> generateIdTokenCommandMock = CreateGenerateIdTokenCommandMock();
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommandMock.Object));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommandMock.Object));
 
             generateIdTokenCommandMock.Verify(m => m.AuthenticationTime, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertScopesWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertScopesWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.Scopes, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertNonceWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertNonceWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.Nonce, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertClientIdWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertClientIdWasNotCalledOnAuthorizationStateResolvedByGenerateIdTokenCommand()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             Mock<IAuthorizationState> authorizationStateMock = _fixture.BuildAuthorizationStateMock();
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand(toDomain: authorizationStateMock.Object);
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             authorizationStateMock.Verify(m => m.ClientId, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertSupportedScopesWasNotCalledOnSupportedScopesProvider()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertSupportedScopesWasNotCalledOnSupportedScopesProvider()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _supportedScopesProviderMock.Verify(m => m.SupportedScopes, Times.Never);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertCreateWasNotCalledOnIdTokenContentFactory()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertCreateWasNotCalledOnIdTokenContentFactory()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _idTokenContentFactoryMock.Verify(m => m.Create(
                     It.IsAny<string>(),
@@ -578,12 +578,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertGenerateWasNotCalledOnTokenGenerator()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_AssertGenerateWasNotCalledOnTokenGenerator()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
 
             _tokenGeneratorMock.Verify(m => m.Generate(
                     It.IsAny<ClaimsIdentity>(),
@@ -594,24 +594,24 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessException()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessException()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
         }
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereErrorCodeIsEqualToUnableToGenerateIdTokenForAuthenticatedUser()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.UnableToGenerateIdTokenForAuthenticatedUser));
@@ -619,12 +619,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereMessageIsNotNull()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Null);
@@ -632,12 +632,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereMessageIsNotEmpty()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Message, Is.Not.Empty);
@@ -645,12 +645,12 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.Security.CommandHandlers.Gener
 
         [Test]
         [Category("UnitTest")]
-        public void ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task ExecuteAsync_WhenUserInfoCouldNotBeResolvedForClaimsPrincipal_ThrowsIntranetBusinessExceptionWhereInnerExceptionIsNull()
         {
             ICommandHandler<IGenerateIdTokenCommand, IToken> sut = CreateSut(hasUserInfo: false);
 
             IGenerateIdTokenCommand generateIdTokenCommand = CreateGenerateIdTokenCommand();
-            IntranetBusinessException result = Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand));
+            IntranetBusinessException result = (await Assert.ThrowsAsync<IntranetBusinessException>(async () => await sut.ExecuteAsync(generateIdTokenCommand)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.InnerException, Is.Null);

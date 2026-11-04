@@ -48,11 +48,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyPostingJournal(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ApplyPostingJournal(null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("applyPostingJournalViewModel"));
@@ -61,11 +61,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageIsNotNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageIsNotNull()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Null);
@@ -74,11 +74,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageIsNotEmpty()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageIsNotEmpty()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.Not.Empty);
@@ -87,12 +87,12 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageContainsValidationError()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereMessageContainsValidationError()
         {
             string validationError = _fixture.Create<string>();
             Controller sut = CreateSut(false, validationError);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message.Contains(validationError), Is.True);
@@ -101,11 +101,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToSubmittedMessageInvalid()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereErrorCodeIsEqualToSubmittedMessageInvalid()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ErrorCode, Is.EqualTo(ErrorCode.SubmittedMessageInvalid));
@@ -114,11 +114,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingTypeIsNotNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingTypeIsNotNull()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingType, Is.Not.Null);
@@ -127,11 +127,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingTypeIsEqualToApplyPostingJournalViewModel()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingTypeIsEqualToApplyPostingJournalViewModel()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingType, Is.EqualTo(typeof(ApplyPostingJournalViewModel)));
@@ -140,11 +140,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsNotNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsNotNull()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingField, Is.Not.Null);
@@ -153,11 +153,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsNotEmpty()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsNotEmpty()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingField, Is.Not.Empty);
@@ -166,11 +166,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToApplyPostingJournalViewModel()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereValidatingFieldIsEqualToApplyPostingJournalViewModel()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ValidatingField, Is.EqualTo("applyPostingJournalViewModel"));
@@ -179,11 +179,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.AccountingController
 
         [Test]
         [Category("UnitTest")]
-        public void ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereInnerExceptionIsNull()
+        public async System.Threading.Tasks.Task ApplyPostingJournal_WhenApplyPostingJournalViewModelIsInvalid_ThrowsIntranetValidationExceptionWhereInnerExceptionIsNull()
         {
             Controller sut = CreateSut(false);
 
-            IntranetValidationException result = Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel()));
+            IntranetValidationException result = (await Assert.ThrowsAsync<IntranetValidationException>(async () => await sut.ApplyPostingJournal(BuildApplyPostingJournalViewModel())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.InnerException, Is.Null);

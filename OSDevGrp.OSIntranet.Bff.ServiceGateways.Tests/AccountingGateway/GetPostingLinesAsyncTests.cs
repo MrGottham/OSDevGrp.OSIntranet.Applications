@@ -41,6 +41,7 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.IsAny<DateTimeOffset?>(),
                 It.IsAny<int?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -58,6 +59,7 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
                 It.Is<int>(value => value == accountingNumber),
                 It.IsAny<DateTimeOffset?>(),
                 It.IsAny<int?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -75,6 +77,7 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.Is<DateTimeOffset?>(value => value != null && value == statusDate),
                 It.IsAny<int?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -92,6 +95,7 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.IsAny<DateTimeOffset?>(),
                 It.Is<int?>(value => value != null && value == numberOfPostingLines),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.IsAny<CancellationToken>()), 
             Times.Once);
     }
@@ -109,6 +113,7 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
                 It.IsAny<int>(),
                 It.IsAny<DateTimeOffset?>(),
                 It.IsAny<int?>(),
+                It.Is<string>(value => value == ApiVersions.Version1_0),
                 It.Is<CancellationToken>(value => value == cancellationToken)), 
             Times.Once);
     }
@@ -127,24 +132,24 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void GetPostingLinesAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPostingLinesAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter()));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter())))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetPostingLinesAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task GetPostingLinesAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
         IAccountingGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter()));
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.GetPostingLinesAsync(_fixture.Create<int>(), DateTimeOffset.Now.AddDays(_random!.Next(0, 365) * -1), _fixture.Create<int>(), CreateFilter())))!;
 
         Assert.That(result, Is.Not.Null);
     }
@@ -173,12 +178,12 @@ public class GetPostingLinesAsyncTests : ServiceGatewayTestBase
     {
         if (exception != null)
         {
-            _webApiClientMock!.Setup(m => m.PostinglinesAllAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int?>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PostinglinesAllAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int?>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Throws(exception);
         }
         else
         {
-            _webApiClientMock!.Setup(m => m.PostinglinesAllAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int?>(), It.IsAny<CancellationToken>()))
+            _webApiClientMock!.Setup(m => m.PostinglinesAllAsync(It.IsAny<int>(), It.IsAny<DateTimeOffset?>(), It.IsAny<int?>(), It.Is<string>(value => value == ApiVersions.Version1_0), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(postingLineModels ?? CreatePostingLineModels()));
         }
 

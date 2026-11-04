@@ -36,7 +36,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
     }
@@ -48,7 +48,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
         string message = _fixture.Create<string>();
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, message: message);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(message));
     }
@@ -59,7 +59,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -70,7 +70,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -81,7 +81,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayUnauthorizedException>());
     }
@@ -92,7 +92,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(UnauthorizedText));
     }
@@ -103,7 +103,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -114,7 +114,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -130,7 +130,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayServerErrorException>());
     }
@@ -146,7 +146,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(ServerErrorText));
     }
@@ -162,7 +162,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -178,7 +178,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -253,7 +253,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
     }
@@ -266,7 +266,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
         ErrorModel errorModel = _fixture!.CreateErrorModel(errorMessage: errorMessage);
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorModel);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Is.EqualTo(errorMessage));
     }
@@ -277,7 +277,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -288,7 +288,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -299,7 +299,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayUnauthorizedException>());
     }
@@ -310,7 +310,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(UnauthorizedText));
     }
@@ -321,7 +321,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -332,7 +332,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -348,7 +348,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayServerErrorException>());
     }
@@ -364,7 +364,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(ServerErrorText));
     }
@@ -380,7 +380,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -396,7 +396,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -471,7 +471,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
     }
@@ -485,7 +485,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
         ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: error, errorDescription: errorDescription);
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorResponseModel);
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Is.EqualTo($"{error}{Environment.NewLine}{errorDescription}"));
     }
@@ -496,7 +496,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -507,7 +507,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -518,7 +518,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayUnauthorizedException>());
     }
@@ -529,7 +529,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(UnauthorizedText));
     }
@@ -540,7 +540,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -551,7 +551,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -567,7 +567,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result, Is.TypeOf<ServiceGatewayServerErrorException>());
     }
@@ -583,7 +583,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.Message, Does.StartWith(ServerErrorText));
     }
@@ -599,7 +599,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.Not.Null);
     }
@@ -615,7 +615,7 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: _fixture!.CreateErrorResponseModel());
 
-        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException(); 
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
 
         Assert.That(result.InnerException, Is.EqualTo(webApiClientException));
     }
@@ -682,5 +682,140 @@ public class ToServiceGatewayExceptionTests : ServiceGatewayTestBase
         NotSupportedException? result = Assert.Throws<NotSupportedException>(() => webApiClientException.ToServiceGatewayException());
 
         Assert.That(result!.InnerException, Is.EqualTo(webApiClientException));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorModelWhereErrorMessageIsNullAndStatusCodeEqualToBadRequest_ReturnsServiceGatewayBadRequestExceptionWithFallbackMessage()
+    {
+        ErrorModel errorModel = _fixture!.CreateErrorModel(errorMessage: null);
+        WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
+        Assert.That(result.Message, Is.Not.Null.And.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorModelWhereErrorMessageIsEmptyAndStatusCodeEqualToBadRequest_ReturnsServiceGatewayBadRequestExceptionWithFallbackMessage()
+    {
+        ErrorModel errorModel = _fixture!.CreateErrorModel(errorMessage: string.Empty);
+        WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
+        Assert.That(result.Message, Is.Not.Null.And.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorModelWhereErrorMessageIsNullAndStatusCodeEqualToUnauthorized_ReturnsServiceGatewayUnauthorizedExceptionWithUnauthorizedText()
+    {
+        ErrorModel errorModel = _fixture!.CreateErrorModel(errorMessage: null);
+        WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: errorModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayUnauthorizedException>());
+        Assert.That(result.Message, Does.StartWith(UnauthorizedText));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(HttpStatusCode.InternalServerError)]
+    [TestCase(HttpStatusCode.ServiceUnavailable)]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorModelWhereErrorMessageIsNullAndStatusCodeEqualTo5xx_ReturnsServiceGatewayServerErrorExceptionWithServerErrorText(HttpStatusCode statusCode)
+    {
+        ErrorModel errorModel = _fixture!.CreateErrorModel(errorMessage: null);
+        WebApiClientException<ErrorModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: errorModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayServerErrorException>());
+        Assert.That(result.Message, Does.StartWith(ServerErrorText));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorResponseModelWhereErrorIsNullAndStatusCodeEqualToBadRequest_ReturnsServiceGatewayBadRequestExceptionWithFallbackMessage()
+    {
+        ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: null);
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorResponseModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
+        Assert.That(result.Message, Is.Not.Null.And.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorResponseModelWhereErrorIsEmptyAndStatusCodeEqualToBadRequest_ReturnsServiceGatewayBadRequestExceptionWithFallbackMessage()
+    {
+        ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: string.Empty);
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorResponseModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
+        Assert.That(result.Message, Is.Not.Null.And.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorResponseModelWhereErrorDescriptionIsNullAndStatusCodeEqualToBadRequest_ReturnsServiceGatewayBadRequestExceptionWithErrorOnly()
+    {
+        string error = _fixture.Create<string>();
+        ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: error, errorDescription: null);
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorResponseModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
+        Assert.That(result.Message, Is.EqualTo(error));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorResponseModelWhereErrorAndErrorDescriptionAreNullAndStatusCodeEqualToBadRequest_ReturnsServiceGatewayBadRequestExceptionWithFallbackMessage()
+    {
+        ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: null, errorDescription: null);
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.BadRequest, result: errorResponseModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayBadRequestException>());
+        Assert.That(result.Message, Is.Not.Null.And.Not.Empty);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorResponseModelWhereErrorIsNullAndStatusCodeEqualToUnauthorized_ReturnsServiceGatewayUnauthorizedExceptionWithUnauthorizedText()
+    {
+        ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: null);
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) HttpStatusCode.Unauthorized, result: errorResponseModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayUnauthorizedException>());
+        Assert.That(result.Message, Does.StartWith(UnauthorizedText));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    [TestCase(HttpStatusCode.InternalServerError)]
+    [TestCase(HttpStatusCode.ServiceUnavailable)]
+    public void ToServiceGatewayException_WithGenericWebApiClientExceptionWithErrorResponseModelWhereErrorIsNullAndStatusCodeEqualTo5xx_ReturnsServiceGatewayServerErrorExceptionWithServerErrorText(HttpStatusCode statusCode)
+    {
+        ErrorResponseModel errorResponseModel = _fixture!.CreateErrorResponseModel(error: null);
+        WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException(statusCode: (int) statusCode, result: errorResponseModel);
+
+        ServiceGatewayExceptionBase result = webApiClientException.ToServiceGatewayException();
+
+        Assert.That(result, Is.TypeOf<ServiceGatewayServerErrorException>());
+        Assert.That(result.Message, Does.StartWith(ServerErrorText));
     }
 }

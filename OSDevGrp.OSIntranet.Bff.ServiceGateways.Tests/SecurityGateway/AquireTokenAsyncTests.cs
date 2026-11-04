@@ -167,24 +167,24 @@ public class AquireTokenAsyncTests : ServiceGatewayTestBase
 
     [Test]
     [Category("UnitTest")]
-    public void AquireTokenAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task AquireTokenAsync_WhenWebApiClientThrowsNonGenericWebApiClientException_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest);
         ISecurityGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.AquireTokenAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.AquireTokenAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void AquireTokenAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorResponseModel_ThrowsServiceGatewayExceptionBase()
+    public async System.Threading.Tasks.Task AquireTokenAsync_WhenWebApiClientThrowsGenericWebApiClientExceptionWithErrorResponseModel_ThrowsServiceGatewayExceptionBase()
     {
         WebApiClientException<ErrorResponseModel> webApiClientException = _fixture!.CreateWebApiClientException((int) HttpStatusCode.BadRequest, result: _fixture!.CreateErrorResponseModel());
         ISecurityGateway sut = CreateSut(exception: webApiClientException);
 
-        ServiceGatewayExceptionBase? result = Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.AquireTokenAsync());
+        ServiceGatewayExceptionBase? result = (await Assert.ThrowsAsync<ServiceGatewayBadRequestException>(async () => await sut.AquireTokenAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }

@@ -247,3 +247,11 @@ _Pvt_Extensions
 
 # Environment files
 .env
+
+# Licenses
+[Ll]icenses/
+
+# Local Helm secrets
+/charts/osintranet/values.local.yaml
+/charts/osintranet/files/osdevgrp.localhost.crt
+/charts/osintranet/files/osdevgrp.localhost.key

@@ -22,8 +22,10 @@ internal static class ExtendedValidationRuleSetBuilderMockExtensions
         ];
 
         extendedValidationRuleSetBuilderMock.SetupComparableValueTypes<int>();
+        extendedValidationRuleSetBuilderMock.SetupComparableValueTypes<double>();
+        extendedValidationRuleSetBuilderMock.SetupComparableValueTypes<DateTimeOffset>();
         extendedValidationRuleSetBuilderMock.SetupComparableReferenceTypes<string>();
-
+ 
         extendedValidationRuleSetBuilderMock.Setup(m => m.WithRequiredValueRule(It.IsAny<StaticTextKey>()))
             .Returns(extendedValidationRuleSetBuilderMock.Object);
         extendedValidationRuleSetBuilderMock.Setup(m => m.WithMinLengthRule(It.IsAny<StaticTextKey>(), It.IsAny<int>()))

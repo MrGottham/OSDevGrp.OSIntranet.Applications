@@ -64,7 +64,7 @@ internal class IndexFeature : PageFeatureBase<IndexRequest, IndexResponse, Claim
             staticTextSpecifications.Add(StaticTextKey.MrGotthamsHomepage, StaticTextKey.MrGotthamsHomepage.DefaultArguments());
         }
         staticTextSpecifications.Add(StaticTextKey.Copyright, [buildDateTime.Year]);
-        staticTextSpecifications.Add(StaticTextKey.BuildInfo, [buildDateTime.ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture)]);
+        staticTextSpecifications.Add(StaticTextKey.BuildInfo, [buildDateTime.ToString("yyyyMMddHHmm", request.FormatProvider)]);
         staticTextSpecifications.Add(StaticTextKey.Start, StaticTextKey.Start.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.Login, StaticTextKey.Login.DefaultArguments());
         staticTextSpecifications.Add(StaticTextKey.Logout, StaticTextKey.Logout.DefaultArguments());

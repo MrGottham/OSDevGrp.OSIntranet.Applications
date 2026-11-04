@@ -83,11 +83,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.CommonController
 
         [Test]
         [Category("UnitTest")]
-        public void CreateLetterHead_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task CreateLetterHead_WhenCalledWithModelWhereModelIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateLetterHead(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.CreateLetterHead(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("letterHeadViewModel"));
         }

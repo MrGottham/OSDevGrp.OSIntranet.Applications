@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
@@ -18,6 +18,10 @@ function EditAccounting() {
     const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
     const accountingNumber = useParams().accountingNumber;
+    const populateContent = useCallback(async (numberOfPostingLines) => {
+        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
+        setContent(json);
+    }, [accountingNumber, accountingService]);
 
     useEffect(() => {
         if (submitting !== undefined && submitting !== null && submitting) 
@@ -25,9 +29,12 @@ function EditAccounting() {
             return;
         }
 
-        populateContent(accountingNumber, 0)
+        async function fetchContent() {
+            populateContent(0)
             .catch(error => showBoundary(error));
-    }, [accountingNumber, submitting]);
+        }
+        fetchContent();
+    }, [accountingNumber, submitting, populateContent, showBoundary]);
 
     if (content === undefined || (submitting !== undefined && submitting !== null && submitting)) {
         return (
@@ -67,15 +74,6 @@ function EditAccounting() {
             </Row>
         </>
     );
-
-    async function populateContent(accountingNumber, numberOfPostingLines) {
-        if (content !== undefined) {
-            setContent(undefined);
-        }
-
-        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
-        setContent(json);
-    }
 
     function submit(values, actions) {
         try {

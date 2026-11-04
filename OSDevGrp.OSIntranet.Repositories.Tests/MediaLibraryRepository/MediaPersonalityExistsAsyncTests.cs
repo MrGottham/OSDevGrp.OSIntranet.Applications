@@ -66,11 +66,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase("  ", " ", "2023-01-01")]
 		[TestCase("  ", "  ", null)]
 		[TestCase("  ", "  ", "2023-01-01")]
-		public void MediaPersonalityExistsAsync_WhenSurnameIsNull_ThrowsArgumentNullException(string givenName, string middleName, string birthDate)
+		public async System.Threading.Tasks.Task MediaPersonalityExistsAsync_WhenSurnameIsNull_ThrowsArgumentNullException(string givenName, string middleName, string birthDate)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaPersonalityExistsAsync(givenName, middleName, null, ToNullableDateTime(birthDate)));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaPersonalityExistsAsync(givenName, middleName, null, ToNullableDateTime(birthDate))))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("surname"));
@@ -110,11 +110,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase("  ", " ", "2023-01-01")]
 		[TestCase("  ", "  ", null)]
 		[TestCase("  ", "  ", "2023-01-01")]
-		public void MediaPersonalityExistsAsync_WhenSurnameIsEmpty_ThrowsArgumentNullException(string givenName, string middleName, string birthDate)
+		public async System.Threading.Tasks.Task MediaPersonalityExistsAsync_WhenSurnameIsEmpty_ThrowsArgumentNullException(string givenName, string middleName, string birthDate)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaPersonalityExistsAsync(givenName, middleName, string.Empty, ToNullableDateTime(birthDate)));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaPersonalityExistsAsync(givenName, middleName, string.Empty, ToNullableDateTime(birthDate))))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("surname"));
@@ -154,11 +154,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MediaLibraryRepository
 		[TestCase("  ", " ", "2023-01-01")]
 		[TestCase("  ", "  ", null)]
 		[TestCase("  ", "  ", "2023-01-01")]
-		public void MediaPersonalityExistsAsync_WhenSurnameIsWhiteSpace_ThrowsArgumentNullException(string givenName, string middleName, string birthDate)
+		public async System.Threading.Tasks.Task MediaPersonalityExistsAsync_WhenSurnameIsWhiteSpace_ThrowsArgumentNullException(string givenName, string middleName, string birthDate)
 		{
 			IMediaLibraryRepository sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaPersonalityExistsAsync(givenName, middleName, " ", ToNullableDateTime(birthDate)));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.MediaPersonalityExistsAsync(givenName, middleName, " ", ToNullableDateTime(birthDate))))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("surname"));

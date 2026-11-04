@@ -35,11 +35,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
 
         [Test]
         [Category("UnitTest")]
-        public void WithContentAsync_WhenQueryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task WithContentAsync_WhenQueryIsNull_ThrowsArgumentNullException()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(null, Array.Empty<object>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(null, Array.Empty<object>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("query"));
@@ -48,11 +48,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
 
         [Test]
         [Category("UnitTest")]
-        public void WithContentAsync_WhenDataIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task WithContentAsync_WhenDataIsNull_ThrowsArgumentNullException()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(CreateExportQuery(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.WithContentAsync<IExportQuery, IEnumerable<object>>(CreateExportQuery(), null)))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.ParamName, Is.EqualTo("data"));
@@ -61,11 +61,11 @@ namespace OSDevGrp.OSIntranet.Core.Tests.Builders.CsvContentBuilder
 
         [Test]
         [Category("UnitTest")]
-        public void WithContentAsync_WhenDataCantBeCastToEnumerableOfDomainObject_ThrowsArgumentException()
+        public async System.Threading.Tasks.Task WithContentAsync_WhenDataCantBeCastToEnumerableOfDomainObject_ThrowsArgumentException()
         {
             using IExportDataContentBuilder sut = CreateSut();
 
-            ArgumentException result = Assert.ThrowsAsync<ArgumentException>(async () => await sut.WithContentAsync(CreateExportQuery(), _fixture.Create<object>()));
+            ArgumentException result = (await Assert.ThrowsAsync<ArgumentException>(async () => await sut.WithContentAsync(CreateExportQuery(), _fixture.Create<object>())))!;
 
             // ReSharper disable PossibleNullReferenceException
             Assert.That(result.Message, Is.EqualTo($"Value cannot be cast to IEnumerable<{nameof(Object)}>. (Parameter 'data')"));

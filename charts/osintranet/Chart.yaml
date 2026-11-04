@@ -1,0 +1,8 @@
+apiVersion: v2
+name: osintranet
+description: A Helm chart for applications supporting OS Intranet
+type: application
+maintainers:
+  - name: OS Development Group
+    url: https://osdevgrp.dk/
+version: 2026.10.27

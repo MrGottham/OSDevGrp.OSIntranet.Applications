@@ -40,7 +40,7 @@ public class ExecuteAsyncTests : FeatureLoggingTestBase
         IRequest request = CreateRequest(() => _fixture!);
         await sut.ExecuteAsync(request, CancellationToken.None);
 
-        _loggerFactoryMock!.Verify(m => m.CreateLogger(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && value == $"{_innerFeatureMock!.Object.GetType().Namespace}.{_innerFeatureMock!.Object.GetType().Name}")), Times.Once);
+        _loggerFactoryMock!.Verify(m => m.CreateLogger(It.Is<string>(value => string.IsNullOrWhiteSpace(value) == false && value == GetInnerFeatureFullName())), Times.Once);
     }
 
     [Test]
@@ -65,10 +65,12 @@ public class ExecuteAsyncTests : FeatureLoggingTestBase
         IRequest request = CreateRequest(() => _fixture!, requestId: requestId);
         await sut.ExecuteAsync(request, CancellationToken.None);
 
+        string innerFeatureName = GetInnerFeatureFullName();
+        string expectedMessage = $"Starting executing of command feature {innerFeatureName} for request ID {requestId}";
         _loggerMock!.Verify(m => m.Log(
                 It.Is<LogLevel>(value => value == LogLevel.Debug),
                 It.Is<EventId>(value => value.Id == 0),
-                It.Is<It.IsAnyType>((obj, _) => obj.ToString() == $"Starting executing of command feature {_innerFeatureMock!.Object.GetType().Namespace}.{_innerFeatureMock!.Object.GetType().Name} for request ID {requestId}"),
+                It.Is<It.IsAnyType>((obj, _) => obj!.ToString() == expectedMessage!),
                 It.Is<Exception?>(value => value == null),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -134,10 +136,12 @@ public class ExecuteAsyncTests : FeatureLoggingTestBase
         IRequest request = CreateRequest(() => _fixture!, requestId: requestId);
         await sut.ExecuteAsync(request, CancellationToken.None);
 
+        string innerFeatureName = GetInnerFeatureFullName();
+        string expectedMessage = $"Finishing executing of command feature {innerFeatureName} for request ID {requestId}";
         _loggerMock!.Verify(m => m.Log(
                 It.Is<LogLevel>(value => value == LogLevel.Debug),
                 It.Is<EventId>(value => value.Id == 0),
-                It.Is<It.IsAnyType>((obj, _) => obj.ToString() == $"Finishing executing of command feature {_innerFeatureMock!.Object.GetType().Namespace}.{_innerFeatureMock!.Object.GetType().Name} for request ID {requestId}"),
+                It.Is<It.IsAnyType>((obj, _) => obj!.ToString() == expectedMessage!),
                 It.Is<Exception?>(value => value == null),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -162,10 +166,12 @@ public class ExecuteAsyncTests : FeatureLoggingTestBase
         }
         catch (InvalidOperationException)
         {
+            string innerFeatureName = GetInnerFeatureFullName();
+            string expectedMessage = $"Error while executing of command feature {innerFeatureName} for request ID {requestId}: {exception}";
             _loggerMock!.Verify(m => m.Log(
                     It.Is<LogLevel>(value => value == LogLevel.Error),
                     It.Is<EventId>(value => value.Id == 0),
-                    It.Is<It.IsAnyType>((obj, _) => obj.ToString() == $"Error while executing of command feature {_innerFeatureMock!.Object.GetType().Namespace}.{_innerFeatureMock!.Object.GetType().Name} for request ID {requestId}: {exception}"),
+                    It.Is<It.IsAnyType>((obj, _) => obj!.ToString() == expectedMessage!),
                     It.Is<Exception?>(value => value == exception),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
@@ -191,10 +197,12 @@ public class ExecuteAsyncTests : FeatureLoggingTestBase
         }
         catch (InvalidOperationException)
         {
+            string innerFeatureName = GetInnerFeatureFullName();
+            string expectedMessage = $"Finishing executing of command feature {innerFeatureName} for request ID {requestId}";
             _loggerMock!.Verify(m => m.Log(
                     It.Is<LogLevel>(value => value == LogLevel.Debug),
                     It.Is<EventId>(value => value.Id == 0),
-                    It.Is<It.IsAnyType>((obj, _) => obj.ToString() == $"Finishing executing of command feature {_innerFeatureMock!.Object.GetType().Namespace}.{_innerFeatureMock!.Object.GetType().Name} for request ID {requestId}"),
+                    It.Is<It.IsAnyType>((obj, _) => obj!.ToString() == expectedMessage!),
                     It.Is<Exception?>(value => value == null),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
@@ -222,6 +230,15 @@ public class ExecuteAsyncTests : FeatureLoggingTestBase
         {
             Assert.That(ex, Is.SameAs(exception));
         }
+    }
+
+    private string GetInnerFeatureFullName()
+    {
+        Type type = _innerFeatureMock!.Object.GetType();
+        string ns = type.Namespace ?? "";
+        string nm = type.Name!;
+        string result = ns + "." + nm;
+        return result!;
     }
 
     private ICommandFeature<IRequest> CreateSut()

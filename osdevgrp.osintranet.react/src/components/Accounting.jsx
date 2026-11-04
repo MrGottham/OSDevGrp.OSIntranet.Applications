@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router';
 import { useErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router';
@@ -19,9 +19,19 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Loading from './Loading';
 import DeleteConfirmation from './DeleteConfirmation';
+import PostingJournal from './PostingJournal';
 import PostingLineCollection from './PostingLineCollection';
+import Notifications from './Notifications';
 
 function Accounting() {
+    const accountingNumber = useParams().accountingNumber;
+
+    return (
+        <AccountingContent key={accountingNumber} />
+    );
+}
+
+function AccountingContent() {
     const { showBoundary } = useErrorBoundary();
     const accountingService = useContext(ServiceContext).accountingService;
     const staticTextHelper = useContext(HelperContext).staticTextHelper;
@@ -30,12 +40,20 @@ function Accounting() {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [deletionQuestion, setDeletionQuestion] = useState();
     const [deleteContext, setDeleteContext] = useState();
+    const [notificationContext, setNotificationContext] = useState([]);
     const accountingNumber = useParams().accountingNumber;
+    const populateContent = useCallback(async (numberOfPostingLines) => {
+        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
+        setContent(json);
+    }, [accountingNumber, accountingService]);
 
     useEffect(() => {
-        populateContent(content, accountingNumber, 25)
-            .catch(error => showBoundary(error));
-    }, [accountingNumber]);
+        async function fetchContent() {
+            populateContent(25)
+                .catch(error => showBoundary(error));
+        }
+        fetchContent();
+    }, [accountingNumber, populateContent, showBoundary]);
 
     if (content === undefined) {
         return (
@@ -45,6 +63,9 @@ function Accounting() {
 
     return (
         <>
+            <Notifications
+                notifications={notificationContext}
+                onDismiss={handleNotificationDismissed} />
             <Row>
                 <Col xs={12} sm={12} md={12} lg={12} xl={12} xxl={12}>
                     <h1>{content.name}</h1>
@@ -66,7 +87,7 @@ function Accounting() {
                     <Accordion defaultActiveKey={['0', '1', '2']} alwaysOpen>
                         {getMasterDataContent('0', content, content.dynamicTexts, content.staticTexts, staticTextHelper)}
                         {getCurrentStatusContent('1', content.dynamicTexts, content.staticTexts, staticTextHelper)}
-                        {getBookkeepingContent('2', content.dynamicTexts, content.staticTexts, staticTextHelper)}
+                        {getBookkeepingContent('2', content.dynamicTexts, content.staticTexts, staticTextHelper, content.validationRuleSet)}
                         {getIncomeStatementContent('3', content.dynamicTexts.incomeStatement, content.staticTexts, staticTextHelper)}
                         {getFullBalanceSheetContent('4', content.dynamicTexts.balanceSheet, content.staticTexts, staticTextHelper)}
                         {getChartOfAccountsContent('5', content.dynamicTexts.chartOfAccounts, content.number, content.staticTexts, staticTextHelper)}
@@ -114,7 +135,7 @@ function Accounting() {
     }
 
     function getDeleteAccountingContent(accountingNumber, deletable, staticTexts, staticTextHelper) {
-        if (deletable === undefined || deletable === null || deletable === false) {
+        if (deletable === undefined || deletable === null || deletable !== true) {
             return (
                 <>
                 </>
@@ -281,11 +302,17 @@ function Accounting() {
         );
     }
 
-    function getBookkeepingContent(eventKey, dynamicTexts, staticTexts, staticTextHelper) {
+    function getBookkeepingContent(eventKey, dynamicTexts, staticTexts, staticTextHelper, validationRuleSet) {
         return (
             <Accordion.Item eventKey={eventKey}>
                 <Accordion.Header><h2>{staticTextHelper.getBookkeepingText(staticTexts)}</h2></Accordion.Header>
                     <Accordion.Body>
+                        <PostingJournal
+                            key={dynamicTexts.postingJournal.accountingNumber}
+                            postingJournal={dynamicTexts.postingJournal} 
+                            staticTexts={staticTexts}
+                            validationRuleSet={validationRuleSet}
+                            onPostingJournalApplied={handlePostingJournalApplied} />
                         <PostingLineCollection postingLineCollection={dynamicTexts.postingLineCollection} />
                     </Accordion.Body>
                 </Accordion.Item>
@@ -642,14 +669,6 @@ function Accounting() {
         )
     }
 
-    async function populateContent(content, accountingNumber, numberOfPostingLines) {
-        if (content !== undefined) {
-            setContent(undefined);
-        }
-        const json = await accountingService.getAccounting(accountingNumber, numberOfPostingLines);
-        setContent(json);
-    }
-
     function confirmDeletion(deletionQuestion, deleteContext) {
         setDeletionQuestion(deletionQuestion);
         setDeleteContext(deleteContext);
@@ -662,6 +681,22 @@ function Accounting() {
         console.debug(`verificationCode=${verificationCode}`);
 
         return urlHelper.getNotImplementedUrl();
+    }
+
+    async function handlePostingJournalApplied(notifications) {
+        try {
+            setContent(undefined);
+            await populateContent(25);
+        } catch (error) {
+            showBoundary(error);
+            return;
+        }
+
+        setNotificationContext(prev => [...prev, ...notifications]);
+    }
+
+    function handleNotificationDismissed(identifier) {
+        setNotificationContext(prev => prev.filter(notification => notification.identifier !== identifier));
     }
 }
 

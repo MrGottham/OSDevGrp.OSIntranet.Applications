@@ -39,33 +39,33 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteCountry_WhenCalledWithCodeWhereCodeIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteCountry_WhenCalledWithCodeWhereCodeIsNull_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteCountry(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteCountry(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteCountry_WhenCalledWithCodeWhereCodeIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteCountry_WhenCalledWithCodeWhereCodeIsEmpty_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteCountry(string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteCountry(string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteCountry_WhenCalledWithCodeWhereCodeIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteCountry_WhenCalledWithCodeWhereCodeIsWhiteSpace_ThrowsArgumentNullException()
         {
             Controller sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteCountry(" "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteCountry(" ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("code"));
         }

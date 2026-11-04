@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,11 +13,18 @@ function AccountingSummary({ accountingNumber }) {
     const { showBoundary } = useErrorBoundary();
     const accountingService = useContext(ServiceContext).accountingService;
     const [content, setContent] = useState();
+    const populateContent = useCallback(async (numberOfPostingLines) => {
+        const json = await accountingService.getAccountingSummary(accountingNumber, numberOfPostingLines);
+        setContent(json);
+    }, [accountingNumber, accountingService]);
 
     useEffect(() => {
-        populateContent(accountingNumber, 7)
-            .catch(error => showBoundary(error));
-    }, []);
+        async function fetchContent() {
+            populateContent(7)
+                .catch(error => showBoundary(error));
+        }
+        fetchContent();
+    }, [populateContent, showBoundary]);
 
     if (content === undefined) {
         return (
@@ -167,11 +174,6 @@ function AccountingSummary({ accountingNumber }) {
                 </Table>
             </div>
         );
-    }
-
-    async function populateContent(accountingNumber, numberOfPostingLines) {
-        const json = await accountingService.getAccountingSummary(accountingNumber, numberOfPostingLines);
-        setContent(json);
     }
 }
 

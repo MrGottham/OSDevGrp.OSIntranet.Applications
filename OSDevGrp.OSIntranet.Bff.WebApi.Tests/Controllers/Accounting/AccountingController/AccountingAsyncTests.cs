@@ -301,14 +301,17 @@ public class AccountingAsyncTests
         return new WebApi.Controllers.Accounting.AccountingController(_timeProviderMock!.Object, formatProvider ?? CultureInfo.InvariantCulture, _securityContextProviderMock!.Object);
     }
 
-    private AccountingResponse CreateAccountingResponse(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, IReadOnlyCollection<PostingLineModel>? postingLineModels = null, IReadOnlyCollection<LetterHeadIdentificationModel>? letterHeadIdentificationModels = null)
+    private AccountingResponse CreateAccountingResponse(AccountingModel? accountingModel = null, IAccountingTexts? accountingTexts = null, IReadOnlyCollection<PostingLineModel>? postingLineModels = null, ApplyPostingJournalModel? postingJournalModel = null, IReadOnlyCollection<LetterHeadIdentificationModel>? letterHeadIdentificationModels = null)
     {
         IReadOnlyDictionary<StaticTextKey, string> staticTexts = _fixture!.CreateStaticTexts(_random!);
         IReadOnlyCollection<IValidationRule> validationRuleSet = _fixture!.CreateValidationRuleSet();
 
-        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, IReadOnlyCollection<LetterHeadIdentificationModel>> model = Tuple.Create(
-            accountingModel ?? _fixture!.CreateAccountingModel(_random!), 
-            postingLineModels ??_fixture!.CreatePostingLineModels(_random!), 
+        AccountingModel accounting = accountingModel ?? _fixture!.CreateAccountingModel(_random!);
+
+        Tuple<AccountingModel, IReadOnlyCollection<PostingLineModel>, ApplyPostingJournalModel, IReadOnlyCollection<LetterHeadIdentificationModel>> model = Tuple.Create(
+            accounting,
+            postingLineModels ?? _fixture!.CreatePostingLineModels(_random!),
+            postingJournalModel ?? _fixture!.CreateApplyPostingJournalModel(_random!, accountingNumber: accounting.Number),
             letterHeadIdentificationModels ?? _fixture!.CreateLetterHeadIdentificationModels(_random!));
 
         return new AccountingResponse(model, accountingTexts ?? _fixture!.CreateAccountingTexts(_random!), staticTexts, validationRuleSet);

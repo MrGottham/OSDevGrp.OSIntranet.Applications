@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useErrorBoundary } from 'react-error-boundary';
 import { ServiceContext } from '../contexts/ServiceContext';
@@ -16,6 +16,10 @@ function AddAccounting() {
     const [content, setContent] = useState();
     const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
+    const populateContent = useCallback(async () => {
+        const json = await accountingService.getAccountingPreCreation();
+        setContent(json);
+    }, [accountingService]);
 
     useEffect(() => {
         if (submitting !== undefined && submitting !== null && submitting) 
@@ -23,9 +27,12 @@ function AddAccounting() {
             return;
         }
 
-        populateContent()
-            .catch(error => showBoundary(error));
-    }, [submitting]);
+        async function fetchContent() {
+            populateContent()
+                .catch(error => showBoundary(error));
+        }
+        fetchContent();
+    }, [submitting, populateContent, showBoundary]);
 
     if (content === undefined || (submitting !== undefined && submitting !== null && submitting)) {
         return (
@@ -56,11 +63,6 @@ function AddAccounting() {
             </Row>
         </>
     );
-
-    async function populateContent() {
-        const json = await accountingService.getAccountingPreCreation();
-        setContent(json);
-    }
 
     function submit(values, actions) {
         try {

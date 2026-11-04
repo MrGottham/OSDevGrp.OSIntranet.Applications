@@ -42,33 +42,33 @@ public class GetCurrentSecurityContextAsyncTests
 
     [Test]
     [Category("UnitTest")]
-    public void GetCurrentSecurityContextAsync_WhenNoHttpContextWasResolvedFromHttpContextAccessor_ThrowsInvalidOperationException()
+    public async System.Threading.Tasks.Task GetCurrentSecurityContextAsync_WhenNoHttpContextWasResolvedFromHttpContextAccessor_ThrowsInvalidOperationException()
     {
         ISecurityContextProvider sut = CreateSut(hasHttpContext: false);
 
-        InvalidOperationException? result = Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.GetCurrentSecurityContextAsync());
+        InvalidOperationException? result = (await Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.GetCurrentSecurityContextAsync()))!;
 
         Assert.That(result, Is.Not.Null);
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetCurrentSecurityContextAsync_WhenNoHttpContextWasResolvedFromHttpContextAccessor_ThrowsInvalidOperationExceptionWithSpecificMessage()
+    public async System.Threading.Tasks.Task GetCurrentSecurityContextAsync_WhenNoHttpContextWasResolvedFromHttpContextAccessor_ThrowsInvalidOperationExceptionWithSpecificMessage()
     {
         ISecurityContextProvider sut = CreateSut(hasHttpContext: false);
 
-        InvalidOperationException? result = Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.GetCurrentSecurityContextAsync());
+        InvalidOperationException? result = (await Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.GetCurrentSecurityContextAsync()))!;
 
         Assert.That(result!.Message, Is.EqualTo("No HTTP context was resolved from the HTTP context accessor."));
     }
 
     [Test]
     [Category("UnitTest")]
-    public void GetCurrentSecurityContextAsync_WhenNoHttpContextWasResolvedFromHttpContextAccessor_ThrowsInvalidOperationExceptionWhereInnerExceptionIsNull()
+    public async System.Threading.Tasks.Task GetCurrentSecurityContextAsync_WhenNoHttpContextWasResolvedFromHttpContextAccessor_ThrowsInvalidOperationExceptionWhereInnerExceptionIsNull()
     {
         ISecurityContextProvider sut = CreateSut(hasHttpContext: false);
 
-        InvalidOperationException? result = Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.GetCurrentSecurityContextAsync());
+        InvalidOperationException? result = (await Assert.ThrowsAsync<InvalidOperationException>(async () => await sut.GetCurrentSecurityContextAsync()))!;
 
         Assert.That(result!.InnerException, Is.Null);
     }

@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS applicationbuilder
 WORKDIR /src
 
@@ -53,5 +55,7 @@ WORKDIR /src/OSDevGrp.OSIntranet.WebApi
 RUN dotnet publish -c Release -o out
 
 # Build the BFF WebApi application
+# Build with the license secret using: docker compose build builder
 WORKDIR /src/OSDevGrp.OSIntranet.Bff.WebApi
-RUN dotnet publish -c Release -o out
+RUN --mount=type=secret,id=sixlabors_license,target=/run/secrets/sixlabors.lic,required=true \
+    dotnet publish -c Release -o out -p:SixLaborsLicenseFile=/run/secrets/sixlabors.lic

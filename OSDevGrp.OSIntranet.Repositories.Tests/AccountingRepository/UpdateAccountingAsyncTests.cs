@@ -9,11 +9,11 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.AccountingRepository
     {
         [Test]
         [Category("UnitTest")]
-        public void UpdateAccountingAsync_WhenAccountingIsNull_ThrowsArgumentException()
+        public async System.Threading.Tasks.Task UpdateAccountingAsync_WhenAccountingIsNull_ThrowsArgumentException()
         {
             IAccountingRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateAccountingAsync(null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.UpdateAccountingAsync(null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("accounting"));
         }

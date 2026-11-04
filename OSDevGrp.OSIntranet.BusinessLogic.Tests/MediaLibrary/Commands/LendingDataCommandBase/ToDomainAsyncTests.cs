@@ -34,11 +34,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.LendingD
 
 		[Test]
 		[Category("UnitTest")]
-		public void ToDomainAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task ToDomainAsync_WhenMediaLibraryRepositoryIsNull_ThrowsArgumentNullException()
 		{
 			ILendingDataCommand sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToDomainAsync(null, _commonRepositoryMock.Object));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToDomainAsync(null, _commonRepositoryMock.Object)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("mediaLibraryRepository"));
@@ -46,11 +46,11 @@ namespace OSDevGrp.OSIntranet.BusinessLogic.Tests.MediaLibrary.Commands.LendingD
 
 		[Test]
 		[Category("UnitTest")]
-		public void ToDomainAsync_WhenCommonRepositoryIsNull_ThrowsArgumentNullException()
+		public async System.Threading.Tasks.Task ToDomainAsync_WhenCommonRepositoryIsNull_ThrowsArgumentNullException()
 		{
 			ILendingDataCommand sut = CreateSut();
 
-			ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToDomainAsync(_mediaLibraryRepositoryMock.Object, null));
+			ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ToDomainAsync(_mediaLibraryRepositoryMock.Object, null)))!;
 
 			Assert.That(result, Is.Not.Null);
 			Assert.That(result.ParamName, Is.EqualTo("commonRepository"));

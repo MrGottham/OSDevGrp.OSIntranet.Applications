@@ -30,9 +30,9 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreGoogleToken_WhenTokenHelperFactoryIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreGoogleToken_WhenTokenHelperFactoryIsNull_ThrowsArgumentNullException()
         {
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await Mvc.Helpers.Security.TokenHelperFactoryExtensions.StoreGoogleToken(null, CreateHttpContext(), _fixture.BuildTokenMock().Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await Mvc.Helpers.Security.TokenHelperFactoryExtensions.StoreGoogleToken(null, CreateHttpContext(), _fixture.BuildTokenMock().Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("tokenHelperFactory"));
@@ -40,11 +40,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreGoogleToken_WhenHttpContextIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreGoogleToken_WhenHttpContextIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreGoogleToken(null, _fixture.BuildTokenMock().Object));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreGoogleToken(null, _fixture.BuildTokenMock().Object)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("httpContext"));
@@ -52,11 +52,11 @@ namespace OSDevGrp.OSIntranet.Mvc.Tests.Helpers.Security.TokenHelperFactoryExten
 
         [Test]
         [Category("UnitTest")]
-        public void StoreGoogleToken_WhenGoogleTokenIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task StoreGoogleToken_WhenGoogleTokenIsNull_ThrowsArgumentNullException()
         {
             ITokenHelperFactory sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreGoogleToken(CreateHttpContext(), null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.StoreGoogleToken(CreateHttpContext(), null)))!;
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.ParamName, Is.EqualTo("googleToken"));

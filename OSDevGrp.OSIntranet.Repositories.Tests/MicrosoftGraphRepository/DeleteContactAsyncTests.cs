@@ -26,44 +26,44 @@ namespace OSDevGrp.OSIntranet.Repositories.Tests.MicrosoftGraphRepository
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContactAsync_WhenRefreshableTokenIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContactAsync_WhenRefreshableTokenIsNull_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(null, _fixture.Create<string>()));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(null, _fixture.Create<string>())))!;
 
             Assert.That(result.ParamName, Is.EqualTo("refreshableToken"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContactAsync_WhenIdentifierIsNull_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContactAsync_WhenIdentifierIsNull_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(_fixture.BuildRefreshableTokenMock().Object, null));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(_fixture.BuildRefreshableTokenMock().Object, null)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("identifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContactAsync_WhenIdentifierIsEmpty_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContactAsync_WhenIdentifierIsEmpty_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(_fixture.BuildRefreshableTokenMock().Object, string.Empty));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(_fixture.BuildRefreshableTokenMock().Object, string.Empty)))!;
 
             Assert.That(result.ParamName, Is.EqualTo("identifier"));
         }
 
         [Test]
         [Category("UnitTest")]
-        public void DeleteContactAsync_WhenIdentifierIsWhiteSpace_ThrowsArgumentNullException()
+        public async System.Threading.Tasks.Task DeleteContactAsync_WhenIdentifierIsWhiteSpace_ThrowsArgumentNullException()
         {
             IMicrosoftGraphRepository sut = CreateSut();
 
-            ArgumentNullException result = Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(_fixture.BuildRefreshableTokenMock().Object, " "));
+            ArgumentNullException result = (await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.DeleteContactAsync(_fixture.BuildRefreshableTokenMock().Object, " ")))!;
 
             Assert.That(result.ParamName, Is.EqualTo("identifier"));
         }
