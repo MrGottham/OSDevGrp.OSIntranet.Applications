@@ -9,6 +9,8 @@
         public const string AccountingModifierPolicy = "AccountingModifier";
         public const string AccountingViewerPolicy = "AccountingViewer";
         public const string CommonDataPolicy = "CommonData";
+        public const string ContactPolicy = "Contacts";
+        public const string ContactsFromExternalProviderPolicy = "ContactsFromExternalProvider";
 
         #endregion
     }
