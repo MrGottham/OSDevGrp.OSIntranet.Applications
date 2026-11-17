@@ -18,7 +18,7 @@
     <PackageReference Include="DataAnnotationsValidatorNetStandard" Version="1.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="11.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
-    <PackageReference Include="Microsoft.OpenApi" Version="3.11.0" />
+    <PackageReference Include="Microsoft.OpenApi" Version="3.11.1" />
   </ItemGroup>
 
   <ItemGroup>
