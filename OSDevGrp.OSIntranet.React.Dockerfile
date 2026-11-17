@@ -31,7 +31,7 @@ RUN chmod g+rwx /var/run && chgrp ${appUserGroup} /var/run
 RUN chmod g+rwx /var/log/supervisor && chgrp ${appUserGroup} /var/log/supervisor
 
 ARG sshPassword
-RUN mkdir /var/run/sshd
+RUN mkdir -p /var/run/sshd
 RUN echo "root:${sshPassword}" | chpasswd
 RUN sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 RUN sed -i "s/#Port 22/Port 2222/g" /etc/ssh/sshd_config
