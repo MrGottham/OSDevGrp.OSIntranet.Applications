@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS applicationbuilder
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS applicationbuilder
 WORKDIR /src
 
 # Copy .sln and .csproj files and restore as distinct layers
