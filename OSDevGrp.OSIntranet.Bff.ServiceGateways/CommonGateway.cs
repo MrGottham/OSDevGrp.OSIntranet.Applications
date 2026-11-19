@@ -21,7 +21,7 @@ internal class CommonGateway : ServiceGatewayBase, ICommonGateway
     {
         try
         {
-            return await WebApiClient.LetterheadsAsync(ApiVersions.Version1_0, cancellationToken);
+            return await WebApiClient.Letterheads2Async(ApiVersions.Version1_0, cancellationToken);
         }
         catch (WebApiClientException<ErrorModel> ex)
         {

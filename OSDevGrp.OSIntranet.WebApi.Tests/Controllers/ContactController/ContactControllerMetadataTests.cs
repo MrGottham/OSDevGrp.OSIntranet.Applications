@@ -67,7 +67,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
                 .OrderBy(methodName => methodName)
                 .ToArray();
 
-            Assert.That(result, Is.EqualTo(new[] { "ContactGroupsAsync", "CountriesAsync", "PostalCodesAsync" }));
+            Assert.That(result, Is.EqualTo(new[] { "ContactGroupsAsync", "CountriesAsync", "PaymentTermsAsync", "PostalCodesAsync" }));
         }
 
         [Test]
@@ -88,6 +88,16 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
                 .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
 
             Assert.That(result?.Template, Is.EqualTo("countries"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void PaymentTermsAsync_WhenInspected_HasRouteTemplate()
+        {
+            HttpGetAttribute result = typeof(Controller).GetMethod(nameof(Controller.PaymentTermsAsync))
+                .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Template, Is.EqualTo("paymentterms"));
         }
 
         [Test]

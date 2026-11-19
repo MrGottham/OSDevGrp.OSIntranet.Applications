@@ -8,10 +8,12 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Models;
 using OSDevGrp.OSIntranet.WebApi.Models.Contacts;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +31,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
         private readonly IQueryBus _queryBus;
         private readonly IConverter _contactModelConverter;
+        private readonly IConverter _sharedModelConverter;
 
         #endregion
 
@@ -41,6 +44,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
 
             _queryBus = queryBus;
             _contactModelConverter = converterFactory.CreateContactModelConverter();
+            _sharedModelConverter = converterFactory.CreateSharedModelConverter();
         }
 
         #endregion
@@ -93,6 +97,19 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 .ToList();
 
             return new OkObjectResult(postalCodeModels);
+        }
+
+        [HttpGet("paymentterms")]
+        public async Task<ActionResult<IEnumerable<PaymentTermModel>>> PaymentTermsAsync()
+        {
+            IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
+
+            IEnumerable<PaymentTermModel> paymentTermModels = paymentTerms.AsParallel()
+                .Select(_sharedModelConverter.Convert<IPaymentTerm, PaymentTermModel>)
+                .OrderBy(paymentTermModel => paymentTermModel.Number)
+                .ToList();
+
+            return new OkObjectResult(paymentTermModels);
         }
 
         #endregion

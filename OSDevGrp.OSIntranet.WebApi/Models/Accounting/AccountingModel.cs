@@ -1,4 +1,4 @@
-using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;

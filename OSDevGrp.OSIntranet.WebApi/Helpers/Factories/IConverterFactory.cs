@@ -10,7 +10,7 @@ public interface IConverterFactory
 
     IConverter CreateContactModelConverter();
 
-    IConverter CreateCommonModelConverter();
+    IConverter CreateSharedModelConverter();
 
     IConverter CreateSecurityModelConverter();
 }

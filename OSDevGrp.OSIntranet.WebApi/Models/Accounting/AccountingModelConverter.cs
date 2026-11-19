@@ -8,7 +8,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
-using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +18,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
     {
         #region Private variables
 
-        private readonly IConverter _commonModelConverter;
+        private readonly IConverter _sharedModelConverter;
         private readonly IValueConverter<ApplyPostingLineCollectionModel, IEnumerable<IApplyPostingLineCommand>> _applyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter = new ApplyPostingLineCollectionModelToApplyPostingLineCommandCollectionValueConverter();
 
         #endregion
@@ -28,7 +28,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
         private AccountingModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
             : base(licensesOptions, loggerFactory)
         {
-            _commonModelConverter = CommonModelConverter.Create(licensesOptions, loggerFactory);
+            _sharedModelConverter = SharedModelConverter.Create(licensesOptions, loggerFactory);
         }
 
         #endregion
@@ -42,7 +42,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<IAccounting, AccountingIdentificationModel>();
 
             mapperConfiguration.CreateMap<IAccounting, AccountingModel>()
-                .ForMember(dest => dest.LetterHead, opt => opt.MapFrom(src => _commonModelConverter.Convert<ILetterHead, LetterHeadIdentificationModel>(src.LetterHead)))
+                .ForMember(dest => dest.LetterHead, opt => opt.MapFrom(src => _sharedModelConverter.Convert<ILetterHead, LetterHeadIdentificationModel>(src.LetterHead)))
                 .ForMember(dest => dest.Accounts, opt => opt.MapFrom(src => src.AccountCollection))
                 .ForMember(dest => dest.BudgetAccounts, opt => opt.MapFrom(src => src.BudgetAccountCollection))
                 .ForMember(dest => dest.ContactAccounts, opt => opt.MapFrom(src => src.ContactAccountCollection))
@@ -96,6 +96,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
                 .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
             mapperConfiguration.CreateMap<IContactAccount, ContactAccountModel>()
+                .ForMember(dest => dest.PaymentTerm, opt => opt.MapFrom(src => _sharedModelConverter.Convert<IPaymentTerm, PaymentTermModel>(src.PaymentTerm)))
                 .ForMember(dest => dest.BalanceInfos, opt => opt.MapFrom(src => src.ContactInfoCollection))
                 .ForMember(dest => dest.Modifiable, opt => opt.MapFrom(src => src.IsProtected == false));
 
@@ -151,8 +152,6 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
             mapperConfiguration.CreateMap<IAccountGroup, AccountGroupModel>();
 
             mapperConfiguration.CreateMap<IBudgetAccountGroup, BudgetAccountGroupModel>();
-
-            mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermModel>();
 
             mapperConfiguration.CreateMap<Domain.Interfaces.Accounting.Enums.BalanceBelowZeroType, BalanceBelowZeroType>();
 

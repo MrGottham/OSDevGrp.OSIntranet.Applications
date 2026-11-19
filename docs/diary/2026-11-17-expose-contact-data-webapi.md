@@ -196,3 +196,45 @@ Each model now has a focused validation-test class in its own folder, and indivi
 
 ### Future work
 - No follow-up is needed for this test-organization change.
+
+## Step 6: Add payment-term and letter-head contract with shared models
+
+**Author:** main
+
+### Prompt Context
+
+**Verbatim prompt:** "Yes lets implement this"
+**Interpretation:** Implement the approved plan for the remaining PRD contract: ContactController payment terms, AccountingController letter heads, and shared payment-term and letter-head models behind a shared converter.
+**Inferred intent:** Complete the remaining contact-data PRD acceptance criteria in one reviewable iteration, while keeping the existing `api/Common/letterheads` route unchanged.
+
+### What I did
+- Moved `PaymentTermModel`, `LetterHeadModel`, and `LetterHeadIdentificationModel` into `Models/Shared`, and added `SharedModelConverter` to map them.
+- Replaced `CreateCommonModelConverter()` with `CreateSharedModelConverter()` on `IConverterFactory`; removed `CommonModelConverter` from WebApi.
+- Composed the shared converter in `AccountingModelConverter` for `LetterHead` and `ContactAccount.PaymentTerm`, removing its duplicate payment-term map.
+- Added `ContactController.PaymentTermsAsync` at `paymentterms` and `AccountingController.LetterHeadsAsync` at `letterheads`. The existing `CommonController` `letterheads` route is unchanged.
+- Added one-action fixtures (`Controllers/ContactController/PaymentTermsAsyncTests.cs`, `Controllers/AccountingController/LetterHeadsAsyncTests.cs`), one-property converter tests in `Models/Shared/SharedModelConverter/ConvertTests.cs`, and a route-template test for `paymentterms` in `ContactControllerMetadataTests`.
+
+### Why
+Payment terms and letter heads are shared by Accounting and Contact responses. One shared converter keeps their mappings in one place, and the new routes reuse them without changing existing contracts.
+
+### What worked
+- The WebApi unit-test run passed all 1,299 tests (`Category=UnitTest`).
+- The post-build NSwag step generated the new operations without hand-editing `WebApiClient.generated.cs`.
+
+### What didn't work
+- The first build failed: my `using` edit in `ConverterFactory.cs` replaced `Models.Common` but dropped the needed `Models.Core` import (`CoreModelConverter`). Restoring it fixed the build.
+- The first test build failed because the new Accounting letter-head test expected `LetterHeadIdentificationModel`, but the action returns `LetterHeadModel`, as the existing `api/Common/letterheads` route does. The test now matches the action.
+
+### What I learned
+- NSwag names the new operations `Paymentterms2Async` (Contact) and `Letterheads2Async` (Accounting) because the same names already exist in the client. Consumers of the generated client will see these names.
+
+### What was tricky
+- `letterheads` now exists in two controllers with the same contract, so the shared converter is used by both.
+
+### What warrants review
+- `AccountingModelConverter` now maps `ContactAccount.PaymentTerm` through `Convert`, which assumes `IContactAccount.PaymentTerm` is never null. Confirm this holds, or add a null guard.
+- Confirm the generated client method names `Paymentterms2Async` and `Letterheads2Async` are acceptable, since they come from NSwag's name-collision handling.
+- Focused validation command: `dotnet test OSDevGrp.OSIntranet.WebApi.Tests/OSDevGrp.OSIntranet.WebApi.Tests.csproj -p:SolutionDir=/home/os/osdevgrp/OSDevGrp.OSIntranet.Applications/ --filter "Category=UnitTest"`.
+
+### Future work
+- Consider a converter test for the `ContactAccount.PaymentTerm` mapping in `AccountingModelConverter`.

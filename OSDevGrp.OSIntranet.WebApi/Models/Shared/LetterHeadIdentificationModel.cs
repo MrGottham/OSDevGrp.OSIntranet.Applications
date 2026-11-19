@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace OSDevGrp.OSIntranet.WebApi.Models.Accounting
+namespace OSDevGrp.OSIntranet.WebApi.Models.Shared
 {
-    public class PaymentTermModel
+    public class LetterHeadIdentificationModel
     {
         [Required]
         [Range(1, 99)]
