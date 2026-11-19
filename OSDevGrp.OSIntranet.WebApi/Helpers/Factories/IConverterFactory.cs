@@ -8,6 +8,8 @@ public interface IConverterFactory
 
     IConverter CreateAccountingModelConverter();
 
+    IConverter CreateContactModelConverter();
+
     IConverter CreateCommonModelConverter();
 
     IConverter CreateSecurityModelConverter();

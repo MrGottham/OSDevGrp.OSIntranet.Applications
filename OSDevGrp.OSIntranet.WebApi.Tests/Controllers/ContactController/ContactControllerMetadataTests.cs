@@ -59,11 +59,46 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public void ContactController_WhenInspected_DeclaresNoPublicInstanceMethods()
+        public void ContactController_WhenInspected_DeclaresContactLookupActions()
         {
-            int result = typeof(Controller).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Length;
+            string[] result = typeof(Controller).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Select(method => method.Name)
+                .Where(methodName => methodName.EndsWith("Async"))
+                .OrderBy(methodName => methodName)
+                .ToArray();
 
-            Assert.That(result, Is.EqualTo(0));
+            Assert.That(result, Is.EqualTo(new[] { "ContactGroupsAsync", "CountriesAsync", "PostalCodesAsync" }));
         }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactGroupsAsync_WhenInspected_HasRouteTemplate()
+        {
+            HttpGetAttribute result = typeof(Controller).GetMethod(nameof(Controller.ContactGroupsAsync))
+                .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Template, Is.EqualTo("contactgroups"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void CountriesAsync_WhenInspected_HasRouteTemplate()
+        {
+            HttpGetAttribute result = typeof(Controller).GetMethod(nameof(Controller.CountriesAsync))
+                .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Template, Is.EqualTo("countries"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void PostalCodesAsync_WhenInspected_HasRouteTemplate()
+        {
+            HttpGetAttribute result = typeof(Controller).GetMethod(nameof(Controller.PostalCodesAsync))
+                .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Template, Is.EqualTo("countries/{countryCode}/postalcodes"));
+        }
+
     }
 }
