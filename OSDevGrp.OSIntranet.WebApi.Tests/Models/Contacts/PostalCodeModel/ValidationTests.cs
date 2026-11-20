@@ -14,12 +14,10 @@ public class ValidationTests
     {
         PostalCodeModel model = new()
         {
-            Country = new CountryCodeModel
+            Country = new CountryCodeIdentificationModel
             {
                 Code = "DK",
-                Name = "Denmark",
-                UniversalName = "Danmark",
-                PhonePrefix = "+45"
+                Name = "Denmark"
             },
             Code = "10A0",
             City = "Copenhagen"

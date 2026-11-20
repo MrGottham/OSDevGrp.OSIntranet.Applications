@@ -7,7 +7,7 @@ public class PostalCodeModel
 {
     [Required]
     [JsonRequired]
-    public CountryCodeModel Country { get; set; }
+    public CountryCodeIdentificationModel Country { get; set; }
 
     [Required]
     [StringLength(16, MinimumLength = 1)]

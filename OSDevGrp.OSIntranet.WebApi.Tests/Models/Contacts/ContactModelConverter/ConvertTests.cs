@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoFixture;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
@@ -137,6 +138,37 @@ public class ConvertTests
         PostalCodeModel result = CreateConverter().Convert<IPostalCode, PostalCodeModel>(postalCode);
 
         Assert.That(result.State, Is.EqualTo("Capital Region"));
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void Convert_WhenConvertingPostalCode_SerializedCountryDoesNotExposeUniversalName()
+    {
+        IPostalCode postalCode = CreatePostalCode();
+
+        JsonElement country = SerializeCountryOfPostalCode(CreateConverter().Convert<IPostalCode, PostalCodeModel>(postalCode));
+
+        Assert.That(country.TryGetProperty("universalName", out _), Is.False);
+    }
+
+    [Test]
+    [Category("UnitTest")]
+    public void Convert_WhenConvertingPostalCode_SerializedCountryDoesNotExposePhonePrefix()
+    {
+        IPostalCode postalCode = CreatePostalCode();
+
+        JsonElement country = SerializeCountryOfPostalCode(CreateConverter().Convert<IPostalCode, PostalCodeModel>(postalCode));
+
+        Assert.That(country.TryGetProperty("phonePrefix", out _), Is.False);
+    }
+
+    private static JsonElement SerializeCountryOfPostalCode(PostalCodeModel postalCodeModel)
+    {
+        JsonSerializerOptions options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+        using JsonDocument document = JsonSerializer.SerializeToDocument(postalCodeModel, options);
+
+        return document.RootElement.GetProperty("country").Clone();
     }
 
     private ICountry CreateCountry() =>

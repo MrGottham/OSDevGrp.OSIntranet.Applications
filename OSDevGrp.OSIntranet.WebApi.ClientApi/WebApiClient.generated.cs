@@ -5118,6 +5118,29 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CountryCodeIdentificationModel
+    {
+        [System.Text.Json.Serialization.JsonConstructor]
+        public CountryCodeIdentificationModel(string @code, string @name)
+        {
+            this.Code = @code;
+            this.Name = @name;
+        }
+
+        [System.Text.Json.Serialization.JsonPropertyName("code")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(4, MinimumLength = 1)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"[A-Z]{1,4}")]
+        public string Code { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(256, MinimumLength = 1)]
+        public string Name { get; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class CountryCodeModel
     {
         [System.Text.Json.Serialization.JsonConstructor]
@@ -5633,7 +5656,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     public partial class PostalCodeModel
     {
         [System.Text.Json.Serialization.JsonConstructor]
-        public PostalCodeModel(string @city, string @code, CountryCodeModel @country, string? @state)
+        public PostalCodeModel(string @city, string @code, CountryCodeIdentificationModel @country, string? @state)
         {
             this.Country = @country;
             this.Code = @code;
@@ -5643,7 +5666,7 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
 
         [System.Text.Json.Serialization.JsonPropertyName("country")]
         [System.ComponentModel.DataAnnotations.Required]
-        public CountryCodeModel Country { get; }
+        public CountryCodeIdentificationModel Country { get; }
 
         [System.Text.Json.Serialization.JsonPropertyName("code")]
         [System.ComponentModel.DataAnnotations.Required]

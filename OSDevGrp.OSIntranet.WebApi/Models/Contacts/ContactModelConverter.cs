@@ -21,6 +21,7 @@ internal class ContactModelConverter : ConverterBase
 
         mapperConfiguration.CreateMap<IContactGroup, ContactGroupModel>();
         mapperConfiguration.CreateMap<ICountry, CountryCodeModel>();
+        mapperConfiguration.CreateMap<ICountry, CountryCodeIdentificationModel>();
         mapperConfiguration.CreateMap<IPostalCode, PostalCodeModel>();
     }
 

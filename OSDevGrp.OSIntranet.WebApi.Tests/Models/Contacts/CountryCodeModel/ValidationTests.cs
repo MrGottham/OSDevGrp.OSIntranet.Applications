@@ -38,6 +38,21 @@ public class ValidationTests
         Assert.That(IsValid(model), Is.False);
     }
 
+    [Test]
+    [Category("UnitTest")]
+    public void CountryCodeModel_WhenNameExceedsMaximumLength_IsInvalid()
+    {
+        CountryCodeModel model = new()
+        {
+            Code = "DK",
+            Name = new string('a', 257),
+            UniversalName = "Danmark",
+            PhonePrefix = "+45"
+        };
+
+        Assert.That(IsValid(model), Is.False);
+    }
+
     private static bool IsValid(object model)
     {
         List<ValidationResult> validationResults = [];
