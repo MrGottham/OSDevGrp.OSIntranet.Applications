@@ -8,42 +8,47 @@ We gona implement logic in the following projects:
 * OSDevGrp.OSIntranet.WebApi.Tests
 * OSDevGrp.OSIntranet.WebApi.ClientApi which will be automatically be updated by the OSDevGrp.OSIntranet.WebApi.PostBuild
 
+We gona create tests for functionality in the following projects:
+
+* OSDevGrp.OSIntranet.WebApi.Tests
+
 ## Implement a contact controller in the WebApi
 
 ### Business goal
 
-In the contact controller we gona expose contact groups, country codes, postal codes and payment terms. Furthermore we gona share some entities like payment terms between the contract and accounting controller also the letter heads should be shared between the common controller and the accounting controller.
+In the contact controller we gona expose contacts based on the following methods:
+
+* One returning all contacts
+* One returning a given contact based on the external identifier
+* One returning all contacts who has birthday within a given number of days
+
+All method should be authorized by the **ContactsFromExternalProviderPolicy** and implement logic to validate that the auhtorized user has the **MicrosoftTokenClaimType** claim containing a non expired token.
 
 ## Implementation Bullets
 
 ### WebApi
 
-- [ ] Add `[HttpGet("contactgroups")]` `ContactGroupsAsync()` with signature `Task<ActionResult<IEnumerable<ContactGroupModel>>>`; use `IQueryBus` to execute `EmptyQuery` and retrieve `IEnumerable<IContactGroup>` from `GetContactGroupCollectionQueryHandler`.
-- [ ] Add `[HttpGet("countries")]` `CountriesAsync()` with signature `Task<ActionResult<IEnumerable<CountryCodeModel>>>`; use `IQueryBus` to execute `EmptyQuery` and retrieve `IEnumerable<ICountry>` from `GetCountryCollectionQueryHandler`.
-- [ ] Add `[HttpGet("countries/{countryCode}/postalcodes")]` `PostalCodesAsync(string countryCode)` with signature `Task<ActionResult<IEnumerable<PostalCodeModel>>>`; use `IQueryBus` to execute `GetPostalCodeCollectionQuery` with the route country code and retrieve `IEnumerable<IPostalCode>` from `GetPostalCodeCollectionQueryHandler`.
-- [ ] Add `[HttpGet("paymentterms")]` `PaymentTermsAsync()` with signature `Task<ActionResult<IEnumerable<PaymentTermModel>>>`; use `IQueryBus` to execute `EmptyQuery` and retrieve `IEnumerable<IPaymentTerm>` from `GetPaymentTermCollectionQueryHandler`.
-- [ ] Add `[HttpGet("letterheads")]` `LetterHeadsAsync()` to AccountingController with signature `Task<ActionResult<IEnumerable<LetterHeadModel>>>`; use `IQueryBus` to execute `EmptyQuery` and retrieve `IEnumerable<ILetterHead>` from `GetLetterHeadCollectionQueryHandler`.
-- [ ] Add `ContactGroupModel` based on `IContactGroup`, with `Number` required and ranged from 1 to 99 and `Name` required with length 1 to 256, matching the validation attributes on `ContactGroupViewModel`; add its mapping to the contact model converter.
-- [ ] Add `CountryCodeModel` based on `ICountry`, matching `CountryViewModel` validation: required `Code` (1-4 characters and country-code pattern), `Name` and `UniversalName` (1-256 characters each), and required `PhonePrefix` (1-4 characters and phone-prefix pattern); do not expose `DefaultForPrincipal`.
-- [ ] Add country-code and phone-prefix regex constants to WebApi `ValidationRegexPatterns`, reusing the existing country-code and phone-prefix patterns used by MVC rather than referencing MVC model code.
-- [ ] Add `PostalCodeModel` based on `IPostalCode`, with a `Country` reference represented by `CountryCodeModel`; match `PostalCodeViewModel` validation for `Code` (required, 1-16 characters, postal-code pattern), `City` (required, 1-256 characters), and optional `State` (maximum 256 characters); add its mapping to the contact model converter.
-- [ ] Add the postal-code regex constant to WebApi `ValidationRegexPatterns`, reusing the existing postal-code pattern used by MVC rather than referencing MVC model code.
-- [ ] Map contact groups by number, countries by code, postal codes by code, and payment terms by number for deterministic API responses.
-- [ ] Move `PaymentTermModel.cs` from `Models/Accounting` into a new `Models/Shared` folder and update its namespace to `OSDevGrp.OSIntranet.WebApi.Models.Shared`.
-- [ ] Move `LetterHeadModel.cs` and `LetterHeadIdentificationModel.cs` from `Models/Common` into `Models/Shared` and update their namespaces to `OSDevGrp.OSIntranet.WebApi.Models.Shared`.
-- [ ] Add `SharedModelConverter` mappings for `IPaymentTerm` to `PaymentTermModel`, and `ILetterHead` to both `LetterHeadModel` and `LetterHeadIdentificationModel`; expose the converter through `IConverterFactory` and `ConverterFactory`.
-- [ ] Update ContactController and AccountingController payment-term actions, `ContactAccountModel`, `AccountingModelConverter`, `CommonController`, and all affected model references to use the shared models and `SharedModelConverter`; remove duplicate mappings and retire `CommonModelConverter` / `CreateCommonModelConverter` if no longer needed.
-- [ ] Preserve the existing accounting payment-terms and common letter-head routes and their response contracts while using shared model types and mapping logic.
-- [ ] Add query and mapping dependencies to ContactController using the existing controller and converter-factory patterns, while preserving its contacts authorization policy, API version, and route.
+- [ ] Add `Models/Contacts/ContactModel.cs` and expose every `IContact` property except `InternalIdentifier`; do not expose its methods or reuse MVC view models.
+- [ ] Represent each interface-typed `IContact` property (`Name`, `Address`, `Company`, `ContactGroup`, and `PaymentTerm`) with a separate WebApi model; reuse existing compatible models and add any missing models.
+- [ ] Add the relevant validation attributes to `ContactModel` and its nested WebApi models, using `ContactViewModel` and its submodels as the validation reference without adding a dependency on MVC.
+- [ ] Register the `IContact` to `ContactModel` mapping and all required interface-to-WebApi-model mappings for its interface-valued properties in `ContactModelConverter`.
+- [ ] Reuse the registered `IClaimResolver.GetMicrosoftToken` method to resolve the current user's Microsoft token claim, supplying the principal and token-unprotect delegate; do not add a separate token-resolver interface, implementation, or registration.
+- [ ] Return `Unauthorized` without querying when no token is resolved or the resolved token has expired.
+- [ ] Add `ContactsAsync` with signature `Task<ActionResult<IEnumerable<ContactModel>>>` and both `[HttpGet]` and `[HttpGet("contacts")]` attributes; resolve the token, execute `GetContactCollectionQuery`, map the contacts to `ContactModel`, and return them in display-name order using an ordinal case-insensitive comparison, with external identifier as the tie-breaker.
+- [ ] Add `ContactAsync(string externalIdentifier)` with `[HttpGet("{externalIdentifier}")]`; apply the same validation attributes to the parameter as `ContactModel.ExternalIdentifier` and execute `GetContactQuery` with the identifier and token. `GetContactQueryHandler` returns `null` when Microsoft Graph has no matching contact, so return `NotFound` for a null result and map only a non-null contact.
+- [ ] Add `ContactsWithBirthdayAsync([Required][Range(0, 365)] [FromQuery] int withinDays)` with `[HttpGet("withbirthdays")]`; execute `GetContactWithBirthdayCollectionQuery` with `withinDays` and the token, map the contacts to `ContactModel`, and return them in display-name order using an ordinal case-insensitive comparison, with external identifier as the tie-breaker.
+- [ ] Protect each new action with `Policies.ContactsFromExternalProviderPolicy` while preserving the existing authorization behavior of other `ContactController` actions.
+- [ ] Populate each contact query's token fields from the validated refreshable token and use the existing `IQueryBus` and contact converter patterns.
 
 ### WebApi.Tests
 
-- [ ] Add focused ContactController action tests with one behavior per test method: separately verify the query type/arguments, `OkObjectResult`, and mapped response content for each action.
-- [ ] Test that postal-code lookup passes the requested country code in its own test method; test deterministic collection ordering separately for each applicable action.
-- [ ] Add AccountingController `LetterHeadsAsync` tests, with one behavior per test method, verifying the letter-head query, `OkObjectResult`, and mapped response content separately.
-- [ ] Add or update converter tests for contact-group, country, postal-code, payment-term, and letter-head mappings, including shared model reuse.
-- [ ] Keep existing AccountingController payment-term and CommonController letter-head behavior covered and unchanged.
+- [ ] Add focused tests for each new action to verify its query type and arguments, mapped response, and expected `OK` result; verify `NotFound` for an unknown external identifier.
+- [ ] Verify missing and expired Microsoft-token claims return `Unauthorized` and do not invoke the query bus; rely on the existing `ClaimResolver` tests for token-claim decoding and invalid-token behavior.
+- [ ] Verify the birthday action rejects a negative day count and returns matching birthday contacts in deterministic display-name order.
+- [ ] Verify the new actions declare `ContactsFromExternalProviderPolicy` without changing the existing controller actions' authorization metadata.
+- [ ] Add focused `ContactModelConverter` tests for mapping the exposed `IContact` fields and interface-valued properties to their WebApi models.
+- [ ] Verify `ContactModel` omits `InternalIdentifier` and that the WebApi models carry the relevant validation attributes from the MVC model equivalents.
 
 ### WebApi.ClientApi
 
-- [ ] Build the WebApi project to regenerate the client API through its existing post-build process, then verify the generated client exposes the new contact operations and shared response models; do not hand-edit generated files.
+- [ ] Build the WebApi project to run its existing post-build client generation and verify the generated client exposes the three contact operations; do not hand-edit generated files.
