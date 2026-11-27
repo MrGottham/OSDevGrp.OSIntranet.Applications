@@ -62,18 +62,14 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
 
         [Test]
         [Category("UnitTest")]
-        public async Task PaymentTermsAsync_WhenCalled_AssertOkObjectResultContainsPaymentTerms()
+        public async Task PaymentTermsAsync_WhenCalledWithPaymentTerms_ReturnsModelForEachPaymentTerm()
         {
             IList<IPaymentTerm> paymentTermMockCollection = _fixture.CreateMany<IPaymentTerm>(_random.Next(5, 10)).ToList();
             Controller sut = CreateSut(paymentTermMockCollection);
 
             OkObjectResult result = (OkObjectResult) (await sut.PaymentTermsAsync()).Result;
 
-            Assert.That(result.Value, Is.Not.Null);
-
             IList<PaymentTermModel> paymentTermModels = ((IEnumerable<PaymentTermModel>) result.Value).ToList();
-            Assert.That(paymentTermModels, Is.Not.Null);
-            Assert.That(paymentTermModels, Is.Not.Empty);
             Assert.That(paymentTermModels.Count, Is.EqualTo(paymentTermMockCollection.Count));
         }
 
