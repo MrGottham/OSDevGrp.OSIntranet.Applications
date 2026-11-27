@@ -64,7 +64,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Filters
 
             if (responseType != null)
             {
-                response.Content = new Dictionary<string, OpenApiMediaType>
+                response.Content = new Dictionary<string, IOpenApiMediaType>
                 {
                     { "application/json", new OpenApiMediaType { Schema = context.SchemaGenerator.GenerateSchema(responseType, context.SchemaRepository) } }
                 };

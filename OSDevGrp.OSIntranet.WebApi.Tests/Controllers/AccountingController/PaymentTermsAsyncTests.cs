@@ -11,7 +11,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.TestHelpers;
-using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using OSDevGrp.OSIntranet.WebApi.Tests.Helpers.Factories;
 using Controller=OSDevGrp.OSIntranet.WebApi.Controllers.AccountingController;
 

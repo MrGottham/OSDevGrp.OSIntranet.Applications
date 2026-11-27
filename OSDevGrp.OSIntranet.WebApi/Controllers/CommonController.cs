@@ -7,7 +7,7 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
-using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         #region Private variables
 
         private readonly IQueryBus _queryBus;
-        private readonly IConverter _commonModelConverter;
+        private readonly IConverter _sharedModelConverter;
 
         #endregion
 
@@ -36,7 +36,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 .NotNull(converterFactory, nameof(converterFactory));
 
             _queryBus = queryBus;
-            _commonModelConverter = converterFactory.CreateCommonModelConverter();
+            _sharedModelConverter = converterFactory.CreateSharedModelConverter();
         }
 
         #endregion
@@ -49,7 +49,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
 
             IEnumerable<LetterHeadModel> letterHeadModels = letterHeads.AsParallel()
-                .Select(_commonModelConverter.Convert<ILetterHead, LetterHeadModel>)
+                .Select(_sharedModelConverter.Convert<ILetterHead, LetterHeadModel>)
                 .OrderBy(letterHeadModel => letterHeadModel.Number)
                 .ToList();
 

@@ -4,9 +4,10 @@ using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Options;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
-using OSDevGrp.OSIntranet.WebApi.Models.Common;
+using OSDevGrp.OSIntranet.WebApi.Models.Contacts;
 using OSDevGrp.OSIntranet.WebApi.Models.Core;
 using OSDevGrp.OSIntranet.WebApi.Models.Security;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 
 namespace OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 
@@ -38,7 +39,9 @@ internal class ConverterFactory : IConverterFactory
 
     public IConverter CreateAccountingModelConverter() => AccountingModelConverter.Create(_licensesOptions, _loggerFactory);
 
-    public IConverter CreateCommonModelConverter() => CommonModelConverter.Create(_licensesOptions, _loggerFactory);
+    public IConverter CreateContactModelConverter() => ContactModelConverter.Create(_licensesOptions, _loggerFactory);
+
+    public IConverter CreateSharedModelConverter() => SharedModelConverter.Create(_licensesOptions, _loggerFactory);
 
     public IConverter CreateSecurityModelConverter() => SecurityModelConverter.Create(_licensesOptions, _loggerFactory);
 

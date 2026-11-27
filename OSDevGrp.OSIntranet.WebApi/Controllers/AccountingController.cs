@@ -20,6 +20,7 @@ using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Validators;
 using OSDevGrp.OSIntranet.WebApi.Models.Accounting;
+using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
         private readonly ICommandBus _commandBus;
         private readonly IQueryBus _queryBus;
         private readonly IConverter _accountingModelConverter;
+        private readonly IConverter _sharedModelConverter;
 
         #endregion
 
@@ -53,6 +55,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             _commandBus = commandBus;
             _queryBus = queryBus;
             _accountingModelConverter = converterFactory.CreateAccountingModelConverter();
+            _sharedModelConverter = converterFactory.CreateSharedModelConverter();
 
         }
 
@@ -405,11 +408,24 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
             IEnumerable<IPaymentTerm> paymentTerms = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<IPaymentTerm>>(new EmptyQuery());
 
             IEnumerable<PaymentTermModel> paymentTermModels = paymentTerms.AsParallel()
-                .Select(_accountingModelConverter.Convert<IPaymentTerm, PaymentTermModel>)
+                .Select(_sharedModelConverter.Convert<IPaymentTerm, PaymentTermModel>)
                 .OrderBy(paymentTermModel => paymentTermModel.Number)
                 .ToList();
 
             return new OkObjectResult(paymentTermModels);
+        }
+
+        [HttpGet("letterheads")]
+        public async Task<ActionResult<IEnumerable<LetterHeadModel>>> LetterHeadsAsync()
+        {
+            IEnumerable<ILetterHead> letterHeads = await _queryBus.QueryAsync<EmptyQuery, IEnumerable<ILetterHead>>(new EmptyQuery());
+
+            IEnumerable<LetterHeadModel> letterHeadModels = letterHeads.AsParallel()
+                .Select(_sharedModelConverter.Convert<ILetterHead, LetterHeadModel>)
+                .OrderBy(letterHeadModel => letterHeadModel.Number)
+                .ToList();
+
+            return new OkObjectResult(letterHeadModels);
         }
 
         private async Task<ActionResult<ApplyPostingJournalResultModel>> ApplyPostingJournalAsync(IApplyPostingJournalCommand applyPostingJournalCommand)

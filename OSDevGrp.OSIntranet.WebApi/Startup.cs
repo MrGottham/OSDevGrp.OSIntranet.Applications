@@ -211,6 +211,19 @@ namespace OSDevGrp.OSIntranet.WebApi
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim(ClaimHelper.CommonDataClaimType);
                 });
+                opt.AddPolicy(Policies.ContactPolicy, policy =>
+                {
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimHelper.ContactsClaimType);
+                });
+                opt.AddPolicy(Policies.ContactsFromExternalProviderPolicy, policy =>
+                {
+                    policy.AddAuthenticationSchemes(GetBearerAuthenticationScheme());
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimHelper.ContactsClaimType);
+                    policy.RequireClaim(ClaimHelper.MicrosoftTokenClaimType);
+                });
             });
 
             services.AddSwaggerGen(options =>

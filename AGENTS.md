@@ -2,7 +2,7 @@
 
 ## Verify changes
 
-- .NET projects target `net10.0`. From the root: `dotnet build OSDevGrp.OSIntranet.Applications.sln`; run service-independent NUnit tests with `dotnet test OSDevGrp.OSIntranet.Applications.sln --filter "Category=UnitTest"` (unfiltered tests include integrations needing MySQL and external auth/services).
+- .NET projects target `net11.0`. From the root: `dotnet build OSDevGrp.OSIntranet.Applications.sln`; run service-independent NUnit tests with `dotnet test OSDevGrp.OSIntranet.Applications.sln --filter "Category=UnitTest"` (unfiltered tests include integrations needing MySQL and external auth/services).
 - For a focused test: `dotnet test OSDevGrp.OSIntranet.Domain.Tests/OSDevGrp.OSIntranet.Domain.Tests.csproj --filter "FullyQualifiedName~MethodName&Category=UnitTest"`; substitute the owning `*.Tests.csproj`. Test categories are on individual test methods. Reuse builders in `Core.TestHelpers`, `Domain.TestHelpers`, or `Bff.ServiceGateways.TestData` where applicable.
 - Run frontend commands in `osdevgrp.osintranet.react/`: `npm ci`, `npm run lint`, `npm run build`, `npm run dev`. `package.json` has no frontend test or typecheck script. `vite.config.js` requires `VITE_BFF_ENDPOINT` for `dev` and proxies `/api` to it; outside containers it calls `dotnet dev-certs https` for HTTPS even during `build` (requires the .NET SDK).
 

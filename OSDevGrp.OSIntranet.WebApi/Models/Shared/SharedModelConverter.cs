@@ -4,15 +4,16 @@ using Microsoft.Extensions.Options;
 using OSDevGrp.OSIntranet.Core;
 using OSDevGrp.OSIntranet.Core.Interfaces;
 using OSDevGrp.OSIntranet.Core.Options;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Common;
 
-namespace OSDevGrp.OSIntranet.WebApi.Models.Common
+namespace OSDevGrp.OSIntranet.WebApi.Models.Shared
 {
-    internal class CommonModelConverter : ConverterBase
+    internal class SharedModelConverter : ConverterBase
     {
         #region Constructor
 
-        private CommonModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
+        private SharedModelConverter(IOptions<LicensesOptions> licensesOptions, ILoggerFactory loggerFactory)
             : base(licensesOptions, loggerFactory)
         {
         }
@@ -25,6 +26,8 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Common
         {
             NullGuard.NotNull(mapperConfiguration, nameof(mapperConfiguration));
 
+            mapperConfiguration.CreateMap<IPaymentTerm, PaymentTermModel>();
+
             mapperConfiguration.CreateMap<ILetterHead, LetterHeadIdentificationModel>();
 
             mapperConfiguration.CreateMap<ILetterHead, LetterHeadModel>();
@@ -35,7 +38,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Models.Common
             NullGuard.NotNull(licensesOptions, nameof(licensesOptions))
                 .NotNull(loggerFactory, nameof(loggerFactory));
 
-            return new CommonModelConverter(licensesOptions, loggerFactory);
+            return new SharedModelConverter(licensesOptions, loggerFactory);
         }
 
         #endregion
