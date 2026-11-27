@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Asp.Versioning;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using OSDevGrp.OSIntranet.WebApi.Security;
 using Controller = OSDevGrp.OSIntranet.WebApi.Controllers.ContactController;
+using RangeAttribute = System.ComponentModel.DataAnnotations.RangeAttribute;
 
 namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
 {
@@ -67,7 +69,7 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
                 .OrderBy(methodName => methodName)
                 .ToArray();
 
-            Assert.That(result, Is.EqualTo(new[] { "ContactGroupsAsync", "CountriesAsync", "PaymentTermsAsync", "PostalCodesAsync" }));
+            Assert.That(result, Is.EqualTo(new[] { "ContactAsync", "ContactGroupsAsync", "ContactsAsync", "ContactsWithBirthdayAsync", "CountriesAsync", "PaymentTermsAsync", "PostalCodesAsync" }));
         }
 
         [Test]
@@ -110,5 +112,99 @@ namespace OSDevGrp.OSIntranet.WebApi.Tests.Controllers.ContactController
             Assert.That(result?.Template, Is.EqualTo("countries/{countryCode}/postalcodes"));
         }
 
+        [Test]
+        [Category("UnitTest")]
+        public void ContactsAsync_WhenInspected_RequiresContactsFromExternalProviderPolicy()
+        {
+            AuthorizeAttribute result = typeof(Controller).GetMethod(nameof(Controller.ContactsAsync))
+                .GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Policy, Is.EqualTo(Policies.ContactsFromExternalProviderPolicy));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactAsync_WhenInspected_HasRouteTemplate()
+        {
+            HttpGetAttribute result = typeof(Controller).GetMethod(nameof(Controller.ContactAsync))
+                .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Template, Is.EqualTo("{externalIdentifier}"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactAsync_WhenInspected_ExternalIdentifierIsRequired()
+        {
+            RequiredAttribute result = GetParameter(nameof(Controller.ContactAsync), "externalIdentifier")
+                .GetCustomAttributes(typeof(RequiredAttribute), false).Cast<RequiredAttribute>().SingleOrDefault();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactAsync_WhenInspected_ExternalIdentifierHasMaximumLengthOf256()
+        {
+            StringLengthAttribute result = GetParameter(nameof(Controller.ContactAsync), "externalIdentifier")
+                .GetCustomAttributes(typeof(StringLengthAttribute), false).Cast<StringLengthAttribute>().SingleOrDefault();
+
+            Assert.That(result?.MaximumLength, Is.EqualTo(256));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactAsync_WhenInspected_ExternalIdentifierHasMinimumLengthOf1()
+        {
+            StringLengthAttribute result = GetParameter(nameof(Controller.ContactAsync), "externalIdentifier")
+                .GetCustomAttributes(typeof(StringLengthAttribute), false).Cast<StringLengthAttribute>().SingleOrDefault();
+
+            Assert.That(result?.MinimumLength, Is.EqualTo(1));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactsWithBirthdayAsync_WhenInspected_HasRouteTemplate()
+        {
+            HttpGetAttribute result = typeof(Controller).GetMethod(nameof(Controller.ContactsWithBirthdayAsync))
+                .GetCustomAttributes(typeof(HttpGetAttribute), false).Cast<HttpGetAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Template, Is.EqualTo("withbirthdays"));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactsWithBirthdayAsync_WhenInspected_WithinDaysIsRequired()
+        {
+            RequiredAttribute result = GetParameter(nameof(Controller.ContactsWithBirthdayAsync), "withinDays")
+                .GetCustomAttributes(typeof(RequiredAttribute), false).Cast<RequiredAttribute>().SingleOrDefault();
+
+            Assert.That(result, Is.Not.Null);
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactsWithBirthdayAsync_WhenInspected_WithinDaysHasMinimumOfZero()
+        {
+            RangeAttribute result = GetParameter(nameof(Controller.ContactsWithBirthdayAsync), "withinDays")
+                .GetCustomAttributes(typeof(RangeAttribute), false).Cast<RangeAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Minimum, Is.EqualTo(0));
+        }
+
+        [Test]
+        [Category("UnitTest")]
+        public void ContactsWithBirthdayAsync_WhenInspected_WithinDaysHasMaximumOf365()
+        {
+            RangeAttribute result = GetParameter(nameof(Controller.ContactsWithBirthdayAsync), "withinDays")
+                .GetCustomAttributes(typeof(RangeAttribute), false).Cast<RangeAttribute>().SingleOrDefault();
+
+            Assert.That(result?.Maximum, Is.EqualTo(365));
+        }
+
+        private static ParameterInfo GetParameter(string methodName, string parameterName)
+        {
+            return typeof(Controller).GetMethod(methodName).GetParameters().Single(parameter => parameter.Name == parameterName);
+        }
     }
 }

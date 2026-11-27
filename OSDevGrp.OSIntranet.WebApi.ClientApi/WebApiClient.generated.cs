@@ -326,6 +326,50 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PaymentTermModel>> Paymentterms2Async(string api_version, System.Threading.CancellationToken cancellationToken);
 
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactsAsync(string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactsAsync(string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactAllAsync(string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactAllAsync(string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ContactModel> ContactAsync(string externalIdentifier, string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ContactModel> ContactAsync(string externalIdentifier, string api_version, System.Threading.CancellationToken cancellationToken);
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> WithbirthdaysAsync(int withinDays, string api_version);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> WithbirthdaysAsync(int withinDays, string api_version, System.Threading.CancellationToken cancellationToken);
+
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<AccessTokenModel> TokenAsync(string? grant_type, string? code, string? client_id, string? client_secret, string? redirect_uri);
@@ -3724,6 +3768,480 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
             }
         }
 
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactsAsync(string api_version)
+        {
+            return ContactsAsync(api_version, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactsAsync(string api_version, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/Contact/contacts"
+                    urlBuilder_.Append("api/Contact/contacts");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<ContactModel>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Forbidden", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactAllAsync(string api_version)
+        {
+            return ContactAllAsync(api_version, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> ContactAllAsync(string api_version, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/Contact"
+                    urlBuilder_.Append("api/Contact");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<ContactModel>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Forbidden", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<ContactModel> ContactAsync(string externalIdentifier, string api_version)
+        {
+            return ContactAsync(externalIdentifier, api_version, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<ContactModel> ContactAsync(string externalIdentifier, string api_version, System.Threading.CancellationToken cancellationToken)
+        {
+            if (externalIdentifier == null)
+                throw new System.ArgumentNullException("externalIdentifier");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/Contact/{externalIdentifier}"
+                    urlBuilder_.Append("api/Contact/");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(externalIdentifier, System.Globalization.CultureInfo.InvariantCulture)));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ContactModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Forbidden", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> WithbirthdaysAsync(int withinDays, string api_version)
+        {
+            return WithbirthdaysAsync(withinDays, api_version, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <param name="api_version">API version (default: 1.0)</param>
+        /// <returns>OK</returns>
+        /// <exception cref="WebApiClientException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ContactModel>> WithbirthdaysAsync(int withinDays, string api_version, System.Threading.CancellationToken cancellationToken)
+        {
+            if (withinDays == null)
+                throw new System.ArgumentNullException("withinDays");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+
+                    if (api_version == null)
+                        throw new System.ArgumentNullException("api_version");
+                    request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_version, System.Globalization.CultureInfo.InvariantCulture));
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "api/Contact/withbirthdays"
+                    urlBuilder_.Append("api/Contact/withbirthdays");
+                    urlBuilder_.Append('?');
+                    urlBuilder_.Append(System.Uri.EscapeDataString("withinDays")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(withinDays, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<ContactModel>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 400)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 401)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Unauthorized", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 403)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("Forbidden", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ErrorModel>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new WebApiClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new WebApiClientException<ErrorModel>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new WebApiClientException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
         /// <returns>OK</returns>
         /// <exception cref="WebApiClientException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<AccessTokenModel> TokenAsync(string? grant_type, string? code, string? client_id, string? client_secret, string? redirect_uri)
@@ -4667,6 +5185,51 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AddressModel
+    {
+        [System.Text.Json.Serialization.JsonConstructor]
+        public AddressModel(string? @city, string? @country, string? @displayAddress, string? @postalCode, string? @state, string? @streetLine1, string? @streetLine2)
+        {
+            this.StreetLine1 = @streetLine1;
+            this.StreetLine2 = @streetLine2;
+            this.PostalCode = @postalCode;
+            this.City = @city;
+            this.State = @state;
+            this.Country = @country;
+            this.DisplayAddress = @displayAddress;
+        }
+
+        [System.Text.Json.Serialization.JsonPropertyName("streetLine1")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? StreetLine1 { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("streetLine2")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? StreetLine2 { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("postalCode")]
+        [System.ComponentModel.DataAnnotations.StringLength(16)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"[0-9]{1,16}")]
+        public string? PostalCode { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("city")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? City { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("state")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? State { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("country")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? Country { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("displayAddress")]
+        public string? DisplayAddress { get; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ApplyPostingJournalModel
     {
         [System.Text.Json.Serialization.JsonConstructor]
@@ -5003,6 +5566,44 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CompanyModel
+    {
+        [System.Text.Json.Serialization.JsonConstructor]
+        public CompanyModel(AddressModel @address, string? @homePage, NameModel @name, string? @primaryPhone, string? @secondaryPhone)
+        {
+            this.Name = @name;
+            this.Address = @address;
+            this.PrimaryPhone = @primaryPhone;
+            this.SecondaryPhone = @secondaryPhone;
+            this.HomePage = @homePage;
+        }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public NameModel Name { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("address")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public AddressModel Address { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("primaryPhone")]
+        [System.ComponentModel.DataAnnotations.StringLength(32)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[\+]?[0-9\s]+$")]
+        public string? PrimaryPhone { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secondaryPhone")]
+        [System.ComponentModel.DataAnnotations.StringLength(32)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[\+]?[0-9\s]+$")]
+        public string? SecondaryPhone { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("homePage")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:[0-9]*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&%\$#_]*)?$")]
+        public string? HomePage { get; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ContactAccountModel
     {
         [System.Text.Json.Serialization.JsonConstructor]
@@ -5114,6 +5715,100 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(256, MinimumLength = 1)]
         public string Name { get; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ContactModel
+    {
+        [System.Text.Json.Serialization.JsonConstructor]
+        public ContactModel(string? @acquaintance, AddressModel @address, int? @age, DateTimeOffset? @birthday, CompanyModel? @company, ContactGroupModel @contactGroup, string @externalIdentifier, string? @homePhone, int @lendingLimit, string? @mailAddress, string? @mobilePhone, NameModel @name, PaymentTermModel @paymentTerm, string? @personalHomePage, string? @primaryPhone, string? @secondaryPhone)
+        {
+            this.ExternalIdentifier = @externalIdentifier;
+            this.Name = @name;
+            this.Address = @address;
+            this.PrimaryPhone = @primaryPhone;
+            this.SecondaryPhone = @secondaryPhone;
+            this.HomePhone = @homePhone;
+            this.MobilePhone = @mobilePhone;
+            this.Birthday = @birthday;
+            this.Age = @age;
+            this.MailAddress = @mailAddress;
+            this.Company = @company;
+            this.ContactGroup = @contactGroup;
+            this.Acquaintance = @acquaintance;
+            this.PersonalHomePage = @personalHomePage;
+            this.LendingLimit = @lendingLimit;
+            this.PaymentTerm = @paymentTerm;
+        }
+
+        [System.Text.Json.Serialization.JsonPropertyName("externalIdentifier")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(256, MinimumLength = 1)]
+        public string ExternalIdentifier { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public NameModel Name { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("address")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public AddressModel Address { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("primaryPhone")]
+        [System.ComponentModel.DataAnnotations.StringLength(32)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[\+]?[0-9\s]+$")]
+        public string? PrimaryPhone { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("secondaryPhone")]
+        [System.ComponentModel.DataAnnotations.StringLength(32)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[\+]?[0-9\s]+$")]
+        public string? SecondaryPhone { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("homePhone")]
+        [System.ComponentModel.DataAnnotations.StringLength(32)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[\+]?[0-9\s]+$")]
+        public string? HomePhone { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("mobilePhone")]
+        [System.ComponentModel.DataAnnotations.StringLength(32)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[\+]?[0-9\s]+$")]
+        public string? MobilePhone { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("birthday")]
+        public DateTimeOffset? Birthday { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("age")]
+        public int? Age { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("mailAddress")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")]
+        public string? MailAddress { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("company")]
+        public CompanyModel? Company { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("contactGroup")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public ContactGroupModel ContactGroup { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("acquaintance")]
+        [System.ComponentModel.DataAnnotations.StringLength(4096)]
+        public string? Acquaintance { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("personalHomePage")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:[0-9]*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&%\$#_]*)?$")]
+        public string? PersonalHomePage { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("lendingLimit")]
+        [System.ComponentModel.DataAnnotations.Range(1, 365)]
+        public int LendingLimit { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("paymentTerm")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public PaymentTermModel PaymentTerm { get; }
 
     }
 
@@ -5466,6 +6161,42 @@ namespace OSDevGrp.OSIntranet.WebApi.ClientApi
         [System.Text.Json.Serialization.JsonPropertyName("companyIdentificationNumber")]
         [System.ComponentModel.DataAnnotations.StringLength(32, MinimumLength = 1)]
         public string? CompanyIdentificationNumber { get; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.8.0.0 (NJsonSchema v11.6.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class NameModel
+    {
+        [System.Text.Json.Serialization.JsonConstructor]
+        public NameModel(string @displayName, string? @fullName, string? @givenName, string? @middleName, string? @surname)
+        {
+            this.DisplayName = @displayName;
+            this.GivenName = @givenName;
+            this.MiddleName = @middleName;
+            this.Surname = @surname;
+            this.FullName = @fullName;
+        }
+
+        [System.Text.Json.Serialization.JsonPropertyName("displayName")]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.StringLength(256, MinimumLength = 1)]
+        public string DisplayName { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("givenName")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? GivenName { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("middleName")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? MiddleName { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("surname")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? Surname { get; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullName")]
+        [System.ComponentModel.DataAnnotations.StringLength(256)]
+        public string? FullName { get; }
 
     }
 

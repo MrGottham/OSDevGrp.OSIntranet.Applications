@@ -10,13 +10,17 @@ using OSDevGrp.OSIntranet.Core.Interfaces.QueryBus;
 using OSDevGrp.OSIntranet.Core.Queries;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Accounting;
 using OSDevGrp.OSIntranet.Domain.Interfaces.Contacts;
+using OSDevGrp.OSIntranet.Domain.Interfaces.Security;
+using OSDevGrp.OSIntranet.Domain.Security;
 using OSDevGrp.OSIntranet.WebApi.Helpers.Factories;
 using OSDevGrp.OSIntranet.WebApi.Models;
 using OSDevGrp.OSIntranet.WebApi.Models.Contacts;
 using OSDevGrp.OSIntranet.WebApi.Models.Shared;
 using OSDevGrp.OSIntranet.WebApi.Security;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OSDevGrp.OSIntranet.WebApi.Controllers
@@ -110,6 +114,117 @@ namespace OSDevGrp.OSIntranet.WebApi.Controllers
                 .ToList();
 
             return new OkObjectResult(paymentTermModels);
+        }
+
+        [HttpGet]
+        [HttpGet("contacts")]
+        [Authorize(Policy = Policies.ContactsFromExternalProviderPolicy)]
+        public async Task<ActionResult<IEnumerable<ContactModel>>> ContactsAsync()
+        {
+            IRefreshableToken refreshableToken = GetMicrosoftToken();
+            if (refreshableToken == null)
+            {
+                return Unauthorized();
+            }
+
+            IGetContactCollectionQuery query = CreateContactQuery<GetContactCollectionQuery>(refreshableToken);
+
+            IEnumerable<IContact> contacts = await _queryBus.QueryAsync<IGetContactCollectionQuery, IEnumerable<IContact>>(query);
+
+            return new OkObjectResult(ConvertContacts(contacts));
+        }
+
+        [HttpGet("{externalIdentifier}")]
+        [Authorize(Policy = Policies.ContactsFromExternalProviderPolicy)]
+        public async Task<ActionResult<ContactModel>> ContactAsync(
+            [Required]
+            [StringLength(256, MinimumLength = 1)]
+            string externalIdentifier)
+        {
+            IRefreshableToken refreshableToken = GetMicrosoftToken();
+            if (refreshableToken == null)
+            {
+                return Unauthorized();
+            }
+
+            IGetContactQuery query = CreateContactQuery<GetContactQuery>(refreshableToken);
+            query.ExternalIdentifier = externalIdentifier;
+
+            IContact contact = await _queryBus.QueryAsync<IGetContactQuery, IContact>(query);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return new OkObjectResult(_contactModelConverter.Convert<IContact, ContactModel>(contact));
+        }
+
+        [HttpGet("withbirthdays")]
+        [Authorize(Policy = Policies.ContactsFromExternalProviderPolicy)]
+        public async Task<ActionResult<IEnumerable<ContactModel>>> ContactsWithBirthdayAsync(
+            [Required]
+            [Range(0, 365)]
+            int withinDays)
+        {
+            IRefreshableToken refreshableToken = GetMicrosoftToken();
+            if (refreshableToken == null)
+            {
+                return Unauthorized();
+            }
+
+            IGetContactWithBirthdayCollectionQuery query = CreateContactQuery<GetContactWithBirthdayCollectionQuery>(refreshableToken);
+            query.BirthdayWithinDays = withinDays;
+
+            IEnumerable<IContact> contacts = await _queryBus.QueryAsync<IGetContactWithBirthdayCollectionQuery, IEnumerable<IContact>>(query);
+
+            return new OkObjectResult(ConvertContacts(contacts));
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private IRefreshableToken GetMicrosoftToken()
+        {
+            string tokenValue = User.GetClaim(ClaimHelper.MicrosoftTokenClaimType)?.Value;
+            if (string.IsNullOrWhiteSpace(tokenValue))
+            {
+                return null;
+            }
+
+            try
+            {
+                IRefreshableToken refreshableToken = RefreshableTokenFactory.Create().FromBase64String(tokenValue);
+
+                return refreshableToken == null || refreshableToken.HasExpired ? null : refreshableToken;
+            }
+            catch (FormatException)
+            {
+                return null;
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private IEnumerable<ContactModel> ConvertContacts(IEnumerable<IContact> contacts)
+        {
+            return contacts.OrderBy(contact => contact.Name?.DisplayName ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(contact => contact.ExternalIdentifier, StringComparer.Ordinal)
+                .Select(_contactModelConverter.Convert<IContact, ContactModel>)
+                .ToList();
+        }
+
+        private static T CreateContactQuery<T>(IRefreshableToken refreshableToken) where T : class, IContactQuery, new()
+        {
+            return new T
+            {
+                TokenType = refreshableToken.TokenType,
+                AccessToken = refreshableToken.AccessToken,
+                RefreshToken = refreshableToken.RefreshToken,
+                Expires = refreshableToken.Expires
+            };
         }
 
         #endregion
