@@ -1,4 +1,4 @@
-FROM node:24.22-slim AS reactbase
+FROM node:26.13-slim AS reactbase
 ENV SERVER_PORT=8080
 ENV RUNNING_IN_CONTAINER=true
 
